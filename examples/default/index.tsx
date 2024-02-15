@@ -3,7 +3,10 @@ import { Canvas } from "@react-three/fiber";
 import { createRoot } from "react-dom/client";
 import { DefaultProperties, Fullscreen, Text, Container } from "@react-three/uikit";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/accordion.js";
-import { Terminal } from "@react-three/uikit-lucide";
+import { AlertCircle, Terminal } from "@react-three/uikit-lucide";
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@/alert.js";
+import { DefaultColors } from "@/defaults.js";
+import { Avatar } from "@/avatar.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -25,28 +28,34 @@ function App() {
         padding={32}
       >
         <Container width="100%" maxWidth={500}>
-          <DefaultProperties color="black" borderColor="#e5e7eb">
-            <AccordionDemo />
-          </DefaultProperties>
+          <DefaultColors>
+            <AvatarDemo />
+          </DefaultColors>
         </Container>
       </Fullscreen>
     </Canvas>
   );
 }
 
-/*export function AlertDemo() {
+export function AvatarDemo() {
+  return <Container alignItems="center"><Avatar src="https://picsum.photos/100/100" /></Container>
+}
+
+export function AlertDemo() {
   return (
     <Alert>
-      <Terminal width={16} height={16} />
+      <AlertIcon>
+        <Terminal width={16} height={16} />
+      </AlertIcon>
       <AlertTitle>
-        <Text>Heads up!</Text>
+        <Text>Error</Text>
       </AlertTitle>
       <AlertDescription>
         <Text>You can add components to your app using the cli.</Text>
       </AlertDescription>
     </Alert>
   );
-}*/
+}
 
 //TODO: type="single" collapsible
 export default function AccordionDemo() {

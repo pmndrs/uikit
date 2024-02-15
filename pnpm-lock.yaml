@@ -154,6 +154,9 @@ importers:
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
 
   packages/uikit:
     dependencies:

@@ -88,8 +88,8 @@ export class Font {
       glyph.height /= size
       glyph.xadvance /= size;
       glyph.xoffset /= size;
+      glyph.yoffset -= lineHeight - size
       glyph.yoffset /= size;
-      glyph.yoffset -= (lineHeight / size - 1) / 2
       this.glyphInfoMap.set(glyph.char, glyph);
     }
 

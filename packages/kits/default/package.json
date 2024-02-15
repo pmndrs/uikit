@@ -4,7 +4,8 @@
         "@react-three/uikit-lucide": "workspace:^"
     },
     "devDependencies": {
-        "@types/react": "^18.2.47"
+        "@types/react": "^18.2.47",
+        "@types/three": "^0.160.0"
     },
     "type": "module"
 }
