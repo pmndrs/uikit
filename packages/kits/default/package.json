@@ -1,0 +1,10 @@
+{
+    "dependencies": {
+        "@react-three/uikit": "workspace:^",
+        "@react-three/uikit-lucide": "workspace:^"
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.47"
+    },
+    "type": "module"
+}

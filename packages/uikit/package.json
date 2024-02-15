@@ -1,0 +1,54 @@
+{
+  "name": "@react-three/uikit",
+  "type": "module",
+  "version": "0.0.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/pmndrs/react-three-uikit",
+  "author": "Bela Bohlender",
+  "keywords": [
+    "r3f",
+    "uikit",
+    "three.js",
+    "userinterface",
+    "react",
+    "flexbox",
+    "yoga",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/react-three-uikit.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "mocha ./tests/*.spec.ts",
+    "build": "tsc",
+    "flex:inline-wasm": "wasmwrap --include-decode false --input node_modules/yoga-wasm-web/dist/yoga.wasm --output src/flex/wasm.ts",
+    "flex:generate:setter": "node --loader ts-node/esm scripts/flex-generate-setter.ts"
+  },
+  "peerDependencies": {
+    "@react-three/fiber": "^8.15.13",
+    "react": "^18.2.0",
+    "three": "^0.160.0"
+  },
+  "dependencies": {
+    "base64-js": "^1.5.1",
+    "@preact/signals-core": "^1.5.1",
+    "yoga-wasm-web": "^0.3.3"
+  },
+  "devDependencies": {
+    "@react-three/drei": "^9.96.1",
+    "@react-three/fiber": "^8.15.13",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
+    "@types/three": "^0.160.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.160.0",
+    "wasmwrap": "^1.0.0"
+  }
+}

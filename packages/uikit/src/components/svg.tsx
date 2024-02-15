@@ -1,0 +1,234 @@
+import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
+import { ReactNode, forwardRef, useImperativeHandle, useMemo } from "react";
+import { MeasuredFlexNode, YogaProperties } from "../flex/node.js";
+import { useFlexNode } from "../flex/react.js";
+import {
+  InteractionGroup,
+  InteractionPanel,
+  MaterialClass,
+  useInstancedPanel,
+} from "../panel/react.js";
+import {
+  WithReactive,
+  createCollection,
+  finalizeCollection,
+  useGetBatchedProperties,
+  writeCollection,
+} from "../properties/utils.js";
+import {
+  useResourceWithParams,
+  useSignalEffect,
+  fitNormalizedContentInside,
+  useRootGroup,
+} from "../utils.js";
+import { Box3, Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry, Vector3 } from "three";
+import { computed, Signal } from "@preact/signals-core";
+import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
+import { Color as ColorRepresentation } from "@react-three/fiber";
+import {
+  LayoutListeners,
+  ViewportListeners,
+  setRootIdentifier,
+  useGlobalMatrix,
+  useLayoutListeners,
+  useViewportListeners,
+} from "./utils.js";
+import {
+  ClippingRect,
+  useGlobalClippingPlanes,
+  useIsClipped,
+  useParentClippingRect,
+} from "../clipping.js";
+import { makeClippedRaycast } from "../panel/interaction-panel-mesh.js";
+import { PanelProperties } from "../panel/instanced-panel.js";
+import {
+  WithAllAliases,
+  flexAliasPropertyTransformation,
+  panelAliasPropertyTransformation,
+} from "../properties/alias.js";
+import { TransformProperties, useTransformMatrix } from "../transform.js";
+import { useImmediateProperties } from "../properties/immediate.js";
+import { WithClasses, useApplyProperties } from "../properties/default.js";
+
+export type SvgProperties = WithHover<
+  WithClasses<
+    WithAllAliases<
+      WithReactive<YogaProperties & PanelProperties & TransformProperties & AppearanceProperties>
+    >
+  >
+>;
+
+export type AppearanceProperties = {
+  opacity?: number;
+  color?: ColorRepresentation;
+};
+
+const loader = new SVGLoader();
+
+const box3Helper = new Box3();
+const vectorHelper = new Vector3();
+
+async function loadSvg(
+  url: string,
+  rootIdentifier: unknown,
+  MaterialClass: MaterialClass = MeshBasicMaterial,
+  clippingPlanes: Array<Plane>,
+  clippedRect: Signal<ClippingRect | undefined> | undefined,
+  rootGroup: Group,
+) {
+  const object = new Group();
+  object.matrixAutoUpdate = false;
+  const result = await loader.loadAsync(url);
+  box3Helper.makeEmpty();
+  for (const path of result.paths) {
+    const shapes = SVGLoader.createShapes(path);
+    const material = new MaterialClass();
+    material.transparent = true;
+    material.depthWrite = false;
+    material.toneMapped = false;
+    material.clippingPlanes = clippingPlanes;
+
+    for (const shape of shapes) {
+      const geometry = new ShapeGeometry(shape);
+      geometry.computeBoundingBox();
+      box3Helper.union(geometry.boundingBox!);
+      const mesh = new Mesh(geometry, material);
+      mesh.matrixAutoUpdate = false;
+      mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroup, clippedRect);
+      setRootIdentifier(mesh, rootIdentifier, "Svg");
+      mesh.userData.color = path.color;
+      mesh.scale.y = -1;
+      mesh.updateMatrix();
+      object.add(mesh);
+    }
+  }
+  box3Helper.getSize(vectorHelper);
+  const aspectRatio = vectorHelper.x / vectorHelper.y;
+  const scale = 1 / vectorHelper.y;
+  object.scale.set(1, 1, 1).multiplyScalar(scale);
+  box3Helper.getCenter(vectorHelper);
+  vectorHelper.y *= -1;
+  object.position.copy(vectorHelper).negate().multiplyScalar(scale);
+  object.updateMatrix();
+
+  return Object.assign(object, { aspectRatio });
+}
+
+const colorHelper = new Color();
+
+const propertyKeys = ["color", "opacity"] as const;
+
+export const Svg = forwardRef<
+  MeasuredFlexNode,
+  {
+    children?: ReactNode;
+    index?: number;
+    src: string | Signal<string>;
+    materialClass?: MaterialClass;
+    backgroundMaterialClass?: MaterialClass;
+  } & SvgProperties &
+    EventHandlers &
+    LayoutListeners &
+    ViewportListeners
+>((properties, ref) => {
+  const collection = createCollection();
+  const node = useFlexNode(properties.index);
+  useImmediateProperties(collection, node, flexAliasPropertyTransformation);
+  useImperativeHandle(ref, () => node, [node]);
+  const transformMatrix = useTransformMatrix(collection, node);
+  const globalMatrix = useGlobalMatrix(transformMatrix);
+  const parentClippingRect = useParentClippingRect();
+  const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node);
+  useInstancedPanel(
+    collection,
+    globalMatrix,
+    node.size,
+    undefined,
+    node.borderInset,
+    isClipped,
+    node.depth,
+    parentClippingRect,
+    properties.backgroundMaterialClass,
+    panelAliasPropertyTransformation,
+  );
+
+  const rootGroup = useRootGroup();
+  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroup);
+  const svgObject = useResourceWithParams(
+    loadSvg,
+    properties.src,
+    node.rootIdentifier,
+    properties.materialClass,
+    clippingPlanes,
+    parentClippingRect,
+    rootGroup,
+  );
+
+  const getPropertySignal = useGetBatchedProperties<AppearanceProperties>(collection, propertyKeys);
+  useSignalEffect(() => {
+    const colorRepresentation = getPropertySignal.value("color");
+    const opacity = getPropertySignal.value("opacity");
+    let color: Color | undefined;
+    if (Array.isArray(colorRepresentation)) {
+      color = colorHelper.setRGB(...colorRepresentation);
+    } else if (colorRepresentation != null) {
+      color = colorHelper.set(colorRepresentation);
+    }
+    svgObject.value?.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+      const material: MeshBasicMaterial = object.material;
+      material.color.copy(color ?? object.userData.color);
+      material.opacity = opacity ?? 1;
+    });
+  }, [svgObject, properties.color]);
+  const aspectRatio = useMemo(() => computed(() => svgObject.value?.aspectRatio), []);
+
+  //apply all properties
+  useApplyProperties(collection, properties);
+  const hoverHandlers = useApplyHoverProperties(collection, properties);
+  writeCollection(collection, "aspectRatio", aspectRatio);
+  finalizeCollection(collection);
+
+  useLayoutListeners(properties, node.size);
+  useViewportListeners(properties, isClipped);
+
+  const centerGroup = useMemo(() => {
+    const group = new Group();
+    group.matrixAutoUpdate = false;
+    return group;
+  }, []);
+
+  useSignalEffect(() => {
+    const [offsetX, offsetY, scale] = fitNormalizedContentInside(
+      node.size,
+      node.paddingInset,
+      node.borderInset,
+      node.pixelSize,
+      svgObject.value?.aspectRatio ?? 1,
+    );
+    centerGroup.position.set(offsetX, offsetY, 0);
+    centerGroup.scale.setScalar(scale);
+    centerGroup.updateMatrix();
+  }, [node, svgObject]);
+
+  useSignalEffect(() => {
+    const object = svgObject.value;
+    if (object == null) {
+      return;
+    }
+    centerGroup.add(object);
+    return () => centerGroup.remove(object);
+  }, [svgObject, centerGroup]);
+
+  useSignalEffect(() => void (centerGroup.visible = !isClipped.value), []);
+
+  return (
+    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+      <InteractionPanel rootGroup={rootGroup} psRef={node} size={node.size} />
+      <primitive object={centerGroup} />
+    </InteractionGroup>
+  );
+});
