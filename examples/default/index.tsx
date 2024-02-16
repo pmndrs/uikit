@@ -7,6 +7,7 @@ import { AlertCircle, Terminal } from "@react-three/uikit-lucide";
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@/alert.js";
 import { DefaultColors } from "@/defaults.js";
 import { Avatar } from "@/avatar.js";
+import { Badge } from "@/badge.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -27,14 +28,18 @@ function App() {
         justifyContent="center"
         padding={32}
       >
-        <Container width="100%" maxWidth={500}>
+        <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
           <DefaultColors>
-            <AvatarDemo />
+            <BadgeDemo />
           </DefaultColors>
         </Container>
       </Fullscreen>
     </Canvas>
   );
+}
+
+export function BadgeDemo() {
+  return <Badge><Text>Badge</Text></Badge>
 }
 
 export function AvatarDemo() {
@@ -58,7 +63,7 @@ export function AlertDemo() {
 }
 
 //TODO: type="single" collapsible
-export default function AccordionDemo() {
+export function AccordionDemo() {
   return (
     <Accordion>
       <AccordionItem value="item-1">

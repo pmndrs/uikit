@@ -15,6 +15,7 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 TODO Release
 
 - fix: characters disappearing when resizing alert dialog
+- font weight
 - add shadcn components
 - add apfel components
 - expose more values through ref

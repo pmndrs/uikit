@@ -1,34 +1,61 @@
-import * as React from "react"
+import { AllOptionalProperties, Container, DefaultProperties } from "@react-three/uikit";
+import { ComponentPropsWithoutRef } from "react";
+import { colors } from "./defaults.js";
 
-
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+const badgeVariants = {
+  default: {
+    defaultProps: {
+      color: colors.primaryForeground,
+    },
+    containerProps: {
+      backgroundColor: colors.primary,
+      hover: {
+        backgroundOpacity: 0.8,
       },
     },
-    defaultVariants: {
-      variant: "default",
+  },
+  secondary: {
+    defaultProps: {
+      color: colors.secondaryForeground,
     },
-  }
-)
+    containerProps: {
+      backgroundColor: colors.secondary,
+      hover: {
+        backgroundOpacity: 0.8,
+      },
+    },
+  },
+  destructive: {
+    defaultProps: {
+      color: colors.destructiveForeground,
+    },
+    containerProps: {
+      backgroundColor: colors.destructive,
+      hover: {
+        backgroundOpacity: 0.8,
+      },
+    },
+  },
+  outline: {
+    defaultProps: {},
+    containerProps: {},
+  },
+} satisfies {
+  [Key in string]: {
+    defaultProps: AllOptionalProperties;
+    containerProps: ComponentPropsWithoutRef<typeof Container>;
+  };
+};
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
+export function Badge({
+  children,
+  variant = "default",
+  ...props
+}: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof badgeVariants }) {
+  const { containerProps, defaultProps } = badgeVariants[variant];
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
+    <Container borderRadius={1000} border={1} paddingX={10} paddingY={2} {...containerProps} {...props}>
+      <DefaultProperties {...defaultProps} fontSize={12} lineHeight={1.3333}>{children}</DefaultProperties>
+    </Container>
+  );
 }
-
-export { Badge, badgeVariants }
