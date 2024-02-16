@@ -3,11 +3,12 @@ import { Canvas } from "@react-three/fiber";
 import { createRoot } from "react-dom/client";
 import { DefaultProperties, Fullscreen, Text, Container } from "@react-three/uikit";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/accordion.js";
-import { AlertCircle, Terminal } from "@react-three/uikit-lucide";
+import { AlertCircle, ChevronRight, Terminal } from "@react-three/uikit-lucide";
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@/alert.js";
 import { DefaultColors } from "@/defaults.js";
 import { Avatar } from "@/avatar.js";
 import { Badge } from "@/badge.js";
+import { Button } from "@/button.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -30,7 +31,7 @@ function App() {
       >
         <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
           <DefaultColors>
-            <BadgeDemo />
+            <ButtonDemo />
           </DefaultColors>
         </Container>
       </Fullscreen>
@@ -38,12 +39,28 @@ function App() {
   );
 }
 
+export default function ButtonDemo() {
+  return (
+    <Button variant="outline" size="icon">
+      <ChevronRight width={16} height={16} />
+    </Button>
+  );
+}
+
 export function BadgeDemo() {
-  return <Badge><Text>Badge</Text></Badge>
+  return (
+    <Badge>
+      <Text>Badge</Text>
+    </Badge>
+  );
 }
 
 export function AvatarDemo() {
-  return <Container alignItems="center"><Avatar src="https://picsum.photos/100/100" /></Container>
+  return (
+    <Container alignItems="center">
+      <Avatar src="https://picsum.photos/100/100" />
+    </Container>
+  );
 }
 
 export function AlertDemo() {
