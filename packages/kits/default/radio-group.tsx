@@ -1,44 +1,77 @@
-"use client"
+import { Container } from "@react-three/uikit";
+import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from "react";
+import { colors } from "./defaults.js";
 
-import * as React from "react"
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
-import { Circle } from "lucide-react"
+const RadioGroupContext = createContext<{
+  value?: string;
+  setValue?: (value: string) => void;
+}>(null as any);
 
-import { cn } from "@/lib/utils"
-
-const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => {
+export function RadioGroup({
+  defaultValue,
+  value: providedValue,
+  onValueChange,
+  children,
+  ...props
+}: {
+  value?: string;
+  onValueChange?(value: string): void;
+  defaultValue?: string;
+} & ComponentPropsWithoutRef<typeof Container>) {
+  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const contextValue = useMemo(() => {
+    if (providedValue == null) {
+      return {
+        value: uncontrolled,
+        setValue: (value: string) => {
+          setUncontrolled(value);
+          onValueChange?.(value);
+        },
+      };
+    }
+    return {
+      value: providedValue,
+      onValueChange,
+    };
+  }, [uncontrolled, onValueChange, providedValue]);
   return (
-    <RadioGroupPrimitive.Root
-      className={cn("grid gap-2", className)}
-      {...props}
-      ref={ref}
-    />
-  )
-})
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+    <Container gap={8} {...props}>
+      <RadioGroupContext.Provider value={contextValue}>{children}</RadioGroupContext.Provider>
+    </Container>
+  );
+}
 
-const RadioGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
->(({ className, ...props }, ref) => {
+export function RadioGroupItem({
+  disabled = false,
+  value,
+  children,
+  ...props
+}: { disabled?: boolean; value: string } & ComponentPropsWithoutRef<typeof Container>) {
+  const { value: current, setValue: setCurrent } = useContext(RadioGroupContext);
   return (
-    <RadioGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-2.5 w-2.5 fill-current text-current" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
-  )
-})
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
-
-export { RadioGroup, RadioGroupItem }
+    <Container cursor="pointer" onClick={() => setCurrent?.(value)} flexDirection="row" alignItems="center" gap={8}>
+      <Container
+        aspectRatio={1}
+        height={16}
+        width={16}
+        borderRadius={1000}
+        border={1}
+        borderOpacity={disabled ? 0.5 : undefined}
+        borderColor={colors.primary}
+        alignItems="center"
+        justifyContent="center"
+        {...props}
+      >
+        <Container
+          borderRadius={1000}
+          aspectRatio={1}
+          backgroundColor={colors.primary}
+          backgroundOpacity={value === current ? 1 : 0}
+          height={9}
+          width={9}
+        />
+      </Container>
+      {children}
+    </Container>
+  );
+}

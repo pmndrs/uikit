@@ -1,6 +1,6 @@
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo } from "react";
-import { YogaProperties, MeasuredFlexNode } from "../flex/node.js";
+import { forwardRef, ReactNode, useEffect, useMemo } from "react";
+import { YogaProperties } from "../flex/node.js";
 import { useFlexNode, FlexProvider } from "../flex/react.js";
 import { WithHover, useApplyHoverProperties } from "../hover.js";
 import { InteractionGroup } from "../panel/react.js";
@@ -8,8 +8,10 @@ import { createCollection, finalizeCollection, WithReactive } from "../propertie
 import { useRootGroup, useSignalEffect } from "../utils.js";
 import { Material, Mesh } from "three";
 import {
+  ComponentInternals,
   LayoutListeners,
   setRootIdentifier,
+  useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
   useViewportListeners,
@@ -28,7 +30,7 @@ export type CustomContainerProperties = WithHover<
 >;
 
 export const CustomContainer = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   {
     children?: ReactNode;
     index?: number;
@@ -37,10 +39,9 @@ export const CustomContainer = forwardRef<
     LayoutListeners &
     ViewportListeners
 >((properties, ref) => {
-  const collection = createCollection()
+  const collection = createCollection();
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   const transformMatrix = useTransformMatrix(collection, node);
 
   const parentClippingRect = useParentClippingRect();
@@ -78,10 +79,12 @@ export const CustomContainer = forwardRef<
   //apply all properties
   useApplyProperties(collection, properties);
   const hoverHandlers = useApplyHoverProperties(collection, properties);
-  finalizeCollection(collection)
+  finalizeCollection(collection);
 
   useLayoutListeners(properties, node.size);
   useViewportListeners(properties, isClipped);
+
+  useComponentInternals(ref, node, mesh);
 
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>

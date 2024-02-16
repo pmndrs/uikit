@@ -1,28 +1,24 @@
-"use client"
+import { Container } from "@react-three/uikit";
+import { ComponentPropsWithoutRef, useMemo } from "react";
+import { colors } from "./defaults.js";
+import { WithReactive } from "@react-three/uikit/dist/properties/utils.js";
+import { computed } from "@preact/signals-core";
 
-import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
-
-import { cn } from "@/lib/utils"
-
-const Progress = React.forwardRef<
-  React.ElementRef<typeof ProgressPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
->(({ className, value, ...props }, ref) => (
-  <ProgressPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
-      className
-    )}
-    {...props}
-  >
-    <ProgressPrimitive.Indicator
-      className="h-full w-full flex-1 bg-primary transition-all"
-      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-    />
-  </ProgressPrimitive.Root>
-))
-Progress.displayName = ProgressPrimitive.Root.displayName
-
-export { Progress }
+export function Progress({
+  value,
+  ...props
+}: WithReactive<{ value?: number }> &
+  Omit<ComponentPropsWithoutRef<typeof Container>, "children">) {
+  const width = useMemo(() => computed(() => `${(value ?? 0) as number}%` as const), [value]);
+  return (
+    <Container
+      height={16}
+      width="100%"
+      borderRadius={1000}
+      backgroundColor={colors.secondary}
+      {...props}
+    >
+      <Container height="100%" borderRadius={1000} backgroundColor={colors.primary} width={width} />
+    </Container>
+  );
+}

@@ -21,13 +21,7 @@ export type YogaProperties = {
 
 export type Inset = [top: number, right: number, bottom: number, left: number];
 
-export type MeasuredFlexNode = {
-  size: ReadonlySignal<Vector2Tuple>;
-  borderInset: ReadonlySignal<Inset>;
-  paddingInset: ReadonlySignal<Inset>;
-};
-
-export class FlexNode implements WithImmediateProperties, MeasuredFlexNode {
+export class FlexNode implements WithImmediateProperties {
   public index: number = 0;
 
   public readonly size = signal<Vector2Tuple>([0, 0]);

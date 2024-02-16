@@ -1,20 +1,15 @@
 import { Yoga } from "yoga-wasm-web";
-import { ReactNode, forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
-import {
-  FlexNode,
-  MeasuredFlexNode,
-  YogaProperties,
-  createDeferredRequestLayoutCalculation,
-} from "../flex/node.js";
+import { ReactNode, forwardRef, useEffect, useMemo } from "react";
+import { FlexNode, YogaProperties, createDeferredRequestLayoutCalculation } from "../flex/node.js";
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useResource } from "../utils.js";
 import { loadYogaBase64 } from "../flex/load-base64.js";
 import {
   InstancedPanelProvider,
   InteractionGroup,
-  InteractionPanel,
   MaterialClass,
   useGetInstancedPanelGroup,
   useInstancedPanel,
+  useInteractionPanel,
 } from "../panel/react.js";
 import {
   WithReactive,
@@ -34,6 +29,8 @@ import {
   LayoutListeners,
   useLayoutListeners,
   MatrixProvider,
+  ComponentInternals,
+  useComponentInternals,
 } from "./utils.js";
 import { ClippingRectProvider, useClippingRect, useParentClippingRect } from "../clipping.js";
 import {
@@ -73,7 +70,7 @@ export type RootProperties = WithHover<
 >;
 
 export const Root = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   RootProperties & {
     loadYoga?: () => Promise<Yoga>;
     children?: ReactNode;
@@ -114,7 +111,6 @@ export const Root = forwardRef<
     [yoga],
   );
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, []);
   useEffect(() => () => node.destroy(), [node]);
 
   const transformMatrix = useTransformMatrix(collection, node);
@@ -172,6 +168,10 @@ export const Root = forwardRef<
   );
   useLayoutListeners(properties, node.size);
 
+  const internactionPanel = useInteractionPanel(node.size, node, rootGroup);
+
+  useComponentInternals(ref, node, internactionPanel, scrollPosition);
+
   return (
     <primitive object={rootGroup}>
       <RootGroupProvider value={rootGroup}>
@@ -183,7 +183,7 @@ export const Root = forwardRef<
               hoverHandlers={hoverHandlers}
             >
               <ScrollHandler node={node} scrollPosition={scrollPosition} listeners={properties}>
-                <InteractionPanel rootGroup={rootGroup} size={node.size} psRef={node} />
+                <primitive object={internactionPanel} />
               </ScrollHandler>
               <ScrollGroup node={node} scrollPosition={scrollPosition}>
                 <MatrixProvider value={globalScrollMatrix}>

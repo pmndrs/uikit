@@ -1,20 +1,12 @@
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import {
-  ReactNode,
-  RefObject,
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from "react";
-import { MeasuredFlexNode, YogaProperties } from "../flex/node.js";
+import { ReactNode, RefObject, forwardRef, useEffect, useMemo, useRef } from "react";
+import { YogaProperties } from "../flex/node.js";
 import { FlexProvider, useFlexNode } from "../flex/react.js";
 import {
   InteractionGroup,
-  InteractionPanel,
   MaterialClass,
   useInstancedPanel,
+  useInteractionPanel,
 } from "../panel/react.js";
 import {
   ManagerCollection,
@@ -35,9 +27,11 @@ import { Box3, Group, Mesh, Vector3 } from "three";
 import { effect, Signal, signal } from "@preact/signals-core";
 import { WithHover, useApplyHoverProperties } from "../hover.js";
 import {
+  ComponentInternals,
   LayoutListeners,
   ViewportListeners,
   setRootIdentifier,
+  useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
   useViewportListeners,
@@ -72,7 +66,7 @@ export type DepthAlignProperties = {
 };
 
 export const Content = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   {
     children?: ReactNode;
     index?: number;
@@ -85,7 +79,6 @@ export const Content = forwardRef<
   const collection = createCollection();
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   const transformMatrix = useTransformMatrix(collection, node);
   const globalMatrix = useGlobalMatrix(transformMatrix);
   const parentClippingRect = useParentClippingRect();
@@ -138,9 +131,13 @@ export const Content = forwardRef<
 
   const rootGroup = useRootGroup();
 
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroup);
+
+  useComponentInternals(ref, node, interactionPanel);
+
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <InteractionPanel rootGroup={rootGroup} psRef={node} size={node.size} />
+      <primitive object={interactionPanel} />
       <primitive object={outerGroup}>
         <group ref={innerGroupRef} matrixAutoUpdate={false}>
           <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>

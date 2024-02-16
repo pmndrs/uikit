@@ -1,17 +1,19 @@
 import { Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from "three";
-import { forwardRef, useImperativeHandle, useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { useResourceWithParams, useRootGroup, useSignalEffect } from "../utils.js";
 import { Signal, computed } from "@preact/signals-core";
-import { Inset, MeasuredFlexNode, YogaProperties } from "../flex/node.js";
+import { Inset, YogaProperties } from "../flex/node.js";
 import { panelGeometry } from "../panel/utils.js";
 import { InteractionGroup, MaterialClass, usePanelMaterial } from "../panel/react.js";
 import { useFlexNode } from "../flex/react.js";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
 import { WithHover, useApplyHoverProperties } from "../hover.js";
 import {
+  ComponentInternals,
   LayoutListeners,
   ViewportListeners,
   setRootIdentifier,
+  useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
   useViewportListeners,
@@ -72,7 +74,7 @@ const materialPropertyTransformation: PropertyTransformation = (
 };
 
 export const Image = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   ImageProperties & {
     index?: number;
     src: string | Signal<string>;
@@ -96,7 +98,6 @@ export const Image = forwardRef<
   );
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   useTextureFit(collection, texture, node.borderInset, node.size);
   const transformMatrix = useTransformMatrix(collection, node);
   const parentClippingRect = useParentClippingRect();
@@ -152,6 +153,8 @@ export const Image = forwardRef<
   }, [mesh]);
 
   useSignalEffect(() => void (mesh.visible = !isClipped.value), [mesh, isClipped]);
+
+  useComponentInternals(ref, node, mesh);
 
   return (
     <InteractionGroup hoverHandlers={hoverHandlers} handlers={properties} matrix={transformMatrix}>

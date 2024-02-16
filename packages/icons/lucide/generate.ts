@@ -10,11 +10,11 @@ async function main() {
     const svg = raw.toString();
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { SvgIconFromText, MeasuredFlexNode } from "@react-three/uikit";
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
       import { ComponentPropsWithoutRef, forwardRef } from "react"; 
       export type ${name}Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
       const text = \`${svg}\`;
-      export const ${name} = forwardRef<MeasuredFlexNode, ${name}Props>((props, ref) => {
+      export const ${name} = forwardRef<ComponentInternals, ${name}Props>((props, ref) => {
         return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
       })
     `;

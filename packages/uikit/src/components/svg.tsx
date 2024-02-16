@@ -1,12 +1,12 @@
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { ReactNode, forwardRef, useImperativeHandle, useMemo } from "react";
-import { MeasuredFlexNode, YogaProperties } from "../flex/node.js";
+import { ReactNode, forwardRef, useMemo } from "react";
+import { YogaProperties } from "../flex/node.js";
 import { useFlexNode } from "../flex/react.js";
 import {
   InteractionGroup,
-  InteractionPanel,
   MaterialClass,
   useInstancedPanel,
+  useInteractionPanel,
 } from "../panel/react.js";
 import {
   WithReactive,
@@ -27,9 +27,11 @@ import { WithHover, useApplyHoverProperties } from "../hover.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import { Color as ColorRepresentation } from "@react-three/fiber";
 import {
+  ComponentInternals,
   LayoutListeners,
   ViewportListeners,
   setRootIdentifier,
+  useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
   useViewportListeners,
@@ -120,7 +122,7 @@ const colorHelper = new Color();
 const propertyKeys = ["color", "opacity"] as const;
 
 export const Svg = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   {
     children?: ReactNode;
     index?: number;
@@ -135,7 +137,6 @@ export const Svg = forwardRef<
   const collection = createCollection();
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   const transformMatrix = useTransformMatrix(collection, node);
   const globalMatrix = useGlobalMatrix(transformMatrix);
   const parentClippingRect = useParentClippingRect();
@@ -225,9 +226,13 @@ export const Svg = forwardRef<
 
   useSignalEffect(() => void (centerGroup.visible = !isClipped.value), []);
 
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroup);
+
+  useComponentInternals(ref, node, interactionPanel);
+
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <InteractionPanel rootGroup={rootGroup} psRef={node} size={node.size} />
+      <primitive object={interactionPanel} />
       <primitive object={centerGroup} />
     </InteractionGroup>
   );

@@ -4,13 +4,12 @@ import { batch, signal } from "@preact/signals-core";
 import { RootState, createPortal, useFrame, useStore, useThree } from "@react-three/fiber";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
 import { Yoga } from "yoga-wasm-web";
-import { MeasuredFlexNode } from "../flex/node.js";
 import { ScrollListeners } from "../scroll.js";
-import { LayoutListeners } from "./utils.js";
+import { ComponentInternals, LayoutListeners } from "./utils.js";
 import { Group, PerspectiveCamera } from "three";
 
 export const Fullscreen = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   RootProperties & {
     loadYoga?: () => Promise<Yoga>;
     children?: ReactNode;

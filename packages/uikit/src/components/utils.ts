@@ -1,9 +1,46 @@
-import { Signal, computed, effect } from "@preact/signals-core";
-import { useMemo, useEffect, createContext, useContext } from "react";
-import { Matrix4, Vector2Tuple } from "three";
+import { ReadonlySignal, Signal, computed, effect } from "@preact/signals-core";
+import {
+  useMemo,
+  useEffect,
+  createContext,
+  useContext,
+  useImperativeHandle,
+  ForwardedRef,
+} from "react";
+import { Matrix4, Mesh, Vector2Tuple } from "three";
+import { FlexNode, Inset } from "../flex/node.js";
 
 export const rootIdentiferKey = Symbol("root-identifier-key");
 export const orderKey = Symbol("order-key");
+
+export type ComponentInternals = {
+  pixelSize: number;
+  size: ReadonlySignal<Vector2Tuple>;
+  borderInset: ReadonlySignal<Inset>;
+  paddingInset: ReadonlySignal<Inset>;
+  scrollPosition?: Signal<Vector2Tuple>;
+  interactionPanel: Mesh;
+};
+
+export function useComponentInternals(
+  ref: ForwardedRef<ComponentInternals>,
+  node: FlexNode,
+  interactionPanel: Mesh,
+  scrollPosition?: Signal<Vector2Tuple>,
+): void {
+  useImperativeHandle(
+    ref,
+    () => ({
+      borderInset: node.borderInset,
+      paddingInset: node.paddingInset,
+      pixelSize: node.pixelSize,
+      size: node.size,
+      interactionPanel,
+      scrollPosition,
+    }),
+    [node],
+  );
+}
 
 const ElementRenderPriority = {
   Object: 0, //render last

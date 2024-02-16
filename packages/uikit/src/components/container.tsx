@@ -1,14 +1,14 @@
-import { ReactNode, forwardRef, useImperativeHandle } from "react";
+import { ReactNode, forwardRef } from "react";
 import { useFlexNode, FlexProvider } from "../flex/react.js";
 import { WithReactive, createCollection, finalizeCollection } from "../properties/utils.js";
 import {
   InteractionGroup,
-  InteractionPanel,
   MaterialClass,
   useInstancedPanel,
+  useInteractionPanel,
 } from "../panel/react.js";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { MeasuredFlexNode, YogaProperties } from "../flex/node.js";
+import { YogaProperties } from "../flex/node.js";
 import { WithHover, useApplyHoverProperties } from "../hover.js";
 import {
   ClippingRectProvider,
@@ -23,6 +23,8 @@ import {
   useLayoutListeners,
   useGlobalMatrix,
   MatrixProvider,
+  ComponentInternals,
+  useComponentInternals,
 } from "./utils.js";
 import {
   ScrollGroup,
@@ -53,10 +55,11 @@ export type ContainerProperties = WithHover<
 >;
 
 export const Container = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   {
     children?: ReactNode;
     index?: number;
+    zIndexOffset?: number;
     backgroundMaterialClass?: MaterialClass;
   } & ContainerProperties &
     EventHandlers &
@@ -67,7 +70,6 @@ export const Container = forwardRef<
   const collection = createCollection();
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   const transformMatrix = useTransformMatrix(collection, node);
   const parentClippingRect = useParentClippingRect();
   const globalMatrix = useGlobalMatrix(transformMatrix);
@@ -79,7 +81,7 @@ export const Container = forwardRef<
     undefined,
     node.borderInset,
     isClipped,
-    node.depth,
+    node.depth + (properties.zIndexOffset ?? 0),
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
@@ -116,10 +118,14 @@ export const Container = forwardRef<
 
   const rootGroup = useRootGroup();
 
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroup);
+
+  useComponentInternals(ref, node, interactionPanel, scrollPosition);
+
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
       <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
-        <InteractionPanel rootGroup={rootGroup} psRef={node} size={node.size} />
+        <primitive object={interactionPanel} />
       </ScrollHandler>
       <ScrollGroup node={node} scrollPosition={scrollPosition}>
         <MatrixProvider value={globalScrollMatrix}>

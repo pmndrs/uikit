@@ -89,15 +89,11 @@ function mergeHandlers<T extends (event: ThreeEvent<PointerEvent>) => void>(
   }) as T;
 }
 
-export function InteractionPanel({
-  size,
-  psRef,
-  rootGroup,
-}: {
-  size: Signal<Vector2Tuple>;
-  psRef: { pixelSize: number; depth: number };
-  rootGroup: Group;
-}) {
+export function useInteractionPanel(
+  size: Signal<Vector2Tuple>,
+  psRef: { pixelSize: number; depth: number },
+  rootGroup: Group,
+): Mesh {
   const parentClippingRect = useParentClippingRect();
   const panel = useMemo(() => {
     const result = new Mesh();
@@ -116,7 +112,7 @@ export function InteractionPanel({
     panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1);
     panel.updateMatrix();
   }, [size, psRef]);
-  return <primitive object={panel} />;
+  return panel;
 }
 
 export type MaterialClass = { new (): Material };

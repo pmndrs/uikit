@@ -143,14 +143,19 @@ importers:
         version: 0.331.0
 
   packages/kits/default:
-    dependencies:
+    devDependencies:
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.5.1
+      '@react-three/fiber':
+        specifier: ^8.15.13
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../uikit
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../icons/lucide
-    devDependencies:
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47
@@ -444,7 +449,6 @@ packages:
 
   /@preact/signals-core@1.5.1:
     resolution: {integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==}
-    dev: false
 
   /@react-spring/animated@9.6.1(react@18.2.0):
     resolution: {integrity: sha512-ls/rJBrAqiAYozjLo5EPPLLOb1LM0lNVQcXODTC1SMtS6DbuBCPaKco5svFUQFMP2dso3O+qcC4k9FsKc0KxMQ==}

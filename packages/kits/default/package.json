@@ -1,11 +1,11 @@
 {
-    "dependencies": {
-        "@react-three/uikit": "workspace:^",
-        "@react-three/uikit-lucide": "workspace:^"
-    },
     "devDependencies": {
         "@types/react": "^18.2.47",
-        "@types/three": "^0.160.0"
+        "@types/three": "^0.160.0",
+        "@preact/signals-core": "^1.5.1",
+        "@react-three/uikit": "workspace:^",
+        "@react-three/uikit-lucide": "workspace:^",
+        "@react-three/fiber": "^8.15.13"
     },
     "type": "module"
 }

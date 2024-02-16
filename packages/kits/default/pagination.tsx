@@ -1,117 +1,104 @@
-import * as React from "react"
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { Container, Text } from "@react-three/uikit";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "@react-three/uikit-lucide";
+import { ComponentPropsWithoutRef } from "react";
+import { colors } from "./defaults.js";
 
-import { cn } from "@/lib/utils"
-import { ButtonProps, buttonVariants } from "@/registry/default/ui/button"
+export function Pagination(props: ComponentPropsWithoutRef<typeof Container>) {
+  return (
+    <Container marginX="auto" flexDirection="row" width="100%" justifyContent="center" {...props} />
+  );
+}
 
-const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
-  <nav
-    role="navigation"
-    aria-label="pagination"
-    className={cn("mx-auto flex w-full justify-center", className)}
-    {...props}
-  />
-)
-Pagination.displayName = "Pagination"
+export function PaginationContent(props: ComponentPropsWithoutRef<typeof Container>) {
+  return <Container flexDirection="row" alignItems="center" gap={4} {...props} />;
+}
 
-const PaginationContent = React.forwardRef<
-  HTMLUListElement,
-  React.ComponentProps<"ul">
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    className={cn("flex flex-row items-center gap-1", className)}
-    {...props}
-  />
-))
-PaginationContent.displayName = "PaginationContent"
+export const PaginationItem: typeof Container = Container;
 
-const PaginationItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentProps<"li">
->(({ className, ...props }, ref) => (
-  <li ref={ref} className={cn("", className)} {...props} />
-))
-PaginationItem.displayName = "PaginationItem"
+const paginationVariants = {
+  outline: {
+    border: 1,
+    borderColor: colors.input,
+    backgroundColor: colors.background,
+    hover: {
+      backgroundColor: colors.accent,
+    },
+  }, //TODO: hover:text-accent-foreground",
+  ghost: {
+    hover: {
+      backgroundColor: colors.accent,
+    },
+  }, // TODO: hover:text-accent-foreground",
+} satisfies {
+  [Key in string]: ComponentPropsWithoutRef<typeof Container>;
+};
 
-type PaginationLinkProps = {
-  isActive?: boolean
-} & Pick<ButtonProps, "size"> &
-  React.ComponentProps<"a">
+const paginationSizes = {
+  default: { height: 40, paddingX: 16, paddingY: 8 },
+  sm: { height: 36, paddingX: 12 },
+  lg: { height: 42, paddingX: 32 },
+  icon: { height: 40, width: 40 },
+} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> };
 
-const PaginationLink = ({
-  className,
-  isActive,
+export function PaginationLink({
+  isActive = false,
   size = "icon",
   ...props
-}: PaginationLinkProps) => (
-  <a
-    aria-current={isActive ? "page" : undefined}
-    className={cn(
-      buttonVariants({
-        variant: isActive ? "outline" : "ghost",
-        size,
-      }),
-      className
-    )}
-    {...props}
-  />
-)
-PaginationLink.displayName = "PaginationLink"
-
-const PaginationPrevious = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
-    aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 pl-2.5", className)}
-    {...props}
-  >
-    <ChevronLeft className="h-4 w-4" />
-    <span>Previous</span>
-  </PaginationLink>
-)
-PaginationPrevious.displayName = "PaginationPrevious"
-
-const PaginationNext = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
-    aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 pr-2.5", className)}
-    {...props}
-  >
-    <span>Next</span>
-    <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
-)
-PaginationNext.displayName = "PaginationNext"
-
-const PaginationEllipsis = ({
-  className,
-  ...props
-}: React.ComponentProps<"span">) => (
-  <span
-    aria-hidden
-    className={cn("flex h-9 w-9 items-center justify-center", className)}
-    {...props}
-  >
-    <MoreHorizontal className="h-4 w-4" />
-    <span className="sr-only">More pages</span>
-  </span>
-)
-PaginationEllipsis.displayName = "PaginationEllipsis"
-
-export {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+}: ComponentPropsWithoutRef<typeof Container> & {
+  size?: keyof typeof paginationSizes;
+  isActive?: boolean;
+}) {
+  const containerProps = paginationVariants[isActive ? "outline" : "ghost"];
+  const sizeProps = paginationSizes[size];
+  return (
+    <Container
+      cursor="pointer"
+      borderRadius={6}
+      alignItems="center"
+      justifyContent="center"
+      {...containerProps}
+      {...sizeProps}
+      {...props}
+    />
+  );
 }
+
+export function PaginationPrevious(
+  props: Omit<ComponentPropsWithoutRef<typeof PaginationLink>, "children">,
+) {
+  return (
+    <PaginationLink flexDirection="row" size="default" gap={4} paddingLeft={10} {...props}>
+      <ChevronLeft width={16} height={16} />
+      <Text>Previous</Text>
+    </PaginationLink>
+  );
+}
+
+export function PaginationNext(
+  props: Omit<ComponentPropsWithoutRef<typeof PaginationLink>, "children">,
+) {
+  return (
+    <PaginationLink flexDirection="row" size="default" gap={4} paddingRight={10} {...props}>
+      <Text>Next</Text>
+      <ChevronRight width={16} height={16} />
+    </PaginationLink>
+  );
+}
+
+export function PaginationEllipsis(
+  props: Omit<ComponentPropsWithoutRef<typeof Container>, "children">,
+) {
+  return (
+    <Container
+      flexDirection="row"
+      height={36}
+      width={36}
+      alignItems="center"
+      justifyContent="center"
+      {...props}
+    >
+      <MoreHorizontal width={16} height={16} />
+    </Container>
+  );
+}
+//<span className="sr-only">More pages</span>

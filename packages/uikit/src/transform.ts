@@ -85,12 +85,12 @@ export function useTransformMatrix(collection: ManagerCollection, node: FlexNode
         }
 
         const r: Vector3Tuple = [get(rX) ?? 0, get(rY) ?? 0, get(rZ) ?? 0];
-        const t: Vector3Tuple = [get(tX) ?? 0, get(tY) ?? 0, get(tZ) ?? 0];
+        const t: Vector3Tuple = [get(tX) ?? 0, -(get(tY) ?? 0), get(tZ) ?? 0];
         const s: Vector3Tuple = [get(sX) ?? 1, get(sY) ?? 1, get(sZ) ?? 1];
         if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
           result.multiply(
             matrixHelper.compose(
-              tHelper.fromArray(t).negate().multiplyScalar(pixelSize),
+              tHelper.fromArray(t).multiplyScalar(pixelSize),
               toQuaternion(r),
               sHelper.fromArray(s),
             ),

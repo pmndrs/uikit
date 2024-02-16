@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { createRoot } from "react-dom/client";
 import { DefaultProperties, Fullscreen, Text, Container } from "@react-three/uikit";
@@ -10,6 +10,22 @@ import { Avatar } from "@/avatar.js";
 import { Badge } from "@/badge.js";
 import { Button } from "@/button.js";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/card.js";
+import { Checkbox } from "@/checkbox.js";
+import { Label } from "@/label.js";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/pagination.js";
+import { Progress } from "@/progress.js";
+import { RadioGroup, RadioGroupItem } from "@/radio-group.js";
+import { Separator } from "@/separator.js";
+import { Skeleton } from "@/skeleton.js";
+import { Slider } from "@/slider.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -32,13 +48,132 @@ function App() {
       >
         <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
           <DefaultColors>
-            <CardDemo />
+            <SliderDemo />
           </DefaultColors>
         </Container>
       </Fullscreen>
     </Canvas>
   );
 }
+
+export function SliderDemo() {
+  return <Slider defaultValue={50} max={100} step={1} width="60%" />;
+}
+
+export function SkeletonDemo() {
+  return (
+    <Container flexDirection="row" alignItems="center" gap={16}>
+      <Skeleton borderRadius={1000} height={48} width={48} />
+      <Container gap={8}>
+        <Skeleton height={16} width={250} />
+        <Skeleton height={16} width={200} />
+      </Container>
+    </Container>
+  );
+}
+
+export function SeparatorDemo() {
+  return (
+    <Container>
+      <Container gap={4}>
+        <Text fontSize={14} lineHeight={1}>
+          Radix Primitives
+        </Text>
+        <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+          An open-source UI component library.
+        </Text>
+      </Container>
+      <Separator marginY={16} />
+      <Container flexDirection="row" height={20} alignItems="center" gap={16}>
+        <DefaultProperties fontSize={14} lineHeight={1.43}>
+          <Text>Blog</Text>
+          <Separator orientation="vertical" />
+          <Text>Docs</Text>
+          <Separator orientation="vertical" />
+          <Text>Source</Text>
+        </DefaultProperties>
+      </Container>
+    </Container>
+  );
+}
+
+export function RadioGroupDemo() {
+  return (
+    <RadioGroup defaultValue="comfortable">
+      <RadioGroupItem value="default">
+        <Label>
+          <Text>Default</Text>
+        </Label>
+      </RadioGroupItem>
+      <RadioGroupItem value="comfortable">
+        <Label>
+          <Text>Comfortable</Text>
+        </Label>
+      </RadioGroupItem>
+      <RadioGroupItem value="compact">
+        <Label>
+          <Text>Compact</Text>
+        </Label>
+      </RadioGroupItem>
+    </RadioGroup>
+  );
+}
+
+export function ProgressDemo() {
+  const [progress, setProgress] = useState(13);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setProgress(66), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return <Progress value={progress} width="60%" />;
+}
+
+export function PaginationDemo() {
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink>
+            <Text>1</Text>
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink isActive>
+            <Text>2</Text>
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink>
+            <Text>3</Text>
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  );
+}
+
+export function CheckboxDemo() {
+  return (
+    <Container flexDirection="row" gap={8} alignItems="center">
+      <Checkbox />
+      <Label>
+        <Text>Accept terms and conditions</Text>
+      </Label>
+    </Container>
+  );
+}
+
 const notifications = [
   {
     title: "Your call has been confirmed.",
@@ -66,7 +201,14 @@ export function CardDemo() {
         </CardDescription>
       </CardHeader>
       <CardContent flexDirection="column" gap={16}>
-        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
+        <Container
+          flexDirection="row"
+          alignItems="center"
+          gap={16}
+          borderRadius={6}
+          border={1}
+          padding={16}
+        >
           <BellRing />
           <Container gap={4}>
             <Text fontSize={14} lineHeight={1}>
@@ -108,14 +250,15 @@ export function CardDemo() {
       </CardContent>
       <CardFooter>
         <Button flexDirection="row" width="100%">
-          <Check marginRight={8} height={16} width={16} /><Text>Mark all as read</Text>
+          <Check marginRight={8} height={16} width={16} />
+          <Text>Mark all as read</Text>
         </Button>
       </CardFooter>
     </Card>
   );
 }
 
-export default function ButtonDemo() {
+export function ButtonDemo() {
   return (
     <Button variant="outline" size="icon">
       <ChevronRight width={16} height={16} />

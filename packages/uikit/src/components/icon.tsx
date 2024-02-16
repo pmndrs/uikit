@@ -1,12 +1,11 @@
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { ReactNode, forwardRef, useImperativeHandle, useMemo } from "react";
-import { MeasuredFlexNode } from "../flex/node.js";
+import { ReactNode, forwardRef, useMemo } from "react";
 import { useFlexNode } from "../flex/react.js";
 import {
   InteractionGroup,
-  InteractionPanel,
   MaterialClass,
   useInstancedPanel,
+  useInteractionPanel,
 } from "../panel/react.js";
 import {
   createCollection,
@@ -19,9 +18,11 @@ import { Color, Group, Mesh, MeshBasicMaterial, ShapeGeometry } from "three";
 import { useApplyHoverProperties } from "../hover.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import {
+  ComponentInternals,
   LayoutListeners,
   ViewportListeners,
   setRootIdentifier,
+  useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
   useViewportListeners,
@@ -44,7 +45,7 @@ const propertyKeys = ["color", "opacity"] as const;
 const loader = new SVGLoader();
 
 export const SvgIconFromText = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   {
     children?: ReactNode;
     index?: number;
@@ -61,7 +62,6 @@ export const SvgIconFromText = forwardRef<
   const collection = createCollection();
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   const transformMatrix = useTransformMatrix(collection, node);
   const globalMatrix = useGlobalMatrix(transformMatrix);
   const parentClippingRect = useParentClippingRect();
@@ -144,7 +144,7 @@ export const SvgIconFromText = forwardRef<
   useViewportListeners(properties, isClipped);
 
   useSignalEffect(() => {
-    const aspectRatio = properties.svgWidth / properties.svgHeight
+    const aspectRatio = properties.svgWidth / properties.svgHeight;
     const [offsetX, offsetY, scale] = fitNormalizedContentInside(
       node.size,
       node.paddingInset,
@@ -152,20 +152,20 @@ export const SvgIconFromText = forwardRef<
       node.pixelSize,
       properties.svgWidth / properties.svgHeight,
     );
-    svgGroup.position.set(
-      offsetX - scale * aspectRatio / 2,
-      offsetY + scale / 2,
-      0,
-    );
+    svgGroup.position.set(offsetX - (scale * aspectRatio) / 2, offsetY + scale / 2, 0);
     svgGroup.scale.setScalar(scale / properties.svgHeight);
     svgGroup.updateMatrix();
   }, [node, svgGroup, properties.svgWidth, properties.svgHeight]);
 
   useSignalEffect(() => void (svgGroup.visible = !isClipped.value), []);
 
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroup);
+
+  useComponentInternals(ref, node, interactionPanel);
+
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <InteractionPanel rootGroup={rootGroup} psRef={node} size={node.size} />
+      <primitive object={interactionPanel} />
       <primitive object={svgGroup} />
     </InteractionGroup>
   );

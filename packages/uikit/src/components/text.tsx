@@ -1,12 +1,12 @@
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { MeasuredFlexNode, YogaProperties } from "../flex/node.js";
+import { YogaProperties } from "../flex/node.js";
 import { WithHover, useApplyHoverProperties } from "../hover.js";
 import { PanelProperties } from "../panel/instanced-panel.js";
 import {
   InteractionGroup,
-  InteractionPanel,
   MaterialClass,
   useInstancedPanel,
+  useInteractionPanel,
 } from "../panel/react.js";
 import {
   WithAllAliases,
@@ -23,13 +23,15 @@ import {
 import { ScrollListeners } from "../scroll.js";
 import { TransformProperties, useTransformMatrix } from "../transform.js";
 import {
+  ComponentInternals,
   LayoutListeners,
   ViewportListeners,
+  useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
   useViewportListeners,
 } from "./utils.js";
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef } from "react";
 import { useParentClippingRect, useIsClipped } from "../clipping.js";
 import { useFlexNode } from "../flex/react.js";
 import { useImmediateProperties } from "../properties/immediate.js";
@@ -46,7 +48,7 @@ export type TextProperties = WithHover<
 >;
 
 export const Text = forwardRef<
-  MeasuredFlexNode,
+  ComponentInternals,
   {
     children: string | Signal<string>;
     index?: number;
@@ -60,7 +62,6 @@ export const Text = forwardRef<
   const collection = createCollection();
   const node = useFlexNode(properties.index);
   useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  useImperativeHandle(ref, () => node, [node]);
   const transformMatrix = useTransformMatrix(collection, node);
   const rootGroup = useRootGroup();
   const globalMatrix = useGlobalMatrix(transformMatrix);
@@ -94,9 +95,13 @@ export const Text = forwardRef<
   writeCollection(collection, "measureFunc", measureFunc);
   finalizeCollection(collection);
 
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroup);
+
+  useComponentInternals(ref, node, interactionPanel);
+
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <InteractionPanel rootGroup={rootGroup} psRef={node} size={node.size} />
+      <primitive object={interactionPanel} />
     </InteractionGroup>
   );
 });

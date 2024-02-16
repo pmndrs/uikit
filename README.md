@@ -18,7 +18,6 @@ TODO Release
 - font weight
 - add shadcn components
 - add apfel components
-- expose more values through ref
 - Content "measureContent" flag => allow disabling content measuring and scaling
 - provide yoga wasm through GH CDN and fix "loadYogaFromGH"
 - cache load yoga globally

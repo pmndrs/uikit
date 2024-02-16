@@ -1,4 +1,4 @@
-export type { MeasuredFlexNode } from "./flex/node.js";
+export type { ComponentInternals } from "./components/utils.js";
 export type { MaterialClass } from "./panel/react.js";
 export type { LayoutListeners, ViewportListeners } from "./components/utils.js";
 export type { ScrollListeners } from "./scroll.js";
