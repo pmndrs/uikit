@@ -32,14 +32,22 @@ export function AlertIcon(props: ComponentPropsWithoutRef<typeof Container>) {
   return <Container positionLeft={16} positionTop={16} positionType="absolute" {...props} />;
 }
 
-export function AlertTitle(props: ComponentPropsWithoutRef<typeof Container>) {
-  return <Container marginBottom={4} padding={0} paddingLeft={28} {...props} />;
+export function AlertTitle({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  return (
+    <Container marginBottom={4} padding={0} paddingLeft={28} {...props}>
+      <DefaultProperties letterSpacing={-0.1} lineHeight={1}>
+        {children}
+      </DefaultProperties>
+    </Container>
+  );
 }
 
 export function AlertDescription({ children }: { children?: ReactNode }) {
   return (
-    <DefaultProperties lineHeight={1.43} fontSize={14}>
-      <Container paddingLeft={28}>{children}</Container>
-    </DefaultProperties>
+    <Container paddingLeft={28}>
+      <DefaultProperties lineHeight={1.625} fontSize={14}>
+        {children}
+      </DefaultProperties>
+    </Container>
   );
 }

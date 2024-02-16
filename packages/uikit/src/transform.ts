@@ -90,7 +90,7 @@ export function useTransformMatrix(collection: ManagerCollection, node: FlexNode
         if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
           result.multiply(
             matrixHelper.compose(
-              tHelper.fromArray(t).multiplyScalar(pixelSize),
+              tHelper.fromArray(t).negate().multiplyScalar(pixelSize),
               toQuaternion(r),
               sHelper.fromArray(s),
             ),

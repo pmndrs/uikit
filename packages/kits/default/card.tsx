@@ -1,79 +1,38 @@
-import * as React from "react"
+import { Container, DefaultProperties } from "@react-three/uikit";
+import { ComponentPropsWithoutRef, ReactNode } from "react";
+import { colors } from "./defaults.js";
 
-import { cn } from "@/lib/utils"
+export function Card({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  return (
+    <Container borderRadius={8} border={1} backgroundColor={colors.card} {...props}>
+      <DefaultProperties color={colors.cardForeground}>{children}</DefaultProperties>
+    </Container>
+  );
+}
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
-Card.displayName = "Card"
+export function CardHeader(props: ComponentPropsWithoutRef<typeof Container>) {
+  return <Container padding={24} flexDirection="column" gap={6} {...props} />;
+}
 
-const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
-    {...props}
-  />
-))
-CardHeader.displayName = "CardHeader"
+export function CardTitle({ children }: { children?: ReactNode }) {
+  return (
+    <DefaultProperties letterSpacing={-0.1} fontSize={24} lineHeight={1}>
+      {children}
+    </DefaultProperties>
+  );
+}
+export function CardDescription({ children }: { children?: ReactNode }) {
+  return (
+    <DefaultProperties fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+      {children}
+    </DefaultProperties>
+  );
+}
 
-const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
-      className
-    )}
-    {...props}
-  />
-))
-CardTitle.displayName = "CardTitle"
+export function CardContent(props: ComponentPropsWithoutRef<typeof Container>) {
+  return <Container padding={24} paddingTop={0} {...props} />;
+}
 
-const CardDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
-CardDescription.displayName = "CardDescription"
-
-const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-))
-CardContent.displayName = "CardContent"
-
-const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
-    {...props}
-  />
-))
-CardFooter.displayName = "CardFooter"
-
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export function CardFooter(props: ComponentPropsWithoutRef<typeof Container>) {
+  return <Container alignItems="center" padding={24} paddingTop={0} {...props} />;
+}
