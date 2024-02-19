@@ -1,61 +1,110 @@
-"use client"
+import { Container, DefaultProperties } from "@react-three/uikit";
+import { ComponentPropsWithoutRef, createContext, useContext, useState } from "react";
+import { colors } from "./defaults.js";
 
-import * as React from "react"
-import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
-import { VariantProps } from "class-variance-authority"
+const toggleVariants = {
+  default: {
+    containerProps: {},
+    containerHoverProps: {},
+  },
+  outline: {
+    containerProps: {
+      border: 1,
+      borderColor: colors.input,
+    },
+    containerHoverProps: {
+      backgroundColor: colors.accent,
+    },
+  },
+  //TODO: hover:text-accent-foreground
+} satisfies {
+  [Key in string]: {
+    containerProps: ComponentPropsWithoutRef<typeof Container>;
+    containerHoverProps: ComponentPropsWithoutRef<typeof Container>["hover"];
+  };
+};
+const toggleSizes = {
+  default: { height: 40, paddingX: 12 },
+  sm: { height: 36, paddingX: 10 },
+  lg: { height: 44, paddingX: 20 },
+} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> };
 
-import { cn } from "@/lib/utils"
-import { toggleVariants } from "@/registry/default/ui/toggle"
+const ToggleGroupContext = createContext<{
+  size: keyof typeof toggleSizes;
+  variant: keyof typeof toggleVariants;
+}>(null as any);
 
-const ToggleGroupContext = React.createContext<
-  VariantProps<typeof toggleVariants>
->({
-  size: "default",
-  variant: "default",
-})
-
-const ToggleGroup = React.forwardRef<
-  React.ElementRef<typeof ToggleGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants>
->(({ className, variant, size, children, ...props }, ref) => (
-  <ToggleGroupPrimitive.Root
-    ref={ref}
-    className={cn("flex items-center justify-center gap-1", className)}
-    {...props}
-  >
-    <ToggleGroupContext.Provider value={{ variant, size }}>
-      {children}
-    </ToggleGroupContext.Provider>
-  </ToggleGroupPrimitive.Root>
-))
-
-ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName
-
-const ToggleGroupItem = React.forwardRef<
-  React.ElementRef<typeof ToggleGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
-    VariantProps<typeof toggleVariants>
->(({ className, children, variant, size, ...props }, ref) => {
-  const context = React.useContext(ToggleGroupContext)
-
+export function ToggleGroup({
+  children,
+  size = "default",
+  variant = "default",
+  ...props
+}: ComponentPropsWithoutRef<typeof Container> & {
+  variant?: keyof typeof toggleVariants;
+  size?: keyof typeof toggleSizes;
+}) {
   return (
-    <ToggleGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        toggleVariants({
-          variant: context.variant || variant,
-          size: context.size || size,
-        }),
-        className
-      )}
+    <Container flexDirection="row" alignItems="center" justifyContent="center" gap={4} {...props}>
+      <ToggleGroupContext.Provider value={{ variant, size }}>
+        {children}
+      </ToggleGroupContext.Provider>
+    </Container>
+  );
+}
+
+export function ToggleGroupItem({
+  children,
+  defaultChecked,
+  checked: providedChecked,
+  disabled = false,
+  onCheckedChange,
+  ...props
+}: ComponentPropsWithoutRef<typeof Container> & {
+  defaultChecked?: boolean;
+  checked?: boolean;
+  disabled?: boolean;
+  onCheckedChange?(checked: boolean): void;
+}) {
+  const { size, variant } = useContext(ToggleGroupContext);
+  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false);
+  const checked = providedChecked ?? uncontrolled;
+  return (
+    <Container
+      onClick={
+        disabled
+          ? undefined
+          : () => {
+              if (providedChecked == null) {
+                setUncontrolled(!checked);
+              }
+              onCheckedChange?.(!checked);
+            }
+      }
+      alignItems="center"
+      justifyContent="center"
+      borderRadius={6}
+      cursor={disabled ? undefined : "pointer"}
+      backgroundOpacity={disabled ? 0.5 : undefined}
+      borderOpacity={disabled ? 0.5 : undefined}
+      backgroundColor={checked ? colors.accent : undefined}
+      hover={
+        disabled
+          ? undefined
+          : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps }
+      }
+      {...toggleVariants[variant].containerProps}
+      {...toggleSizes[size]}
       {...props}
     >
-      {children}
-    </ToggleGroupPrimitive.Item>
-  )
-})
-
-ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName
-
-export { ToggleGroup, ToggleGroupItem }
+      <DefaultProperties
+        color={checked ? colors.accentForeground : undefined}
+        opacity={disabled ? 0.5 : undefined}
+        fontSize={14}
+        lineHeight={1.43}
+      >
+        {children}
+      </DefaultProperties>
+    </Container>
+  );
+  //TODO: hover:text-muted-foreground
+}

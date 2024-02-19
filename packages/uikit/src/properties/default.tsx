@@ -50,14 +50,19 @@ export function useApplyProperties(
 
 export function DefaultProperties(properties: { children?: ReactNode } & AllOptionalProperties) {
   const existingDefaultProperties = useContext(DefaultPropertiesContext);
+  const result: any = { ...existingDefaultProperties };
+  for (const key in properties) {
+    if (key === "children") {
+      continue;
+    }
+    const value = properties[key as keyof AllOptionalProperties];
+    if (value == null) {
+      continue;
+    }
+    result[key] = value as any;
+  }
   return (
-    <DefaultPropertiesContext.Provider
-      value={
-        existingDefaultProperties == null
-          ? properties
-          : { ...existingDefaultProperties, ...properties }
-      }
-    >
+    <DefaultPropertiesContext.Provider value={result}>
       {properties.children}
     </DefaultPropertiesContext.Provider>
   );

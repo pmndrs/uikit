@@ -21,8 +21,8 @@ export function Checkbox({
     <Container
       alignItems="center"
       justifyContent="center"
-      cursor="pointer"
-      onClick={() => {
+      cursor={disabled ? undefined : "pointer"}
+      onClick={disabled ? undefined : () => {
         if (providedChecked == null) {
           setUncontrolled(!checked);
         }

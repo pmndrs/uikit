@@ -162,6 +162,9 @@ importers:
       '@types/three':
         specifier: ^0.160.0
         version: 0.160.0
+      three:
+        specifier: ^0.160.0
+        version: 0.160.0
 
   packages/uikit:
     dependencies:

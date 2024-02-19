@@ -3,7 +3,15 @@ import { Canvas } from "@react-three/fiber";
 import { createRoot } from "react-dom/client";
 import { DefaultProperties, Fullscreen, Text, Container } from "@react-three/uikit";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/accordion.js";
-import { AlertCircle, BellRing, Check, ChevronRight, Terminal } from "@react-three/uikit-lucide";
+import {
+  BellRing,
+  Bold,
+  Check,
+  ChevronRight,
+  Italic,
+  Terminal,
+  Underline,
+} from "@react-three/uikit-lucide";
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@/alert.js";
 import { DefaultColors, colors } from "@/defaults.js";
 import { Avatar } from "@/avatar.js";
@@ -26,6 +34,10 @@ import { RadioGroup, RadioGroupItem } from "@/radio-group.js";
 import { Separator } from "@/separator.js";
 import { Skeleton } from "@/skeleton.js";
 import { Slider } from "@/slider.js";
+import { Switch } from "@/switch.js";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/tabs.js";
+import { Toggle } from "@/toggle.js";
+import { ToggleGroup, ToggleGroupItem } from "@/toggle-group.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -48,11 +60,122 @@ function App() {
       >
         <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
           <DefaultColors>
-            <SliderDemo />
+            <ToggleGroupDemo />
           </DefaultColors>
         </Container>
       </Fullscreen>
     </Canvas>
+  );
+}
+export function ToggleGroupDemo() {
+  return (
+    <ToggleGroup>
+      <ToggleGroupItem aria-label="Toggle bold">
+        <Bold height={16} width={16} />
+      </ToggleGroupItem>
+      <ToggleGroupItem aria-label="Toggle italic">
+        <Italic height={16} width={16} />
+      </ToggleGroupItem>
+      <ToggleGroupItem aria-label="Toggle underline">
+        <Underline width={16} height={16} />
+      </ToggleGroupItem>
+    </ToggleGroup>
+  );
+}
+
+export function ToggleDemo() {
+  return (
+    <Toggle>
+      <Bold height={16} width={16} />
+    </Toggle>
+  );
+}
+
+export function TabsDemo() {
+  return (
+    <Tabs defaultValue="account" width={400}>
+      <TabsList width="100%">
+        <TabsTrigger value="account">
+          <Text>Account</Text>
+        </TabsTrigger>
+        <TabsTrigger value="password">
+          <Text>Password</Text>
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="account">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Text>Account</Text>
+            </CardTitle>
+            <CardDescription>
+              <Text>Make changes to your account here. Click save when you're done.</Text>
+            </CardDescription>
+          </CardHeader>
+          <CardContent gap={8}>
+            <Container gap={4}>
+              <Label>
+                <Text>Name</Text>
+              </Label>
+              <Text>Pedro Duarte</Text>
+            </Container>
+            <Container gap={4}>
+              <Label>
+                <Text>Username</Text>
+              </Label>
+              <Text>@peduarte</Text>
+            </Container>
+          </CardContent>
+          <CardFooter>
+            <Button>
+              <Text>Save changes</Text>
+            </Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="password">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Text>Password</Text>
+            </CardTitle>
+            <CardDescription>
+              <Text>Change your password here. After saving, you'll be logged out.</Text>
+            </CardDescription>
+          </CardHeader>
+          <CardContent gap={8}>
+            <Container gap={4}>
+              <Label>
+                <Text>Current password</Text>
+              </Label>
+              <Text>password</Text>
+            </Container>
+            <Container gap={4}>
+              <Label>
+                <Text>New password</Text>
+              </Label>
+              <Text>password</Text>
+            </Container>
+          </CardContent>
+          <CardFooter>
+            <Button>
+              <Text>Save password</Text>
+            </Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+export function SwitchDemo() {
+  return (
+    <Container flexDirection="row" alignItems="center" gap={8}>
+      <Switch />
+      <Label>
+        <Text>Airplane Mode</Text>
+      </Label>
+    </Container>
   );
 }
 

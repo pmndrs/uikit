@@ -1,9 +1,8 @@
 import { Container, ComponentInternals } from "@react-three/uikit";
 import { colors } from "./defaults.js";
-import { ComponentPropsWithoutRef, useEffect, useMemo, useRef, useState } from "react";
+import { ComponentPropsWithoutRef, useMemo, useRef, useState } from "react";
 import { EventHandlers, ThreeEvent } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { Quaternion, Vector3 } from "three";
-import { clamp } from "three/src/math/MathUtils.js";
+import { Vector3 } from "three";
 
 const vectorHelper = new Vector3();
 
@@ -39,9 +38,8 @@ export function Slider({
       }
       vectorHelper.copy(e.point);
       ref.current.interactionPanel.worldToLocal(vectorHelper);
-      const newValue = clamp(
-        Math.round(((vectorHelper.x + 0.5) * (max - min) + min) / step) * step,
-        min,
+      const newValue = Math.min(
+        Math.max(Math.round(((vectorHelper.x + 0.5) * (max - min) + min) / step) * step, min),
         max,
       );
       if (providedValue == null) {
@@ -74,7 +72,7 @@ export function Slider({
   return (
     <Container
       ref={ref}
-      {...handler}
+      {...(disabled ? {} : handler)}
       positionType="relative"
       height={8}
       width="100%"

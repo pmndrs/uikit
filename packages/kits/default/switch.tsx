@@ -1,29 +1,48 @@
-"use client"
+import { Container } from "@react-three/uikit";
+import { ComponentPropsWithoutRef, useState } from "react";
+import { colors } from "./defaults.js";
 
-import * as React from "react"
-import * as SwitchPrimitives from "@radix-ui/react-switch"
-
-import { cn } from "@/lib/utils"
-
-const Switch = React.forwardRef<
-  React.ElementRef<typeof SwitchPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
->(({ className, ...props }, ref) => (
-  <SwitchPrimitives.Root
-    className={cn(
-      "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
-      className
-    )}
-    {...props}
-    ref={ref}
-  >
-    <SwitchPrimitives.Thumb
-      className={cn(
-        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
-      )}
-    />
-  </SwitchPrimitives.Root>
-))
-Switch.displayName = SwitchPrimitives.Root.displayName
-
-export { Switch }
+export function Switch({
+  defaultChecked,
+  checked: providedChecked,
+  disabled = false,
+  onCheckedChange,
+  ...props
+}: Omit<ComponentPropsWithoutRef<typeof Container>, "children"> & {
+  defaultChecked?: boolean;
+  checked?: boolean;
+  disabled?: boolean;
+  onCheckedChange?(checked: boolean): void;
+}) {
+  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false);
+  const checked = providedChecked ?? uncontrolled;
+  return (
+    <Container
+      height={24}
+      width={44}
+      flexShrink={0}
+      flexDirection="row"
+      padding={2}
+      alignItems="center"
+      backgroundOpacity={disabled ? 0.5 : undefined}
+      borderRadius={1000}
+      backgroundColor={checked ? colors.primary : colors.input}
+      cursor={disabled ? undefined : "pointer"}
+      onClick={disabled ? undefined : () => {
+        if (providedChecked == null) {
+          setUncontrolled(!checked);
+        }
+        onCheckedChange?.(!checked);
+      }}
+      {...props}
+    >
+      <Container
+        width={20}
+        height={20}
+        borderRadius={1000}
+        transformTranslateX={checked ? 20 : 0}
+        backgroundColor={colors.background}
+      />
+    </Container>
+  );
+}

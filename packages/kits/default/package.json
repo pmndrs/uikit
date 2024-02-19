@@ -2,6 +2,7 @@
     "devDependencies": {
         "@types/react": "^18.2.47",
         "@types/three": "^0.160.0",
+        "three": "^0.160.0",
         "@preact/signals-core": "^1.5.1",
         "@react-three/uikit": "workspace:^",
         "@react-three/uikit-lucide": "workspace:^",

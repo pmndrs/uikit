@@ -47,9 +47,15 @@ export function RadioGroupItem({
   children,
   ...props
 }: { disabled?: boolean; value: string } & ComponentPropsWithoutRef<typeof Container>) {
-  const { value: current, setValue: setCurrent } = useContext(RadioGroupContext);
+  const { value: current, setValue } = useContext(RadioGroupContext);
   return (
-    <Container cursor="pointer" onClick={() => setCurrent?.(value)} flexDirection="row" alignItems="center" gap={8}>
+    <Container
+      cursor={disabled ? undefined : "pointer"}
+      onClick={disabled ? undefined : () => setValue?.(value)}
+      flexDirection="row"
+      alignItems="center"
+      gap={8}
+    >
       <Container
         aspectRatio={1}
         height={16}

@@ -34,5 +34,5 @@ export function CardContent(props: ComponentPropsWithoutRef<typeof Container>) {
 }
 
 export function CardFooter(props: ComponentPropsWithoutRef<typeof Container>) {
-  return <Container alignItems="center" padding={24} paddingTop={0} {...props} />;
+  return <Container flexDirection="row" alignItems="center" padding={24} paddingTop={0} {...props} />;
 }

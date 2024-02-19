@@ -1,55 +1,114 @@
-"use client"
+import { Container, DefaultProperties } from "@react-three/uikit";
+import {
+  ComponentPropsWithoutRef,
+  ReactNode,
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import { colors } from "./defaults.js";
 
-import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
+const TabsContext = createContext<{
+  value?: string;
+  setValue?: (value: string) => void;
+}>(null as any);
 
-import { cn } from "@/lib/utils"
+export function Tabs({
+  value: providedValue,
+  onValueChange,
+  defaultValue,
+  children,
+  ...props
+}: {
+  value?: string;
+  onValueChange?(value: string): void;
+  defaultValue?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<typeof Container>) {
+  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const contextValue = useMemo(() => {
+    if (providedValue == null) {
+      return {
+        value: uncontrolled,
+        setValue: (value: string) => {
+          setUncontrolled(value);
+          onValueChange?.(value);
+        },
+      };
+    }
+    return {
+      value: providedValue,
+      onValueChange,
+    };
+  }, [uncontrolled, onValueChange, providedValue]);
+  return (
+    <Container {...props}>
+      <TabsContext.Provider value={contextValue}>{children}</TabsContext.Provider>
+    </Container>
+  );
+}
 
-const Tabs = TabsPrimitive.Root
+export function TabsList({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  return (
+    <Container
+      height={40}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="center"
+      borderRadius={6}
+      backgroundColor={colors.muted}
+      padding={4}
+      {...props}
+    >
+      <DefaultProperties color={colors.mutedForeground}>{children}</DefaultProperties>
+    </Container>
+  );
+}
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
-      className
-    )}
-    {...props}
-  />
-))
-TabsList.displayName = TabsPrimitive.List.displayName
+export function TabsTrigger({
+  children,
+  value,
+  disabled = false,
+  ...props
+}: ComponentPropsWithoutRef<typeof Container> & { disabled?: boolean; value: string }) {
+  const { setValue, value: current } = useContext(TabsContext);
+  const active = value === current;
+  return (
+    <Container
+      onClick={disabled ? undefined : () => setValue?.(value)}
+      cursor={disabled ? undefined : "pointer"}
+      flexDirection="row"
+      alignItems="center"
+      flexGrow={1}
+      borderRadius={2}
+      paddingX={12}
+      backgroundOpacity={disabled ? 0.5 : undefined}
+      backgroundColor={active ? colors.background : undefined}
+      paddingY={6}
+      justifyContent="center"
+      {...props}
+    >
+      <DefaultProperties
+        opacity={disabled ? 0.5 : undefined}
+        color={active ? colors.foreground : undefined}
+        fontSize={14}
+        lineHeight={1.43}
+        wordBreak="keep-all"
+      >
+        {children}
+      </DefaultProperties>
+    </Container>
+  );
+}
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
-
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
-    )}
-    {...props}
-  />
-))
-TabsContent.displayName = TabsPrimitive.Content.displayName
-
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+export function TabsContent({
+  value,
+  ...props
+}: ComponentPropsWithoutRef<typeof Container> & { value: string }) {
+  const { value: current } = useContext(TabsContext);
+  if (value != current) {
+    return null;
+  }
+  return <Container marginTop={8} {...props} />;
+}
