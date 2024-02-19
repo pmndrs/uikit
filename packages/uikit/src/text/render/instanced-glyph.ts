@@ -68,7 +68,6 @@ export class InstancedGlyph {
     const { instanceClipping } = this.group;
     if (this.clippingRect == null) {
       instanceClipping.set(defaultClippingData, offset);
-      return;
     } else {
       this.clippingRect.toArray(instanceClipping.array, offset);
     }

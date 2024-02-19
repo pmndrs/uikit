@@ -9,9 +9,6 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
       toneMapped: false,
     });
 
-    //TODO: add rgba
-    //TODO: add clipping
-
     this.onBeforeCompile = (parameters) => {
       parameters.uniforms.fontPage = { value: font.page };
       parameters.uniforms.pageSize = { value: [font.pageWidth, font.pageHeight] };

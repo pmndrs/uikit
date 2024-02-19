@@ -55,9 +55,9 @@ export function useGetInstancedGlyphGroup(
     [rootIdentifier, pixelSize, rootGroup],
   );
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     for (const group of map.values()) {
-      group.onFrame();
+      group.onFrame(delta);
     }
   });
 

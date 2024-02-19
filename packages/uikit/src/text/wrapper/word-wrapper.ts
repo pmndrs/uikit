@@ -35,11 +35,16 @@ export const WordWrapper: GlyphWrapper = (
 
     if (char === " ") {
       whitespaces += 1;
-    } else {
-      result.width = position;
-      result.end = textIndex;
-      result.whitespaces = whitespaces;
+      continue;
     }
+
+    if (textIndex < text.length && text[textIndex] != " ") {
+      continue;
+    }
+
+    result.width = position;
+    result.end = textIndex;
+    result.whitespaces = whitespaces;
   }
 
   return result;

@@ -14,7 +14,6 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
-- fix: characters disappearing when resizing alert dialog
 - add shadcn components
 - add apfel components
 - Content "measureContent" flag => allow disabling content measuring and scaling

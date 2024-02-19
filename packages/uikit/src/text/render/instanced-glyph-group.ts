@@ -18,6 +18,8 @@ export class InstancedGlyphGroup extends Group {
 
   private material: Material;
 
+  private timeTillDecimate?: number;
+
   constructor(
     font: Font,
     public readonly pixelSize: number,
@@ -30,18 +32,24 @@ export class InstancedGlyphGroup extends Group {
   requestActivate(glyph: InstancedGlyph): void {
     const holeIndex = this.holeIndicies.shift();
     if (holeIndex != null) {
+      //inserting into existing hole
       this.glyphs[holeIndex] = glyph;
       glyph.activate(holeIndex);
       return;
     }
-    if (this.mesh != null && this.mesh.count < this.instanceMatrix.count) {
-      const index = this.mesh.count;
-      this.glyphs[index] = glyph;
-      glyph.activate(index);
-      this.mesh.count += 1;
+
+    if (this.mesh == null || this.mesh.count >= this.instanceMatrix.count) {
+      //requesting insert because no space available
+      this.requestedGlyphs.push(glyph);
       return;
     }
-    this.requestedGlyphs.push(glyph);
+
+    //inserting at the end because space available
+    const index = this.mesh.count;
+    this.glyphs[index] = glyph;
+    glyph.activate(index);
+    this.mesh.count += 1;
+    return;
   }
 
   delete(glyph: InstancedGlyph): void {
@@ -53,34 +61,67 @@ export class InstancedGlyphGroup extends Group {
       this.requestedGlyphs.splice(indexInRequested, 1);
       return;
     }
-    if (glyph.index === this.glyphs.length - 1) {
-      this.glyphs.length -= 1;
-      this.mesh!.count -= 1;
+
+    const replacement = this.requestedGlyphs.shift();
+    if (replacement != null) {
+      //replace
+      replacement.activate(glyph.index);
+      this.glyphs[glyph.index] = replacement;
+      glyph.index = undefined;
       return;
     }
+
+    if (glyph.index === this.glyphs.length - 1) {
+      //remove at the end
+      this.glyphs.length -= 1;
+      this.mesh!.count -= 1;
+      glyph.index = undefined;
+      return;
+    }
+
+    //remove in between
     //hiding the glyph by writing a 0 matrix (0 scale ...)
     const bufferOffset = glyph.index * 16;
     this.instanceMatrix.array.fill(0, bufferOffset, bufferOffset + 16);
     this.instanceMatrix.addUpdateRange(bufferOffset, 16);
     this.instanceMatrix.needsUpdate = true;
     this.holeIndicies.push(glyph.index);
+    this.glyphs[glyph.index] = undefined;
     glyph.index = undefined;
   }
 
-  onFrame(): void {
-    const requestedGlyphsLength = this.requestedGlyphs.length;
-    const neededSize = this.glyphs.length - this.holeIndicies.length + requestedGlyphsLength;
-    if (neededSize === 0) {
+  onFrame(delta: number): void {
+    const requiredSize =
+      this.glyphs.length - this.holeIndicies.length + this.requestedGlyphs.length;
+
+    if (requiredSize === 0) {
       this.visible = false;
       return;
     }
     this.visible = true;
+
     const availableSize = this.instanceMatrix?.count ?? 0;
-    if (availableSize / 3 < neededSize && neededSize <= availableSize) {
+
+    //if the buffer is continously to small over a period of 1 second, it will be decimated
+    if (requiredSize < availableSize / 3) {
+      this.timeTillDecimate ??= 1;
+    } else {
+      this.timeTillDecimate = undefined;
+    }
+    if (this.timeTillDecimate != null) {
+      this.timeTillDecimate -= delta;
+    }
+
+    if (
+      (this.timeTillDecimate == null || this.timeTillDecimate > 0) &&
+      requiredSize <= availableSize
+    ) {
       return;
     }
-    this.resize(neededSize);
+    this.timeTillDecimate = undefined;
+    this.resize(requiredSize);
     const indexOffset = this.mesh!.count;
+    const requestedGlyphsLength = this.requestedGlyphs.length;
     for (let i = 0; i < requestedGlyphsLength; i++) {
       const glyph = this.requestedGlyphs[i];
       glyph.activate(indexOffset + i);
