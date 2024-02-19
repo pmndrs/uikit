@@ -41,3 +41,16 @@ TODO Later
 Limitations
 
 - nested clipping with rotation in z-axis (the clipping area can become more complex than a rectangle)
+
+## Development
+
+required Inkscape CLI to be installed
+
+`
+pnpm install
+pnpm -F "*" convert
+pnpm -F "*" generate
+pnpm -F "*" build
+`
+
+go to `examples/dashboard` and run `pnpm dev` to view the example dashboard

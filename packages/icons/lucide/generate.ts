@@ -5,6 +5,9 @@ const baseDir = "icons/";
 async function main() {
   const icons = await readdir(baseDir);
   for (const icon of icons) {
+    if (icon === ".gitkeep") {
+      continue;
+    }
     const name = getName(icon);
     const raw = await readFile(`${baseDir}${icon}`);
     const svg = raw.toString();
@@ -22,7 +25,7 @@ async function main() {
   }
   writeFile(
     "src/index.tsx",
-    icons.map((icon) => `export * from "./${getName(icon)}.js";`).join("\n"),
+    icons.filter(icon => icon != ".gitkeep").map((icon) => `export * from "./${getName(icon)}.js";`).join("\n"),
   );
 }
 

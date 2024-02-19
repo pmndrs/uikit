@@ -3,14 +3,14 @@
     "version": "0.0.0",
     "description": "lucide icons for r3/uikit",
     "files": [
-      "dist"
+        "dist"
     ],
     "keywords": [
-      "lucide",
-      "uikit",
-      "icons",
-      "threejs",
-      "r3f"
+        "lucide",
+        "uikit",
+        "icons",
+        "threejs",
+        "r3f"
     ],
     "author": "Bela Bohlender",
     "scripts": {
@@ -21,7 +21,8 @@
     "type": "module",
     "main": "dist/index.js",
     "dependencies": {
-        "@react-three/uikit": "workspace:^"
+        "@react-three/uikit": "workspace:^",
+        "oslllo-svg-fixer": "^3.0.0"
     },
     "devDependencies": {
         "@types/node": "^20.11.0",
