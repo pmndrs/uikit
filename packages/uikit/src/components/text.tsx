@@ -1,6 +1,6 @@
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
 import { YogaProperties } from "../flex/node.js";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { useApplyHoverProperties } from "../hover.js";
 import { PanelProperties } from "../panel/instanced-panel.js";
 import {
   InteractionGroup,
@@ -26,6 +26,7 @@ import {
   ComponentInternals,
   LayoutListeners,
   ViewportListeners,
+  WithConditionals,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -38,8 +39,9 @@ import { useImmediateProperties } from "../properties/immediate.js";
 import { InstancedTextProperties, useInstancedText } from "../text/react.js";
 import { Signal } from "@preact/signals-core";
 import { useRootGroup } from "../utils.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
-export type TextProperties = WithHover<
+export type TextProperties = WithConditionals<
   WithClasses<
     WithAllAliases<
       WithReactive<YogaProperties & PanelProperties & TransformProperties & InstancedTextProperties>
@@ -91,6 +93,7 @@ export const Text = forwardRef<
   );
 
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   writeCollection(collection, "measureFunc", measureFunc);
   finalizeCollection(collection);

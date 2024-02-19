@@ -15,7 +15,6 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 TODO Release
 
 - fix: characters disappearing when resizing alert dialog
-- font weight
 - add shadcn components
 - add apfel components
 - Content "measureContent" flag => allow disabling content measuring and scaling
@@ -28,8 +27,6 @@ TODO Release
 - Label
 - decrease clipping rect when scrollbar present
 - multiple layers to render panels in front of text/images/... (e.g. for modals) - <IncrementLayer by={2} >{...content}</IncrementLayer>
-- useRootLayout / useRootOnLayoutChange?
-- md, ... for responsive styling (by using the root layout)?
 
 TODO Later
 

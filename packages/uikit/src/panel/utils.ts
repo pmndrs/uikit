@@ -46,7 +46,8 @@ export function isPanelVisible(
   const backgroundVisible =
     width > 0 &&
     height > 0 &&
-    ((backgroundOpacity != null && backgroundOpacity > 0) || backgroundColor != null);
+    (backgroundOpacity == null || backgroundOpacity > 0) &&
+    backgroundColor != null;
 
   if (!backgroundVisible && !borderVisible) {
     return false;

@@ -24,7 +24,7 @@ export function getOffsetToNextGlyph(
   glyphInfo: GlyphInfo,
   letterSpacing: number,
 ): number {
-  return (glyphInfo.xadvance + letterSpacing) * fontSize;
+  return (glyphInfo.xadvance) * fontSize + letterSpacing;
 }
 
 export function getOffsetToNextLine(lineHeight: number, fontSize: number): number {

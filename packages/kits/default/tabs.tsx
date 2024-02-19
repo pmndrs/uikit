@@ -55,7 +55,6 @@ export function TabsList({ children, ...props }: ComponentPropsWithoutRef<typeof
       height={40}
       flexDirection="row"
       alignItems="center"
-      justifyContent="center"
       borderRadius={6}
       backgroundColor={colors.muted}
       padding={4}
@@ -80,7 +79,6 @@ export function TabsTrigger({
       cursor={disabled ? undefined : "pointer"}
       flexDirection="row"
       alignItems="center"
-      flexGrow={1}
       borderRadius={2}
       paddingX={12}
       backgroundOpacity={disabled ? 0.5 : undefined}

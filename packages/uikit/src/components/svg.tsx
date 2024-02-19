@@ -23,13 +23,14 @@ import {
 } from "../utils.js";
 import { Box3, Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry, Vector3 } from "three";
 import { computed, Signal } from "@preact/signals-core";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { useApplyHoverProperties } from "../hover.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import { Color as ColorRepresentation } from "@react-three/fiber";
 import {
   ComponentInternals,
   LayoutListeners,
   ViewportListeners,
+  WithConditionals,
   setRootIdentifier,
   useComponentInternals,
   useGlobalMatrix,
@@ -52,8 +53,9 @@ import {
 import { TransformProperties, useTransformMatrix } from "../transform.js";
 import { useImmediateProperties } from "../properties/immediate.js";
 import { WithClasses, useApplyProperties } from "../properties/default.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
-export type SvgProperties = WithHover<
+export type SvgProperties = WithConditionals<
   WithClasses<
     WithAllAliases<
       WithReactive<YogaProperties & PanelProperties & TransformProperties & AppearanceProperties>
@@ -189,6 +191,7 @@ export const Svg = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   writeCollection(collection, "aspectRatio", aspectRatio);
   finalizeCollection(collection);

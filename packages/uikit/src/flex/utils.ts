@@ -16,8 +16,8 @@ export function setMeasureFunc(
   node.setMeasureFunc((width, wMode, height, hMode) => {
     const result = func(width * precision, wMode, height * precision, hMode);
     return {
-      width: Math.ceil(result.width / precision),
-      height: Math.ceil(result.height / precision),
+      width: Math.ceil(Math.ceil(result.width) / precision),
+      height: Math.ceil(Math.ceil(result.height) / precision),
     };
   });
   node.markDirty();

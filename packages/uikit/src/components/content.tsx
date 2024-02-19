@@ -25,11 +25,12 @@ import {
 } from "../utils.js";
 import { Box3, Group, Mesh, Vector3 } from "three";
 import { effect, Signal, signal } from "@preact/signals-core";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { useApplyHoverProperties } from "../hover.js";
 import {
   ComponentInternals,
   LayoutListeners,
   ViewportListeners,
+  WithConditionals,
   setRootIdentifier,
   useComponentInternals,
   useGlobalMatrix,
@@ -52,8 +53,9 @@ import {
 import { TransformProperties, useTransformMatrix } from "../transform.js";
 import { useImmediateProperties } from "../properties/immediate.js";
 import { WithClasses, useApplyProperties } from "../properties/default.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
-export type ContentProperties = WithHover<
+export type ContentProperties = WithConditionals<
   WithClasses<
     WithAllAliases<
       WithReactive<YogaProperties & PanelProperties & TransformProperties & DepthAlignProperties>
@@ -107,6 +109,7 @@ export const Content = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   writeCollection(collection, "aspectRatio", aspectRatio);
   finalizeCollection(collection);

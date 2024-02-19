@@ -7,11 +7,12 @@ import { panelGeometry } from "../panel/utils.js";
 import { InteractionGroup, MaterialClass, usePanelMaterial } from "../panel/react.js";
 import { useFlexNode } from "../flex/react.js";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { useApplyHoverProperties } from "../hover.js";
 import {
   ComponentInternals,
   LayoutListeners,
   ViewportListeners,
+  WithConditionals,
   setRootIdentifier,
   useComponentInternals,
   useGlobalMatrix,
@@ -38,11 +39,12 @@ import {
 } from "../properties/utils.js";
 import { useImmediateProperties } from "../properties/immediate.js";
 import { WithClasses, useApplyProperties } from "../properties/default.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
 export type ImageFit = "cover" | "fill";
 const FIT_DEFAULT: ImageFit = "fill";
 
-export type ImageProperties = WithHover<
+export type ImageProperties = WithConditionals<
   WithClasses<
     WithAllAliases<
       WithReactive<
@@ -129,6 +131,7 @@ export const Image = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   writeCollection(collection, "backgroundColor", 0xffffff);
   writeCollection(collection, "aspectRatio", aspectRatio);

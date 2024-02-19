@@ -38,10 +38,10 @@ const panelMaterialSetters: {
     ),
 
   //7 = border radiuses
-  borderTopLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 0, p, size.value[1]),
-  borderTopRightRadius: (m, p, size) => setBorderRadius(m.data, 7, 1, p, size.value[1]),
-  borderBottomLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 2, p, size.value[1]),
-  borderBottomRightRadius: (m, p, size) => setBorderRadius(m.data, 7, 3, p, size.value[1]),
+  borderBottomLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 0, p, size.value[1]),
+  borderBottomRightRadius: (m, p, size) => setBorderRadius(m.data, 7, 1, p, size.value[1]),
+  borderTopRightRadius: (m, p, size) => setBorderRadius(m.data, 7, 2, p, size.value[1]),
+  borderTopLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 3, p, size.value[1]),
 
   //8 - 10 = border color
   borderColor: (m, p) =>

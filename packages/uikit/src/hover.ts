@@ -1,10 +1,10 @@
-import { Signal, computed, signal } from "@preact/signals-core";
+import { signal } from "@preact/signals-core";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
 import { useEffect, useMemo } from "react";
 import { setCursorType, unsetCursorType } from "./cursor.js";
-import { ManagerCollection, Properties, PropertyManager } from "./properties/utils.js";
-import { readReactive } from "./utils.js";
+import { ManagerCollection, Properties } from "./properties/utils.js";
 import { WithClasses, useTraverseProperties } from "./properties/default.js";
+import { createConditionalPropertyTranslator } from "./utils.js";
 
 export type WithHover<T> = T & {
   cursor?: string;
@@ -19,7 +19,10 @@ export function useApplyHoverProperties(
   properties: WithClasses<WithHover<Properties>> & EventHandlers,
 ): HoverEventHandlers | undefined {
   const hoveredSignal = useMemo(() => signal<Array<number>>([]), []);
-  const translate = useMemo(() => createPropertyTranslator(hoveredSignal), []);
+  const translate = useMemo(
+    () => createConditionalPropertyTranslator(() => hoveredSignal.value.length > 0),
+    [],
+  );
   let hoverPropertiesExist = false;
 
   useTraverseProperties(properties, (p) => {
@@ -55,30 +58,5 @@ export function useApplyHoverProperties(
       }
       unsetCursorType(hoveredSignal);
     },
-  };
-}
-
-function createPropertyTranslator(
-  hovered: Signal<Array<number>>,
-): (collection: ManagerCollection, properties: Properties) => void {
-  const signalMap = new Map<unknown, Signal<unknown>>();
-  return (collection, properties) => {
-    const collectionLength = collection.length;
-    for (const key in properties) {
-      const value = properties[key];
-      if (value === undefined) {
-        return;
-      }
-      let result = signalMap.get(value);
-      if (result == null) {
-        signalMap.set(
-          value,
-          (result = computed(() => (hovered.value.length > 0 ? readReactive(value) : undefined))),
-        );
-      }
-      for (let i = 0; i < collectionLength; i++) {
-        collection[i].add(key, result);
-      }
-    }
   };
 }

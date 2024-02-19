@@ -101,6 +101,7 @@ export function Button({
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundOpacity={disabled ? 0.5 : undefined}
       cursor={disabled ? undefined : "pointer"}
+      flexDirection="row"
       {...props}
     >
       <DefaultProperties

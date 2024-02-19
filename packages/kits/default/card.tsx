@@ -16,7 +16,7 @@ export function CardHeader(props: ComponentPropsWithoutRef<typeof Container>) {
 
 export function CardTitle({ children }: { children?: ReactNode }) {
   return (
-    <DefaultProperties letterSpacing={-0.1} fontSize={24} lineHeight={1}>
+    <DefaultProperties fontWeight="semi-bold" letterSpacing={-0.4} fontSize={24} lineHeight={1}>
       {children}
     </DefaultProperties>
   );

@@ -60,7 +60,7 @@ function App() {
       >
         <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
           <DefaultColors>
-            <ToggleGroupDemo />
+            <TabsDemo />
           </DefaultColors>
         </Container>
       </Fullscreen>
@@ -95,10 +95,10 @@ export function TabsDemo() {
   return (
     <Tabs defaultValue="account" width={400}>
       <TabsList width="100%">
-        <TabsTrigger value="account">
+        <TabsTrigger flexGrow={1} value="account">
           <Text>Account</Text>
         </TabsTrigger>
-        <TabsTrigger value="password">
+        <TabsTrigger flexGrow={1} value="password">
           <Text>Password</Text>
         </TabsTrigger>
       </TabsList>
@@ -341,6 +341,7 @@ export function CardDemo() {
               Send notifications to device.
             </Text>
           </Container>
+          <Switch />
         </Container>
         <Container>
           {notifications.map((notification, index) => (

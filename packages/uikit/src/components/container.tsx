@@ -9,7 +9,7 @@ import {
 } from "../panel/react.js";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
 import { YogaProperties } from "../flex/node.js";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { useApplyHoverProperties } from "../hover.js";
 import {
   ClippingRectProvider,
   useClippingRect,
@@ -25,6 +25,7 @@ import {
   MatrixProvider,
   ComponentInternals,
   useComponentInternals,
+  WithConditionals,
 } from "./utils.js";
 import {
   ScrollGroup,
@@ -45,8 +46,9 @@ import { TransformProperties, useTransformMatrix } from "../transform.js";
 import { useImmediateProperties } from "../properties/immediate.js";
 import { WithClasses, useApplyProperties } from "../properties/default.js";
 import { useRootGroup } from "../utils.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
-export type ContainerProperties = WithHover<
+export type ContainerProperties = WithConditionals<
   WithClasses<
     WithAllAliases<
       WithReactive<YogaProperties & PanelProperties & TransformProperties> & ScrollbarProperties
@@ -101,6 +103,7 @@ export const Container = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   finalizeCollection(collection);
 

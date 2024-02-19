@@ -37,13 +37,13 @@ const instancedPanelMaterialSetters: {
   backgroundColor: (m, i, p) => colorToBuffer(m.instanceData, i, p ?? panelDefaultColor, 4),
 
   //7
-  borderTopLeftRadius: (m, i, p, { value }) =>
-    writeBorderRadius(m.instanceData, i, 7, 0, p, value[1]),
-  borderTopRightRadius: (m, i, p, { value }) =>
-    writeBorderRadius(m.instanceData, i, 7, 1, p, value[1]),
   borderBottomLeftRadius: (m, i, p, { value }) =>
-    writeBorderRadius(m.instanceData, i, 7, 2, p, value[1]),
+    writeBorderRadius(m.instanceData, i, 7, 0, p, value[1]),
   borderBottomRightRadius: (m, i, p, { value }) =>
+    writeBorderRadius(m.instanceData, i, 7, 1, p, value[1]),
+  borderTopRightRadius: (m, i, p, { value }) =>
+    writeBorderRadius(m.instanceData, i, 7, 2, p, value[1]),
+  borderTopLeftRadius: (m, i, p, { value }) =>
     writeBorderRadius(m.instanceData, i, 7, 3, p, value[1]),
 
   //8-10 = border color

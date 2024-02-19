@@ -20,9 +20,9 @@ import {
 import { FlexProvider } from "../flex/react.js";
 import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
 import { ReadonlySignal, Signal, computed } from "@preact/signals-core";
-import { Group, Matrix4, RenderItem, Vector2Tuple, WebGLRenderer } from "three";
-import { useThree } from "@react-three/fiber";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { Group, Matrix4, Plane, RenderItem, Vector2Tuple, Vector3, WebGLRenderer } from "three";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useApplyHoverProperties } from "../hover.js";
 import {
   rootIdentiferKey,
   orderKey,
@@ -31,6 +31,7 @@ import {
   MatrixProvider,
   ComponentInternals,
   useComponentInternals,
+  WithConditionals,
 } from "./utils.js";
 import { ClippingRectProvider, useClippingRect, useParentClippingRect } from "../clipping.js";
 import {
@@ -52,13 +53,14 @@ import { useImmediateProperties } from "../properties/immediate.js";
 import { WithClasses, useApplyProperties } from "../properties/default.js";
 import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from "../text/react.js";
 import { PanelProperties } from "../panel/instanced-panel.js";
+import { RootSizeProvider, useApplyResponsiveProperties } from "../responsive.js";
 
 export const DEFAULT_PRECISION = 0.1;
 export const DEFAULT_PIXEL_SIZE = 0.002;
 
 export function useRootLayout() {}
 
-export type RootProperties = WithHover<
+export type RootProperties = WithConditionals<
   WithClasses<
     WithAllAliases<
       WithReactive<
@@ -68,6 +70,9 @@ export type RootProperties = WithHover<
     >
   >
 >;
+
+const planeHelper = new Plane();
+const vectorHelper = new Vector3();
 
 export const Root = forwardRef<
   ComponentInternals,
@@ -96,11 +101,12 @@ export const Root = forwardRef<
     [],
   );
   const yoga = useResource(properties.loadYoga ?? loadYogaBase64, [properties.loadYoga]);
+  const distanceToCameraRef = useMemo(() => ({ distance: 0 }), []);
   const node = useMemo(
     () =>
       new FlexNode(
         //root identifier = unique empty object = {}
-        {},
+        distanceToCameraRef,
         yoga,
         precision,
         pixelSize,
@@ -153,6 +159,7 @@ export const Root = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties, node.size);
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   writeCollection(collection, "width", useDivide(sizeX, pixelSize));
   writeCollection(collection, "height", useDivide(sizeY, pixelSize));
@@ -172,6 +179,14 @@ export const Root = forwardRef<
 
   useComponentInternals(ref, node, internactionPanel, scrollPosition);
 
+  useFrame(({ camera }) => {
+    planeHelper.normal.set(0, 0, 1);
+    planeHelper.constant = 0;
+    planeHelper.applyMatrix4(internactionPanel.matrixWorld);
+    vectorHelper.setFromMatrixPosition(camera.matrixWorld);
+    distanceToCameraRef.distance = planeHelper.distanceToPoint(vectorHelper);
+  });
+
   return (
     <primitive object={rootGroup}>
       <RootGroupProvider value={rootGroup}>
@@ -189,7 +204,7 @@ export const Root = forwardRef<
                 <MatrixProvider value={globalScrollMatrix}>
                   <FlexProvider value={node}>
                     <ClippingRectProvider value={clippingRect}>
-                      {properties.children}
+                      <RootSizeProvider value={node.size}>{properties.children}</RootSizeProvider>
                     </ClippingRectProvider>
                   </FlexProvider>
                 </MatrixProvider>
@@ -218,7 +233,7 @@ function useDivide(
             }
             return s / pixelSize;
           })
-        : size,
+        : size / pixelSize,
     [size, pixelSize],
   );
 }
@@ -262,13 +277,15 @@ function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.renderOrder !== b.renderOrder) {
     return a.renderOrder - b.renderOrder;
   }
-  if ((a.object as any)[rootIdentiferKey] === (b.object as any)[rootIdentiferKey]) {
+  const aDistanceRef = (a.object as any)[rootIdentiferKey];
+  const bDistanceRef = (b.object as any)[rootIdentiferKey];
+  if (aDistanceRef == null || bDistanceRef == null) {
+    return a.z !== b.z ? b.z - a.z : a.id - b.id;
+  }
+  if (aDistanceRef === bDistanceRef) {
     return (a.object as any)[orderKey] - (a.object as any)[orderKey];
   }
-  if (a.z !== b.z) {
-    return b.z - a.z;
-  }
-  return a.id - b.id;
+  return bDistanceRef.distance - aDistanceRef.distance;
 }
 
 export function patchRenderOrder(renderer: WebGLRenderer): void {

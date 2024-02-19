@@ -1,11 +1,15 @@
-import { TextureLoader } from "three";
+import { TextureLoader, WebGLRenderer } from "three";
 import { Font, FontInfo } from "./font.js";
 
 const fontCache = new Map<string, Set<(font: Font) => void> | Font>();
 
 const textureLoader = new TextureLoader();
 
-export function loadCachedFont(url: string, onLoad: (font: Font) => void): void {
+export function loadCachedFont(
+  url: string,
+  renderer: WebGLRenderer,
+  onLoad: (font: Font) => void,
+): void {
   let entry = fontCache.get(url);
   if (entry instanceof Set) {
     entry.add(onLoad);
@@ -20,7 +24,7 @@ export function loadCachedFont(url: string, onLoad: (font: Font) => void): void 
   set.add(onLoad);
   fontCache.set(url, set);
 
-  loadFont(url)
+  loadFont(url, renderer)
     .then((font) => {
       for (const fn of set) {
         fn(font);
@@ -30,7 +34,7 @@ export function loadCachedFont(url: string, onLoad: (font: Font) => void): void 
     .catch(console.error);
 }
 
-async function loadFont(url: string): Promise<Font> {
+async function loadFont(url: string, renderer: WebGLRenderer): Promise<Font> {
   const info: FontInfo = await (await fetch(url)).json();
 
   if (info.pages.length !== 1) {
@@ -39,7 +43,8 @@ async function loadFont(url: string): Promise<Font> {
 
   const page = await textureLoader.loadAsync(new URL(info.pages[0], url).href);
 
-  page.flipY = false
+  page.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  page.flipY = false;
 
   return new Font(info, page);
 }

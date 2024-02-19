@@ -29,7 +29,7 @@ import {
   buildGlyphLayout,
   measureGlyphLayout,
 } from "./layout.js";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 
 export type GetInstancedGlyphGroup = (font: Font) => InstancedGlyphGroup;
 
@@ -64,23 +64,45 @@ export function useGetInstancedGlyphGroup(
   return getGroup;
 }
 
-const FontFamilyUrlsContext = createContext<Record<string, string>>(null as any);
+export type FontFamilyUrls = Partial<Record<FontWeight, string>>;
+
+const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null as any);
 
 //TODO: update to point to THIS repo
 const defaultFontFamilyUrls = {
-  opensans: "https://coconut-xr.github.io/msdf-fonts/opensans.json",
+  inter: {
+    light: "https://coconut-xr.github.io/msdf-fonts/inter-light.json",
+    normal: "https://coconut-xr.github.io/msdf-fonts/inter.json",
+    medium: "https://coconut-xr.github.io/msdf-fonts/inter.json",
+    "semi-bold": "https://coconut-xr.github.io/msdf-fonts/inter-bold.json",
+  },
+} satisfies Record<string, FontFamilyUrls>;
+
+const fontWeightNames = {
+  thin: 100,
+  "extra-light": 200,
+  light: 300,
+  normal: 400,
+  medium: 500,
+  "semi-bold": 600,
+  bold: 700,
+  "extra-bold": 800,
+  black: 900,
+  "extra-black": 950,
 };
+
+export type FontWeight = keyof typeof fontWeightNames | number;
 
 export function FontFamilyProvider({
   children,
   ...fontFamilies
-}: Record<string, string> & { children?: ReactNode }) {
-  const existinFontFamilyUrls = useContext(FontFamilyUrlsContext);
+}: Record<string, FontFamilyUrls> & { children?: ReactNode }) {
+  const existinFontFamilyUrls = useContext(FontFamiliesContext);
   if (existinFontFamilyUrls != null) {
     fontFamilies = { ...existinFontFamilyUrls, ...fontFamilies };
   }
   return (
-    <FontFamilyUrlsContext.Provider value={fontFamilies}>{children}</FontFamilyUrlsContext.Provider>
+    <FontFamiliesContext.Provider value={fontFamilies}>{children}</FontFamiliesContext.Provider>
   );
 }
 
@@ -159,23 +181,58 @@ export function useInstancedText(
   return measureFunc;
 }
 
-const fontFamilyKey = ["fontFamily"] as const;
+const fontKeys = ["fontFamily", "fontWeight"] as const;
 
-export type FontFamilyProperties = { fontFamily?: string };
+export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight };
 
 export function useFont(collection: ManagerCollection) {
   const result = useMemo(() => signal<Font | undefined>(undefined), []);
-  const fontFamilyUrls = useContext(FontFamilyUrlsContext) ?? defaultFontFamilyUrls;
-  const getProperties = useGetBatchedProperties<FontFamilyProperties>(collection, fontFamilyKey);
+  const fontFamilies = useContext(FontFamiliesContext) ?? defaultFontFamilyUrls;
+  const getProperties = useGetBatchedProperties<FontFamilyProperties>(collection, fontKeys);
+  const renderer = useThree(({ gl }) => gl);
   useSignalEffect(() => {
+    let fontWeight = getProperties.value("fontWeight") ?? "normal";
+    if (typeof fontWeight === "string") {
+      fontWeight = fontWeightNames[fontWeight];
+    }
     let fontFamily = getProperties.value("fontFamily");
     if (fontFamily == null) {
-      fontFamily = Object.keys(fontFamilyUrls)[0];
+      fontFamily = Object.keys(fontFamilies)[0];
     }
-    const url = fontFamilyUrls[fontFamily];
-    loadCachedFont(url, (font) => (result.value = font));
-  }, [fontFamilyUrls]);
+    const url = getMatchingFontUrl(fontFamilies[fontFamily], fontWeight);
+    loadCachedFont(url, renderer, (font) => (result.value = font));
+  }, [fontFamilies, renderer]);
   return result;
+}
+
+function getMatchingFontUrl(fontFamily: FontFamilyUrls, weight: number): string {
+  let distance = Infinity;
+  let result: string | undefined;
+  for (const fontWeight in fontFamily) {
+    const d = Math.abs(weight - getWeightNumber(fontWeight));
+    if (d === 0) {
+      return fontFamily[fontWeight]!;
+    }
+    if (d < distance) {
+      distance = d;
+      result = fontFamily[fontWeight];
+    }
+  }
+  if (result == null) {
+    throw new Error(`font family has no entries ${fontFamily}`);
+  }
+  return result;
+}
+
+function getWeightNumber(value: string): number {
+  if (value in fontWeightNames) {
+    return fontWeightNames[value as keyof typeof fontWeightNames];
+  }
+  const number = parseFloat(value);
+  if (isNaN(number)) {
+    throw new Error(`invalid font weight "${value}"`);
+  }
+  return number;
 }
 
 export function useMeasureFunc(

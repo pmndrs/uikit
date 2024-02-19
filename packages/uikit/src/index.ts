@@ -1,3 +1,4 @@
+export { useRootSize } from "./responsive.js";
 export type { ComponentInternals } from "./components/utils.js";
 export type { MaterialClass } from "./panel/react.js";
 export type { LayoutListeners, ViewportListeners } from "./components/utils.js";

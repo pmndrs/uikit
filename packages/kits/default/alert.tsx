@@ -35,7 +35,7 @@ export function AlertIcon(props: ComponentPropsWithoutRef<typeof Container>) {
 export function AlertTitle({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
   return (
     <Container marginBottom={4} padding={0} paddingLeft={28} {...props}>
-      <DefaultProperties letterSpacing={-0.1} lineHeight={1}>
+      <DefaultProperties letterSpacing={-0.4} lineHeight={1}>
         {children}
       </DefaultProperties>
     </Container>

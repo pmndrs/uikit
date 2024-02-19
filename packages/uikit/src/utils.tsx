@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useMemo } from "react";
 import { computed, effect, Signal, signal } from "@preact/signals-core";
-import { Vector2Tuple, BufferAttribute, Color, Group, Matrix4 } from "three";
+import { Vector2Tuple, BufferAttribute, Color, Group } from "three";
 import { Color as ColorRepresentation } from "@react-three/fiber";
 import { Inset } from "./flex/node.js";
+import { ManagerCollection, Properties } from "./properties/utils.js";
 
 export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 };
 export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 };
@@ -106,3 +107,28 @@ export function useRootGroup() {
 }
 
 export const RootGroupProvider = RootGroupContext.Provider;
+
+export function createConditionalPropertyTranslator(
+  condition: () => boolean,
+): (collection: ManagerCollection, properties: Properties) => void {
+  const signalMap = new Map<unknown, Signal<unknown>>();
+  return (collection, properties) => {
+    const collectionLength = collection.length;
+    for (const key in properties) {
+      const value = properties[key];
+      if (value === undefined) {
+        return;
+      }
+      let result = signalMap.get(value);
+      if (result == null) {
+        signalMap.set(
+          value,
+          (result = computed(() => (condition() ? readReactive(value) : undefined))),
+        );
+      }
+      for (let i = 0; i < collectionLength; i++) {
+        collection[i].add(key, result);
+      }
+    }
+  };
+}

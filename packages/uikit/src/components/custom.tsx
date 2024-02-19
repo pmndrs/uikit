@@ -2,7 +2,7 @@ import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/eve
 import { forwardRef, ReactNode, useEffect, useMemo } from "react";
 import { YogaProperties } from "../flex/node.js";
 import { useFlexNode, FlexProvider } from "../flex/react.js";
-import { WithHover, useApplyHoverProperties } from "../hover.js";
+import { useApplyHoverProperties } from "../hover.js";
 import { InteractionGroup } from "../panel/react.js";
 import { createCollection, finalizeCollection, WithReactive } from "../properties/utils.js";
 import { useRootGroup, useSignalEffect } from "../utils.js";
@@ -16,6 +16,7 @@ import {
   useLayoutListeners,
   useViewportListeners,
   ViewportListeners,
+  WithConditionals,
 } from "./utils.js";
 import { panelGeometry } from "../panel/utils.js";
 import { useGlobalClippingPlanes, useIsClipped, useParentClippingRect } from "../clipping.js";
@@ -24,8 +25,9 @@ import { flexAliasPropertyTransformation, WithAllAliases } from "../properties/a
 import { TransformProperties, useTransformMatrix } from "../transform.js";
 import { useImmediateProperties } from "../properties/immediate.js";
 import { useApplyProperties, WithClasses } from "../properties/default.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
-export type CustomContainerProperties = WithHover<
+export type CustomContainerProperties = WithConditionals<
   WithClasses<WithAllAliases<WithReactive<YogaProperties & TransformProperties>>>
 >;
 
@@ -78,6 +80,7 @@ export const CustomContainer = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   finalizeCollection(collection);
 

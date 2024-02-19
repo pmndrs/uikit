@@ -37,6 +37,7 @@ import { useTransformMatrix } from "../transform.js";
 import { useImmediateProperties } from "../properties/immediate.js";
 import { useApplyProperties } from "../properties/default.js";
 import { SvgProperties, AppearanceProperties } from "./svg.js";
+import { useApplyResponsiveProperties } from "../responsive.js";
 
 const colorHelper = new Color();
 
@@ -136,6 +137,7 @@ export const SvgIconFromText = forwardRef<
   writeCollection(collection, "width", properties.svgWidth);
   writeCollection(collection, "height", properties.svgHeight);
   useApplyProperties(collection, properties);
+  useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties);
   writeCollection(collection, "aspectRatio", properties.svgWidth / properties.svgHeight);
   finalizeCollection(collection);

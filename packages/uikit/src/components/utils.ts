@@ -9,9 +9,13 @@ import {
 } from "react";
 import { Matrix4, Mesh, Vector2Tuple } from "three";
 import { FlexNode, Inset } from "../flex/node.js";
+import { WithHover } from "../hover.js";
+import { WithResponsive } from "../responsive.js";
 
 export const rootIdentiferKey = Symbol("root-identifier-key");
 export const orderKey = Symbol("order-key");
+
+export type WithConditionals<T> = WithHover<T> & WithResponsive<T>
 
 export type ComponentInternals = {
   pixelSize: number;

@@ -16,7 +16,7 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
       parameters.uniforms.fontPage = { value: font.page };
       parameters.uniforms.pageSize = { value: [font.pageWidth, font.pageHeight] };
       parameters.uniforms.distanceRange = { value: font.distanceRange };
-      parameters.uniforms.v_weight = { value: 0 };
+      parameters.uniforms.v_weight = { value: 0.3 };
       parameters.vertexShader =
         `attribute vec4 instanceUVOffset;
         varying vec2 fontUv;
@@ -68,10 +68,10 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
           vec2 dxdy = fwidth(fontUv) * pageSize;
           float dist = getDistance() + min(float(v_weight), 0.5 - 1.0 / float(distanceRange)) - 0.5;
           float multiplier = clamp(dist * float(distanceRange) / length(dxdy) + 0.5, 0.0, 1.0);
-          if(multiplier <= 0.35) {
+          if(multiplier <= 0.5) {
               discard;
           }
-          diffuseColor.a *= clipOpacity * (multiplier - 0.35) / 0.65;
+          diffuseColor.a *= clipOpacity * min((multiplier - 0.5) / 0.5, 1.0);
           diffuseColor *= rgba;
             `,
       );
