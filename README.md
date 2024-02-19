@@ -44,13 +44,9 @@ Limitations
 
 ## Development
 
-required Inkscape CLI to be installed
-
-`
-pnpm install
-pnpm -F "*" convert
-pnpm -F "*" generate
-pnpm -F "*" build
-`
+`pnpm install`  
+`pnpm -F "*" convert`  
+`pnpm -F "*" generate`  
+`pnpm -F "*" build`  
 
 go to `examples/dashboard` and run `pnpm dev` to view the example dashboard
