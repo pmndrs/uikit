@@ -43,8 +43,9 @@ jobs:
       
       - name: Prepare Build
         run: |
-          pnpm -r convert
           pnpm -r inline-wasm
+          pnpm -r fix:inline-wasm
+          pnpm -r convert
           pnpm -r generate
 
       - name: Build
@@ -64,5 +65,5 @@ jobs:
 
       - name: Deploy
         working-directory: ./packages/uikit
-        run: pnpm --no-git-checks publish --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+        run: pnpm publish --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
           
