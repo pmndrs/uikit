@@ -1,27 +1,27 @@
-import { createContext, useContext, useMemo, useEffect } from "react";
-import { FlexNode } from "./node.js";
+import { createContext, useContext, useMemo, useEffect } from 'react'
+import { FlexNode } from './node.js'
 
-const FlexContext = createContext<FlexNode>(null as any);
+const FlexContext = createContext<FlexNode>(null as any)
 
 export function useParentFlexNode() {
-  return useContext(FlexContext);
+  return useContext(FlexContext)
 }
 
 export function useFlexNode(index: number = 0): FlexNode {
-  const parentNode = useParentFlexNode();
-  const node = useMemo(() => parentNode.createChild(), [parentNode]);
+  const parentNode = useParentFlexNode()
+  const node = useMemo(() => parentNode.createChild(), [parentNode])
   if (node.index != index) {
-    node.index = index;
-    node.requestCalculateLayout();
+    node.index = index
+    node.requestCalculateLayout()
   }
   useEffect(
     () => () => {
-      parentNode.removeChild(node);
-      node.destroy();
+      parentNode.removeChild(node)
+      node.destroy()
     },
     [parentNode, node],
-  );
-  return node;
+  )
+  return node
 }
 
-export const FlexProvider = FlexContext.Provider;
+export const FlexProvider = FlexContext.Provider

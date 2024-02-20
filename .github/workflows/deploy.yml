@@ -1,0 +1,68 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  publish-devops-package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: "5.x"
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Check
+        run: |
+          pnpm -r check:prettier
+          pnpm -r check:eslint
+      
+      - name: Prepare Build
+        run: |
+          pnpm -r convert
+          pnpm -r inline-wasm
+          pnpm -r generate
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Gitversion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+
+      - name: Set Version
+        working-directory: ./packages/uikit
+        run: pnpm exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
+          
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
+
+      - name: Deploy
+        working-directory: ./packages/uikit
+        run: pnpm --no-git-checks publish --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+          

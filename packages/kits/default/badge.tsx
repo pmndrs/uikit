@@ -1,6 +1,6 @@
-import { AllOptionalProperties, Container, DefaultProperties } from "@react-three/uikit";
-import { ComponentPropsWithoutRef } from "react";
-import { colors } from "./defaults.js";
+import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef } from 'react'
+import { colors } from './defaults.js'
 
 const badgeVariants = {
   default: {
@@ -42,20 +42,22 @@ const badgeVariants = {
   },
 } satisfies {
   [Key in string]: {
-    defaultProps: AllOptionalProperties;
-    containerProps: ComponentPropsWithoutRef<typeof Container>;
-  };
-};
+    defaultProps: AllOptionalProperties
+    containerProps: ComponentPropsWithoutRef<typeof Container>
+  }
+}
 
 export function Badge({
   children,
-  variant = "default",
+  variant = 'default',
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof badgeVariants }) {
-  const { containerProps, defaultProps } = badgeVariants[variant];
+  const { containerProps, defaultProps } = badgeVariants[variant]
   return (
     <Container borderRadius={1000} border={1} paddingX={10} paddingY={2} {...containerProps} {...props}>
-      <DefaultProperties {...defaultProps} fontSize={12} lineHeight={1.3333}>{children}</DefaultProperties>
+      <DefaultProperties {...defaultProps} fontSize={12} lineHeight={1.3333}>
+        {children}
+      </DefaultProperties>
     </Container>
-  );
+  )
 }

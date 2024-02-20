@@ -1,51 +1,51 @@
-import { useMemo } from "react";
-import { Signal, signal } from "@preact/signals-core";
-import { WithBatchedProperties, useBatchedProperties } from "./batched.js";
+import { useMemo } from 'react'
+import { Signal, signal } from '@preact/signals-core'
+import { WithBatchedProperties, useBatchedProperties } from './batched.js'
 
-export type Properties = Record<string, unknown>;
+export type Properties = Record<string, unknown>
 
 export type WithReactive<T> = {
-  [Key in keyof T]?: T[Key] | Signal<T[Key] | undefined | null>;
-};
+  [Key in keyof T]?: T[Key] | Signal<T[Key] | undefined | null>
+}
 
 export type PropertyTransformation = (
   key: string,
   value: unknown,
   hasProperty: (key: string) => boolean,
   setProperty: (key: string, value: unknown) => void,
-) => void;
+) => void
 
 export type PropertyManager = {
-  add(key: string, value: unknown): void;
-  finish(): void;
-};
+  add(key: string, value: unknown): void
+  finish(): void
+}
 
 export function applyProperties(collection: ManagerCollection, properties: Properties): void {
-  const collectionLength = collection.length;
+  const collectionLength = collection.length
   for (const key in properties) {
     for (let i = 0; i < collectionLength; i++) {
-      collection[i].add(key, properties[key]);
+      collection[i].add(key, properties[key])
     }
   }
 }
 
-export type ManagerCollection = Array<PropertyManager>;
+export type ManagerCollection = Array<PropertyManager>
 
 export function createCollection(): ManagerCollection {
-  return [];
+  return []
 }
 
 export function writeCollection(collection: ManagerCollection, key: string, value: unknown): void {
-  const collectionLength = collection.length;
+  const collectionLength = collection.length
   for (let i = 0; i < collectionLength; i++) {
-    collection[i].add(key, value);
+    collection[i].add(key, value)
   }
 }
 
 export function finalizeCollection(collection: ManagerCollection): void {
-  const collectionLength = collection.length;
+  const collectionLength = collection.length
   for (let i = 0; i < collectionLength; i++) {
-    collection[i].finish();
+    collection[i].finish()
   }
 }
 
@@ -57,92 +57,92 @@ export function usePropertyManager(
 ): void {
   collection.push(
     useMemo(() => {
-      let currentProperties: Properties = {};
-      let currentPropertiesLength: number = 0;
+      let currentProperties: Properties = {}
+      let currentPropertiesLength: number = 0
       const setProperty = (key: string, newValue: unknown): void => {
         if (newValue === undefined) {
           //only adding non undefined values to the properties
-          return;
+          return
         }
-        const currentValue = currentProperties[key];
+        const currentValue = currentProperties[key]
         if (currentValue === undefined) {
           //insert
-          ++currentPropertiesLength;
+          ++currentPropertiesLength
         }
         if (currentValue == null || !(newValue instanceof Signal)) {
           //replace or insert
-          currentProperties[key] = newValue;
-          return;
+          currentProperties[key] = newValue
+          return
         }
         //we adding a signal to an existing property / to existing property
         if (Array.isArray(currentValue)) {
-          currentValue.push(newValue);
-          return;
+          currentValue.push(newValue)
+          return
         }
-        currentProperties[key] = [currentValue, newValue];
-        return;
-      };
+        currentProperties[key] = [currentValue, newValue]
+        return
+      }
       const add = (key: string, value: unknown) => {
         if (value === undefined) {
-          return;
+          return
         }
         if (transformProperty != null) {
-          transformProperty(key, value, hasProperty, setProperty);
-          return;
+          transformProperty(key, value, hasProperty, setProperty)
+          return
         }
         if (hasProperty(key)) {
-          setProperty(key, value);
+          setProperty(key, value)
         }
-      };
+      }
       return {
         add,
         finish: () => {
-          finishProperties(currentProperties, currentPropertiesLength);
-          currentPropertiesLength = 0;
-          currentProperties = {};
+          finishProperties(currentProperties, currentPropertiesLength)
+          currentPropertiesLength = 0
+          currentProperties = {}
         },
-      };
+      }
     }, [hasProperty, finishProperties, transformProperty]),
-  );
+  )
 }
 
 export function equalReactiveProperty(val1: unknown, val2: unknown): boolean {
   if (!Array.isArray(val1)) {
-    return val1 === val2;
+    return val1 === val2
   }
   if (!Array.isArray(val2)) {
-    return false;
+    return false
   }
-  const length = val1.length;
+  const length = val1.length
   if (length != val2.length) {
-    return false;
+    return false
   }
   for (let i = 0; i < length; i++) {
     if (val1[i] != val2[i]) {
-      return false;
+      return false
     }
   }
-  return true;
+  return true
 }
 
 export function readReactiveProperty(value: unknown): unknown {
   if (value instanceof Signal) {
-    return (value as unknown as Signal<unknown>).value;
+    return (value as unknown as Signal<unknown>).value
   }
   if (!Array.isArray(value)) {
-    return value;
+    return value
   }
-  let result = undefined;
-  const length = value.length;
+  let result = undefined
+  const length = value.length
   for (let i = 0; i < length; i++) {
-    const val = value[i];
-    const current = val instanceof Signal ? val.value : val;
+    const val = value[i]
+    const current = val instanceof Signal ? val.value : val
     if (current === undefined) {
-      continue;
+      continue
     }
-    result = current;
+    result = current
   }
-  return result;
+  return result
 }
 
 export function useGetBatchedProperties<T extends Record<string, unknown>>(
@@ -150,17 +150,15 @@ export function useGetBatchedProperties<T extends Record<string, unknown>>(
   keys: ReadonlyArray<keyof T>,
   propertyTransformation?: PropertyTransformation,
 ) {
-  const getPropertySignal: WithBatchedProperties<Partial<T>>["getProperty"] = useMemo(
-    () => signal(() => undefined),
-    [],
-  );
+  const getPropertySignal: WithBatchedProperties<Partial<T>>['getProperty'] = useMemo(() => signal(() => undefined), [])
   const object = useMemo<WithBatchedProperties<Partial<T>>>(
     () => ({
       hasBatchedProperty: (key) => keys.includes(key),
       getProperty: getPropertySignal,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [keys],
-  );
-  useBatchedProperties(collection, object, propertyTransformation);
-  return getPropertySignal;
+  )
+  useBatchedProperties(collection, object, propertyTransformation)
+  return getPropertySignal
 }

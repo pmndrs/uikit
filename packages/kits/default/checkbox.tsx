@@ -1,7 +1,7 @@
-import { Container } from "@react-three/uikit";
-import { Check } from "@react-three/uikit-lucide";
-import { ComponentPropsWithoutRef, useState } from "react";
-import { colors } from "./defaults.js";
+import { Container } from '@react-three/uikit'
+import { Check } from '@react-three/uikit-lucide'
+import { ComponentPropsWithoutRef, useState } from 'react'
+import { colors } from './defaults.js'
 
 export function Checkbox({
   defaultChecked,
@@ -9,25 +9,29 @@ export function Checkbox({
   disabled = false,
   onCheckedChange,
   ...props
-}: Omit<ComponentPropsWithoutRef<typeof Container>, "children"> & {
-  defaultChecked?: boolean;
-  checked?: boolean;
-  disabled?: boolean;
-  onCheckedChange?(checked: boolean): void;
+}: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'> & {
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
 }) {
-  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false);
-  const checked = providedChecked ?? uncontrolled;
+  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
+  const checked = providedChecked ?? uncontrolled
   return (
     <Container
       alignItems="center"
       justifyContent="center"
-      cursor={disabled ? undefined : "pointer"}
-      onClick={disabled ? undefined : () => {
-        if (providedChecked == null) {
-          setUncontrolled(!checked);
-        }
-        onCheckedChange?.(!checked);
-      }}
+      cursor={disabled ? undefined : 'pointer'}
+      onClick={
+        disabled
+          ? undefined
+          : () => {
+              if (providedChecked == null) {
+                setUncontrolled(!checked)
+              }
+              onCheckedChange?.(!checked)
+            }
+      }
       borderRadius={4}
       width={16}
       height={16}
@@ -45,5 +49,5 @@ export function Checkbox({
         height={14}
       />
     </Container>
-  );
+  )
 }

@@ -3,19 +3,26 @@
   "parser": "@typescript-eslint/parser",
   "env": {
     "browser": true,
-    "node": true
+    "node": true,
+    "es6": true
   },
   "settings": {
     "react": {
-      "version": "18"
+      "version": "detect"
     }
   },
   "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
+    "prettier",
+    "plugin:prettier/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "plugin:import/recommended",
+    "plugin:@react-three/recommended"
   ],
-  "plugins": ["react", "react-hooks", "@typescript-eslint", "prettier"]
+  "plugins": ["@typescript-eslint", "react", "react-hooks", "import", "prettier", "@react-three"],
+  "rules": {
+    "import/no-unresolved": "off",
+    "import/named": "off",
+    "import/namespace": "off",
+    "import/no-named-as-default-member": "off"
+  }
 }

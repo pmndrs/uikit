@@ -1,20 +1,12 @@
-import {
-  Box3,
-  InstancedBufferAttribute,
-  Material,
-  Mesh,
-  Object3DEventMap,
-  PlaneGeometry,
-  Sphere,
-} from "three";
+import { Box3, InstancedBufferAttribute, Material, Mesh, Object3DEventMap, PlaneGeometry, Sphere } from 'three'
 
 export class InstancedGlyphMesh extends Mesh {
-  public count = 0;
+  public count = 0
 
-  protected readonly isInstancedMesh = true;
-  public readonly instanceColor = null;
-  public readonly boundingBox = new Box3();
-  public readonly boundingSphere = new Sphere();
+  protected readonly isInstancedMesh = true
+  public readonly instanceColor = null
+  public readonly boundingBox = new Box3()
+  public readonly boundingSphere = new Sphere()
 
   constructor(
     public readonly instanceMatrix: InstancedBufferAttribute,
@@ -23,21 +15,21 @@ export class InstancedGlyphMesh extends Mesh {
     public readonly instanceClipping: InstancedBufferAttribute,
     material: Material,
   ) {
-    const planeGeometry = new PlaneGeometry();
+    const planeGeometry = new PlaneGeometry()
     planeGeometry.translate(0.5, -0.5, 0)
-    super(planeGeometry, material);
-    planeGeometry.attributes.instanceUVOffset = instanceUV;
+    super(planeGeometry, material)
+    planeGeometry.attributes.instanceUVOffset = instanceUV
     planeGeometry.attributes.instanceRGBA = instanceRGBA
     planeGeometry.attributes.instanceClipping = instanceClipping
-    this.frustumCulled = false;
+    this.frustumCulled = false
   }
 
   copy(): this {
-    throw new Error("copy not implemented");
+    throw new Error('copy not implemented')
   }
 
   dispose() {
-    this.dispatchEvent({ type: "dispose" as keyof Object3DEventMap });
+    this.dispatchEvent({ type: 'dispose' as keyof Object3DEventMap })
   }
 
   //functions not needed because intersection (and morphing) is intenionally disabled

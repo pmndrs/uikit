@@ -26,8 +26,12 @@
   "scripts": {
     "test": "mocha ./tests/*.spec.ts",
     "build": "tsc",
-    "flex:inline-wasm": "wasmwrap --include-decode false --input node_modules/yoga-wasm-web/dist/yoga.wasm --output src/flex/wasm.ts",
-    "flex:generate:setter": "node --loader ts-node/esm scripts/flex-generate-setter.ts"
+    "inline-wasm": "wasmwrap --include-decode false --input node_modules/yoga-wasm-web/dist/yoga.wasm --output src/flex/wasm.ts",
+    "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
+    "check:prettier": "prettier --check src",
+    "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
+    "fix:prettier": "prettier --write src",
+    "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {
     "@react-three/fiber": "^8.15.13",

@@ -1,2 +1,4 @@
-icons/
-src/
+icons/*
+!.gitkeep
+src/*
+!.gitkeep

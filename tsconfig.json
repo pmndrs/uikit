@@ -7,5 +7,9 @@
         "declaration": true,
         "esModuleInterop": true,
         "jsx": "react-jsx"
+    },
+    "ts-node": {
+        "transpileOnly": true,
+        "esm": true
     }
 }

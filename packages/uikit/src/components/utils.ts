@@ -1,30 +1,23 @@
-import { ReadonlySignal, Signal, computed, effect } from "@preact/signals-core";
-import {
-  useMemo,
-  useEffect,
-  createContext,
-  useContext,
-  useImperativeHandle,
-  ForwardedRef,
-} from "react";
-import { Matrix4, Mesh, Vector2Tuple } from "three";
-import { FlexNode, Inset } from "../flex/node.js";
-import { WithHover } from "../hover.js";
-import { WithResponsive } from "../responsive.js";
+import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
+import { useMemo, useEffect, createContext, useContext, useImperativeHandle, ForwardedRef } from 'react'
+import { Matrix4, Mesh, Vector2Tuple } from 'three'
+import { FlexNode, Inset } from '../flex/node.js'
+import { WithHover } from '../hover.js'
+import { WithResponsive } from '../responsive.js'
 
-export const rootIdentiferKey = Symbol("root-identifier-key");
-export const orderKey = Symbol("order-key");
+export const rootIdentiferKey = Symbol('root-identifier-key')
+export const orderKey = Symbol('order-key')
 
 export type WithConditionals<T> = WithHover<T> & WithResponsive<T>
 
 export type ComponentInternals = {
-  pixelSize: number;
-  size: ReadonlySignal<Vector2Tuple>;
-  borderInset: ReadonlySignal<Inset>;
-  paddingInset: ReadonlySignal<Inset>;
-  scrollPosition?: Signal<Vector2Tuple>;
-  interactionPanel: Mesh;
-};
+  pixelSize: number
+  size: ReadonlySignal<Vector2Tuple>
+  borderInset: ReadonlySignal<Inset>
+  paddingInset: ReadonlySignal<Inset>
+  scrollPosition?: Signal<Vector2Tuple>
+  interactionPanel: Mesh
+}
 
 export function useComponentInternals(
   ref: ForwardedRef<ComponentInternals>,
@@ -42,8 +35,8 @@ export function useComponentInternals(
       interactionPanel,
       scrollPosition,
     }),
-    [node],
-  );
+    [interactionPanel, node, scrollPosition],
+  )
 }
 
 const ElementRenderPriority = {
@@ -53,76 +46,66 @@ const ElementRenderPriority = {
   Image: 3,
   Custom: 4,
   Panel: 5,
-};
+}
 
-export function setRootIdentifier<T>(
-  result: T,
-  rootIdentifier: unknown,
-  type: keyof typeof ElementRenderPriority,
-): T {
-  (result as any)[rootIdentiferKey] = rootIdentifier;
-  (result as any)[orderKey] = ElementRenderPriority[type];
-  return result;
+export function setRootIdentifier<T>(result: T, rootIdentifier: unknown, type: keyof typeof ElementRenderPriority): T {
+  ;(result as any)[rootIdentiferKey] = rootIdentifier
+  ;(result as any)[orderKey] = ElementRenderPriority[type]
+  return result
 }
 
 export type LayoutListeners = {
-  onSizeChange?: (width: number, height: number) => void;
-};
+  onSizeChange?: (width: number, height: number) => void
+}
 
-export function useLayoutListeners(
-  { onSizeChange }: LayoutListeners,
-  size: Signal<Vector2Tuple>,
-): void {
+export function useLayoutListeners({ onSizeChange }: LayoutListeners, size: Signal<Vector2Tuple>): void {
   const unsubscribe = useMemo(() => {
     if (onSizeChange == null) {
-      return undefined;
+      return undefined
     }
-    let first = true;
+    let first = true
     return effect(() => {
-      const s = size.value;
+      const s = size.value
       if (first) {
-        first = false;
-        return;
+        first = false
+        return
       }
-      onSizeChange(...s);
-    });
-  }, [onSizeChange, size]);
-  useEffect(() => unsubscribe, [unsubscribe]);
+      onSizeChange(...s)
+    })
+  }, [onSizeChange, size])
+  useEffect(() => unsubscribe, [unsubscribe])
 }
 
 export type ViewportListeners = {
-  onIsInViewportChange?: (isInViewport: boolean) => void;
-};
+  onIsInViewportChange?: (isInViewport: boolean) => void
+}
 
-export function useViewportListeners(
-  { onIsInViewportChange }: ViewportListeners,
-  isClipped: Signal<boolean>,
-) {
+export function useViewportListeners({ onIsInViewportChange }: ViewportListeners, isClipped: Signal<boolean>) {
   const unsubscribe = useMemo(() => {
     if (onIsInViewportChange == null) {
-      return undefined;
+      return undefined
     }
-    let first = true;
+    let first = true
     return effect(() => {
-      const isInViewport = !isClipped.value;
+      const isInViewport = !isClipped.value
       if (first) {
-        first = false;
-        return;
+        first = false
+        return
       }
-      onIsInViewportChange(isInViewport);
-    });
-  }, [onIsInViewportChange]);
-  useEffect(() => unsubscribe, [unsubscribe]);
+      onIsInViewportChange(isInViewport)
+    })
+  }, [isClipped, onIsInViewportChange])
+  useEffect(() => unsubscribe, [unsubscribe])
 }
 
 export function useGlobalMatrix(localMatrix: Signal<Matrix4>): Signal<Matrix4> {
-  const parentMatrix = useContext(MatrixContext);
+  const parentMatrix = useContext(MatrixContext)
   return useMemo(
     () => computed(() => parentMatrix.value.clone().multiply(localMatrix.value)),
     [localMatrix, parentMatrix],
-  );
+  )
 }
 
-const MatrixContext = createContext<Signal<Matrix4>>(null as any);
+const MatrixContext = createContext<Signal<Matrix4>>(null as any)
 
-export const MatrixProvider = MatrixContext.Provider;
+export const MatrixProvider = MatrixContext.Provider

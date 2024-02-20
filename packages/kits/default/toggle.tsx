@@ -1,6 +1,6 @@
-import { Container, DefaultProperties } from "@react-three/uikit";
-import { ComponentPropsWithoutRef, useState } from "react";
-import { colors } from "./defaults.js";
+import { Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, useState } from 'react'
+import { colors } from './defaults.js'
 
 const toggleVariants = {
   default: {
@@ -19,35 +19,35 @@ const toggleVariants = {
   //TODO: hover:text-accent-foreground
 } satisfies {
   [Key in string]: {
-    containerProps: ComponentPropsWithoutRef<typeof Container>;
-    containerHoverProps: ComponentPropsWithoutRef<typeof Container>["hover"];
-  };
-};
+    containerProps: ComponentPropsWithoutRef<typeof Container>
+    containerHoverProps: ComponentPropsWithoutRef<typeof Container>['hover']
+  }
+}
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
   sm: { height: 36, paddingX: 10 },
   lg: { height: 44, paddingX: 20 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> };
+} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
 
 export function Toggle({
   children,
-  size = "default",
-  variant = "default",
+  size = 'default',
+  variant = 'default',
   defaultChecked,
   checked: providedChecked,
   disabled = false,
   onCheckedChange,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
-  defaultChecked?: boolean;
-  checked?: boolean;
-  disabled?: boolean;
-  onCheckedChange?(checked: boolean): void;
-  variant?: keyof typeof toggleVariants;
-  size?: keyof typeof toggleSizes;
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
+  variant?: keyof typeof toggleVariants
+  size?: keyof typeof toggleSizes
 }) {
-  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false);
-  const checked = providedChecked ?? uncontrolled;
+  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
+  const checked = providedChecked ?? uncontrolled
   return (
     <Container
       onClick={
@@ -55,23 +55,19 @@ export function Toggle({
           ? undefined
           : () => {
               if (providedChecked == null) {
-                setUncontrolled(!checked);
+                setUncontrolled(!checked)
               }
-              onCheckedChange?.(!checked);
+              onCheckedChange?.(!checked)
             }
       }
       alignItems="center"
       justifyContent="center"
       borderRadius={6}
-      cursor={disabled ? undefined : "pointer"}
+      cursor={disabled ? undefined : 'pointer'}
       backgroundOpacity={disabled ? 0.5 : undefined}
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundColor={checked ? colors.accent : undefined}
-      hover={
-        disabled
-          ? undefined
-          : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps }
-      }
+      hover={disabled ? undefined : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps }}
       {...toggleVariants[variant].containerProps}
       {...toggleSizes[size]}
       {...props}
@@ -85,6 +81,6 @@ export function Toggle({
         {children}
       </DefaultProperties>
     </Container>
-  );
+  )
   //TODO: hover:text-muted-foreground
 }

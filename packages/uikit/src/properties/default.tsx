@@ -1,12 +1,12 @@
-import { createContext, ReactNode, useContext } from "react";
-import { applyProperties, ManagerCollection, PropertyManager } from "./utils.js";
-import { ContainerProperties } from "../components/container.js";
-import { ContentProperties } from "../components/content.js";
-import { ImageProperties } from "../components/image.js";
-import { RootProperties } from "../components/root.js";
-import { SvgProperties } from "../components/svg.js";
-import { CustomContainerProperties } from "../components/custom.js";
-import { TextProperties } from "../index.js";
+import { createContext, ReactNode, useContext } from 'react'
+import { applyProperties, ManagerCollection, PropertyManager } from './utils.js'
+import { ContainerProperties } from '../components/container.js'
+import { ContentProperties } from '../components/content.js'
+import { ImageProperties } from '../components/image.js'
+import { RootProperties } from '../components/root.js'
+import { SvgProperties } from '../components/svg.js'
+import { CustomContainerProperties } from '../components/custom.js'
+import { TextProperties } from '../index.js'
 
 export type AllOptionalProperties =
   | ContainerProperties
@@ -15,55 +15,48 @@ export type AllOptionalProperties =
   | ImageProperties
   | RootProperties
   | SvgProperties
-  | TextProperties;
+  | TextProperties
 
-const DefaultPropertiesContext = createContext<AllOptionalProperties>(null as any);
+const DefaultPropertiesContext = createContext<AllOptionalProperties>(null as any)
 
-export type WithClasses<T> = T & { classes?: T | Array<T> };
+export type WithClasses<T> = T & { classes?: T | Array<T> }
 
-export function useTraverseProperties<T>(
-  properties: WithClasses<T>,
-  fn: (properties: T) => void,
-): void {
-  const defaultProperties = useContext(DefaultPropertiesContext);
+export function useTraverseProperties<T>(properties: WithClasses<T>, fn: (properties: T) => void): void {
+  const defaultProperties = useContext(DefaultPropertiesContext)
   if (defaultProperties != null) {
-    fn(defaultProperties as T);
+    fn(defaultProperties as T)
   }
-  const { classes } = properties;
+  const { classes } = properties
   if (Array.isArray(classes)) {
-    const classesLength = classes.length;
+    const classesLength = classes.length
     for (let i = 0; i < classesLength; i++) {
-      fn(classes[i]);
+      fn(classes[i])
     }
   } else if (classes != null) {
-    fn(classes);
+    fn(classes)
   }
-  fn(properties);
+  fn(properties)
 }
 
 export function useApplyProperties(
   collection: ManagerCollection,
   properties: WithClasses<Record<string, unknown>>,
 ): void {
-  useTraverseProperties(properties, (p) => applyProperties(collection, p));
+  useTraverseProperties(properties, (p) => applyProperties(collection, p))
 }
 
 export function DefaultProperties(properties: { children?: ReactNode } & AllOptionalProperties) {
-  const existingDefaultProperties = useContext(DefaultPropertiesContext);
-  const result: any = { ...existingDefaultProperties };
+  const existingDefaultProperties = useContext(DefaultPropertiesContext)
+  const result: any = { ...existingDefaultProperties }
   for (const key in properties) {
-    if (key === "children") {
-      continue;
+    if (key === 'children') {
+      continue
     }
-    const value = properties[key as keyof AllOptionalProperties];
+    const value = properties[key as keyof AllOptionalProperties]
     if (value == null) {
-      continue;
+      continue
     }
-    result[key] = value as any;
+    result[key] = value as any
   }
-  return (
-    <DefaultPropertiesContext.Provider value={result}>
-      {properties.children}
-    </DefaultPropertiesContext.Provider>
-  );
+  return <DefaultPropertiesContext.Provider value={result}>{properties.children}</DefaultPropertiesContext.Provider>
 }

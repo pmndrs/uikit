@@ -1,5 +1,5 @@
-import { MeshBasicMaterial } from "three";
-import { Font } from "../font.js";
+import { MeshBasicMaterial } from 'three'
+import { Font } from '../font.js'
 
 export class InstancedGlyphMaterial extends MeshBasicMaterial {
   constructor(font: Font) {
@@ -7,13 +7,13 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
       transparent: true,
       depthWrite: false,
       toneMapped: false,
-    });
+    })
 
     this.onBeforeCompile = (parameters) => {
-      parameters.uniforms.fontPage = { value: font.page };
-      parameters.uniforms.pageSize = { value: [font.pageWidth, font.pageHeight] };
-      parameters.uniforms.distanceRange = { value: font.distanceRange };
-      parameters.uniforms.v_weight = { value: 0.3 };
+      parameters.uniforms.fontPage = { value: font.page }
+      parameters.uniforms.pageSize = { value: [font.pageWidth, font.pageHeight] }
+      parameters.uniforms.distanceRange = { value: font.distanceRange }
+      parameters.uniforms.v_weight = { value: 0.3 }
       parameters.vertexShader =
         `attribute vec4 instanceUVOffset;
         varying vec2 fontUv;
@@ -22,15 +22,15 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
         attribute mat4 instanceClipping;
         varying mat4 clipping;
         varying vec3 localPosition;
-        ` + parameters.vertexShader;
+        ` + parameters.vertexShader
       parameters.vertexShader = parameters.vertexShader.replace(
-        "#include <uv_vertex>",
+        '#include <uv_vertex>',
         `#include <uv_vertex>
             fontUv = instanceUVOffset.xy + uv * instanceUVOffset.zw;
             rgba = instanceRGBA;
             clipping = instanceClipping;
             localPosition = (instanceMatrix * vec4(position, 1.0)).xyz;`,
-      );
+      )
       parameters.fragmentShader =
         `uniform sampler2D fontPage;
             uniform vec2 pageSize;
@@ -47,9 +47,9 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
             vec3 msdf = texture(fontPage, fontUv).rgb;
             return median(msdf.r, msdf.g, msdf.b);
         }
-        ` + parameters.fragmentShader;
+        ` + parameters.fragmentShader
       parameters.fragmentShader = parameters.fragmentShader.replace(
-        "#include <map_fragment>",
+        '#include <map_fragment>',
         ` #include <map_fragment>
           vec4 plane;
           float distanceToPlane, distanceGradient;
@@ -71,7 +71,7 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
           diffuseColor.a *= clipOpacity * min((multiplier - 0.5) / 0.5, 1.0);
           diffuseColor *= rgba;
             `,
-      );
-    };
+      )
+    }
   }
 }

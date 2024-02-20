@@ -1,21 +1,11 @@
-import { ReactNode, forwardRef } from "react";
-import { useFlexNode, FlexProvider } from "../flex/react.js";
-import { WithReactive, createCollection, finalizeCollection } from "../properties/utils.js";
-import {
-  InteractionGroup,
-  MaterialClass,
-  useInstancedPanel,
-  useInteractionPanel,
-} from "../panel/react.js";
-import { EventHandlers } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { YogaProperties } from "../flex/node.js";
-import { useApplyHoverProperties } from "../hover.js";
-import {
-  ClippingRectProvider,
-  useClippingRect,
-  useIsClipped,
-  useParentClippingRect,
-} from "../clipping.js";
+import { ReactNode, forwardRef } from 'react'
+import { useFlexNode, FlexProvider } from '../flex/react.js'
+import { WithReactive, createCollection, finalizeCollection } from '../properties/utils.js'
+import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
+import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { YogaProperties } from '../flex/node.js'
+import { useApplyHoverProperties } from '../hover.js'
+import { ClippingRectProvider, useClippingRect, useIsClipped, useParentClippingRect } from '../clipping.js'
 import {
   ViewportListeners,
   LayoutListeners,
@@ -26,7 +16,7 @@ import {
   ComponentInternals,
   useComponentInternals,
   WithConditionals,
-} from "./utils.js";
+} from './utils.js'
 import {
   ScrollGroup,
   ScrollHandler,
@@ -35,47 +25,45 @@ import {
   useGlobalScrollMatrix,
   useScrollPosition,
   useScrollbars,
-} from "../scroll.js";
+} from '../scroll.js'
 import {
   WithAllAliases,
   flexAliasPropertyTransformation,
   panelAliasPropertyTransformation,
-} from "../properties/alias.js";
-import { PanelProperties } from "../panel/instanced-panel.js";
-import { TransformProperties, useTransformMatrix } from "../transform.js";
-import { useImmediateProperties } from "../properties/immediate.js";
-import { WithClasses, useApplyProperties } from "../properties/default.js";
-import { useRootGroup } from "../utils.js";
-import { useApplyResponsiveProperties } from "../responsive.js";
+} from '../properties/alias.js'
+import { PanelProperties } from '../panel/instanced-panel.js'
+import { TransformProperties, useTransformMatrix } from '../transform.js'
+import { useImmediateProperties } from '../properties/immediate.js'
+import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { useRootGroup } from '../utils.js'
+import { useApplyResponsiveProperties } from '../responsive.js'
 
 export type ContainerProperties = WithConditionals<
   WithClasses<
-    WithAllAliases<
-      WithReactive<YogaProperties & PanelProperties & TransformProperties> & ScrollbarProperties
-    >
+    WithAllAliases<WithReactive<YogaProperties & PanelProperties & TransformProperties> & ScrollbarProperties>
   >
->;
+>
 
 export const Container = forwardRef<
   ComponentInternals,
   {
-    children?: ReactNode;
-    index?: number;
-    zIndexOffset?: number;
-    backgroundMaterialClass?: MaterialClass;
+    children?: ReactNode
+    index?: number
+    zIndexOffset?: number
+    backgroundMaterialClass?: MaterialClass
   } & ContainerProperties &
     EventHandlers &
     LayoutListeners &
     ViewportListeners &
     ScrollListeners
 >((properties, ref) => {
-  const collection = createCollection();
-  const node = useFlexNode(properties.index);
-  useImmediateProperties(collection, node, flexAliasPropertyTransformation);
-  const transformMatrix = useTransformMatrix(collection, node);
-  const parentClippingRect = useParentClippingRect();
-  const globalMatrix = useGlobalMatrix(transformMatrix);
-  const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node);
+  const collection = createCollection()
+  const node = useFlexNode(properties.index)
+  useImmediateProperties(collection, node, flexAliasPropertyTransformation)
+  const transformMatrix = useTransformMatrix(collection, node)
+  const parentClippingRect = useParentClippingRect()
+  const globalMatrix = useGlobalMatrix(transformMatrix)
+  const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -87,10 +75,10 @@ export const Container = forwardRef<
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
-  );
+  )
 
-  const scrollPosition = useScrollPosition();
-  const globalScrollMatrix = useGlobalScrollMatrix(scrollPosition, node, globalMatrix);
+  const scrollPosition = useScrollPosition()
+  const globalScrollMatrix = useGlobalScrollMatrix(scrollPosition, node, globalMatrix)
   useScrollbars(
     collection,
     scrollPosition,
@@ -99,16 +87,16 @@ export const Container = forwardRef<
     isClipped,
     properties.scrollbarMaterialClass,
     parentClippingRect,
-  );
+  )
 
   //apply all properties
-  useApplyProperties(collection, properties);
+  useApplyProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties);
-  finalizeCollection(collection);
+  const hoverHandlers = useApplyHoverProperties(collection, properties)
+  finalizeCollection(collection)
 
-  useLayoutListeners(properties, node.size);
-  useViewportListeners(properties, isClipped);
+  useLayoutListeners(properties, node.size)
+  useViewportListeners(properties, isClipped)
 
   const clippingRect = useClippingRect(
     globalMatrix,
@@ -117,13 +105,13 @@ export const Container = forwardRef<
     node.overflow,
     node,
     parentClippingRect,
-  );
+  )
 
-  const rootGroup = useRootGroup();
+  const rootGroup = useRootGroup()
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroup);
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroup)
 
-  useComponentInternals(ref, node, interactionPanel, scrollPosition);
+  useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
   return (
     <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
@@ -138,5 +126,5 @@ export const Container = forwardRef<
         </MatrixProvider>
       </ScrollGroup>
     </InteractionGroup>
-  );
-});
+  )
+})

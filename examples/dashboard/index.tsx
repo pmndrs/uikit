@@ -14,6 +14,7 @@ import { TeamSwitcher } from "./team-switcher.js";
 import { UserNav } from "./user-nav.js";
 import { Activity, CreditCard, DollarSign, Users } from "@react-three/uikit-lucide";
 import { Environment, OrbitControls } from "@react-three/drei";
+import { Perf } from "r3f-perf"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -24,6 +25,7 @@ createRoot(document.getElementById("root")!).render(
 function App() {
   return (
     <Canvas style={{ height: "100dvh", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <Perf />
       <color attach="background" args={["black"]} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />

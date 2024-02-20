@@ -1,30 +1,19 @@
-import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
-import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from "three";
-import type {
-  EventHandlers,
-  ThreeEvent,
-} from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { Signal, effect } from "@preact/signals-core";
-import { Inset } from "../flex/node.js";
-import { useSignalEffect } from "../utils.js";
-import { useFrame } from "@react-three/fiber";
-import { ClippingRect, useParentClippingRect } from "../clipping.js";
-import { makeClippedRaycast, makePanelRaycast } from "./interaction-panel-mesh.js";
-import { HoverEventHandlers } from "../hover.js";
-import { InstancedPanelGroup } from "./instanced-panel-group.js";
-import { InstancedPanel } from "./instanced-panel.js";
-import { createInstancedPanelMaterial, createPanelMaterial } from "./panel-material.js";
-import { useImmediateProperties } from "../properties/immediate.js";
-import { ManagerCollection, PropertyTransformation } from "../properties/utils.js";
-import { useBatchedProperties } from "../properties/batched.js";
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
+import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from 'three'
+import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { Signal, effect } from '@preact/signals-core'
+import { Inset } from '../flex/node.js'
+import { useSignalEffect } from '../utils.js'
+import { useFrame } from '@react-three/fiber'
+import { ClippingRect, useParentClippingRect } from '../clipping.js'
+import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
+import { HoverEventHandlers } from '../hover.js'
+import { InstancedPanelGroup } from './instanced-panel-group.js'
+import { InstancedPanel } from './instanced-panel.js'
+import { createInstancedPanelMaterial, createPanelMaterial } from './panel-material.js'
+import { useImmediateProperties } from '../properties/immediate.js'
+import { ManagerCollection, PropertyTransformation } from '../properties/utils.js'
+import { useBatchedProperties } from '../properties/batched.js'
 
 export function InteractionGroup({
   handlers,
@@ -32,19 +21,19 @@ export function InteractionGroup({
   matrix,
   children,
 }: {
-  handlers: EventHandlers;
-  hoverHandlers: HoverEventHandlers | undefined;
-  matrix: Signal<Matrix4>;
-  children?: ReactNode;
+  handlers: EventHandlers
+  hoverHandlers: HoverEventHandlers | undefined
+  matrix: Signal<Matrix4>
+  children?: ReactNode
 }) {
-  const groupRef = useRef<Group>(null);
+  const groupRef = useRef<Group>(null)
   useEffect(() => {
-    const group = groupRef.current;
+    const group = groupRef.current
     if (group == null) {
-      return;
+      return
     }
-    return effect(() => group.matrix.copy(matrix.value));
-  }, [matrix]);
+    return effect(() => group.matrix.copy(matrix.value))
+  }, [matrix])
   return (
     <group
       ref={groupRef}
@@ -67,7 +56,7 @@ export function InteractionGroup({
     >
       {children}
     </group>
-  );
+  )
 }
 
 function mergeHandlers<T extends (event: ThreeEvent<PointerEvent>) => void>(
@@ -75,18 +64,18 @@ function mergeHandlers<T extends (event: ThreeEvent<PointerEvent>) => void>(
   systemHandler: T | undefined,
 ): T | undefined {
   if (userHandler == null) {
-    return systemHandler;
+    return systemHandler
   }
   if (systemHandler == null) {
-    return userHandler;
+    return userHandler
   }
   return ((e: ThreeEvent<PointerEvent>) => {
-    systemHandler(e);
+    systemHandler(e)
     if (e.stopped) {
-      return;
+      return
     }
-    userHandler(e);
-  }) as T;
+    userHandler(e)
+  }) as T
 }
 
 export function useInteractionPanel(
@@ -94,32 +83,27 @@ export function useInteractionPanel(
   psRef: { pixelSize: number; depth: number },
   rootGroup: Group,
 ): Mesh {
-  const parentClippingRect = useParentClippingRect();
+  const parentClippingRect = useParentClippingRect()
   const panel = useMemo(() => {
-    const result = new Mesh();
-    result.matrixAutoUpdate = false;
-    result.raycast = makeClippedRaycast(
-      result,
-      makePanelRaycast(result, psRef.depth),
-      rootGroup,
-      parentClippingRect,
-    );
-    result.visible = false;
-    return result;
-  }, [psRef.depth]);
+    const result = new Mesh()
+    result.matrixAutoUpdate = false
+    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, psRef.depth), rootGroup, parentClippingRect)
+    result.visible = false
+    return result
+  }, [parentClippingRect, psRef.depth, rootGroup])
   useSignalEffect(() => {
-    const [width, height] = size.value;
-    panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1);
-    panel.updateMatrix();
-  }, [size, psRef]);
-  return panel;
+    const [width, height] = size.value
+    panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1)
+    panel.updateMatrix()
+  }, [size, psRef])
+  return panel
 }
 
-export type MaterialClass = { new (): Material };
+export type MaterialClass = { new (): Material }
 
-export type GetInstancedPanelGroup = (materialClass: MaterialClass) => InstancedPanelGroup;
+export type GetInstancedPanelGroup = (materialClass: MaterialClass) => InstancedPanelGroup
 
-const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any);
+const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
 
 export function usePanelMaterial(
   collection: ManagerCollection,
@@ -131,16 +115,16 @@ export function usePanelMaterial(
   propertyTransformation: PropertyTransformation,
 ) {
   const material = useMemo(() => {
-    const MaterialClass = createPanelMaterial(materialClass ?? MeshBasicMaterial);
-    const result = new MaterialClass();
-    result.clippingPlanes = clippingPlanes;
-    result.setup(size, borderInset, isClipped);
-    return result;
-  }, [size, borderInset, isClipped, materialClass, clippingPlanes]);
-  const immediate = useImmediateProperties(collection, material, propertyTransformation);
-  const batched = useBatchedProperties(collection, material, propertyTransformation);
-  useEffect(() => () => material.destroy(), [material]);
-  return material;
+    const MaterialClass = createPanelMaterial(materialClass ?? MeshBasicMaterial)
+    const result = new MaterialClass()
+    result.clippingPlanes = clippingPlanes
+    result.setup(size, borderInset, isClipped)
+    return result
+  }, [size, borderInset, isClipped, materialClass, clippingPlanes])
+  const immediate = useImmediateProperties(collection, material, propertyTransformation)
+  const batched = useBatchedProperties(collection, material, propertyTransformation)
+  useEffect(() => () => material.destroy(), [material])
+  return material
 }
 
 /**
@@ -159,7 +143,8 @@ export function useInstancedPanel(
   propertyTransformation: PropertyTransformation,
   providedGetGroup?: GetInstancedPanelGroup,
 ): void {
-  const getGroup = providedGetGroup ?? useContext(InstancedPanelContext);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const getGroup = providedGetGroup ?? useContext(InstancedPanelContext)
   const panel = useMemo(
     () =>
       new InstancedPanel(
@@ -172,55 +157,37 @@ export function useInstancedPanel(
         isHidden,
         depth,
       ),
-    [
-      getGroup,
-      materialClass,
-      matrix,
-      size,
-      borderInset,
-      parentClippingRect,
-      isHidden,
-      depth,
-      offset,
-    ],
-  );
-  useEffect(() => () => panel.destroy(), [panel]);
-  useImmediateProperties(collection, panel, propertyTransformation);
-  useBatchedProperties(collection, panel, propertyTransformation);
+    [getGroup, materialClass, matrix, size, borderInset, parentClippingRect, isHidden, depth, offset],
+  )
+  useEffect(() => () => panel.destroy(), [panel])
+  useImmediateProperties(collection, panel, propertyTransformation)
+  useBatchedProperties(collection, panel, propertyTransformation)
 }
 
-export function useGetInstancedPanelGroup(
-  pixelSize: number,
-  rootIdentifier: unknown,
-  rootGroup: Group,
-) {
-  const map = useMemo(() => new Map<MaterialClass, InstancedPanelGroup>(), []);
+export function useGetInstancedPanelGroup(pixelSize: number, rootIdentifier: unknown, rootGroup: Group) {
+  const map = useMemo(() => new Map<MaterialClass, InstancedPanelGroup>(), [])
   const getGroup = useCallback<GetInstancedPanelGroup>(
     (materialClass) => {
-      let result = map.get(materialClass);
+      let result = map.get(materialClass)
       if (result == null) {
-        const InstancedMaterialClass = createInstancedPanelMaterial(materialClass);
+        const InstancedMaterialClass = createInstancedPanelMaterial(materialClass)
         map.set(
           materialClass,
-          (result = new InstancedPanelGroup(
-            new InstancedMaterialClass(),
-            pixelSize,
-            rootIdentifier,
-          )),
-        );
-        rootGroup.add(result);
+          (result = new InstancedPanelGroup(new InstancedMaterialClass(), pixelSize, rootIdentifier)),
+        )
+        rootGroup.add(result)
       }
-      return result;
+      return result
     },
     [pixelSize, map, rootIdentifier, rootGroup],
-  );
+  )
 
   useFrame((_, delta) => {
     for (const group of map.values()) {
-      group.onFrame(delta);
+      group.onFrame(delta)
     }
-  });
-  return getGroup;
+  })
+  return getGroup
 }
 
-export const InstancedPanelProvider = InstancedPanelContext.Provider;
+export const InstancedPanelProvider = InstancedPanelContext.Provider

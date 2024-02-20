@@ -1,6 +1,6 @@
-import { Container } from "@react-three/uikit";
-import { ComponentPropsWithoutRef, useState } from "react";
-import { colors } from "./defaults.js";
+import { Container } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, useState } from 'react'
+import { colors } from './defaults.js'
 
 export function Switch({
   defaultChecked,
@@ -8,14 +8,14 @@ export function Switch({
   disabled = false,
   onCheckedChange,
   ...props
-}: Omit<ComponentPropsWithoutRef<typeof Container>, "children"> & {
-  defaultChecked?: boolean;
-  checked?: boolean;
-  disabled?: boolean;
-  onCheckedChange?(checked: boolean): void;
+}: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'> & {
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
 }) {
-  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false);
-  const checked = providedChecked ?? uncontrolled;
+  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
+  const checked = providedChecked ?? uncontrolled
   return (
     <Container
       height={24}
@@ -27,13 +27,17 @@ export function Switch({
       backgroundOpacity={disabled ? 0.5 : undefined}
       borderRadius={1000}
       backgroundColor={checked ? colors.primary : colors.input}
-      cursor={disabled ? undefined : "pointer"}
-      onClick={disabled ? undefined : () => {
-        if (providedChecked == null) {
-          setUncontrolled(!checked);
-        }
-        onCheckedChange?.(!checked);
-      }}
+      cursor={disabled ? undefined : 'pointer'}
+      onClick={
+        disabled
+          ? undefined
+          : () => {
+              if (providedChecked == null) {
+                setUncontrolled(!checked)
+              }
+              onCheckedChange?.(!checked)
+            }
+      }
       {...props}
     >
       <Container
@@ -44,5 +48,5 @@ export function Switch({
         backgroundColor={colors.background}
       />
     </Container>
-  );
+  )
 }

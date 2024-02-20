@@ -1,6 +1,6 @@
-import { AllOptionalProperties, Container, DefaultProperties } from "@react-three/uikit";
-import { ComponentPropsWithoutRef } from "react";
-import { colors } from "./defaults.js";
+import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef } from 'react'
+import { colors } from './defaults.js'
 
 const buttonVariants = {
   default: {
@@ -65,31 +65,31 @@ const buttonVariants = {
   }, //TODO: underline-offset-4 hover:underline",
 } satisfies {
   [Key in string]: {
-    containerProps: ComponentPropsWithoutRef<typeof Container>;
-    defaultProps: AllOptionalProperties;
-  };
-};
+    containerProps: ComponentPropsWithoutRef<typeof Container>
+    defaultProps: AllOptionalProperties
+  }
+}
 
 const buttonSizes = {
   default: { height: 40, paddingX: 16, paddingY: 8 },
   sm: { height: 36, paddingX: 12 },
   lg: { height: 42, paddingX: 32 },
   icon: { height: 40, width: 40 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> };
+} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
 
 export function Button({
   children,
-  variant = "default",
-  size = "default",
+  variant = 'default',
+  size = 'default',
   disabled = false,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
-  variant?: keyof typeof buttonVariants;
-  size?: keyof typeof buttonSizes;
-  disabled?: boolean;
+  variant?: keyof typeof buttonVariants
+  size?: keyof typeof buttonSizes
+  disabled?: boolean
 }) {
-  const { containerProps, defaultProps } = buttonVariants[variant];
-  const sizeProps = buttonSizes[size];
+  const { containerProps, defaultProps } = buttonVariants[variant]
+  const sizeProps = buttonSizes[size]
 
   return (
     <Container
@@ -100,7 +100,7 @@ export function Button({
       {...sizeProps}
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundOpacity={disabled ? 0.5 : undefined}
-      cursor={disabled ? undefined : "pointer"}
+      cursor={disabled ? undefined : 'pointer'}
       flexDirection="row"
       {...props}
     >
@@ -114,5 +114,5 @@ export function Button({
         {children}
       </DefaultProperties>
     </Container>
-  );
+  )
 }

@@ -1,41 +1,31 @@
-import {
-  Color,
-  Material,
-  TypedArray,
-  Vector2Tuple,
-  WebGLProgramParametersWithUniforms,
-  WebGLRenderer,
-} from "three";
-import { Constructor, isPanelVisible, setBorderRadius, setComponentInFloat } from "./utils.js";
-import { Signal, computed, effect, signal } from "@preact/signals-core";
-import { Inset } from "../flex/node.js";
-import { clamp } from "three/src/math/MathUtils.js";
-import { PanelProperties } from "./instanced-panel.js";
-import { Properties, readReactiveProperty } from "../properties/utils.js";
-import { WithImmediateProperties } from "../properties/immediate.js";
-import { WithBatchedProperties } from "../properties/batched.js";
+import { Color, Material, TypedArray, Vector2Tuple, WebGLProgramParametersWithUniforms, WebGLRenderer } from 'three'
+import { Constructor, isPanelVisible, setBorderRadius, setComponentInFloat } from './utils.js'
+import { Signal, computed, effect, signal } from '@preact/signals-core'
+import { Inset } from '../flex/node.js'
+import { clamp } from 'three/src/math/MathUtils.js'
+import { PanelProperties } from './instanced-panel.js'
+import { Properties, readReactiveProperty } from '../properties/utils.js'
+import { WithImmediateProperties } from '../properties/immediate.js'
+import { WithBatchedProperties } from '../properties/batched.js'
 
-type InstanceOf<T> = T extends { new (): infer K } ? K : never;
+type InstanceOf<T> = T extends { new (): infer K } ? K : never
 
-const colorHelper = new Color();
+const colorHelper = new Color()
 
-export const panelDefaultColor = new Color(-1, -1, -1);
+export const panelDefaultColor = new Color(-1, -1, -1)
 
 const panelMaterialSetters: {
   [Key in keyof PanelProperties]-?: (
     material: InstanceOf<ReturnType<typeof createPanelMaterial>>,
     value: PanelProperties[Key],
     size: Signal<Vector2Tuple>,
-  ) => void;
+  ) => void
 } = {
   //0-3 = borderSizes
 
   //4-6 = background color
   backgroundColor: (m, p) =>
-    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? panelDefaultColor)).toArray(
-      m.data,
-      4,
-    ),
+    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? panelDefaultColor)).toArray(m.data, 4),
 
   //7 = border radiuses
   borderBottomLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 0, p, size.value[1]),
@@ -45,10 +35,7 @@ const panelMaterialSetters: {
 
   //8 - 10 = border color
   borderColor: (m, p) =>
-    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? 0xffffff)).toArray(
-      m.data,
-      8,
-    ),
+    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? 0xffffff)).toArray(m.data, 8),
   //11
   borderBend: (m, p) => (m.data[11] = p ?? 0),
   //12
@@ -59,11 +46,11 @@ const panelMaterialSetters: {
 
   //15
   backgroundOpacity: (m, p) => (m.data[15] = p ?? -1),
-};
+}
 
-export type PanelSetter = (typeof panelMaterialSetters)[keyof typeof panelMaterialSetters];
+export type PanelSetter = (typeof panelMaterialSetters)[keyof typeof panelMaterialSetters]
 
-export type PanelMaterial = InstanceOf<ReturnType<typeof createPanelMaterial>>;
+export type PanelMaterial = InstanceOf<ReturnType<typeof createPanelMaterial>>
 
 export const panelMaterialDefaultData = [
   0,
@@ -82,164 +69,153 @@ export const panelMaterialDefaultData = [
   1, //width
   1, //height
   -1, //background opacity
-];
+]
 
-const batchedProperties = ["borderOpacity", "backgroundColor", "backgroundOpacity"] as const;
-type BatchedProperties = Pick<PanelProperties, (typeof batchedProperties)[number]>;
-type BatchedPropertiesKey = keyof BatchedProperties;
+const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity'] as const
+type BatchedProperties = Pick<PanelProperties, (typeof batchedProperties)[number]>
+type BatchedPropertiesKey = keyof BatchedProperties
 
 export function createPanelMaterial<T extends Constructor<Material>>(MaterialClass: T) {
-  return class
-    extends MaterialClass
-    implements WithImmediateProperties, WithBatchedProperties<BatchedProperties>
-  {
+  return class extends MaterialClass implements WithImmediateProperties, WithBatchedProperties<BatchedProperties> {
     //data layout: vec4 borderSize = data[0]; vec4 borderRadius = data[1]; vec3 borderColor = data[2].xyz; float borderBend = data[2].w; float borderOpacity = data[3].x; float width = data[3].y; float height = data[3].z; float backgroundOpacity = data[3].w;
-    readonly data = new Float32Array(16);
+    readonly data = new Float32Array(16)
 
-    unsubscribeList: Array<() => void> = [];
-    unsubscribe!: () => void;
-    active = signal(false);
+    unsubscribeList: Array<() => void> = []
+    unsubscribe!: () => void
+    active = signal(false)
 
-    size!: Signal<Vector2Tuple>;
+    size!: Signal<Vector2Tuple>
 
     constructor(...args: Array<any>) {
-      super({ transparent: true, toneMapped: false }, ...args.slice(1));
+      super({ transparent: true, toneMapped: false }, ...args.slice(1))
       if (this.defines == null) {
-        this.defines = {};
+        this.defines = {}
       }
-      this.defines.USE_UV = "";
-      this.defines.USE_TANGENT = "";
-      this.visible = false;
+      this.defines.USE_UV = ''
+      this.defines.USE_TANGENT = ''
+      this.visible = false
     }
 
     hasBatchedProperty(key: BatchedPropertiesKey): boolean {
-      return batchedProperties.includes(key);
+      return batchedProperties.includes(key)
     }
 
-    getProperty: Signal<<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]> = signal(
-      () => undefined,
-    );
+    getProperty: Signal<<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]> = signal(() => undefined)
 
     setup(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>, isClipped: Signal<boolean>) {
-      this.size = size;
+      this.size = size
       this.unsubscribe = effect(() => {
-        const get = this.getProperty.value;
+        const get = this.getProperty.value
         const isVisible = isPanelVisible(
           borderInset,
           size,
           isClipped,
-          get("borderOpacity"),
-          get("backgroundOpacity"),
-          get("backgroundColor"),
-        );
-        this.active.value = isVisible;
+          get('borderOpacity'),
+          get('backgroundOpacity'),
+          get('backgroundColor'),
+        )
+        this.active.value = isVisible
         if (!isVisible) {
-          this.deactivate();
-          return;
+          this.deactivate()
+          return
         }
-        this.activate(size, borderInset);
-      });
+        this.activate(size, borderInset)
+      })
     }
 
     hasImmediateProperty(key: string): boolean {
-      return key in panelMaterialSetters;
+      return key in panelMaterialSetters
     }
 
     setProperty(key: string, value: unknown): void {
-      panelMaterialSetters[key as keyof typeof panelMaterialSetters](this, value as any, this.size);
+      panelMaterialSetters[key as keyof typeof panelMaterialSetters](this, value as any, this.size)
     }
 
     activate(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>): void {
       if (this.visible) {
-        return;
+        return
       }
-      this.visible = true;
-      this.data.set(panelMaterialDefaultData);
+      this.visible = true
+      this.data.set(panelMaterialDefaultData)
       this.unsubscribeList.push(
         effect(() => this.data.set(size.value, 13)),
         effect(() => this.data.set(borderInset.value, 0)),
-      );
+      )
     }
 
     deactivate(): void {
       if (!this.visible) {
-        return;
+        return
       }
 
-      this.visible = false;
-      const unsubscribeListLength = this.unsubscribeList.length;
+      this.visible = false
+      const unsubscribeListLength = this.unsubscribeList.length
       for (let i = 0; i < unsubscribeListLength; i++) {
-        this.unsubscribeList[i]();
+        this.unsubscribeList[i]()
       }
-      this.unsubscribeList.length = 0;
+      this.unsubscribeList.length = 0
     }
 
     destroy(): void {
-      this.deactivate();
-      this.unsubscribe();
+      this.deactivate()
+      this.unsubscribe()
     }
 
     onBeforeCompile(parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer): void {
-      super.onBeforeCompile(parameters, renderer);
-      parameters.uniforms.data = { value: this.data };
-      compilePanelMaterial(parameters, false);
+      super.onBeforeCompile(parameters, renderer)
+      parameters.uniforms.data = { value: this.data }
+      compilePanelMaterial(parameters, false)
     }
-  };
+  }
 }
 
 export function createInstancedPanelMaterial<T extends Constructor<Material>>(MaterialClass: T) {
   return class extends MaterialClass {
     constructor(...args: Array<any>) {
-      super(
-        { transparent: true, depthWrite: false, toneMapped: false, ...args[0] },
-        ...args.slice(1),
-      );
+      super({ transparent: true, depthWrite: false, toneMapped: false, ...args[0] }, ...args.slice(1))
       if (this.defines == null) {
-        this.defines = {};
+        this.defines = {}
       }
-      this.defines.USE_UV = "";
-      this.defines.USE_TANGENT = "";
+      this.defines.USE_UV = ''
+      this.defines.USE_TANGENT = ''
     }
 
     onBeforeCompile(parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer): void {
-      super.onBeforeCompile(parameters, renderer);
-      compilePanelMaterial(parameters, true);
+      super.onBeforeCompile(parameters, renderer)
+      compilePanelMaterial(parameters, true)
     }
-  };
+  }
 }
 
-export function compilePanelMaterial(
-  parameters: WebGLProgramParametersWithUniforms,
-  instanced: boolean,
-) {
+export function compilePanelMaterial(parameters: WebGLProgramParametersWithUniforms, instanced: boolean) {
   if (instanced) {
     parameters.vertexShader = parameters.vertexShader.replace(
-      "#include <common>",
+      '#include <common>',
       ` #include <common>
         attribute mat4 aData;
         attribute mat4 aClipping;
         out mat4 data;
         out mat4 clipping;
         out vec3 localPosition;`,
-    );
+    )
 
     parameters.vertexShader = parameters.vertexShader.replace(
-      "#include <uv_vertex>",
+      '#include <uv_vertex>',
       ` #include <uv_vertex>
         data = aData;
         clipping = aClipping;
         localPosition = (instanceMatrix * vec4(position, 1.0)).xyz;`,
-    );
+    )
   }
   parameters.fragmentShader =
-    `${instanced ? "in" : "uniform"} mat4 data;
+    `${instanced ? 'in' : 'uniform'} mat4 data;
     ${
       instanced
         ? `
     in vec3 localPosition;
     in mat4 clipping;
     `
-        : ""
+        : ''
     }
 
     float min4 (vec4 v) {
@@ -258,10 +234,10 @@ export function compilePanelMaterial(
             dot(radiusWeight, innerRadiusXX) - distance(border, innerRadiusXX)
         );
     }
-    ` + parameters.fragmentShader;
+    ` + parameters.fragmentShader
 
   parameters.fragmentShader = parameters.fragmentShader.replace(
-    "#include <clipping_planes_fragment>",
+    '#include <clipping_planes_fragment>',
     ` ${
       instanced
         ? `
@@ -277,7 +253,7 @@ export function compilePanelMaterial(
         if ( clipOpacity == 0.0 ) discard;
       }
       `
-        : ""
+        : ''
     }
       vec4 absoluteBorderSize = data[0];
       vec3 backgroundColor = data[1].xyz;
@@ -357,9 +333,9 @@ export function compilePanelMaterial(
       }
 
       #include <clipping_planes_fragment>`,
-  );
+  )
   parameters.fragmentShader = parameters.fragmentShader.replace(
-    "#include <normal_fragment_maps>",
+    '#include <normal_fragment_maps>',
     ` #include <normal_fragment_maps>
       vec3 b = normalize(vBitangent);
       vec3 t = normalize(vTangent);
@@ -369,9 +345,9 @@ export function compilePanelMaterial(
       vec3 outsideNormal = (borderWeight * transpose(directions)).xyz;
       normal = normalize(outsideNormalWeight * outsideNormal + (1.0 - outsideNormalWeight) * normal);
     `,
-  );
+  )
   parameters.fragmentShader = parameters.fragmentShader.replace(
-    "#include <color_fragment>",
+    '#include <color_fragment>',
     ` #include <color_fragment>
                 
       float ddx = fwidth(dist.x);
@@ -392,9 +368,9 @@ export function compilePanelMaterial(
       diffuseColor.rgb = mix(borderColor, diffuseColor.rgb * backgroundColor, transition);
   
       diffuseColor.a = ${
-        instanced ? "clipOpacity * " : ""
+        instanced ? 'clipOpacity * ' : ''
       } outer * mix(borderOpacity, diffuseColor.a * backgroundOpacity, transition);
       
             `,
-  );
+  )
 }

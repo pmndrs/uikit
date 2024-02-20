@@ -1,6 +1,6 @@
-import { Container, DefaultProperties } from "@react-three/uikit";
-import { ComponentPropsWithoutRef, createContext, useContext, useState } from "react";
-import { colors } from "./defaults.js";
+import { Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, createContext, useContext, useState } from 'react'
+import { colors } from './defaults.js'
 
 const toggleVariants = {
   default: {
@@ -19,37 +19,35 @@ const toggleVariants = {
   //TODO: hover:text-accent-foreground
 } satisfies {
   [Key in string]: {
-    containerProps: ComponentPropsWithoutRef<typeof Container>;
-    containerHoverProps: ComponentPropsWithoutRef<typeof Container>["hover"];
-  };
-};
+    containerProps: ComponentPropsWithoutRef<typeof Container>
+    containerHoverProps: ComponentPropsWithoutRef<typeof Container>['hover']
+  }
+}
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
   sm: { height: 36, paddingX: 10 },
   lg: { height: 44, paddingX: 20 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> };
+} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
 
 const ToggleGroupContext = createContext<{
-  size: keyof typeof toggleSizes;
-  variant: keyof typeof toggleVariants;
-}>(null as any);
+  size: keyof typeof toggleSizes
+  variant: keyof typeof toggleVariants
+}>(null as any)
 
 export function ToggleGroup({
   children,
-  size = "default",
-  variant = "default",
+  size = 'default',
+  variant = 'default',
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
-  variant?: keyof typeof toggleVariants;
-  size?: keyof typeof toggleSizes;
+  variant?: keyof typeof toggleVariants
+  size?: keyof typeof toggleSizes
 }) {
   return (
     <Container flexDirection="row" alignItems="center" justifyContent="center" gap={4} {...props}>
-      <ToggleGroupContext.Provider value={{ variant, size }}>
-        {children}
-      </ToggleGroupContext.Provider>
+      <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
     </Container>
-  );
+  )
 }
 
 export function ToggleGroupItem({
@@ -60,14 +58,14 @@ export function ToggleGroupItem({
   onCheckedChange,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
-  defaultChecked?: boolean;
-  checked?: boolean;
-  disabled?: boolean;
-  onCheckedChange?(checked: boolean): void;
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
 }) {
-  const { size, variant } = useContext(ToggleGroupContext);
-  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false);
-  const checked = providedChecked ?? uncontrolled;
+  const { size, variant } = useContext(ToggleGroupContext)
+  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
+  const checked = providedChecked ?? uncontrolled
   return (
     <Container
       onClick={
@@ -75,23 +73,19 @@ export function ToggleGroupItem({
           ? undefined
           : () => {
               if (providedChecked == null) {
-                setUncontrolled(!checked);
+                setUncontrolled(!checked)
               }
-              onCheckedChange?.(!checked);
+              onCheckedChange?.(!checked)
             }
       }
       alignItems="center"
       justifyContent="center"
       borderRadius={6}
-      cursor={disabled ? undefined : "pointer"}
+      cursor={disabled ? undefined : 'pointer'}
       backgroundOpacity={disabled ? 0.5 : undefined}
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundColor={checked ? colors.accent : undefined}
-      hover={
-        disabled
-          ? undefined
-          : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps }
-      }
+      hover={disabled ? undefined : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps }}
       {...toggleVariants[variant].containerProps}
       {...toggleSizes[size]}
       {...props}
@@ -105,6 +99,6 @@ export function ToggleGroupItem({
         {children}
       </DefaultProperties>
     </Container>
-  );
+  )
   //TODO: hover:text-muted-foreground
 }

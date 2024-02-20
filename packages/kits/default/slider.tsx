@@ -1,10 +1,10 @@
-import { Container, ComponentInternals } from "@react-three/uikit";
-import { colors } from "./defaults.js";
-import { ComponentPropsWithoutRef, useMemo, useRef, useState } from "react";
-import { EventHandlers, ThreeEvent } from "@react-three/fiber/dist/declarations/src/core/events.js";
-import { Vector3 } from "three";
+import { Container, ComponentInternals } from '@react-three/uikit'
+import { colors } from './defaults.js'
+import { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
+import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { Vector3 } from 'three'
 
-const vectorHelper = new Vector3();
+const vectorHelper = new Vector3()
 
 export function Slider({
   disabled = false,
@@ -16,59 +16,60 @@ export function Slider({
   step = 1,
   ...props
 }: {
-  disabled?: boolean;
-  value?: number;
-  defaultValue?: number;
-  onValueChange?(value: number): void;
-  min?: number;
-  max?: number;
-  step?: number;
-} & Omit<ComponentPropsWithoutRef<typeof Container>, "children">) {
-  const [uncontrolled, setUncontrolled] = useState(defaultValue);
-  const value = providedValue ?? uncontrolled ?? 50;
-  const percentage = `${value}%` as const;
-  const ref = useRef<ComponentInternals>(null);
-  const onChange = useRef(onValueChange);
-  onChange.current = onValueChange;
+  disabled?: boolean
+  value?: number
+  defaultValue?: number
+  onValueChange?(value: number): void
+  min?: number
+  max?: number
+  step?: number
+} & Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
+  const [uncontrolled, setUncontrolled] = useState(defaultValue)
+  const value = providedValue ?? uncontrolled ?? 50
+  const percentage = `${value}%` as const
+  const ref = useRef<ComponentInternals>(null)
+  const onChange = useRef(onValueChange)
+  onChange.current = onValueChange
+  const hasProvidedValue = providedValue != null
   const handler = useMemo(() => {
-    let down: boolean = false;
+    let down: boolean = false
     function setValue(e: ThreeEvent<PointerEvent>) {
       if (ref.current == null) {
-        return;
+        return
       }
-      vectorHelper.copy(e.point);
-      ref.current.interactionPanel.worldToLocal(vectorHelper);
+      vectorHelper.copy(e.point)
+      ref.current.interactionPanel.worldToLocal(vectorHelper)
       const newValue = Math.min(
         Math.max(Math.round(((vectorHelper.x + 0.5) * (max - min) + min) / step) * step, min),
         max,
-      );
-      if (providedValue == null) {
-        setUncontrolled(newValue);
+      )
+      if (!hasProvidedValue) {
+        setUncontrolled(newValue)
       }
-      onChange.current?.(newValue);
-      e.stopPropagation();
+      onChange.current?.(newValue)
+      e.stopPropagation()
     }
     return {
       onPointerDown(e) {
-        down = true;
-        setValue(e);
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        down = true
+        setValue(e)
+        ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
       },
       onPointerMove(e) {
         if (!down) {
-          return;
+          return
         }
-        setValue(e);
+        setValue(e)
       },
       onPointerUp(e) {
         if (!down) {
-          return;
+          return
         }
-        down = false;
-        e.stopPropagation();
+        down = false
+        e.stopPropagation()
       },
-    } satisfies EventHandlers;
-  }, []);
+    } satisfies EventHandlers
+  }, [max, min, hasProvidedValue, step])
   return (
     <Container
       ref={ref}
@@ -88,12 +89,7 @@ export function Slider({
         borderRadius={1000}
         backgroundColor={colors.secondary}
       >
-        <Container
-          height="100%"
-          width={percentage}
-          borderRadius={1000}
-          backgroundColor={colors.primary}
-        />
+        <Container height="100%" width={percentage} borderRadius={1000} backgroundColor={colors.primary} />
       </Container>
       <Container
         zIndexOffset={2}
@@ -112,5 +108,5 @@ export function Slider({
         backgroundColor={colors.background}
       />
     </Container>
-  );
+  )
 }

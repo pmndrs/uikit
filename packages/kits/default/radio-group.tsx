@@ -1,11 +1,11 @@
-import { Container } from "@react-three/uikit";
-import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from "react";
-import { colors } from "./defaults.js";
+import { Container } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
+import { colors } from './defaults.js'
 
 const RadioGroupContext = createContext<{
-  value?: string;
-  setValue?: (value: string) => void;
-}>(null as any);
+  value?: string
+  setValue?: (value: string) => void
+}>(null as any)
 
 export function RadioGroup({
   defaultValue,
@@ -14,31 +14,31 @@ export function RadioGroup({
   children,
   ...props
 }: {
-  value?: string;
-  onValueChange?(value: string): void;
-  defaultValue?: string;
+  value?: string
+  onValueChange?(value: string): void
+  defaultValue?: string
 } & ComponentPropsWithoutRef<typeof Container>) {
-  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const contextValue = useMemo(() => {
     if (providedValue == null) {
       return {
         value: uncontrolled,
         setValue: (value: string) => {
-          setUncontrolled(value);
-          onValueChange?.(value);
+          setUncontrolled(value)
+          onValueChange?.(value)
         },
-      };
+      }
     }
     return {
       value: providedValue,
       onValueChange,
-    };
-  }, [uncontrolled, onValueChange, providedValue]);
+    }
+  }, [uncontrolled, onValueChange, providedValue])
   return (
     <Container gap={8} {...props}>
       <RadioGroupContext.Provider value={contextValue}>{children}</RadioGroupContext.Provider>
     </Container>
-  );
+  )
 }
 
 export function RadioGroupItem({
@@ -47,10 +47,10 @@ export function RadioGroupItem({
   children,
   ...props
 }: { disabled?: boolean; value: string } & ComponentPropsWithoutRef<typeof Container>) {
-  const { value: current, setValue } = useContext(RadioGroupContext);
+  const { value: current, setValue } = useContext(RadioGroupContext)
   return (
     <Container
-      cursor={disabled ? undefined : "pointer"}
+      cursor={disabled ? undefined : 'pointer'}
       onClick={disabled ? undefined : () => setValue?.(value)}
       flexDirection="row"
       alignItems="center"
@@ -79,5 +79,5 @@ export function RadioGroupItem({
       </Container>
       {children}
     </Container>
-  );
+  )
 }

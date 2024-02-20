@@ -1,21 +1,18 @@
-import { Container } from "@react-three/uikit";
-import { ComponentPropsWithoutRef } from "react";
-import { colors } from "./defaults.js";
+import { Container } from '@react-three/uikit'
+import { ComponentPropsWithoutRef } from 'react'
+import { colors } from './defaults.js'
 
 export function Separator({
-  orientation = "horizontal",
+  orientation = 'horizontal',
   ...props
-}: { orientation?: "horizontal" | "vertical" } & Omit<
-  ComponentPropsWithoutRef<typeof Container>,
-  "children"
->) {
+}: { orientation?: 'horizontal' | 'vertical' } & Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
   return (
     <Container
       flexShrink={0}
       backgroundColor={colors.border}
-      width={orientation === "horizontal" ? "100%" : 1}
-      height={orientation === "horizontal" ? 1 : "100%"}
+      width={orientation === 'horizontal' ? '100%' : 1}
+      height={orientation === 'horizontal' ? 1 : '100%'}
       {...props}
     />
-  );
+  )
 }

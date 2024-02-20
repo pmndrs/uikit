@@ -1,6 +1,6 @@
-import { AllOptionalProperties, Container, DefaultProperties } from "@react-three/uikit";
-import { ComponentPropsWithoutRef, ReactNode } from "react";
-import { colors } from "./defaults.js";
+import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, ReactNode } from 'react'
+import { colors } from './defaults.js'
 
 const alertVariants = {
   default: {},
@@ -9,27 +9,18 @@ const alertVariants = {
     borderOpacity: 0.5,
     color: colors.destructive,
   },
-} satisfies { [Key in string]: AllOptionalProperties };
+} satisfies { [Key in string]: AllOptionalProperties }
 
-export function Alert(
-  props: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof alertVariants },
-) {
+export function Alert(props: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof alertVariants }) {
   return (
-    <DefaultProperties {...alertVariants[props.variant ?? "default"]}>
-      <Container
-        positionType="relative"
-        width="100%"
-        borderRadius={8}
-        border={1}
-        padding={16}
-        {...props}
-      />
+    <DefaultProperties {...alertVariants[props.variant ?? 'default']}>
+      <Container positionType="relative" width="100%" borderRadius={8} border={1} padding={16} {...props} />
     </DefaultProperties>
-  );
+  )
 }
 
 export function AlertIcon(props: ComponentPropsWithoutRef<typeof Container>) {
-  return <Container positionLeft={16} positionTop={16} positionType="absolute" {...props} />;
+  return <Container positionLeft={16} positionTop={16} positionType="absolute" {...props} />
 }
 
 export function AlertTitle({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
@@ -39,7 +30,7 @@ export function AlertTitle({ children, ...props }: ComponentPropsWithoutRef<type
         {children}
       </DefaultProperties>
     </Container>
-  );
+  )
 }
 
 export function AlertDescription({ children }: { children?: ReactNode }) {
@@ -49,5 +40,5 @@ export function AlertDescription({ children }: { children?: ReactNode }) {
         {children}
       </DefaultProperties>
     </Container>
-  );
+  )
 }
