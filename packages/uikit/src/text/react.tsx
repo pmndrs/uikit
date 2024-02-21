@@ -54,10 +54,11 @@ const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null a
 //TODO: update to point to THIS repo
 const defaultFontFamilyUrls = {
   inter: {
-    light: 'https://coconut-xr.github.io/msdf-fonts/inter-light.json',
-    normal: 'https://coconut-xr.github.io/msdf-fonts/inter.json',
-    medium: 'https://coconut-xr.github.io/msdf-fonts/inter.json',
-    'semi-bold': 'https://coconut-xr.github.io/msdf-fonts/inter-bold.json',
+    light: 'https://pmndrs.github.io/uikit/fonts/inter-light.json',
+    normal: 'https://pmndrs.github.io/uikit/fonts/inter-normal.json',
+    medium: 'https://pmndrs.github.io/uikit/fonts/inter-medium.json',
+    'semi-bold': 'https://pmndrs.github.io/uikit/fonts/inter-semi-bold.json',
+    bold: 'https://pmndrs.github.io/uikit/fonts/inter-bold.json',
   },
 } satisfies Record<string, FontFamilyUrls>
 

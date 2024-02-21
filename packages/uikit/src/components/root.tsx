@@ -2,7 +2,6 @@ import { Yoga } from 'yoga-wasm-web'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { FlexNode, CameraDistanceRef, YogaProperties, createDeferredRequestLayoutCalculation } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useResource } from '../utils.js'
-import { loadYogaBase64 } from '../flex/load-base64.js'
 import {
   InstancedPanelProvider,
   InteractionGroup,
@@ -28,7 +27,7 @@ import {
   useComponentInternals,
   WithConditionals,
 } from './utils.js'
-import { ClippingRectProvider, useClippingRect, useParentClippingRect } from '../clipping.js'
+import { ClippingRectProvider, useClippingRect } from '../clipping.js'
 import {
   ScrollGroup,
   ScrollHandler,
@@ -49,6 +48,7 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from '../text/react.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
+import { loadYogaFromGH } from '../flex/load-binary.js'
 
 export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
@@ -94,7 +94,7 @@ export const Root = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
-  const yoga = useResource(properties.loadYoga ?? loadYogaBase64, [properties.loadYoga])
+  const yoga = useResource(properties.loadYoga ?? loadYogaFromGH, [properties.loadYoga])
   const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
   const groupRef = useRef<Group>(null)
   const node = useMemo(
