@@ -17,7 +17,6 @@ TODO Release
 - add shadcn components
 - add apfel components
 - Content "measureContent" flag => allow disabling content measuring and scaling
-- cache load yoga globally
 - support for visibility="hidden"
 - input
 - Label

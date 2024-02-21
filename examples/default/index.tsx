@@ -1,25 +1,17 @@
-import { StrictMode, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { createRoot } from "react-dom/client";
-import { DefaultProperties, Fullscreen, Text, Container } from "@react-three/uikit";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/accordion.js";
-import {
-  BellRing,
-  Bold,
-  Check,
-  ChevronRight,
-  Italic,
-  Terminal,
-  Underline,
-} from "@react-three/uikit-lucide";
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from "@/alert.js";
-import { DefaultColors, colors } from "@/defaults.js";
-import { Avatar } from "@/avatar.js";
-import { Badge } from "@/badge.js";
-import { Button } from "@/button.js";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/card.js";
-import { Checkbox } from "@/checkbox.js";
-import { Label } from "@/label.js";
+import { StrictMode, useEffect, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { createRoot } from 'react-dom/client'
+import { DefaultProperties, Fullscreen, Text, Container } from '@react-three/uikit'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion.js'
+import { BellRing, Bold, Check, ChevronRight, Italic, Terminal, Underline } from '@react-three/uikit-lucide'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert.js'
+import { DefaultColors, colors } from '@/defaults.js'
+import { Avatar } from '@/avatar.js'
+import { Badge } from '@/badge.js'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
+import { Checkbox } from '@/checkbox.js'
+import { Label } from '@/label.js'
 import {
   Pagination,
   PaginationContent,
@@ -28,27 +20,27 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/pagination.js";
-import { Progress } from "@/progress.js";
-import { RadioGroup, RadioGroupItem } from "@/radio-group.js";
-import { Separator } from "@/separator.js";
-import { Skeleton } from "@/skeleton.js";
-import { Slider } from "@/slider.js";
-import { Switch } from "@/switch.js";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/tabs.js";
-import { Toggle } from "@/toggle.js";
-import { ToggleGroup, ToggleGroupItem } from "@/toggle-group.js";
+} from '@/pagination.js'
+import { Progress } from '@/progress.js'
+import { RadioGroup, RadioGroupItem } from '@/radio-group.js'
+import { Separator } from '@/separator.js'
+import { Skeleton } from '@/skeleton.js'
+import { Slider } from '@/slider.js'
+import { Switch } from '@/switch.js'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
+import { Toggle } from '@/toggle.js'
+import { ToggleGroup, ToggleGroupItem } from '@/toggle-group.js'
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
-);
+)
 
 function App() {
   return (
-    <Canvas style={{ height: "100dvh", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
-      <color attach="background" args={["black"]} />
+    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+      <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
       <Fullscreen
@@ -65,7 +57,7 @@ function App() {
         </Container>
       </Fullscreen>
     </Canvas>
-  );
+  )
 }
 export function ToggleGroupDemo() {
   return (
@@ -80,7 +72,7 @@ export function ToggleGroupDemo() {
         <Underline width={16} height={16} />
       </ToggleGroupItem>
     </ToggleGroup>
-  );
+  )
 }
 
 export function ToggleDemo() {
@@ -88,7 +80,7 @@ export function ToggleDemo() {
     <Toggle>
       <Bold height={16} width={16} />
     </Toggle>
-  );
+  )
 }
 
 export function TabsDemo() {
@@ -165,7 +157,7 @@ export function TabsDemo() {
         </Card>
       </TabsContent>
     </Tabs>
-  );
+  )
 }
 
 export function SwitchDemo() {
@@ -176,11 +168,11 @@ export function SwitchDemo() {
         <Text>Airplane Mode</Text>
       </Label>
     </Container>
-  );
+  )
 }
 
 export function SliderDemo() {
-  return <Slider defaultValue={50} max={100} step={1} width="60%" />;
+  return <Slider defaultValue={50} max={100} step={1} width="60%" />
 }
 
 export function SkeletonDemo() {
@@ -192,7 +184,7 @@ export function SkeletonDemo() {
         <Skeleton height={16} width={200} />
       </Container>
     </Container>
-  );
+  )
 }
 
 export function SeparatorDemo() {
@@ -217,7 +209,7 @@ export function SeparatorDemo() {
         </DefaultProperties>
       </Container>
     </Container>
-  );
+  )
 }
 
 export function RadioGroupDemo() {
@@ -239,18 +231,18 @@ export function RadioGroupDemo() {
         </Label>
       </RadioGroupItem>
     </RadioGroup>
-  );
+  )
 }
 
 export function ProgressDemo() {
-  const [progress, setProgress] = useState(13);
+  const [progress, setProgress] = useState(13)
 
   useEffect(() => {
-    const timer = setTimeout(() => setProgress(66), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    const timer = setTimeout(() => setProgress(66), 500)
+    return () => clearTimeout(timer)
+  }, [])
 
-  return <Progress value={progress} width="60%" />;
+  return <Progress value={progress} width="60%" />
 }
 
 export function PaginationDemo() {
@@ -283,7 +275,7 @@ export function PaginationDemo() {
         </PaginationItem>
       </PaginationContent>
     </Pagination>
-  );
+  )
 }
 
 export function CheckboxDemo() {
@@ -294,23 +286,23 @@ export function CheckboxDemo() {
         <Text>Accept terms and conditions</Text>
       </Label>
     </Container>
-  );
+  )
 }
 
 const notifications = [
   {
-    title: "Your call has been confirmed.",
-    description: "1 hour ago",
+    title: 'Your call has been confirmed.',
+    description: '1 hour ago',
   },
   {
-    title: "You have a new message!",
-    description: "1 hour ago",
+    title: 'You have a new message!',
+    description: '1 hour ago',
   },
   {
-    title: "Your subscription is expiring soon!",
-    description: "2 hours ago",
+    title: 'Your subscription is expiring soon!',
+    description: '2 hours ago',
   },
-];
+]
 
 export function CardDemo() {
   return (
@@ -324,14 +316,7 @@ export function CardDemo() {
         </CardDescription>
       </CardHeader>
       <CardContent flexDirection="column" gap={16}>
-        <Container
-          flexDirection="row"
-          alignItems="center"
-          gap={16}
-          borderRadius={6}
-          border={1}
-          padding={16}
-        >
+        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
           <BellRing />
           <Container gap={4}>
             <Text fontSize={14} lineHeight={1}>
@@ -353,13 +338,7 @@ export function CardDemo() {
               flexDirection="row"
               gap={17}
             >
-              <Container
-                height={8}
-                width={8}
-                transformTranslateY={4}
-                borderRadius={1000}
-                backgroundColor={0x0ea5e9}
-              />
+              <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
               <Container gap={4}>
                 <Text fontSize={14} lineHeight={1}>
                   {notification.title}
@@ -379,7 +358,7 @@ export function CardDemo() {
         </Button>
       </CardFooter>
     </Card>
-  );
+  )
 }
 
 export function ButtonDemo() {
@@ -387,7 +366,7 @@ export function ButtonDemo() {
     <Button variant="outline" size="icon">
       <ChevronRight width={16} height={16} />
     </Button>
-  );
+  )
 }
 
 export function BadgeDemo() {
@@ -395,7 +374,7 @@ export function BadgeDemo() {
     <Badge>
       <Text>Badge</Text>
     </Badge>
-  );
+  )
 }
 
 export function AvatarDemo() {
@@ -403,7 +382,7 @@ export function AvatarDemo() {
     <Container alignItems="center">
       <Avatar src="https://picsum.photos/100/100" />
     </Container>
-  );
+  )
 }
 
 export function AlertDemo() {
@@ -419,7 +398,7 @@ export function AlertDemo() {
         <Text>You can add components to your app using the cli.</Text>
       </AlertDescription>
     </Alert>
-  );
+  )
 }
 
 //TODO: type="single" collapsible
@@ -439,9 +418,7 @@ export function AccordionDemo() {
           <Text>Is it styled?</Text>
         </AccordionTrigger>
         <AccordionContent>
-          <Text>
-            Yes. It comes with default styles that matches the other components&apos; aesthetic.
-          </Text>
+          <Text>Yes. It comes with default styles that matches the other components&apos; aesthetic.</Text>
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="item-3">
@@ -453,5 +430,5 @@ export function AccordionDemo() {
         </AccordionContent>
       </AccordionItem>
     </Accordion>
-  );
+  )
 }

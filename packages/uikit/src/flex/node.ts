@@ -113,9 +113,12 @@ export class FlexNode implements WithImmediateProperties {
         return [ancestorX || x, ancestorY || y]
       }),
     )
-    this.requestCalculateLayout()
-    this.children.push(child)
     return child
+  }
+
+  addChild(node: FlexNode): void {
+    this.requestCalculateLayout()
+    this.children.push(node)
   }
 
   removeChild(node: FlexNode): void {
@@ -282,20 +285,6 @@ function updateInsetSignal(signal: Signal<Inset>, top: number, right: number, bo
     return
   }
   signal.value = [top, right, bottom, left]
-}
-
-export function createDeferredRequestLayoutCalculation(): (node: FlexNode) => void {
-  let requested = false
-  return (node) => {
-    if (requested || node['yogaNode'] == null) {
-      return
-    }
-    requested = true
-    setTimeout(() => {
-      requested = false
-      node.calculateLayout()
-    }, 0)
-  }
 }
 
 function assertNodeNotNull<T>(val: T | undefined): T {

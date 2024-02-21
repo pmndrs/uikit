@@ -1,7 +1,7 @@
 import { Yoga } from 'yoga-wasm-web'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
-import { FlexNode, CameraDistanceRef, YogaProperties, createDeferredRequestLayoutCalculation } from '../flex/node.js'
-import { RootGroupProvider, alignmentXMap, alignmentYMap, useResource } from '../utils.js'
+import { FlexNode, CameraDistanceRef, YogaProperties } from '../flex/node.js'
+import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
 import {
   InstancedPanelProvider,
   InteractionGroup,
@@ -11,7 +11,7 @@ import {
   useInteractionPanel,
 } from '../panel/react.js'
 import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
-import { FlexProvider } from '../flex/react.js'
+import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
 import { Group, Matrix4, Plane, RenderItem, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
@@ -94,9 +94,10 @@ export const Root = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
-  const yoga = useResource(properties.loadYoga ?? loadYogaFromGH, [properties.loadYoga])
+  const yoga = useLoadYoga(properties.loadYoga ?? loadYogaFromGH)
   const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
   const groupRef = useRef<Group>(null)
+  const requestLayout = useDeferredRequestLayoutCalculation()
   const node = useMemo(
     () =>
       new FlexNode(
@@ -106,12 +107,12 @@ export const Root = forwardRef<
         yoga,
         precision,
         pixelSize,
-        createDeferredRequestLayoutCalculation(),
+        requestLayout,
         0,
         undefined,
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [groupRef, yoga],
+    [requestLayout, groupRef, yoga],
   )
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   useEffect(() => () => node.destroy(), [node])

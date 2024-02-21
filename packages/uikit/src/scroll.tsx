@@ -71,29 +71,10 @@ export function ScrollGroup({
   return <group ref={ref}>{children}</group>
 }
 
-export function ScrollHandler(properties: {
-  node: FlexNode
-  scrollPosition: Signal<Vector2Tuple>
-  listeners: ScrollListeners
-  children?: ReactNode
-}) {
-  const [isScrollable, setIsScrollable] = useState(() =>
-    properties.node.scrollable.value.some((scrollable) => scrollable),
-  )
-  useSignalEffect(
-    () => setIsScrollable(properties.node.scrollable.value.some((scrollable) => scrollable)),
-    [properties.node],
-  )
-  if (!isScrollable) {
-    return <>{properties.children}</>
-  }
-  return <RenderScrollHandler {...properties} />
-}
-
-function RenderScrollHandler({
+export function ScrollHandler({
+  listeners,
   node,
   scrollPosition,
-  listeners,
   children,
 }: {
   node: FlexNode
@@ -101,6 +82,8 @@ function RenderScrollHandler({
   listeners: ScrollListeners
   children?: ReactNode
 }) {
+  const [isScrollable, setIsScrollable] = useState(() => node.scrollable.value.some((scrollable) => scrollable))
+  useSignalEffect(() => setIsScrollable(node.scrollable.value.some((scrollable) => scrollable)), [node])
   const onScrollRef = useRef(listeners.onScroll)
   onScrollRef.current = listeners.onScroll
   const downPointerMap = useMemo(() => new Map(), [])
@@ -181,9 +164,14 @@ function RenderScrollHandler({
 
   const ref = useRef<Group>(null)
 
+  if (!isScrollable) {
+    return <group matrixAutoUpdate={false}>{children}</group>
+  }
+
   return (
     <group
       ref={ref}
+      matrixAutoUpdate={false}
       onPointerDown={(event) => {
         let interaction = downPointerMap.get(event.pointerId)
         if (interaction == null) {

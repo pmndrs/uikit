@@ -21,8 +21,12 @@ export const Fullscreen = forwardRef<
     ScrollListeners
 >((properties, ref) => {
   const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
-  const [sizeX, sizeY] = useMemo(() => [signal(0), signal(0)] as const, [])
   const store = useStore()
+  const [sizeX, sizeY] = useMemo(() => {
+    const { width, height } = store.getState().size
+    return [signal(width * pixelSize), signal(height * pixelSize)] as const
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   useEffect(() => {
     const fn = (state: RootState) => {
       batch(() => {
