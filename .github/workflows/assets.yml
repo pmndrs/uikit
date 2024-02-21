@@ -6,6 +6,8 @@ on:
 
 jobs:
   deploy-assets:
+    env:
+      GOOGLE_FONTS_API_KEY: ${{ secrets.GOOGLE_FONTS_API_KEY }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
