@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef } from 'react'
+import { ReactNode, forwardRef, useRef } from 'react'
 import { useFlexNode, FlexProvider } from '../flex/react.js'
 import { WithReactive, createCollection, finalizeCollection } from '../properties/utils.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
@@ -35,8 +35,9 @@ import { PanelProperties } from '../panel/instanced-panel.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
-import { useRootGroup } from '../utils.js'
+import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { Group } from 'three'
 
 export type ContainerProperties = WithConditionals<
   WithClasses<
@@ -48,7 +49,6 @@ export const Container = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
-    index?: number
     zIndexOffset?: number
     backgroundMaterialClass?: MaterialClass
   } & ContainerProperties &
@@ -58,7 +58,8 @@ export const Container = forwardRef<
     ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
   const parentClippingRect = useParentClippingRect()
@@ -107,14 +108,14 @@ export const Container = forwardRef<
     parentClippingRect,
   )
 
-  const rootGroup = useRootGroup()
+  const rootGroupRef = useRootGroupRef()
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroup)
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
   return (
-    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
       <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
         <primitive object={interactionPanel} />
       </ScrollHandler>

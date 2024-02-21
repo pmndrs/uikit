@@ -1,6 +1,7 @@
 import { Group, Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
+import { RefObject } from 'react'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -47,13 +48,17 @@ export function makePanelRaycast(mesh: Mesh, depth: number): Mesh['raycast'] {
 export function makeClippedRaycast(
   mesh: Mesh,
   fn: Mesh['raycast'],
-  rootGroup: Group,
+  rootGroupRef: RefObject<Group>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Mesh['raycast'] {
   if (clippingRect == null) {
     return fn
   }
   return (raycaster: Raycaster, intersects: Intersection<Object3D<Object3DEventMap>>[]) => {
+    const rootGroup = rootGroupRef.current
+    if (rootGroup == null) {
+      return
+    }
     const oldLength = intersects.length
     fn.call(mesh, raycaster, intersects)
     const clippingPlanes = clippingRect.value?.planes

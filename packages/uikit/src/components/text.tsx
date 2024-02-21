@@ -22,14 +22,15 @@ import {
   useLayoutListeners,
   useViewportListeners,
 } from './utils.js'
-import { forwardRef } from 'react'
+import { forwardRef, useRef } from 'react'
 import { useParentClippingRect, useIsClipped } from '../clipping.js'
 import { useFlexNode } from '../flex/react.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { InstancedTextProperties, useInstancedText } from '../text/react.js'
 import { Signal } from '@preact/signals-core'
-import { useRootGroup } from '../utils.js'
+import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { Group } from 'three'
 
 export type TextProperties = WithConditionals<
   WithClasses<
@@ -41,7 +42,6 @@ export const Text = forwardRef<
   ComponentInternals,
   {
     children: string | Signal<string>
-    index?: number
     backgroundMaterialClass?: MaterialClass
   } & TextProperties &
     EventHandlers &
@@ -50,10 +50,11 @@ export const Text = forwardRef<
     ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
-  const rootGroup = useRootGroup()
+  const rootGroup = useRootGroupRef()
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
@@ -91,7 +92,7 @@ export const Text = forwardRef<
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
       <primitive object={interactionPanel} />
     </InteractionGroup>
   )

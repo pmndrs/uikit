@@ -1,16 +1,16 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { forwardRef, ReactNode, useEffect, useMemo } from 'react'
+import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
 import { useFlexNode, FlexProvider } from '../flex/react.js'
 import { useApplyHoverProperties } from '../hover.js'
 import { InteractionGroup } from '../panel/react.js'
 import { createCollection, finalizeCollection, WithReactive } from '../properties/utils.js'
-import { useRootGroup, useSignalEffect } from '../utils.js'
-import { Material, Mesh } from 'three'
+import { useRootGroupRef, useSignalEffect } from '../utils.js'
+import { Group, Material, Mesh } from 'three'
 import {
   ComponentInternals,
   LayoutListeners,
-  setRootIdentifier,
+  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -35,30 +35,30 @@ export const CustomContainer = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
-    index?: number
   } & CustomContainerProperties &
     EventHandlers &
     LayoutListeners &
     ViewportListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
 
   const parentClippingRect = useParentClippingRect()
-  const rootGroup = useRootGroup()
-  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroup)
+  const rootGroupRef = useRootGroupRef()
+  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
 
   const mesh = useMemo(() => {
     const result = new Mesh(panelGeometry)
     result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, result.raycast, rootGroup, parentClippingRect)
+    result.raycast = makeClippedRaycast(result, result.raycast, rootGroupRef, parentClippingRect)
     result.position.z = 0.01
     result.updateMatrix()
-    setRootIdentifier(result, node.rootIdentifier, 'Custom')
+    setupRenderingOrder(result, node.cameraDistance, 'Custom')
     return result
-  }, [node.rootIdentifier, parentClippingRect, rootGroup])
+  }, [node, parentClippingRect, rootGroupRef])
 
   useSignalEffect(() => {
     const [width, height] = node.size.value
@@ -90,10 +90,9 @@ export const CustomContainer = forwardRef<
   useComponentInternals(ref, node, mesh)
 
   return (
-    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <primitive object={mesh}>
-        <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
-      </primitive>
+    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+      <primitive object={mesh} />
+      <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
     </InteractionGroup>
   )
 })

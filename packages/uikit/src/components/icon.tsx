@@ -1,9 +1,9 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { ReactNode, forwardRef, useMemo } from 'react'
+import { ReactNode, forwardRef, useMemo, useRef } from 'react'
 import { useFlexNode } from '../flex/react.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
 import { createCollection, finalizeCollection, useGetBatchedProperties, writeCollection } from '../properties/utils.js'
-import { useSignalEffect, fitNormalizedContentInside, useRootGroup } from '../utils.js'
+import { useSignalEffect, fitNormalizedContentInside, useRootGroupRef } from '../utils.js'
 import { Color, Group, Mesh, MeshBasicMaterial, ShapeGeometry } from 'three'
 import { useApplyHoverProperties } from '../hover.js'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
@@ -11,7 +11,7 @@ import {
   ComponentInternals,
   LayoutListeners,
   ViewportListeners,
-  setRootIdentifier,
+  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -36,7 +36,6 @@ export const SvgIconFromText = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
-    index?: number
     text: string
     svgWidth: number
     svgHeight: number
@@ -48,7 +47,8 @@ export const SvgIconFromText = forwardRef<
     ViewportListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
   const globalMatrix = useGlobalMatrix(transformMatrix)
@@ -67,8 +67,8 @@ export const SvgIconFromText = forwardRef<
     panelAliasPropertyTransformation,
   )
 
-  const rootGroup = useRootGroup()
-  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroup)
+  const rootGroupRef = useRootGroupRef()
+  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
 
   const svgGroup = useMemo(() => {
     const group = new Group()
@@ -88,8 +88,8 @@ export const SvgIconFromText = forwardRef<
         geometry.computeBoundingBox()
         const mesh = new Mesh(geometry, material)
         mesh.matrixAutoUpdate = false
-        mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroup, parentClippingRect)
-        setRootIdentifier(mesh, node.rootIdentifier, 'Svg')
+        mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, parentClippingRect)
+        setupRenderingOrder(mesh, node.cameraDistance, 'Svg')
         mesh.userData.color = path.color
         mesh.scale.y = -1
         mesh.updateMatrix()
@@ -98,7 +98,7 @@ export const SvgIconFromText = forwardRef<
     }
 
     return group
-  }, [properties.text, properties.materialClass, clippingPlanes, rootGroup, parentClippingRect, node.rootIdentifier])
+  }, [properties.text, properties.materialClass, clippingPlanes, rootGroupRef, parentClippingRect, node])
 
   const getPropertySignal = useGetBatchedProperties<AppearanceProperties>(collection, propertyKeys)
   useSignalEffect(() => {
@@ -148,12 +148,12 @@ export const SvgIconFromText = forwardRef<
 
   useSignalEffect(() => void (svgGroup.visible = !isClipped.value), [])
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroup)
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
       <primitive object={interactionPanel} />
       <primitive object={svgGroup} />
     </InteractionGroup>

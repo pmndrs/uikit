@@ -7,10 +7,11 @@ import {
   resizeSortedBucketsSpace,
 } from '../allocation/sorted-buckets.js'
 import { defaultClippingData } from '../clipping.js'
-import { setRootIdentifier } from '../components/utils.js'
+import { setupRenderingOrder } from '../components/utils.js'
 import { panelMaterialDefaultData } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
+import { CameraDistanceRef } from '../flex/node.js'
 
 export class InstancedPanelGroup extends Group {
   private mesh?: InstancedPanelMesh
@@ -55,7 +56,7 @@ export class InstancedPanelGroup extends Group {
   constructor(
     private readonly material: Material,
     public readonly pixelSize: number,
-    private readonly rootIdentifier: unknown,
+    private readonly cameraDistance: CameraDistanceRef,
   ) {
     super()
   }
@@ -159,7 +160,7 @@ export class InstancedPanelGroup extends Group {
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
-    setRootIdentifier(this.mesh, this.rootIdentifier, 'Panel')
+    setupRenderingOrder(this.mesh, this.cameraDistance, 'Panel')
     this.mesh.material = this.material
     this.add(this.mesh)
   }

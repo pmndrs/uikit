@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Packages
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  publish-devops-package:
+  deploy-packages:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,12 +58,15 @@ jobs:
       - name: Set Version
         working-directory: ./packages/uikit
         run: pnpm exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
-          
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
 
-      - name: Deploy
+      - name: Deploy Uikit Package
         working-directory: ./packages/uikit
+        run: pnpm publish --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+      
+      - name: Deploy Uikit-Lucide Package
+        working-directory: ./packages/icons/lucide
         run: pnpm publish --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
           

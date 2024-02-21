@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo } from 'react'
+import { RefObject, createContext, useContext, useEffect, useMemo } from 'react'
 import { computed, effect, Signal, signal } from '@preact/signals-core'
 import { Vector2Tuple, BufferAttribute, Color, Group } from 'three'
 import { Color as ColorRepresentation } from '@react-three/fiber'
@@ -94,13 +94,13 @@ export function readReactive<T>(value: T | Signal<T>): T {
   return value instanceof Signal ? value.value : value
 }
 
-const RootGroupContext = createContext<Group>(null as any)
+const RootGroupRefContext = createContext<RefObject<Group>>(null as any)
 
-export function useRootGroup() {
-  return useContext(RootGroupContext)
+export function useRootGroupRef() {
+  return useContext(RootGroupRefContext)
 }
 
-export const RootGroupProvider = RootGroupContext.Provider
+export const RootGroupProvider = RootGroupRefContext.Provider
 
 export function createConditionalPropertyTranslator(
   condition: () => boolean,

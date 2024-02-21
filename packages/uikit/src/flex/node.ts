@@ -1,4 +1,4 @@
-import { Vector2Tuple } from 'three'
+import { Group, Plane, Vector2Tuple } from 'three'
 import { ReadonlySignal, Signal, batch, computed, effect, signal } from '@preact/signals-core'
 import {
   EDGE_TOP,
@@ -14,6 +14,7 @@ import {
 import { setter } from './setter.js'
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
+import { RefObject } from 'react'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
@@ -21,9 +22,9 @@ export type YogaProperties = {
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
 
-export class FlexNode implements WithImmediateProperties {
-  public index: number = 0
+export type CameraDistanceRef = { current: number }
 
+export class FlexNode implements WithImmediateProperties {
   public readonly size = signal<Vector2Tuple>([0, 0])
   public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
   public readonly borderInset = signal<Inset>([0, 0, 0, 0])
@@ -43,7 +44,8 @@ export class FlexNode implements WithImmediateProperties {
   active = signal(false)
 
   constructor(
-    public rootIdentifier: unknown,
+    private groupRef: RefObject<Group>,
+    public cameraDistance: CameraDistanceRef,
     public readonly yoga: Signal<Yoga | undefined>,
     private precision: number,
     public readonly pixelSize: number,
@@ -96,9 +98,10 @@ export class FlexNode implements WithImmediateProperties {
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
-  createChild(): FlexNode {
+  createChild(groupRef: RefObject<Group>): FlexNode {
     const child = new FlexNode(
-      this.rootIdentifier,
+      groupRef,
+      this.cameraDistance,
       this.yoga,
       this.precision,
       this.pixelSize,
@@ -130,7 +133,22 @@ export class FlexNode implements WithImmediateProperties {
     }
 
     //commiting the children
-    this.children.sort((child1, child2) => child1.index - child2.index)
+    const children = this.children[0]?.groupRef.current?.parent?.children!
+    this.children.sort((child1, child2) => {
+      const i1 = children.indexOf(child1.groupRef.current as any)
+      if (i1 === -1) {
+        throw new Error(
+          `${child1.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
+        )
+      }
+      const i2 = children.indexOf(child2.groupRef.current as any)
+      if (i2 === -1) {
+        throw new Error(
+          `${child2.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
+        )
+      }
+      return i1 - i2
+    })
     let i = 0
     let oldChildNode: Node | undefined = this.yogaNode.getChild(i)
     let correctChild: FlexNode | undefined = this.children[i]

@@ -1,6 +1,6 @@
-import { Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
-import { forwardRef, useMemo } from 'react'
-import { useResourceWithParams, useRootGroup, useSignalEffect } from '../utils.js'
+import { Group, Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
+import { forwardRef, useMemo, useRef } from 'react'
+import { useResourceWithParams, useRootGroupRef, useSignalEffect } from '../utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { Inset, YogaProperties } from '../flex/node.js'
 import { panelGeometry } from '../panel/utils.js'
@@ -13,7 +13,7 @@ import {
   LayoutListeners,
   ViewportListeners,
   WithConditionals,
-  setRootIdentifier,
+  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -73,7 +73,6 @@ const materialPropertyTransformation: PropertyTransformation = (key, value, hasP
 export const Image = forwardRef<
   ComponentInternals,
   ImageProperties & {
-    index?: number
     src: string | Signal<string>
     materialClass?: MaterialClass
   } & EventHandlers &
@@ -93,13 +92,14 @@ export const Image = forwardRef<
       }),
     [texture],
   )
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   useTextureFit(collection, texture, node.borderInset, node.size)
   const transformMatrix = useTransformMatrix(collection, node)
   const parentClippingRect = useParentClippingRect()
-  const rootGroup = useRootGroup()
-  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroup)
+  const rootGroupRef = useRootGroupRef()
+  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   const material = usePanelMaterial(
@@ -114,10 +114,10 @@ export const Image = forwardRef<
   const mesh = useMemo(() => {
     const result = new Mesh(panelGeometry, material)
     result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, node.depth), rootGroup, parentClippingRect)
-    setRootIdentifier(result, node.rootIdentifier, 'Image')
+    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, node.depth), rootGroupRef, parentClippingRect)
+    setupRenderingOrder(result, node.cameraDistance, 'Image')
     return result
-  }, [node, material, rootGroup, parentClippingRect])
+  }, [node, material, rootGroupRef, parentClippingRect])
 
   //apply all properties
   useApplyProperties(collection, properties)
@@ -150,7 +150,7 @@ export const Image = forwardRef<
   useComponentInternals(ref, node, mesh)
 
   return (
-    <InteractionGroup hoverHandlers={hoverHandlers} handlers={properties} matrix={transformMatrix}>
+    <InteractionGroup groupRef={groupRef} hoverHandlers={hoverHandlers} handlers={properties} matrix={transformMatrix}>
       <primitive object={mesh} />
     </InteractionGroup>
   )

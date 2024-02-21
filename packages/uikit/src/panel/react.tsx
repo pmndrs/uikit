@@ -1,8 +1,19 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
+import {
+  MutableRefObject,
+  ReactNode,
+  RefObject,
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from 'three'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Signal, effect } from '@preact/signals-core'
-import { Inset } from '../flex/node.js'
+import { Inset, CameraDistanceRef } from '../flex/node.js'
 import { useSignalEffect } from '../utils.js'
 import { useFrame } from '@react-three/fiber'
 import { ClippingRect, useParentClippingRect } from '../clipping.js'
@@ -20,20 +31,21 @@ export function InteractionGroup({
   hoverHandlers,
   matrix,
   children,
+  groupRef,
 }: {
   handlers: EventHandlers
   hoverHandlers: HoverEventHandlers | undefined
   matrix: Signal<Matrix4>
   children?: ReactNode
+  groupRef: RefObject<Group>
 }) {
-  const groupRef = useRef<Group>(null)
   useEffect(() => {
     const group = groupRef.current
     if (group == null) {
       return
     }
     return effect(() => group.matrix.copy(matrix.value))
-  }, [matrix])
+  }, [groupRef, matrix])
   return (
     <group
       ref={groupRef}
@@ -81,16 +93,16 @@ function mergeHandlers<T extends (event: ThreeEvent<PointerEvent>) => void>(
 export function useInteractionPanel(
   size: Signal<Vector2Tuple>,
   psRef: { pixelSize: number; depth: number },
-  rootGroup: Group,
+  rootGroupRef: RefObject<Group>,
 ): Mesh {
   const parentClippingRect = useParentClippingRect()
   const panel = useMemo(() => {
     const result = new Mesh()
     result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, psRef.depth), rootGroup, parentClippingRect)
+    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, psRef.depth), rootGroupRef, parentClippingRect)
     result.visible = false
     return result
-  }, [parentClippingRect, psRef.depth, rootGroup])
+  }, [parentClippingRect, psRef.depth, rootGroupRef])
   useSignalEffect(() => {
     const [width, height] = size.value
     panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1)
@@ -164,7 +176,11 @@ export function useInstancedPanel(
   useBatchedProperties(collection, panel, propertyTransformation)
 }
 
-export function useGetInstancedPanelGroup(pixelSize: number, rootIdentifier: unknown, rootGroup: Group) {
+export function useGetInstancedPanelGroup(
+  pixelSize: number,
+  cameraDistance: CameraDistanceRef,
+  groupsContainer: Group,
+) {
   const map = useMemo(() => new Map<MaterialClass, InstancedPanelGroup>(), [])
   const getGroup = useCallback<GetInstancedPanelGroup>(
     (materialClass) => {
@@ -173,13 +189,13 @@ export function useGetInstancedPanelGroup(pixelSize: number, rootIdentifier: unk
         const InstancedMaterialClass = createInstancedPanelMaterial(materialClass)
         map.set(
           materialClass,
-          (result = new InstancedPanelGroup(new InstancedMaterialClass(), pixelSize, rootIdentifier)),
+          (result = new InstancedPanelGroup(new InstancedMaterialClass(), pixelSize, cameraDistance)),
         )
-        rootGroup.add(result)
+        groupsContainer.add(result)
       }
       return result
     },
-    [pixelSize, map, rootIdentifier, rootGroup],
+    [pixelSize, map, cameraDistance, groupsContainer],
   )
 
   useFrame((_, delta) => {

@@ -1,11 +1,11 @@
 import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
 import { useMemo, useEffect, createContext, useContext, useImperativeHandle, ForwardedRef } from 'react'
-import { Matrix4, Mesh, Vector2Tuple } from 'three'
-import { FlexNode, Inset } from '../flex/node.js'
+import { Matrix4, Mesh, Plane, Vector2Tuple } from 'three'
+import { FlexNode, Inset, CameraDistanceRef } from '../flex/node.js'
 import { WithHover } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
 
-export const rootIdentiferKey = Symbol('root-identifier-key')
+export const cameraDistanceKey = Symbol('root-identifier-key')
 export const orderKey = Symbol('order-key')
 
 export type WithConditionals<T> = WithHover<T> & WithResponsive<T>
@@ -48,8 +48,12 @@ const ElementRenderPriority = {
   Panel: 5,
 }
 
-export function setRootIdentifier<T>(result: T, rootIdentifier: unknown, type: keyof typeof ElementRenderPriority): T {
-  ;(result as any)[rootIdentiferKey] = rootIdentifier
+export function setupRenderingOrder<T>(
+  result: T,
+  rootCameraDistance: CameraDistanceRef,
+  type: keyof typeof ElementRenderPriority,
+): T {
+  ;(result as any)[cameraDistanceKey] = rootCameraDistance
   ;(result as any)[orderKey] = ElementRenderPriority[type]
   return result
 }

@@ -1,6 +1,6 @@
 import { Yoga } from 'yoga-wasm-web'
-import { ReactNode, forwardRef, useEffect, useMemo } from 'react'
-import { FlexNode, YogaProperties, createDeferredRequestLayoutCalculation } from '../flex/node.js'
+import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
+import { FlexNode, CameraDistanceRef, YogaProperties, createDeferredRequestLayoutCalculation } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useResource } from '../utils.js'
 import { loadYogaBase64 } from '../flex/load-base64.js'
 import {
@@ -19,7 +19,7 @@ import { Group, Matrix4, Plane, RenderItem, Vector2Tuple, Vector3, WebGLRenderer
 import { useFrame, useThree } from '@react-three/fiber'
 import { useApplyHoverProperties } from '../hover.js'
 import {
-  rootIdentiferKey,
+  cameraDistanceKey,
   orderKey,
   LayoutListeners,
   useLayoutListeners,
@@ -95,10 +95,12 @@ export const Root = forwardRef<
     [],
   )
   const yoga = useResource(properties.loadYoga ?? loadYogaBase64, [properties.loadYoga])
-  const distanceToCameraRef = useMemo(() => ({ distance: 0 }), [])
+  const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
+  const groupRef = useRef<Group>(null)
   const node = useMemo(
     () =>
       new FlexNode(
+        groupRef,
         //root identifier = unique empty object = {}
         distanceToCameraRef,
         yoga,
@@ -109,20 +111,20 @@ export const Root = forwardRef<
         undefined,
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [yoga],
+    [groupRef, yoga],
   )
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   useEffect(() => () => node.destroy(), [node])
 
   const transformMatrix = useTransformMatrix(collection, node)
 
-  const rootGroup = useMemo(() => {
-    const group = new Group()
-    group.matrixAutoUpdate = false
-    return group
+  const groupsContainer = useMemo(() => {
+    const result = new Group()
+    result.matrixAutoUpdate = false
+    return result
   }, [])
-  const getPanelGroup = useGetInstancedPanelGroup(pixelSize, node.rootIdentifier, rootGroup)
-  const getGylphGroup = useGetInstancedGlyphGroup(pixelSize, node.rootIdentifier, rootGroup)
+  const getPanelGroup = useGetInstancedPanelGroup(pixelSize, node.cameraDistance, groupsContainer)
+  const getGylphGroup = useGetInstancedGlyphGroup(pixelSize, node.cameraDistance, groupsContainer)
 
   const rootMatrix = useRootMatrix(transformMatrix, node.size, pixelSize, properties)
   const scrollPosition = useScrollPosition()
@@ -163,7 +165,7 @@ export const Root = forwardRef<
   const clippingRect = useClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, node, undefined)
   useLayoutListeners(properties, node.size)
 
-  const internactionPanel = useInteractionPanel(node.size, node, rootGroup)
+  const internactionPanel = useInteractionPanel(node.size, node, groupRef)
 
   useComponentInternals(ref, node, internactionPanel, scrollPosition)
 
@@ -172,15 +174,16 @@ export const Root = forwardRef<
     planeHelper.constant = 0
     planeHelper.applyMatrix4(internactionPanel.matrixWorld)
     vectorHelper.setFromMatrixPosition(camera.matrixWorld)
-    distanceToCameraRef.distance = planeHelper.distanceToPoint(vectorHelper)
+    distanceToCameraRef.current = planeHelper.distanceToPoint(vectorHelper)
   })
 
   return (
-    <primitive object={rootGroup}>
-      <RootGroupProvider value={rootGroup}>
-        <InstancedGlyphProvider value={getGylphGroup}>
-          <InstancedPanelProvider value={getPanelGroup}>
-            <InteractionGroup matrix={rootMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <>
+      <primitive object={groupsContainer} />
+      <InteractionGroup groupRef={groupRef} matrix={rootMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+        <RootGroupProvider value={groupRef}>
+          <InstancedGlyphProvider value={getGylphGroup}>
+            <InstancedPanelProvider value={getPanelGroup}>
               <ScrollHandler node={node} scrollPosition={scrollPosition} listeners={properties}>
                 <primitive object={internactionPanel} />
               </ScrollHandler>
@@ -193,11 +196,11 @@ export const Root = forwardRef<
                   </FlexProvider>
                 </MatrixProvider>
               </ScrollGroup>
-            </InteractionGroup>
-          </InstancedPanelProvider>
-        </InstancedGlyphProvider>
-      </RootGroupProvider>
-    </primitive>
+            </InstancedPanelProvider>
+          </InstancedGlyphProvider>
+        </RootGroupProvider>
+      </InteractionGroup>
+    </>
   )
 })
 
@@ -261,15 +264,15 @@ function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.renderOrder !== b.renderOrder) {
     return a.renderOrder - b.renderOrder
   }
-  const aDistanceRef = (a.object as any)[rootIdentiferKey]
-  const bDistanceRef = (b.object as any)[rootIdentiferKey]
+  const aDistanceRef = (a.object as any)[cameraDistanceKey] as CameraDistanceRef
+  const bDistanceRef = (b.object as any)[cameraDistanceKey] as CameraDistanceRef
   if (aDistanceRef == null || bDistanceRef == null) {
     return a.z !== b.z ? b.z - a.z : a.id - b.id
   }
   if (aDistanceRef === bDistanceRef) {
     return (a.object as any)[orderKey] - (a.object as any)[orderKey]
   }
-  return bDistanceRef.distance - aDistanceRef.distance
+  return bDistanceRef.current - aDistanceRef.current
 }
 
 export function patchRenderOrder(renderer: WebGLRenderer): void {

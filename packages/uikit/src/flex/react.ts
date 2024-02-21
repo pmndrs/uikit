@@ -1,5 +1,6 @@
-import { createContext, useContext, useMemo, useEffect } from 'react'
+import { createContext, useContext, useMemo, useEffect, RefObject } from 'react'
 import { FlexNode } from './node.js'
+import { Group } from 'three'
 
 const FlexContext = createContext<FlexNode>(null as any)
 
@@ -7,13 +8,9 @@ export function useParentFlexNode() {
   return useContext(FlexContext)
 }
 
-export function useFlexNode(index: number = 0): FlexNode {
+export function useFlexNode(groupRef: RefObject<Group>): FlexNode {
   const parentNode = useParentFlexNode()
-  const node = useMemo(() => parentNode.createChild(), [parentNode])
-  if (node.index != index) {
-    node.index = index
-    node.requestCalculateLayout()
-  }
+  const node = useMemo(() => parentNode.createChild(groupRef), [groupRef, parentNode])
   useEffect(
     () => () => {
       parentNode.removeChild(node)

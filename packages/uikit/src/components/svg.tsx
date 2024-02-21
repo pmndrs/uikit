@@ -1,6 +1,6 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { ReactNode, forwardRef, useMemo } from 'react'
-import { YogaProperties } from '../flex/node.js'
+import { ReactNode, RefObject, forwardRef, useMemo, useRef } from 'react'
+import { CameraDistanceRef, YogaProperties } from '../flex/node.js'
 import { useFlexNode } from '../flex/react.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
 import {
@@ -10,7 +10,7 @@ import {
   useGetBatchedProperties,
   writeCollection,
 } from '../properties/utils.js'
-import { useResourceWithParams, useSignalEffect, fitNormalizedContentInside, useRootGroup } from '../utils.js'
+import { useResourceWithParams, useSignalEffect, fitNormalizedContentInside, useRootGroupRef } from '../utils.js'
 import { Box3, Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry, Vector3 } from 'three'
 import { computed, Signal } from '@preact/signals-core'
 import { useApplyHoverProperties } from '../hover.js'
@@ -21,7 +21,7 @@ import {
   LayoutListeners,
   ViewportListeners,
   WithConditionals,
-  setRootIdentifier,
+  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -58,11 +58,11 @@ const vectorHelper = new Vector3()
 
 async function loadSvg(
   url: string,
-  rootIdentifier: unknown,
+  cameraDistance: CameraDistanceRef,
   MaterialClass: MaterialClass = MeshBasicMaterial,
   clippingPlanes: Array<Plane>,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
-  rootGroup: Group,
+  rootGroupRef: RefObject<Group>,
 ) {
   const object = new Group()
   object.matrixAutoUpdate = false
@@ -82,8 +82,8 @@ async function loadSvg(
       box3Helper.union(geometry.boundingBox!)
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroup, clippedRect)
-      setRootIdentifier(mesh, rootIdentifier, 'Svg')
+      mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, clippedRect)
+      setupRenderingOrder(mesh, cameraDistance, 'Svg')
       mesh.userData.color = path.color
       mesh.scale.y = -1
       mesh.updateMatrix()
@@ -110,7 +110,6 @@ export const Svg = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
-    index?: number
     src: string | Signal<string>
     materialClass?: MaterialClass
     backgroundMaterialClass?: MaterialClass
@@ -120,7 +119,8 @@ export const Svg = forwardRef<
     ViewportListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
   const globalMatrix = useGlobalMatrix(transformMatrix)
@@ -139,16 +139,16 @@ export const Svg = forwardRef<
     panelAliasPropertyTransformation,
   )
 
-  const rootGroup = useRootGroup()
-  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroup)
+  const rootGroupRef = useRootGroupRef()
+  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
   const svgObject = useResourceWithParams(
     loadSvg,
     properties.src,
-    node.rootIdentifier,
+    node.cameraDistance,
     properties.materialClass,
     clippingPlanes,
     parentClippingRect,
-    rootGroup,
+    rootGroupRef,
   )
 
   const getPropertySignal = useGetBatchedProperties<AppearanceProperties>(collection, propertyKeys)
@@ -212,12 +212,12 @@ export const Svg = forwardRef<
 
   useSignalEffect(() => void (centerGroup.visible = !isClipped.value), [])
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroup)
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
       <primitive object={interactionPanel} />
       <primitive object={centerGroup} />
     </InteractionGroup>

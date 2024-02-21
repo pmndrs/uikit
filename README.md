@@ -21,7 +21,6 @@ TODO Release
 - cache load yoga globally
 - support for visibility="hidden"
 - provide set of default fonts
-- remove index property
 - input
 - Label
 - decrease clipping rect when scrollbar present
@@ -44,8 +43,9 @@ Limitations
 ## Development
 
 `pnpm install`  
-`pnpm -F "*" convert`  
-`pnpm -F "*" generate`  
-`pnpm -F "*" build`  
+`pnpm -r inline-wasm`
+`pnpm -r convert`  
+`pnpm -r generate`  
+`pnpm -r build`  
 
 go to `examples/dashboard` and run `pnpm dev` to view the example dashboard

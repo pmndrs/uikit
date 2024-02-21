@@ -1,6 +1,6 @@
 import { Signal, computed } from '@preact/signals-core'
 import { useFrame } from '@react-three/fiber'
-import { createContext, useContext, useMemo } from 'react'
+import { RefObject, createContext, useContext, useMemo } from 'react'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
@@ -187,10 +187,14 @@ for (let i = 0; i < 4; i++) {
 
 export function useGlobalClippingPlanes(
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  rootGroup: Group,
+  rootGroupRef: RefObject<Group>,
 ): Array<Plane> {
   const clippingPlanes = useMemo<Array<Plane>>(() => [new Plane(), new Plane(), new Plane(), new Plane()], [])
   useFrame(() => {
+    const rootGroup = rootGroupRef.current
+    if (rootGroup == null) {
+      return
+    }
     const localPlanes = clippingRect?.value?.planes
     if (localPlanes == null) {
       for (let i = 0; i < 4; i++) {

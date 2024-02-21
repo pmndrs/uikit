@@ -1,18 +1,17 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, RefObject, forwardRef, useEffect, useMemo, useRef } from 'react'
-import { YogaProperties } from '../flex/node.js'
+import { CameraDistanceRef, YogaProperties } from '../flex/node.js'
 import { FlexProvider, useFlexNode } from '../flex/react.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
 import {
   ManagerCollection,
-  PropertyManager,
   WithReactive,
   createCollection,
   finalizeCollection,
   useGetBatchedProperties,
   writeCollection,
 } from '../properties/utils.js'
-import { alignmentZMap, fitNormalizedContentInside, useRootGroup, useSignalEffect } from '../utils.js'
+import { alignmentZMap, fitNormalizedContentInside, useRootGroupRef, useSignalEffect } from '../utils.js'
 import { Box3, Group, Mesh, Vector3 } from 'three'
 import { effect, Signal, signal } from '@preact/signals-core'
 import { useApplyHoverProperties } from '../hover.js'
@@ -21,7 +20,7 @@ import {
   LayoutListeners,
   ViewportListeners,
   WithConditionals,
-  setRootIdentifier,
+  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -54,7 +53,6 @@ export const Content = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
-    index?: number
     backgroundMaterialClass?: MaterialClass
   } & ContentProperties &
     EventHandlers &
@@ -62,7 +60,8 @@ export const Content = forwardRef<
     ViewportListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const node = useFlexNode(properties.index)
+  const groupRef = useRef<Group>(null)
+  const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
   const globalMatrix = useGlobalMatrix(transformMatrix)
@@ -83,7 +82,14 @@ export const Content = forwardRef<
     panelAliasPropertyTransformation,
   )
   const innerGroupRef = useRef<Group>(null)
-  const aspectRatio = useNormalizedContent(collection, innerGroupRef, node.rootIdentifier, parentClippingRect)
+  const rootGroupRef = useRootGroupRef()
+  const aspectRatio = useNormalizedContent(
+    collection,
+    innerGroupRef,
+    rootGroupRef,
+    node.cameraDistance,
+    parentClippingRect,
+  )
 
   //apply all properties
   useApplyProperties(collection, properties)
@@ -92,38 +98,37 @@ export const Content = forwardRef<
   writeCollection(collection, 'aspectRatio', aspectRatio)
   finalizeCollection(collection)
 
-  const outerGroup = useMemo(() => {
-    const group = new Group()
-    group.matrixAutoUpdate = false
-    return group
-  }, [])
-  useSignalEffect(() => {
-    const [offsetX, offsetY, scale] = fitNormalizedContentInside(
-      node.size,
-      node.paddingInset,
-      node.borderInset,
-      node.pixelSize,
-      aspectRatio.value ?? 1,
-    )
-    outerGroup.position.set(offsetX, offsetY, 0)
-    outerGroup.scale.setScalar(scale)
-    outerGroup.updateMatrix()
-  }, [node, aspectRatio])
+  const outerGroupRef = useRef<Group>(null)
+  useEffect(
+    () =>
+      effect(() => {
+        const [offsetX, offsetY, scale] = fitNormalizedContentInside(
+          node.size,
+          node.paddingInset,
+          node.borderInset,
+          node.pixelSize,
+          aspectRatio.value ?? 1,
+        )
+        const { current } = outerGroupRef
+        current?.position.set(offsetX, offsetY, 0)
+        current?.scale.setScalar(scale)
+        current?.updateMatrix()
+      }),
+    [node, aspectRatio],
+  )
 
-  const rootGroup = useRootGroup()
-
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroup)
+  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
       <primitive object={interactionPanel} />
-      <primitive object={outerGroup}>
+      <group matrixAutoUpdate={false} ref={outerGroupRef}>
         <group ref={innerGroupRef} matrixAutoUpdate={false}>
           <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
         </group>
-      </primitive>
+      </group>
     </InteractionGroup>
   )
 })
@@ -138,12 +143,12 @@ const propertyKeys = ['depthAlign'] as const
 function useNormalizedContent(
   collection: ManagerCollection,
   ref: RefObject<Group>,
-  rootIdentifier: unknown,
+  rootGroupRef: RefObject<Group>,
+  rootCameraDistance: CameraDistanceRef,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Signal<number | undefined> {
   const aspectRatio = useMemo(() => signal<number | undefined>(undefined), [])
-  const rootGroup = useRootGroup()
-  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroup)
+  const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
   const getPropertySignal = useGetBatchedProperties<DepthAlignProperties>(collection, propertyKeys)
   useEffect(() => {
     const group = ref.current
@@ -152,10 +157,10 @@ function useNormalizedContent(
     }
     group.traverse((object) => {
       if (object instanceof Mesh) {
-        setRootIdentifier(object, rootIdentifier, 'Object')
+        setupRenderingOrder(object, rootCameraDistance, 'Object')
         object.material.clippingPlanes = clippingPlanes
         object.material.needsUpdate = true
-        object.raycast = makeClippedRaycast(object, object.raycast, rootGroup, parentClippingRect)
+        object.raycast = makeClippedRaycast(object, object.raycast, rootGroupRef, parentClippingRect)
       }
     })
     const parent = group.parent
@@ -178,7 +183,7 @@ function useNormalizedContent(
       group.updateMatrix()
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getPropertySignal, rootIdentifier, clippingPlanes, rootGroup])
+  }, [getPropertySignal, rootCameraDistance, clippingPlanes, rootGroupRef])
 
   return aspectRatio
 }

@@ -1,6 +1,6 @@
-import { Signal, computed, signal } from '@preact/signals-core'
+import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { ReactNode, useCallback, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Group, Matrix4, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
 import { FlexNode, Inset } from './flex/node.js'
 import { Color as ColorRepresentation, useFrame } from '@react-three/fiber'
@@ -55,20 +55,20 @@ export function ScrollGroup({
   scrollPosition: Signal<Vector2Tuple>
   children?: ReactNode
 }) {
-  const scrollGroup = useMemo(() => {
-    const group = new Group()
-    group.matrixAutoUpdate = false
-    return group
-  }, [])
+  const ref = useRef<Group>(null)
 
-  useSignalEffect(() => {
-    const [scrollX, scrollY] = scrollPosition.value
-    const { pixelSize } = node
-    scrollGroup.position.set(-scrollX * pixelSize, scrollY * pixelSize, 0)
-    scrollGroup.updateMatrix()
-  }, [node])
+  useEffect(
+    () =>
+      effect(() => {
+        const [scrollX, scrollY] = scrollPosition.value
+        const { pixelSize } = node
+        ref.current?.position.set(-scrollX * pixelSize, scrollY * pixelSize, 0)
+        ref.current?.updateMatrix()
+      }),
+    [node, scrollPosition],
+  )
 
-  return <primitive object={scrollGroup}>{children}</primitive>
+  return <group ref={ref}>{children}</group>
 }
 
 export function ScrollHandler(properties: {
@@ -198,6 +198,10 @@ function RenderScrollHandler({
       onPointerLeave={(event) => {
         downPointerMap.delete(event.pointerId)
       }}
+      onPointerCancel={(event) => {
+        downPointerMap.delete(event.pointerId)
+      }}
+      onContextMenu={(e) => e.nativeEvent.preventDefault()}
       onPointerMove={(event) => {
         const prevInteraction = downPointerMap.get(event.pointerId)
 

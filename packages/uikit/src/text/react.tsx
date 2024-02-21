@@ -2,7 +2,7 @@ import { Signal, computed, signal } from '@preact/signals-core'
 import { InstancedText, TextAlignProperties, TextAppearanceProperties } from './render/instanced-text.js'
 import { InstancedGlyphGroup } from './render/instanced-glyph-group.js'
 import { MutableRefObject, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
-import { FlexNode } from '../flex/node.js'
+import { CameraDistanceRef, FlexNode } from '../flex/node.js'
 import { Group, Matrix4 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { ManagerCollection, useGetBatchedProperties } from '../properties/utils.js'
@@ -19,19 +19,23 @@ const InstancedGlyphContext = createContext<GetInstancedGlyphGroup>(null as any)
 
 export const InstancedGlyphProvider = InstancedGlyphContext.Provider
 
-export function useGetInstancedGlyphGroup(pixelSize: number, rootIdentifier: unknown, rootGroup: Group) {
+export function useGetInstancedGlyphGroup(
+  pixelSize: number,
+  cameraDistance: CameraDistanceRef,
+  groupsContainer: Group,
+) {
   const map = useMemo(() => new Map<Font, InstancedGlyphGroup>(), [])
   const getGroup = useCallback<GetInstancedGlyphGroup>(
     (font) => {
       let result = map.get(font)
       if (result == null) {
-        map.set(font, (result = new InstancedGlyphGroup(font, pixelSize, rootIdentifier)))
-        rootGroup.add(result)
+        map.set(font, (result = new InstancedGlyphGroup(font, pixelSize, cameraDistance)))
+        groupsContainer.add(result)
       }
       return result
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pixelSize, rootIdentifier, rootGroup],
+    [pixelSize, cameraDistance, groupsContainer],
   )
 
   useFrame((_, delta) => {

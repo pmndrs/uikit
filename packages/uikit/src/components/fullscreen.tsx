@@ -48,24 +48,17 @@ export const Fullscreen = forwardRef<
     groupRef.current.updateMatrix()
   })
   const attachCamera = properties.attachCamera ?? true
-  if (attachCamera) {
-    return (
-      <primitive object={camera}>
+  return (
+    <>
+      {attachCamera && <primitive object={camera} />}
+      {createPortal(
         <group ref={groupRef} matrixAutoUpdate={false}>
           <Root ref={ref} {...properties} sizeX={sizeX} sizeY={sizeY}>
             {properties.children}
           </Root>
-        </group>
-      </primitive>
-    )
-  }
-  //assume the camera is already attached => use a portal
-  return createPortal(
-    <group ref={groupRef} matrixAutoUpdate={false}>
-      <Root ref={ref} {...properties} sizeX={sizeX} sizeY={sizeY}>
-        {properties.children}
-      </Root>
-    </group>,
-    camera,
+        </group>,
+        camera,
+      )}
+    </>
   )
 })
