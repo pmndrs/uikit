@@ -2,9 +2,8 @@ name: Deploy Packages
 
 on:
   push:
-    branches:
-      - develop
-      - main
+    tags:
+      - '*'
 
 jobs:
   deploy-packages:
