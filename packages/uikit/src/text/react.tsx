@@ -2,7 +2,7 @@ import { Signal, computed, signal } from '@preact/signals-core'
 import { InstancedText, TextAlignProperties, TextAppearanceProperties } from './render/instanced-text.js'
 import { InstancedGlyphGroup } from './render/instanced-glyph-group.js'
 import { MutableRefObject, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
-import { CameraDistanceRef, FlexNode } from '../flex/node.js'
+import { FlexNode } from '../flex/node.js'
 import { Group, Matrix4 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { ManagerCollection, useGetBatchedProperties } from '../properties/utils.js'
@@ -12,8 +12,9 @@ import { MEASURE_MODE_UNDEFINED, MeasureFunction } from 'yoga-wasm-web'
 import { Font } from './font.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, measureGlyphLayout } from './layout.js'
 import { useFrame, useThree } from '@react-three/fiber'
+import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
 
-export type GetInstancedGlyphGroup = (font: Font) => InstancedGlyphGroup
+export type GetInstancedGlyphGroup = (majorIndex: number, font: Font) => InstancedGlyphGroup
 
 const InstancedGlyphContext = createContext<GetInstancedGlyphGroup>(null as any)
 
@@ -24,23 +25,36 @@ export function useGetInstancedGlyphGroup(
   cameraDistance: CameraDistanceRef,
   groupsContainer: Group,
 ) {
-  const map = useMemo(() => new Map<Font, InstancedGlyphGroup>(), [])
+  const map = useMemo(() => new Map<Font, Map<number, InstancedGlyphGroup>>(), [])
   const getGroup = useCallback<GetInstancedGlyphGroup>(
-    (font) => {
-      let result = map.get(font)
-      if (result == null) {
-        map.set(font, (result = new InstancedGlyphGroup(font, pixelSize, cameraDistance)))
-        groupsContainer.add(result)
+    (majorIndex, font) => {
+      let groups = map.get(font)
+      if (groups == null) {
+        map.set(font, (groups = new Map()))
       }
-      return result
+      let group = groups?.get(majorIndex)
+      if (group == null) {
+        groups.set(
+          majorIndex,
+          (group = new InstancedGlyphGroup(font, pixelSize, cameraDistance, {
+            majorIndex,
+            elementType: ElementType.Text,
+            minorIndex: 0,
+          })),
+        )
+        groupsContainer.add(group)
+      }
+      return group
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [pixelSize, cameraDistance, groupsContainer],
   )
 
   useFrame((_, delta) => {
-    for (const group of map.values()) {
-      group.onFrame(delta)
+    for (const groups of map.values()) {
+      for (const group of groups.values()) {
+        group.onFrame(delta)
+      }
     }
   })
 
@@ -106,6 +120,7 @@ export function useInstancedText(
   node: FlexNode,
   isHidden: Signal<boolean> | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: OrderInfo,
 ) {
   const getGroup = useContext(InstancedGlyphContext)
   const fontSignal = useFont(collection)
@@ -144,7 +159,7 @@ export function useInstancedText(
       return
     }
     const instancedText = new InstancedText(
-      getGroup(font),
+      getGroup(orderInfo.majorIndex, font),
       alignProperties,
       appearanceProperties,
       layoutSignal,
@@ -153,7 +168,7 @@ export function useInstancedText(
       parentClippingRect,
     )
     return () => instancedText.destroy()
-  }, [getGroup, matrix, node, isHidden, parentClippingRect])
+  }, [getGroup, matrix, node, isHidden, parentClippingRect, orderInfo.majorIndex])
 
   return measureFunc
 }

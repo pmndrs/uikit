@@ -35,7 +35,7 @@ function App() {
         gap={10}
         overflow="scroll"
         padding={10}
-        alignItems="flex-start"
+        alignItems="center"
         flexDirection="column"
         border={10}
         borderRight={0}
@@ -79,11 +79,11 @@ function App() {
             height={100}
           />
           <CustomContainer transformRotateZ={45} height={200} width={4}>
-            <meshPhongMaterial color="green" />
+            <meshPhongMaterial depthWrite={false} transparent color="green" />
           </CustomContainer>
-          <Content height={200} hover={{ height: 300 }} depthAlign="center" onSizeChange={(w, h) => console.log(w, h)}>
+          <Content height={200} hover={{ height: 300 }} depthAlign="front" onSizeChange={(w, h) => console.log(w, h)}>
             <Box>
-              <meshPhongMaterial />
+              <meshPhongMaterial depthWrite={false} transparent />
             </Box>
           </Content>
           <Content width={100}>
@@ -100,6 +100,19 @@ function App() {
             width={300}
           />
         </DefaultProperties>
+
+        <Container
+          positionType="absolute"
+          inset="20%"
+          width="60%"
+          height="60%"
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor="green"
+          zIndexOffset={1}
+        >
+          <Text>Hello world</Text>
+        </Container>
       </Fullscreen>
     </Canvas>
   )

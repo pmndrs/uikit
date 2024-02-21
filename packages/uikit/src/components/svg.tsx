@@ -1,6 +1,6 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, RefObject, forwardRef, useMemo, useRef } from 'react'
-import { CameraDistanceRef, YogaProperties } from '../flex/node.js'
+import { YogaProperties } from '../flex/node.js'
 import { useFlexNode } from '../flex/react.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
 import {
@@ -21,7 +21,6 @@ import {
   LayoutListeners,
   ViewportListeners,
   WithConditionals,
-  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -39,6 +38,7 @@ import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 
 export type SvgProperties = WithConditionals<
   WithClasses<
@@ -63,6 +63,7 @@ async function loadSvg(
   clippingPlanes: Array<Plane>,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
   rootGroupRef: RefObject<Group>,
+  orderInfo: OrderInfo,
 ) {
   const object = new Group()
   object.matrixAutoUpdate = false
@@ -82,8 +83,8 @@ async function loadSvg(
       box3Helper.union(geometry.boundingBox!)
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, clippedRect)
-      setupRenderingOrder(mesh, cameraDistance, 'Svg')
+      mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, clippedRect, orderInfo)
+      setupRenderOrder(mesh, cameraDistance, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1
       mesh.updateMatrix()
@@ -109,6 +110,7 @@ const propertyKeys = ['color', 'opacity'] as const
 export const Svg = forwardRef<
   ComponentInternals,
   {
+    zIndexOffset?: ZIndexOffset
     children?: ReactNode
     src: string | Signal<string>
     materialClass?: MaterialClass
@@ -126,6 +128,7 @@ export const Svg = forwardRef<
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -133,7 +136,7 @@ export const Svg = forwardRef<
     undefined,
     node.borderInset,
     isClipped,
-    node.depth,
+    backgroundOrderInfo,
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
@@ -141,6 +144,7 @@ export const Svg = forwardRef<
 
   const rootGroupRef = useRootGroupRef()
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
+  const orderInfo = useOrderInfo(ElementType.Svg, undefined, backgroundOrderInfo)
   const svgObject = useResourceWithParams(
     loadSvg,
     properties.src,
@@ -149,6 +153,7 @@ export const Svg = forwardRef<
     clippingPlanes,
     parentClippingRect,
     rootGroupRef,
+    orderInfo,
   )
 
   const getPropertySignal = useGetBatchedProperties<AppearanceProperties>(collection, propertyKeys)
@@ -212,7 +217,7 @@ export const Svg = forwardRef<
 
   useSignalEffect(() => void (centerGroup.visible = !isClipped.value), [])
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
+  const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 

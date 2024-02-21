@@ -127,6 +127,9 @@ importers:
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide
+      r3f-perf:
+        specifier: ^7.1.2
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -192,6 +195,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      three:
+        specifier: ^0.160.0
+        version: 0.160.0
     devDependencies:
       '@types/react':
         specifier: ^18.2.47

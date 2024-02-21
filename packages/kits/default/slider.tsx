@@ -92,7 +92,7 @@ export function Slider({
         <Container height="100%" width={percentage} borderRadius={1000} backgroundColor={colors.primary} />
       </Container>
       <Container
-        zIndexOffset={2}
+        zIndexOffset={{ minor: 2 }}
         positionType="absolute"
         positionLeft={percentage}
         transformTranslateX={-10}

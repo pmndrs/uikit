@@ -1,12 +1,9 @@
 import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
-import { useMemo, useEffect, createContext, useContext, useImperativeHandle, ForwardedRef } from 'react'
-import { Matrix4, Mesh, Plane, Vector2Tuple } from 'three'
-import { FlexNode, Inset, CameraDistanceRef } from '../flex/node.js'
+import { useMemo, useEffect, createContext, useContext, useImperativeHandle, ForwardedRef, RefObject } from 'react'
+import { Matrix4, Mesh, Vector2Tuple } from 'three'
+import { FlexNode, Inset } from '../flex/node.js'
 import { WithHover } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
-
-export const cameraDistanceKey = Symbol('root-identifier-key')
-export const orderKey = Symbol('order-key')
 
 export type WithConditionals<T> = WithHover<T> & WithResponsive<T>
 
@@ -22,7 +19,7 @@ export type ComponentInternals = {
 export function useComponentInternals(
   ref: ForwardedRef<ComponentInternals>,
   node: FlexNode,
-  interactionPanel: Mesh,
+  interactionPanel: Mesh | RefObject<Mesh>,
   scrollPosition?: Signal<Vector2Tuple>,
 ): void {
   useImperativeHandle(
@@ -32,30 +29,11 @@ export function useComponentInternals(
       paddingInset: node.paddingInset,
       pixelSize: node.pixelSize,
       size: node.size,
-      interactionPanel,
+      interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
       scrollPosition,
     }),
     [interactionPanel, node, scrollPosition],
   )
-}
-
-const ElementRenderPriority = {
-  Object: 0, //render last
-  Text: 1,
-  Svg: 2,
-  Image: 3,
-  Custom: 4,
-  Panel: 5,
-}
-
-export function setupRenderingOrder<T>(
-  result: T,
-  rootCameraDistance: CameraDistanceRef,
-  type: keyof typeof ElementRenderPriority,
-): T {
-  ;(result as any)[cameraDistanceKey] = rootCameraDistance
-  ;(result as any)[orderKey] = ElementRenderPriority[type]
-  return result
 }
 
 export type LayoutListeners = {

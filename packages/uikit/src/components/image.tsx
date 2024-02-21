@@ -13,7 +13,6 @@ import {
   LayoutListeners,
   ViewportListeners,
   WithConditionals,
-  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -40,6 +39,7 @@ import {
 import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -75,6 +75,7 @@ export const Image = forwardRef<
   ImageProperties & {
     src: string | Signal<string>
     materialClass?: MaterialClass
+    zIndexOffset?: ZIndexOffset
   } & EventHandlers &
     LayoutListeners &
     ViewportListeners
@@ -111,13 +112,14 @@ export const Image = forwardRef<
     clippingPlanes,
     materialPropertyTransformation,
   )
+  const orderInfo = useOrderInfo(ElementType.Image, properties.zIndexOffset)
   const mesh = useMemo(() => {
     const result = new Mesh(panelGeometry, material)
     result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, node.depth), rootGroupRef, parentClippingRect)
-    setupRenderingOrder(result, node.cameraDistance, 'Image')
+    result.raycast = makeClippedRaycast(result, makePanelRaycast(result), rootGroupRef, parentClippingRect, orderInfo)
+    setupRenderOrder(result, node.cameraDistance, orderInfo)
     return result
-  }, [node, material, rootGroupRef, parentClippingRect])
+  }, [node, material, rootGroupRef, parentClippingRect, orderInfo])
 
   //apply all properties
   useApplyProperties(collection, properties)

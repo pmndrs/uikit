@@ -3,8 +3,7 @@ import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
-import { setupRenderingOrder } from '../../components/utils.js'
-import { CameraDistanceRef } from '../../flex/node.js'
+import { CameraDistanceRef, OrderInfo, setupRenderOrder } from '../../order.js'
 
 export class InstancedGlyphGroup extends Group {
   public instanceMatrix!: InstancedBufferAttribute
@@ -25,6 +24,7 @@ export class InstancedGlyphGroup extends Group {
     font: Font,
     public readonly pixelSize: number,
     private readonly cameraDistance: CameraDistanceRef,
+    private orderInfo: OrderInfo,
   ) {
     super()
     this.material = new InstancedGlyphMaterial(font)
@@ -179,7 +179,7 @@ export class InstancedGlyphGroup extends Group {
     }
 
     //finalizing the new mesh
-    setupRenderingOrder(this.mesh, this.cameraDistance, 'Text')
+    setupRenderOrder(this.mesh, this.cameraDistance, this.orderInfo)
     this.mesh.count = this.glyphs.length
     this.add(this.mesh)
   }

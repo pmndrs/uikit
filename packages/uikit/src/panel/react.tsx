@@ -2,7 +2,7 @@ import { ReactNode, RefObject, createContext, useCallback, useContext, useEffect
 import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from 'three'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Signal, effect } from '@preact/signals-core'
-import { Inset, CameraDistanceRef } from '../flex/node.js'
+import { Inset } from '../flex/node.js'
 import { useSignalEffect } from '../utils.js'
 import { useFrame } from '@react-three/fiber'
 import { ClippingRect, useParentClippingRect } from '../clipping.js'
@@ -14,6 +14,7 @@ import { createInstancedPanelMaterial, createPanelMaterial } from './panel-mater
 import { useImmediateProperties } from '../properties/immediate.js'
 import { ManagerCollection, PropertyTransformation } from '../properties/utils.js'
 import { useBatchedProperties } from '../properties/batched.js'
+import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
 
 export function InteractionGroup({
   handlers,
@@ -81,17 +82,18 @@ function mergeHandlers<T extends (event: ThreeEvent<PointerEvent>) => void>(
 
 export function useInteractionPanel(
   size: Signal<Vector2Tuple>,
-  psRef: { pixelSize: number; depth: number },
+  psRef: { pixelSize: number },
+  orderInfo: OrderInfo,
   rootGroupRef: RefObject<Group>,
 ): Mesh {
   const parentClippingRect = useParentClippingRect()
   const panel = useMemo(() => {
     const result = new Mesh()
     result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, makePanelRaycast(result, psRef.depth), rootGroupRef, parentClippingRect)
+    result.raycast = makeClippedRaycast(result, makePanelRaycast(result), rootGroupRef, parentClippingRect, orderInfo)
     result.visible = false
     return result
-  }, [parentClippingRect, psRef.depth, rootGroupRef])
+  }, [parentClippingRect, orderInfo, rootGroupRef])
   useSignalEffect(() => {
     const [width, height] = size.value
     panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1)
@@ -102,7 +104,7 @@ export function useInteractionPanel(
 
 export type MaterialClass = { new (): Material }
 
-export type GetInstancedPanelGroup = (materialClass: MaterialClass) => InstancedPanelGroup
+export type GetInstancedPanelGroup = (majorIndex: number, materialClass: MaterialClass) => InstancedPanelGroup
 
 const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
 
@@ -138,7 +140,7 @@ export function useInstancedPanel(
   offset: Signal<Vector2Tuple> | undefined,
   borderInset: Signal<Inset>,
   isHidden: Signal<boolean> | undefined,
-  depth: number,
+  orderInfo: OrderInfo,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   materialClass: MaterialClass = MeshBasicMaterial,
   propertyTransformation: PropertyTransformation,
@@ -149,16 +151,16 @@ export function useInstancedPanel(
   const panel = useMemo(
     () =>
       new InstancedPanel(
-        getGroup(materialClass),
+        getGroup(orderInfo.majorIndex, materialClass),
         matrix,
         size,
         offset,
         borderInset,
         parentClippingRect,
         isHidden,
-        depth,
+        orderInfo.minorIndex,
       ),
-    [getGroup, materialClass, matrix, size, borderInset, parentClippingRect, isHidden, depth, offset],
+    [getGroup, materialClass, matrix, size, borderInset, parentClippingRect, isHidden, orderInfo, offset],
   )
   useEffect(() => () => panel.destroy(), [panel])
   useImmediateProperties(collection, panel, propertyTransformation)
@@ -170,26 +172,36 @@ export function useGetInstancedPanelGroup(
   cameraDistance: CameraDistanceRef,
   groupsContainer: Group,
 ) {
-  const map = useMemo(() => new Map<MaterialClass, InstancedPanelGroup>(), [])
+  const map = useMemo(() => new Map<MaterialClass, Map<number, InstancedPanelGroup>>(), [])
   const getGroup = useCallback<GetInstancedPanelGroup>(
-    (materialClass) => {
-      let result = map.get(materialClass)
-      if (result == null) {
-        const InstancedMaterialClass = createInstancedPanelMaterial(materialClass)
-        map.set(
-          materialClass,
-          (result = new InstancedPanelGroup(new InstancedMaterialClass(), pixelSize, cameraDistance)),
-        )
-        groupsContainer.add(result)
+    (majorIndex, materialClass) => {
+      let groups = map.get(materialClass)
+      if (groups == null) {
+        map.set(materialClass, (groups = new Map()))
       }
-      return result
+      let group = groups.get(majorIndex)
+      if (group == null) {
+        const InstancedMaterialClass = createInstancedPanelMaterial(materialClass)
+        groups.set(
+          majorIndex,
+          (group = new InstancedPanelGroup(new InstancedMaterialClass(), pixelSize, cameraDistance, {
+            elementType: ElementType.Panel,
+            majorIndex,
+            minorIndex: 0,
+          })),
+        )
+        groupsContainer.add(group)
+      }
+      return group
     },
     [pixelSize, map, cameraDistance, groupsContainer],
   )
 
   useFrame((_, delta) => {
-    for (const group of map.values()) {
-      group.onFrame(delta)
+    for (const groups of map.values()) {
+      for (const group of groups.values()) {
+        group.onFrame(delta)
+      }
     }
   })
   return getGroup

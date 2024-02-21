@@ -10,7 +10,6 @@ import { Group, Material, Mesh } from 'three'
 import {
   ComponentInternals,
   LayoutListeners,
-  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -26,6 +25,8 @@ import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { useApplyProperties, WithClasses } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { ElementType, setupRenderOrder, useOrderInfo, ZIndexOffset } from '../order.js'
+import { effect } from '@preact/signals-core'
 
 export type CustomContainerProperties = WithConditionals<
   WithClasses<WithAllAliases<WithReactive<YogaProperties & TransformProperties>>>
@@ -35,6 +36,7 @@ export const CustomContainer = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
+    zIndexOffset?: ZIndexOffset
   } & CustomContainerProperties &
     EventHandlers &
     LayoutListeners &
@@ -50,33 +52,40 @@ export const CustomContainer = forwardRef<
   const rootGroupRef = useRootGroupRef()
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
 
-  const mesh = useMemo(() => {
-    const result = new Mesh(panelGeometry)
-    result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, result.raycast, rootGroupRef, parentClippingRect)
-    result.position.z = 0.01
-    result.updateMatrix()
-    setupRenderingOrder(result, node.cameraDistance, 'Custom')
-    return result
-  }, [node, parentClippingRect, rootGroupRef])
+  const orderInfo = useOrderInfo(ElementType.Custom, properties.zIndexOffset)
 
-  useSignalEffect(() => {
-    const [width, height] = node.size.value
-    mesh.scale.set(width * node.pixelSize, height * node.pixelSize, 1)
-    mesh.updateMatrix()
-  }, [mesh])
-
-  useEffect(() => {
-    if (!(mesh.material instanceof Material)) {
-      return
-    }
-    mesh.material.clippingPlanes = clippingPlanes
-    mesh.material.needsUpdate = true
-  }, [mesh, clippingPlanes])
+  const meshRef = useRef<Mesh>(null)
 
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  useSignalEffect(() => void (mesh.visible = !isClipped.value), [mesh, isClipped])
+
+  useEffect(() => {
+    const mesh = meshRef.current
+    if (mesh == null) {
+      return
+    }
+
+    mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, parentClippingRect, orderInfo)
+    setupRenderOrder(mesh, node.cameraDistance, orderInfo)
+
+    if (mesh.material instanceof Material) {
+      mesh.material.clippingPlanes = clippingPlanes
+      mesh.material.needsUpdate = true
+    }
+
+    const unsubscribeScale = effect(() => {
+      const [width, height] = node.size.value
+      mesh.scale.set(width * node.pixelSize, height * node.pixelSize, 1)
+      mesh.updateMatrix()
+    })
+
+    const unsubscribeVisibile = effect(() => void (mesh.visible = !isClipped.value))
+
+    return () => {
+      unsubscribeScale()
+      unsubscribeVisibile()
+    }
+  }, [clippingPlanes, node, isClipped, parentClippingRect, orderInfo, rootGroupRef])
 
   //apply all properties
   useApplyProperties(collection, properties)
@@ -87,12 +96,13 @@ export const CustomContainer = forwardRef<
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
 
-  useComponentInternals(ref, node, mesh)
+  //useComponentInternals(ref, node, meshRef)
 
   return (
     <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <primitive object={mesh} />
-      <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
+      <mesh ref={meshRef} matrixAutoUpdate={false} geometry={panelGeometry}>
+        <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
+      </mesh>
     </InteractionGroup>
   )
 })

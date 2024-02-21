@@ -56,8 +56,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
 
       - name: Set Version
-        working-directory: ./packages/uikit
-        run: pnpm exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
+        run: pnpm -r exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"

@@ -11,7 +11,6 @@ import {
   ComponentInternals,
   LayoutListeners,
   ViewportListeners,
-  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -25,6 +24,7 @@ import { useImmediateProperties } from '../properties/immediate.js'
 import { useApplyProperties } from '../properties/default.js'
 import { SvgProperties, AppearanceProperties } from './svg.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 
 const colorHelper = new Color()
 
@@ -39,6 +39,7 @@ export const SvgIconFromText = forwardRef<
     text: string
     svgWidth: number
     svgHeight: number
+    zIndexOffset?: ZIndexOffset
     materialClass?: MaterialClass
     backgroundMaterialClass?: MaterialClass
   } & SvgProperties &
@@ -54,6 +55,7 @@ export const SvgIconFromText = forwardRef<
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -61,7 +63,7 @@ export const SvgIconFromText = forwardRef<
     undefined,
     node.borderInset,
     isClipped,
-    node.depth,
+    backgroundOrderInfo,
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
@@ -70,6 +72,7 @@ export const SvgIconFromText = forwardRef<
   const rootGroupRef = useRootGroupRef()
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
 
+  const orderInfo = useOrderInfo(ElementType.Svg, undefined, backgroundOrderInfo)
   const svgGroup = useMemo(() => {
     const group = new Group()
     group.matrixAutoUpdate = false
@@ -88,8 +91,8 @@ export const SvgIconFromText = forwardRef<
         geometry.computeBoundingBox()
         const mesh = new Mesh(geometry, material)
         mesh.matrixAutoUpdate = false
-        mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, parentClippingRect)
-        setupRenderingOrder(mesh, node.cameraDistance, 'Svg')
+        mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, rootGroupRef, parentClippingRect, orderInfo)
+        setupRenderOrder(mesh, node.cameraDistance, orderInfo)
         mesh.userData.color = path.color
         mesh.scale.y = -1
         mesh.updateMatrix()
@@ -98,7 +101,7 @@ export const SvgIconFromText = forwardRef<
     }
 
     return group
-  }, [properties.text, properties.materialClass, clippingPlanes, rootGroupRef, parentClippingRect, node])
+  }, [properties.text, properties.materialClass, clippingPlanes, rootGroupRef, parentClippingRect, node, orderInfo])
 
   const getPropertySignal = useGetBatchedProperties<AppearanceProperties>(collection, propertyKeys)
   useSignalEffect(() => {
@@ -148,7 +151,7 @@ export const SvgIconFromText = forwardRef<
 
   useSignalEffect(() => void (svgGroup.visible = !isClipped.value), [])
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
+  const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 

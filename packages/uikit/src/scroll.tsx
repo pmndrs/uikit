@@ -11,6 +11,7 @@ import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties } from './panel/instanced-panel.js'
 import { borderAliasPropertyTransformation, panelAliasPropertyTransformation } from './properties/alias.js'
 import { ManagerCollection, PropertyTransformation, WithReactive, useGetBatchedProperties } from './properties/utils.js'
+import { ElementType, OrderInfo, useOrderInfo } from './order.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
@@ -333,8 +334,10 @@ export function useScrollbars(
   isClipped: Signal<boolean> | undefined,
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: OrderInfo,
   providedGetGroup?: GetInstancedPanelGroup,
 ): void {
+  const scrollbarOrderInfo = useOrderInfo(ElementType.Panel, undefined, orderInfo)
   useScrollbar(
     collection,
     0,
@@ -344,6 +347,7 @@ export function useScrollbars(
     isClipped,
     materialClass,
     parentClippingRect,
+    scrollbarOrderInfo,
     providedGetGroup,
   )
   useScrollbar(
@@ -355,6 +359,7 @@ export function useScrollbars(
     isClipped,
     materialClass,
     parentClippingRect,
+    scrollbarOrderInfo,
     providedGetGroup,
   )
 }
@@ -376,6 +381,7 @@ function useScrollbar(
   isClipped: Signal<boolean> | undefined,
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: OrderInfo,
   providedGetGroup?: GetInstancedPanelGroup,
 ) {
   const getPropertySignal = useGetBatchedProperties<{ scrollbarWidth?: number }>(collection, propertyKeys)
@@ -422,7 +428,7 @@ function useScrollbar(
     scrollbarPosition,
     borderSize,
     isClipped,
-    node.depth + 1,
+    orderInfo,
     parentClippingRect,
     materialClass,
     scrollbarPanelPropertyTransformation,

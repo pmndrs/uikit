@@ -38,6 +38,7 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
+import { ElementType, OrderInfoProvider, ZIndexOffset, useOrderInfo } from '../order.js'
 
 export type ContainerProperties = WithConditionals<
   WithClasses<
@@ -49,7 +50,7 @@ export const Container = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
-    zIndexOffset?: number
+    zIndexOffset?: ZIndexOffset
     backgroundMaterialClass?: MaterialClass
   } & ContainerProperties &
     EventHandlers &
@@ -65,6 +66,7 @@ export const Container = forwardRef<
   const parentClippingRect = useParentClippingRect()
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
+  const orderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -72,7 +74,7 @@ export const Container = forwardRef<
     undefined,
     node.borderInset,
     isClipped,
-    node.depth + (properties.zIndexOffset ?? 0),
+    orderInfo,
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
@@ -88,6 +90,7 @@ export const Container = forwardRef<
     isClipped,
     properties.scrollbarMaterialClass,
     parentClippingRect,
+    orderInfo,
   )
 
   //apply all properties
@@ -110,7 +113,7 @@ export const Container = forwardRef<
 
   const rootGroupRef = useRootGroupRef()
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
+  const interactionPanel = useInteractionPanel(node.size, node, orderInfo, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
@@ -122,7 +125,9 @@ export const Container = forwardRef<
       <ScrollGroup node={node} scrollPosition={scrollPosition}>
         <MatrixProvider value={globalScrollMatrix}>
           <FlexProvider value={node}>
-            <ClippingRectProvider value={clippingRect}>{properties.children}</ClippingRectProvider>
+            <ClippingRectProvider value={clippingRect}>
+              <OrderInfoProvider value={orderInfo}>{properties.children}</OrderInfoProvider>
+            </ClippingRectProvider>
           </FlexProvider>
         </MatrixProvider>
       </ScrollGroup>

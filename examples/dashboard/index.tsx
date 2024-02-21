@@ -1,32 +1,32 @@
-import { StrictMode } from "react";
-import { Canvas } from "@react-three/fiber";
-import { createRoot } from "react-dom/client";
-import { Container, Fullscreen, Root, Text } from "@react-three/uikit";
-import { DefaultColors, colors } from "@/defaults.js";
-import { Button } from "@/button.js";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/card.js";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/tabs.js";
-import { CalendarDateRangePicker } from "./date-range-picker.js";
-import { MainNav } from "./main-nav.js";
-import { Overview } from "./overview.js";
-import { RecentSales } from "./recent-sales.js";
-import { TeamSwitcher } from "./team-switcher.js";
-import { UserNav } from "./user-nav.js";
-import { Activity, CreditCard, DollarSign, Users } from "@react-three/uikit-lucide";
-import { Environment, OrbitControls } from "@react-three/drei";
-import { Perf } from "r3f-perf"
+import { StrictMode } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { createRoot } from 'react-dom/client'
+import { Container, Fullscreen, Root, Text } from '@react-three/uikit'
+import { DefaultColors, colors } from '@/defaults.js'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card.js'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
+import { CalendarDateRangePicker } from './date-range-picker.js'
+import { MainNav } from './main-nav.js'
+import { Overview } from './overview.js'
+import { RecentSales } from './recent-sales.js'
+import { TeamSwitcher } from './team-switcher.js'
+import { UserNav } from './user-nav.js'
+import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
+import { Environment, OrbitControls } from '@react-three/drei'
+import { Perf } from 'r3f-perf'
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
-);
+)
 
 function App() {
   return (
-    <Canvas style={{ height: "100dvh", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <Perf />
-      <color attach="background" args={["black"]} />
+      <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
       <OrbitControls />
@@ -75,7 +75,7 @@ function App() {
         </Root>
       </group>
     </Canvas>
-  );
+  )
 }
 
 export function DashboardPage() {
@@ -118,15 +118,10 @@ export function DashboardPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="overview" gap={16}>
-            <Container gap={16} lg={{ flexDirection: "row" }}>
+            <Container gap={16} lg={{ flexDirection: 'row' }}>
               <Container flexGrow={1} gap={16} flexDirection="row">
                 <Card backgroundOpacity={0.8} flexBasis={0} flexGrow={1}>
-                  <CardHeader
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    paddingBottom={8}
-                  >
+                  <CardHeader flexDirection="row" alignItems="center" justifyContent="space-between" paddingBottom={8}>
                     <CardTitle>
                       <Text fontSize={14} lineHeight={1.43}>
                         Total Revenue
@@ -219,7 +214,7 @@ export function DashboardPage() {
                 </Card>
               </Container>
             </Container>
-            <Container lg={{ flexDirection: "row" }} flexDirection="column" gap={16}>
+            <Container lg={{ flexDirection: 'row' }} flexDirection="column" gap={16}>
               <Card backgroundOpacity={0.8} lg={{ flexGrow: 4 }}>
                 <CardHeader>
                   <CardTitle>
@@ -248,5 +243,5 @@ export function DashboardPage() {
         </Tabs>
       </Container>
     </Container>
-  );
+  )
 }

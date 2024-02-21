@@ -14,14 +14,16 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
+- fix bug: 3 draw calls for TabsDemo
+- fix bug: interaction panel disappear unmount and mount 
 - add shadcn components
+- cli for kits
 - add apfel components
 - Content "measureContent" flag => allow disabling content measuring and scaling
 - support for visibility="hidden"
 - input
 - Label
 - decrease clipping rect when scrollbar present
-- multiple layers to render panels in front of text/images/... (e.g. for modals) - <IncrementLayer by={2} >{...content}</IncrementLayer>
 
 TODO Later
 

@@ -1,6 +1,6 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, RefObject, forwardRef, useEffect, useMemo, useRef } from 'react'
-import { CameraDistanceRef, YogaProperties } from '../flex/node.js'
+import { YogaProperties } from '../flex/node.js'
 import { FlexProvider, useFlexNode } from '../flex/react.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
 import {
@@ -20,7 +20,6 @@ import {
   LayoutListeners,
   ViewportListeners,
   WithConditionals,
-  setupRenderingOrder,
   useComponentInternals,
   useGlobalMatrix,
   useLayoutListeners,
@@ -38,6 +37,7 @@ import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
+import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 
 export type ContentProperties = WithConditionals<
   WithClasses<
@@ -53,6 +53,7 @@ export const Content = forwardRef<
   ComponentInternals,
   {
     children?: ReactNode
+    zIndexOffset?: ZIndexOffset
     backgroundMaterialClass?: MaterialClass
   } & ContentProperties &
     EventHandlers &
@@ -69,6 +70,7 @@ export const Content = forwardRef<
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -76,19 +78,21 @@ export const Content = forwardRef<
     undefined,
     node.borderInset,
     isClipped,
-    node.depth,
+    backgroundOrderInfo,
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
   )
   const innerGroupRef = useRef<Group>(null)
   const rootGroupRef = useRootGroupRef()
+  const orderInfo = useOrderInfo(ElementType.Object, undefined, backgroundOrderInfo)
   const aspectRatio = useNormalizedContent(
     collection,
     innerGroupRef,
     rootGroupRef,
     node.cameraDistance,
     parentClippingRect,
+    orderInfo,
   )
 
   //apply all properties
@@ -117,7 +121,7 @@ export const Content = forwardRef<
     [node, aspectRatio],
   )
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroupRef)
+  const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 
@@ -146,6 +150,7 @@ function useNormalizedContent(
   rootGroupRef: RefObject<Group>,
   rootCameraDistance: CameraDistanceRef,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: OrderInfo,
 ): Signal<number | undefined> {
   const aspectRatio = useMemo(() => signal<number | undefined>(undefined), [])
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
@@ -157,10 +162,10 @@ function useNormalizedContent(
     }
     group.traverse((object) => {
       if (object instanceof Mesh) {
-        setupRenderingOrder(object, rootCameraDistance, 'Object')
+        setupRenderOrder(object, rootCameraDistance, orderInfo)
         object.material.clippingPlanes = clippingPlanes
         object.material.needsUpdate = true
-        object.raycast = makeClippedRaycast(object, object.raycast, rootGroupRef, parentClippingRect)
+        object.raycast = makeClippedRaycast(object, object.raycast, rootGroupRef, parentClippingRect, orderInfo)
       }
     })
     const parent = group.parent

@@ -1,5 +1,5 @@
-import { Group, Plane, Vector2Tuple } from 'three'
-import { ReadonlySignal, Signal, batch, computed, effect, signal } from '@preact/signals-core'
+import { Group, Vector2Tuple } from 'three'
+import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
 import {
   EDGE_TOP,
   EDGE_LEFT,
@@ -15,14 +15,13 @@ import { setter } from './setter.js'
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
 import { RefObject } from 'react'
+import { CameraDistanceRef } from '../order.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
-
-export type CameraDistanceRef = { current: number }
 
 export class FlexNode implements WithImmediateProperties {
   public readonly size = signal<Vector2Tuple>([0, 0])
@@ -50,7 +49,6 @@ export class FlexNode implements WithImmediateProperties {
     private precision: number,
     public readonly pixelSize: number,
     requestCalculateLayout: (node: FlexNode) => void,
-    public readonly depth: number,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
@@ -106,7 +104,6 @@ export class FlexNode implements WithImmediateProperties {
       this.precision,
       this.pixelSize,
       this.requestCalculateLayout,
-      this.depth + 1,
       computed(() => {
         const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]
         const [x, y] = this.scrollable.value

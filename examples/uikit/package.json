@@ -6,7 +6,8 @@
     "@react-three/fiber": "^8.15.13",
     "@react-three/uikit": "workspace:^",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "three": "^0.160.0"
   },
   "scripts": {
     "dev": "vite --host"

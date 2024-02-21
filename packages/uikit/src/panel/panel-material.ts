@@ -87,7 +87,7 @@ export function createPanelMaterial<T extends Constructor<Material>>(MaterialCla
     size!: Signal<Vector2Tuple>
 
     constructor(...args: Array<any>) {
-      super({ transparent: true, toneMapped: false }, ...args.slice(1))
+      super({ transparent: true, toneMapped: false, depthWrite: false }, ...args.slice(1))
       if (this.defines == null) {
         this.defines = {}
       }

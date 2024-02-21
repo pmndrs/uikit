@@ -2,6 +2,7 @@ import { Group, Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { RefObject } from 'react'
+import { OrderInfo } from '../order.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -13,7 +14,7 @@ const sides: Array<Plane> = [
   new Plane().setFromNormalAndCoplanarPoint(new Vector3(0, -1, 0), new Vector3(0, 0.5, 0)),
 ]
 
-export function makePanelRaycast(mesh: Mesh, depth: number): Mesh['raycast'] {
+export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
   return (raycaster: Raycaster, intersects: Array<Intersection<Object3D<Object3DEventMap>>>) => {
     const matrixWorld = mesh.matrixWorld
     planeHelper.constant = 0
@@ -37,7 +38,7 @@ export function makePanelRaycast(mesh: Mesh, depth: number): Mesh['raycast'] {
     }
 
     intersects.push({
-      distance: vectorHelper.distanceTo(raycaster.ray.origin) - depth * 0.001,
+      distance: vectorHelper.distanceTo(raycaster.ray.origin),
       object: mesh,
       point: vectorHelper.clone(),
       normal,
@@ -50,6 +51,7 @@ export function makeClippedRaycast(
   fn: Mesh['raycast'],
   rootGroupRef: RefObject<Group>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: OrderInfo,
 ): Mesh['raycast'] {
   if (clippingRect == null) {
     return fn
@@ -67,10 +69,14 @@ export function makeClippedRaycast(
     }
     const outerMatrixWorld = rootGroup.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
+      const intersection = intersects[i]
+      intersection.distance -=
+        orderInfo.majorIndex * 0.01 +
+        orderInfo.elementType * 0.001 + //1-10
+        orderInfo.minorIndex * 0.00001 //1-100
       for (let ii = 0; ii < 4; ii++) {
-        const { point } = intersects[i]
         planeHelper.copy(clippingPlanes[ii]).applyMatrix4(outerMatrixWorld)
-        if (planeHelper.distanceToPoint(point) < 0) {
+        if (planeHelper.distanceToPoint(intersection.point) < 0) {
           intersects.splice(i, 1)
           continue outer
         }

@@ -1,6 +1,6 @@
 import { Yoga } from 'yoga-wasm-web'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
-import { FlexNode, CameraDistanceRef, YogaProperties } from '../flex/node.js'
+import { FlexNode, YogaProperties } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
 import {
   InstancedPanelProvider,
@@ -14,12 +14,10 @@ import { WithReactive, createCollection, finalizeCollection, writeCollection } f
 import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { Group, Matrix4, Plane, RenderItem, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
+import { Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useApplyHoverProperties } from '../hover.js'
 import {
-  cameraDistanceKey,
-  orderKey,
   LayoutListeners,
   useLayoutListeners,
   MatrixProvider,
@@ -49,6 +47,7 @@ import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from '../text/react
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
 import { loadYogaFromGH } from '../flex/load-binary.js'
+import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
 
 export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
@@ -99,18 +98,7 @@ export const Root = forwardRef<
   const groupRef = useRef<Group>(null)
   const requestLayout = useDeferredRequestLayoutCalculation()
   const node = useMemo(
-    () =>
-      new FlexNode(
-        groupRef,
-        //root identifier = unique empty object = {}
-        distanceToCameraRef,
-        yoga,
-        precision,
-        pixelSize,
-        requestLayout,
-        0,
-        undefined,
-      ),
+    () => new FlexNode(groupRef, distanceToCameraRef, yoga, precision, pixelSize, requestLayout, undefined),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [requestLayout, groupRef, yoga],
   )
@@ -127,6 +115,8 @@ export const Root = forwardRef<
   const getPanelGroup = useGetInstancedPanelGroup(pixelSize, node.cameraDistance, groupsContainer)
   const getGylphGroup = useGetInstancedGlyphGroup(pixelSize, node.cameraDistance, groupsContainer)
 
+  const orderInfo = useOrderInfo(ElementType.Panel, undefined)
+
   const rootMatrix = useRootMatrix(transformMatrix, node.size, pixelSize, properties)
   const scrollPosition = useScrollPosition()
   const globalScrollMatrix = useGlobalScrollMatrix(scrollPosition, node, rootMatrix)
@@ -138,6 +128,7 @@ export const Root = forwardRef<
     undefined,
     properties.scrollbarMaterialClass,
     undefined,
+    orderInfo,
     getPanelGroup,
   )
 
@@ -148,7 +139,7 @@ export const Root = forwardRef<
     undefined,
     node.borderInset,
     undefined,
-    node.depth,
+    orderInfo,
     undefined,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
@@ -166,7 +157,7 @@ export const Root = forwardRef<
   const clippingRect = useClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, node, undefined)
   useLayoutListeners(properties, node.size)
 
-  const internactionPanel = useInteractionPanel(node.size, node, groupRef)
+  const internactionPanel = useInteractionPanel(node.size, node, orderInfo, groupRef)
 
   useComponentInternals(ref, node, internactionPanel, scrollPosition)
 
@@ -192,7 +183,9 @@ export const Root = forwardRef<
                 <MatrixProvider value={globalScrollMatrix}>
                   <FlexProvider value={node}>
                     <ClippingRectProvider value={clippingRect}>
-                      <RootSizeProvider value={node.size}>{properties.children}</RootSizeProvider>
+                      <OrderInfoProvider value={orderInfo}>
+                        <RootSizeProvider value={node.size}>{properties.children}</RootSizeProvider>
+                      </OrderInfoProvider>
                     </ClippingRectProvider>
                   </FlexProvider>
                 </MatrixProvider>
@@ -256,26 +249,4 @@ function useRootMatrix(
       }),
     [matrix, size, anchorX, anchorY, pixelSize],
   )
-}
-
-function reversePainterSortStable(a: RenderItem, b: RenderItem) {
-  if (a.groupOrder !== b.groupOrder) {
-    return a.groupOrder - b.groupOrder
-  }
-  if (a.renderOrder !== b.renderOrder) {
-    return a.renderOrder - b.renderOrder
-  }
-  const aDistanceRef = (a.object as any)[cameraDistanceKey] as CameraDistanceRef
-  const bDistanceRef = (b.object as any)[cameraDistanceKey] as CameraDistanceRef
-  if (aDistanceRef == null || bDistanceRef == null) {
-    return a.z !== b.z ? b.z - a.z : a.id - b.id
-  }
-  if (aDistanceRef === bDistanceRef) {
-    return (a.object as any)[orderKey] - (a.object as any)[orderKey]
-  }
-  return bDistanceRef.current - aDistanceRef.current
-}
-
-export function patchRenderOrder(renderer: WebGLRenderer): void {
-  renderer.setTransparentSort(reversePainterSortStable)
 }

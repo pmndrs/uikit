@@ -31,6 +31,7 @@ import { Signal } from '@preact/signals-core'
 import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
+import { ElementType, ZIndexOffset, useOrderInfo } from '../order.js'
 
 export type TextProperties = WithConditionals<
   WithClasses<
@@ -43,6 +44,7 @@ export const Text = forwardRef<
   {
     children: string | Signal<string>
     backgroundMaterialClass?: MaterialClass
+    zIndexOffset?: ZIndexOffset
   } & TextProperties &
     EventHandlers &
     LayoutListeners &
@@ -54,12 +56,13 @@ export const Text = forwardRef<
   const node = useFlexNode(groupRef)
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   const transformMatrix = useTransformMatrix(collection, node)
-  const rootGroup = useRootGroupRef()
+  const rootGroupRef = useRootGroupRef()
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -67,11 +70,12 @@ export const Text = forwardRef<
     undefined,
     node.borderInset,
     isClipped,
-    node.depth,
+    backgroundOrderInfo,
     parentClippingRect,
     properties.backgroundMaterialClass,
     panelAliasPropertyTransformation,
   )
+  const orderInfo = useOrderInfo(ElementType.Text, undefined, backgroundOrderInfo)
   const measureFunc = useInstancedText(
     collection,
     properties.children,
@@ -79,6 +83,7 @@ export const Text = forwardRef<
     node,
     isClipped,
     parentClippingRect,
+    orderInfo,
   )
 
   useApplyProperties(collection, properties)
@@ -87,7 +92,7 @@ export const Text = forwardRef<
   writeCollection(collection, 'measureFunc', measureFunc)
   finalizeCollection(collection)
 
-  const interactionPanel = useInteractionPanel(node.size, node, rootGroup)
+  const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
 
   useComponentInternals(ref, node, interactionPanel)
 

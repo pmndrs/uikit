@@ -30,6 +30,7 @@ import { Switch } from '@/switch.js'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 import { Toggle } from '@/toggle.js'
 import { ToggleGroup, ToggleGroupItem } from '@/toggle-group.js'
+import { Perf } from 'r3f-perf'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -40,6 +41,7 @@ createRoot(document.getElementById('root')!).render(
 function App() {
   return (
     <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+      <Perf />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />

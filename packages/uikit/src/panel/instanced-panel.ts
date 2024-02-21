@@ -80,14 +80,14 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
   active = signal(false)
 
   constructor(
-    private group: InstancedPanelGroup,
-    private matrix: Signal<Matrix4>,
-    private size: Signal<Vector2Tuple>,
-    private offset: Signal<Vector2Tuple> | undefined,
-    private borderInset: Signal<Inset>,
-    private clippingRect: Signal<ClippingRect | undefined> | undefined,
+    private readonly group: InstancedPanelGroup,
+    private readonly matrix: Signal<Matrix4>,
+    private readonly size: Signal<Vector2Tuple>,
+    private readonly offset: Signal<Vector2Tuple> | undefined,
+    private readonly borderInset: Signal<Inset>,
+    private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isHidden: Signal<boolean> | undefined,
-    private readonly depth: number,
+    private readonly minorIndex: number,
   ) {
     this.unsubscribeVisible = effect(() => {
       const get = this.getProperty.value
@@ -190,7 +190,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       return
     }
     this.insertedIntoGroup = true
-    this.group.insert(this.depth, this)
+    this.group.insert(this.minorIndex, this)
   }
 
   private hide(): void {
@@ -199,7 +199,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
     }
     this.active.value = false
     this.insertedIntoGroup = false
-    this.group.delete(this.depth, this.indexInBucket!, this)
+    this.group.delete(this.minorIndex, this.indexInBucket!, this)
     const unsubscribeListLength = this.unsubscribeList.length
     for (let i = 0; i < unsubscribeListLength; i++) {
       this.unsubscribeList[i]()
