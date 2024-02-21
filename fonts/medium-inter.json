@@ -1,6 +1,6 @@
 {
     "pages": [
-        "inter.webp"
+        "inter-medium.webp"
     ],
     "chars": [
         {
@@ -1447,7 +1447,7 @@
         }
     ],
     "info": {
-        "face": "inter",
+        "face": "medium-inter",
         "size": 48,
         "bold": 0,
         "italic": 0,
