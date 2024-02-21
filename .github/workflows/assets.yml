@@ -22,63 +22,73 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: https://npm.pkg.github.com/
+
+      - name: Install Dependencies
+        working-directory: ./packages/fonts
+        run: npm install
+
+      - name: Make Dist Dir
+        working-directory: ./packages/fonts
+        run: mkdir dist
 
 # Inter
       - name: Generate Inter Light
         working-directory: ./packages/fonts
-        run:  node download.js "Inter" 300;
-              fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-light.ttf;
-              npx msdf-bmfont -f json inter-light.ttf -i charset.txt -m 256,512 -o public/inter-light -s 48
+        run: |
+          node download.js "Inter" 300
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-light.ttf
+          npx msdf-bmfont -f json inter-light.ttf -i charset.txt -m 256,512 -o dist/inter-light -s 48
 
       - name: Generate Inter Regular
         working-directory: ./packages/fonts
-        run:  node download.js "Inter" 400;
-              fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf regular-inter.ttf;
-              npx msdf-bmfont -f json regular-inter.ttf -i charset.txt -m 256,512 -o public/inter -s 48
+        run: |
+          node download.js "Inter" 400
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf regular-inter.ttf
+          npx msdf-bmfont -f json regular-inter.ttf -i charset.txt -m 256,512 -o dist/inter -s 48
 
       - name: Generate Inter Medium
         working-directory: ./packages/fonts
-        run:  node download.js "Inter" 500;
-              fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter.ttf;
-              npx msdf-bmfont -f json inter.ttf -i charset.txt -m 256,512 -o public/inter -s 48
+        run: |
+          node download.js "Inter" 500
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter.ttf
+          npx msdf-bmfont -f json inter.ttf -i charset.txt -m 256,512 -o dist/inter -s 48
 
       - name: Generate Inter Semi Bold
         working-directory: ./packages/fonts
-        run:  node download.js "Inter" 600;
-              fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-semi-bold.ttf;
-              npx msdf-bmfont -f json inter-semi-bold.ttf -i charset.txt -m 256,512 -o public/inter-semi-bold -s 48
+        run: |
+          node download.js "Inter" 600
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-semi-bold.ttf
+          npx msdf-bmfont -f json inter-semi-bold.ttf -i charset.txt -m 256,512 -o dist/inter-semi-bold -s 48
 
       - name: Generate Inter Bold
         working-directory: ./packages/fonts
-        run:  node download.js "Inter" 700;
-              fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-bold.ttf;
-              npx msdf-bmfont -f json inter-bold.ttf -i charset.txt -m 256,512 -o public/inter-bold -s 48
+        run: |
+          node download.js "Inter" 700
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-bold.ttf
+          npx msdf-bmfont -f json inter-bold.ttf -i charset.txt -m 256,512 -o dist/inter-bold -s 48
       
       - name: Convert to Webp
         working-directory: ./packages/fonts
-        run:  npx sharp --lossless -i public/*.png -o public/ -f webp
+        run: npx sharp --lossless -i dist/*.png -o dist/ -f webp
 
       - name: Replace file png files
         working-directory: ./packages/fonts
         run: |
-          sed -i 's/png/webp/g' public/*.json
-          rm public/*.png
+          sed -i 's/png/webp/g' dist/*.json
+          rm dist/*.png
 
       - name: Copy font files
         run: |
+          mkdir public
           mkdir public/fonts
-          cp ./packages/fonts/* ./public/fonts
+          cp ./packages/fonts/dist/* ./public/fonts
+          cp ./packages/fonts/LICENSE public/LICENSE
 
       - name: Copy wasm files
         run: |
           mkdir public/yoga
           npm i yoga-wasm-web
           cp node_modules/yoga-wasm-web/dist/yoga.wasm public/yoga.wasm
-
-      - name: Copy LICENSE to public
-        run: |
-          cp ./packages/fonts/LICENSE public/LICENSE
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4

@@ -1,0 +1,6 @@
+{
+    "dependencies": {
+        "msdf-bmfont-xml": "^2.7.0",
+        "sharp-cli": "^4.1.1"
+    }
+}
