@@ -77,6 +77,7 @@ export function Toggle({
         opacity={disabled ? 0.5 : undefined}
         fontSize={14}
         lineHeight={1.43}
+        fontWeight="medium"
       >
         {children}
       </DefaultProperties>

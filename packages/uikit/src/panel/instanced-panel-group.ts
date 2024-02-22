@@ -6,7 +6,6 @@ import {
   updateSortedBucketsAllocation,
   resizeSortedBucketsSpace,
 } from '../allocation/sorted-buckets.js'
-import { defaultClippingData } from '../clipping.js'
 import { panelMaterialDefaultData } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
@@ -28,9 +27,6 @@ export class InstancedPanelGroup extends Group {
     this.instanceData.set(panelMaterialDefaultData, 16 * index)
     this.instanceData.addUpdateRange(16 * index, 16)
     this.instanceData.needsUpdate = true
-    this.instanceClipping.set(defaultClippingData, 16 * index)
-    this.instanceClipping.addUpdateRange(16 * index, 16)
-    this.instanceClipping.needsUpdate = true
     element.activate(bucket, indexInBucket)
   }
 
@@ -79,7 +75,7 @@ export class InstancedPanelGroup extends Group {
     this.requestUpdate(0)
   }
 
-  delete(bucketIndex: number, elementIndex: number, panel: InstancedPanel): void {
+  delete(bucketIndex: number, elementIndex: number | undefined, panel: InstancedPanel): void {
     this.elementCount -= 1
     if (
       !removeFromSortedBuckets(

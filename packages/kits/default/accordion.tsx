@@ -43,7 +43,7 @@ export function AccordionTrigger({ children, ...props }: ComponentPropsWithoutRe
       paddingY={16}
       {...props}
     >
-      {children}
+      <DefaultProperties fontWeight="medium">{children}</DefaultProperties>
       <ChevronDown transformRotateZ={isSelected ? 180 : 0} width={16} height={16} flexShrink={0} />
     </Container>
   )

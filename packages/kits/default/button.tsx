@@ -107,6 +107,7 @@ export function Button({
       <DefaultProperties
         fontSize={14}
         lineHeight={1.43}
+        fontWeight="medium"
         wordBreak="keep-all"
         {...defaultProps}
         opacity={disabled ? 0.5 : undefined}

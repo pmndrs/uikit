@@ -55,7 +55,7 @@ export function Badge({
   const { containerProps, defaultProps } = badgeVariants[variant]
   return (
     <Container borderRadius={1000} border={1} paddingX={10} paddingY={2} {...containerProps} {...props}>
-      <DefaultProperties {...defaultProps} fontSize={12} lineHeight={1.3333}>
+      <DefaultProperties fontSize={12} lineHeight={1.3333} fontWeight="semi-bold" {...defaultProps}>
         {children}
       </DefaultProperties>
     </Container>

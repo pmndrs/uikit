@@ -6,13 +6,16 @@
     "fix:eslint": "eslint ./**/*.tsx --fix"
   },
   "devDependencies": {
-    "@types/react": "^18.2.47",
-    "@types/three": "^0.160.0",
-    "three": "^0.160.0",
     "@preact/signals-core": "^1.5.1",
+    "@react-three/fiber": "^8.15.13",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
-    "@react-three/fiber": "^8.15.13"
+    "@types/react": "^18.2.47",
+    "@types/three": "^0.160.0",
+    "three": "^0.160.0"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "tunnel-rat": "^0.1.2"
+  }
 }

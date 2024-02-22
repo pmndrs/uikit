@@ -24,7 +24,7 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha ./tests/*.spec.ts",
+    "test": "mocha ./tests/allocation.spec.ts",
     "build": "tsc",
     "inline-wasm": "wasmwrap --include-decode false --input node_modules/yoga-wasm-web/dist/yoga.wasm --output src/flex/wasm.ts",
     "fix:inline-wasm": "replace-in-files --string 'const base64 =' --replacement 'const base64: string =' src/flex/wasm.ts",

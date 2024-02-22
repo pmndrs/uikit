@@ -65,7 +65,7 @@ export function removeFromSortedBuckets<E>(
   buckets: Array<Bucket<E>>,
   bucketIndex: number,
   element: E,
-  elementIndex: number,
+  elementIndex: number | undefined,
   activateElement: (element: E, bucket: Bucket<E>, index: number) => void,
   clearBufferAt: (index: number) => void,
   setElementIndex: (element: E, index: number) => void,
@@ -81,7 +81,7 @@ export function removeFromSortedBuckets<E>(
     bucket.add.splice(addIndex, 1)
     return false
   }
-  if (elementIndex >= bucket.elements.length) {
+  if (elementIndex == null || elementIndex >= bucket.elements.length) {
     throw new Error(`no element at index ${elementIndex}`)
   }
   if (bucket.add.length > 0) {
@@ -114,7 +114,7 @@ export function removeFromSortedBuckets<E>(
 
   //we are at the last bucket => merge missing space with the previous bucket(s)
   let currentBucket = bucket
-  while (currentBucket.elements.length === 0 && bucketIndex > 0) {
+  while (currentBucket.elements.length === 0 && currentBucket.add.length == 0 && bucketIndex > 0) {
     const prevBucket = buckets[bucketIndex - 1]
     prevBucket.missingSpace += currentBucket.missingSpace
     currentBucket = buckets[--bucketIndex]
@@ -141,7 +141,9 @@ export function updateSortedBucketsAllocation<E>(
       lastBucketWithElements = i
     }
 
-    if (bucket.missingSpace === 0) {
+    const lastBucket = i === bucketsLength - 1
+
+    if (!lastBucket && bucket.missingSpace === 0) {
       continue
     }
 
@@ -156,15 +158,15 @@ export function updateSortedBucketsAllocation<E>(
         continue
       }
       const otherHasSpace = otherBucket.missingSpace < 0
-      if (hasSpace && otherHasSpace) {
+      if (otherHasSpace && (lastBucket || hasSpace)) {
         //case 2 - both have space: merge space into bucket by shifting to other bucket (so that the hole is increased at the end of the bucket)
         shiftLeft(buckets, bufferCopyWithin, ii, i, Math.abs(otherBucket.missingSpace))
         continue
       }
-      if (hasSpace === otherHasSpace) {
+      if (!hasSpace && !otherHasSpace) {
         continue
       }
-      //case 1 - has has space the other needs space: shift to the once with space
+      //case 1 - bucket has space the other needs space: shift to the one with space
       const shiftBy = Math.min(Math.abs(otherBucket.missingSpace), Math.abs(bucket.missingSpace))
 
       if (hasSpace) {
@@ -175,6 +177,10 @@ export function updateSortedBucketsAllocation<E>(
         shiftLeft(buckets, bufferCopyWithin, ii, i, shiftBy)
       }
     }
+  }
+  const newLastBucket = buckets[lastBucketWithElements]
+  for (let i = lastBucketWithElements + 1; i < bucketsLength; i++) {
+    newLastBucket.missingSpace += buckets[i].missingSpace
   }
   bucketsLength = buckets.length = lastBucketWithElements + 1
 

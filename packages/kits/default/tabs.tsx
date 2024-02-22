@@ -84,6 +84,7 @@ export function TabsTrigger({
         opacity={disabled ? 0.5 : undefined}
         color={active ? colors.foreground : undefined}
         fontSize={14}
+        fontWeight="medium"
         lineHeight={1.43}
         wordBreak="keep-all"
       >

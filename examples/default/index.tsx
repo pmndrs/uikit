@@ -31,6 +31,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 import { Toggle } from '@/toggle.js'
 import { ToggleGroup, ToggleGroupItem } from '@/toggle-group.js'
 import { Perf } from 'r3f-perf'
+import {
+  Dialog,
+  DialogAnchor,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/dialog.js'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -52,15 +62,59 @@ function App() {
         justifyContent="center"
         padding={32}
       >
-        <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
-          <DefaultColors>
-            <TabsDemo />
-          </DefaultColors>
-        </Container>
+        <DefaultColors>
+          <DialogAnchor>
+            <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
+              <DialogDemo />
+            </Container>
+          </DialogAnchor>
+        </DefaultColors>
       </Fullscreen>
     </Canvas>
   )
 }
+
+export function DialogDemo() {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button variant="outline">
+          <Text>Edit Profile</Text>
+        </Button>
+      </DialogTrigger>
+      <DialogContent sm={{ maxWidth: 425 }}>
+        <DialogHeader>
+          <DialogTitle>
+            <Text>Edit profile</Text>
+          </DialogTitle>
+          <DialogDescription>
+            <Text>Make changes to your profile here. Click save when you're done.</Text>
+          </DialogDescription>
+        </DialogHeader>
+        <Container gap={16} paddingY={16}>
+          <Container alignItems="center" gap={16}>
+            <Label>
+              <Text horizontalAlign="right">Name</Text>
+            </Label>
+            {/*<Input defaultValue="Pedro Duarte" className="col-span-3" />*/}
+          </Container>
+          <Container alignItems="center" gap={16}>
+            <Label>
+              <Text horizontalAlign="right">Username</Text>
+            </Label>
+            {/*<Input id="username" defaultValue="@peduarte" className="col-span-3" />*/}
+          </Container>
+        </Container>
+        <DialogFooter>
+          <Button>
+            <Text>Save changes</Text>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 export function ToggleGroupDemo() {
   return (
     <ToggleGroup>

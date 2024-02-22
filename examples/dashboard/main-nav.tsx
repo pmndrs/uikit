@@ -1,8 +1,8 @@
-import { colors } from "@/defaults.js";
-import { Container, Text } from "@react-three/uikit";
-import { ComponentPropsWithoutRef } from "react";
+import { colors } from '@/defaults.js'
+import { Container, Text } from '@react-three/uikit'
+import { ComponentPropsWithoutRef } from 'react'
 
-export function MainNav(props: Omit<ComponentPropsWithoutRef<typeof Container>, "children">) {
+export function MainNav(props: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
   return (
     <Container alignItems="center" flexDirection="row" gap={16} lg={{ gap: 24 }} {...props}>
       <Text fontSize={14} lineHeight={1.43} fontWeight="medium" hover={{ color: colors.primary }}>
@@ -18,5 +18,5 @@ export function MainNav(props: Omit<ComponentPropsWithoutRef<typeof Container>, 
         Settings
       </Text>
     </Container>
-  );
+  )
 }

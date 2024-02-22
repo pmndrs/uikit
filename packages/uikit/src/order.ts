@@ -25,6 +25,10 @@ function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   return bDistanceRef.current - aDistanceRef.current
 }
 
+export function patchRenderOrder(renderer: WebGLRenderer): void {
+  renderer.setTransparentSort(reversePainterSortStable)
+}
+
 //the following order tries to represent the most common element order of the respective element types (e.g. panels are most likely the background element)
 export const ElementType = {
   Panel: 0, //render first
@@ -107,8 +111,4 @@ export function setupRenderOrder<T>(result: T, rootCameraDistance: CameraDistanc
   ;(result as any)[cameraDistanceKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo
   return result
-}
-
-export function patchRenderOrder(renderer: WebGLRenderer): void {
-  renderer.setTransparentSort(reversePainterSortStable)
 }

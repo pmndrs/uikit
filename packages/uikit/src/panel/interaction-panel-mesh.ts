@@ -64,9 +64,6 @@ export function makeClippedRaycast(
     const oldLength = intersects.length
     fn.call(mesh, raycaster, intersects)
     const clippingPlanes = clippingRect.value?.planes
-    if (clippingPlanes == null) {
-      return
-    }
     const outerMatrixWorld = rootGroup.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]
@@ -74,6 +71,9 @@ export function makeClippedRaycast(
         orderInfo.majorIndex * 0.01 +
         orderInfo.elementType * 0.001 + //1-10
         orderInfo.minorIndex * 0.00001 //1-100
+      if (clippingPlanes == null) {
+        continue
+      }
       for (let ii = 0; ii < 4; ii++) {
         planeHelper.copy(clippingPlanes[ii]).applyMatrix4(outerMatrixWorld)
         if (planeHelper.distanceToPoint(intersection.point) < 0) {
