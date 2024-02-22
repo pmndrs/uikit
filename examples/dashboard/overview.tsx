@@ -1,65 +1,70 @@
-import { colors } from "@/defaults.js";
-import { Container, Text } from "@react-three/uikit";
+import { colors } from '@/defaults.js'
+import { Container, Text } from '@react-three/uikit'
 
 const data = [
   {
-    name: "Jan",
+    name: 'Jan',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Feb",
+    name: 'Feb',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Mar",
+    name: 'Mar',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Apr",
+    name: 'Apr',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "May",
+    name: 'May',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Jun",
+    name: 'Jun',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Jul",
+    name: 'Jul',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Aug",
+    name: 'Aug',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Sep",
+    name: 'Sep',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Oct",
+    name: 'Oct',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Nov",
+    name: 'Nov',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    name: "Dec",
+    name: 'Dec',
     total: Math.floor(Math.random() * 5000) + 1000,
   },
-];
+]
 
-const max = 6000;
+const max = 6000
 
-const yAxisLabels = ["$6000", "$4500", "$3000", "$1500", "$0"];
+const yAxisLabels = ['$6000', '$4500', '$3000', '$1500', '$0']
 
 export function Overview() {
   return (
     <Container paddingX={16} gap={16} width="100%" height={350} flexDirection="row">
-      <Container paddingBottom={12 * 1.333 + 8} flexDirection="column" alignItems="flex-end" justifyContent="space-between">
+      <Container
+        paddingBottom={12 * 1.333 + 8}
+        flexDirection="column"
+        alignItems="flex-end"
+        justifyContent="space-between"
+      >
         {yAxisLabels.map((label) => (
           <Text color={colors.mutedForeground} fontSize={12} lineHeight={1.3333} key={label}>
             {label}
@@ -72,7 +77,7 @@ export function Overview() {
             <Container flexGrow={1} flexShrink={1} justifyContent="flex-end" width="100%">
               <Container
                 borderRadiusTop={4}
-                height={`${Math.min(1, (total / max)) * 100}%`}
+                height={`${Math.min(1, total / max) * 100}%`}
                 backgroundColor={colors.primary}
                 width="100%"
               />
@@ -84,5 +89,5 @@ export function Overview() {
         ))}
       </Container>
     </Container>
-  );
+  )
 }

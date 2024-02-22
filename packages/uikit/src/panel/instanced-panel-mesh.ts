@@ -19,7 +19,6 @@ export class InstancedPanelMesh extends Mesh {
     this.frustumCulled = false
     panelGeometry.attributes.aData = instanceData
     panelGeometry.attributes.aClipping = instanceClipping
-    this.frustumCulled = false
   }
 
   dispose() {

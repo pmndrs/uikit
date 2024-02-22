@@ -198,8 +198,10 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       return
     }
     this.active.value = false
+    this.group.delete(this.minorIndex, this.indexInBucket, this)
     this.insertedIntoGroup = false
-    this.group.delete(this.minorIndex, this.indexInBucket!, this)
+    this.bucket = undefined
+    this.indexInBucket = undefined
     const unsubscribeListLength = this.unsubscribeList.length
     for (let i = 0; i < unsubscribeListLength; i++) {
       this.unsubscribeList[i]()

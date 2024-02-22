@@ -65,7 +65,6 @@ export type FontFamilyUrls = Partial<Record<FontWeight, string>>
 
 const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null as any)
 
-//TODO: update to point to THIS repo
 const defaultFontFamilyUrls = {
   inter: {
     light: 'https://pmndrs.github.io/uikit/fonts/inter-light.json',

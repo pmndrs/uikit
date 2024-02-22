@@ -9,7 +9,7 @@ export const colors = {
   cardForeground: new Color().setHSL(222.2 / 360, 0.84, 0.049, 'srgb'),
   popover: new Color().setHSL(0, 0, 1, 'srgb'),
   popoverForeground: new Color().setHSL(222.2, 0.84, 0.049, 'srgb'),
-  primary: new Color().setHSL(222.2 / 360, 0.474, 0.112, 'srgb'),
+  primary: new Color().setHSL(100.2 / 360, 0.774, 0.512, 'srgb'),
   primaryForeground: new Color().setHSL(210 / 360, 0.4, 0.98, 'srgb'),
   secondary: new Color().setHSL(210 / 360, 0.4, 0.961, 'srgb'),
   secondaryForeground: new Color().setHSL(222.2 / 360, 0.474, 0.112, 'srgb'),
@@ -25,5 +25,14 @@ export const colors = {
 }
 
 export function DefaultColors(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
-  return <DefaultProperties borderColor={colors.border} color={colors.foreground} {...props} />
+  return (
+    <DefaultProperties
+      scrollbarColor={colors.foreground}
+      scrollbarBorderRadius={4}
+      scrollbarOpacity={0.3}
+      borderColor={colors.border}
+      color={colors.foreground}
+      {...props}
+    />
+  )
 }

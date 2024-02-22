@@ -14,7 +14,6 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
-- fix bug: 3 draw calls for TabsDemo
 - fix bug: interaction panel disappear unmount and mount 
 - add shadcn components
 - cli for kits

@@ -1,7 +1,7 @@
-import { StrictMode } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { StrictMode, Suspense, useEffect, useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { createRoot } from 'react-dom/client'
-import { Container, Fullscreen, Root, Text } from '@react-three/uikit'
+import { Container, CustomContainer, Root, Text } from '@react-three/uikit'
 import { DefaultColors, colors } from '@/defaults.js'
 import { Button } from '@/button.js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card.js'
@@ -13,8 +13,11 @@ import { RecentSales } from './recent-sales.js'
 import { TeamSwitcher } from './team-switcher.js'
 import { UserNav } from './user-nav.js'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
-import { Environment, OrbitControls } from '@react-three/drei'
-import { Perf } from 'r3f-perf'
+import { ContactShadows, Environment, MeshTransmissionMaterial, useGLTF, useTexture } from '@react-three/drei'
+import { Group, MathUtils, RepeatWrapping } from 'three'
+import { DialogAnchor } from '@/dialog.js'
+//@ts-ignore
+import { EffectComposer, DepthOfField, Vignette } from '@react-three/postprocessing'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,62 +26,106 @@ createRoot(document.getElementById('root')!).render(
 )
 
 function App() {
+  const [open, setOpen] = useState(false)
   return (
-    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
-      <Perf />
-      <color attach="background" args={['black']} />
-      <ambientLight intensity={0.5} />
-      <directionalLight intensity={0} position={[5, 1, 10]} />
-      <OrbitControls />
-      <Environment preset="city" background />
-      <group rotation-y={Math.PI / 4} position-x={-1.5}>
-        <Root
-          hover={{ transformTranslateZ: 500 }}
-          anchorX="right"
-          pixelSize={0.002}
-          sizeX={1.5}
-          backgroundColor="white"
-          backgroundOpacity={0.9}
-          borderRadius={16}
-        >
-          <DefaultColors>
-            <DashboardPage />
-          </DefaultColors>
-        </Root>
-      </group>
-      <Root
-        pixelSize={0.002}
-        sizeX={2.25}
-        hover={{ transformTranslateZ: 500 }}
-        backgroundColor="white"
-        backgroundOpacity={0.9}
-        borderRadius={16}
-      >
-        <DefaultColors>
-          <DashboardPage />
-        </DefaultColors>
-      </Root>
+    <Canvas
+      camera={{ position: [0, 0, -18], fov: 35 }}
+      style={{ height: '100dvh', touchAction: 'none' }}
+      gl={{ localClippingEnabled: true }}
+    >
+      <pointLight position={[8, 0, -10]} intensity={1500} color={'#d25578'} />
+      <pointLight position={[-10, 10, -10]} intensity={1500} color={'blue'} />
+      <Suspense fallback={null}>
+        <group rotation={[0, Math.PI, 0]} position-y={-0.5}>
+          <Model open={open} setOpen={setOpen} hinge={-0.425} />
+        </group>
+        <Environment background blur={0.2} preset="city" />
+      </Suspense>
+      <ContactShadows position={[0, -4.5, 0]} opacity={0.4} scale={20} blur={1.75} far={4.5} />
 
-      <group rotation-y={-Math.PI / 4} position-x={1.5}>
-        <Root
-          hover={{ transformTranslateZ: 500 }}
-          anchorX="left"
-          pixelSize={0.002}
-          sizeX={3.5}
-          backgroundColor="white"
-          backgroundOpacity={0.9}
-          borderRadius={16}
-        >
-          <DefaultColors>
-            <DashboardPage />
-          </DefaultColors>
-        </Root>
-      </group>
+      <EffectComposer>
+        <DepthOfField focusDistance={open ? 0.016 : 0.018} focalLength={0.005} bokehScale={6} />
+        <Vignette eskil={false} offset={0.1} darkness={1.1} />
+      </EffectComposer>
     </Canvas>
   )
 }
 
-export function DashboardPage() {
+function Model({ hinge, open, setOpen, ...props }: any) {
+  const group = useRef<Group>(null)
+  const normalMap = useTexture('/scratches.jpg')
+  useEffect(() => {
+    normalMap.repeat.setScalar(2)
+    normalMap.wrapS = RepeatWrapping
+    normalMap.wrapT = RepeatWrapping
+    normalMap.needsUpdate = true
+  }, [normalMap])
+  // Load model
+  const { nodes, materials } = useGLTF('/mac-draco.glb')
+  // Take care of cursor state on hover
+  // Make it float in the air when it's opened
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime()
+    if (group.current == null) {
+      return
+    }
+    group.current.rotation.x = MathUtils.lerp(group.current.rotation.x, Math.cos(t / 10) / 10 + 0.25, 0.1)
+    group.current.rotation.y = MathUtils.lerp(group.current.rotation.y, Math.sin(t / 10) / 4, 0.1)
+    group.current.rotation.z = MathUtils.lerp(group.current.rotation.z, Math.sin(t / 10) / 10, 0.1)
+    group.current.position.y = MathUtils.lerp(group.current.position.y, (-2 + Math.sin(t)) / 3, 0.1)
+  })
+  // The view was auto-generated by: https://github.com/pmndrs/gltfjsx
+  // Events and spring animations were added afterwards
+  return (
+    <group ref={group} {...props} dispose={null}>
+      <group rotation-x={hinge} position={[0, -0.04, 0.41]}>
+        <group position={[0, 2.96, -0.13]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh material={materials.aluminium} geometry={nodes['Cube008'].geometry} />
+          <mesh material={materials['matte.001']} geometry={nodes['Cube008_1'].geometry} />
+          <group rotation-x={-Math.PI / 2}>
+            <Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
+              <CustomContainer transformTranslateZ={-1} positionType="absolute" inset={0}>
+                <meshBasicMaterial colorWrite={false} />
+              </CustomContainer>
+              <CustomContainer zIndexOffset={50} transformTranslateZ={1} positionType="absolute" inset={0}>
+                <MeshTransmissionMaterial
+                  normalMap={normalMap}
+                  normalMapType={1}
+                  clearcoatNormalMap={normalMap}
+                  distortionScale={0}
+                  temporalDistortion={0}
+                  transmission={1}
+                  metalness={0.6}
+                  roughness={0.1}
+                  clearcoat={0.1}
+                  opacity={0.4}
+                  transparent
+                  envMapIntensity={0.5}
+                  color={0xffffff}
+                />
+              </CustomContainer>
+              <DefaultColors>
+                <DialogAnchor>
+                  <Container width="100%" height="100%" overflow="scroll">
+                    <DashboardPage open={open} setOpen={setOpen} />
+                  </Container>
+                </DialogAnchor>
+              </DefaultColors>
+            </Root>
+          </group>
+        </group>
+      </group>
+      <mesh material={materials.keys} geometry={nodes.keyboard.geometry} position={[1.79, 0, 3.45]} />
+      <group position={[0, -0.1, 3.39]}>
+        <mesh material={materials.aluminium} geometry={nodes['Cube002'].geometry} />
+        <mesh material={materials.trackpad} geometry={nodes['Cube002_1'].geometry} />
+      </group>
+      <mesh material={materials.touchbar} geometry={nodes.touchbar.geometry} position={[0, -0.03, 1.2]} />
+    </group>
+  )
+}
+
+export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   return (
     <Container flexDirection="column">
       <Container borderBottom={1}>
@@ -86,7 +133,7 @@ export function DashboardPage() {
           <TeamSwitcher />
           <MainNav marginX={24} />
           <Container marginLeft="auto" flexDirection="row" alignItems="center" gap={16}>
-            <UserNav />
+            <UserNav open={open} setOpen={setOpen} />
           </Container>
         </Container>
       </Container>
@@ -120,7 +167,7 @@ export function DashboardPage() {
           <TabsContent value="overview" gap={16}>
             <Container gap={16} lg={{ flexDirection: 'row' }}>
               <Container flexGrow={1} gap={16} flexDirection="row">
-                <Card backgroundOpacity={0.8} flexBasis={0} flexGrow={1}>
+                <Card flexBasis={0} flexGrow={1}>
                   <CardHeader flexDirection="row" alignItems="center" justifyContent="space-between" paddingBottom={8}>
                     <CardTitle>
                       <Text fontSize={14} lineHeight={1.43}>
@@ -138,7 +185,7 @@ export function DashboardPage() {
                     </Text>
                   </CardContent>
                 </Card>
-                <Card backgroundOpacity={0.8} flexBasis={0} flexGrow={1}>
+                <Card flexBasis={0} flexGrow={1}>
                   <CardHeader
                     flexDirection="row"
                     alignItems="center"
@@ -164,7 +211,7 @@ export function DashboardPage() {
                 </Card>
               </Container>
               <Container flexGrow={1} gap={16} flexDirection="row">
-                <Card backgroundOpacity={0.8} flexBasis={0} flexGrow={1}>
+                <Card flexBasis={0} flexGrow={1}>
                   <CardHeader
                     flexDirection="row"
                     alignItems="center"
@@ -188,7 +235,7 @@ export function DashboardPage() {
                     </Text>
                   </CardContent>
                 </Card>
-                <Card backgroundOpacity={0.8} flexBasis={0} flexGrow={1}>
+                <Card flexBasis={0} flexGrow={1}>
                   <CardHeader
                     flexDirection="row"
                     alignItems="center"
@@ -215,7 +262,7 @@ export function DashboardPage() {
               </Container>
             </Container>
             <Container lg={{ flexDirection: 'row' }} flexDirection="column" gap={16}>
-              <Card backgroundOpacity={0.8} lg={{ flexGrow: 4 }}>
+              <Card lg={{ flexGrow: 4 }}>
                 <CardHeader>
                   <CardTitle>
                     <Text>Overview</Text>
@@ -225,7 +272,7 @@ export function DashboardPage() {
                   <Overview />
                 </CardContent>
               </Card>
-              <Card backgroundOpacity={0.8} lg={{ flexGrow: 3 }}>
+              <Card lg={{ flexGrow: 3 }}>
                 <CardHeader>
                   <CardTitle>
                     <Text>Recent Sales</Text>
