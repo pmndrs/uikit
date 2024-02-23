@@ -1,5 +1,5 @@
 import { Yoga } from 'yoga-wasm-web'
-import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
+import { ReactNode, forwardRef, useEffect, useMemo, useRef, useState } from 'react'
 import { FlexNode, YogaProperties } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
 import {
@@ -14,7 +14,7 @@ import { WithReactive, createCollection, finalizeCollection, writeCollection } f
 import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
+import { EventDispatcher, Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useApplyHoverProperties } from '../hover.js'
 import {
@@ -85,7 +85,8 @@ export const Root = forwardRef<
     ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const renderer = useThree(({ gl }) => gl)
+  const renderer = useThree((state) => state.gl)
+  const controls = useThree((state) => state.controls) as EventDispatcher<{}> & { enabled: boolean }
   useEffect(() => patchRenderOrder(renderer), [renderer])
   const { sizeX, sizeY } = properties
   const [precision, pixelSize] = useMemo(
@@ -169,8 +170,34 @@ export const Root = forwardRef<
     distanceToCameraRef.current = planeHelper.distanceToPoint(vectorHelper)
   })
 
+  const [controlsActive, setControlsActive] = useState(false)
+  const [hovered, setHover] = useState(false)
+
+  useEffect(() => {
+    if (controls) {
+      const start = () => setControlsActive(true)
+      const end = () => setControlsActive(false)
+      controls.addEventListener?.('start', start)
+      controls.addEventListener?.('end', end)
+      return () => {
+        controls.removeEventListener?.('start', start)
+        controls.removeEventListener?.('end', end)
+      }
+    }
+  }, [controls])
+
+  useEffect(() => {
+    if (controls) {
+      const old = controls.enabled
+      if (controls && hovered && !controlsActive) controls.enabled = false
+      return () => {
+        controls.enabled = old
+      }
+    }
+  }, [hovered, controlsActive, controls])
+
   return (
-    <>
+    <group onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
       <primitive object={groupsContainer} />
       <InteractionGroup groupRef={groupRef} matrix={rootMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
         <RootGroupProvider value={groupRef}>
@@ -194,7 +221,7 @@ export const Root = forwardRef<
           </InstancedGlyphProvider>
         </RootGroupProvider>
       </InteractionGroup>
-    </>
+    </group>
   )
 })
 
