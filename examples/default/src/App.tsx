@@ -1,6 +1,5 @@
-import { StrictMode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { createRoot } from 'react-dom/client'
 import { DefaultProperties, Fullscreen, Text, Container } from '@react-three/uikit'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion.js'
 import { BellRing, Bold, Check, ChevronRight, Italic, Terminal, Underline } from '@react-three/uikit-lucide'
@@ -42,13 +41,7 @@ import {
   DialogTrigger,
 } from '@/dialog.js'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-function App() {
+export default function App() {
   return (
     <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <Perf />
@@ -74,7 +67,7 @@ function App() {
   )
 }
 
-export function DialogDemo() {
+function DialogDemo() {
   return (
     <Dialog>
       <DialogTrigger>
@@ -115,7 +108,7 @@ export function DialogDemo() {
   )
 }
 
-export function ToggleGroupDemo() {
+function ToggleGroupDemo() {
   return (
     <ToggleGroup>
       <ToggleGroupItem aria-label="Toggle bold">
@@ -131,7 +124,7 @@ export function ToggleGroupDemo() {
   )
 }
 
-export function ToggleDemo() {
+function ToggleDemo() {
   return (
     <Toggle>
       <Bold height={16} width={16} />
@@ -139,7 +132,7 @@ export function ToggleDemo() {
   )
 }
 
-export function TabsDemo() {
+function TabsDemo() {
   return (
     <Tabs defaultValue="account" width={400}>
       <TabsList width="100%">
@@ -216,7 +209,7 @@ export function TabsDemo() {
   )
 }
 
-export function SwitchDemo() {
+function SwitchDemo() {
   return (
     <Container flexDirection="row" alignItems="center" gap={8}>
       <Switch />
@@ -227,11 +220,11 @@ export function SwitchDemo() {
   )
 }
 
-export function SliderDemo() {
+function SliderDemo() {
   return <Slider defaultValue={50} max={100} step={1} width="60%" />
 }
 
-export function SkeletonDemo() {
+function SkeletonDemo() {
   return (
     <Container flexDirection="row" alignItems="center" gap={16}>
       <Skeleton borderRadius={1000} height={48} width={48} />
@@ -243,7 +236,7 @@ export function SkeletonDemo() {
   )
 }
 
-export function SeparatorDemo() {
+function SeparatorDemo() {
   return (
     <Container>
       <Container gap={4}>
@@ -268,7 +261,7 @@ export function SeparatorDemo() {
   )
 }
 
-export function RadioGroupDemo() {
+function RadioGroupDemo() {
   return (
     <RadioGroup defaultValue="comfortable">
       <RadioGroupItem value="default">
@@ -290,7 +283,7 @@ export function RadioGroupDemo() {
   )
 }
 
-export function ProgressDemo() {
+function ProgressDemo() {
   const [progress, setProgress] = useState(13)
 
   useEffect(() => {
@@ -301,7 +294,7 @@ export function ProgressDemo() {
   return <Progress value={progress} width="60%" />
 }
 
-export function PaginationDemo() {
+function PaginationDemo() {
   return (
     <Pagination>
       <PaginationContent>
@@ -334,7 +327,7 @@ export function PaginationDemo() {
   )
 }
 
-export function CheckboxDemo() {
+function CheckboxDemo() {
   return (
     <Container flexDirection="row" gap={8} alignItems="center">
       <Checkbox />
@@ -360,7 +353,7 @@ const notifications = [
   },
 ]
 
-export function CardDemo() {
+function CardDemo() {
   return (
     <Card width={380}>
       <CardHeader>
@@ -417,7 +410,7 @@ export function CardDemo() {
   )
 }
 
-export function ButtonDemo() {
+function ButtonDemo() {
   return (
     <Button variant="outline" size="icon">
       <ChevronRight width={16} height={16} />
@@ -425,7 +418,7 @@ export function ButtonDemo() {
   )
 }
 
-export function BadgeDemo() {
+function BadgeDemo() {
   return (
     <Badge>
       <Text>Badge</Text>
@@ -433,7 +426,7 @@ export function BadgeDemo() {
   )
 }
 
-export function AvatarDemo() {
+function AvatarDemo() {
   return (
     <Container alignItems="center">
       <Avatar src="https://picsum.photos/100/100" />
@@ -441,7 +434,7 @@ export function AvatarDemo() {
   )
 }
 
-export function AlertDemo() {
+function AlertDemo() {
   return (
     <Alert>
       <AlertIcon>
