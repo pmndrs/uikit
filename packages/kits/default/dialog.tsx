@@ -47,8 +47,8 @@ export function Dialog({
   onOpenChange,
 }: {
   children?: ReactNode
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
   const setElement = useContext(DialogAnchorContext)
   const contentRef = useRef<JSX.Element | undefined>(undefined)
