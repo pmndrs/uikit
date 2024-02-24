@@ -170,34 +170,8 @@ export const Root = forwardRef<
     distanceToCameraRef.current = planeHelper.distanceToPoint(vectorHelper)
   })
 
-  const [controlsActive, setControlsActive] = useState(false)
-  const [hovered, setHover] = useState(false)
-
-  useEffect(() => {
-    if (controls) {
-      const start = () => setControlsActive(true)
-      const end = () => setControlsActive(false)
-      controls.addEventListener?.('start', start)
-      controls.addEventListener?.('end', end)
-      return () => {
-        controls.removeEventListener?.('start', start)
-        controls.removeEventListener?.('end', end)
-      }
-    }
-  }, [controls])
-
-  useEffect(() => {
-    if (controls) {
-      const old = controls.enabled
-      if (controls && hovered && !controlsActive) controls.enabled = false
-      return () => {
-        controls.enabled = old
-      }
-    }
-  }, [hovered, controlsActive, controls])
-
   return (
-    <group onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+    <>
       <primitive object={groupsContainer} />
       <InteractionGroup groupRef={groupRef} matrix={rootMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
         <RootGroupProvider value={groupRef}>
@@ -221,7 +195,7 @@ export const Root = forwardRef<
           </InstancedGlyphProvider>
         </RootGroupProvider>
       </InteractionGroup>
-    </group>
+    </>
   )
 })
 

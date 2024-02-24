@@ -1,7 +1,5 @@
 {
   "scripts": {
-    "check:prettier": "prettier --check .",
-    "check:eslint": "eslint ./**/*.tsx",
     "fix:prettier": "prettier --write .",
     "fix:eslint": "eslint ./**/*.tsx --fix"
   },
