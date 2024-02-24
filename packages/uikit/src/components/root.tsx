@@ -1,5 +1,5 @@
 import { Yoga } from 'yoga-wasm-web'
-import { ReactNode, forwardRef, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { FlexNode, YogaProperties } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
 import {
@@ -14,7 +14,7 @@ import { WithReactive, createCollection, finalizeCollection, writeCollection } f
 import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { EventDispatcher, Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
+import { Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useApplyHoverProperties } from '../hover.js'
 import {
@@ -85,8 +85,8 @@ export const Root = forwardRef<
     ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const renderer = useThree((state) => state.gl)
-  const controls = useThree((state) => state.controls) as EventDispatcher<{}> & { enabled: boolean }
+  const renderer = useThree((state) => state.gl)  
+  
   useEffect(() => patchRenderOrder(renderer), [renderer])
   const { sizeX, sizeY } = properties
   const [precision, pixelSize] = useMemo(

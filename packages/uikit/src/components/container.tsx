@@ -115,7 +115,7 @@ export const Container = forwardRef<
 
   const interactionPanel = useInteractionPanel(node.size, node, orderInfo, rootGroupRef)
 
-  useComponentInternals(ref, node, interactionPanel, scrollPosition)  
+  useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
   return (
     <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
