@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/fiber": "^8.15.13",
     "@react-three/uikit": "workspace:^",

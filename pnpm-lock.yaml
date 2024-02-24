@@ -119,9 +119,6 @@ importers:
 
   examples/default:
     dependencies:
-      '@preact/signals-core':
-        specifier: ^1.5.1
-        version: 1.5.1
       '@react-three/drei':
         specifier: ^9.96.1
         version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
@@ -143,22 +140,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.47
-        version: 18.2.47
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.2.18
-      '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.0.12)
 
   examples/lucide:
     dependencies:
-      '@preact/signals-core':
-        specifier: ^1.5.1
-        version: 1.5.1
       '@react-three/drei':
         specifier: ^9.96.1
         version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
@@ -177,13 +161,6 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.47
-        version: 18.2.47
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.2.18
 
   examples/uikit:
     dependencies:
@@ -208,13 +185,6 @@ importers:
       three:
         specifier: ^0.160.0
         version: 0.160.0
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.47
-        version: 18.2.47
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.2.18
 
   packages/fonts:
     dependencies:

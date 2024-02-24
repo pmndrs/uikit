@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { DefaultProperties, Fullscreen, Text, Container } from '@react-three/uikit'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion.js'
 import { BellRing, Bold, Check, ChevronRight, Italic, Terminal, Underline } from '@react-three/uikit-lucide'
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert.js'
-import { DefaultColors, colors } from '@/defaults.js'
-import { Avatar } from '@/avatar.js'
-import { Badge } from '@/badge.js'
-import { Button } from '@/button.js'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
-import { Checkbox } from '@/checkbox.js'
-import { Label } from '@/label.js'
+import { Perf } from 'r3f-perf'
+
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert'
+import { DefaultColors, colors } from '@/defaults'
+import { Avatar } from '@/avatar'
+import { Badge } from '@/badge'
+import { Button } from '@/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
+import { Checkbox } from '@/checkbox'
+import { Label } from '@/label'
 import {
   Pagination,
   PaginationContent,
@@ -19,17 +21,16 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/pagination.js'
-import { Progress } from '@/progress.js'
-import { RadioGroup, RadioGroupItem } from '@/radio-group.js'
-import { Separator } from '@/separator.js'
-import { Skeleton } from '@/skeleton.js'
-import { Slider } from '@/slider.js'
-import { Switch } from '@/switch.js'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
-import { Toggle } from '@/toggle.js'
-import { ToggleGroup, ToggleGroupItem } from '@/toggle-group.js'
-import { Perf } from 'r3f-perf'
+} from '@/pagination'
+import { Progress } from '@/progress'
+import { RadioGroup, RadioGroupItem } from '@/radio-group'
+import { Separator } from '@/separator'
+import { Skeleton } from '@/skeleton'
+import { Slider } from '@/slider'
+import { Switch } from '@/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
+import { Toggle } from '@/toggle'
+import { ToggleGroup, ToggleGroupItem } from '@/toggle-group'
 import {
   Dialog,
   DialogAnchor,
@@ -39,7 +40,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog.js'
+} from '@/dialog'
 
 export default function App() {
   return (

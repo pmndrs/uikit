@@ -1,21 +1,22 @@
 import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Container, Root, Text } from '@react-three/uikit'
-import { DefaultColors, colors } from '@/defaults.js'
-import { Button } from '@/button.js'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card.js'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
-import { CalendarDateRangePicker } from './date-range-picker.js'
-import { MainNav } from './main-nav.js'
-import { Overview } from './overview.js'
-import { RecentSales } from './recent-sales.js'
-import { TeamSwitcher } from './team-switcher.js'
-import { UserNav } from './user-nav.js'
-import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 import { Environment, OrbitControls } from '@react-three/drei'
-import { DialogAnchor } from '@/dialog.js'
-//@ts-ignore
-import { EffectComposer, TiltShift2, ToneMapping } from '@react-three/postprocessing'
+import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
+import { Container, Root, Text } from '@react-three/uikit'
+import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
+
+import { DefaultColors, colors } from '@/defaults'
+import { Button } from '@/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
+import { DialogAnchor } from '@/dialog'
+
+import { CalendarDateRangePicker } from './components/DateRangePicker'
+import { MainNav } from './components/MainNav'
+import { Overview } from './components/Overview'
+import { RecentSales } from './components/RecentSales'
+import { TeamSwitcher } from './components/TeamSwitcher'
+import { UserNav } from './components/UserNav'
 
 export default function App() {
   const [open, setOpen] = useState(false)
