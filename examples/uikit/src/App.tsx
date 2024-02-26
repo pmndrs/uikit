@@ -1,6 +1,7 @@
-import { MutableRefObject, StrictMode, useMemo, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { createRoot } from 'react-dom/client'
+import { useMemo, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { Gltf, Box } from '@react-three/drei'
+import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
   Container,
@@ -11,16 +12,8 @@ import {
   Image,
   Fullscreen,
 } from '@react-three/uikit'
-import { signal } from '@preact/signals-core'
-import { Gltf, Box } from '@react-three/drei'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-function App() {
+export default function App() {
   const [show, setShow] = useState(false)
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])

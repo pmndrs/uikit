@@ -1,10 +1,14 @@
 {
   "devDependencies": {
+    "@react-three/eslint-plugin": "^0.1.1",
     "@types/chai": "^4.3.10",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
+    "@vitejs/plugin-react": "^4.2.1",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.56.0",
@@ -21,8 +25,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
     "vite": "^5.0.12"
-  },
-  "dependencies": {
-    "@react-three/eslint-plugin": "^0.1.1"
   }
 }

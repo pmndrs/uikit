@@ -1,6 +1,6 @@
-import { Avatar } from "@/avatar.js";
-import { colors } from "@/defaults.js";
-import { Container, Text } from "@react-three/uikit";
+import { Container, Text } from '@react-three/uikit'
+import { Avatar } from '@/avatar'
+import { colors } from '@/defaults'
 
 export function RecentSales() {
   return (
@@ -20,15 +20,7 @@ export function RecentSales() {
         </Text>
       </Container>
       <Container flexDirection="row" alignItems="center">
-        <Avatar
-          height={36}
-          width={36}
-          alignItems="center"
-          justifyContent="center"
-          border={1}
-          gap={0}
-          src="/02.png"
-        />
+        <Avatar height={36} width={36} alignItems="center" justifyContent="center" border={1} gap={0} src="/02.png" />
         <Container marginLeft={16} gap={4}>
           <Text fontSize={14} lineHeight={1} fontWeight="medium">
             Jackson Lee
@@ -84,5 +76,5 @@ export function RecentSales() {
         </Text>
       </Container>
     </Container>
-  );
+  )
 }
