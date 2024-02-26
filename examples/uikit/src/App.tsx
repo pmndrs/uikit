@@ -12,8 +12,11 @@ import {
   Image,
   Fullscreen,
 } from '@react-three/uikit'
+import { RenderTexture } from '@react-three/drei'
+import { Texture } from 'three'
 
 export default function App() {
+  const [texture, setTexture] = useState<Texture | null>(null)
   const [show, setShow] = useState(false)
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])
@@ -24,6 +27,9 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <directionalLight intensity={10} position={[5, 1, 10]} />
       <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
+      <RenderTexture ref={setTexture}>
+        <Box />
+      </RenderTexture>
       <Fullscreen
         gap={10}
         overflow="scroll"
@@ -35,6 +41,7 @@ export default function App() {
         borderColor="red"
       >
         <DefaultProperties opacity={0.5} border={s}>
+          <Image width={300} height={300} src={texture ?? undefined} />
           <Text
             onClick={() => {
               t.value += 'X'
@@ -50,18 +57,6 @@ export default function App() {
           >
             {t}
           </Text>
-          {show ? (
-            <Container overflow="scroll" maxHeight={500} height={500} paddingRight={10}>
-              <Container
-                onClick={() => (s.value += 10)}
-                backgroundColor="yellow"
-                width={300}
-                minHeight={300}
-                height={300}
-              />
-              <Container backgroundColor="black" width={300} minHeight={300} height={300} />
-            </Container>
-          ) : undefined}
           <Container
             onHoverChange={(hover) => (x.value = hover ? 'yellow' : undefined)}
             backgroundColor={x}
@@ -96,7 +91,6 @@ export default function App() {
 
         <Container
           positionType="relative"
-          inset="20%"
           width="60%"
           height="60%"
           alignItems="center"
@@ -115,6 +109,19 @@ export default function App() {
           ></Container>
           <Text>Hello world</Text>
         </Container>
+
+        {show ? (
+          <Container overflow="scroll" maxHeight={500} height={500} paddingRight={10}>
+            <Container
+              onClick={() => (s.value += 10)}
+              backgroundColor="yellow"
+              width={300}
+              minHeight={300}
+              height={300}
+            />
+            <Container backgroundColor="black" width={300} minHeight={300} height={300} />
+          </Container>
+        ) : undefined}
       </Fullscreen>
     </Canvas>
   )

@@ -85,8 +85,8 @@ export const Root = forwardRef<
     ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
-  const renderer = useThree((state) => state.gl)  
-  
+  const renderer = useThree((state) => state.gl)
+
   useEffect(() => patchRenderOrder(renderer), [renderer])
   const { sizeX, sizeY } = properties
   const [precision, pixelSize] = useMemo(

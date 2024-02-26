@@ -1,13 +1,47 @@
-'use client'
+import { Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, ReactNode } from 'react'
+import { colors } from './defaults'
 
-import * as React from 'react'
-import * as MenubarPrimitive from '@radix-ui/react-menubar'
-import { Check, ChevronRight, Circle } from 'lucide-react'
+export function MenubarMenu({ children }: { children?: ReactNode }) {
+  return <>{children}</>
+}
 
-import { cn } from '@/lib/utils'
+export function Menubar(props: ComponentPropsWithoutRef<typeof Container>) {
+  return (
+    <Container
+      flexDirection="row"
+      height={40}
+      alignItems="center"
+      gap={4}
+      borderRadius={4}
+      border={1}
+      backgroundColor={colors.background}
+      padding={4}
+      {...props}
+    />
+  )
+}
 
-const MenubarMenu = MenubarPrimitive.Menu
-
+export function MenubarTrigger({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  //TODO: data-[state=open]:bg-accent data-[state=open]:text-accent-foreground
+  return (
+    <Container
+      hover={{ backgroundColor: colors.accent }}
+      flexDirection="row"
+      alignItems="center"
+      cursor="pointer"
+      borderRadius={6}
+      paddingY={6}
+      paddingX={12}
+      {...props}
+    >
+      <DefaultProperties fontSize={14} lineHeight={1.4333} fontWeight="medium">
+        {children}
+      </DefaultProperties>
+    </Container>
+  )
+}
+/*
 const MenubarGroup = MenubarPrimitive.Group
 
 const MenubarPortal = MenubarPrimitive.Portal
@@ -15,33 +49,6 @@ const MenubarPortal = MenubarPrimitive.Portal
 const MenubarSub = MenubarPrimitive.Sub
 
 const MenubarRadioGroup = MenubarPrimitive.RadioGroup
-
-const Menubar = React.forwardRef<
-  React.ElementRef<typeof MenubarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <MenubarPrimitive.Root
-    ref={ref}
-    className={cn('flex h-10 items-center space-x-1 rounded-md border bg-background p-1', className)}
-    {...props}
-  />
-))
-Menubar.displayName = MenubarPrimitive.Root.displayName
-
-const MenubarTrigger = React.forwardRef<
-  React.ElementRef<typeof MenubarPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <MenubarPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      'flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
-      className,
-    )}
-    {...props}
-  />
-))
-MenubarTrigger.displayName = MenubarPrimitive.Trigger.displayName
 
 const MenubarSubTrigger = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.SubTrigger>,
@@ -188,22 +195,4 @@ const MenubarShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanE
   return <span className={cn('ml-auto text-xs tracking-widest text-muted-foreground', className)} {...props} />
 }
 MenubarShortcut.displayname = 'MenubarShortcut'
-
-export {
-  Menubar,
-  MenubarMenu,
-  MenubarTrigger,
-  MenubarContent,
-  MenubarItem,
-  MenubarSeparator,
-  MenubarLabel,
-  MenubarCheckboxItem,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarPortal,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarGroup,
-  MenubarSub,
-  MenubarShortcut,
-}
+*/

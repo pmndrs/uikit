@@ -32,7 +32,7 @@ import { useRootGroupRef, useSignalEffect } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
 import { ElementType, ZIndexOffset, useOrderInfo } from '../order.js'
-
+/*
 export type TextProperties = WithConditionals<
   WithClasses<
     WithAllAliases<WithReactive<YogaProperties & PanelProperties & TransformProperties & InstancedTextProperties>>
@@ -242,3 +242,4 @@ export function useHtmlInputElement(
   useEffect(() => () => element.remove(), [element])
   return element
 }
+*/

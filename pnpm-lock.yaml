@@ -168,6 +168,39 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
 
+  examples/market:
+    dependencies:
+      '@react-three/drei':
+        specifier: ^9.96.1
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/fiber':
+        specifier: ^8.15.13
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/postprocessing':
+        specifier: ^2.16.0
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
+      r3f-perf:
+        specifier: ^7.1.2
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      three:
+        specifier: ^0.160.0
+        version: 0.160.0
+
   examples/uikit:
     dependencies:
       '@preact/signals-core':
@@ -189,6 +222,10 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       three:
+        specifier: ^0.160.0
+        version: 0.160.0
+    devDependencies:
+      '@types/three':
         specifier: ^0.160.0
         version: 0.160.0
 

@@ -259,7 +259,12 @@ export class FlexNode implements WithImmediateProperties {
       updateVector2Signal(this.scrollable, false, false)
     }
 
-    return [x + Math.max(width, maxContentWidth), y + Math.max(height, maxContentHeight)]
+    const overflowVisible = this.overflow.value === OVERFLOW_VISIBLE
+
+    return [
+      x + Math.max(width, overflowVisible ? maxContentWidth : 0),
+      y + Math.max(height, overflowVisible ? maxContentHeight : 0),
+    ]
   }
 
   addLayoutChangeListener(listener: () => void) {

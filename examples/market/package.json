@@ -1,18 +1,18 @@
 {
   "type": "module",
   "dependencies": {
-    "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/fiber": "^8.15.13",
+    "@react-three/postprocessing": "^2.16.0",
     "@react-three/uikit": "workspace:^",
+    "@react-three/uikit-lucide": "workspace:^",
+    "@types/three": "^0.160.0",
+    "r3f-perf": "^7.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.160.0"
   },
   "scripts": {
     "dev": "vite --host"
-  },
-  "devDependencies": {
-    "@types/three": "^0.160.0"
   }
 }

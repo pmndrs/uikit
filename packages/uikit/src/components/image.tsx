@@ -73,7 +73,7 @@ const materialPropertyTransformation: PropertyTransformation = (key, value, hasP
 export const Image = forwardRef<
   ComponentInternals,
   ImageProperties & {
-    src: string | Signal<string>
+    src?: string | Signal<string> | Texture | Signal<Texture | undefined>
     materialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
   } & EventHandlers &
@@ -89,7 +89,8 @@ export const Image = forwardRef<
         if (tex == null) {
           return undefined
         }
-        return tex.image.width / tex.image.height
+        const image = tex.source.data as { width: number; height: number }
+        return image.width / image.height
       }),
     [texture],
   )
@@ -227,9 +228,15 @@ function transformInsideBorder(borderInset: Signal<Inset>, size: Signal<Vector2T
 
 const textureLoader = new TextureLoader()
 
-function loadTexture(url: string) {
+function loadTexture(src?: string | Texture) {
+  if (src == null) {
+    return Promise.resolve(undefined)
+  }
+  if (src instanceof Texture) {
+    return Promise.resolve(src)
+  }
   return textureLoader
-    .loadAsync(url)
+    .loadAsync(src)
     .then((texture) => {
       texture.colorSpace = SRGBColorSpace
       texture.matrixAutoUpdate = false
