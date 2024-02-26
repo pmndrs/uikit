@@ -1,30 +1,80 @@
-'use client'
+import { Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentPropsWithoutRef, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { colors } from './defaults.js'
 
-import * as React from 'react'
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+const TooltipContext = createContext<boolean>(null as any)
 
-import { cn } from '@/lib/utils'
+export function Tooltip({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  const [open, setOpen] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  useEffect(
+    () => () => {
+      if (timeoutRef.current == null) {
+        return
+      }
+      clearTimeout(timeoutRef.current)
+    },
+    [],
+  )
+  return (
+    <Container
+      onPointerOver={() => {
+        if (timeoutRef.current != null) {
+          return
+        }
+        timeoutRef.current = setTimeout(() => {
+          timeoutRef.current = undefined
+          setOpen(true)
+        }, 1000)
+      }}
+      onPointerOut={() => {
+        if (timeoutRef.current != null) {
+          clearTimeout(timeoutRef.current)
+          timeoutRef.current = undefined
+          return
+        }
+        setOpen(false)
+      }}
+      positionType="relative"
+      flexDirection="column"
+      alignItems="center"
+      {...props}
+    >
+      <TooltipContext.Provider value={open}>{children}</TooltipContext.Provider>
+    </Container>
+  )
+}
 
-const TooltipProvider = TooltipPrimitive.Provider
+export function TooltipTrigger(props: ComponentPropsWithoutRef<typeof Container>) {
+  return <Container alignSelf="stretch" {...props} />
+}
 
-const Tooltip = TooltipPrimitive.Root
-
-const TooltipTrigger = TooltipPrimitive.Trigger
-
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={cn(
-      'z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className,
-    )}
-    {...props}
-  />
-))
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
-
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+export function TooltipContent({
+  children,
+  sideOffset = 4,
+  ...props
+}: ComponentPropsWithoutRef<typeof Container> & { sideOffset?: number }) {
+  const open = useContext(TooltipContext)
+  if (!open) {
+    return null
+  }
+  return (
+    <Container
+      positionType="absolute"
+      positionBottom="100%"
+      marginBottom={sideOffset}
+      zIndexOffset={50}
+      overflow="hidden"
+      borderRadius={6}
+      border={1}
+      backgroundColor={colors.popover}
+      paddingX={12}
+      paddingY={6}
+      {...props}
+    >
+      <DefaultProperties wordBreak="keep-all" fontSize={14} lineHeight={1.4333} color={colors.popoverForeground}>
+        {children}
+      </DefaultProperties>
+    </Container>
+  )
+}

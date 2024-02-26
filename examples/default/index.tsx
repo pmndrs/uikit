@@ -40,7 +40,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  useCloseDialog,
 } from '@/dialog.js'
+import { XWebPointers, noEvents } from '@coconut-xr/xinteraction/react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/alert-dialog.js'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/tooltip.js'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -50,7 +64,8 @@ createRoot(document.getElementById('root')!).render(
 
 function App() {
   return (
-    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+    <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+      <XWebPointers />
       <Perf />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
@@ -65,12 +80,60 @@ function App() {
         <DefaultColors>
           <DialogAnchor>
             <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
-              <DialogDemo />
+              <TooltipDemo />
             </Container>
           </DialogAnchor>
         </DefaultColors>
       </Fullscreen>
     </Canvas>
+  )
+}
+
+export function TooltipDemo() {
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <Button variant="outline">
+          <Text>Hover</Text>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <Text>Add to library</Text>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+export function AlertDialogDemo() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger>
+        <Button variant="outline">
+          <Text>Show Dialog</Text>
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            <Text>Are you absolutely sure?</Text>
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            <Text>
+              This action cannot be undone. This will permanently delete your account and remove your data from our
+              servers.
+            </Text>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>
+            <Text>Cancel</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction>
+            <Text>Continue</Text>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 

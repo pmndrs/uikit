@@ -118,9 +118,13 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
   }
 
   setProperty(key: string, value: unknown) {
+    const index = this.getIndexInBuffer()
+    if (index == null) {
+      return
+    }
     instancedPanelMaterialSetters[key as keyof typeof instancedPanelMaterialSetters](
       this.group,
-      this.getIndexInBuffer(),
+      index,
       value as any,
       this.size,
     )
@@ -130,8 +134,11 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
     this.indexInBucket = index
   }
 
-  private getIndexInBuffer(): number {
-    return this.bucket!.offset + this.indexInBucket!
+  private getIndexInBuffer(): number | undefined {
+    if (this.bucket == null || this.indexInBucket == null) {
+      return undefined
+    }
+    return this.bucket.offset + this.indexInBucket
   }
 
   public activate(bucket: Bucket<unknown>, index: number): void {
@@ -141,7 +148,11 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
     this.unsubscribeList.push(
       effect(() => {
         const { instanceMatrix, pixelSize } = this.group
-        const arrayIndex = this.getIndexInBuffer() * 16
+        const index = this.getIndexInBuffer()
+        if (index == null) {
+          return
+        }
+        const arrayIndex = index * 16
         const [width, height] = this.size.value
         matrixHelper1.makeScale(width * pixelSize, height * pixelSize, 1)
         if (this.offset != null) {
@@ -157,7 +168,11 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
         const [width, height] = this.size.value
         const { instanceData } = this.group
         const { array } = instanceData
-        const bufferIndex = this.getIndexInBuffer() * 16 + 13
+        const index = this.getIndexInBuffer()
+        if (index == null) {
+          return
+        }
+        const bufferIndex = index * 16 + 13
         array[bufferIndex] = width
         array[bufferIndex + 1] = height
         instanceData.addUpdateRange(bufferIndex, 2)
@@ -165,14 +180,22 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       }),
       effect(() => {
         const { instanceData } = this.group
-        const offset = this.getIndexInBuffer() * 16 + 0
+        const index = this.getIndexInBuffer()
+        if (index == null) {
+          return
+        }
+        const offset = index * 16 + 0
         instanceData.array.set(this.borderInset.value, offset)
         instanceData.addUpdateRange(offset, 4)
         instanceData.needsUpdate = true
       }),
       effect(() => {
         const { instanceClipping } = this.group
-        const offset = this.getIndexInBuffer() * 16
+        const index = this.getIndexInBuffer()
+        if (index == null) {
+          return
+        }
+        const offset = index * 16
         const clipping = this.clippingRect?.value
         if (clipping != null) {
           clipping.toArray(instanceClipping.array, offset)

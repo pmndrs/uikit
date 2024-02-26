@@ -14,12 +14,12 @@ import {
 } from 'react'
 import { X } from '@react-three/uikit-lucide'
 
-type DialogAnchorSetElement = (prevElement: JSX.Element | undefined, element: JSX.Element | undefined) => void
+type DialogAnchorSetElement = (prevElement: ReactNode | undefined, element: ReactNode | undefined) => void
 
 const DialogAnchorContext = createContext<DialogAnchorSetElement>(null as any)
 
 export function DialogAnchor({ children }: { children?: ReactNode }) {
-  const [element, setElement] = useState<JSX.Element | undefined>(undefined)
+  const [element, setElement] = useState<ReactNode | undefined>(undefined)
   const set = useCallback<DialogAnchorSetElement>(
     (prevElement, element) => setElement((e) => (e === prevElement ? element : e)),
     [],
@@ -38,21 +38,25 @@ const DialogAnchorProvider = memo(({ children, set }: { children?: ReactNode; se
 
 const DialogContext = createContext<{
   setOpen: (open: boolean) => void
-  setContent: (element: JSX.Element) => void
+  setContent: (element: ReactNode) => void
 }>(null as any)
 
 export function Dialog({
   children,
-  open,
+  open: providedOpen,
   onOpenChange,
+  defaultOpen,
 }: {
   children?: ReactNode
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
+  const [uncontrolled, setUncontrolled] = useState(defaultOpen ?? false)
+  const open = providedOpen ?? uncontrolled
   const setElement = useContext(DialogAnchorContext)
-  const contentRef = useRef<JSX.Element | undefined>(undefined)
-  const displayedRef = useRef<JSX.Element | undefined>(undefined)
+  const contentRef = useRef<ReactNode | undefined>(undefined)
+  const displayedRef = useRef<ReactNode | undefined>(undefined)
   useEffect(() => {
     if (!open) {
       setElement(displayedRef.current, undefined)
@@ -67,9 +71,10 @@ export function Dialog({
   }, [open, setElement])
   const ref = useRef(onOpenChange)
   ref.current = onOpenChange
+  const openWasProvided = providedOpen != null
   const value = useMemo(
     () => ({
-      setContent(content: JSX.Element) {
+      setContent(content: ReactNode) {
         if (displayedRef.current != null) {
           setElement(displayedRef.current, content)
           displayedRef.current = content
@@ -77,10 +82,13 @@ export function Dialog({
         contentRef.current = content
       },
       setOpen(open: boolean) {
+        if (!openWasProvided) {
+          setUncontrolled(open)
+        }
         ref.current?.(open)
       },
     }),
-    [setElement],
+    [openWasProvided, setElement],
   )
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>
 }
@@ -110,13 +118,21 @@ export function useCloseDialog() {
   return useCallback(() => setOpen(false), [setOpen])
 }
 
-export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutRef<typeof Container>) {
-  const { setOpen, setContent } = useContext(DialogContext)
+export function DialogContentPrimitive({ children }: { children?: ReactNode }) {
+  const dialogContext = useContext(DialogContext)
   useEffect(() =>
-    setContent(
+    dialogContext.setContent(<DialogContext.Provider value={dialogContext}>{children}</DialogContext.Provider>),
+  )
+  return null
+}
+
+export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  const close = useCloseDialog()
+  return (
+    <DialogContentPrimitive>
       <DialogOverlay
         onClick={(e) => {
-          setOpen(false)
+          close()
           e.stopPropagation()
         }}
         alignItems="center"
@@ -124,7 +140,6 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
       >
         <Container
           onClick={(e) => e.stopPropagation()}
-          zIndexOffset={{ major: 50, minor: 1 }}
           positionType="relative"
           width="100%"
           gap={16}
@@ -137,7 +152,7 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
           {children}
           <X
             color={colors.mutedForeground}
-            onClick={() => setOpen(false)}
+            onClick={close}
             cursor="pointer"
             positionType="absolute"
             positionRight={16}
@@ -150,10 +165,9 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
             height={16}
           />
         </Container>
-      </DialogOverlay>,
-    ),
+      </DialogOverlay>
+    </DialogContentPrimitive>
   )
-  return null
 }
 
 export function DialogHeader({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {

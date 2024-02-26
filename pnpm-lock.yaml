@@ -121,6 +121,9 @@ importers:
 
   examples/default:
     dependencies:
+      '@coconut-xr/xinteraction':
+        specifier: ^0.1.12
+        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
@@ -358,6 +361,23 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+
+  /@coconut-xr/xinteraction@0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0):
+    resolution: {integrity: sha512-nuKWTDz9qx1HRw7MASvqhxO7i676FVWdh+vITFhQYpQem7QLyJqSaU/gw3l7Qh7QYZENmvvte4X83D1oih/htA==}
+    peerDependencies:
+      '@react-three/fiber': '*'
+      react: '*'
+      three: '*'
+    peerDependenciesMeta:
+      '@react-three/fiber':
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      react: 18.2.0
+      three: 0.160.0
+    dev: false
 
   /@cspotcode/source-map-support@0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}

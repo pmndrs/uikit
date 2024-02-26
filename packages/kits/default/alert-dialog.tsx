@@ -1,66 +1,131 @@
-const AlertDialog = AlertDialogPrimitive.Root
+import { ComponentPropsWithoutRef, ReactNode } from 'react'
+import {
+  Dialog,
+  DialogContentPrimitive,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogTrigger,
+  useCloseDialog,
+} from './dialog.js'
+import { Container, DefaultProperties } from '@react-three/uikit'
+import { colors } from './defaults.js'
 
-const AlertDialogTrigger = AlertDialogPrimitive.Trigger
+export const AlertDialogOverlay = DialogOverlay
 
-const AlertDialogPortal = AlertDialogPrimitive.Portal
+export const AlertDialog = Dialog
 
-export function AlertDialogOverlay() {
+export const AlertDialogTrigger = DialogTrigger
+
+export function AlertDialogContent(props: ComponentPropsWithoutRef<typeof Dialog>) {
+  const close = useCloseDialog()
   return (
-    <AlertDialogPrimitive.Overlay
-      className={cn(
-        'fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-        className,
-      )}
+    <DialogContentPrimitive>
+      <DialogOverlay
+        onClick={(e) => {
+          close()
+          e.stopPropagation()
+        }}
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Container
+          onClick={(e) => e.stopPropagation()}
+          positionType="relative"
+          maxWidth={512}
+          width="100%"
+          gap={16}
+          border={1}
+          backgroundColor={colors.background}
+          padding={24}
+          sm={{ borderRadius: 8 }}
+          {...props}
+        ></Container>
+      </DialogOverlay>
+    </DialogContentPrimitive>
+  )
+}
+
+export const AlertDialogHeader = DialogHeader
+
+export const AlertDialogFooter = DialogFooter
+
+export function AlertDialogTitle({ children }: { children?: ReactNode }) {
+  return (
+    <DefaultProperties fontSize={18} lineHeight={1.5555} fontWeight="semi-bold">
+      {children}
+    </DefaultProperties>
+  )
+}
+export const AlertDialogDescription = DialogDescription
+
+export function AlertDialogAction({ children, onClick, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  const close = useCloseDialog()
+  return (
+    <Container
+      borderRadius={6}
+      height={40}
+      paddingX={16}
+      paddingY={8}
+      alignItems="center"
+      justifyContent="center"
+      cursor="pointer"
+      flexDirection="row"
+      backgroundColor={colors.primary}
+      onClick={(e) => {
+        e.stopPropagation()
+        close()
+        onClick?.(e)
+      }}
+      hover={{
+        backgroundOpacity: 0.9,
+      }}
       {...props}
-      ref={ref}
-    />
+    >
+      <DefaultProperties>
+        <DefaultProperties
+          fontSize={14}
+          lineHeight={1.43}
+          fontWeight="medium"
+          wordBreak="keep-all"
+          color={colors.primaryForeground}
+        >
+          {children}
+        </DefaultProperties>
+      </DefaultProperties>
+    </Container>
   )
 }
 
-export function AlertDialogContent() {
+export function AlertDialogCancel({ children, onClick, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+  const close = useCloseDialog()
   return (
-    <AlertDialogPortal>
-      <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content
-        ref={ref}
-        className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
-          className,
-        )}
-        {...props}
-      />
-    </AlertDialogPortal>
-  )
-}
-
-export function AlertDialogHeader() {
-  return <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)} {...props} />
-}
-
-export function AlertDialogFooter() {
-  return <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props} />
-}
-
-export function AlertDialogTitle() {
-  return <AlertDialogPrimitive.Title ref={ref} className={cn('text-lg font-semibold', className)} {...props} />
-}
-
-export function AlertDialogDescription() {
-  return (
-    <AlertDialogPrimitive.Description ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />
-  )
-}
-
-export function AlertDialogAction() {
-  return <AlertDialogPrimitive.Action ref={ref} className={cn(buttonVariants(), className)} {...props} />
-}
-
-export function AlertDialogCancel() {
-  return (
-    <AlertDialogPrimitive.Cancel
-      ref={ref}
-      className={cn(buttonVariants({ variant: 'outline' }), 'mt-2 sm:mt-0', className)}
+    <Container
+      borderRadius={6}
+      height={40}
+      paddingX={16}
+      paddingY={8}
+      alignItems="center"
+      justifyContent="center"
+      cursor="pointer"
+      flexDirection="row"
+      border={1}
+      borderColor={colors.input}
+      backgroundColor={colors.background}
+      onClick={(e) => {
+        e.stopPropagation()
+        close()
+        onClick?.(e)
+      }}
+      hover={{
+        backgroundColor: colors.accent,
+      }}
       {...props}
-    />
+    >
+      <DefaultProperties fontSize={14} lineHeight={1.43} fontWeight="medium" wordBreak="keep-all">
+        {children}
+      </DefaultProperties>
+    </Container>
   )
 }

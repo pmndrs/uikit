@@ -109,7 +109,7 @@ const glyphPropertyKeys = ['fontSize', 'letterSpacing', 'lineHeight', 'wordBreak
 
 export type InstancedTextProperties = TextAlignProperties &
   TextAppearanceProperties &
-  GlyphLayoutProperties &
+  Omit<GlyphLayoutProperties, 'text'> &
   FontFamilyProperties
 
 export function useInstancedText(

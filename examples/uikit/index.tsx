@@ -102,7 +102,7 @@ function App() {
         </DefaultProperties>
 
         <Container
-          positionType="absolute"
+          positionType="relative"
           inset="20%"
           width="60%"
           height="60%"
@@ -111,6 +111,15 @@ function App() {
           backgroundColor="green"
           zIndexOffset={1}
         >
+          <Container
+            width={100}
+            height={100}
+            positionType="absolute"
+            positionBottom="100%"
+            positionRight="100%"
+            marginRight={10}
+            backgroundColor="red"
+          ></Container>
           <Text>Hello world</Text>
         </Container>
       </Fullscreen>

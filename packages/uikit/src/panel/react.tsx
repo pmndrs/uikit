@@ -15,6 +15,7 @@ import { useImmediateProperties } from '../properties/immediate.js'
 import { ManagerCollection, PropertyTransformation } from '../properties/utils.js'
 import { useBatchedProperties } from '../properties/batched.js'
 import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
+import { panelGeometry } from './utils.js'
 
 export function InteractionGroup({
   handlers,
@@ -61,23 +62,23 @@ export function InteractionGroup({
   )
 }
 
-function mergeHandlers<T extends (event: ThreeEvent<PointerEvent>) => void>(
-  userHandler: T | undefined,
-  systemHandler: T | undefined,
-): T | undefined {
+function mergeHandlers(
+  userHandler: ((event: ThreeEvent<PointerEvent>) => void) | undefined,
+  systemHandler: ((event: ThreeEvent<PointerEvent>) => void) | undefined,
+): ((event: ThreeEvent<PointerEvent>) => void) | undefined {
   if (userHandler == null) {
     return systemHandler
   }
   if (systemHandler == null) {
     return userHandler
   }
-  return ((e: ThreeEvent<PointerEvent>) => {
+  return (e: ThreeEvent<PointerEvent>) => {
     systemHandler(e)
     if (e.stopped) {
       return
     }
     userHandler(e)
-  }) as T
+  }
 }
 
 export function useInteractionPanel(
@@ -88,7 +89,7 @@ export function useInteractionPanel(
 ): Mesh {
   const parentClippingRect = useParentClippingRect()
   const panel = useMemo(() => {
-    const result = new Mesh()
+    const result = new Mesh(panelGeometry)
     result.matrixAutoUpdate = false
     result.raycast = makeClippedRaycast(result, makePanelRaycast(result), rootGroupRef, parentClippingRect, orderInfo)
     result.visible = false
@@ -124,8 +125,8 @@ export function usePanelMaterial(
     result.setup(size, borderInset, isClipped)
     return result
   }, [size, borderInset, isClipped, materialClass, clippingPlanes])
-  const immediate = useImmediateProperties(collection, material, propertyTransformation)
-  const batched = useBatchedProperties(collection, material, propertyTransformation)
+  useImmediateProperties(collection, material, propertyTransformation)
+  useBatchedProperties(collection, material, propertyTransformation)
   useEffect(() => () => material.destroy(), [material])
   return material
 }
