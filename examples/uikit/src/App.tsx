@@ -16,7 +16,7 @@ import { RenderTexture } from '@react-three/drei'
 import { Texture } from 'three'
 
 export default function App() {
-  const [texture, setTexture] = useState<Texture | null>(null)
+  const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
   const [show, setShow] = useState(false)
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])
@@ -27,7 +27,7 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <directionalLight intensity={10} position={[5, 1, 10]} />
       <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
-      <RenderTexture ref={setTexture}>
+      <RenderTexture ref={(t) => (texture.value = t ?? undefined)}>
         <Box />
       </RenderTexture>
       <Fullscreen

@@ -20,6 +20,7 @@ export function AlbumArtwork({
         src={album.cover}
         width={width}
         height={height}
+        fit="cover"
         aspectRatio={aspectRatio === 'portrait' ? 3 / 4 : 1}
       />
       <Container gap={4}>
