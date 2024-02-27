@@ -20,7 +20,6 @@ export type TransformProperties = {
   transformScaleX?: number
   transformScaleY?: number
   transformScaleZ?: number
-  transformScale?: number
 
   transformOriginX?: keyof typeof alignmentXMap
   transformOriginY?: keyof typeof alignmentYMap
