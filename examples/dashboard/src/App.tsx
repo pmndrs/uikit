@@ -23,7 +23,7 @@ export default function App() {
   return (
     <Canvas
       flat
-      camera={{ position: [0, 0, 18], fov: 35 }}
+      camera={{ position: [0, 0, 12], fov: 35 }}
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
     >
@@ -36,11 +36,11 @@ export default function App() {
           </DialogAnchor>
         </DefaultColors>
       </Root>
-      <Environment background blur={1} preset="city" />
+      <Environment background blur={0.1} preset="city" />
       <EffectComposer>
-        <TiltShift2 blur={0.25} />
+        <TiltShift2 blur={0.025} />
       </EffectComposer>
-      <OrbitControls makeDefault />
+      <OrbitControls makeDefault enableZoom={false} />
     </Canvas>
   )
 }
