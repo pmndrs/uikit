@@ -60,6 +60,7 @@ export default function App() {
           <Container
             onHoverChange={(hover) => (x.value = hover ? 'yellow' : undefined)}
             backgroundColor={x}
+            borderColor="white"
             borderBend={1}
             border={20}
             borderRadius={30}

@@ -42,10 +42,18 @@ createRoot(document.getElementById('root')).render(
 | [View All Components]()             | -   |
 | `uikit add default {Component}` | -   |
 
-## Tutorials
+## How to get started ?
 
 The tutorials expect some level of familarity with react, threejs, and @react-three/fiber.
 
-1. First Layout
+1. Build your [First Layout]()
+2. Learn about the [Available Components and Their Properties]()
+3. Get inspired by our [Examples]()
+4. Learn more about
+- Using [Custom Materials]()
+- Using [Custom Fonts]()
+- Creating [Responsivene User Interfaces]()
+- [Scrolling]()
+- [Sizing]()
+5. Learn about [Common Pitfalls]() and how to [Optimize Performance]()
 
-- Custom Material

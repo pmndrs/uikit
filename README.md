@@ -14,13 +14,13 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
+- drag/click threshold
 - add shadcn components
 - cli for kits
 - add apfel components
 - Content "measureContent" flag => allow disabling content measuring and scaling
 - support for visibility="hidden"
 - input
-- Label
 - decrease clipping rect when scrollbar present
 
 TODO Later
