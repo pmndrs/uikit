@@ -34,7 +34,10 @@ export const WordWrapper: GlyphWrapper = ({ text, fontSize, font, letterSpacing 
       continue
     }
 
-    if (textIndex < text.length && text[textIndex] != ' ') {
+    const newChar = text[textIndex]
+
+    if (newChar != ' ' && newChar != '\n' && textIndex < text.length) {
+      //no reason to advance the save point
       continue
     }
 

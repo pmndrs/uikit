@@ -14,14 +14,17 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
-- drag/click threshold
-- add shadcn components
-- cli for kits
-- add apfel components
-- Content "measureContent" flag => allow disabling content measuring and scaling
-- support for visibility="hidden"
-- input
-- decrease clipping rect when scrollbar present
+- feat: nesting inside non root/container components (e.g. image)
+- feat: support more characters for different languages
+- fix: always loading normal font
+- fix: scrollbar border radius to high (happens with very long panels)
+- feat: drag/click threshold
+- feat: cli for kits
+- feat: add apfel components
+- feat: Content "measureContent" flag => allow disabling content measuring and scaling
+- feat: support for visibility="hidden"
+- feat: input
+- fix: decrease clipping rect when scrollbar present
 
 TODO Later
 
@@ -40,7 +43,7 @@ Limitations
 ## Development
 
 `pnpm install`  
-`pnpm -r inline-wasm`
+`pnpm -r inline-wasm`  
 `pnpm -r convert`  
 `pnpm -r generate`  
 `pnpm -r build`  

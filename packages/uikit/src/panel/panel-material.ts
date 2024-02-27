@@ -361,12 +361,12 @@ export function compilePanelMaterial(parameters: WebGLProgramParametersWithUnifo
       if(backgroundColor.r < 0.0 && backgroundOpacity >= 0.0) {
         backgroundColor = vec3(1.0);
       }
-      if(backgroundOpacity < 0.0 && backgroundColor.r >= 0.0) {
-        backgroundOpacity = 1.0;
+      if(backgroundOpacity < 0.0) {
+        backgroundOpacity = backgroundColor.r >= 0.0 ? 1.0 : 0.0;
       }
 
-      if(backgroundOpacity <= 0.0) {
-        discard;
+      if(backgroundOpacity < 0.0) {
+        backgroundOpacity = 0.0;
       }
   
       diffuseColor.rgb = mix(borderColor, diffuseColor.rgb * backgroundColor, transition);

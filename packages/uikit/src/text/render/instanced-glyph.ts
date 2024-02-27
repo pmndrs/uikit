@@ -95,9 +95,13 @@ export class InstancedGlyph {
     instanceRGBA.needsUpdate = true
   }
 
-  updateTransformation(x: number, y: number, fontSize: number): void {
-    if (this.x === x && this.y === y && this.fontSize === fontSize) {
+  updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number): void {
+    if (this.glyphInfo === this.glyphInfo && this.x === x && this.y === y && this.fontSize === fontSize) {
       return
+    }
+    if (this.glyphInfo != glyphInfo) {
+      this.glyphInfo = glyphInfo
+      this.writeUV()
     }
     this.x = x
     this.y = y
@@ -111,14 +115,6 @@ export class InstancedGlyph {
     }
     this.baseMatrix = baseMatrix
     this.writeUpdatedMatrix()
-  }
-
-  updateGlyphInfo(glyphInfo: GlyphInfo): void {
-    if (this.glyphInfo === glyphInfo) {
-      return
-    }
-    this.glyphInfo = glyphInfo
-    this.writeUV()
   }
 
   private writeUV(): void {

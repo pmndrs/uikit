@@ -114,7 +114,7 @@ export type InstancedTextProperties = TextAlignProperties &
 
 export function useInstancedText(
   collection: ManagerCollection,
-  text: string | Signal<string>,
+  text: string | Signal<string> | Array<string | Signal<string>>,
   matrix: Signal<Matrix4>,
   node: FlexNode,
   isHidden: Signal<boolean> | undefined,
@@ -123,7 +123,8 @@ export function useInstancedText(
 ) {
   const getGroup = useContext(InstancedGlyphContext)
   const fontSignal = useFont(collection)
-  const textSignal = useMemo(() => signal<string | Signal<string> | undefined>(undefined), [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const textSignal = useMemo(() => signal<string | Signal<string> | Array<string | Signal<string>>>(text), [])
   textSignal.value = text
   const propertiesRef = useRef<GlyphLayoutProperties | undefined>(undefined)
 
@@ -229,7 +230,7 @@ function getWeightNumber(value: string): number {
 export function useMeasureFunc(
   collection: ManagerCollection,
   fontSignal: Signal<Font | undefined>,
-  textSignal: Signal<string | Signal<string> | undefined>,
+  textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
   propertiesRef: MutableRefObject<GlyphLayoutProperties | undefined>,
 ) {
   const getGlyphProperties = useGetBatchedProperties<GlyphLayoutProperties>(collection, glyphPropertyKeys)
@@ -240,10 +241,10 @@ export function useMeasureFunc(
         if (font == null) {
           return undefined
         }
-        const text = readReactive(textSignal.value)
-        if (text == null) {
-          return undefined
-        }
+        const textSignalValue = textSignal.value
+        const text = Array.isArray(textSignalValue)
+          ? textSignalValue.map((t) => readReactive(t)).join('')
+          : readReactive(textSignalValue)
         const letterSpacing = getGlyphProperties.value('letterSpacing') ?? 0
         const lineHeight = getGlyphProperties.value('lineHeight') ?? 1.2
         const fontSize = getGlyphProperties.value('fontSize') ?? 16

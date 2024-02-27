@@ -56,6 +56,7 @@ export default function App() {
             cursor="pointer"
           >
             {t}
+            more
           </Text>
           <Container
             onHoverChange={(hover) => (x.value = hover ? 'yellow' : undefined)}
@@ -70,7 +71,16 @@ export default function App() {
           <CustomContainer transformRotateZ={45} height={200} width={4}>
             <meshPhongMaterial depthWrite={false} transparent color="green" />
           </CustomContainer>
-          <Content height={200} hover={{ height: 300 }} depthAlign="front" onSizeChange={(w, h) => console.log(w, h)}>
+          <Content
+            height={200}
+            width={200}
+            hover={{ height: 300 }}
+            transformScaleZ={0.05}
+            depthAlign="back"
+            onSizeChange={(w, h) => console.log(w, h)}
+            keepAspectRatio={false}
+            borderRight={100}
+          >
             <Box>
               <meshPhongMaterial depthWrite={false} transparent />
             </Box>
