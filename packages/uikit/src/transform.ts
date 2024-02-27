@@ -10,14 +10,17 @@ export type TransformProperties = {
   transformTranslateX?: number
   transformTranslateY?: number
   transformTranslateZ?: number
+  transformTranslate?: [number, number, number]
 
   transformRotateX?: number
   transformRotateY?: number
   transformRotateZ?: number
+  transformRotate?: [number, number, number]
 
   transformScaleX?: number
   transformScaleY?: number
   transformScaleZ?: number
+  transformScale?: number
 
   transformOriginX?: keyof typeof alignmentXMap
   transformOriginY?: keyof typeof alignmentYMap
@@ -26,16 +29,18 @@ export type TransformProperties = {
 const tX = 'transformTranslateX'
 const tY = 'transformTranslateY'
 const tZ = 'transformTranslateZ'
+const tXYZ = 'transformTranslate'
 
 const rX = 'transformRotateX'
 const rY = 'transformRotateY'
 const rZ = 'transformRotateZ'
+const rXYZ = 'transformRotate'
 
 const sX = 'transformScaleX'
 const sY = 'transformScaleY'
 const sZ = 'transformScaleZ'
 
-const propertyKeys: Array<keyof TransformProperties> = [tX, tY, tZ, rX, rY, rZ, sX, sY, sZ]
+const propertyKeys: Array<keyof TransformProperties> = [tX, tY, tZ, tXYZ, rX, rY, rZ, rXYZ, sX, sY, sZ]
 
 const tHelper = new Vector3()
 const sHelper = new Vector3()
@@ -84,8 +89,8 @@ export function useTransformMatrix(collection: ManagerCollection, node: FlexNode
           originVector.negate()
         }
 
-        const r: Vector3Tuple = [get(rX) ?? 0, get(rY) ?? 0, get(rZ) ?? 0]
-        const t: Vector3Tuple = [get(tX) ?? 0, -(get(tY) ?? 0), get(tZ) ?? 0]
+        const r: Vector3Tuple = get(rXYZ) ?? [get(rX) ?? 0, get(rY) ?? 0, get(rZ) ?? 0]
+        const t: Vector3Tuple = get(tXYZ) ?? [get(tX) ?? 0, -(get(tY) ?? 0), get(tZ) ?? 0]
         const s: Vector3Tuple = [get(sX) ?? 1, get(sY) ?? 1, get(sZ) ?? 1]
         if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
           result.multiply(
