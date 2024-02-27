@@ -43,7 +43,7 @@ Limitations
 ## Development
 
 `pnpm install`  
-`pnpm -r inline-wasm`
+`pnpm -r inline-wasm`  
 `pnpm -r convert`  
 `pnpm -r generate`  
 `pnpm -r build`  
