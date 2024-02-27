@@ -154,12 +154,12 @@ export class InstancedText {
                 this.parentClippingRect?.peek(),
               )
             }
-            glyph.updateTransformation(
+            glyph.updateGlyphAndTransformation(
+              glyphInfo,
               pixelSize * (x + getGlyphOffsetX(font, fontSize, glyphInfo, prevGlyphId)),
               -pixelSize * (y + getGlyphOffsetY(fontSize, lineHeight, glyphInfo)),
               pixelSize * fontSize,
             )
-            glyph.updateGlyphInfo(glyphInfo)
             glyph.show()
 
             ++glyphIndex

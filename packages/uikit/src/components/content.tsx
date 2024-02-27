@@ -13,7 +13,7 @@ import {
 } from '../properties/utils.js'
 import { alignmentZMap, fitNormalizedContentInside, useRootGroupRef, useSignalEffect } from '../utils.js'
 import { Box3, Group, Mesh, Vector3 } from 'three'
-import { effect, Signal, signal } from '@preact/signals-core'
+import { computed, effect, Signal, signal } from '@preact/signals-core'
 import { useApplyHoverProperties } from '../hover.js'
 import {
   ComponentInternals,
@@ -55,6 +55,7 @@ export const Content = forwardRef<
     children?: ReactNode
     zIndexOffset?: ZIndexOffset
     backgroundMaterialClass?: MaterialClass
+    keepAspectRatio?: boolean
   } & ContentProperties &
     EventHandlers &
     LayoutListeners &
@@ -86,7 +87,7 @@ export const Content = forwardRef<
   const innerGroupRef = useRef<Group>(null)
   const rootGroupRef = useRootGroupRef()
   const orderInfo = useOrderInfo(ElementType.Object, undefined, backgroundOrderInfo)
-  const aspectRatio = useNormalizedContent(
+  const size = useNormalizedContent(
     collection,
     innerGroupRef,
     rootGroupRef,
@@ -99,26 +100,47 @@ export const Content = forwardRef<
   useApplyProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
-  writeCollection(collection, 'aspectRatio', aspectRatio)
+  const aspectRatio = useMemo(
+    () =>
+      computed(() => {
+        const [x, y] = size.value
+        return x / y
+      }),
+    [size],
+  )
+  if ((properties.keepAspectRatio ?? true) === true) {
+    writeCollection(collection, 'aspectRatio', aspectRatio)
+  }
   finalizeCollection(collection)
 
   const outerGroupRef = useRef<Group>(null)
   useEffect(
     () =>
       effect(() => {
-        const [offsetX, offsetY, scale] = fitNormalizedContentInside(
-          node.size,
-          node.paddingInset,
-          node.borderInset,
-          node.pixelSize,
-          aspectRatio.value ?? 1,
-        )
+        const [width, height] = node.size.value
+        const [pTop, pRight, pBottom, pLeft] = node.paddingInset.value
+        const [bTop, bRight, bBottom, bLeft] = node.borderInset.value
+        const topInset = pTop + bTop
+        const rightInset = pRight + bRight
+        const bottomInset = pBottom + bBottom
+        const leftInset = pLeft + bLeft
+
+        const innerWidth = width - leftInset - rightInset
+        const innerHeight = height - topInset - bottomInset
+
+        const { pixelSize } = node
+
         const { current } = outerGroupRef
-        current?.position.set(offsetX, offsetY, 0)
-        current?.scale.setScalar(scale)
+        current?.position.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0)
+        const [, y, z] = size.value
+        current?.scale.set(
+          innerWidth * pixelSize,
+          innerHeight * pixelSize,
+          properties.keepAspectRatio ? (innerHeight * pixelSize * z) / y : z,
+        )
         current?.updateMatrix()
       }),
-    [node, aspectRatio],
+    [node, properties.keepAspectRatio, size],
   )
 
   const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
@@ -151,8 +173,8 @@ function useNormalizedContent(
   rootCameraDistance: CameraDistanceRef,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: OrderInfo,
-): Signal<number | undefined> {
-  const aspectRatio = useMemo(() => signal<number | undefined>(undefined), [])
+): Signal<Vector3> {
+  const sizeSignal = useMemo(() => signal<Vector3>(new Vector3(1, 1, 1)), [])
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
   const getPropertySignal = useGetBatchedProperties<DepthAlignProperties>(collection, propertyKeys)
   useEffect(() => {
@@ -171,24 +193,24 @@ function useNormalizedContent(
     const parent = group.parent
     parent?.remove(group)
     box3Helper.setFromObject(group)
-    const vector = new Vector3()
-    box3Helper.getSize(vector)
-    const scale = 1 / vector.y
-    const depth = vector.z
-    aspectRatio.value = vector.x / vector.y
-    group.scale.set(1, 1, 1).multiplyScalar(scale)
+    const size = new Vector3()
+    const center = new Vector3()
+    box3Helper.getSize(size)
+    const depth = size.z
+    sizeSignal.value = size
+    group.scale.set(1, 1, 1).divide(size)
     if (parent != null) {
       parent.add(group)
     }
-    box3Helper.getCenter(vector)
+    box3Helper.getCenter(center)
     return effect(() => {
-      group.position.copy(vector).negate()
+      group.position.copy(center).negate()
       group.position.z -= alignmentZMap[getPropertySignal.value('depthAlign') ?? 'back'] * depth
-      group.position.multiplyScalar(scale)
+      group.position.divide(size)
       group.updateMatrix()
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getPropertySignal, rootCameraDistance, clippingPlanes, rootGroupRef])
 
-  return aspectRatio
+  return sizeSignal
 }

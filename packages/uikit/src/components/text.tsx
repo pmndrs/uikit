@@ -42,7 +42,7 @@ export type TextProperties = WithConditionals<
 export const Text = forwardRef<
   ComponentInternals,
   {
-    children: string | Signal<string>
+    children: string | Signal<string> | Array<string | Signal<string>>
     backgroundMaterialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
   } & TextProperties &
