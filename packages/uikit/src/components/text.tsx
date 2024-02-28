@@ -2,7 +2,14 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { YogaProperties } from '../flex/node.js'
 import { useApplyHoverProperties } from '../hover.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
-import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
+import {
+  InteractionGroup,
+  MaterialClass,
+  ShadowProperties,
+  useInstancedPanel,
+  useInteractionPanel,
+  usePanelGroupDependencies,
+} from '../panel/react.js'
 import {
   WithAllAliases,
   flexAliasPropertyTransformation,
@@ -50,7 +57,8 @@ export const Text = forwardRef<
     EventHandlers &
     LayoutListeners &
     ViewportListeners &
-    ScrollListeners
+    ScrollListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -63,7 +71,8 @@ export const Text = forwardRef<
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
-  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
+  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -73,10 +82,10 @@ export const Text = forwardRef<
     isClipped,
     backgroundOrderInfo,
     parentClippingRect,
-    properties.backgroundMaterialClass,
+    groupDeps,
     panelAliasPropertyTransformation,
   )
-  const orderInfo = useOrderInfo(ElementType.Text, undefined, backgroundOrderInfo)
+  const orderInfo = useOrderInfo(ElementType.Text, undefined, undefined, backgroundOrderInfo)
   const measureFunc = useInstancedText(
     collection,
     properties.children,

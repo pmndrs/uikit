@@ -45,6 +45,7 @@ export type OrderInfo = {
   majorIndex: number
   elementType: ElementType
   minorIndex: number
+  instancedGroupDependencies?: Record<string, any> | undefined
 }
 
 function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
@@ -68,6 +69,7 @@ export type ZIndexOffset = { major?: number; minor?: number } | number
 export function useOrderInfo(
   type: ElementType,
   offset: ZIndexOffset | undefined,
+  instancedGroupDependencies: Record<string, any> | undefined,
   providedParentOrderInfo?: OrderInfo,
 ): OrderInfo {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -84,12 +86,15 @@ export function useOrderInfo(
     } else if (type > parentOrderInfo.elementType) {
       majorIndex = parentOrderInfo.majorIndex
       minorIndex = 0
-    } else if (type === parentOrderInfo.elementType) {
-      majorIndex = parentOrderInfo.majorIndex
-      minorIndex = parentOrderInfo.minorIndex + 1
-    } else {
+    } else if (
+      type != parentOrderInfo.elementType ||
+      !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
+    ) {
       majorIndex = parentOrderInfo.majorIndex + 1
       minorIndex = 0
+    } else {
+      majorIndex = parentOrderInfo.majorIndex
+      minorIndex = parentOrderInfo.minorIndex + 1
     }
 
     if (majorOffset > 0) {
@@ -104,7 +109,25 @@ export function useOrderInfo(
       majorIndex,
       minorIndex,
     }
-  }, [majorOffset, minorOffset, parentOrderInfo, type])
+  }, [majorOffset, minorOffset, parentOrderInfo, type, instancedGroupDependencies])
+}
+
+function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<string, any> | undefined): boolean {
+  if (r1 === r2) {
+    return true
+  }
+  if (r1 == null || r2 == null) {
+    return false
+  }
+  //i counts the number of keys in r1
+  let i = 0
+  for (const key in r1) {
+    if (r1[key] != r2[key]) {
+      return false
+    }
+    ++i
+  }
+  return i === Object.keys(r2).length
 }
 
 export function setupRenderOrder<T>(result: T, rootCameraDistance: CameraDistanceRef, orderInfo: OrderInfo): T {

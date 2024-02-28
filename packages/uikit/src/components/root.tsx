@@ -6,9 +6,11 @@ import {
   InstancedPanelProvider,
   InteractionGroup,
   MaterialClass,
+  ShadowProperties,
   useGetInstancedPanelGroup,
   useInstancedPanel,
   useInteractionPanel,
+  usePanelGroupDependencies,
 } from '../panel/react.js'
 import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
 import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
@@ -83,7 +85,8 @@ export const Root = forwardRef<
     }> &
     EventHandlers &
     LayoutListeners &
-    ScrollListeners
+    ScrollListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const renderer = useThree((state) => state.gl)
@@ -117,7 +120,8 @@ export const Root = forwardRef<
   const getPanelGroup = useGetInstancedPanelGroup(pixelSize, node.cameraDistance, groupsContainer)
   const getGylphGroup = useGetInstancedGlyphGroup(pixelSize, node.cameraDistance, groupsContainer)
 
-  const orderInfo = useOrderInfo(ElementType.Panel, undefined)
+  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const orderInfo = useOrderInfo(ElementType.Panel, undefined, groupDeps)
 
   const rootMatrix = useRootMatrix(transformMatrix, node.size, pixelSize, properties)
   const scrollPosition = useScrollPosition()
@@ -143,7 +147,7 @@ export const Root = forwardRef<
     undefined,
     orderInfo,
     undefined,
-    properties.backgroundMaterialClass,
+    groupDeps,
     panelAliasPropertyTransformation,
     getPanelGroup,
   )

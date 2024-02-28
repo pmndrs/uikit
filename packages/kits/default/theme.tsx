@@ -10,7 +10,7 @@ export const colors = basedOnPreferredColorScheme({
   light: {
     background: hsl(0, 0, 100),
     foreground: hsl(222.2, 84, 4.9),
-    card: hsl(0, 0, 1),
+    card: hsl(0, 0, 100),
     cardForeground: hsl(222.2, 84, 4.9),
     popover: hsl(0, 0, 100),
     popoverForeground: hsl(222.2, 84, 4.9),

@@ -2,7 +2,14 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ReactNode, RefObject, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
 import { FlexProvider, useFlexNode } from '../flex/react.js'
-import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
+import {
+  InteractionGroup,
+  MaterialClass,
+  ShadowProperties,
+  useInstancedPanel,
+  useInteractionPanel,
+  usePanelGroupDependencies,
+} from '../panel/react.js'
 import {
   ManagerCollection,
   WithReactive,
@@ -11,7 +18,7 @@ import {
   useGetBatchedProperties,
   writeCollection,
 } from '../properties/utils.js'
-import { alignmentZMap, fitNormalizedContentInside, useRootGroupRef, useSignalEffect } from '../utils.js'
+import { alignmentZMap, useRootGroupRef } from '../utils.js'
 import { Box3, Group, Mesh, Vector3 } from 'three'
 import { computed, effect, Signal, signal } from '@preact/signals-core'
 import { useApplyHoverProperties } from '../hover.js'
@@ -60,7 +67,8 @@ export const Content = forwardRef<
   } & ContentProperties &
     EventHandlers &
     LayoutListeners &
-    ViewportListeners
+    ViewportListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -72,7 +80,8 @@ export const Content = forwardRef<
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
-  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
+  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -82,12 +91,12 @@ export const Content = forwardRef<
     isClipped,
     backgroundOrderInfo,
     parentClippingRect,
-    properties.backgroundMaterialClass,
+    groupDeps,
     panelAliasPropertyTransformation,
   )
   const innerGroupRef = useRef<Group>(null)
   const rootGroupRef = useRootGroupRef()
-  const orderInfo = useOrderInfo(ElementType.Object, undefined, backgroundOrderInfo)
+  const orderInfo = useOrderInfo(ElementType.Object, undefined, undefined, backgroundOrderInfo)
   const size = useNormalizedContent(
     collection,
     innerGroupRef,

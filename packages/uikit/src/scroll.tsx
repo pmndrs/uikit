@@ -1,11 +1,11 @@
-import { Signal, computed, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Group, Matrix4, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
+import { Group, Matrix4, MeshBasicMaterial, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
 import { FlexNode, Inset } from './flex/node.js'
 import { Color as ColorRepresentation, useFrame } from '@react-three/fiber'
 import { useSignalEffect } from './utils.js'
-import { GetInstancedPanelGroup, MaterialClass, useInstancedPanel } from './panel/react.js'
+import { GetInstancedPanelGroup, MaterialClass, PanelGroupDependencies, useInstancedPanel } from './panel/react.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties } from './panel/instanced-panel.js'
@@ -337,7 +337,31 @@ export function useScrollbars(
   orderInfo: OrderInfo,
   providedGetGroup?: GetInstancedPanelGroup,
 ): void {
-  const scrollbarOrderInfo = useOrderInfo(ElementType.Panel, undefined, orderInfo)
+  const scrollbarOrderInfo = useOrderInfo(ElementType.Panel, undefined, materialClass, orderInfo)
+
+  const getScrollbarWidthSignal = useGetBatchedProperties<{ scrollbarWidth?: number }>(collection, propertyKeys)
+  const getBorderSignal = useGetBatchedProperties<{
+    scrollbarBorderLeft?: number
+    scrollbarBorderRight?: number
+    scrollbarBorderBottom?: number
+    scrollbarBorderTop?: number
+  }>(collection, borderPropertyKeys, scrollbarBorderPropertyTransformation)
+  const borderSize = useMemo(
+    () =>
+      computed<Inset>(() => {
+        const get = getBorderSignal.value
+        return [
+          get('scrollbarBorderTop') ?? 0,
+          get('scrollbarBorderRight') ?? 0,
+          get('scrollbarBorderBottom') ?? 0,
+          get('scrollbarBorderLeft') ?? 0,
+        ]
+      }),
+    [getBorderSignal],
+  )
+
+  const startIndex = collection.length
+
   useScrollbar(
     collection,
     0,
@@ -349,6 +373,8 @@ export function useScrollbars(
     parentClippingRect,
     scrollbarOrderInfo,
     providedGetGroup,
+    getScrollbarWidthSignal,
+    borderSize,
   )
   useScrollbar(
     collection,
@@ -361,7 +387,16 @@ export function useScrollbars(
     parentClippingRect,
     scrollbarOrderInfo,
     providedGetGroup,
+    getScrollbarWidthSignal,
+    borderSize,
   )
+
+  //setting the scrollbar color and opacity default for all property managers of the instanced panel
+  const collectionLength = collection.length
+  for (let i = startIndex; i < collectionLength; i++) {
+    collection[i].add('scrollbarColor', 0xffffff)
+    collection[i].add('scrollbarOpacity', 1)
+  }
 }
 
 const propertyKeys = ['scrollbarWidth'] as const
@@ -382,14 +417,15 @@ function useScrollbar(
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: OrderInfo,
-  providedGetGroup?: GetInstancedPanelGroup,
+  providedGetGroup: GetInstancedPanelGroup | undefined,
+  getScrollbarWidthSignal: Signal<(key: 'scrollbarWidth') => number | undefined>,
+  borderSize: ReadonlySignal<Inset>,
 ) {
-  const getPropertySignal = useGetBatchedProperties<{ scrollbarWidth?: number }>(collection, propertyKeys)
   const [scrollbarPosition, scrollbarSize] = useMemo(() => {
     const scrollbarTransformation = computed(() =>
       computeScrollbarTransformation(
         mainIndex,
-        getPropertySignal.value('scrollbarWidth') ?? 10,
+        getScrollbarWidthSignal.value('scrollbarWidth') ?? 10,
         node.size.value,
         node.maxScrollPosition.value,
         node.borderInset.value,
@@ -400,27 +436,12 @@ function useScrollbar(
       computed(() => scrollbarTransformation.value.slice(0, 2) as Vector2Tuple),
       computed(() => scrollbarTransformation.value.slice(2, 4) as Vector2Tuple),
     ]
-  }, [mainIndex, node, scrollPosition, getPropertySignal])
-  const getBorderPropertySignal = useGetBatchedProperties<{
-    scrollbarBorderLeft?: number
-    scrollbarBorderRight?: number
-    scrollbarBorderBottom?: number
-    scrollbarBorderTop?: number
-  }>(collection, borderPropertyKeys, scrollbarBorderPropertyTransformation)
-  const borderSize = useMemo(
-    () =>
-      computed<Inset>(() => {
-        const get = getBorderPropertySignal.value
-        return [
-          get('scrollbarBorderTop') ?? 0,
-          get('scrollbarBorderRight') ?? 0,
-          get('scrollbarBorderBottom') ?? 0,
-          get('scrollbarBorderLeft') ?? 0,
-        ]
-      }),
-    [getBorderPropertySignal],
+  }, [mainIndex, node, scrollPosition, getScrollbarWidthSignal])
+
+  const groupDeps = useMemo<PanelGroupDependencies>(
+    () => ({ materialClass: materialClass ?? MeshBasicMaterial, receiveShadow: false, castShadow: false }),
+    [materialClass],
   )
-  const startIndex = collection.length
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -430,16 +451,10 @@ function useScrollbar(
     isClipped,
     orderInfo,
     parentClippingRect,
-    materialClass,
+    groupDeps,
     scrollbarPanelPropertyTransformation,
     providedGetGroup,
   )
-  //setting the scrollbar color and opacity default for all property managers of the instanced panel
-  const collectionLength = collection.length
-  for (let i = startIndex; i < collectionLength; i++) {
-    collection[i].add('scrollbarColor', 0xffffff)
-    collection[i].add('scrollbarOpacity', 1)
-  }
 }
 
 function computeScrollbarTransformation(

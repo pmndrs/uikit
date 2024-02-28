@@ -53,6 +53,8 @@ export class InstancedPanelGroup extends Group {
     public readonly pixelSize: number,
     private readonly cameraDistance: CameraDistanceRef,
     private readonly orderInfo: OrderInfo,
+    private readonly meshReceiveShadow: boolean,
+    private readonly meshCastShadow: boolean,
   ) {
     super()
   }
@@ -158,6 +160,8 @@ export class InstancedPanelGroup extends Group {
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
     setupRenderOrder(this.mesh, this.cameraDistance, this.orderInfo)
     this.mesh.material = this.material
+    this.mesh.receiveShadow = this.meshReceiveShadow
+    this.mesh.castShadow = this.meshCastShadow
     this.add(this.mesh)
   }
 

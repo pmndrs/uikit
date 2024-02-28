@@ -2,16 +2,22 @@ import { AllOptionalProperties, Container, DefaultProperties } from '@react-thre
 import { ComponentPropsWithoutRef } from 'react'
 import { colors } from './theme.js'
 
-const badgeVariants = {
+const badgeVariants: {
+  [Key in string]: {
+    defaultProps?: AllOptionalProperties
+    containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
+    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+  }
+} = {
   default: {
     defaultProps: {
       color: colors.primaryForeground,
     },
     containerProps: {
       backgroundColor: colors.primary,
-      hover: {
-        backgroundOpacity: 0.8,
-      },
+    },
+    containerHoverProps: {
+      backgroundOpacity: 0.8,
     },
   },
   secondary: {
@@ -20,9 +26,9 @@ const badgeVariants = {
     },
     containerProps: {
       backgroundColor: colors.secondary,
-      hover: {
-        backgroundOpacity: 0.8,
-      },
+    },
+    containerHoverProps: {
+      backgroundOpacity: 0.8,
     },
   },
   destructive: {
@@ -31,30 +37,31 @@ const badgeVariants = {
     },
     containerProps: {
       backgroundColor: colors.destructive,
-      hover: {
-        backgroundOpacity: 0.8,
-      },
+    },
+    containerHoverProps: {
+      backgroundOpacity: 0.8,
     },
   },
-  outline: {
-    defaultProps: {},
-    containerProps: {},
-  },
-} satisfies {
-  [Key in string]: {
-    defaultProps: AllOptionalProperties
-    containerProps: ComponentPropsWithoutRef<typeof Container>
-  }
+  outline: {},
 }
 
 export function Badge({
   children,
   variant = 'default',
+  hover,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof badgeVariants }) {
-  const { containerProps, defaultProps } = badgeVariants[variant]
+  const { containerProps, defaultProps, containerHoverProps } = badgeVariants[variant]
   return (
-    <Container borderRadius={1000} border={1} paddingX={10} paddingY={2} {...containerProps} {...props}>
+    <Container
+      borderRadius={1000}
+      border={1}
+      paddingX={10}
+      paddingY={2}
+      hover={{ ...containerHoverProps, ...hover }}
+      {...containerProps}
+      {...props}
+    >
       <DefaultProperties fontSize={12} lineHeight={1.3333} fontWeight="semi-bold" {...defaultProps}>
         {children}
       </DefaultProperties>

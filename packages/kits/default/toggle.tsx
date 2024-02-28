@@ -2,11 +2,13 @@ import { Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, useState } from 'react'
 import { colors } from './theme.js'
 
-const toggleVariants = {
-  default: {
-    containerProps: {},
-    containerHoverProps: {},
-  },
+const toggleVariants: {
+  [Key in string]: {
+    containerProps?: ComponentPropsWithoutRef<typeof Container>
+    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+  }
+} = {
+  default: {},
   outline: {
     containerProps: {
       border: 1,
@@ -17,11 +19,6 @@ const toggleVariants = {
     },
   },
   //TODO: hover:text-accent-foreground
-} satisfies {
-  [Key in string]: {
-    containerProps: ComponentPropsWithoutRef<typeof Container>
-    containerHoverProps: ComponentPropsWithoutRef<typeof Container>['hover']
-  }
 }
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
@@ -37,6 +34,7 @@ export function Toggle({
   checked: providedChecked,
   disabled = false,
   onCheckedChange,
+  hover,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
   defaultChecked?: boolean
@@ -67,7 +65,9 @@ export function Toggle({
       backgroundOpacity={disabled ? 0.5 : undefined}
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundColor={checked ? colors.accent : undefined}
-      hover={disabled ? undefined : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps }}
+      hover={
+        disabled ? hover : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps, ...hover }
+      }
       {...toggleVariants[variant].containerProps}
       {...toggleSizes[size]}
       {...props}

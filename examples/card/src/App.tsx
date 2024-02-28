@@ -11,6 +11,7 @@ import { Switch } from '@/switch'
 import { useMemo, useRef } from 'react'
 import { signal } from '@preact/signals-core'
 import { damp } from 'three/src/math/MathUtils.js'
+import { MeshPhongMaterial } from 'three'
 
 setPreferredColorScheme('light')
 
@@ -18,10 +19,13 @@ export default function App() {
   return (
     <Canvas
       flat
+      shadows
       camera={{ position: [0, 0, 18], fov: 35 }}
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
     >
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={3} castShadow position={[1, 3, 5]} />
       <Root pixelSize={0.01}>
         <DefaultColors>
           <CardPage />
@@ -67,7 +71,7 @@ export function CardPage() {
             openRef.current = !openRef.current
           }}
           cursor="pointer"
-          zIndexOffset={1}
+          zIndexOffset={10}
           transformTranslateZ={translateZ}
         >
           <Image borderRadiusTop={20} width="100%" src="https://picsum.photos/600/300" />
@@ -80,6 +84,7 @@ export function CardPage() {
             alignItems="center"
             justifyContent="space-between"
             borderRadiusBottom={20}
+            castShadow
           >
             <Container gap={8}>
               <Text fontWeight="normal" fontSize={24} lineHeight={1}>
@@ -98,6 +103,8 @@ export function CardPage() {
         </Container>
         <Container transformTranslateY={-40} overflow="hidden">
           <Container
+            backgroundMaterialClass={MeshPhongMaterial}
+            receiveShadow
             paddingTop={40}
             transformTranslateY={translateY}
             backgroundColor={colors.secondary}

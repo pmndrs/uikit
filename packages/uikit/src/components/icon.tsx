@@ -1,7 +1,14 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, forwardRef, useMemo, useRef } from 'react'
 import { useFlexNode } from '../flex/react.js'
-import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
+import {
+  InteractionGroup,
+  MaterialClass,
+  ShadowProperties,
+  useInstancedPanel,
+  useInteractionPanel,
+  usePanelGroupDependencies,
+} from '../panel/react.js'
 import { createCollection, finalizeCollection, useGetBatchedProperties, writeCollection } from '../properties/utils.js'
 import { useSignalEffect, fitNormalizedContentInside, useRootGroupRef } from '../utils.js'
 import { Color, Group, Mesh, MeshBasicMaterial, ShapeGeometry } from 'three'
@@ -46,7 +53,8 @@ export const SvgIconFromText = forwardRef<
   } & SvgProperties &
     EventHandlers &
     LayoutListeners &
-    ViewportListeners
+    ViewportListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -56,7 +64,9 @@ export const SvgIconFromText = forwardRef<
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
+
+  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -66,14 +76,14 @@ export const SvgIconFromText = forwardRef<
     isClipped,
     backgroundOrderInfo,
     parentClippingRect,
-    properties.backgroundMaterialClass,
+    groupDeps,
     panelAliasPropertyTransformation,
   )
 
   const rootGroupRef = useRootGroupRef()
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
 
-  const orderInfo = useOrderInfo(ElementType.Svg, undefined, backgroundOrderInfo)
+  const orderInfo = useOrderInfo(ElementType.Svg, undefined, undefined, backgroundOrderInfo)
   const svgGroup = useMemo(() => {
     const group = new Group()
     group.matrixAutoUpdate = false
@@ -118,11 +128,13 @@ export const SvgIconFromText = forwardRef<
       if (!(object instanceof Mesh)) {
         return
       }
+      object.receiveShadow = properties.receiveShadow ?? false
+      object.castShadow = properties.castShadow ?? false
       const material: MeshBasicMaterial = object.material
       material.color.copy(color ?? object.userData.color)
       material.opacity = opacity ?? 1
     })
-  }, [svgGroup, properties.color])
+  }, [svgGroup, properties.color, properties.receiveShadow, properties.castShadow])
 
   //apply all properties
   writeCollection(collection, 'width', properties.svgWidth)

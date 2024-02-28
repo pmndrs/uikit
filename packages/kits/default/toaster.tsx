@@ -1,6 +1,4 @@
-'use client'
-
-import {
+/*import {
   Toast,
   ToastClose,
   ToastDescription,
@@ -30,4 +28,4 @@ export function Toaster() {
       <ToastViewport />
     </ToastProvider>
   )
-}
+}*/

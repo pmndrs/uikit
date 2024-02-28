@@ -2,60 +2,61 @@ import { AllOptionalProperties, Container, DefaultProperties } from '@react-thre
 import { ComponentPropsWithoutRef } from 'react'
 import { colors } from './theme.js'
 
-const buttonVariants = {
+const buttonVariants: {
+  [Key in string]: {
+    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+    containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
+    defaultProps?: AllOptionalProperties
+  }
+} = {
   default: {
+    containerHoverProps: {
+      backgroundOpacity: 0.9,
+    },
     containerProps: {
       backgroundColor: colors.primary,
-      hover: {
-        backgroundOpacity: 0.9,
-      },
     },
     defaultProps: {
       color: colors.primaryForeground,
     },
   },
   destructive: {
+    containerHoverProps: {
+      backgroundOpacity: 0.9,
+    },
     containerProps: {
       backgroundColor: colors.destructive,
-      hover: {
-        backgroundOpacity: 0.9,
-      },
     },
     defaultProps: {
       color: colors.destructiveForeground,
     },
   },
   outline: {
+    containerHoverProps: {
+      backgroundColor: colors.accent,
+    },
     containerProps: {
       border: 1,
       borderColor: colors.input,
       backgroundColor: colors.background,
-      hover: {
-        backgroundColor: colors.accent,
-      },
     },
-    defaultProps: {},
   }, //TODO: hover:text-accent-foreground",
   secondary: {
+    containerHoverProps: {
+      backgroundOpacity: 0.8,
+    },
     containerProps: {
       backgroundColor: colors.secondary,
-      hover: {
-        backgroundOpacity: 0.8,
-      },
     },
     defaultProps: {
       color: colors.secondaryForeground,
     },
   },
   ghost: {
-    containerProps: {
-      hover: {
-        backgroundColor: colors.accent,
-      },
+    containerHoverProps: {
+      backgroundColor: colors.accent,
     },
-    defaultProps: {
-      hover: {},
-    },
+    defaultProps: {},
   }, // TODO: hover:text-accent-foreground",
   link: {
     containerProps: {},
@@ -63,11 +64,6 @@ const buttonVariants = {
       color: colors.primary,
     },
   }, //TODO: underline-offset-4 hover:underline",
-} satisfies {
-  [Key in string]: {
-    containerProps: ComponentPropsWithoutRef<typeof Container>
-    defaultProps: AllOptionalProperties
-  }
 }
 
 const buttonSizes = {
@@ -82,13 +78,14 @@ export function Button({
   variant = 'default',
   size = 'default',
   disabled = false,
+  hover,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
   variant?: keyof typeof buttonVariants
   size?: keyof typeof buttonSizes
   disabled?: boolean
 }) {
-  const { containerProps, defaultProps } = buttonVariants[variant]
+  const { containerProps, defaultProps, containerHoverProps } = buttonVariants[variant]
   const sizeProps = buttonSizes[size]
 
   return (
@@ -102,6 +99,10 @@ export function Button({
       backgroundOpacity={disabled ? 0.5 : undefined}
       cursor={disabled ? undefined : 'pointer'}
       flexDirection="row"
+      hover={{
+        ...containerHoverProps,
+        ...hover,
+      }}
       {...props}
     >
       <DefaultProperties
