@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber"
 import { Physics, RigidBody, BallCollider } from "@react-three/rapier"
 import { useMemo, useRef } from "react"
 
+// Shapes by https://app.spline.design/library/a4eeaee4-be03-4df8-ab05-5a073eda2eb4
 export function Floating(props) {
     const { nodes, materials } = useGLTF("/smileys-transformed.glb")
     return (
