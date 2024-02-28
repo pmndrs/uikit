@@ -4,7 +4,7 @@ import { useResourceWithParams, useRootGroupRef, useSignalEffect } from '../util
 import { Signal, computed } from '@preact/signals-core'
 import { Inset, YogaProperties } from '../flex/node.js'
 import { panelGeometry } from '../panel/utils.js'
-import { InteractionGroup, MaterialClass, usePanelMaterial } from '../panel/react.js'
+import { InteractionGroup, MaterialClass, ShadowProperties, usePanelMaterials } from '../panel/react.js'
 import { useFlexNode } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { useApplyHoverProperties } from '../hover.js'
@@ -79,7 +79,8 @@ export const Image = forwardRef<
     zIndexOffset?: ZIndexOffset
   } & EventHandlers &
     LayoutListeners &
-    ViewportListeners
+    ViewportListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const texture = useResourceWithParams(loadTexture, properties.src)
@@ -105,7 +106,7 @@ export const Image = forwardRef<
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  const material = usePanelMaterial(
+  const materials = usePanelMaterials(
     collection,
     node.size,
     node.borderInset,
@@ -114,14 +115,19 @@ export const Image = forwardRef<
     clippingPlanes,
     materialPropertyTransformation,
   )
-  const orderInfo = useOrderInfo(ElementType.Image, properties.zIndexOffset)
+  const orderInfo = useOrderInfo(ElementType.Image, properties.zIndexOffset, undefined)
   const mesh = useMemo(() => {
+    const [material, depthMaterial, distanceMaterial] = materials
     const result = new Mesh(panelGeometry, material)
     result.matrixAutoUpdate = false
+    result.castShadow = properties.castShadow ?? false
+    result.receiveShadow = properties.receiveShadow ?? false
+    result.customDepthMaterial = depthMaterial
+    result.customDistanceMaterial = distanceMaterial
     result.raycast = makeClippedRaycast(result, makePanelRaycast(result), rootGroupRef, parentClippingRect, orderInfo)
     setupRenderOrder(result, node.cameraDistance, orderInfo)
     return result
-  }, [node, material, rootGroupRef, parentClippingRect, orderInfo])
+  }, [node, materials, rootGroupRef, parentClippingRect, orderInfo, properties.receiveShadow, properties.castShadow])
 
   //apply all properties
   useApplyProperties(collection, properties)

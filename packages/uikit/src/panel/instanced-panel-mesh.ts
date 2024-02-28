@@ -1,5 +1,6 @@
 import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
 import { createPanelGeometry } from './utils.js'
+import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0
@@ -19,6 +20,8 @@ export class InstancedPanelMesh extends Mesh {
     this.frustumCulled = false
     panelGeometry.attributes.aData = instanceData
     panelGeometry.attributes.aClipping = instanceClipping
+    this.customDepthMaterial = instancedPanelDepthMaterial
+    this.customDistanceMaterial = instancedPanelDistanceMaterial
   }
 
   dispose() {

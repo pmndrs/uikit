@@ -1,7 +1,14 @@
 import { ReactNode, forwardRef, useRef } from 'react'
 import { useFlexNode, FlexProvider } from '../flex/react.js'
 import { WithReactive, createCollection, finalizeCollection } from '../properties/utils.js'
-import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
+import {
+  InteractionGroup,
+  MaterialClass,
+  ShadowProperties,
+  useInstancedPanel,
+  useInteractionPanel,
+  usePanelGroupDependencies,
+} from '../panel/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { YogaProperties } from '../flex/node.js'
 import { useApplyHoverProperties } from '../hover.js'
@@ -57,7 +64,8 @@ export const Container = forwardRef<
     EventHandlers &
     LayoutListeners &
     ViewportListeners &
-    ScrollListeners
+    ScrollListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -67,7 +75,8 @@ export const Container = forwardRef<
   const parentClippingRect = useParentClippingRect()
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  const orderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
+  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const orderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -77,7 +86,7 @@ export const Container = forwardRef<
     isClipped,
     orderInfo,
     parentClippingRect,
-    properties.backgroundMaterialClass,
+    groupDeps,
     panelAliasPropertyTransformation,
   )
 

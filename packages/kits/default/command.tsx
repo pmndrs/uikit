@@ -10,9 +10,7 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
       </DialogContent>
     </Dialog>
   )
-}*/
-
-
+}
 
 export function Command() {
   export function <CommandPrimitive
@@ -120,3 +118,4 @@ export {
   CommandShortcut,
   CommandSeparator,
 }
+*/

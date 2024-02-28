@@ -13,22 +13,27 @@ export function PaginationContent(props: ComponentPropsWithoutRef<typeof Contain
 
 export const PaginationItem: typeof Container = Container
 
-const paginationVariants = {
+const paginationVariants: {
+  [Key in string]: {
+    containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
+    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+  }
+} = {
   outline: {
-    border: 1,
-    borderColor: colors.input,
-    backgroundColor: colors.background,
-    hover: {
+    containerProps: {
+      border: 1,
+      borderColor: colors.input,
+      backgroundColor: colors.background,
+    },
+    containerHoverProps: {
       backgroundColor: colors.accent,
     },
   }, //TODO: hover:text-accent-foreground",
   ghost: {
-    hover: {
+    containerHoverProps: {
       backgroundColor: colors.accent,
     },
   }, // TODO: hover:text-accent-foreground",
-} satisfies {
-  [Key in string]: ComponentPropsWithoutRef<typeof Container>
 }
 
 const paginationSizes = {
@@ -41,12 +46,13 @@ const paginationSizes = {
 export function PaginationLink({
   isActive = false,
   size = 'icon',
+  hover,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
   size?: keyof typeof paginationSizes
   isActive?: boolean
 }) {
-  const containerProps = paginationVariants[isActive ? 'outline' : 'ghost']
+  const { containerProps, containerHoverProps } = paginationVariants[isActive ? 'outline' : 'ghost']
   const sizeProps = paginationSizes[size]
   return (
     <Container
@@ -54,6 +60,7 @@ export function PaginationLink({
       borderRadius={6}
       alignItems="center"
       justifyContent="center"
+      hover={{ ...containerHoverProps, ...hover }}
       {...containerProps}
       {...sizeProps}
       {...props}

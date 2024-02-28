@@ -1,12 +1,12 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
+import { forwardRef, ReactNode, useEffect, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
 import { useFlexNode, FlexProvider } from '../flex/react.js'
 import { useApplyHoverProperties } from '../hover.js'
-import { InteractionGroup } from '../panel/react.js'
+import { InteractionGroup, ShadowProperties } from '../panel/react.js'
 import { createCollection, finalizeCollection, WithReactive } from '../properties/utils.js'
-import { useRootGroupRef, useSignalEffect } from '../utils.js'
-import { Group, Material, Mesh } from 'three'
+import { useRootGroupRef } from '../utils.js'
+import { FrontSide, Group, Material, Mesh } from 'three'
 import {
   ComponentInternals,
   LayoutListeners,
@@ -38,10 +38,13 @@ export const CustomContainer = forwardRef<
   {
     children?: ReactNode
     zIndexOffset?: ZIndexOffset
+    customDepthMaterial?: Material
+    customDistanceMaterial?: Material
   } & CustomContainerProperties &
     EventHandlers &
     LayoutListeners &
-    ViewportListeners
+    ViewportListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -53,7 +56,7 @@ export const CustomContainer = forwardRef<
   const rootGroupRef = useRootGroupRef()
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
 
-  const orderInfo = useOrderInfo(ElementType.Custom, properties.zIndexOffset)
+  const orderInfo = useOrderInfo(ElementType.Custom, properties.zIndexOffset, undefined)
 
   const meshRef = useRef<Mesh>(null)
 
@@ -72,6 +75,7 @@ export const CustomContainer = forwardRef<
     if (mesh.material instanceof Material) {
       mesh.material.clippingPlanes = clippingPlanes
       mesh.material.needsUpdate = true
+      mesh.material.shadowSide = FrontSide
     }
 
     const unsubscribeScale = effect(() => {
@@ -98,11 +102,19 @@ export const CustomContainer = forwardRef<
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
 
-  //useComponentInternals(ref, node, meshRef)
+  useComponentInternals(ref, node, meshRef)
 
   return (
     <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
-      <mesh ref={meshRef} matrixAutoUpdate={false} geometry={panelGeometry}>
+      <mesh
+        receiveShadow={properties.receiveShadow}
+        castShadow={properties.castShadow}
+        customDepthMaterial={properties.customDepthMaterial}
+        customDistanceMaterial={properties.customDistanceMaterial}
+        ref={meshRef}
+        matrixAutoUpdate={false}
+        geometry={panelGeometry}
+      >
         <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
       </mesh>
     </InteractionGroup>

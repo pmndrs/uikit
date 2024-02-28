@@ -1,10 +1,18 @@
-import { Color, Material, TypedArray, Vector2Tuple, WebGLProgramParametersWithUniforms, WebGLRenderer } from 'three'
-import { Constructor, isPanelVisible, setBorderRadius, setComponentInFloat } from './utils.js'
-import { Signal, computed, effect, signal } from '@preact/signals-core'
+import {
+  Color,
+  FrontSide,
+  Material,
+  MeshDepthMaterial,
+  MeshDistanceMaterial,
+  RGBADepthPacking,
+  Vector2Tuple,
+  WebGLProgramParametersWithUniforms,
+  WebGLRenderer,
+} from 'three'
+import { Constructor, isPanelVisible, setBorderRadius } from './utils.js'
+import { Signal, effect, signal } from '@preact/signals-core'
 import { Inset } from '../flex/node.js'
-import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties } from './instanced-panel.js'
-import { Properties, readReactiveProperty } from '../properties/utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
 import { WithBatchedProperties } from '../properties/batched.js'
 
@@ -16,7 +24,7 @@ export const panelDefaultColor = new Color(-1, -1, -1)
 
 const panelMaterialSetters: {
   [Key in keyof PanelProperties]-?: (
-    material: InstanceOf<ReturnType<typeof createPanelMaterial>>,
+    data: Float32Array,
     value: PanelProperties[Key],
     size: Signal<Vector2Tuple>,
   ) => void
@@ -24,28 +32,27 @@ const panelMaterialSetters: {
   //0-3 = borderSizes
 
   //4-6 = background color
-  backgroundColor: (m, p) =>
-    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? panelDefaultColor)).toArray(m.data, 4),
+  backgroundColor: (d, p) =>
+    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? panelDefaultColor)).toArray(d, 4),
 
   //7 = border radiuses
-  borderBottomLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 0, p, size.value[1]),
-  borderBottomRightRadius: (m, p, size) => setBorderRadius(m.data, 7, 1, p, size.value[1]),
-  borderTopRightRadius: (m, p, size) => setBorderRadius(m.data, 7, 2, p, size.value[1]),
-  borderTopLeftRadius: (m, p, size) => setBorderRadius(m.data, 7, 3, p, size.value[1]),
+  borderBottomLeftRadius: (d, p, size) => setBorderRadius(d, 7, 0, p, size.value[1]),
+  borderBottomRightRadius: (d, p, size) => setBorderRadius(d, 7, 1, p, size.value[1]),
+  borderTopRightRadius: (d, p, size) => setBorderRadius(d, 7, 2, p, size.value[1]),
+  borderTopLeftRadius: (d, p, size) => setBorderRadius(d, 7, 3, p, size.value[1]),
 
   //8 - 10 = border color
-  borderColor: (m, p) =>
-    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? 0xffffff)).toArray(m.data, 8),
+  borderColor: (d, p) => (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? 0xffffff)).toArray(d, 8),
   //11
-  borderBend: (m, p) => (m.data[11] = p ?? 0),
+  borderBend: (d, p) => (d[11] = p ?? 0),
   //12
-  borderOpacity: (m, p) => (m.data[12] = p ?? 1),
+  borderOpacity: (d, p) => (d[12] = p ?? 1),
 
   //13 = width
   //14 = height
 
   //15
-  backgroundOpacity: (m, p) => (m.data[15] = p ?? -1),
+  backgroundOpacity: (d, p) => (d[15] = p ?? -1),
 }
 
 export type PanelSetter = (typeof panelMaterialSetters)[keyof typeof panelMaterialSetters]
@@ -75,119 +82,184 @@ const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacit
 type BatchedProperties = Pick<PanelProperties, (typeof batchedProperties)[number]>
 type BatchedPropertiesKey = keyof BatchedProperties
 
-export function createPanelMaterial<T extends Constructor<Material>>(MaterialClass: T) {
-  return class extends MaterialClass implements WithImmediateProperties, WithBatchedProperties<BatchedProperties> {
-    //data layout: vec4 borderSize = data[0]; vec4 borderRadius = data[1]; vec3 borderColor = data[2].xyz; float borderBend = data[2].w; float borderOpacity = data[3].x; float width = data[3].y; float height = data[3].z; float backgroundOpacity = data[3].w;
-    readonly data = new Float32Array(16)
+export class MaterialSetter implements WithBatchedProperties, WithImmediateProperties {
+  //data layout: vec4 borderSize = data[0]; vec4 borderRadius = data[1]; vec3 borderColor = data[2].xyz; float borderBend = data[2].w; float borderOpacity = data[3].x; float width = data[3].y; float height = data[3].z; float backgroundOpacity = data[3].w;
+  public readonly data = new Float32Array(16)
 
-    unsubscribeList: Array<() => void> = []
-    unsubscribe!: () => void
-    active = signal(false)
+  private unsubscribeList: Array<() => void> = []
+  private unsubscribe: () => void
+  private visible = false
+  private materials: Array<Material> = []
 
-    size!: Signal<Vector2Tuple>
+  active = signal(false)
 
-    constructor(...args: Array<any>) {
-      super({ transparent: true, toneMapped: false, depthWrite: false }, ...args.slice(1))
-      if (this.defines == null) {
-        this.defines = {}
-      }
-      this.defines.USE_UV = ''
-      this.defines.USE_TANGENT = ''
-      this.visible = false
-    }
-
-    hasBatchedProperty(key: BatchedPropertiesKey): boolean {
-      return batchedProperties.includes(key)
-    }
-
-    getProperty: Signal<<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]> = signal(() => undefined)
-
-    setup(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>, isClipped: Signal<boolean>) {
-      this.size = size
-      this.unsubscribe = effect(() => {
-        const get = this.getProperty.value
-        const isVisible = isPanelVisible(
-          borderInset,
-          size,
-          isClipped,
-          get('borderOpacity'),
-          get('backgroundOpacity'),
-          get('backgroundColor'),
-        )
-        this.active.value = isVisible
-        if (!isVisible) {
-          this.deactivate()
-          return
-        }
-        this.activate(size, borderInset)
-      })
-    }
-
-    hasImmediateProperty(key: string): boolean {
-      return key in panelMaterialSetters
-    }
-
-    setProperty(key: string, value: unknown): void {
-      panelMaterialSetters[key as keyof typeof panelMaterialSetters](this, value as any, this.size)
-    }
-
-    activate(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>): void {
-      if (this.visible) {
-        return
-      }
-      this.visible = true
-      this.data.set(panelMaterialDefaultData)
-      this.unsubscribeList.push(
-        effect(() => this.data.set(size.value, 13)),
-        effect(() => this.data.set(borderInset.value, 0)),
+  constructor(
+    private size: Signal<Vector2Tuple>,
+    borderInset: Signal<Inset>,
+    isClipped: Signal<boolean>,
+  ) {
+    this.size = size
+    this.unsubscribe = effect(() => {
+      const get = this.getProperty.value
+      const isVisible = isPanelVisible(
+        borderInset,
+        size,
+        isClipped,
+        get('borderOpacity'),
+        get('backgroundOpacity'),
+        get('backgroundColor'),
       )
-    }
-
-    deactivate(): void {
-      if (!this.visible) {
+      this.active.value = isVisible
+      if (!isVisible) {
+        this.deactivate()
         return
       }
+      this.activate(size, borderInset)
+    })
+  }
 
-      this.visible = false
-      const unsubscribeListLength = this.unsubscribeList.length
-      for (let i = 0; i < unsubscribeListLength; i++) {
-        this.unsubscribeList[i]()
-      }
-      this.unsubscribeList.length = 0
+  addMaterial(material: Material) {
+    material.visible = this.visible
+    this.materials.push(material)
+  }
+
+  hasBatchedProperty(key: BatchedPropertiesKey): boolean {
+    return batchedProperties.includes(key)
+  }
+
+  getProperty: Signal<<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]> = signal(() => undefined)
+
+  hasImmediateProperty(key: string): boolean {
+    return key in panelMaterialSetters
+  }
+
+  setProperty(key: string, value: unknown): void {
+    const setter = panelMaterialSetters[key as keyof typeof panelMaterialSetters]
+    setter(this.data, value as any, this.size)
+  }
+
+  private activate(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>): void {
+    if (this.visible) {
+      return
     }
 
-    destroy(): void {
-      this.deactivate()
-      this.unsubscribe()
+    this.visible = true
+    this.syncVisible()
+
+    this.data.set(panelMaterialDefaultData)
+    this.unsubscribeList.push(
+      effect(() => this.data.set(size.value, 13)),
+      effect(() => this.data.set(borderInset.value, 0)),
+    )
+  }
+
+  private deactivate(): void {
+    if (!this.visible) {
+      return
     }
 
-    onBeforeCompile(parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer): void {
-      super.onBeforeCompile(parameters, renderer)
-      parameters.uniforms.data = { value: this.data }
-      compilePanelMaterial(parameters, false)
+    this.visible = false
+    this.syncVisible()
+
+    const unsubscribeListLength = this.unsubscribeList.length
+    for (let i = 0; i < unsubscribeListLength; i++) {
+      this.unsubscribeList[i]()
+    }
+    this.unsubscribeList.length = 0
+  }
+
+  destroy(): void {
+    this.deactivate()
+    this.unsubscribe()
+  }
+
+  private syncVisible() {
+    const materialsLength = this.materials.length
+    for (let i = 0; i < materialsLength; i++) {
+      this.materials[i].visible = this.visible
     }
   }
 }
 
-export function createInstancedPanelMaterial<T extends Constructor<Material>>(MaterialClass: T) {
-  return class extends MaterialClass {
-    constructor(...args: Array<any>) {
-      super({ transparent: true, depthWrite: false, toneMapped: false, ...args[0] }, ...args.slice(1))
-      if (this.defines == null) {
-        this.defines = {}
-      }
-      this.defines.USE_UV = ''
-      this.defines.USE_TANGENT = ''
-    }
+export type PanelMaterialInfo = { type: 'instanced' } | { type: 'normal'; data: Float32Array }
 
-    onBeforeCompile(parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer): void {
-      super.onBeforeCompile(parameters, renderer)
-      compilePanelMaterial(parameters, true)
+export function createPanelMaterial<T extends Constructor<Material>>(MaterialClass: T, info: PanelMaterialInfo) {
+  const material = new MaterialClass()
+  if (material.defines == null) {
+    material.defines = {}
+  }
+  material.side = FrontSide
+  material.clipShadows = true
+  material.transparent = true
+  material.toneMapped = false
+  material.depthWrite = false
+  material.shadowSide = FrontSide
+  material.defines.USE_UV = ''
+  material.defines.USE_TANGENT = ''
+
+  const superOnBeforeCompile = material.onBeforeCompile
+  material.onBeforeCompile = (parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer) => {
+    superOnBeforeCompile.call(material, parameters, renderer)
+    if (info.type === 'normal') {
+      parameters.uniforms.data = { value: info.data }
     }
+    compilePanelMaterial(parameters, info.type === 'instanced')
+  }
+  return material
+}
+
+export class PanelDistanceMaterial extends MeshDistanceMaterial {
+  constructor(private info: PanelMaterialInfo) {
+    super()
+    if (this.defines == null) {
+      this.defines = {}
+    }
+    this.defines.USE_UV = ''
+    this.clipShadows = true
+  }
+
+  onBeforeCompile(parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer): void {
+    super.onBeforeCompile(parameters, renderer)
+    if (this.info.type === 'normal') {
+      parameters.uniforms.data = { value: this.info.data }
+    }
+    compilePanelDepthMaterial(parameters, this.info.type === 'instanced')
   }
 }
 
-export function compilePanelMaterial(parameters: WebGLProgramParametersWithUniforms, instanced: boolean) {
+export class PanelDepthMaterial extends MeshDepthMaterial {
+  constructor(private info: PanelMaterialInfo) {
+    super({ depthPacking: RGBADepthPacking })
+    if (this.defines == null) {
+      this.defines = {}
+    }
+    this.defines.USE_UV = ''
+    this.clipShadows = true
+  }
+
+  onBeforeCompile(parameters: WebGLProgramParametersWithUniforms, renderer: WebGLRenderer): void {
+    super.onBeforeCompile(parameters, renderer)
+    if (this.info.type === 'normal') {
+      parameters.uniforms.data = { value: this.info.data }
+    }
+    compilePanelDepthMaterial(parameters, this.info.type === 'instanced')
+  }
+}
+
+export const instancedPanelDepthMaterial = new PanelDepthMaterial({ type: 'instanced' })
+export const instancedPanelDistanceMaterial = new PanelDistanceMaterial({ type: 'instanced' })
+
+function compilePanelDepthMaterial(parameters: WebGLProgramParametersWithUniforms, instanced: boolean) {
+  compilePanelClippingMaterial(parameters, instanced)
+  parameters.fragmentShader = parameters.fragmentShader.replace(
+    '#include <clipping_planes_fragment>',
+    `#include <clipping_planes_fragment>
+    ${getFargmentOpacityCode(instanced, undefined)}
+    `,
+  )
+}
+
+function compilePanelClippingMaterial(parameters: WebGLProgramParametersWithUniforms, instanced: boolean) {
   if (instanced) {
     parameters.vertexShader = parameters.vertexShader.replace(
       '#include <common>',
@@ -207,6 +279,7 @@ export function compilePanelMaterial(parameters: WebGLProgramParametersWithUnifo
         localPosition = (instanceMatrix * vec4(position, 1.0)).xyz;`,
     )
   }
+
   parameters.fragmentShader =
     `${instanced ? 'in' : 'uniform'} mat4 data;
     ${
@@ -235,104 +308,146 @@ export function compilePanelMaterial(parameters: WebGLProgramParametersWithUnifo
         );
     }
     ` + parameters.fragmentShader
-
   parameters.fragmentShader = parameters.fragmentShader.replace(
     '#include <clipping_planes_fragment>',
     ` ${
       instanced
         ? `
-      vec4 plane;
-      float distanceToPlane, distanceGradient;
-      float clipOpacity = 1.0;
-      for(int i = 0; i < 4; i++) {
-        plane = clipping[ i ];
-        distanceToPlane = - dot( -localPosition, plane.xyz ) + plane.w;
-        distanceGradient = fwidth( distanceToPlane ) / 2.0;
-        clipOpacity *= smoothstep( - distanceGradient, distanceGradient, distanceToPlane );
-  
-        if ( clipOpacity == 0.0 ) discard;
-      }
-      `
+        vec4 plane;
+        float distanceToPlane, distanceGradient;
+        float clipOpacity = 1.0;
+
+        for(int i = 0; i < 4; i++) {
+          plane = clipping[ i ];
+          distanceToPlane = - dot( -localPosition, plane.xyz ) + plane.w;
+          distanceGradient = fwidth( distanceToPlane ) / 2.0;
+          clipOpacity *= smoothstep( - distanceGradient, distanceGradient, distanceToPlane );
+    
+          if ( clipOpacity < 0.01 ) discard;
+        }
+        `
         : ''
     }
-      vec4 absoluteBorderSize = data[0];
-      vec3 backgroundColor = data[1].xyz;
-      int packedBorderRadius = int(data[1].w);
-      vec4 borderRadius = vec4(packedBorderRadius / 50 / 50 / 50 % 50, packedBorderRadius / 50 / 50 % 50, packedBorderRadius / 50 % 50, packedBorderRadius % 50) * vec4(0.5 / 50.0);
-      vec3 borderColor = data[2].xyz;
-      float borderBend = data[2].w;
-      float borderOpacity = data[3].x;
-      float width = data[3].y;
-      float height = data[3].z;
-      float backgroundOpacity = data[3].w;
-      float ratio = width / height;
-      vec4 relative = vec4(height, height, height, height);
-      vec4 borderSize = absoluteBorderSize / relative;
-      vec4 v_outsideDistance = vec4(1.0 - vUv.y, (1.0 - vUv.x) * ratio, vUv.y, vUv.x * ratio);
-      vec4 v_borderDistance = v_outsideDistance - borderSize;
+        vec4 absoluteBorderSize = data[0];
+        vec3 backgroundColor = data[1].xyz;
+        int packedBorderRadius = int(data[1].w);
+        vec4 borderRadius = vec4(packedBorderRadius / 50 / 50 / 50 % 50, packedBorderRadius / 50 / 50 % 50, packedBorderRadius / 50 % 50, packedBorderRadius % 50) * vec4(0.5 / 50.0);
+        vec3 borderColor = data[2].xyz;
+        float borderBend = data[2].w;
+        float borderOpacity = data[3].x;
+        float width = data[3].y;
+        float height = data[3].z;
+        float backgroundOpacity = data[3].w;
+        float ratio = width / height;
+        vec4 relative = vec4(height, height, height, height);
+        vec4 borderSize = absoluteBorderSize / relative;
+        vec4 v_outsideDistance = vec4(1.0 - vUv.y, (1.0 - vUv.x) * ratio, vUv.y, vUv.x * ratio);
+        vec4 v_borderDistance = v_outsideDistance - borderSize;
+  
+        vec2 distance = vec2(min4(v_outsideDistance), min4(v_borderDistance));
+        vec4 negateBorderDistance = vec4(1.0) - v_borderDistance;
+        float maxWeight = max4(negateBorderDistance);
+        vec4 borderWeight = step(maxWeight, negateBorderDistance);
+  
+        vec4 insideBorder;
+  
+        if(all(lessThan(v_outsideDistance.xw, borderRadius.xx))) {
+            distance = radiusDistance(borderRadius.x, v_outsideDistance.xw, v_borderDistance.xw, borderSize.xw);
+            
+            float tmp = borderRadius.x - borderSize.w;
+            vec2 xIntersection = vec2(tmp, tmp / ratio);
+            tmp = borderRadius.x - borderSize.x;
+            vec2 yIntersection = vec2(tmp * ratio, tmp);
+            vec2 lineIntersection = min(xIntersection, yIntersection);
+  
+            insideBorder.yz = vec2(0.0);
+            insideBorder.xw = max(vec2(0.0), lineIntersection - v_borderDistance.xw);
+  
+        } else if(all(lessThan(v_outsideDistance.xy, borderRadius.yy))) {
+            distance = radiusDistance(borderRadius.y, v_outsideDistance.xy, v_borderDistance.xy, borderSize.xy);
+  
+            float tmp = borderRadius.y - borderSize.y;
+            vec2 xIntersection = vec2(tmp, tmp / ratio);
+            tmp = borderRadius.y - borderSize.x;
+            vec2 yIntersection = vec2(tmp * ratio, tmp);
+            vec2 lineIntersection = min(xIntersection, yIntersection);
+  
+            insideBorder.zw = vec2(0.0);
+            insideBorder.xy = max(vec2(0.0), lineIntersection - v_borderDistance.xy);
+  
+        } else if(all(lessThan(v_outsideDistance.zy, borderRadius.zz))) {
+            distance = radiusDistance(borderRadius.z, v_outsideDistance.zy, v_borderDistance.zy, borderSize.zy);
+  
+            float tmp = borderRadius.z - borderSize.y;
+            vec2 xIntersection = vec2(tmp, tmp / ratio);
+            tmp = borderRadius.z - borderSize.z;
+            vec2 yIntersection = vec2(tmp * ratio, tmp);
+            vec2 lineIntersection = min(xIntersection, yIntersection);
+  
+            insideBorder.xw = vec2(0.0);
+            insideBorder.zy =max(vec2(0.0), lineIntersection - v_borderDistance.zy);
+  
+        } else if(all(lessThan(v_outsideDistance.zw, borderRadius.ww))) {
+            distance = radiusDistance(borderRadius.w, v_outsideDistance.zw, v_borderDistance.zw, borderSize.zw);
+  
+            float tmp = borderRadius.w - borderSize.w;
+            vec2 xIntersection = vec2(tmp, tmp / ratio);
+            tmp = borderRadius.w - borderSize.z;
+            vec2 yIntersection = vec2(tmp * ratio, tmp);
+            vec2 lineIntersection = min(xIntersection, yIntersection);
+  
+            insideBorder.xy = vec2(0.0);
+            insideBorder.zw = max(vec2(0.0), lineIntersection - v_borderDistance.zw);
+  
+        }
+  
+        if(insideBorder.x + insideBorder.y + insideBorder.z + insideBorder.w > 0.0) {
+          borderWeight = normalize(insideBorder);
+        }
+  
+        #include <clipping_planes_fragment>`,
+  )
+}
 
-      vec2 dist = vec2(min4(v_outsideDistance), min4(v_borderDistance));
-      vec4 negateBorderDistance = vec4(1.0) - v_borderDistance;
-      float maxWeight = max4(negateBorderDistance);
-      vec4 borderWeight = step(maxWeight, negateBorderDistance);
+function getFargmentOpacityCode(instanced: boolean, existingOpacity: string | undefined) {
+  return `float ddx = fwidth(distance.x);
+  float outer = smoothstep(-ddx, ddx, distance.x);
 
-      vec4 insideBorder;
+  float ddy = fwidth(distance.y);
+  float inner = smoothstep(-ddy, ddy, distance.y);
 
-      if(all(lessThan(v_outsideDistance.xw, borderRadius.xx))) {
-          dist = radiusDistance(borderRadius.x, v_outsideDistance.xw, v_borderDistance.xw, borderSize.xw);
-          
-          float tmp = borderRadius.x - borderSize.w;
-          vec2 xIntersection = vec2(tmp, tmp / ratio);
-          tmp = borderRadius.x - borderSize.x;
-          vec2 yIntersection = vec2(tmp * ratio, tmp);
-          vec2 lineIntersection = min(xIntersection, yIntersection);
+  float transition = 1.0 - step(0.1, outer - inner) * (1.0 - inner);
 
-          insideBorder.yz = vec2(0.0);
-          insideBorder.xw = max(vec2(0.0), lineIntersection - v_borderDistance.xw);
+  if(backgroundColor.r < 0.0 && backgroundOpacity >= 0.0) {
+    backgroundColor = vec3(1.0);
+  }
+  if(backgroundOpacity < 0.0) {
+    backgroundOpacity = backgroundColor.r >= 0.0 ? 1.0 : 0.0;
+  }
 
-      } else if(all(lessThan(v_outsideDistance.xy, borderRadius.yy))) {
-          dist = radiusDistance(borderRadius.y, v_outsideDistance.xy, v_borderDistance.xy, borderSize.xy);
+  if(backgroundOpacity < 0.0) {
+    backgroundOpacity = 0.0;
+  }
 
-          float tmp = borderRadius.y - borderSize.y;
-          vec2 xIntersection = vec2(tmp, tmp / ratio);
-          tmp = borderRadius.y - borderSize.x;
-          vec2 yIntersection = vec2(tmp * ratio, tmp);
-          vec2 lineIntersection = min(xIntersection, yIntersection);
+  float outOpacity = ${
+    instanced ? 'clipOpacity * ' : ''
+  } outer * mix(borderOpacity, ${existingOpacity == null ? '' : `${existingOpacity} *`} backgroundOpacity, transition);
 
-          insideBorder.zw = vec2(0.0);
-          insideBorder.xy = max(vec2(0.0), lineIntersection - v_borderDistance.xy);
+  if(outOpacity < 0.01) {
+    discard;
+  }`
+}
 
-      } else if(all(lessThan(v_outsideDistance.zy, borderRadius.zz))) {
-          dist = radiusDistance(borderRadius.z, v_outsideDistance.zy, v_borderDistance.zy, borderSize.zy);
+export function compilePanelMaterial(parameters: WebGLProgramParametersWithUniforms, instanced: boolean) {
+  compilePanelClippingMaterial(parameters, instanced)
 
-          float tmp = borderRadius.z - borderSize.y;
-          vec2 xIntersection = vec2(tmp, tmp / ratio);
-          tmp = borderRadius.z - borderSize.z;
-          vec2 yIntersection = vec2(tmp * ratio, tmp);
-          vec2 lineIntersection = min(xIntersection, yIntersection);
-
-          insideBorder.xw = vec2(0.0);
-          insideBorder.zy =max(vec2(0.0), lineIntersection - v_borderDistance.zy);
-
-      } else if(all(lessThan(v_outsideDistance.zw, borderRadius.ww))) {
-          dist = radiusDistance(borderRadius.w, v_outsideDistance.zw, v_borderDistance.zw, borderSize.zw);
-
-          float tmp = borderRadius.w - borderSize.w;
-          vec2 xIntersection = vec2(tmp, tmp / ratio);
-          tmp = borderRadius.w - borderSize.z;
-          vec2 yIntersection = vec2(tmp * ratio, tmp);
-          vec2 lineIntersection = min(xIntersection, yIntersection);
-
-          insideBorder.xy = vec2(0.0);
-          insideBorder.zw = max(vec2(0.0), lineIntersection - v_borderDistance.zw);
-
-      }
-
-      if(insideBorder.x + insideBorder.y + insideBorder.z + insideBorder.w > 0.0) {
-        borderWeight = normalize(insideBorder);
-      }
-
-      #include <clipping_planes_fragment>`,
+  parameters.fragmentShader = parameters.fragmentShader.replace(
+    '#include <color_fragment>',
+    ` #include <color_fragment>
+      ${getFargmentOpacityCode(instanced, 'diffuseColor.a')}
+      diffuseColor.rgb = mix(borderColor, diffuseColor.rgb * backgroundColor, transition);
+      diffuseColor.a = outOpacity;
+      `,
   )
   parameters.fragmentShader = parameters.fragmentShader.replace(
     '#include <normal_fragment_maps>',
@@ -340,41 +455,10 @@ export function compilePanelMaterial(parameters: WebGLProgramParametersWithUnifo
       vec3 b = normalize(vBitangent);
       vec3 t = normalize(vTangent);
       mat4 directions = mat4(vec4(b, 1.0), vec4(t, 1.0), vec4(-b, 1.0), vec4(-t, 1.0));
-      float currentBorderSize = dist.x - dist.y;
-      float outsideNormalWeight = currentBorderSize < 0.00001 ? 0.0 : max(0.0, -dist.y / currentBorderSize) * borderBend;
+      float currentBorderSize = distance.x - distance.y;
+      float outsideNormalWeight = currentBorderSize < 0.00001 ? 0.0 : max(0.0, -distance.y / currentBorderSize) * borderBend;
       vec3 outsideNormal = (borderWeight * transpose(directions)).xyz;
       normal = normalize(outsideNormalWeight * outsideNormal + (1.0 - outsideNormalWeight) * normal);
     `,
-  )
-  parameters.fragmentShader = parameters.fragmentShader.replace(
-    '#include <color_fragment>',
-    ` #include <color_fragment>
-                
-      float ddx = fwidth(dist.x);
-      float outer = smoothstep(-ddx, ddx, dist.x);
-  
-      float ddy = fwidth(dist.y);
-      float inner = smoothstep(-ddy, ddy, dist.y);
-  
-      float transition = 1.0 - step(0.1, outer - inner) * (1.0 - inner);
-
-      if(backgroundColor.r < 0.0 && backgroundOpacity >= 0.0) {
-        backgroundColor = vec3(1.0);
-      }
-      if(backgroundOpacity < 0.0) {
-        backgroundOpacity = backgroundColor.r >= 0.0 ? 1.0 : 0.0;
-      }
-
-      if(backgroundOpacity < 0.0) {
-        backgroundOpacity = 0.0;
-      }
-  
-      diffuseColor.rgb = mix(borderColor, diffuseColor.rgb * backgroundColor, transition);
-  
-      diffuseColor.a = ${
-        instanced ? 'clipOpacity * ' : ''
-      } outer * mix(borderOpacity, diffuseColor.a * backgroundOpacity, transition);
-      
-            `,
   )
 }

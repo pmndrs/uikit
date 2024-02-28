@@ -160,7 +160,7 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
             borderRadius={2}
             opacity={0.7}
             backgroundOpacity={0.7}
-            hover={{ opacity: 0.7, backgroundOpacity: 0.7 }}
+            hover={{ opacity: 1, backgroundOpacity: 1 }}
             width={16}
             height={16}
           />

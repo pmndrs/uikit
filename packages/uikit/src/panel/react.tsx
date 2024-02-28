@@ -10,7 +10,7 @@ import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.j
 import { HoverEventHandlers } from '../hover.js'
 import { InstancedPanelGroup } from './instanced-panel-group.js'
 import { InstancedPanel } from './instanced-panel.js'
-import { createInstancedPanelMaterial, createPanelMaterial } from './panel-material.js'
+import { MaterialSetter, PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from './panel-material.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { ManagerCollection, PropertyTransformation } from '../properties/utils.js'
 import { useBatchedProperties } from '../properties/batched.js'
@@ -103,13 +103,16 @@ export function useInteractionPanel(
   return panel
 }
 
-export type MaterialClass = { new (): Material }
+export type MaterialClass = { new (...args: Array<any>): Material }
 
-export type GetInstancedPanelGroup = (majorIndex: number, materialClass: MaterialClass) => InstancedPanelGroup
+export type GetInstancedPanelGroup = (
+  majorIndex: number,
+  panelGroupDependencies: PanelGroupDependencies,
+) => InstancedPanelGroup
 
 const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
 
-export function usePanelMaterial(
+export function usePanelMaterials(
   collection: ManagerCollection,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
@@ -117,18 +120,44 @@ export function usePanelMaterial(
   materialClass: MaterialClass | undefined,
   clippingPlanes: Array<Plane>,
   propertyTransformation: PropertyTransformation,
-) {
-  const material = useMemo(() => {
-    const MaterialClass = createPanelMaterial(materialClass ?? MeshBasicMaterial)
-    const result = new MaterialClass()
-    result.clippingPlanes = clippingPlanes
-    result.setup(size, borderInset, isClipped)
-    return result
+): readonly [Material, Material, Material] {
+  const { materials, setter } = useMemo(() => {
+    const setter = new MaterialSetter(size, borderInset, isClipped)
+    const info = { data: setter.data, type: 'normal' } as const
+    const material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
+    const depthMaterial = new PanelDepthMaterial(info)
+    const distanceMaterial = new PanelDistanceMaterial(info)
+    material.clippingPlanes = clippingPlanes
+    depthMaterial.clippingPlanes = clippingPlanes
+    distanceMaterial.clippingPlanes = clippingPlanes
+    return { materials: [material, depthMaterial, distanceMaterial], setter } as const
   }, [size, borderInset, isClipped, materialClass, clippingPlanes])
-  useImmediateProperties(collection, material, propertyTransformation)
-  useBatchedProperties(collection, material, propertyTransformation)
-  useEffect(() => () => material.destroy(), [material])
-  return material
+  useImmediateProperties(collection, setter, propertyTransformation)
+  useBatchedProperties(collection, setter, propertyTransformation)
+  useEffect(() => () => setter.destroy(), [setter])
+  return materials
+}
+
+export type PanelGroupDependencies = {
+  materialClass: MaterialClass
+  receiveShadow: boolean
+  castShadow: boolean
+} & ShadowProperties
+
+export type ShadowProperties = { receiveShadow?: boolean; castShadow?: boolean }
+
+export function usePanelGroupDependencies(
+  materialClass: MaterialClass = MeshBasicMaterial,
+  { castShadow = false, receiveShadow = false }: ShadowProperties,
+): PanelGroupDependencies {
+  return useMemo(
+    () => ({
+      materialClass,
+      castShadow,
+      receiveShadow,
+    }),
+    [materialClass, castShadow, receiveShadow],
+  )
 }
 
 /**
@@ -143,7 +172,7 @@ export function useInstancedPanel(
   isHidden: Signal<boolean> | undefined,
   orderInfo: OrderInfo,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  materialClass: MaterialClass = MeshBasicMaterial,
+  panelGroupDependencies: PanelGroupDependencies,
   propertyTransformation: PropertyTransformation,
   providedGetGroup?: GetInstancedPanelGroup,
 ): void {
@@ -152,7 +181,7 @@ export function useInstancedPanel(
   const panel = useMemo(
     () =>
       new InstancedPanel(
-        getGroup(orderInfo.majorIndex, materialClass),
+        getGroup(orderInfo.majorIndex, panelGroupDependencies),
         matrix,
         size,
         offset,
@@ -161,7 +190,7 @@ export function useInstancedPanel(
         isHidden,
         orderInfo.minorIndex,
       ),
-    [getGroup, materialClass, matrix, size, borderInset, parentClippingRect, isHidden, orderInfo, offset],
+    [getGroup, matrix, size, borderInset, parentClippingRect, isHidden, orderInfo, offset, panelGroupDependencies],
   )
   useEffect(() => () => panel.destroy(), [panel])
   useImmediateProperties(collection, panel, propertyTransformation)
@@ -175,21 +204,29 @@ export function useGetInstancedPanelGroup(
 ) {
   const map = useMemo(() => new Map<MaterialClass, Map<number, InstancedPanelGroup>>(), [])
   const getGroup = useCallback<GetInstancedPanelGroup>(
-    (majorIndex, materialClass) => {
+    (majorIndex, { materialClass, receiveShadow, castShadow }) => {
       let groups = map.get(materialClass)
       if (groups == null) {
         map.set(materialClass, (groups = new Map()))
       }
-      let group = groups.get(majorIndex)
+      const key = (majorIndex << 2) + ((receiveShadow ? 1 : 0) << 1) + (castShadow ? 1 : 0)
+      let group = groups.get(key)
       if (group == null) {
-        const InstancedMaterialClass = createInstancedPanelMaterial(materialClass)
+        const material = createPanelMaterial(materialClass, { type: 'instanced' })
         groups.set(
-          majorIndex,
-          (group = new InstancedPanelGroup(new InstancedMaterialClass(), pixelSize, cameraDistance, {
-            elementType: ElementType.Panel,
-            majorIndex,
-            minorIndex: 0,
-          })),
+          key,
+          (group = new InstancedPanelGroup(
+            material,
+            pixelSize,
+            cameraDistance,
+            {
+              elementType: ElementType.Panel,
+              majorIndex,
+              minorIndex: 0,
+            },
+            receiveShadow,
+            castShadow,
+          )),
         )
         groupsContainer.add(group)
       }

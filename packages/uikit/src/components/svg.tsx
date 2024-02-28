@@ -2,7 +2,14 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ReactNode, RefObject, forwardRef, useMemo, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
 import { useFlexNode } from '../flex/react.js'
-import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
+import {
+  InteractionGroup,
+  MaterialClass,
+  ShadowProperties,
+  useInstancedPanel,
+  useInteractionPanel,
+  usePanelGroupDependencies,
+} from '../panel/react.js'
 import {
   WithReactive,
   createCollection,
@@ -119,7 +126,8 @@ export const Svg = forwardRef<
   } & SvgProperties &
     EventHandlers &
     LayoutListeners &
-    ViewportListeners
+    ViewportListeners &
+    ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -129,7 +137,8 @@ export const Svg = forwardRef<
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset)
+  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
     globalMatrix,
@@ -139,13 +148,13 @@ export const Svg = forwardRef<
     isClipped,
     backgroundOrderInfo,
     parentClippingRect,
-    properties.backgroundMaterialClass,
+    groupDeps,
     panelAliasPropertyTransformation,
   )
 
   const rootGroupRef = useRootGroupRef()
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
-  const orderInfo = useOrderInfo(ElementType.Svg, undefined, backgroundOrderInfo)
+  const orderInfo = useOrderInfo(ElementType.Svg, undefined, undefined, backgroundOrderInfo)
   const svgObject = useResourceWithParams(
     loadSvg,
     properties.src,
@@ -171,11 +180,13 @@ export const Svg = forwardRef<
       if (!(object instanceof Mesh)) {
         return
       }
+      object.receiveShadow = properties.receiveShadow ?? false
+      object.castShadow = properties.castShadow ?? false
       const material: MeshBasicMaterial = object.material
       material.color.copy(color ?? object.userData.color)
       material.opacity = opacity ?? 1
     })
-  }, [svgObject, properties.color])
+  }, [svgObject, properties.color, properties.receiveShadow, properties.castShadow])
   const aspectRatio = useMemo(() => computed(() => svgObject.value?.aspectRatio), [svgObject])
 
   //apply all properties
