@@ -160,6 +160,7 @@ export const Content = forwardRef<
 })
 
 const box3Helper = new Box3()
+const smallValue = new Vector3().setScalar(0.001)
 
 const propertyKeys = ['depthAlign'] as const
 
@@ -195,8 +196,7 @@ function useNormalizedContent(
     box3Helper.setFromObject(group)
     const size = new Vector3()
     const center = new Vector3()
-    box3Helper.getSize(size)
-    const depth = size.z
+    box3Helper.getSize(size).max(smallValue)
     sizeSignal.value = size
     group.scale.set(1, 1, 1).divide(size)
     if (parent != null) {
@@ -205,7 +205,7 @@ function useNormalizedContent(
     box3Helper.getCenter(center)
     return effect(() => {
       group.position.copy(center).negate()
-      group.position.z -= alignmentZMap[getPropertySignal.value('depthAlign') ?? 'back'] * depth
+      group.position.z -= alignmentZMap[getPropertySignal.value('depthAlign') ?? 'back'] * size.z
       group.position.divide(size)
       group.updateMatrix()
     })
