@@ -31,7 +31,7 @@ TODO Later
 - on demand rendering to save battery for UI only apps / rendering to render targets
 - upgrade to yoga2.0
 - virtual lists (support thousands of elements in a list by using fixed sizes and not using yoga)
-- option to render to seperate render targets depending on element type (e.g. render text to high quality quad layer for WebXR)
+- option to render to separate render targets depending on element type (e.g. render text to high quality quad layer for WebXR)
 - scrollIntoView
 - tailwind colors (with option to support dark mode)
 - Instancing for icons
