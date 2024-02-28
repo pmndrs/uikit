@@ -1,8 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@coconut-xr/koestlich": "^0.3.12",
-    "@coconut-xr/natuerlich": "^0.0.49",
+    "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/fiber": "^8.15.13",
     "@react-three/postprocessing": "^2.16.0",
@@ -12,9 +11,7 @@
     "r3f-perf": "^7.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.160.0",
-    "vite-plugin-mkcert": "^1.17.4",
-    "zustand": "4"
+    "three": "^0.160.0"
   },
   "scripts": {
     "dev": "vite --host"

@@ -34,14 +34,17 @@ export function useResourceWithParams<P, R, A extends Array<unknown>>(
   const result = useMemo(() => signal<R | undefined>(undefined), [])
   useEffect(() => {
     if (!(param instanceof Signal)) {
-      fn(param, ...additionals).then((value) => (result.value = value))
-      return
+      let canceled = false
+      fn(param, ...additionals).then((value) => (canceled ? undefined : (result.value = value)))
+      return () => (canceled = true)
     }
-    return effect(() =>
+    return effect(() => {
+      let canceled = false
       fn(param.value, ...additionals)
-        .then((value) => (result.value = value))
-        .catch(console.error),
-    )
+        .then((value) => (canceled ? undefined : (result.value = value)))
+        .catch(console.error)
+      return () => (canceled = true)
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [param, ...additionals])
   return result

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
-import { Container, Root, Text } from '@react-three/uikit'
+import { Container, Root, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 
 import { DefaultColors, colors } from '@/theme'
@@ -18,6 +18,8 @@ import { RecentSales } from './components/RecentSales'
 import { TeamSwitcher } from './components/TeamSwitcher'
 import { UserNav } from './components/UserNav'
 
+setPreferredColorScheme('light')
+
 export default function App() {
   const [open, setOpen] = useState(false)
   return (
@@ -27,7 +29,7 @@ export default function App() {
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
     >
-      <Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
+      <Root backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
         <DefaultColors>
           <DialogAnchor>
             <Container width="100%" height="100%" overflow="scroll">

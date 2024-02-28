@@ -192,7 +192,9 @@ export function useFont(collection: ManagerCollection) {
       fontFamily = Object.keys(fontFamilies)[0]
     }
     const url = getMatchingFontUrl(fontFamilies[fontFamily], fontWeight)
-    loadCachedFont(url, renderer, (font) => (result.value = font))
+    let canceled = false
+    loadCachedFont(url, renderer, (font) => (canceled ? undefined : (result.value = font)))
+    return () => (canceled = true)
   }, [fontFamilies, renderer])
   return result
 }
