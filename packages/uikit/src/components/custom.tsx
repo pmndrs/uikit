@@ -27,6 +27,7 @@ import { useApplyProperties, WithClasses } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, setupRenderOrder, useOrderInfo, ZIndexOffset } from '../order.js'
 import { effect } from '@preact/signals-core'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 export type CustomContainerProperties = WithConditionals<
   WithClasses<WithAllAliases<WithReactive<YogaProperties & TransformProperties>>>
@@ -89,6 +90,7 @@ export const CustomContainer = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   finalizeCollection(collection)

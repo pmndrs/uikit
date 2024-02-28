@@ -12,7 +12,7 @@ import {
 } from '../properties/utils.js'
 import { useResourceWithParams, useSignalEffect, fitNormalizedContentInside, useRootGroupRef } from '../utils.js'
 import { Box3, Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry, Vector3 } from 'three'
-import { computed, Signal } from '@preact/signals-core'
+import { computed, ReadonlySignal, Signal } from '@preact/signals-core'
 import { useApplyHoverProperties } from '../hover.js'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { Color as ColorRepresentation } from '@react-three/fiber'
@@ -39,6 +39,7 @@ import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 export type SvgProperties = WithConditionals<
   WithClasses<
@@ -112,7 +113,7 @@ export const Svg = forwardRef<
   {
     zIndexOffset?: ZIndexOffset
     children?: ReactNode
-    src: string | Signal<string>
+    src: string | ReadonlySignal<string>
     materialClass?: MaterialClass
     backgroundMaterialClass?: MaterialClass
   } & SvgProperties &
@@ -179,6 +180,7 @@ export const Svg = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   writeCollection(collection, 'aspectRatio', aspectRatio)

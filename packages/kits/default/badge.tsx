@@ -1,6 +1,6 @@
 import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 const badgeVariants = {
   default: {

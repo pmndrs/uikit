@@ -1,5 +1,5 @@
 import { Container, Text } from '@react-three/uikit'
-import { colors } from '@/defaults'
+import { colors } from '@/theme'
 
 const data = [
   {

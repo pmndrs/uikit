@@ -5,7 +5,7 @@ import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
 import { Container, Root, Text } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 
-import { DefaultColors, colors } from '@/defaults'
+import { DefaultColors, colors } from '@/theme'
 import { Button } from '@/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'

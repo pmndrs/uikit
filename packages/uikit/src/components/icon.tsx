@@ -25,6 +25,7 @@ import { useApplyProperties } from '../properties/default.js'
 import { SvgProperties, AppearanceProperties } from './svg.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 const colorHelper = new Color()
 
@@ -127,6 +128,7 @@ export const SvgIconFromText = forwardRef<
   writeCollection(collection, 'width', properties.svgWidth)
   writeCollection(collection, 'height', properties.svgHeight)
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   writeCollection(collection, 'aspectRatio', properties.svgWidth / properties.svgHeight)

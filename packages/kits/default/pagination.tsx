@@ -1,7 +1,7 @@
 import { Container, Text } from '@react-three/uikit'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from '@react-three/uikit-lucide'
 import { ComponentPropsWithoutRef } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 export function Pagination(props: ComponentPropsWithoutRef<typeof Container>) {
   return <Container marginX="auto" flexDirection="row" width="100%" justifyContent="center" {...props} />

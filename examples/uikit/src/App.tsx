@@ -81,9 +81,10 @@ export default function App() {
             keepAspectRatio={false}
             borderRight={100}
           >
-            <Box>
+            <mesh>
+              <planeGeometry />
               <meshPhongMaterial depthWrite={false} transparent />
-            </Box>
+            </mesh>
           </Content>
           <Content width={100}>
             <Gltf src="example.glb" />

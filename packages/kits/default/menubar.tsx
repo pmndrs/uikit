@@ -1,6 +1,6 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, ReactNode } from 'react'
-import { colors } from './defaults'
+import { colors } from './theme'
 
 export function MenubarMenu({ children }: { children?: ReactNode }) {
   return <>{children}</>

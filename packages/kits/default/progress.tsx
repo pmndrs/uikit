@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, useMemo } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 import { WithReactive } from '@react-three/uikit/dist/properties/utils.js'
 import { computed } from '@preact/signals-core'
 

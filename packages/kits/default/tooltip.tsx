@@ -1,6 +1,6 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, createContext, useContext, useEffect, useRef, useState } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 const TooltipContext = createContext<boolean>(null as any)
 

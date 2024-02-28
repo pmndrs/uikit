@@ -27,11 +27,12 @@ import { useParentClippingRect, useIsClipped } from '../clipping.js'
 import { useFlexNode } from '../flex/react.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { InstancedTextProperties, useInstancedText } from '../text/react.js'
-import { Signal } from '@preact/signals-core'
+import { ReadonlySignal } from '@preact/signals-core'
 import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
 import { ElementType, ZIndexOffset, useOrderInfo } from '../order.js'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 export type TextProperties = WithConditionals<
   WithClasses<
@@ -42,7 +43,7 @@ export type TextProperties = WithConditionals<
 export const Text = forwardRef<
   ComponentInternals,
   {
-    children: string | Signal<string> | Array<string | Signal<string>>
+    children: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>
     backgroundMaterialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
   } & TextProperties &
@@ -87,6 +88,7 @@ export const Text = forwardRef<
   )
 
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   writeCollection(collection, 'measureFunc', measureFunc)

@@ -4,8 +4,9 @@ import { Matrix4, Mesh, Vector2Tuple } from 'three'
 import { FlexNode, Inset } from '../flex/node.js'
 import { WithHover } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
+import { WithPreferredColorScheme } from '../dark.js'
 
-export type WithConditionals<T> = WithHover<T> & WithResponsive<T>
+export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T>
 
 export type ComponentInternals = {
   pixelSize: number

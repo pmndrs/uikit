@@ -1,6 +1,6 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 const toggleVariants = {
   default: {

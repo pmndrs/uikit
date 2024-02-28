@@ -1,7 +1,11 @@
+import { Button } from '@/button'
 import { Menubar, MenubarMenu, MenubarTrigger } from '@/menubar.js'
-import { SvgIconFromText, Text } from '@react-three/uikit'
+import { Container, SvgIconFromText, Text, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
+import { useState } from 'react'
+import { Moon, Sun, SunMoon } from '@react-three/uikit-lucide'
 
 export function Menu() {
+  const [pcs, updatePCS] = useState(() => getPreferredColorScheme())
   return (
     <Menubar borderRadius={0} paddingX={8} lg={{ paddingX: 16 }}>
       <MenubarMenu>
@@ -32,6 +36,18 @@ export function Menu() {
       <MenubarMenu>
         <MenubarTrigger>
           <Text>Account</Text>
+        </MenubarTrigger>
+      </MenubarMenu>
+      <Container flexGrow={1} />
+
+      <MenubarMenu>
+        <MenubarTrigger
+          onClick={() => {
+            setPreferredColorScheme(pcs === 'light' ? 'dark' : pcs === 'dark' ? 'system' : 'light')
+            updatePCS(getPreferredColorScheme())
+          }}
+        >
+          {pcs === 'dark' ? <Moon /> : pcs === 'system' ? <SunMoon /> : <Sun />}
         </MenubarTrigger>
       </MenubarMenu>
     </Menubar>

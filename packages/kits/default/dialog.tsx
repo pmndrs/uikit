@@ -1,5 +1,5 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 import {
   ComponentPropsWithoutRef,
   ReactNode,

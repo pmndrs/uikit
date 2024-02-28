@@ -1,3 +1,9 @@
+export {
+  basedOnPreferredColorScheme,
+  setPreferredColorScheme,
+  getPreferredColorScheme,
+  type PreferredColorScheme,
+} from './dark.js'
 export { FontFamilyProvider } from './text/react.js'
 export { loadYogaBase64 } from './flex/load-base64.js'
 export { useRootSize } from './responsive.js'

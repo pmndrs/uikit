@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 const RadioGroupContext = createContext<{
   value?: string

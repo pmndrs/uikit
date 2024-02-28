@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { Signal, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { WithBatchedProperties, useBatchedProperties } from './batched.js'
 
 export type Properties = Record<string, unknown>
 
 export type WithReactive<T> = {
-  [Key in keyof T]?: T[Key] | Signal<T[Key] | undefined | null>
+  [Key in keyof T]?: T[Key] | ReadonlySignal<T[Key] | undefined | null>
 }
 
 export type PropertyTransformation = (

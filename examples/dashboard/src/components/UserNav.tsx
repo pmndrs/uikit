@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/dialog'
-import { colors } from '@/defaults'
+import { colors } from '@/theme'
 import { Switch } from '@/switch'
 
 const notifications = [

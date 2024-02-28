@@ -48,6 +48,7 @@ import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
 import { loadYogaFromGH } from '../flex/load-binary.js'
 import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
@@ -149,6 +150,7 @@ export const Root = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties, node.size)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   writeCollection(collection, 'width', useDivide(sizeX, pixelSize))

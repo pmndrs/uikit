@@ -1,7 +1,7 @@
 import { Container } from '@react-three/uikit'
 import { Check } from '@react-three/uikit-lucide'
 import { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 export function Checkbox({
   defaultChecked,

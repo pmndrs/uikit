@@ -38,6 +38,7 @@ import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 export type ContentProperties = WithConditionals<
   WithClasses<
@@ -98,6 +99,7 @@ export const Content = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   const aspectRatio = useMemo(

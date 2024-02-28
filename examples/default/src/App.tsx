@@ -6,7 +6,7 @@ import { Perf } from 'r3f-perf'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion'
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert'
-import { DefaultColors, colors } from '@/defaults'
+import { DefaultColors, colors } from '@/theme'
 import { Avatar } from '@/avatar'
 import { Badge } from '@/badge'
 import { Button } from '@/button'

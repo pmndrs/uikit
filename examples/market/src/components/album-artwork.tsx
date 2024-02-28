@@ -1,7 +1,7 @@
 import { Container, Text, Image } from '@react-three/uikit'
 import { Album } from '../data/albums.js'
 import { ComponentPropsWithoutRef } from 'react'
-import { colors } from '@/defaults.js'
+import { colors } from '@/theme.js'
 
 export function AlbumArtwork({
   album,

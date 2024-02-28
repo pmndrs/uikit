@@ -1,6 +1,6 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, ReactNode, createContext, useContext, useMemo, useState } from 'react'
-import { colors } from './defaults.js'
+import { colors } from './theme.js'
 
 const TabsContext = createContext<{
   value?: string

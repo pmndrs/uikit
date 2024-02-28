@@ -39,6 +39,7 @@ import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
 import { ElementType, OrderInfoProvider, ZIndexOffset, useOrderInfo } from '../order.js'
+import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 
 export type ContainerProperties = WithConditionals<
   WithClasses<
@@ -95,6 +96,7 @@ export const Container = forwardRef<
 
   //apply all properties
   useApplyProperties(collection, properties)
+  useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   finalizeCollection(collection)

@@ -1,4 +1,4 @@
-import { Signal, computed, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import { InstancedText, TextAlignProperties, TextAppearanceProperties } from './render/instanced-text.js'
 import { InstancedGlyphGroup } from './render/instanced-glyph-group.js'
 import { MutableRefObject, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
@@ -114,7 +114,7 @@ export type InstancedTextProperties = TextAlignProperties &
 
 export function useInstancedText(
   collection: ManagerCollection,
-  text: string | Signal<string> | Array<string | Signal<string>>,
+  text: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>,
   matrix: Signal<Matrix4>,
   node: FlexNode,
   isHidden: Signal<boolean> | undefined,
