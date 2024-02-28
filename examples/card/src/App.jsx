@@ -143,13 +143,7 @@ export function CardPage() {
               </Container>
             </CardContent>
             <CardFooter>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  openRef.current = !openRef.current
-                }}
-                flexDirection="row"
-                width="100%">
+              <Button onClick={(e) => (e.stopPropagation(), (openRef.current = !openRef.current))} flexDirection="row" width="100%">
                 <Check marginRight={8} height={16} width={16} />
                 <Text>Mark all as read</Text>
               </Button>
