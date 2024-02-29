@@ -7,7 +7,7 @@ import { Color as ColorRepresentation } from '@react-three/fiber'
 
 export type WithPreferredColorScheme<T> = { dark?: T } & T
 
-const queryList = window.matchMedia?.('(prefers-color-scheme: dark)')
+const queryList = typeof matchMedia === 'undefined' ? undefined : matchMedia?.('(prefers-color-scheme: dark)')
 
 const symstemIsDarkMode = signal(queryList?.matches ?? false)
 
