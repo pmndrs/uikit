@@ -1,35 +1,60 @@
-import * as THREE from "three"
-import { useGLTF, Float } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { Physics, RigidBody, BallCollider } from "@react-three/rapier"
-import { useMemo, useRef } from "react"
+import * as THREE from 'three'
+import { useGLTF, Float } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { Physics, RigidBody, BallCollider } from '@react-three/rapier'
+import { useMemo, useRef } from 'react'
 
 // Shapes by https://app.spline.design/library/a4eeaee4-be03-4df8-ab05-5a073eda2eb4
 export function Floating(props) {
-    const { nodes, materials } = useGLTF("/smileys-transformed.glb")
-    return (
-      <group {...props} dispose={null}>
-        <Float>
-          <mesh geometry={nodes.hash.geometry} material={materials.PaletteMaterial001} position={[-4.095, 1.891, -2.58]} scale={0.216} />
-        </Float>
-        <Float>
-          <mesh geometry={nodes.star001.geometry} material={materials.PaletteMaterial001} position={[2.932, -2.747, -2.807]} scale={0.278} />
-        </Float>
-        <Float>
-          <mesh geometry={nodes.play.geometry} material={materials.PaletteMaterial001} position={[3.722, 0.284, -1.553]} scale={0.245} />
-        </Float>
-        <Float>
-          <mesh geometry={nodes.points.geometry} material={materials.PaletteMaterial001} position={[3, 2.621, -1.858]} scale={0.239} />
-        </Float>
-        <Float>
-          <mesh geometry={nodes.Ellipse.geometry} material={materials.PaletteMaterial001} position={[-3.275, -1, -3.389]} scale={0.317} />
-        </Float>
-      </group>
-    )
-  }
+  const { nodes, materials } = useGLTF('/smileys-transformed.glb')
+  return (
+    <group {...props} dispose={null}>
+      <Float>
+        <mesh
+          geometry={nodes.hash.geometry}
+          material={materials.PaletteMaterial001}
+          position={[-4.095, 1.891, -2.58]}
+          scale={0.216}
+        />
+      </Float>
+      <Float>
+        <mesh
+          geometry={nodes.star001.geometry}
+          material={materials.PaletteMaterial001}
+          position={[2.932, -2.747, -2.807]}
+          scale={0.278}
+        />
+      </Float>
+      <Float>
+        <mesh
+          geometry={nodes.play.geometry}
+          material={materials.PaletteMaterial001}
+          position={[3.722, 0.284, -1.553]}
+          scale={0.245}
+        />
+      </Float>
+      <Float>
+        <mesh
+          geometry={nodes.points.geometry}
+          material={materials.PaletteMaterial001}
+          position={[3, 2.621, -1.858]}
+          scale={0.239}
+        />
+      </Float>
+      <Float>
+        <mesh
+          geometry={nodes.Ellipse.geometry}
+          material={materials.PaletteMaterial001}
+          position={[-3.275, -1, -3.389]}
+          scale={0.317}
+        />
+      </Float>
+    </group>
+  )
+}
 
 export function Physical() {
-  const { nodes, materials } = useGLTF("/smileys-transformed.glb")
+  const { nodes, materials } = useGLTF('/smileys-transformed.glb')
   const meshes = useMemo(() => Object.values(nodes).filter((node) => node.isMesh), [nodes])
   return (
     <Physics gravity={[0, 0, 0]}>
@@ -45,17 +70,24 @@ function RigidShape({ mesh, vec = new THREE.Vector3() }) {
   const api = useRef()
   useFrame((state, delta) => {
     delta = Math.min(0.1, delta)
-    api.current?.applyImpulse(vec.copy(api.current.translation()).negate().add({ x: 0, y: 2, z: 0 }).multiplyScalar(0.2))
+    api.current?.applyImpulse(
+      vec.copy(api.current.translation()).negate().add({ x: 0, y: 2, z: 0 }).multiplyScalar(0.2),
+    )
   })
   return (
     <RigidBody
       ref={api}
       scale={0.2}
-      position={[THREE.MathUtils.randFloatSpread(10), THREE.MathUtils.randFloatSpread(10), THREE.MathUtils.randFloatSpread(10)]}
+      position={[
+        THREE.MathUtils.randFloatSpread(10),
+        THREE.MathUtils.randFloatSpread(10),
+        THREE.MathUtils.randFloatSpread(10),
+      ]}
       linearDamping={4}
       angularDamping={1}
       friction={0.1}
-      colliders="ball">
+      colliders="ball"
+    >
       <mesh geometry={mesh.geometry} material={mesh.material} />
     </RigidBody>
   )
@@ -64,7 +96,9 @@ function RigidShape({ mesh, vec = new THREE.Vector3() }) {
 function Pointer({ vec = new THREE.Vector3() }) {
   const ref = useRef()
   useFrame(({ mouse, viewport }) => {
-    ref.current?.setNextKinematicTranslation(vec.set((mouse.x * viewport.width) / 2, (mouse.y * viewport.height) / 2, 0))
+    ref.current?.setNextKinematicTranslation(
+      vec.set((mouse.x * viewport.width) / 2, (mouse.y * viewport.height) / 2, 0),
+    )
   })
   return (
     <RigidBody position={[0, 0, 0]} type="kinematicPosition" colliders={false} ref={ref}>

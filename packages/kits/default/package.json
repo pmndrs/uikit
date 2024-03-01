@@ -1,5 +1,10 @@
 {
-  "scripts": {},
+  "scripts": {
+    "check:prettier": "prettier --check .",
+    "check:eslint": "eslint '**/*.{tsx,ts}'",
+    "fix:prettier": "prettier --write .",
+    "fix:eslint": "eslint '**/*.{tsx,ts}' --fix"
+  },
   "devDependencies": {
     "@preact/signals-core": "^1.5.1",
     "@react-three/fiber": "^8.15.13",

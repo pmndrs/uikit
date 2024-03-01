@@ -14,7 +14,7 @@ export const colors = basedOnPreferredColorScheme({
     cardForeground: hsl(222.2, 84, 4.9),
     popover: hsl(0, 0, 100),
     popoverForeground: hsl(222.2, 84, 4.9),
-    primary: "black",
+    primary: hsl(222.2, 47.4, 11.2),
     primaryForeground: hsl(210, 40, 98),
     secondary: hsl(210, 40, 96.1),
     secondaryForeground: hsl(222.2, 47.4, 11.2),

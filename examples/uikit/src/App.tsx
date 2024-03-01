@@ -40,6 +40,14 @@ export default function App() {
         borderRight={0}
         borderColor="red"
       >
+        <Container backgroundColor="blue" width={100} positionType="relative">
+          <Container>
+            <Text>Escribe algo...</Text>
+          </Container>
+          <Container backgroundColor="red" positionType="absolute" positionTop="100%" positionRight="100%">
+            <Text>Escribe algo...</Text>
+          </Container>
+        </Container>
         <DefaultProperties opacity={0.5} border={s}>
           <Image width={300} height={300} src={texture ?? undefined} />
           <Text
