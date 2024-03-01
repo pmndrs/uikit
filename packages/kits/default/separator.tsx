@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme.js'
+import { colors } from './theme'
 
 export function Separator({
   orientation = 'horizontal',

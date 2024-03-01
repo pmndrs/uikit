@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, useMemo, useRef } from 'react'
-import { colors } from './theme.js'
+import { colors } from './theme'
 import { useFrame } from '@react-three/fiber'
 import { signal } from '@preact/signals-core'
 

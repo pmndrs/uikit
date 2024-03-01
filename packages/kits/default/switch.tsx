@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './theme.js'
+import { colors } from './theme'
 
 export function Switch({
   defaultChecked,

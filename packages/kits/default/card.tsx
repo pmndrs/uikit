@@ -1,6 +1,6 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { ComponentPropsWithoutRef, ReactNode } from 'react'
-import { colors } from './theme.js'
+import { colors } from './theme'
 
 export function Card({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
   return (

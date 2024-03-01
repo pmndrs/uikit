@@ -10,7 +10,7 @@ import {
   useCloseDialog,
 } from './dialog.js'
 import { Container, DefaultProperties } from '@react-three/uikit'
-import { colors } from './theme.js'
+import { colors } from './theme'
 
 export const AlertDialogOverlay = DialogOverlay
 
