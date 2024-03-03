@@ -119,7 +119,7 @@ export const Content = forwardRef<
       }),
     [size],
   )
-  if ((properties.keepAspectRatio ?? true) === true) {
+  if (properties.keepAspectRatio ?? true) {
     writeCollection(collection, 'aspectRatio', aspectRatio)
   }
   finalizeCollection(collection)

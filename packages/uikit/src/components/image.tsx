@@ -77,6 +77,7 @@ export const Image = forwardRef<
     src?: string | Signal<string> | Texture | Signal<Texture | undefined>
     materialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
+    keepAspectRatio?: boolean
   } & EventHandlers &
     LayoutListeners &
     ViewportListeners &
@@ -135,7 +136,9 @@ export const Image = forwardRef<
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   writeCollection(collection, 'backgroundColor', 0xffffff)
-  writeCollection(collection, 'aspectRatio', aspectRatio)
+  if (properties.keepAspectRatio ?? true) {
+    writeCollection(collection, 'aspectRatio', aspectRatio)
+  }
   finalizeCollection(collection)
 
   useLayoutListeners(properties, node.size)
@@ -189,34 +192,21 @@ function useTextureFit(
       return
     }
 
-    const textureRatio = texture.image.width / texture.image.height
+    const { width: textureWidth, height: textureHeight } = texture.source.data as { width: number; height: number }
+    const textureRatio = textureWidth / textureHeight
 
     const [width, height] = size.value
     const [top, right, bottom, left] = borderInset.value
     const boundsRatioValue = (width - left - right) / (height - top - bottom)
 
-    if (fitValue === 'cover') {
-      if (textureRatio > boundsRatioValue) {
-        texture.matrix
-          .translate(-(0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0)
-          .scale(boundsRatioValue / textureRatio, 1)
-      } else {
-        texture.matrix
-          .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
-          .scale(1, textureRatio / boundsRatioValue)
-      }
-      transformInsideBorder(borderInset, size, texture)
-      return
-    }
-
     if (textureRatio > boundsRatioValue) {
       texture.matrix
-        .translate(0, (-0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
-        .scale(1, boundsRatioValue / textureRatio)
+        .translate(-(0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0)
+        .scale(boundsRatioValue / textureRatio, 1)
     } else {
       texture.matrix
-        .translate((0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0)
-        .scale(textureRatio / boundsRatioValue, 1)
+        .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
+        .scale(1, textureRatio / boundsRatioValue)
     }
     transformInsideBorder(borderInset, size, texture)
   }, [textureSignal, borderInset, size])
@@ -236,22 +226,20 @@ function transformInsideBorder(borderInset: Signal<Inset>, size: Signal<Vector2T
 
 const textureLoader = new TextureLoader()
 
-function loadTexture(src?: string | Texture) {
+async function loadTexture(src?: string | Texture) {
   if (src == null) {
     return Promise.resolve(undefined)
   }
   if (src instanceof Texture) {
     return Promise.resolve(src)
   }
-  return textureLoader
-    .loadAsync(src)
-    .then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.matrixAutoUpdate = false
-      return texture
-    })
-    .catch((error) => {
-      console.error(error)
-      return undefined
-    })
+  try {
+    const texture = await textureLoader.loadAsync(src)
+    texture.colorSpace = SRGBColorSpace
+    texture.matrixAutoUpdate = false
+    return texture
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 }
