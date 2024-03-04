@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Gltf, Box } from '@react-three/drei'
+import { RenderTexture, Gltf, Box } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -12,7 +12,6 @@ import {
   Image,
   Fullscreen,
 } from '@react-three/uikit'
-import { RenderTexture } from '@react-three/drei'
 import { Texture } from 'three'
 
 export default function App() {
@@ -40,13 +39,11 @@ export default function App() {
         borderRight={0}
         borderColor="red"
       >
-        <Container backgroundColor="blue" width={100} positionType="relative">
+        <Container backgroundColor="blue" width={900} positionType="relative">
           <Container>
             <Text>Escribe algo...</Text>
           </Container>
-          <Container backgroundColor="red" positionType="absolute" positionTop="100%" positionRight="100%">
-            <Text>Escribe algo...</Text>
-          </Container>
+          <Text positionType={'absolute'} positionTop={'50%'} positionLeft={'50%'}>Escribe algo...</Text>
         </Container>
         <DefaultProperties opacity={0.5} border={s}>
           <Image width={300} height={300} src={texture ?? undefined} />
