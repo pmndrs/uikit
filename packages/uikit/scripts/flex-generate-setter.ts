@@ -1,9 +1,8 @@
 import { writeFileSync } from 'fs'
 import * as Yoga from 'yoga-layout/wasm-async'
-import { loadYoga } from 'yoga-layout/wasm-async'
 
 async function main() {
-  const yoga = await loadYoga()
+  const yoga = await Yoga.loadYoga()
   const node = yoga.Node.create()
 
   const propertiesWithEdge = new Set(['border', 'padding', 'margin', 'position'])

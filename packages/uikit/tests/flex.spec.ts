@@ -13,7 +13,7 @@ import {
   Unit,
   loadYoga,
 } from 'yoga-layout/wasm-async'
-import { FlexNode, YogaProperties, loadYogaBase64, setMeasureFunc, setter } from '../src/flex/index.js'
+import { FlexNode, YogaProperties, setMeasureFunc, setter } from '../src/flex/index.js'
 import { signal } from '@preact/signals-core'
 
 const testValues: YogaProperties = {
@@ -127,7 +127,7 @@ describe('set & get properties', () => {
   const rawValues: any = {}
 
   before(async () => {
-    yoga = await loadYogaBase64().catch(console.error)
+    yoga = await loadYoga().catch(console.error)
     node = yoga.Node.create()
   })
 
