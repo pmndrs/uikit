@@ -1,4 +1,4 @@
-import { Yoga } from 'yoga-wasm-web'
+import { Yoga } from 'yoga-layout/wasm-async'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { FlexNode, YogaProperties } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'

@@ -4,7 +4,7 @@ import { RefObject, createContext, useContext, useMemo } from 'react'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
-import { OVERFLOW_VISIBLE, Overflow } from 'yoga-wasm-web'
+import { Overflow } from 'yoga-layout/wasm-async'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -157,7 +157,7 @@ export function useClippingRect(
   return useMemo(
     () =>
       computed(() => {
-        if (overflow.value === OVERFLOW_VISIBLE) {
+        if (overflow.value === Overflow.Visible) {
           return parentClippingRect?.value
         }
         const [width, height] = size.value

@@ -4,7 +4,7 @@ import { Vector2Tuple, BufferAttribute, Color, Group } from 'three'
 import { Color as ColorRepresentation } from '@react-three/fiber'
 import { Inset } from './flex/node.js'
 import { ManagerCollection, Properties } from './properties/utils.js'
-import { Yoga } from 'yoga-wasm-web'
+import { Yoga } from 'yoga-layout/wasm-async'
 
 export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
 export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 }

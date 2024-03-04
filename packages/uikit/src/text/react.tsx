@@ -8,7 +8,7 @@ import { ClippingRect } from '../clipping.js'
 import { ManagerCollection, useGetBatchedProperties } from '../properties/utils.js'
 import { readReactive, useSignalEffect } from '../utils.js'
 import { loadCachedFont } from './cache.js'
-import { MEASURE_MODE_UNDEFINED, MeasureFunction } from 'yoga-wasm-web'
+import { MeasureFunction, MeasureMode } from 'yoga-layout/wasm-async'
 import { Font } from './font.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, measureGlyphLayout } from './layout.js'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -253,7 +253,7 @@ export function useMeasureFunc(
         const wordBreak = getGlyphProperties.value('wordBreak') ?? 'break-word'
 
         return (width, widthMode) => {
-          const availableWidth = widthMode === MEASURE_MODE_UNDEFINED ? undefined : width
+          const availableWidth = widthMode === MeasureMode.Undefined ? undefined : width
           return measureGlyphLayout(
             (propertiesRef.current = {
               font,

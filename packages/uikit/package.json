@@ -34,7 +34,7 @@
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
-    "fix:prettier": "prettier --write src",
+    "fix:prettier": "prettier --write src scripts tests",
     "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {
@@ -49,6 +49,7 @@
     "commander": "^12.0.0",
     "ora": "^8.0.1",
     "prompts": "^2.4.2",
+    "yoga-layout": "^2.0.1",
     "yoga-wasm-web": "^0.3.3",
     "zod": "^3.22.4"
   },
