@@ -260,11 +260,30 @@ function compilePanelDepthMaterial(parameters: WebGLProgramParametersWithUniform
 }
 
 function compilePanelClippingMaterial(parameters: WebGLProgramParametersWithUniforms, instanced: boolean) {
+  parameters.vertexShader = parameters.vertexShader.replace(
+    '#include <common>',
+    ` #include <common>
+      out vec4 borderRadius;
+      ${instanced ? '' : 'uniform highp mat4 data;'}`,
+  )
+
+  parameters.vertexShader = parameters.vertexShader.replace(
+    '#include <uv_vertex>',
+    ` #include <uv_vertex>
+      highp int packedBorderRadius = int(data[1].w);
+      borderRadius = vec4(
+        packedBorderRadius / 125000 % 50,
+        packedBorderRadius / 2500 % 50,
+        packedBorderRadius / 50 % 50,
+        packedBorderRadius % 50
+      ) * vec4(0.5 / 50.0);`,
+  )
+
   if (instanced) {
     parameters.vertexShader = parameters.vertexShader.replace(
       '#include <common>',
       ` #include <common>
-        attribute mat4 aData;
+        attribute highp mat4 aData;
         attribute mat4 aClipping;
         out mat4 data;
         out mat4 clipping;
@@ -281,7 +300,8 @@ function compilePanelClippingMaterial(parameters: WebGLProgramParametersWithUnif
   }
 
   parameters.fragmentShader =
-    `${instanced ? 'in' : 'uniform'} mat4 data;
+    `${instanced ? 'in' : 'uniform'} highp mat4 data;
+    in vec4 borderRadius;
     ${
       instanced
         ? `
@@ -330,8 +350,6 @@ function compilePanelClippingMaterial(parameters: WebGLProgramParametersWithUnif
     }
         vec4 absoluteBorderSize = data[0];
         vec3 backgroundColor = data[1].xyz;
-        int packedBorderRadius = int(data[1].w);
-        vec4 borderRadius = vec4(packedBorderRadius / 50 / 50 / 50 % 50, packedBorderRadius / 50 / 50 % 50, packedBorderRadius / 50 % 50, packedBorderRadius % 50) * vec4(0.5 / 50.0);
         vec3 borderColor = data[2].xyz;
         float borderBend = data[2].w;
         float borderOpacity = data[3].x;
