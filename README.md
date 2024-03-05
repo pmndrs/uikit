@@ -44,6 +44,6 @@ Limitations
 `pnpm -r inline-wasm`  
 `pnpm -r convert`  
 `pnpm -r generate`  
-`pnpm -r build`  
+`pnpm -F "./packages/**/*" build`
 
 go to `examples/market` and run `pnpm dev` to view the example dashboard

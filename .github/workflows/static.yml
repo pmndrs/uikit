@@ -95,14 +95,12 @@ jobs:
           cp ./packages/uikit/THIRD_PARTY_LICENSES public/yoga/THIRD_PARTY_LICENSES
 
 # Examples
-      - name: Prepare Building Examples
+      - name: Building Examples
         run: |  
           pnpm -r inline-wasm
           pnpm -r convert
           pnpm -r generate
-
-      - name: Building Examples
-        run: pnpm -F "./examples/*" build
+          pnpm -r build
 
       - name: Copy Examples
         run: |
