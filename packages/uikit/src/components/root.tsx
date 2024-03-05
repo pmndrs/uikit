@@ -51,6 +51,7 @@ import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js
 import { loadYogaFromGH } from '../flex/load-binary.js'
 import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
@@ -157,6 +158,7 @@ export const Root = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties, node.size)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   writeCollection(collection, 'width', useDivide(sizeX, pixelSize))
   writeCollection(collection, 'height', useDivide(sizeY, pixelSize))
   finalizeCollection(collection)
@@ -179,7 +181,13 @@ export const Root = forwardRef<
   return (
     <>
       <primitive object={groupsContainer} />
-      <InteractionGroup groupRef={groupRef} matrix={rootMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+      <InteractionGroup
+        groupRef={groupRef}
+        matrix={rootMatrix}
+        handlers={properties}
+        hoverHandlers={hoverHandlers}
+        activeHandlers={activeHandlers}
+      >
         <RootGroupProvider value={groupRef}>
           <InstancedGlyphProvider value={getGylphGroup}>
             <InstancedPanelProvider value={getPanelGroup}>

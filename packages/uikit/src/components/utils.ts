@@ -5,12 +5,14 @@ import { FlexNode, Inset } from '../flex/node.js'
 import { WithHover } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
 import { WithPreferredColorScheme } from '../dark.js'
+import { WithActive } from '../active.js'
 
-export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T>
+export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T> & WithActive<T>
 
 export type ComponentInternals = {
   pixelSize: number
   size: ReadonlySignal<Vector2Tuple>
+  center: ReadonlySignal<Vector2Tuple>
   borderInset: ReadonlySignal<Inset>
   paddingInset: ReadonlySignal<Inset>
   scrollPosition?: Signal<Vector2Tuple>
@@ -29,6 +31,7 @@ export function useComponentInternals(
       borderInset: node.borderInset,
       paddingInset: node.paddingInset,
       pixelSize: node.pixelSize,
+      center: node.relativeCenter,
       size: node.size,
       interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
       scrollPosition,

@@ -13,6 +13,7 @@
     "three": "^0.160.0"
   },
   "scripts": {
-    "dev": "vite --host"
+    "dev": "vite --host",
+    "build": "vite build"
   }
 }

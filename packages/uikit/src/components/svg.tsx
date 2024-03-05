@@ -47,6 +47,7 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 export type SvgProperties = WithConditionals<
   WithClasses<
@@ -194,6 +195,7 @@ export const Svg = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   writeCollection(collection, 'aspectRatio', aspectRatio)
   finalizeCollection(collection)
 
@@ -235,7 +237,13 @@ export const Svg = forwardRef<
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup
+      groupRef={groupRef}
+      matrix={transformMatrix}
+      handlers={properties}
+      hoverHandlers={hoverHandlers}
+      activeHandlers={activeHandlers}
+    >
       <primitive object={interactionPanel} />
       <primitive object={centerGroup} />
     </InteractionGroup>

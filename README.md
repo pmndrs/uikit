@@ -20,7 +20,6 @@ TODO Release
 - feat: nesting inside non root/container components (e.g. image)
 - fix: scrollbar border radius to high (happens with very long panels)
 - feat: drag/click threshold
-- feat: add apfel components
 - feat: input
 - fix: decrease clipping rect when scrollbar present
 

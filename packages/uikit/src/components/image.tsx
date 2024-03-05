@@ -41,6 +41,7 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -135,6 +136,7 @@ export const Image = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   writeCollection(collection, 'backgroundColor', 0xffffff)
   if (properties.keepAspectRatio ?? true) {
     writeCollection(collection, 'aspectRatio', aspectRatio)
@@ -164,7 +166,13 @@ export const Image = forwardRef<
   useComponentInternals(ref, node, mesh)
 
   return (
-    <InteractionGroup groupRef={groupRef} hoverHandlers={hoverHandlers} handlers={properties} matrix={transformMatrix}>
+    <InteractionGroup
+      groupRef={groupRef}
+      hoverHandlers={hoverHandlers}
+      handlers={properties}
+      matrix={transformMatrix}
+      activeHandlers={activeHandlers}
+    >
       <primitive object={mesh} />
     </InteractionGroup>
   )

@@ -28,6 +28,7 @@ import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, setupRenderOrder, useOrderInfo, ZIndexOffset } from '../order.js'
 import { effect } from '@preact/signals-core'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 export type CustomContainerProperties = WithConditionals<
   WithClasses<WithAllAliases<WithReactive<YogaProperties & TransformProperties>>>
@@ -97,6 +98,7 @@ export const CustomContainer = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   finalizeCollection(collection)
 
   useLayoutListeners(properties, node.size)
@@ -105,7 +107,13 @@ export const CustomContainer = forwardRef<
   useComponentInternals(ref, node, meshRef)
 
   return (
-    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup
+      groupRef={groupRef}
+      matrix={transformMatrix}
+      handlers={properties}
+      hoverHandlers={hoverHandlers}
+      activeHandlers={activeHandlers}
+    >
       <mesh
         receiveShadow={properties.receiveShadow}
         castShadow={properties.castShadow}

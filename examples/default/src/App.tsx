@@ -6,7 +6,7 @@ import { Perf } from 'r3f-perf'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion'
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert'
-import { DefaultColors, colors } from '@/theme'
+import { Defaults, colors } from '@/theme'
 import { Avatar } from '@/avatar'
 import { Badge } from '@/badge'
 import { Button } from '@/button'
@@ -71,13 +71,13 @@ export default function App() {
         justifyContent="center"
         padding={32}
       >
-        <DefaultColors>
+        <Defaults>
           <DialogAnchor>
             <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
               <TooltipDemo />
             </Container>
           </DialogAnchor>
-        </DefaultColors>
+        </Defaults>
       </Fullscreen>
     </Canvas>
   )

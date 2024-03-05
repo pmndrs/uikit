@@ -1,4 +1,4 @@
-import { Group, Vector2Tuple } from 'three'
+import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
 import {
   EDGE_TOP,
@@ -133,15 +133,19 @@ export class FlexNode implements WithImmediateProperties {
     }
 
     //commiting the children
-    const children = this.children[0]?.groupRef.current?.parent?.children!
+    let groupChildren: Array<Object3D> | undefined
     this.children.sort((child1, child2) => {
-      const i1 = children.indexOf(child1.groupRef.current as any)
+      groupChildren ??= child1.groupRef.current?.parent?.children
+      if (groupChildren == null) {
+        return 0
+      }
+      const i1 = groupChildren.indexOf(child1.groupRef.current as any)
       if (i1 === -1) {
         throw new Error(
           `${child1.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
         )
       }
-      const i2 = children.indexOf(child2.groupRef.current as any)
+      const i2 = groupChildren.indexOf(child2.groupRef.current as any)
       if (i2 === -1) {
         throw new Error(
           `${child2.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,

@@ -46,6 +46,7 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 export type ContentProperties = WithConditionals<
   WithClasses<
@@ -111,6 +112,7 @@ export const Content = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   const aspectRatio = useMemo(
     () =>
       computed(() => {
@@ -159,7 +161,13 @@ export const Content = forwardRef<
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup
+      groupRef={groupRef}
+      matrix={transformMatrix}
+      handlers={properties}
+      hoverHandlers={hoverHandlers}
+      activeHandlers={activeHandlers}
+    >
       <primitive object={interactionPanel} />
       <group matrixAutoUpdate={false} ref={outerGroupRef}>
         <group ref={innerGroupRef} matrixAutoUpdate={false}>
