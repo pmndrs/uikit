@@ -33,7 +33,7 @@ export function TeamSwitcher(props: Omit<ComponentPropsWithoutRef<typeof Button>
   const selectedTeam = groups[0].teams[0]
   return (
     <Button variant="outline" width={200} justifyContent="space-between" {...props}>
-      <Avatar marginRight={8} height={20} width={20} src={`/${selectedTeam.value}.png`} />
+      <Avatar marginRight={8} height={20} width={20} src={`/uikit/examples/dashboard/${selectedTeam.value}.png`} />
       <Text>{selectedTeam.label}</Text>
       <ChevronDown marginLeft="auto" height={20} width={20} flexShrink={0} opacity={0.5} />
     </Button>
