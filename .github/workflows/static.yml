@@ -91,8 +91,7 @@ jobs:
       - name: Copy wasm files
         run: |
           mkdir public/yoga
-          pnpm i yoga-wasm-web
-          cp node_modules/yoga-wasm-web/dist/yoga.wasm public/yoga/yoga.wasm
+          cp packages/uikit/node_modules/yoga-wasm-web/dist/yoga.wasm public/yoga/yoga.wasm
           cp ./packages/uikit/THIRD_PARTY_LICENSES public/yoga/THIRD_PARTY_LICENSES
 
 # Examples
