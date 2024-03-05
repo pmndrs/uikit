@@ -1,7 +1,6 @@
 import { Canvas } from '@react-three/fiber'
-import { Fullscreen, Text, Container, setPreferredColorScheme } from '@react-three/uikit'
-import { BoxSelect, ChevronRight, Info } from '@react-three/uikit-lucide'
-import { Perf } from 'r3f-perf'
+import { Fullscreen, Text, Container } from '@react-three/uikit'
+import { BoxSelect, ChevronRight, Copy, Info } from '@react-three/uikit-lucide'
 import { XWebPointers, noEvents } from '@coconut-xr/xinteraction/react'
 import { Card } from '@/card'
 import { Checkbox } from '@/checkbox'
@@ -13,28 +12,82 @@ import { Loading } from '@/loading'
 import { Slider } from '@/slider'
 import { TabBar, TabBarItem } from '@/tab-bar'
 import { Defaults } from '@/theme'
+import { useState } from 'react'
+
+const componentPages = {
+  card: CardPage,
+  checkbox: CheckboxesPage,
+  button: ButtonsPage,
+  list: ListsPage,
+  slider: SlidersPage,
+  tabs: TabsPage,
+  tabBar: TabBarsPage,
+  progress: ProgressPage,
+  loading: LoadingPage,
+}
+const defaultComponent = 'button'
 
 export default function App() {
+  const [component, set] = useState<keyof typeof componentPages>(() => {
+    const params = new URLSearchParams(window.location.search)
+    let selected = params.get('component')
+    if (selected == null || !(selected in componentPages)) {
+      selected = defaultComponent
+    }
+    return selected as keyof typeof componentPages
+  })
+  const setComponent = (value: keyof typeof componentPages) => {
+    const params = new URLSearchParams(window.location.search)
+    params.set('component', value)
+    history.replaceState(null, '', '?' + params.toString())
+    set(value)
+  }
+  const ComponentPage = componentPages[component]
   return (
     <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <XWebPointers />
-      <Perf />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Fullscreen
-        scrollbarColor="black"
-        backgroundColor="white"
-        alignItems="center"
-        justifyContent="center"
-        padding={32}
-      >
-        <Defaults>
-          <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
-            <ButtonsPage />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <Card overflow="scroll" borderRadius={32} gap={32} padding={16}>
+            <Tabs value={component} onValueChange={setComponent}>
+              {Object.keys(componentPages).map((name) => (
+                <TabsButton value={name} key={name}>
+                  <Text>
+                    {name[0].toUpperCase()}
+                    {name.slice(1)}
+                  </Text>
+                </TabsButton>
+              ))}
+            </Tabs>
+          </Card>
+          <Container flexGrow={1} flexDirection="row" justifyContent="center" alignItems="center">
+            <ComponentPage />
           </Container>
-        </Defaults>
-      </Fullscreen>
+
+          <Card padding={8} flexDirection="row" gap={8} alignItems="center">
+            <Text backgroundColor="black" padding={8} borderRadius={16} marginLeft={8}>
+              npx uikit component add apfel {component}
+            </Text>
+            <Button
+              onClick={() => navigator.clipboard.writeText(`npx uikit component add apfel ${component}`)}
+              variant="icon"
+            >
+              <Copy />
+            </Button>
+          </Card>
+        </Fullscreen>
+      </Defaults>
     </Canvas>
   )
 }
@@ -48,9 +101,20 @@ export function CheckboxesPage() {
   )
 }
 
+export function CardPage() {
+  return (
+    <Card borderRadius={32} padding={32} gap={8} flexDirection="column">
+      <Text fontSize={32}>Hello World!</Text>
+      <Text fontSize={24} opacity={0.7}>
+        This is the apfel kit.
+      </Text>
+    </Card>
+  )
+}
+
 export function ButtonsPage() {
   return (
-    <Container flexDirection="row" alignItems="center" gapColumn={32}>
+    <Container flexDirection="column" md={{ flexDirection: 'row' }} alignItems="center" gap={32}>
       <Card borderRadius={32} padding={16}>
         <Container flexDirection="row" gapColumn={16}>
           <Container flexDirection="column" justifyContent="space-between" alignItems="center" gapRow={16}>
@@ -227,8 +291,8 @@ export function ButtonsPage() {
 
 export function ListsPage() {
   return (
-    <Container flexDirection="column" gapRow={32}>
-      <Container flexDirection="row" gapColumn={32}>
+    <Container flexDirection="column" gapRow={32} alignItems="center">
+      <Container flexDirection="column" md={{ flexDirection: 'row' }} gap={32}>
         <Card borderRadius={32} padding={16}>
           <List type="plain" width={400}>
             <ListItem
@@ -287,7 +351,7 @@ export function ListsPage() {
           </List>
         </Card>
       </Container>
-      <Container flexDirection="row" gapColumn={32}>
+      <Container flexDirection="column" md={{ flexDirection: 'row' }} gap={32}>
         <Card borderRadius={32} padding={16}>
           <List type="inset" width={400}>
             <ListItem
@@ -352,26 +416,29 @@ export function ListsPage() {
   )
 }
 
-export function ProgressIndicatorsPage() {
+export function ProgressPage() {
   return (
-    <Container flexDirection="column" gapRow={32}>
-      <Card borderRadius={32} padding={16} flexDirection="column" gapRow={16}>
-        <Progress value={0} />
-        <Progress value={0.25} />
-        <Progress value={0.5} />
-        <Progress value={0.75} />
-        <Progress value={1} />
-      </Card>
-      <Card borderRadius={32} padding={16} flexDirection="row" gapColumn={16}>
-        <Loading size="sm" />
-        <Loading size="md" />
-        <Loading size="lg" />
-      </Card>
-    </Container>
+    <Card width={200} borderRadius={32} padding={16} flexDirection="column" gapRow={16}>
+      <Progress value={0} />
+      <Progress value={0.25} />
+      <Progress value={0.5} />
+      <Progress value={0.75} />
+      <Progress value={1} />
+    </Card>
   )
 }
 
-export function SegmentedControlsPage() {
+export function LoadingPage() {
+  return (
+    <Card borderRadius={32} padding={16} flexDirection="row" gapColumn={16}>
+      <Loading size="sm" />
+      <Loading size="md" />
+      <Loading size="lg" />
+    </Card>
+  )
+}
+
+export function TabsPage() {
   return (
     <Card borderRadius={32} padding={16} flexDirection="column" alignItems="flex-start" gapRow={16}>
       <Tabs defaultValue="1">
@@ -432,7 +499,14 @@ export function SegmentedControlsPage() {
 
 export function SlidersPage() {
   return (
-    <Card borderRadius={32} padding={16} flexDirection="row" gapColumn={16}>
+    <Card
+      borderRadius={32}
+      padding={16}
+      flexDirection="column"
+      md={{ flexDirection: 'row' }}
+      gapColumn={16}
+      gapRow={32}
+    >
       <Container flexDirection="column" gapRow={16} width={250}>
         <Slider size="xs" defaultValue={25} />
         <Slider size="sm" defaultValue={50} />

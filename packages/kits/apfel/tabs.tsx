@@ -46,11 +46,11 @@ export function Tabs({
     <TabsContext.Provider value={context}>
       <Container
         height={36}
-        backgroundOpacity={opacity}
         border={2}
+        backgroundOpacity={opacity}
+        borderOpacity={opacity}
         backgroundColor={colors.background}
         borderColor={colors.background}
-        borderOpacity={opacity}
         borderBend={disabled ? 0 : -0.3}
         borderRadius={18}
         backgroundMaterialClass={GlassMaterial}
@@ -69,11 +69,12 @@ type SegmentedControlButtonProps = ComponentPropsWithoutRef<typeof Container> & 
 export function TabsButton({ children, value, disabled, ...props }: SegmentedControlButtonProps) {
   const { value: currentValue, onValueChange, disabled: tabsDisabled } = useContext(TabsContext) as TabsContext
 
+  const selected = currentValue === value && !tabsDisabled
+
   return (
     <Container
       height={32}
       paddingX={20}
-      positionType="relative"
       cursor={tabsDisabled || disabled ? undefined : 'pointer'}
       {...props}
       onClick={(e) => {
@@ -81,25 +82,20 @@ export function TabsButton({ children, value, disabled, ...props }: SegmentedCon
         onValueChange?.(value)
         props.onClick?.(e)
       }}
+      backgroundColor={colors.foreground}
+      borderColor={colors.foreground}
+      backgroundOpacity={selected ? 0.3 : 0}
+      borderOpacity={selected ? 0.3 : 0}
+      border={2}
+      borderRadius={16}
+      borderBend={0.3}
+      backgroundMaterialClass={GlassMaterial}
+      flexDirection="row"
+      alignItems="center"
+      gapColumn={10}
     >
-      {currentValue === value && !tabsDisabled && (
-        <Container
-          positionType="absolute"
-          inset={0}
-          backgroundColor={colors.foreground}
-          borderColor={colors.foreground}
-          backgroundOpacity={0.3}
-          border={2}
-          borderOpacity={0.3}
-          borderRadius={16}
-          borderBend={0.3}
-          backgroundMaterialClass={GlassMaterial}
-        />
-      )}
-      <DefaultProperties fontSize={16} color={colors.foreground} opacity={disabled || tabsDisabled ? 0.4 : 1}>
-        <Container height="100%" flexDirection="row" alignItems="center" gapColumn={10}>
-          {children}
-        </Container>
+      <DefaultProperties color={colors.foreground} opacity={disabled || tabsDisabled ? 0.4 : 1}>
+        {children}
       </DefaultProperties>
     </Container>
   )
