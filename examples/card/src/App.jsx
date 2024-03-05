@@ -2,7 +2,7 @@ import { Environment, MeshPortalMaterial, PerspectiveCamera } from '@react-three
 import { Canvas, extend, useFrame } from '@react-three/fiber'
 import { Root, Container, Text, setPreferredColorScheme, Content } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
-import { DefaultColors, colors } from '@/theme'
+import { Defaults, colors } from '@/theme'
 import { Avatar } from '@/avatar'
 import { Button } from '@/button'
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
@@ -26,9 +26,9 @@ export default function App() {
       <ambientLight intensity={Math.PI} />
       <spotLight decay={0} position={[0, 5, 10]} angle={0.25} penumbra={1} intensity={2} castShadow />
       <Root pixelSize={0.01}>
-        <DefaultColors>
+        <Defaults>
           <CardPage />
-        </DefaultColors>
+        </Defaults>
       </Root>
       <Floating position={[0, 0, 7]} />
       <Environment preset="city" />
@@ -54,7 +54,7 @@ export function CardPage() {
   })
   return (
     <Root pixelSize={0.01} sizeX={4.4}>
-      <DefaultColors>
+      <Defaults>
         <Container
           backgroundColor={0xffffff}
           dark={{ backgroundColor: 0x0 }}
@@ -172,7 +172,7 @@ export function CardPage() {
             </CardFooter>
           </Container>
         </Container>
-      </DefaultColors>
+      </Defaults>
     </Root>
   )
 }

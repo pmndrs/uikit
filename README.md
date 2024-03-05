@@ -14,13 +14,12 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
+- fix: zoom with ortho camera
 - fix: changing font weight with hot reload (test if its the same for normal react state change)
-- fix: conditionally render children (see Discord)
 - feat: ref.current.setStyle({ ... })
 - feat: nesting inside non root/container components (e.g. image)
 - fix: scrollbar border radius to high (happens with very long panels)
 - feat: drag/click threshold
-- feat: add apfel components
 - feat: input
 - fix: decrease clipping rect when scrollbar present
 

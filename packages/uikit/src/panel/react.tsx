@@ -16,16 +16,19 @@ import { ManagerCollection, PropertyTransformation } from '../properties/utils.j
 import { useBatchedProperties } from '../properties/batched.js'
 import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
 import { panelGeometry } from './utils.js'
+import { ActiveEventHandlers } from '../active.js'
 
 export function InteractionGroup({
   handlers,
   hoverHandlers,
+  activeHandlers,
   matrix,
   children,
   groupRef,
 }: {
   handlers: EventHandlers
   hoverHandlers: HoverEventHandlers | undefined
+  activeHandlers: ActiveEventHandlers | undefined
   matrix: Signal<Matrix4>
   children?: ReactNode
   groupRef: RefObject<Group>
@@ -43,12 +46,13 @@ export function InteractionGroup({
       /** handlers + hover handlers */
       onPointerOut={mergeHandlers(handlers.onPointerOut, hoverHandlers?.onPointerOut)}
       onPointerOver={mergeHandlers(handlers.onPointerOver, hoverHandlers?.onPointerOver)}
+      /** handlers + active handlers */
+      onPointerUp={mergeHandlers(handlers.onPointerUp, activeHandlers?.onPointerUp)}
+      onPointerDown={mergeHandlers(handlers.onPointerDown, activeHandlers?.onPointerDown)}
+      onPointerLeave={mergeHandlers(handlers.onPointerLeave, activeHandlers?.onPointerLeave)}
       /** only handlers */
-      onPointerUp={handlers.onPointerUp}
-      onPointerDown={handlers.onPointerDown}
       onPointerMove={handlers.onPointerMove}
       onWheel={handlers.onWheel}
-      onPointerLeave={handlers.onPointerLeave}
       onClick={handlers.onClick}
       onContextMenu={handlers.onContextMenu}
       onDoubleClick={handlers.onDoubleClick}

@@ -51,7 +51,7 @@ export const colors = basedOnPreferredColorScheme({
   },
 })
 
-export function DefaultColors(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
+export function Defaults(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
   return (
     <DefaultProperties
       scrollbarColor={colors.foreground}

@@ -26,7 +26,8 @@ export function Slider({
 } & Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const value = providedValue ?? uncontrolled ?? 50
-  const percentage = `${value}%` as const
+  const range = max - min
+  const percentage = `${(100 * value) / range}%` as const
   const ref = useRef<ComponentInternals>(null)
   const onChange = useRef(onValueChange)
   onChange.current = onValueChange

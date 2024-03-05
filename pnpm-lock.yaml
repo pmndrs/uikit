@@ -84,6 +84,54 @@ importers:
         specifier: ^5.0.12
         version: 5.0.12(@types/node@20.11.0)
 
+  examples/apfel:
+    dependencies:
+      '@coconut-xr/xinteraction':
+        specifier: ^0.1.12
+        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.5.1
+      '@react-three/drei':
+        specifier: ^9.96.1
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/fiber':
+        specifier: ^8.15.13
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/postprocessing':
+        specifier: ^2.16.0
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/rapier':
+        specifier: ^1.3.0
+        version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide
+      '@splinetool/r3f-spline':
+        specifier: ^1.0.2
+        version: 1.0.2(@react-three/fiber@8.15.13)(@splinetool/loader@1.0.54)
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
+      maath:
+        specifier: ^0.10.7
+        version: 0.10.7(@types/three@0.160.0)(three@0.160.0)
+      r3f-perf:
+        specifier: ^7.1.2
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      three:
+        specifier: ^0.160.0
+        version: 0.160.0
+
   examples/card:
     dependencies:
       '@preact/signals-core':
@@ -131,12 +179,9 @@ importers:
 
   examples/dashboard:
     dependencies:
-      '@coconut-xr/koestlich':
-        specifier: ^0.3.12
-        version: 0.3.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
-      '@coconut-xr/natuerlich':
-        specifier: ^0.0.49
-        version: 0.0.49(@coconut-xr/koestlich@0.3.12)(@react-three/fiber@8.15.13)(@types/react@18.2.47)(react@18.2.0)(three@0.160.0)
+      '@coconut-xr/xinteraction':
+        specifier: ^0.1.12
+        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
       '@react-three/drei':
         specifier: ^9.96.1
         version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
@@ -313,6 +358,30 @@ importers:
       oslllo-svg-fixer:
         specifier: ^3.0.0
         version: 3.0.0
+
+  packages/kits/apfel:
+    devDependencies:
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.5.1
+      '@react-three/fiber':
+        specifier: ^8.15.13
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../icons/lucide
+      '@types/react':
+        specifier: ^18.2.47
+        version: 18.2.47
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
+      three:
+        specifier: ^0.160.0
+        version: 0.160.0
 
   packages/kits/default:
     dependencies:
@@ -668,64 +737,6 @@ packages:
     resolution: {integrity: sha512-hBzuU5+JjB2cqNZyszkDHZgOSrUUT8V3dhgRl8Q9Gp6dAj/H5+KILGjbhDpc3Iy9qmqlm/akuOI2ut9VUtzJxQ==}
     dev: false
 
-  /@coconut-xr/flex@3.0.4:
-    resolution: {integrity: sha512-F8OVP+0oBSvX3aQohHAV+XmhvbU66FtOKXJZ70Z0uolaecPpc13XsJU+U1ryEZ+0ywCP7Nd1UWmCRK+UKqrGZA==}
-    dependencies:
-      base64-js: 1.5.1
-      yoga-wasm-web: 0.3.3
-    dev: false
-
-  /@coconut-xr/glyph@0.0.6(three@0.160.0):
-    resolution: {integrity: sha512-+2kwmNpZzKM17mrWpAlSODziK+XXp1OL4Cb/u8smolCy5mcELcTvaergWJzipzZoDa6SBIWGX5HjjHSlfHoepw==}
-    peerDependencies:
-      three: '>=0.140.0'
-    dependencies:
-      three: 0.160.0
-    dev: false
-
-  /@coconut-xr/koestlich@0.3.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0):
-    resolution: {integrity: sha512-Dex78txRqFIHSsNeIV3cWnQtwpcKM/n8RgBYx860lhGpD5vKTK3kf6N+6DWIpyvi7GVZ+vW/5/ea3Y1ReRvfnQ==}
-    peerDependencies:
-      '@react-three/fiber': '*'
-      react: '*'
-      three: '>=0.140.0'
-    dependencies:
-      '@coconut-xr/flex': 3.0.4
-      '@coconut-xr/glyph': 0.0.6(three@0.160.0)
-      '@coconut-xr/xmaterials': 0.0.3(three@0.160.0)
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
-      react: 18.2.0
-      suspend-react: 0.1.3(react@18.2.0)
-      three: 0.160.0
-      yoga-wasm-web: 0.3.3
-    dev: false
-
-  /@coconut-xr/natuerlich@0.0.49(@coconut-xr/koestlich@0.3.12)(@react-three/fiber@8.15.13)(@types/react@18.2.47)(react@18.2.0)(three@0.160.0):
-    resolution: {integrity: sha512-DBoIV9qt0KQWii+Ko01MtrlVoXHGonBWQa87baVmJ6kjnGDIwSL2UkSstXl5vXkzZW0T+dY9jnPOlHZxNFpNcQ==}
-    peerDependencies:
-      '@coconut-xr/koestlich': '*'
-      '@react-three/fiber': '*'
-      react: '*'
-      three: '*'
-    peerDependenciesMeta:
-      '@coconut-xr/koestlich':
-        optional: true
-    dependencies:
-      '@coconut-xr/koestlich': 0.3.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
-      '@coconut-xr/xinteraction': 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
-      '@coconut-xr/xmaterials': 0.0.3(three@0.160.0)
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
-      '@webxr-input-profiles/motion-controllers': 1.0.0
-      meshline: 3.1.6(three@0.160.0)
-      react: 18.2.0
-      suspend-react: 0.0.9(react@18.2.0)
-      three: 0.160.0
-      zustand: 4.4.7(@types/react@18.2.47)(react@18.2.0)
-    transitivePeerDependencies:
-      - '@types/react'
-      - immer
-    dev: false
-
   /@coconut-xr/xinteraction@0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0):
     resolution: {integrity: sha512-nuKWTDz9qx1HRw7MASvqhxO7i676FVWdh+vITFhQYpQem7QLyJqSaU/gw3l7Qh7QYZENmvvte4X83D1oih/htA==}
     peerDependencies:
@@ -740,14 +751,6 @@ packages:
     dependencies:
       '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
       react: 18.2.0
-      three: 0.160.0
-    dev: false
-
-  /@coconut-xr/xmaterials@0.0.3(three@0.160.0):
-    resolution: {integrity: sha512-lqchBqGz5cbKzIAZhVHR/BvHH9ReS6rtZo+FMU/Ra4B/htJGA1UgzjTor6ybUuRLHgB9o1MWcW9GJ2KX/qukNg==}
-    peerDependencies:
-      three: '>=0.140.0'
-    dependencies:
       three: 0.160.0
     dev: false
 
@@ -2708,10 +2711,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /@webxr-input-profiles/motion-controllers@1.0.0:
-    resolution: {integrity: sha512-Ppxde+G1/QZbU8ShCQg+eq5VtlcL/FPkerF1dkDOLlIml0LJD1tFqnCZYR0SrHzYleIQ2siRnOx7xbFLaCpExQ==}
-    dev: false
 
   /acorn-jsx@5.3.2(acorn@8.11.3):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -5066,14 +5065,6 @@ packages:
     engines: {node: '>= 8'}
     dev: true
 
-  /meshline@3.1.6(three@0.160.0):
-    resolution: {integrity: sha512-8JZJOdaL5oz3PI/upG8JvP/5FfzYUOhrkJ8np/WKvXzl0/PZ2V9pqTvCIjSKv+w9ccg2xb+yyBhXAwt6ier3ug==}
-    peerDependencies:
-      three: '>=0.137'
-    dependencies:
-      three: 0.160.0
-    dev: false
-
   /meshline@3.1.7(three@0.160.0):
     resolution: {integrity: sha512-uf9fPI9wy0Ie0kZjvKuIkf2n7gi3ih0wdTeb/kmSvmzpPyEL5d9lFohg9+JV9VC4sQUBOZDgxu6fnjn57goSHg==}
     peerDependencies:
@@ -6399,14 +6390,6 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
     dev: true
-
-  /suspend-react@0.0.9(react@18.2.0):
-    resolution: {integrity: sha512-668Pxy4z54fhjpnPqw6olj3vvpV03VywFNXazyNSYSTuHaRw3NJJjO5l8R49AUk5fMTkJXGVGaaVSgdaO01S3w==}
-    peerDependencies:
-      react: '>=17.0'
-    dependencies:
-      react: 18.2.0
-    dev: false
 
   /suspend-react@0.1.3(react@18.2.0):
     resolution: {integrity: sha512-aqldKgX9aZqpoDp3e8/BZ8Dm7x1pJl+qI3ZKxDN0i/IQTWUwBx/ManmlVJ3wowqbno6c2bmiIfs+Um6LbsjJyQ==}

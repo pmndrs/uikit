@@ -33,6 +33,7 @@ import { SvgProperties, AppearanceProperties } from './svg.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 const colorHelper = new Color()
 
@@ -143,6 +144,7 @@ export const SvgIconFromText = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   writeCollection(collection, 'aspectRatio', properties.svgWidth / properties.svgHeight)
   finalizeCollection(collection)
 
@@ -170,7 +172,13 @@ export const SvgIconFromText = forwardRef<
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup
+      groupRef={groupRef}
+      matrix={transformMatrix}
+      handlers={properties}
+      hoverHandlers={hoverHandlers}
+      activeHandlers={activeHandlers}
+    >
       <primitive object={interactionPanel} />
       <primitive object={svgGroup} />
     </InteractionGroup>

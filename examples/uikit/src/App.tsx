@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { RenderTexture, Gltf, Box } from '@react-three/drei'
+import { Gltf, Box, PerspectiveCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -11,8 +11,11 @@ import {
   Text,
   Image,
   Fullscreen,
+  Portal,
+  SuspendingImage,
 } from '@react-three/uikit'
 import { Texture } from 'three'
+import { Skeleton } from '../../../packages/kits/default/skeleton'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
@@ -39,6 +42,11 @@ export default function App() {
         borderRight={0}
         borderColor="red"
       >
+        <Portal borderRadius={30} width={200} aspectRatio={2}>
+          <PerspectiveCamera makeDefault position={[0, 0, 4]} />
+          <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+          <color attach="background" args={['red']} />
+        </Portal>
         <Container backgroundColor="blue" width={100} positionType="relative">
           <Container>
             <Text>Escribe algo...</Text>
@@ -97,15 +105,17 @@ export default function App() {
             <Gltf src="example.glb" />
           </Content>
           <Svg marginLeft={-100} color={x} backgroundColor="red" src="example.svg" width={200} />
-          <Image
-            hover={{ padding: 30, border: 0, marginLeft: -30, opacity: 1 }}
-            fit="cover"
-            border={20}
-            borderOpacity={0.2}
-            borderRadius={10}
-            src="https://picsum.photos/200/300"
-            width={300}
-          />
+          <Suspense fallback={<Skeleton width={300} aspectRatio={2 / 3} />}>
+            <SuspendingImage
+              hover={{ padding: 30, border: 0, marginLeft: -30, opacity: 1 }}
+              fit="cover"
+              border={20}
+              borderOpacity={0.2}
+              borderRadius={10}
+              src="https://picsum.photos/2000/3000"
+              width={300}
+            />
+          </Suspense>
         </DefaultProperties>
 
         <Container

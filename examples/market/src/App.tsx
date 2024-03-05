@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
 import { Root, Container, Image, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
 import { PlusCircle } from '@react-three/uikit-lucide'
-import { DefaultColors, colors } from '@/theme.js'
+import { Defaults, colors } from '@/theme.js'
 import { DialogAnchor } from '@/dialog.js'
 import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/tabs.js'
 import { Separator } from '@/separator.js'
@@ -23,11 +23,11 @@ export default function App() {
       gl={{ localClippingEnabled: true }}
     >
       {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
-        <DefaultColors>
+        <Defaults>
           <DialogAnchor>
             <MarketPage />
           </DialogAnchor>
-        </DefaultColors>
+        </Defaults>
       </Root>
       <Environment background blur={1} preset="city" />
       <EffectComposer>
@@ -35,11 +35,11 @@ export default function App() {
       </EffectComposer>
       <OrbitControls makeDefault />*/}
       <Fullscreen>
-        <DefaultColors>
+        <Defaults>
           <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>
             <MarketPage />
           </DefaultProperties>
-        </DefaultColors>
+        </Defaults>
       </Fullscreen>
     </Canvas>
   )

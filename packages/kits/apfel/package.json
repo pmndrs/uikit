@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "check:prettier": "prettier --check .",
+    "check:eslint": "eslint '**/*.{tsx,ts}'",
+    "fix:prettier": "prettier --write .",
+    "fix:eslint": "eslint '**/*.{tsx,ts}' --fix"
+  },
+  "devDependencies": {
+    "@preact/signals-core": "^1.5.1",
+    "@react-three/fiber": "^8.15.13",
+    "@react-three/uikit": "workspace:^",
+    "@react-three/uikit-lucide": "workspace:^",
+    "@types/react": "^18.2.47",
+    "@types/three": "^0.160.0",
+    "three": "^0.160.0"
+  },
+  "type": "module"
+}

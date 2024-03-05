@@ -40,6 +40,7 @@ import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
 import { ElementType, ZIndexOffset, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
+import { useApplyActiveProperties } from '../active.js'
 
 export type TextProperties = WithConditionals<
   WithClasses<
@@ -100,6 +101,7 @@ export const Text = forwardRef<
   useApplyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
+  const activeHandlers = useApplyActiveProperties(collection, properties)
   writeCollection(collection, 'measureFunc', measureFunc)
   finalizeCollection(collection)
 
@@ -108,7 +110,13 @@ export const Text = forwardRef<
   useComponentInternals(ref, node, interactionPanel)
 
   return (
-    <InteractionGroup groupRef={groupRef} matrix={transformMatrix} handlers={properties} hoverHandlers={hoverHandlers}>
+    <InteractionGroup
+      groupRef={groupRef}
+      matrix={transformMatrix}
+      handlers={properties}
+      hoverHandlers={hoverHandlers}
+      activeHandlers={activeHandlers}
+    >
       <primitive object={interactionPanel} />
     </InteractionGroup>
   )
