@@ -223,8 +223,12 @@ function useNormalizedContent(
     }
     box3Helper.getCenter(center)
     return effect(() => {
+      const get = getPropertySignal.value
+      if (get == null) {
+        return
+      }
       group.position.copy(center).negate()
-      group.position.z -= alignmentZMap[getPropertySignal.value('depthAlign') ?? 'back'] * size.z
+      group.position.z -= alignmentZMap[get('depthAlign') ?? 'back'] * size.z
       group.position.divide(size)
       group.updateMatrix()
     })

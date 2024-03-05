@@ -1,7 +1,26 @@
 import { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { DefaultProperties, Fullscreen, Text, Container } from '@react-three/uikit'
-import { BellRing, Bold, Check, ChevronRight, Italic, Terminal, Underline } from '@react-three/uikit-lucide'
+import {
+  DefaultProperties,
+  Fullscreen,
+  Text,
+  Container,
+  getPreferredColorScheme,
+  setPreferredColorScheme,
+} from '@react-three/uikit'
+import {
+  BellRing,
+  Bold,
+  Check,
+  ChevronRight,
+  Copy,
+  Italic,
+  Moon,
+  Sun,
+  SunMoon,
+  Terminal,
+  Underline,
+} from '@react-three/uikit-lucide'
 import { Perf } from 'r3f-perf'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion'
@@ -40,7 +59,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  useCloseDialog,
 } from '@/dialog.js'
 import { XWebPointers, noEvents } from '@coconut-xr/xinteraction/react'
 import {
@@ -56,29 +74,100 @@ import {
 } from '@/alert-dialog.js'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/tooltip.js'
 
+const componentPages = {
+  accordion: AccordionDemo,
+  alert: AlertDemo,
+  'alert-dialog': AlertDialogDemo,
+  avatar: AvatarDemo,
+  badge: BadgeDemo,
+  button: ButtonDemo,
+  card: CardDemo,
+  checkbox: CheckboxDemo,
+  dialog: DialogDemo,
+  //label: LabelDemo,
+  pagination: PaginationDemo,
+  progress: ProgressDemo,
+  'radio-group': RadioGroupDemo,
+  separator: SeparatorDemo,
+  skeleton: SkeletonDemo,
+  slider: SliderDemo,
+  switch: SwitchDemo,
+  tabs: TabsDemo,
+  toggle: ToggleDemo,
+  'toggle-group': ToggleGroupDemo,
+  tooltip: TooltipDemo,
+}
+
+const defaultComponent = 'card'
+
 export default function App() {
+  const [component, set] = useState<keyof typeof componentPages>(() => {
+    const params = new URLSearchParams(window.location.search)
+    let selected = params.get('component')
+    if (selected == null || !(selected in componentPages)) {
+      selected = defaultComponent
+    }
+    return selected as keyof typeof componentPages
+  })
+  const setComponent = (value: keyof typeof componentPages) => {
+    const params = new URLSearchParams(window.location.search)
+    params.set('component', value)
+    history.replaceState(null, '', '?' + params.toString())
+    set(value)
+  }
+  const [pcs, updatePCS] = useState(() => getPreferredColorScheme())
   return (
     <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <XWebPointers />
-      <Perf />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
-      <Fullscreen
-        scrollbarColor="black"
-        backgroundColor="white"
-        alignItems="center"
-        justifyContent="center"
-        padding={32}
-      >
-        <Defaults>
+      <Defaults>
+        <Fullscreen scrollbarColor="black" backgroundColor={colors.background} alignItems="center" padding={32}>
           <DialogAnchor>
-            <Container flexDirection="row" justifyContent="center" width="100%" maxWidth={500}>
-              <TooltipDemo />
-            </Container>
+            <Tabs alignSelf="stretch" flexGrow={1} value={component} onValueChange={setComponent}>
+              <TabsList height={55} paddingBottom={10} overflow="scroll" maxWidth="100%">
+                {Object.keys(componentPages).map((name) => (
+                  <TabsTrigger value={name} key={name}>
+                    <Text>
+                      {name[0].toUpperCase()}
+                      {name.slice(1)}
+                    </Text>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {Object.entries(componentPages).map(([name, Component]) => (
+                <TabsContent flexGrow={1} alignItems="center" justifyContent="center" value={name} key={name}>
+                  <Container>
+                    <Component />
+                  </Container>
+                </TabsContent>
+              ))}
+            </Tabs>
+            <Card padding={8} flexDirection="row" gap={8} alignItems="center">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setPreferredColorScheme(pcs === 'light' ? 'dark' : pcs === 'dark' ? 'system' : 'light')
+                  updatePCS(getPreferredColorScheme())
+                }}
+              >
+                {pcs === 'dark' ? <Moon /> : pcs === 'system' ? <SunMoon /> : <Sun />}
+              </Button>
+              <Separator orientation="vertical" />
+              <Text padding={8}>npx uikit component add apfel {component}</Text>
+              <Button
+                onClick={() => navigator.clipboard.writeText(`npx uikit component add apfel ${component}`)}
+                size="icon"
+                variant="secondary"
+              >
+                <Copy />
+              </Button>
+            </Card>
           </DialogAnchor>
-        </Defaults>
-      </Fullscreen>
+        </Fullscreen>
+      </Defaults>
     </Canvas>
   )
 }
@@ -285,7 +374,7 @@ function SwitchDemo() {
 }
 
 function SliderDemo() {
-  return <Slider defaultValue={50} max={100} step={1} width="60%" />
+  return <Slider defaultValue={50} max={100} step={1} width={300} />
 }
 
 function SkeletonDemo() {
@@ -355,7 +444,7 @@ function ProgressDemo() {
     return () => clearTimeout(timer)
   }, [])
 
-  return <Progress value={progress} width="60%" />
+  return <Progress value={progress} width={200} />
 }
 
 function PaginationDemo() {
@@ -517,31 +606,33 @@ function AlertDemo() {
 //TODO: type="single" collapsible
 export function AccordionDemo() {
   return (
-    <Accordion>
-      <AccordionItem value="item-1">
-        <AccordionTrigger>
-          <Text>Is it accessible?</Text>
-        </AccordionTrigger>
-        <AccordionContent>
-          <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="item-2">
-        <AccordionTrigger>
-          <Text>Is it styled?</Text>
-        </AccordionTrigger>
-        <AccordionContent>
-          <Text>Yes. It comes with default styles that matches the other components&apos; aesthetic.</Text>
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="item-3">
-        <AccordionTrigger>
-          <Text>Is it animated?</Text>
-        </AccordionTrigger>
-        <AccordionContent>
-          <Text>Yes. It&apos;s animated by default, but you can disable it if you prefer.</Text>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+    <Container width={300}>
+      <Accordion>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>
+            <Text>Is it accessible?</Text>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger>
+            <Text>Is it styled?</Text>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Text>Yes. It comes with default styles that matches the other components&apos; aesthetic.</Text>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-3">
+          <AccordionTrigger>
+            <Text>Is it animated?</Text>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Text>Yes. It&apos;s animated by default, but you can disable it if you prefer.</Text>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </Container>
   )
 }

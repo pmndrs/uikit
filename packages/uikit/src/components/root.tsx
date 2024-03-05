@@ -237,7 +237,7 @@ function useDivide(
 const matrixHelper = new Matrix4()
 
 function useRootMatrix(
-  matrix: Signal<Matrix4>,
+  matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   pixelSize: number,
   {
@@ -253,7 +253,7 @@ function useRootMatrix(
       computed(() => {
         const [width, height] = size.value
         return matrix.value
-          .clone()
+          ?.clone()
           .premultiply(
             matrixHelper.makeTranslation(
               alignmentXMap[anchorX] * width * pixelSize,

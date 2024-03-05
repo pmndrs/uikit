@@ -188,14 +188,15 @@ function useTextureFit(
 ): void {
   const getPropertySignal = useGetBatchedProperties<ImageFitProperties>(collection, propertyKeys)
   useSignalEffect(() => {
+    const get = getPropertySignal.value
     const texture = textureSignal.value
-    if (texture == null) {
+    if (texture == null || get == null) {
       return
     }
-    const fitValue = getPropertySignal.value('fit') ?? FIT_DEFAULT
+    const fit = get('fit') ?? FIT_DEFAULT
     texture.matrix.identity()
 
-    if (fitValue === 'fill' || texture == null) {
+    if (fit === 'fill' || texture == null) {
       transformInsideBorder(borderInset, size, texture)
       return
     }

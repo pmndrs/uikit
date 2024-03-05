@@ -21,7 +21,7 @@ const componentPages = {
   list: ListsPage,
   slider: SlidersPage,
   tabs: TabsPage,
-  tabBar: TabBarsPage,
+  'tab-bar': TabBarsPage,
   progress: ProgressPage,
   loading: LoadingPage,
 }
@@ -59,17 +59,19 @@ export default function App() {
           alignItems="center"
           padding={32}
         >
-          <Card overflow="scroll" borderRadius={32} gap={32} padding={16}>
-            <Tabs value={component} onValueChange={setComponent}>
-              {Object.keys(componentPages).map((name) => (
-                <TabsButton value={name} key={name}>
-                  <Text>
-                    {name[0].toUpperCase()}
-                    {name.slice(1)}
-                  </Text>
-                </TabsButton>
-              ))}
-            </Tabs>
+          <Card borderRadius={32} gap={32} paddingX={16}>
+            <Container flexDirection="row" maxWidth="100%" overflow="scroll" paddingY={16}>
+              <Tabs value={component} onValueChange={setComponent}>
+                {Object.keys(componentPages).map((name) => (
+                  <TabsButton value={name} key={name}>
+                    <Text>
+                      {name[0].toUpperCase()}
+                      {name.slice(1)}
+                    </Text>
+                  </TabsButton>
+                ))}
+              </Tabs>
+            </Container>
           </Card>
           <Container flexGrow={1} flexDirection="row" justifyContent="center" alignItems="center">
             <ComponentPage />

@@ -29,7 +29,7 @@ export function InteractionGroup({
   handlers: EventHandlers
   hoverHandlers: HoverEventHandlers | undefined
   activeHandlers: ActiveEventHandlers | undefined
-  matrix: Signal<Matrix4>
+  matrix: Signal<Matrix4 | undefined>
   children?: ReactNode
   groupRef: RefObject<Group>
 }) {
@@ -38,7 +38,7 @@ export function InteractionGroup({
     if (group == null) {
       return
     }
-    return effect(() => group.matrix.copy(matrix.value))
+    return effect(() => matrix.value != null && group.matrix.copy(matrix.value))
   }, [groupRef, matrix])
   return (
     <group
@@ -169,7 +169,7 @@ export function usePanelGroupDependencies(
  */
 export function useInstancedPanel(
   collection: ManagerCollection,
-  matrix: Signal<Matrix4>,
+  matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   offset: Signal<Vector2Tuple> | undefined,
   borderInset: Signal<Inset>,

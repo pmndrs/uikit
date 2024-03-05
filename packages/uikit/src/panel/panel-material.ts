@@ -101,14 +101,16 @@ export class MaterialSetter implements WithBatchedProperties, WithImmediatePrope
     this.size = size
     this.unsubscribe = effect(() => {
       const get = this.getProperty.value
-      const isVisible = isPanelVisible(
-        borderInset,
-        size,
-        isClipped,
-        get('borderOpacity'),
-        get('backgroundOpacity'),
-        get('backgroundColor'),
-      )
+      const isVisible =
+        get != null &&
+        isPanelVisible(
+          borderInset,
+          size,
+          isClipped,
+          get('borderOpacity'),
+          get('backgroundOpacity'),
+          get('backgroundColor'),
+        )
       this.active.value = isVisible
       if (!isVisible) {
         this.deactivate()
@@ -117,7 +119,6 @@ export class MaterialSetter implements WithBatchedProperties, WithImmediatePrope
       this.activate(size, borderInset)
     })
   }
-
   addMaterial(material: Material) {
     material.visible = this.visible
     this.materials.push(material)
@@ -127,7 +128,8 @@ export class MaterialSetter implements WithBatchedProperties, WithImmediatePrope
     return batchedProperties.includes(key)
   }
 
-  getProperty: Signal<<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]> = signal(() => undefined)
+  getProperty: Signal<undefined | (<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]) | undefined> =
+    signal(undefined)
 
   hasImmediateProperty(key: string): boolean {
     return key in panelMaterialSetters

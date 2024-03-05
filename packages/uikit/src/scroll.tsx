@@ -5,7 +5,13 @@ import { Group, Matrix4, MeshBasicMaterial, Vector2, Vector2Tuple, Vector3, Vect
 import { FlexNode, Inset } from './flex/node.js'
 import { Color as ColorRepresentation, useFrame } from '@react-three/fiber'
 import { useSignalEffect } from './utils.js'
-import { GetInstancedPanelGroup, MaterialClass, PanelGroupDependencies, useInstancedPanel } from './panel/react.js'
+import {
+  GetInstancedPanelGroup,
+  MaterialClass,
+  PanelGroupDependencies,
+  useInstancedPanel,
+  usePanelGroupDependencies,
+} from './panel/react.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties } from './panel/instanced-panel.js'
@@ -32,16 +38,18 @@ export function useScrollPosition() {
 export function useGlobalScrollMatrix(
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
-  globalMatrix: Signal<Matrix4>,
+  globalMatrix: Signal<Matrix4 | undefined>,
 ) {
   return useMemo(
     () =>
       computed(() => {
+        const global = globalMatrix.value
+        if (global == null) {
+          return undefined
+        }
         const [scrollX, scrollY] = scrollPosition.value
         const { pixelSize } = node
-        return new Matrix4()
-          .makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0)
-          .premultiply(globalMatrix.value)
+        return new Matrix4().makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0).premultiply(global)
       }),
     [scrollPosition, node, globalMatrix],
   )
@@ -330,14 +338,15 @@ export function useScrollbars(
   collection: ManagerCollection,
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
-  globalMatrix: Signal<Matrix4>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   isClipped: Signal<boolean> | undefined,
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: OrderInfo,
   providedGetGroup?: GetInstancedPanelGroup,
 ): void {
-  const scrollbarOrderInfo = useOrderInfo(ElementType.Panel, undefined, materialClass, orderInfo)
+  const groupDeps = usePanelGroupDependencies(materialClass, { castShadow: false, receiveShadow: false })
+  const scrollbarOrderInfo = useOrderInfo(ElementType.Panel, undefined, groupDeps, orderInfo)
 
   const getScrollbarWidthSignal = useGetBatchedProperties<{ scrollbarWidth?: number }>(collection, propertyKeys)
   const getBorderSignal = useGetBatchedProperties<{
@@ -351,10 +360,10 @@ export function useScrollbars(
       computed<Inset>(() => {
         const get = getBorderSignal.value
         return [
-          get('scrollbarBorderTop') ?? 0,
-          get('scrollbarBorderRight') ?? 0,
-          get('scrollbarBorderBottom') ?? 0,
-          get('scrollbarBorderLeft') ?? 0,
+          get?.('scrollbarBorderTop') ?? 0,
+          get?.('scrollbarBorderRight') ?? 0,
+          get?.('scrollbarBorderBottom') ?? 0,
+          get?.('scrollbarBorderLeft') ?? 0,
         ]
       }),
     [getBorderSignal],
@@ -412,29 +421,33 @@ function useScrollbar(
   mainIndex: number,
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
-  globalMatrix: Signal<Matrix4>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   isClipped: Signal<boolean> | undefined,
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: OrderInfo,
   providedGetGroup: GetInstancedPanelGroup | undefined,
-  getScrollbarWidthSignal: Signal<(key: 'scrollbarWidth') => number | undefined>,
+  getScrollbarWidthSignal: Signal<undefined | ((key: 'scrollbarWidth') => number | undefined)>,
   borderSize: ReadonlySignal<Inset>,
 ) {
   const [scrollbarPosition, scrollbarSize] = useMemo(() => {
-    const scrollbarTransformation = computed(() =>
-      computeScrollbarTransformation(
+    const scrollbarTransformation = computed(() => {
+      const get = getScrollbarWidthSignal.value
+      if (get == null) {
+        return undefined
+      }
+      return computeScrollbarTransformation(
         mainIndex,
-        getScrollbarWidthSignal.value('scrollbarWidth') ?? 10,
+        get('scrollbarWidth') ?? 10,
         node.size.value,
         node.maxScrollPosition.value,
         node.borderInset.value,
         scrollPosition.value,
-      ),
-    )
+      )
+    })
     return [
-      computed(() => scrollbarTransformation.value.slice(0, 2) as Vector2Tuple),
-      computed(() => scrollbarTransformation.value.slice(2, 4) as Vector2Tuple),
+      computed(() => (scrollbarTransformation.value?.slice(0, 2) ?? [0, 0]) as Vector2Tuple),
+      computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple),
     ]
   }, [mainIndex, node, scrollPosition, getScrollbarWidthSignal])
 

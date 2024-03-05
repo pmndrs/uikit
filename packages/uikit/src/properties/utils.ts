@@ -150,7 +150,10 @@ export function useGetBatchedProperties<T extends Record<string, unknown>>(
   keys: ReadonlyArray<keyof T>,
   propertyTransformation?: PropertyTransformation,
 ) {
-  const getPropertySignal: WithBatchedProperties<Partial<T>>['getProperty'] = useMemo(() => signal(() => undefined), [])
+  const getPropertySignal: WithBatchedProperties<Partial<T>>['getProperty'] | undefined = useMemo(
+    () => signal(undefined),
+    [],
+  )
   const object = useMemo<WithBatchedProperties<Partial<T>>>(
     () => ({
       hasBatchedProperty: (key) => keys.includes(key),

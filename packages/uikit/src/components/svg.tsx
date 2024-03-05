@@ -169,8 +169,12 @@ export const Svg = forwardRef<
 
   const getPropertySignal = useGetBatchedProperties<AppearanceProperties>(collection, propertyKeys)
   useSignalEffect(() => {
-    const colorRepresentation = getPropertySignal.value('color')
-    const opacity = getPropertySignal.value('opacity')
+    const get = getPropertySignal.value
+    if (get == null) {
+      return
+    }
+    const colorRepresentation = get('color')
+    const opacity = get('opacity')
     let color: Color | undefined
     if (Array.isArray(colorRepresentation)) {
       color = colorHelper.setRGB(...colorRepresentation)

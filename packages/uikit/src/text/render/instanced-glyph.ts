@@ -24,7 +24,7 @@ export class InstancedGlyph {
   constructor(
     private readonly group: InstancedGlyphGroup,
     //modifiable using update...
-    private baseMatrix: Matrix4,
+    private baseMatrix: Matrix4 | undefined,
     private color: ColorRepresentation,
     private opacity: number,
     private clippingRect: ClippingRect | undefined,
@@ -96,7 +96,7 @@ export class InstancedGlyph {
   }
 
   updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number): void {
-    if (this.glyphInfo === this.glyphInfo && this.x === x && this.y === y && this.fontSize === fontSize) {
+    if (this.glyphInfo === glyphInfo && this.x === x && this.y === y && this.fontSize === fontSize) {
       return
     }
     if (this.glyphInfo != glyphInfo) {
@@ -129,7 +129,7 @@ export class InstancedGlyph {
   }
 
   private writeUpdatedMatrix(): void {
-    if (this.index == null || this.glyphInfo == null) {
+    if (this.index == null || this.glyphInfo == null || this.baseMatrix == null) {
       return
     }
     const offset = this.index * 16

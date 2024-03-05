@@ -32,7 +32,7 @@ export function Tabs({
     }
     return {
       value: providedValue,
-      onValueChange,
+      setValue: onValueChange,
     }
   }, [uncontrolled, onValueChange, providedValue])
   return (
@@ -68,7 +68,7 @@ export function TabsTrigger({
   const active = value === current
   return (
     <Container
-      onClick={disabled ? undefined : () => setValue?.(value)}
+      onClick={disabled ? undefined : (e) => setValue?.(value)}
       cursor={disabled ? undefined : 'pointer'}
       flexDirection="row"
       alignItems="center"

@@ -105,6 +105,7 @@ export function useOrderInfo(
     minorIndex += minorOffset
 
     return {
+      instancedGroupDependencies,
       elementType: type,
       majorIndex,
       minorIndex,
