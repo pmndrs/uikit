@@ -29,12 +29,10 @@
   "scripts": {
     "test": "mocha ./tests/allocation.spec.ts",
     "build": "tsc",
-    "inline-wasm": "wasmwrap --include-decode false --input node_modules/yoga-wasm-web/dist/yoga.wasm --output src/flex/wasm.ts",
-    "fix:inline-wasm": "replace-in-files --string 'const base64 =' --replacement 'const base64: string =' src/flex/wasm.ts",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
-    "check:prettier": "prettier --check src",
+    "check:prettier": "prettier --check src scripts tests",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
-    "fix:prettier": "prettier --write src",
+    "fix:prettier": "prettier --write src scripts tests",
     "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {
@@ -44,12 +42,11 @@
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
-    "base64-js": "^1.5.1",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
     "ora": "^8.0.1",
     "prompts": "^2.4.2",
-    "yoga-wasm-web": "^0.3.3",
+    "yoga-layout": "^2.0.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -63,7 +60,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "replace-in-files-cli": "^2.2.0",
-    "three": "^0.161.0",
-    "wasmwrap": "^1.0.0"
+    "three": "^0.161.0"
   }
 }

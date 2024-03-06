@@ -1,6 +1,6 @@
 import { Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Gltf, Box, PerspectiveCamera } from '@react-three/drei'
+import { Gltf, Box, PerspectiveCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -14,7 +14,6 @@ import {
   Portal,
   SuspendingImage,
 } from '@react-three/uikit'
-import { RenderTexture } from '@react-three/drei'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/skeleton'
 
