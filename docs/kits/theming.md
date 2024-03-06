@@ -19,7 +19,7 @@ export const colors = basedOnPreferredColorScheme({
 })
 ```
 
-With the following code
+Now, with the following code
 
 ```jsx
 import { Canvas } from "@react-three/fiber";
@@ -45,6 +45,6 @@ createRoot(document.getElementById("root")).render(
 );
 ```
 
-the following result the following result is achieved.
+this result is achieved.
 
 ![themed button in red](./theming.png)

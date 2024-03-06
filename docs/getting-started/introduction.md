@@ -6,7 +6,7 @@ nav: 0
 
 ![uikit banner](./banner.jpg)
 
-Build declarative UIs with support for nested scroll, buttons, inputs, dropdowns, tabs, checkboxes, and more.
+Build declarative UIs with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
 
 > Perfect for games, XR (VR/AR), and, of course, Spatial Computing Apps.
 
@@ -16,7 +16,7 @@ npm install three @react-three/fiber @react-three/uikit
 
 ### What does it look like ?
 
-| A simple UI with 2 containers in a row rendered in fullscreen that changes their opacity when the user hovers over them. | ![render of the above code](./basic-example.gif) |
+| A simple UI rendered in fullscreen with 2 containers arranged in a row changing their opacity when the user hovers over them. | ![render of the above code](./basic-example.gif) |
 | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
 ```jsx
@@ -49,19 +49,19 @@ Install the source code of themeable components from available kits into your re
 
 The tutorials expect some familiarity with react, threejs, and @react-three/fiber.
 
-1. Build your [First Layout](./first-layout.md)
-2. Learn about the [Available Components and Their Properties](./components-and-properties.md)
-3. Get inspired by our [Examples](./examples.md)
-4. Learn more about  
-— [Interacitivity](../tutorials/interactivity.md)  
-— Using [Custom Materials](../tutorials/custom-materials.md)  
-— Using [Custom Fonts](../tutorials/fonts.md)  
-— Creating [Responsivene User Interfaces](../tutorials/responsive.md)  
-— [Scrolling](../tutorials/scroll.md)  
-— [Sizing](../tutorials/sizing.md)
-5. Learn about [Common Pitfalls]() and how to [Optimize Performance]()
+- Build your [First Layout](./first-layout.md)
+- Learn about the [Available Components and Their Properties](./components-and-properties.md)
+- Get inspired by our [Examples](./examples.md)
+- Learn more about  
+  - [Interacitivity](../tutorials/interactivity.md)  
+  - Using [Custom Materials](../tutorials/custom-materials.md)  
+  - Using [Custom Fonts](../tutorials/custom-fonts.md)  
+  - Creating [Responsivene User Interfaces](../tutorials/responsive.md)  
+  - [Scrolling](../tutorials/scroll.md)  
+  - [Sizing](../tutorials/sizing.md)
+- Learn about [Common Pitfalls](../advanced/pitfalls.md) and how to [Optimize Performance](../advanced/performance.md)
 
-### Migration guides
+## Migration guides
 
 - from [Koestlich](../migration/from-koestlich.md)
 - from [HTML/CSS](../migration/from-html-css.md)
