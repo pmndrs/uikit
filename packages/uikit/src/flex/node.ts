@@ -1,9 +1,7 @@
 import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
 import { Edge, Node, Yoga, Overflow } from 'yoga-layout/wasm-async'
-
 import { setter } from './setter.js'
-
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
 import { RefObject } from 'react'
@@ -185,7 +183,7 @@ export class FlexNode implements WithImmediateProperties {
     }
   }
 
-  updateMeasurements(parentWidth?: number | undefined, parentHeight?: number | undefined): Vector2Tuple {
+  updateMeasurements(parentWidth: number | undefined, parentHeight: number | undefined): Vector2Tuple {
     if (this.yogaNode == null) {
       throw new Error(`update measurements cannot be called without a yoga node`)
     }
