@@ -1,20 +1,8 @@
 import { writeFileSync } from 'fs'
-import {
-  EDGE_BOTTOM,
-  EDGE_LEFT,
-  EDGE_RIGHT,
-  EDGE_TOP,
-  Node,
-  UNIT_AUTO,
-  UNIT_PERCENT,
-  UNIT_POINT,
-  UNIT_UNDEFINED,
-} from 'yoga-wasm-web'
-import { GUTTER_ROW, GUTTER_COLUMN } from 'yoga-wasm-web'
-import { loadYogaBase64 } from '../src/flex/load-base64.js'
+import { loadYoga, Edge, Gutter, Unit, Node } from 'yoga-layout/wasm-async'
 
 async function main() {
-  const yoga = await loadYogaBase64()
+  const yoga = await loadYoga()
   const node = yoga.Node.create()
 
   const propertiesWithEdge = new Set(['border', 'padding', 'margin', 'position'])
@@ -34,15 +22,16 @@ async function main() {
   }
 
   const edgeMap = {
-    Top: EDGE_TOP,
-    Left: EDGE_LEFT,
-    Right: EDGE_RIGHT,
-    Bottom: EDGE_BOTTOM,
+    Top: Edge.Top,
+    Left: Edge.Left,
+    Right: Edge.Right,
+    Bottom: Edge.Bottom,
   }
   const gutterMap = {
-    Row: GUTTER_ROW,
-    Column: GUTTER_COLUMN,
+    Row: Gutter.Row,
+    Column: Gutter.Column,
   }
+
   const yogaKeys = Object.entries(yoga)
 
   const kebabCaseFromSnakeCase = (str: string) =>
@@ -119,11 +108,11 @@ async function main() {
       }
     }
     if (propertiesWithEdge.has(propertyName)) {
+      importedTypesFromYoga.add('Edge')
       for (const [edgeKey, edge] of Object.entries(edgeMap)) {
         const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getBorder'](edge))
         const edgePropertyName = `${propertyName}${edgeKey}`
-        const edgeType = `EDGE_${edgeKey.toUpperCase()}`
-        importedTypesFromYoga.add(edgeType)
+        const edgeType = `Edge.${edgeKey}`
         setterFunctions.push([
           edgePropertyName,
           `(node: Node, precision: number, input: ${types.join(' | ')}) =>
@@ -135,11 +124,11 @@ async function main() {
         ])
       }
     } else if (propertiesWithGutter.has(propertyName)) {
+      importedTypesFromYoga.add('Gutter')
       for (const [gutterKey, gutter] of Object.entries(gutterMap)) {
         const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getGap'](gutter))
         const gutterPropertyName = `${propertyName}${gutterKey}`
-        const gutterType = `GUTTER_${gutterKey.toUpperCase()}`
-        importedTypesFromYoga.add(gutterType)
+        const gutterType = `Gutter.${gutterKey}`
         setterFunctions.push([
           gutterPropertyName,
           `(node: Node, precision: number, input: ${types.join(' | ')}) =>
@@ -166,8 +155,8 @@ async function main() {
 
   writeFileSync(
     'src/flex/setter.ts',
-    `import { Node } from "yoga-wasm-web"
-    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-wasm-web"
+    `import { Node } from "yoga-layout/wasm-async"
+    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/wasm-async"
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
@@ -199,8 +188,7 @@ function createLookupTable(
   return `const ${name} = {
     ${values
       .map(([key, value, type]) => {
-        importedTypesFromYoga.add(type)
-        return `"${key}": ${value} as ${type}`
+        return `"${key}": ${value}`
       })
       .join(',\n')}
   } as const`
@@ -209,13 +197,13 @@ function createLookupTable(
 function fromYoga(name: string, value: any): 'auto' | `${number}%` | number | null {
   if (typeof value === 'object') {
     switch (value.unit) {
-      case UNIT_AUTO:
+      case Unit.Auto:
         return 'auto'
-      case UNIT_PERCENT:
+      case Unit.Percent:
         return `${value.value}%`
-      case UNIT_POINT:
+      case Unit.Point:
         return value.value ?? null
-      case UNIT_UNDEFINED:
+      case Unit.Undefined:
         return null
     }
   }

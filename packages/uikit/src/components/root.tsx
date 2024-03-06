@@ -1,4 +1,3 @@
-import { Yoga } from 'yoga-wasm-web'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { FlexNode, YogaProperties } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
@@ -48,7 +47,6 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from '../text/react.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
-import { loadYogaFromGH } from '../flex/load-binary.js'
 import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
@@ -73,7 +71,6 @@ const vectorHelper = new Vector3()
 export const Root = forwardRef<
   ComponentInternals,
   RootProperties & {
-    loadYoga?: () => Promise<Yoga>
     children?: ReactNode
     precision?: number
     anchorX?: keyof typeof alignmentXMap
@@ -99,7 +96,7 @@ export const Root = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
-  const yoga = useLoadYoga(properties.loadYoga ?? loadYogaFromGH)
+  const yoga = useLoadYoga()
   const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
   const groupRef = useRef<Group>(null)
   const requestLayout = useDeferredRequestLayoutCalculation()

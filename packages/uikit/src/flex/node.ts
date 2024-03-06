@@ -1,16 +1,6 @@
 import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import {
-  EDGE_TOP,
-  EDGE_LEFT,
-  EDGE_RIGHT,
-  EDGE_BOTTOM,
-  Node,
-  Yoga,
-  OVERFLOW_VISIBLE,
-  Overflow,
-  OVERFLOW_SCROLL,
-} from 'yoga-wasm-web'
+import { Edge, Node, Yoga, Overflow } from 'yoga-layout/wasm-async'
 import { setter } from './setter.js'
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
@@ -28,7 +18,7 @@ export class FlexNode implements WithImmediateProperties {
   public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
   public readonly borderInset = signal<Inset>([0, 0, 0, 0])
   public readonly paddingInset = signal<Inset>([0, 0, 0, 0])
-  public readonly overflow = signal<Overflow>(OVERFLOW_VISIBLE)
+  public readonly overflow = signal<Overflow>(Overflow.Visible)
   public readonly maxScrollPosition = signal<Partial<Vector2Tuple>>([undefined, undefined])
   public readonly scrollable = signal<[boolean, boolean]>([false, false])
 
@@ -214,16 +204,16 @@ export class FlexNode implements WithImmediateProperties {
     const relativeCenterY = -(y + height * 0.5 - parentHeight * 0.5)
     updateVector2Signal(this.relativeCenter, relativeCenterX, relativeCenterY)
 
-    const paddingTop = this.yogaNode.getComputedPadding(EDGE_TOP) * this.precision
-    const paddingLeft = this.yogaNode.getComputedPadding(EDGE_LEFT) * this.precision
-    const paddingRight = this.yogaNode.getComputedPadding(EDGE_RIGHT) * this.precision
-    const paddingBottom = this.yogaNode.getComputedPadding(EDGE_BOTTOM) * this.precision
+    const paddingTop = this.yogaNode.getComputedPadding(Edge.Top) * this.precision
+    const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left) * this.precision
+    const paddingRight = this.yogaNode.getComputedPadding(Edge.Right) * this.precision
+    const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom) * this.precision
     updateInsetSignal(this.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
 
-    const borderTop = this.yogaNode.getComputedBorder(EDGE_TOP) * this.precision
-    const borderRight = this.yogaNode.getComputedBorder(EDGE_RIGHT) * this.precision
-    const borderBottom = this.yogaNode.getComputedBorder(EDGE_BOTTOM) * this.precision
-    const borderLeft = this.yogaNode.getComputedBorder(EDGE_LEFT) * this.precision
+    const borderTop = this.yogaNode.getComputedBorder(Edge.Top) * this.precision
+    const borderRight = this.yogaNode.getComputedBorder(Edge.Right) * this.precision
+    const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom) * this.precision
+    const borderLeft = this.yogaNode.getComputedBorder(Edge.Left) * this.precision
     updateInsetSignal(this.borderInset, borderTop, borderRight, borderBottom, borderLeft)
 
     for (const layoutChangeListener of this.layoutChangeListeners) {
@@ -242,7 +232,7 @@ export class FlexNode implements WithImmediateProperties {
     maxContentWidth -= borderLeft
     maxContentHeight -= borderTop
 
-    if (this.overflow.value === OVERFLOW_SCROLL) {
+    if (this.overflow.value === Overflow.Scroll) {
       maxContentWidth += paddingRight
       maxContentHeight += paddingLeft
 
@@ -263,7 +253,7 @@ export class FlexNode implements WithImmediateProperties {
       updateVector2Signal(this.scrollable, false, false)
     }
 
-    const overflowVisible = this.overflow.value === OVERFLOW_VISIBLE
+    const overflowVisible = this.overflow.value === Overflow.Visible
 
     return [
       x + Math.max(width, overflowVisible ? maxContentWidth : 0),

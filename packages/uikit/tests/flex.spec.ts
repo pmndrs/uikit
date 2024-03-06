@@ -1,24 +1,19 @@
 import { expect } from 'chai'
 import {
-  ALIGN_CENTER,
-  ALIGN_FLEX_END,
-  ALIGN_SPACE_AROUND,
-  DISPLAY_NONE,
-  EDGE_BOTTOM,
-  EDGE_LEFT,
-  EDGE_RIGHT,
-  FLEX_DIRECTION_ROW_REVERSE,
-  JUSTIFY_SPACE_EVENLY,
+  Align,
+  Overflow,
   Node,
-  OVERFLOW_SCROLL,
-  POSITION_TYPE_ABSOLUTE,
-  UNIT_PERCENT,
-  UNIT_POINT,
-  WRAP_WRAP_REVERSE,
   Yoga,
-} from 'yoga-wasm-web'
-import { EDGE_TOP } from 'yoga-wasm-web'
-import { FlexNode, YogaProperties, loadYogaBase64, setMeasureFunc, setter } from '../src/flex/index.js'
+  Edge,
+  Display,
+  FlexDirection,
+  Wrap,
+  Justify,
+  PositionType,
+  Unit,
+  loadYoga,
+} from 'yoga-layout/wasm-async'
+import { FlexNode, YogaProperties, setMeasureFunc, setter } from '../src/flex/index.js'
 import { signal } from '@preact/signals-core'
 
 const testValues: YogaProperties = {
@@ -60,22 +55,22 @@ const testValues: YogaProperties = {
 }
 
 export const rawTestValues = {
-  alignContent: ALIGN_CENTER,
-  alignItems: ALIGN_FLEX_END,
-  alignSelf: ALIGN_SPACE_AROUND,
+  alignContent: Align.Center,
+  alignItems: Align.FlexEnd,
+  alignSelf: Align.SpaceAround,
   aspectRatio: 2,
   borderBottom: 3,
   borderLeft: 4,
   borderRight: 5,
   borderTop: 6,
-  display: DISPLAY_NONE,
+  display: Display.None,
   flexBasis: 7,
-  flexDirection: FLEX_DIRECTION_ROW_REVERSE,
+  flexDirection: FlexDirection.RowReverse,
   flexGrow: 8,
   flexShrink: 9,
-  flexWrap: WRAP_WRAP_REVERSE,
+  flexWrap: Wrap.WrapReverse,
   height: 10,
-  justifyContent: JUSTIFY_SPACE_EVENLY,
+  justifyContent: Justify.SpaceEvenly,
   marginBottom: 11,
   marginLeft: 12,
   marginRight: 13,
@@ -84,7 +79,7 @@ export const rawTestValues = {
   maxWidth: 16,
   minHeight: 17,
   minWidth: 18,
-  overflow: OVERFLOW_SCROLL,
+  overflow: Overflow.Scroll,
   paddingBottom: 19,
   paddingLeft: 20,
   paddingRight: 21,
@@ -93,7 +88,7 @@ export const rawTestValues = {
   positionLeft: 24,
   positionRight: 25,
   positionTop: 26,
-  positionType: POSITION_TYPE_ABSOLUTE,
+  positionType: PositionType.Absolute,
   width: 50, //50%
 }
 
@@ -109,16 +104,16 @@ function getRawValue(property: string, node: Node): any {
   for (const propertyWithEdge of propertiesWithEdge) {
     if (property.startsWith(propertyWithEdge)) {
       if (property.endsWith('Top')) {
-        return flatten(node[`get${capitalize(property.slice(0, -3))}` as 'getBorder'](EDGE_TOP))
+        return flatten(node[`get${capitalize(property.slice(0, -3))}` as 'getBorder'](Edge.Top))
       }
       if (property.endsWith('Bottom')) {
-        return flatten(node[`get${capitalize(property.slice(0, -6))}` as 'getBorder'](EDGE_BOTTOM))
+        return flatten(node[`get${capitalize(property.slice(0, -6))}` as 'getBorder'](Edge.Bottom))
       }
       if (property.endsWith('Right')) {
-        return flatten(node[`get${capitalize(property.slice(0, -5))}` as 'getBorder'](EDGE_RIGHT))
+        return flatten(node[`get${capitalize(property.slice(0, -5))}` as 'getBorder'](Edge.Right))
       }
       if (property.endsWith('Left')) {
-        return flatten(node[`get${capitalize(property.slice(0, -4))}` as 'getBorder'](EDGE_LEFT))
+        return flatten(node[`get${capitalize(property.slice(0, -4))}` as 'getBorder'](Edge.Left))
       }
     }
   }
@@ -132,7 +127,7 @@ describe('set & get properties', () => {
   const rawValues: any = {}
 
   before(async () => {
-    yoga = await loadYogaBase64().catch(console.error)
+    yoga = await loadYoga().catch(console.error)
     node = yoga.Node.create()
   })
 
@@ -174,12 +169,12 @@ describe('set & get properties', () => {
   it('it should set value with and without precision', () => {
     setter.width(node, 0.01, 1)
     expect(node.getWidth()).to.deep.equal({
-      unit: UNIT_POINT,
+      unit: Unit.Point,
       value: 100,
     })
     setter.width(node, 0.01, '50%')
     expect(node.getWidth()).to.deep.equal({
-      unit: UNIT_PERCENT,
+      unit: Unit.Percent,
       value: 50,
     })
   })
@@ -199,7 +194,7 @@ describe('flex node', () => {
   let child2: FlexNode
 
   before(async () => {
-    yoga = await loadYogaBase64()
+    yoga = await loadYoga()
     parent = new FlexNode(signal(yoga), 0.01, 1, () => {})
     child1 = parent.createChild()
     child2 = parent.createChild()
