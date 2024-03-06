@@ -4,9 +4,9 @@ description: Pitfalls to avoid when building userinterfaces with r3/uikit
 nav: 0
 ---
 
-# Asynchronous Objects inside \<Content/>
+# Asynchronous Objects inside `Content`
 
-The `<Content>` component measures its content when the component is created. If the content is loaded asynchronous, this measurement will be incorrect. To prevent this behavior, suspense boundaries must be placed correctly.
+The `Content` component measures its content when the component is created. If the content is loaded asynchronous, this measurement will be incorrect. To prevent this behavior, suspense boundaries must be placed correctly.
 
 <table>
 <tr><td>❌ incorrect</td><td>✅ correct</td></tr>
@@ -22,7 +22,6 @@ The `<Content>` component measures its content when the component is created. If
 ```
 
 </td>
-</pre>
 <td>
 
 ```jsx

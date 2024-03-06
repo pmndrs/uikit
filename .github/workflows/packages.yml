@@ -42,8 +42,6 @@ jobs:
       
       - name: Prepare Build
         run: |
-          pnpm -r inline-wasm
-          pnpm -r fix:inline-wasm
           pnpm -r convert
           pnpm -r generate
 

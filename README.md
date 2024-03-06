@@ -39,7 +39,6 @@ Limitations
 ## Development
 
 `pnpm install`  
-`pnpm -r inline-wasm`  
 `pnpm -r convert`  
 `pnpm -r generate`  
 `pnpm -F "./packages/**/*" build`

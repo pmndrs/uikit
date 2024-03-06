@@ -8,7 +8,8 @@ function generateMarkdown(kit, components) {
     result += `## ${capitalize(component)}
 ![${component} example image](./${kit}/${component}.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 \`\`\`tsx
 ${readFileSync(`../../examples/${kit}/src/components/${component}.tsx`).toString()}

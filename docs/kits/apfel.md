@@ -1,7 +1,8 @@
 ## Button
 ![button example image](./apfel/button.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Container, Text } from '@react-three/uikit'
@@ -198,7 +199,8 @@ npx uikit component add apfel button
 ## Card
 ![card example image](./apfel/card.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -227,7 +229,8 @@ npx uikit component add apfel card
 ## Checkbox
 ![checkbox example image](./apfel/checkbox.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Card } from '@/card'
@@ -254,7 +257,8 @@ npx uikit component add apfel checkbox
 ## List
 ![list example image](./apfel/list.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -402,7 +406,8 @@ npx uikit component add apfel list
 ## Loading
 ![loading example image](./apfel/loading.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Card } from '@/card'
@@ -430,7 +435,8 @@ npx uikit component add apfel loading
 ## Progress
 ![progress example image](./apfel/progress.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Card } from '@/card'
@@ -460,7 +466,8 @@ npx uikit component add apfel progress
 ## Slider
 ![slider example image](./apfel/slider.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Container } from '@react-three/uikit'
@@ -506,7 +513,8 @@ npx uikit component add apfel slider
 ## Tab-bar
 ![tab-bar example image](./apfel/tab-bar.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -544,7 +552,8 @@ npx uikit component add apfel tab-bar
 ## Tabs
 ![tabs example image](./apfel/tabs.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'

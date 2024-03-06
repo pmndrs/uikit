@@ -1,7 +1,8 @@
 ## Accordion
 ![accordion example image](./default/accordion.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -53,7 +54,8 @@ npx uikit component add default accordion
 ## Alert
 ![alert example image](./default/alert.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -88,7 +90,8 @@ npx uikit component add default alert
 ## Alert-dialog
 ![alert-dialog example image](./default/alert-dialog.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -150,7 +153,8 @@ npx uikit component add default alert-dialog
 ## Avatar
 ![avatar example image](./default/avatar.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Container } from '@react-three/uikit'
@@ -176,7 +180,8 @@ npx uikit component add default avatar
 ## Badge
 ![badge example image](./default/badge.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -202,7 +207,8 @@ npx uikit component add default badge
 ## Button
 ![button example image](./default/button.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { ChevronRight } from '@react-three/uikit-lucide'
@@ -228,7 +234,8 @@ npx uikit component add default button
 ## Card
 ![card example image](./default/card.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -322,7 +329,8 @@ npx uikit component add default card
 ## Checkbox
 ![checkbox example image](./default/checkbox.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -352,7 +360,8 @@ npx uikit component add default checkbox
 ## Dialog
 ![dialog example image](./default/dialog.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -421,7 +430,8 @@ npx uikit component add default dialog
 ## Label
 ![label example image](./default/label.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -451,7 +461,8 @@ npx uikit component add default label
 ## Pagination
 ![pagination example image](./default/pagination.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -510,7 +521,8 @@ npx uikit component add default pagination
 ## Progress
 ![progress example image](./default/progress.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { useEffect, useState } from 'react'
@@ -539,7 +551,8 @@ npx uikit component add default progress
 ## Radio-group
 ![radio-group example image](./default/radio-group.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'
@@ -580,7 +593,8 @@ npx uikit component add default radio-group
 ## Separator
 ![separator example image](./default/separator.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { DefaultProperties, Text, Container } from '@react-three/uikit'
@@ -624,7 +638,8 @@ npx uikit component add default separator
 ## Skeleton
 ![skeleton example image](./default/skeleton.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Container } from '@react-three/uikit'
@@ -654,7 +669,8 @@ npx uikit component add default skeleton
 ## Slider
 ![slider example image](./default/slider.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Slider } from '@/slider'
@@ -675,7 +691,8 @@ npx uikit component add default slider
 ## Switch
 ![switch example image](./default/switch.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -705,7 +722,8 @@ npx uikit component add default switch
 ## Tabs
 ![tabs example image](./default/tabs.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
@@ -803,7 +821,8 @@ npx uikit component add default tabs
 ## Toggle
 ![toggle example image](./default/toggle.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Bold } from '@react-three/uikit-lucide'
@@ -829,7 +848,8 @@ npx uikit component add default toggle
 ## Toggle-group
 ![toggle-group example image](./default/toggle-group.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Bold, Italic, Underline } from '@react-three/uikit-lucide'
@@ -863,7 +883,8 @@ npx uikit component add default toggle-group
 ## Tooltip
 ![tooltip example image](./default/tooltip.png)
 
-<details><summary>Code</summary>
+<details>
+<summary>Code</summary>
 
 ```tsx
 import { Text } from '@react-three/uikit'

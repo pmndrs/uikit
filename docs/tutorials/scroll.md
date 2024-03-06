@@ -1,42 +1,33 @@
-import Image from '@theme/IdealImage';
-import { CodesandboxEmbed } from '../CodesandboxEmbed.tsx'
+---
+title: Scrolling
+description: How to use overflow, scrolling, and clipping.
+nav: 2
+---
 
-# Overflow, Scroll, and Clipping
+uikit handles clipping and scrolling out of the box by specifying `overflow="scroll"` or `overflow="hidden"` on any UI element.
 
-**Koestlich** handles clipping and scrolling for you. You only need to specify `overflow` "scroll" or "hidden" on any container. First, however, we need to configure react-three/fiber to support visual clipping and clipping of events, which is done via `<Canvas events={clippingEvents} gl={{ localClippingEnabled: true }}>`.
+However, it is required to configure three.js to support visual clipping, which is done via
 
-:::caution Important
-All components are animated by default using the `distanceFadeAnimation`. For a snappy scroll experience, the animation can be disabled by providing the `noAnimation` animation on the direct children of the scroll container.
-
-The following example shows a scrollable user interface using the `noAnimation` property to deliver a snappy scroll experience.
-:::
-
-<CodesandboxEmbed path="koestlich-overflow-c9nkvc"/>
-
-<Image img={require('@site/static/images/scroll.gif')}/>
-
-```tsx
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { RootContainer, Container, clippingEvents, noAnimation } from "@coconut-xr/koestlich";
-
-export default function App() {
-  return (
-    <Canvas events={clippingEvents} gl={{ localClippingEnabled: true }}>
-      <OrbitControls enableRotate={false} />
-      <RootContainer
-        backgroundColor="red"
-        sizeX={2}
-        sizeY={1}
-        flexDirection="row"
-        overflow="scroll"
-      >
-        <Container animation={noAnimation}>
-          <Container width={750} margin={48} backgroundColor="green" />
-          <Container width={750} margin={48} backgroundColor="blue" />
-        </Container>
-      </RootContainer>
-    </Canvas>
-  );
-}
+```jsx
+<Canvas gl={{ localClippingEnabled: true }}>
 ```
+
+## Scrollbars
+
+uikit renders scrollbars if the content overflows an element that has the property `overflow="scroll"`. The scrollbar can be styled similarly to the background panel of any component via the following properties.
+
+| Property                         | Type                |
+| -------------------------------- | ------------------- |
+| scrollbarPanelMaterialClass      | Material class      |
+| scrollbarBackgroundOpacity       | number              |
+| scrollbarBackgroundColor         | ColorRepresentation |
+| scrollbarWidth                   | number              |
+| scrollbarBorderRadius            | number              |
+| scrollbarBorderLeftRadius        | number              |
+| scrollbarBorderRightRadius       | number              |
+| scrollbarBorderTopRadius         | number              |
+| scrollbarBorderBottomRadius      | number              |
+| scrollbarBorderTopLeftRadius     | number              |
+| scrollbarBorderTopRightRadius    | number              |
+| scrollbarBorderBottomRightRadius | number              |
+| scrollbarBorderBottomLeftRadius  | number              |
