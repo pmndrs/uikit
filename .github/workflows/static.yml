@@ -87,13 +87,6 @@ jobs:
           cp ./packages/fonts/dist/* ./public/fonts
           cp ./packages/fonts/LICENSE public/fonts/LICENSE
 
-# Yoga Wasm
-      - name: Copy wasm files
-        run: |
-          mkdir public/yoga
-          cp packages/uikit/node_modules/yoga-wasm-web/dist/yoga.wasm public/yoga/yoga.wasm
-          cp ./packages/uikit/THIRD_PARTY_LICENSES public/yoga/THIRD_PARTY_LICENSES
-
 # Examples
       - name: Building Examples
         run: |  

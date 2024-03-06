@@ -39,7 +39,7 @@ export class FlexNode implements WithImmediateProperties {
     private precision: number,
     public readonly pixelSize: number,
     requestCalculateLayout: (node: FlexNode) => void,
-    public readonly anyAncestorScrollable?: Signal<[boolean, boolean]> | undefined,
+    public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
