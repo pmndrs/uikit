@@ -81,7 +81,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
 
   constructor(
     private readonly group: InstancedPanelGroup,
-    private readonly matrix: Signal<Matrix4>,
+    private readonly matrix: Signal<Matrix4 | undefined>,
     private readonly size: Signal<Vector2Tuple>,
     private readonly offset: Signal<Vector2Tuple> | undefined,
     private readonly borderInset: Signal<Inset>,
@@ -92,6 +92,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
     this.unsubscribeVisible = effect(() => {
       const get = this.getProperty.value
       if (
+        get != null &&
         isPanelVisible(
           borderInset,
           size,
@@ -107,7 +108,9 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       this.hide()
     })
   }
-  getProperty: Signal<<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]> = signal(() => undefined)
+  getProperty: Signal<
+    (<K extends 'backgroundOpacity' | 'backgroundColor' | 'borderOpacity'>(key: K) => BatchedProperties[K]) | undefined
+  > = signal(undefined)
 
   hasBatchedProperty(key: BatchedPropertiesKey): boolean {
     return batchedProperties.includes(key)
@@ -147,6 +150,10 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
     this.active.value = true
     this.unsubscribeList.push(
       effect(() => {
+        const matrix = this.matrix.value
+        if (matrix == null) {
+          return
+        }
         const { instanceMatrix, pixelSize } = this.group
         const index = this.getIndexInBuffer()
         if (index == null) {
@@ -159,7 +166,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
           const [x, y] = this.offset.value
           matrixHelper1.premultiply(matrixHelper2.makeTranslation(x * pixelSize, y * pixelSize, 0))
         }
-        matrixHelper1.premultiply(this.matrix.value)
+        matrixHelper1.premultiply(matrix)
         matrixHelper1.toArray(instanceMatrix.array, arrayIndex)
         instanceMatrix.addUpdateRange(arrayIndex, 16)
         instanceMatrix.needsUpdate = true

@@ -88,22 +88,22 @@ importers:
     dependencies:
       '@coconut-xr/xinteraction':
         specifier: ^0.1.12
-        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/postprocessing':
         specifier: ^2.16.0
-        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0)
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/rapier':
         specifier: ^1.3.0
-        version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+        version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -114,14 +114,17 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2(@react-three/fiber@8.15.13)(@splinetool/loader@1.0.54)
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
+      '@vitejs/plugin-basic-ssl':
+        specifier: ^1.1.0
+        version: 1.1.0(vite@5.0.12)
       maath:
         specifier: ^0.10.7
-        version: 0.10.7(@types/three@0.160.0)(three@0.160.0)
+        version: 0.10.7(@types/three@0.161.2)(three@0.161.0)
       r3f-perf:
         specifier: ^7.1.2
-        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -129,8 +132,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
 
   examples/card:
     dependencies:
@@ -139,16 +142,16 @@ importers:
         version: 1.5.1
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/postprocessing':
         specifier: ^2.16.0
-        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0)
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/rapier':
         specifier: ^1.3.0
-        version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+        version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -159,14 +162,14 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2(@react-three/fiber@8.15.13)(@splinetool/loader@1.0.54)
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
       maath:
         specifier: ^0.10.7
-        version: 0.10.7(@types/three@0.160.0)(three@0.160.0)
+        version: 0.10.7(@types/three@0.161.2)(three@0.161.0)
       r3f-perf:
         specifier: ^7.1.2
-        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -174,23 +177,23 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
 
   examples/dashboard:
     dependencies:
       '@coconut-xr/xinteraction':
         specifier: ^0.1.12
-        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/postprocessing':
         specifier: ^2.16.0
-        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0)
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -198,11 +201,11 @@ importers:
         specifier: workspace:^
         version: link:../../packages/icons/lucide
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
       r3f-perf:
         specifier: ^7.1.2
-        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -210,8 +213,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
       vite-plugin-mkcert:
         specifier: ^1.17.4
         version: 1.17.4(vite@5.0.12)
@@ -223,16 +226,16 @@ importers:
     dependencies:
       '@coconut-xr/xinteraction':
         specifier: ^0.1.12
-        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
+        version: 0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -241,22 +244,25 @@ importers:
         version: link:../../packages/icons/lucide
       r3f-perf:
         specifier: ^7.1.2
-        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      three:
+        specifier: ^0.161.0
+        version: 0.161.0
 
   examples/lucide:
     dependencies:
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -274,13 +280,13 @@ importers:
     dependencies:
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/postprocessing':
         specifier: ^2.16.0
-        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0)
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -288,11 +294,11 @@ importers:
         specifier: workspace:^
         version: link:../../packages/icons/lucide
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
       r3f-perf:
         specifier: ^7.1.2
-        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -300,8 +306,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
 
   examples/uikit:
     dependencies:
@@ -310,10 +316,10 @@ importers:
         version: 1.5.1
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -324,12 +330,12 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
     devDependencies:
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
 
   packages/fonts:
     dependencies:
@@ -366,7 +372,7 @@ importers:
         version: 1.5.1
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../uikit
@@ -377,11 +383,11 @@ importers:
         specifier: ^18.2.47
         version: 18.2.47
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
 
   packages/kits/default:
     dependencies:
@@ -394,7 +400,7 @@ importers:
         version: 1.5.1
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../uikit
@@ -405,11 +411,11 @@ importers:
         specifier: ^18.2.47
         version: 18.2.47
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
 
   packages/uikit:
     dependencies:
@@ -437,10 +443,10 @@ importers:
     devDependencies:
       '@react-three/drei':
         specifier: ^9.96.1
-        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/fiber':
         specifier: ^8.15.13
-        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@types/node':
         specifier: ^20.11.0
         version: 20.11.0
@@ -454,8 +460,8 @@ importers:
         specifier: ^18.2.18
         version: 18.2.18
       '@types/three':
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.2
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -466,8 +472,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       three:
-        specifier: ^0.160.0
-        version: 0.160.0
+        specifier: ^0.161.0
+        version: 0.161.0
 
 packages:
 
@@ -737,7 +743,7 @@ packages:
     resolution: {integrity: sha512-hBzuU5+JjB2cqNZyszkDHZgOSrUUT8V3dhgRl8Q9Gp6dAj/H5+KILGjbhDpc3Iy9qmqlm/akuOI2ut9VUtzJxQ==}
     dev: false
 
-  /@coconut-xr/xinteraction@0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0):
+  /@coconut-xr/xinteraction@0.1.12(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-nuKWTDz9qx1HRw7MASvqhxO7i676FVWdh+vITFhQYpQem7QLyJqSaU/gw3l7Qh7QYZENmvvte4X83D1oih/htA==}
     peerDependencies:
       '@react-three/fiber': '*'
@@ -749,9 +755,9 @@ packages:
       react:
         optional: true
     dependencies:
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react: 18.2.0
-      three: 0.160.0
+      three: 0.161.0
     dev: false
 
   /@cspotcode/source-map-support@0.8.1:
@@ -1910,7 +1916,7 @@ packages:
       '@react-spring/types': 9.6.1
       react: 18.2.0
 
-  /@react-spring/three@9.6.1(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0):
+  /@react-spring/three@9.6.1(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-Tyw2YhZPKJAX3t2FcqvpLRb71CyTe1GvT3V+i+xJzfALgpk10uPGdGaQQ5Xrzmok1340DAeg2pR/MCfaW7b8AA==}
     peerDependencies:
       '@react-three/fiber': '>=6.0'
@@ -1921,14 +1927,14 @@ packages:
       '@react-spring/core': 9.6.1(react@18.2.0)
       '@react-spring/shared': 9.6.1(react@18.2.0)
       '@react-spring/types': 9.6.1
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react: 18.2.0
-      three: 0.160.0
+      three: 0.161.0
 
   /@react-spring/types@9.6.1:
     resolution: {integrity: sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==}
 
-  /@react-three/drei@9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0):
+  /@react-three/drei@9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-aPdDCIZkqorTyGYCQNqYwlPVWAvIHHbYus9HMfR8fHdeGpSlp4sRVtIDWp9g8zKl16LRMGPYXAPC7azAS1Pyqw==}
     peerDependencies:
       '@react-three/fiber': '>=8.0'
@@ -1941,18 +1947,18 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.8
       '@mediapipe/tasks-vision': 0.10.8
-      '@react-spring/three': 9.6.1(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0)
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-spring/three': 9.6.1(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@use-gesture/react': 10.3.0(react@18.2.0)
-      camera-controls: 2.7.3(three@0.160.0)
+      camera-controls: 2.7.3(three@0.161.0)
       cross-env: 7.0.3
       detect-gpu: 5.0.37
       glsl-noise: 0.0.0
       lodash.clamp: 4.0.3
       lodash.omit: 4.5.0
       lodash.pick: 4.4.0
-      maath: 0.10.7(@types/three@0.160.0)(three@0.160.0)
-      meshline: 3.1.7(three@0.160.0)
+      maath: 0.10.7(@types/three@0.161.2)(three@0.161.0)
+      meshline: 3.1.7(three@0.161.0)
       react: 18.2.0
       react-composer: 5.0.3(react@18.2.0)
       react-dom: 18.2.0(react@18.2.0)
@@ -1960,10 +1966,10 @@ packages:
       stats-gl: 2.0.1
       stats.js: 0.17.0
       suspend-react: 0.1.3(react@18.2.0)
-      three: 0.160.0
-      three-mesh-bvh: 0.7.0(three@0.160.0)
-      three-stdlib: 2.29.4(three@0.160.0)
-      troika-three-text: 0.47.2(three@0.160.0)
+      three: 0.161.0
+      three-mesh-bvh: 0.7.0(three@0.161.0)
+      three-stdlib: 2.29.4(three@0.161.0)
+      troika-three-text: 0.47.2(three@0.161.0)
       tunnel-rat: 0.1.2(@types/react@18.2.47)(react@18.2.0)
       utility-types: 3.11.0
       uuid: 9.0.1
@@ -1982,7 +1988,7 @@ packages:
       - supports-color
     dev: true
 
-  /@react-three/fiber@8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0):
+  /@react-three/fiber@8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-FS6F/k69q2KEf7nxdce1Rzd5qyp6VHtTgjouTMfiotWNiNwlhfQQeAxfcnDg0i2XVaOUGkLaD9BK8LBVnpfzUA==}
     peerDependencies:
       expo: '>=43.0'
@@ -2019,29 +2025,29 @@ packages:
       react-use-measure: 2.1.1(react-dom@18.2.0)(react@18.2.0)
       scheduler: 0.21.0
       suspend-react: 0.1.3(react@18.2.0)
-      three: 0.160.0
+      three: 0.161.0
       zustand: 3.7.2(react@18.2.0)
 
-  /@react-three/postprocessing@2.16.0(@react-three/fiber@8.15.13)(@types/three@0.160.0)(react@18.2.0)(three@0.160.0):
+  /@react-three/postprocessing@2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-Cc+VIOxD2jVEgXrc66W6yQaAxTMg02ef2N1B5ldyLtTt22n75JxolYTullQqY4zTsyLEmORvaO85SRlZwg6Avw==}
     peerDependencies:
       '@react-three/fiber': '>=8.0'
       react: '>=18.0'
       three: '>= 0.138.0'
     dependencies:
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       buffer: 6.0.3
-      maath: 0.6.0(@types/three@0.160.0)(three@0.160.0)
-      n8ao: 1.8.1(postprocessing@6.34.3)(three@0.160.0)
-      postprocessing: 6.34.3(three@0.160.0)
+      maath: 0.6.0(@types/three@0.161.2)(three@0.161.0)
+      n8ao: 1.8.1(postprocessing@6.34.3)(three@0.161.0)
+      postprocessing: 6.34.3(three@0.161.0)
       react: 18.2.0
-      three: 0.160.0
-      three-stdlib: 2.29.4(three@0.160.0)
+      three: 0.161.0
+      three-stdlib: 2.29.4(three@0.161.0)
     transitivePeerDependencies:
       - '@types/three'
     dev: false
 
-  /@react-three/rapier@1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.160.0):
+  /@react-three/rapier@1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-nQor1pbGFu1mp585bGR719yAEnEYeu2LvsxP4RaWXP7XHBqv2p0l9/ttDQBZzivqRT142icut2tdo6vgtW+XyA==}
     peerDependencies:
       '@react-three/fiber': '>=8.9.0'
@@ -2049,10 +2055,10 @@ packages:
       three: '>=0.139.0'
     dependencies:
       '@dimforge/rapier3d-compat': 0.12.0
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       react: 18.2.0
-      three: 0.160.0
-      three-stdlib: 2.23.9(three@0.160.0)
+      three: 0.161.0
+      three-stdlib: 2.23.9(three@0.161.0)
       use-asset: 1.0.4(react@18.2.0)
     dev: false
 
@@ -2278,13 +2284,13 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /@splinetool/loader@1.0.54(three@0.160.0):
+  /@splinetool/loader@1.0.54(three@0.161.0):
     resolution: {integrity: sha512-aU/LMmclxUonAbX/V87yuFtoQz3y8Mwqs3C4YABlPZKblg5znuQ+d7Vi4dolw+fKc1ITv/V3fMa+nsN4780f0g==}
     peerDependencies:
       three: '>=0.133.0'
     dependencies:
       semver-compare: 1.0.0
-      three: 0.160.0
+      three: 0.161.0
     dev: false
 
   /@splinetool/r3f-spline@1.0.2(@react-three/fiber@8.15.13)(@splinetool/loader@1.0.54):
@@ -2293,8 +2299,8 @@ packages:
       '@react-three/fiber': '>=7.0.0'
       '@splinetool/loader': '>=0.9.19'
     dependencies:
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
-      '@splinetool/loader': 1.0.54(three@0.160.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
+      '@splinetool/loader': 1.0.54(three@0.161.0)
     dev: false
 
   /@stitches/react@1.2.8(react@18.2.0):
@@ -2464,8 +2470,8 @@ packages:
   /@types/stats.js@0.17.3:
     resolution: {integrity: sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==}
 
-  /@types/three@0.160.0:
-    resolution: {integrity: sha512-jWlbUBovicUKaOYxzgkLlhkiEQJkhCVvg4W2IYD2trqD2om3VK4DGLpHH5zQHNr7RweZK/5re/4IVhbhvxbV9w==}
+  /@types/three@0.161.2:
+    resolution: {integrity: sha512-DazpZ+cIfBzbW/p0zm6G8CS03HBMd748A3R1ZOXHpqaXZLv2I5zNgQUrRG//UfJ6zYFp2cUoCQaOLaz8ubH07w==}
     dependencies:
       '@types/stats.js': 0.17.3
       '@types/webxr': 0.5.10
@@ -2694,6 +2700,15 @@ packages:
     dependencies:
       eventemitter3: 4.0.7
       react: 18.2.0
+    dev: false
+
+  /@vitejs/plugin-basic-ssl@1.1.0(vite@5.0.12):
+    resolution: {integrity: sha512-wO4Dk/rm8u7RNhOf95ZzcEmC9rYOncYgvq4z3duaJrCgjN8BxAnDVyndanfcJZ0O6XZzHz6Q0hTimxTg8Y9g/A==}
+    engines: {node: '>=14.6.0'}
+    peerDependencies:
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0
+    dependencies:
+      vite: 5.0.12(@types/node@20.11.0)
     dev: false
 
   /@vitejs/plugin-react@4.2.1(vite@5.0.12):
@@ -3113,12 +3128,12 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  /camera-controls@2.7.3(three@0.160.0):
+  /camera-controls@2.7.3(three@0.161.0):
     resolution: {integrity: sha512-L4mxjBd3u8qiOLozdWrH2P8ZybSsDXBF7iyNyqNEFJhPUkovmuARWR8JTc1B/qlclOIg6FvZZA/0uAZMMim0mw==}
     peerDependencies:
       three: '>=0.126.1'
     dependencies:
-      three: 0.160.0
+      three: 0.161.0
 
   /caniuse-lite@1.0.30001589:
     resolution: {integrity: sha512-vNQWS6kI+q6sBlHbh71IIeC+sRwK2N3EDySc/updIGhIee2x5z00J4c1242/5/d6EpEMdOnk/m+6tuk4/tcsqg==}
@@ -4992,23 +5007,23 @@ packages:
     resolution: {integrity: sha512-pZs6H274XGNJpBPEW+BnqPwWFPKd2BhBQevg6r+zreOsnAwuJf2BKYeWPTti4CWZjfOupTrK7PN+fXJs945+3Q==}
     dev: true
 
-  /maath@0.10.7(@types/three@0.160.0)(three@0.160.0):
+  /maath@0.10.7(@types/three@0.161.2)(three@0.161.0):
     resolution: {integrity: sha512-zQ2xd7dNOIVTjAS+hj22fyj1EFYmOJX6tzKjZ92r6WDoq8hyFxjuGA2q950tmR4iC/EKXoMQdSipkaJVuUHDTg==}
     peerDependencies:
       '@types/three': '>=0.144.0'
       three: '>=0.144.0'
     dependencies:
-      '@types/three': 0.160.0
-      three: 0.160.0
+      '@types/three': 0.161.2
+      three: 0.161.0
 
-  /maath@0.6.0(@types/three@0.160.0)(three@0.160.0):
+  /maath@0.6.0(@types/three@0.161.2)(three@0.161.0):
     resolution: {integrity: sha512-dSb2xQuP7vDnaYqfoKzlApeRcR2xtN8/f7WV/TMAkBC8552TwTLtOO0JTcSygkYMjNDPoo6V01jTw/aPi4JrMw==}
     peerDependencies:
       '@types/three': '>=0.144.0'
       three: '>=0.144.0'
     dependencies:
-      '@types/three': 0.160.0
-      three: 0.160.0
+      '@types/three': 0.161.2
+      three: 0.161.0
     dev: false
 
   /make-dir@3.1.0:
@@ -5065,12 +5080,12 @@ packages:
     engines: {node: '>= 8'}
     dev: true
 
-  /meshline@3.1.7(three@0.160.0):
+  /meshline@3.1.7(three@0.161.0):
     resolution: {integrity: sha512-uf9fPI9wy0Ie0kZjvKuIkf2n7gi3ih0wdTeb/kmSvmzpPyEL5d9lFohg9+JV9VC4sQUBOZDgxu6fnjn57goSHg==}
     peerDependencies:
       three: '>=0.137'
     dependencies:
-      three: 0.160.0
+      three: 0.161.0
 
   /meshoptimizer@0.18.1:
     resolution: {integrity: sha512-ZhoIoL7TNV4s5B6+rx5mC//fw8/POGyNxS/DZyCJeiZ12ScLfVwRE/GfsxwiTkMYYD5DmK2/JXnEVXqL4rF+Sw==}
@@ -5235,14 +5250,14 @@ packages:
       update-notifier: 5.1.0
     dev: false
 
-  /n8ao@1.8.1(postprocessing@6.34.3)(three@0.160.0):
+  /n8ao@1.8.1(postprocessing@6.34.3)(three@0.161.0):
     resolution: {integrity: sha512-biKUW09KnflZpeWmbCy1gjuiyZsbeG6y+EsqV+1IDqQ1KqEydXc6nUUseZp9ZRbjvEOPnsvsjaTce8Pta0803A==}
     peerDependencies:
       postprocessing: '>=6.30.0'
       three: '>=0.137'
     dependencies:
-      postprocessing: 6.34.3(three@0.160.0)
-      three: 0.160.0
+      postprocessing: 6.34.3(three@0.161.0)
+      three: 0.161.0
     dev: false
 
   /nanoid@3.3.3:
@@ -5632,13 +5647,13 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
-  /postprocessing@6.34.3(three@0.160.0):
+  /postprocessing@6.34.3(three@0.161.0):
     resolution: {integrity: sha512-AjsxAGWeHMKlCTuWLeahNnPyFwR0c/pEmveq5mBz767lFBc1+HHYzk0aRGBCE9PZIjiA27oRL7lATd+fVOscRA==}
     engines: {node: '>= 0.13.2'}
     peerDependencies:
       three: '>= 0.138.0 < 0.162.0'
     dependencies:
-      three: 0.160.0
+      three: 0.161.0
     dev: false
 
   /potpack@1.0.2:
@@ -5742,7 +5757,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /r3f-perf@7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0):
+  /r3f-perf@7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0):
     resolution: {integrity: sha512-AQ78ULjufILylHZpbgBdzk7JF3F7bceehlgOL19xtyJIDhvi4J4vwE5wpxNZ5q4PT4Oza1WADZt6KSlrkCqgkA==}
     peerDependencies:
       '@react-three/fiber': '>=8.0'
@@ -5759,13 +5774,13 @@ packages:
         optional: true
     dependencies:
       '@radix-ui/react-icons': 1.3.0(react@18.2.0)
-      '@react-three/drei': 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.160.0)(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
-      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.160.0)
+      '@react-three/drei': 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
+      '@react-three/fiber': 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@stitches/react': 1.2.8(react@18.2.0)
       '@utsubo/events': 0.1.7(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      three: 0.160.0
+      three: 0.161.0
       zustand: 4.1.5(react@18.2.0)
     transitivePeerDependencies:
       - '@types/react'
@@ -6448,14 +6463,14 @@ packages:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
 
-  /three-mesh-bvh@0.7.0(three@0.160.0):
+  /three-mesh-bvh@0.7.0(three@0.161.0):
     resolution: {integrity: sha512-Hj0Z1Rp02yy5H+/xtMBu/dYAeRsSONaBaVLZoST9sMpZxycHypRiUeMHucPOLWFHnpc5hwelOnONcLpkfhDg0Q==}
     peerDependencies:
       three: '>= 0.151.0'
     dependencies:
-      three: 0.160.0
+      three: 0.161.0
 
-  /three-stdlib@2.23.9(three@0.160.0):
+  /three-stdlib@2.23.9(three@0.161.0):
     resolution: {integrity: sha512-fYBClVGQptD7UZcoRZGNlR3sKcUW37hVPoEW1v68E4XuiwD0Ml/VqDUJ0yEMVE2DlooDvqgqv/rIcHC/B4N5pg==}
     peerDependencies:
       three: '>=0.128.0'
@@ -6470,11 +6485,11 @@ packages:
       mmd-parser: 1.0.4
       opentype.js: 1.3.4
       potpack: 1.0.2
-      three: 0.160.0
+      three: 0.161.0
       zstddec: 0.0.2
     dev: false
 
-  /three-stdlib@2.29.4(three@0.160.0):
+  /three-stdlib@2.29.4(three@0.161.0):
     resolution: {integrity: sha512-XNzGCrz/uAk9XoLwd35eN7dQyI4ggXZTeqjcN034YdYBpBlNO9kmLHehl/0Nw9jCelblB7jla+unHAOIyLyV6Q==}
     peerDependencies:
       three: '>=0.128.0'
@@ -6485,10 +6500,10 @@ packages:
       draco3d: 1.5.7
       fflate: 0.6.10
       potpack: 1.0.2
-      three: 0.160.0
+      three: 0.161.0
 
-  /three@0.160.0:
-    resolution: {integrity: sha512-DLU8lc0zNIPkM7rH5/e1Ks1Z8tWCGRq6g8mPowdDJpw1CFBJMU7UoJjC6PefXW7z//SSl0b2+GCw14LB+uDhng==}
+  /three@0.161.0:
+    resolution: {integrity: sha512-LC28VFtjbOyEu5b93K0bNRLw1rQlMJ85lilKsYj6dgTu+7i17W+JCCEbvrpmNHF1F3NAUqDSWq50UD7w9H2xQw==}
 
   /timm@1.7.1:
     resolution: {integrity: sha512-IjZc9KIotudix8bMaBW6QvMuq64BrJWFs1+4V0lXwWGQZwH+LnX87doAYhem4caOEusRP9/g6jVDQmZ8XOk1nw==}
@@ -6530,23 +6545,23 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /troika-three-text@0.47.2(three@0.160.0):
+  /troika-three-text@0.47.2(three@0.161.0):
     resolution: {integrity: sha512-qylT0F+U7xGs+/PEf3ujBdJMYWbn0Qci0kLqI5BJG2kW1wdg4T1XSxneypnF05DxFqJhEzuaOR9S2SjiyknMng==}
     peerDependencies:
       three: '>=0.125.0'
     dependencies:
       bidi-js: 1.0.3
-      three: 0.160.0
-      troika-three-utils: 0.47.2(three@0.160.0)
+      three: 0.161.0
+      troika-three-utils: 0.47.2(three@0.161.0)
       troika-worker-utils: 0.47.2
       webgl-sdf-generator: 1.1.1
 
-  /troika-three-utils@0.47.2(three@0.160.0):
+  /troika-three-utils@0.47.2(three@0.161.0):
     resolution: {integrity: sha512-/28plhCxfKtH7MSxEGx8e3b/OXU5A0xlwl+Sbdp0H8FXUHKZDoksduEKmjQayXYtxAyuUiCRunYIv/8Vi7aiyg==}
     peerDependencies:
       three: '>=0.125.0'
     dependencies:
-      three: 0.160.0
+      three: 0.161.0
 
   /troika-worker-utils@0.47.2:
     resolution: {integrity: sha512-mzss4MeyzUkYBppn4x5cdAqrhBHFEuVmMMgLMTyFV23x6GvQMyo+/R5E5Lsbrt7WSt5RfvewjcwD1DChRTA9lA==}
@@ -7081,10 +7096,6 @@ packages:
 
   /yoga-layout@2.0.1:
     resolution: {integrity: sha512-tT/oChyDXelLo2A+UVnlW9GU7CsvFMaEnd9kVFsaiCQonFAXd3xrHhkLYu+suwwosrAEQ746xBU+HvYtm1Zs2Q==}
-    dev: false
-
-  /yoga-wasm-web@0.3.3:
-    resolution: {integrity: sha512-N+d4UJSJbt/R3wqY7Coqs5pcV0aUj2j9IaQ3rNj9bVCLld8tTGKRa2USARjnvZJWVx1NDmQev8EknoczaOQDOA==}
     dev: false
 
   /zod@3.22.4:

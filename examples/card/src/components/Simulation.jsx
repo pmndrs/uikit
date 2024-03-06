@@ -6,7 +6,7 @@ import { useMemo, useRef } from 'react'
 
 // Shapes by https://app.spline.design/library/a4eeaee4-be03-4df8-ab05-5a073eda2eb4
 export function Floating(props) {
-  const { nodes, materials } = useGLTF('/smileys-transformed.glb')
+  const { nodes, materials } = useGLTF('/uikit/examples/card/smileys-transformed.glb')
   return (
     <group {...props} dispose={null}>
       <Float>
@@ -54,7 +54,7 @@ export function Floating(props) {
 }
 
 export function Physical() {
-  const { nodes, materials } = useGLTF('/smileys-transformed.glb')
+  const { nodes, materials } = useGLTF('/uikit/examples/card/smileys-transformed.glb')
   const meshes = useMemo(() => Object.values(nodes).filter((node) => node.isMesh), [nodes])
   return (
     <Physics gravity={[0, 0, 0]}>

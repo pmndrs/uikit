@@ -115,7 +115,7 @@ export type InstancedTextProperties = TextAlignProperties &
 export function useInstancedText(
   collection: ManagerCollection,
   text: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>,
-  matrix: Signal<Matrix4>,
+  matrix: Signal<Matrix4 | undefined>,
   node: FlexNode,
   isHidden: Signal<boolean> | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
@@ -183,11 +183,15 @@ export function useFont(collection: ManagerCollection) {
   const getProperties = useGetBatchedProperties<FontFamilyProperties>(collection, fontKeys)
   const renderer = useThree(({ gl }) => gl)
   useSignalEffect(() => {
-    let fontWeight = getProperties.value('fontWeight') ?? 'normal'
+    const get = getProperties.value
+    if (get == null) {
+      return
+    }
+    let fontWeight = get('fontWeight') ?? 'normal'
     if (typeof fontWeight === 'string') {
       fontWeight = fontWeightNames[fontWeight]
     }
-    let fontFamily = getProperties.value('fontFamily')
+    let fontFamily = get('fontFamily')
     if (fontFamily == null) {
       fontFamily = Object.keys(fontFamilies)[0]
     }
@@ -240,17 +244,18 @@ export function useMeasureFunc(
     () =>
       computed<MeasureFunction | undefined>(() => {
         const font = fontSignal.value
-        if (font == null) {
+        const get = getGlyphProperties.value
+        if (font == null || get == null) {
           return undefined
         }
         const textSignalValue = textSignal.value
         const text = Array.isArray(textSignalValue)
           ? textSignalValue.map((t) => readReactive(t)).join('')
           : readReactive(textSignalValue)
-        const letterSpacing = getGlyphProperties.value('letterSpacing') ?? 0
-        const lineHeight = getGlyphProperties.value('lineHeight') ?? 1.2
-        const fontSize = getGlyphProperties.value('fontSize') ?? 16
-        const wordBreak = getGlyphProperties.value('wordBreak') ?? 'break-word'
+        const letterSpacing = get('letterSpacing') ?? 0
+        const lineHeight = get('lineHeight') ?? 1.2
+        const fontSize = get('fontSize') ?? 16
+        const wordBreak = get('wordBreak') ?? 'break-word'
 
         return (width, widthMode) => {
           const availableWidth = widthMode === MeasureMode.Undefined ? undefined : width

@@ -48,7 +48,7 @@ export function TextInput({
       borderColor="#444"
       borderOpacity={opacity}
       borderBend={disabled ? 0 : -0.3}
-      material={material}
+      materialClass={material}
       {...props}
       onPointerEnter={(e) => {
         setHoverCount((current) => current + 1);

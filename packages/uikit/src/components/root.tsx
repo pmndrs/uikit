@@ -78,7 +78,7 @@ export const Root = forwardRef<
     anchorX?: keyof typeof alignmentXMap
     anchorY?: keyof typeof alignmentYMap
     pixelSize?: number
-    backgroundMaterialClass?: MaterialClass
+    panelMaterialClass?: MaterialClass
   } & WithReactive<{
       sizeX?: number
       sizeY?: number
@@ -120,7 +120,7 @@ export const Root = forwardRef<
   const getPanelGroup = useGetInstancedPanelGroup(pixelSize, node.cameraDistance, groupsContainer)
   const getGylphGroup = useGetInstancedGlyphGroup(pixelSize, node.cameraDistance, groupsContainer)
 
-  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
   const orderInfo = useOrderInfo(ElementType.Panel, undefined, groupDeps)
 
   const rootMatrix = useRootMatrix(transformMatrix, node.size, pixelSize, properties)
@@ -132,7 +132,7 @@ export const Root = forwardRef<
     node,
     rootMatrix,
     undefined,
-    properties.scrollbarMaterialClass,
+    properties.scrollbarPanelMaterialClass,
     undefined,
     orderInfo,
     getPanelGroup,
@@ -236,7 +236,7 @@ function useDivide(
 const matrixHelper = new Matrix4()
 
 function useRootMatrix(
-  matrix: Signal<Matrix4>,
+  matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   pixelSize: number,
   {
@@ -252,7 +252,7 @@ function useRootMatrix(
       computed(() => {
         const [width, height] = size.value
         return matrix.value
-          .clone()
+          ?.clone()
           .premultiply(
             matrixHelper.makeTranslation(
               alignmentXMap[anchorX] * width * pixelSize,

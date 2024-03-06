@@ -8,6 +8,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@react-three/uikit-lucide', '@react-three/uikit'],
   },
+  base: '/uikit/examples/lucide/',
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default') },

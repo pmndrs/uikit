@@ -48,7 +48,7 @@ jobs:
           pnpm -r generate
 
       - name: Build
-        run: pnpm -r build
+        run: pnpm -F "./packages/**/*" build
 
       - name: Gitversion
         id: gitversion

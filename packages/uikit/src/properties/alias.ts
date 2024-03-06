@@ -57,10 +57,10 @@ export const flexAliasPropertyTransformation = createAliasPropertyTransformation
 
 const panelAliases = {
   borderRadius: ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomLeftRadius', 'borderBottomRightRadius'],
-  borderRadiusTop: ['borderTopLeftRadius', 'borderTopRightRadius'],
-  borderRadiusLeft: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
-  borderRadiusRight: ['borderTopRightRadius', 'borderBottomRightRadius'],
-  borderRadiusBottom: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
+  borderTopRadius: ['borderTopLeftRadius', 'borderTopRightRadius'],
+  borderLeftRadius: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
+  borderRightRadius: ['borderTopRightRadius', 'borderBottomRightRadius'],
+  borderBottomRadius: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
 } as const satisfies Aliases
 
 export const panelAliasPropertyTransformation = createAliasPropertyTransformation(panelAliases)
@@ -72,10 +72,10 @@ const scrollbarAliases = {
     'borderBottomLeftRadius',
     'borderBottomRightRadius',
   ],
-  scrollbarBorderRadiusTop: ['borderTopLeftRadius', 'borderTopRightRadius'],
-  scrollbarBorderRadiusLeft: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
-  scrollbarBorderRadiusRight: ['borderTopRightRadius', 'borderBottomRightRadius'],
-  scrollbarBorderRadiusBottom: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
+  scrollbarBorderTopRadius: ['borderTopLeftRadius', 'borderTopRightRadius'],
+  scrollbarBorderLeftRadius: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
+  scrollbarBorderRightRadius: ['borderTopRightRadius', 'borderBottomRightRadius'],
+  scrollbarBorderBottomRadius: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
 } as const satisfies Aliases
 
 export const scrollbarAliasPropertyTransformation = createAliasPropertyTransformation(scrollbarAliases)

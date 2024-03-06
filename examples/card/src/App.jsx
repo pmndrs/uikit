@@ -84,7 +84,7 @@ export function CardPage() {
             paddingTop={28 + 4}
             alignItems="center"
             justifyContent="space-between"
-            borderRadiusBottom={20}
+            borderBottomRadius={20}
             castShadow
           >
             <Container gap={8}>

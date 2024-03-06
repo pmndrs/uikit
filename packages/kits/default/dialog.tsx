@@ -184,7 +184,8 @@ export function DialogFooter(props: ComponentPropsWithoutRef<typeof Container>) 
   return (
     <Container
       flexDirection="column-reverse"
-      sm={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}
+      sm={{ flexDirection: 'row', justifyContent: 'flex-end' }}
+      gap={8}
       {...props}
     />
   )

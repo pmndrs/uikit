@@ -105,23 +105,22 @@ const multiplier = [
 
 export function useIsClipped(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  globalMatrix: Signal<Matrix4>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   psRef: { pixelSize: number },
 ): Signal<boolean> {
   return useMemo(
     () =>
       computed(() => {
+        const global = globalMatrix.value
         const rect = parentClippingRect?.value
-        if (rect == null) {
+        if (rect == null || global == null) {
           return false
         }
         const [width, height] = size.value
         for (let i = 0; i < 4; i++) {
           const [mx, my] = multiplier[i]
-          helperPoints[i]
-            .set(mx * psRef.pixelSize * width, my * psRef.pixelSize * height, 0)
-            .applyMatrix4(globalMatrix.value)
+          helperPoints[i].set(mx * psRef.pixelSize * width, my * psRef.pixelSize * height, 0).applyMatrix4(global)
         }
 
         const { planes } = rect
@@ -147,7 +146,7 @@ export function useIsClipped(
 }
 
 export function useClippingRect(
-  globalMatrix: Signal<Matrix4>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
   overflow: Signal<Overflow>,
@@ -157,13 +156,14 @@ export function useClippingRect(
   return useMemo(
     () =>
       computed(() => {
-        if (overflow.value === Overflow.Visible) {
+        const global = globalMatrix.value
+        if (global == null || overflow.value === Overflow.Visible) {
           return parentClippingRect?.value
         }
         const [width, height] = size.value
         const [top, right, bottom, left] = borderInset.value
         const rect = new ClippingRect(
-          globalMatrix.value,
+          global,
           ((right - left) * psRef.pixelSize) / 2,
           ((top - bottom) * psRef.pixelSize) / 2,
           (width - left - right) * psRef.pixelSize,

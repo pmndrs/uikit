@@ -11,7 +11,7 @@ import { Signal } from '@preact/signals-core'
 
 export type WithBatchedProperties<P extends Record<string, unknown> = {}> = {
   hasBatchedProperty(key: keyof P): boolean
-  getProperty: Signal<<K extends keyof P>(key: K) => P[K]>
+  getProperty: Signal<(<K extends keyof P>(key: K) => P[K]) | undefined>
 }
 
 export function useBatchedProperties(
@@ -34,7 +34,7 @@ export function useBatchedProperties(
       }
       changed ||= prevPropertiesLength != propertiesLength
       prevProperties = properties
-      if (!changed) {
+      if (!changed && object.getProperty.peek() != null) {
         return
       }
       object.getProperty.value = (key) => readReactiveProperty(properties[key]) as never

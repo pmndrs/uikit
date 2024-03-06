@@ -7,11 +7,11 @@
     "@react-three/postprocessing": "^2.16.0",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
-    "@types/three": "^0.160.0",
+    "@types/three": "^0.161.0",
     "r3f-perf": "^7.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.160.0",
+    "three": "^0.161.0",
     "vite-plugin-mkcert": "^1.17.4",
     "zustand": "4"
   },

@@ -33,7 +33,7 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <Avatar cursor="pointer" src="/01.png" height={32} width={32} />
+        <Avatar cursor="pointer" src="/uikit/examples/dashboard/01.png" height={32} width={32} />
       </DialogTrigger>
       <DialogContent positionType="relative" transformTranslateZ={200} sm={{ maxWidth: 425 }}>
         <CustomContainer transformTranslateZ={-1} positionType="absolute" inset={0}>

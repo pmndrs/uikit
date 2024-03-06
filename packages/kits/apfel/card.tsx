@@ -11,7 +11,8 @@ export function Card({ children, ...props }: ComponentPropsWithoutRef<typeof Con
       borderOpacity={0.8}
       border={4}
       borderBend={0.3}
-      backgroundMaterialClass={GlassMaterial}
+      panelMaterialClass={GlassMaterial}
+      borderRadius={32}
       {...props}
     >
       <DefaultProperties color={colors.cardForeground}>{children}</DefaultProperties>

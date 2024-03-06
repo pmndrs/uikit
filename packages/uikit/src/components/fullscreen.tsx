@@ -14,30 +14,28 @@ export const Fullscreen = forwardRef<
     loadYoga?: () => Promise<Yoga>
     children?: ReactNode
     precision?: number
-    pixelSize?: number
     attachCamera?: boolean
   } & EventHandlers &
     LayoutListeners &
     ScrollListeners
 >((properties, ref) => {
-  const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
   const store = useStore()
   const [sizeX, sizeY] = useMemo(() => {
     const { width, height } = store.getState().size
-    return [signal(width * pixelSize), signal(height * pixelSize)] as const
+    return [signal(width * DEFAULT_PIXEL_SIZE), signal(height * DEFAULT_PIXEL_SIZE)] as const
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => {
     const fn = (state: RootState) => {
       batch(() => {
-        sizeX.value = state.size.width * pixelSize
-        sizeY.value = state.size.height * pixelSize
+        sizeX.value = state.size.width * DEFAULT_PIXEL_SIZE
+        sizeY.value = state.size.height * DEFAULT_PIXEL_SIZE
       })
     }
     fn(store.getState())
     return store.subscribe(fn)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store, pixelSize])
+  }, [store])
   const camera = useThree((s) => s.camera)
   const groupRef = useRef<Group>(null)
   useFrame(() => {

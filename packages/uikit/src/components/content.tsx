@@ -63,7 +63,7 @@ export const Content = forwardRef<
   {
     children?: ReactNode
     zIndexOffset?: ZIndexOffset
-    backgroundMaterialClass?: MaterialClass
+    panelMaterialClass?: MaterialClass
     keepAspectRatio?: boolean
   } & ContentProperties &
     EventHandlers &
@@ -81,7 +81,7 @@ export const Content = forwardRef<
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
-  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
   const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
@@ -223,8 +223,12 @@ function useNormalizedContent(
     }
     box3Helper.getCenter(center)
     return effect(() => {
+      const get = getPropertySignal.value
+      if (get == null) {
+        return
+      }
       group.position.copy(center).negate()
-      group.position.z -= alignmentZMap[getPropertySignal.value('depthAlign') ?? 'back'] * size.z
+      group.position.z -= alignmentZMap[get('depthAlign') ?? 'back'] * size.z
       group.position.divide(size)
       group.updateMatrix()
     })

@@ -52,7 +52,7 @@ export const Text = forwardRef<
   ComponentInternals,
   {
     children: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>
-    backgroundMaterialClass?: MaterialClass
+    panelMaterialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
   } & TextProperties &
     EventHandlers &
@@ -72,7 +72,7 @@ export const Text = forwardRef<
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
   useLayoutListeners(properties, node.size)
   useViewportListeners(properties, isClipped)
-  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
   const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,

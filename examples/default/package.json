@@ -9,7 +9,8 @@
     "@react-three/uikit-lucide": "workspace:^",
     "r3f-perf": "^7.1.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "three": "^0.161.0"
   },
   "scripts": {
     "dev": "vite --host",

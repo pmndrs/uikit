@@ -49,7 +49,7 @@ function toQuaternion([x, y, z]: Vector3Tuple): Quaternion {
   return quaternionHelper.setFromEuler(eulerHelper.set(x * toRad, y * toRad, z * toRad))
 }
 
-export function useTransformMatrix(collection: ManagerCollection, node: FlexNode): Signal<Matrix4> {
+export function useTransformMatrix(collection: ManagerCollection, node: FlexNode): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
   //B = bound transformation matrix
   //O = matrix to transform the origin for matrix T
@@ -62,11 +62,13 @@ export function useTransformMatrix(collection: ManagerCollection, node: FlexNode
   return useMemo(
     () =>
       computed(() => {
+        const get = getPropertySignal.value
+        if (get == null) {
+          return undefined
+        }
         const { pixelSize, relativeCenter } = node
         const [x, y] = relativeCenter.value
         const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
-
-        const get = getPropertySignal.value
 
         const tOriginX = get('transformOriginX') ?? 'center'
         const tOriginY = get('transformOriginY') ?? 'center'

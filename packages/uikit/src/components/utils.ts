@@ -84,14 +84,22 @@ export function useViewportListeners({ onIsInViewportChange }: ViewportListeners
   useEffect(() => unsubscribe, [unsubscribe])
 }
 
-export function useGlobalMatrix(localMatrix: Signal<Matrix4>): Signal<Matrix4> {
+export function useGlobalMatrix(localMatrix: Signal<Matrix4 | undefined>): Signal<Matrix4 | undefined> {
   const parentMatrix = useContext(MatrixContext)
   return useMemo(
-    () => computed(() => parentMatrix.value.clone().multiply(localMatrix.value)),
+    () =>
+      computed(() => {
+        const local = localMatrix.value
+        const parent = parentMatrix.value
+        if (local == null || parent == null) {
+          return undefined
+        }
+        return parent.clone().multiply(local)
+      }),
     [localMatrix, parentMatrix],
   )
 }
 
-const MatrixContext = createContext<Signal<Matrix4>>(null as any)
+const MatrixContext = createContext<Signal<Matrix4 | undefined>>(null as any)
 
 export const MatrixProvider = MatrixContext.Provider

@@ -7,12 +7,12 @@
     "@react-three/uikit": "workspace:^",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.160.0"
+    "three": "^0.161.0"
   },
   "scripts": {
     "dev": "vite --host"
   },
   "devDependencies": {
-    "@types/three": "^0.160.0"
+    "@types/three": "^0.161.0"
   }
 }

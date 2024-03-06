@@ -61,7 +61,6 @@ async function main() {
     let types: Array<string>
     if (enumPrefix != null) {
       const enums = yogaKeys.filter(([key]) => key.startsWith(enumPrefix))
-
       const lutName = `${enumPrefix}LUT`
       if (!lookupTables.has(lutName)) {
         lookupTables.set(
