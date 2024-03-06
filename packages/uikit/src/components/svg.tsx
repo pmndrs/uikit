@@ -123,7 +123,7 @@ export const Svg = forwardRef<
     children?: ReactNode
     src: string | ReadonlySignal<string>
     materialClass?: MaterialClass
-    backgroundMaterialClass?: MaterialClass
+    panelMaterialClass?: MaterialClass
   } & SvgProperties &
     EventHandlers &
     LayoutListeners &
@@ -138,7 +138,7 @@ export const Svg = forwardRef<
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const parentClippingRect = useParentClippingRect()
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
   const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,

@@ -14,17 +14,18 @@ Build performant 3D user interfaces for Three.js using @react-three/fiber and yo
 
 TODO Release
 
+- fix: responsiveness incorrect - https://pmndrs.github.io/uikit/examples/apfel/?component=button
 - fix: zoom with ortho camera
 - fix: scroll jumps after scrolling once
 - feat: nesting inside non root/container components (e.g. image)
 - feat: drag/click threshold
 - feat: input
 - fix: decrease clipping rect when scrollbar present
+- feat: upgrade to yoga2.0
 
 Roadmap
 
 - on demand rendering to save battery for UI only apps / rendering to render targets
-- upgrade to yoga2.0
 - virtual lists (support thousands of elements in a list by using fixed sizes and not using yoga)
 - option to render to seperate render targets depending on element type (e.g. render text to high quality quad layer for WebXR)
 - scrollIntoView

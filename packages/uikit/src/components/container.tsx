@@ -60,7 +60,7 @@ export const Container = forwardRef<
   {
     children?: ReactNode
     zIndexOffset?: ZIndexOffset
-    backgroundMaterialClass?: MaterialClass
+    panelMaterialClass?: MaterialClass
   } & ContainerProperties &
     EventHandlers &
     LayoutListeners &
@@ -76,7 +76,7 @@ export const Container = forwardRef<
   const parentClippingRect = useParentClippingRect()
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  const groupDeps = usePanelGroupDependencies(properties.backgroundMaterialClass, properties)
+  const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
   const orderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
   useInstancedPanel(
     collection,
@@ -99,7 +99,7 @@ export const Container = forwardRef<
     node,
     globalMatrix,
     isClipped,
-    properties.scrollbarMaterialClass,
+    properties.scrollbarPanelMaterialClass,
     parentClippingRect,
     orderInfo,
   )

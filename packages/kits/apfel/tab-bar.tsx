@@ -34,14 +34,22 @@ export function TabBar({
 }) {
   const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue)
   const value = valueProp !== undefined ? valueProp : internalValue
-
-  const setValue = useCallback((value: string) => {
-    setInternalValue(value)
-    onValueChange?.(value)
-  }, [])
+  const onValueChangeRef = useRef(onValueChange)
+  onValueChangeRef.current = onValueChange
 
   const [isExpanded, setIsExpanded] = useState(false)
-  const context = useMemo(() => ({ isExpanded, setIsExpanded, value, setValue }), [isExpanded, value])
+  const context = useMemo(
+    () => ({
+      isExpanded,
+      setIsExpanded,
+      value,
+      setValue: (value: string) => {
+        setInternalValue(value)
+        onValueChangeRef.current?.(value)
+      },
+    }),
+    [isExpanded, value],
+  )
 
   const timeoutRef = useRef<number>()
 

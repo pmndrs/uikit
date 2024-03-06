@@ -106,7 +106,7 @@ export function Slider({
       cursor={disabled ? undefined : 'pointer'}
       border={2}
       borderBend={-0.3}
-      backgroundMaterialClass={GlassMaterial}
+      panelMaterialClass={GlassMaterial}
       {...(disabled ? {} : handler)}
       {...props}
     >

@@ -282,7 +282,7 @@ function outsideDistance(value: number, min: number, max: number): number {
 }
 
 export type ScrollbarProperties = {
-  scrollbarMaterialClass?: MaterialClass
+  scrollbarPanelMaterialClass?: MaterialClass
 } & WithReactive<
   {
     scrollbarWidth?: number

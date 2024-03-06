@@ -76,7 +76,7 @@ export function Overview() {
           <Container gap={8} flexGrow={1} key={name} alignItems="center">
             <Container flexGrow={1} flexShrink={1} justifyContent="flex-end" width="100%">
               <Container
-                borderRadiusTop={4}
+                borderTopRadius={4}
                 height={`${Math.min(1, total / max) * 100}%`}
                 backgroundColor={colors.primary}
                 width="100%"

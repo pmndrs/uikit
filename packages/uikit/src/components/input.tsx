@@ -45,7 +45,7 @@ export const Text = forwardRef<
     value?: string | Signal<string>
     defaultValue?: string
     onValueChange?: (value: string) => void
-    backgroundMaterialClass?: MaterialClass
+    panelMaterialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
   } & TextProperties &
     EventHandlers &
@@ -74,7 +74,7 @@ export const Text = forwardRef<
     isClipped,
     backgroundOrderInfo,
     parentClippingRect,
-    properties.backgroundMaterialClass,
+    properties.panelMaterialClass,
     panelAliasPropertyTransformation,
   )
   const orderInfo = useOrderInfo(ElementType.Text, undefined, backgroundOrderInfo)

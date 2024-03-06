@@ -40,7 +40,7 @@
   "peerDependencies": {
     "@react-three/fiber": ">=8",
     "react": ">=18",
-    "three": ">=0.140"
+    "three": ">=0.160"
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
@@ -59,11 +59,11 @@
     "@types/prompts": "^2.4.9",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
-    "@types/three": "^0.160.0",
+    "@types/three": "^0.161.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "replace-in-files-cli": "^2.2.0",
-    "three": "^0.160.0",
+    "three": "^0.161.0",
     "wasmwrap": "^1.0.0"
   }
 }

@@ -53,7 +53,7 @@ export function Tabs({
         borderColor={colors.background}
         borderBend={disabled ? 0 : -0.3}
         borderRadius={18}
-        backgroundMaterialClass={GlassMaterial}
+        panelMaterialClass={GlassMaterial}
         flexDirection="row"
         {...props}
       />
@@ -89,7 +89,7 @@ export function TabsButton({ children, value, disabled, ...props }: SegmentedCon
       border={2}
       borderRadius={16}
       borderBend={0.3}
-      backgroundMaterialClass={GlassMaterial}
+      panelMaterialClass={GlassMaterial}
       flexDirection="row"
       alignItems="center"
       gapColumn={10}

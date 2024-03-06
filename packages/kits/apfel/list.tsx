@@ -43,8 +43,8 @@ export function ListItem({
     <Container
       height={subtitle ? 72 : 60}
       borderRadius={type === 'plain' ? 16 : undefined}
-      borderRadiusTop={type === 'inset' ? (isFirst ? 16 : 0) : undefined}
-      borderRadiusBottom={type === 'inset' ? (isLast ? 16 : 0) : undefined}
+      borderTopRadius={type === 'inset' ? (isFirst ? 16 : 0) : undefined}
+      borderBottomRadius={type === 'inset' ? (isLast ? 16 : 0) : undefined}
       paddingX={20}
       flexDirection="row"
       alignItems="center"
