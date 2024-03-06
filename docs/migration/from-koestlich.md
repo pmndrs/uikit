@@ -1,12 +1,12 @@
 ---
 title: Migration from Koestlich
 description: How to migrate a user interface from koestlich to uikit.
-nav: 0
+nav: 15
 ---
 
-This guide is intended for developers migrating their user interface from Koestlich to R3/UIKit. The migration involves several changes to properties and components to better align with R3/UIKit's design principles. Here's what you need to know:
+This guide is intended for developers migrating their user interface from Koestlich to uikit. The migration involves several changes to properties and components to better align with uikit's design principles. Here's what you need to know:
 
-# General Changes
+## General Changes
 
 - **Index Property Removal**: The index property is no longer needed. UI elements will always be in the correct order, regardless of when they are inserted into the UI.
 - **Layout Animations Removal**: Layout animations have been removed, making the ID and animation properties unnecessary.
@@ -18,15 +18,13 @@ This guide is intended for developers migrating their user interface from Koestl
 - **Default Animations**: no default animations
 - **Scroll Experience**: Support for scrollbar and support for overscroll rubberbanding.
 
-# Property Renaming
+## Property Renaming
 
 - **Material Property**: The material property has been renamed to panelMaterialClass.
-
 - **Line Height**: The lineHeightMultiplier property has been renamed to lineHeight to better align with CSS naming conventions.
-
 - **Word Break**: The wrapper property was renamed to wordBreak to better align with CSS naming conventions.
 
-# Component Changes
+## Component Changes
 
 - **Object to Content Component**: The Object component is replaced with the Content component. The depth property has been removed. The Content component now allows any R3F (React Three Fiber) component to be placed inside. To mimic the behavior of the Object component, use
     ```jsx
@@ -38,7 +36,8 @@ This guide is intended for developers migrating their user interface from Koestl
 - **Box Component Removal**: The Box component has been removed.
 - **DefaultStyleProvider**: DefaultStyleProvider is renamed to DefaultProperties
 
-# Font Families
+## Font Families
+
 - Font families are now provided as
     ```jsx
     <FontFamilies roboto={{ normal: "{url}", bold: "{url}" }}>
@@ -56,7 +55,8 @@ This guide is intended for developers migrating their user interface from Koestl
     <Text fontFamily="robotoBold">
     ```
 
-# Migration Steps
+## Migration Steps
+
 - Remove the index property from your UI elements. The order will be automatically managed.
 - Remove any ID and animation properties related to layout animations.
 - Update the material property to panelMaterialClass or materialClass as applicable.
@@ -73,4 +73,4 @@ This guide is intended for developers migrating their user interface from Koestl
 - Remove the depth property from all SVG components
 - Replace usages of the Box component with a Content component containing an Object3D with a BoxGeomtry.
 
-*By following these steps, you should be able to smoothly transition your user interface from Koestlich to R3/UIKit, taking advantage of the latter's streamlined properties and components.*
+By following these steps, you should be able to smoothly transition your user interface from Koestlich to uikit, taking advantage of the latter's streamlined properties and components.

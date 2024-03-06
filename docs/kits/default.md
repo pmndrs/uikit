@@ -1,3 +1,9 @@
+---
+title: Default
+description: All the Default components.
+nav: 5
+---
+  
 ## Accordion
 ![accordion example image](./default/accordion.png)
 

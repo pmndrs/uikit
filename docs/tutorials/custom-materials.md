@@ -1,7 +1,7 @@
 ---
 title: Custom Materials
 description: How to use custom materials in uikit.
-nav: 4
+nav: 11
 ---
 
 uikit allows to provide custom material classes for the background and border on the `Text`, `Container`, and `Image` components. This allows to change the appearance and use more complex (and computationally expensive) materials such as a `MeshPhysicalMaterial`.

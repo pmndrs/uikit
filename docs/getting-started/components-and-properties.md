@@ -129,7 +129,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 ## Root
 
-Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. Additionally, it allows control of the `precision` of the layout engine. A precision of `1` expresses that all values computed by the layout engines are integers, while the default precision of `0.1` allows the layout engine to measure layouts in sub-pixel values such as `10.2`. The `pixelSize` property of the `Root` component allows one to specify the relation of pixels inside the layout with the three.js units in the scene. Setting `pixelSize` to 1 expresses that the `1` pixel in the layout is `1` three.js unit in the scene. The default `pixelSize` is `0.002`, which means that `500` pixels represent `1` three.js unit. The `anchorX` and `anchorY` properties allow to specify where the `Root` component is anchored in relation to its position. This can be useful when the `Root` component has dynamic content and this content should be positioned to the left of an object in the scene. The default for `anchorX` and `anchorY` is `center`, `center`. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size. The values passed to `sizeX` and `sizeY` are in three.js units.
+Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. It allows to control the `precision` of the layout engine. A precision of `1` expresses that all values computed by the layout engines are integers, while the default precision of `0.1` allows the layout engine to measure layouts in sub-pixel values such as `10.2`. The `pixelSize` property of the `Root` component allows one to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
 
 ```jsx
 <Root sizeX={2} sizeY={1} flexDirection="row">
@@ -193,7 +193,7 @@ The `Image` component has the same properties and functionalities as a `Containe
 
 </details>
 
-### SuspendingImage
+## SuspendingImage
 
 The default image doesn't use react's suspense but rather loads the image silently. To explicitly control how the image behaves when loaded, use the `SuspendingImage` component. The component can be used to display a fallback component while the image is loading. It has the same properties as the `Image` component.
 
@@ -283,6 +283,9 @@ The `SVGIconFromText` component only differs from the `SVG` component in how the
 </Root>
 ```
 
+<details>
+<summary>All properties specific to the `SVGIconFromText` component</summary>
+
 | Property      | Type                |
 | ------------- | ------------------- |
 | text          | string              |
@@ -291,6 +294,8 @@ The `SVGIconFromText` component only differs from the `SVG` component in how the
 | color         | ColorRepresentation |
 | opacity       | number              |
 | materialClass | MaterialClass       |
+
+</details>
 
 ## Content
 

@@ -1,7 +1,7 @@
 ---
 title: Scrolling
 description: How to use overflow, scrolling, and clipping.
-nav: 2
+nav: 9
 ---
 
 uikit handles clipping and scrolling out of the box by specifying `overflow="scroll"` or `overflow="hidden"` on any UI element.

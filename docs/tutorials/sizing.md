@@ -1,14 +1,15 @@
 ---
 title: Sizing
 description: How to size elements and use pixelSize, sizeX, sizeY, and precision.
-nav: 3
+nav: 10
 ---
 
 **TLDR**: The size of the Root element is defined in three.js units through the optional `sizeX` and `sizeY` parameters. The `pixelSize` parameter allows you to define how big one pixel in the UI is in relation to one three.js unit.
 
 
-> [!IMPORTANT]  
-> The `pixelSize` should be set so that the default font height (`16px`) is reasonably sized. All pre-built components adhere to this sizing concept.
+**Important**
+
+The `pixelSize` should be set so that the default font height (`16px`) is reasonably sized. All pre-built components adhere to this sizing concept.
 
 <details>
   <summary>In Depth Explanation</summary>

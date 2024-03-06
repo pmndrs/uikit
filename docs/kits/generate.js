@@ -2,8 +2,15 @@ import ApfelRegistry from '../../packages/kits/apfel/registry.json' assert { typ
 import DefaultRegistry from '../../packages/kits/default/registry.json' assert { type: 'json' }
 import { readFileSync, writeFileSync } from 'fs'
 
-function generateMarkdown(kit, components) {
-  let result = ''
+function generateMarkdown(nav, kit, components) {
+  let result = `---
+title: ${capitalize(kit)}
+description: All the ${capitalize(kit)} components.
+nav: ${nav}
+---
+  
+`
+
   for (const component of components) {
     result += `## ${capitalize(component)}
 ![${component} example image](./${kit}/${component}.png)
@@ -27,8 +34,8 @@ npx uikit component add ${kit} ${component}
   return result
 }
 
-writeFileSync('apfel.md', generateMarkdown('apfel', Object.keys(ApfelRegistry)))
-writeFileSync('default.md', generateMarkdown('default', Object.keys(DefaultRegistry)))
+writeFileSync('apfel.md', generateMarkdown(4, 'apfel', Object.keys(ApfelRegistry)))
+writeFileSync('default.md', generateMarkdown(5, 'default', Object.keys(DefaultRegistry)))
 
 function capitalize(s) {
   return s[0].toUpperCase() + s.slice(1)

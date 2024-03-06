@@ -1,7 +1,7 @@
 ---
 title: Performance
-description: Important considerations for building performant user interfaces with r3/uikit.
-nav: 1
+description: Important considerations for building performant user interfaces with uikit.
+nav: 14
 ---
 
 # Avoid React Re-renders

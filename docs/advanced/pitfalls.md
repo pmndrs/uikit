@@ -1,7 +1,7 @@
 ---
 title: Pitfalls
-description: Pitfalls to avoid when building userinterfaces with r3/uikit
-nav: 0
+description: Pitfalls to avoid when building userinterfaces with uikit
+nav: 13
 ---
 
 # Asynchronous Objects inside `Content`

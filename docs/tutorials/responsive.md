@@ -1,10 +1,15 @@
 ---
 title: Responsive
 description: How to make the ui elements responsive.
-nav: 1
+nav: 8
 ---
 
-Building responsive UIs in uikit is inspired by [responsiveness in tailwind](https://tailwindcss.com/docs/responsive-design). Using the concept of breakponts UI elements can be styled based on the size of the root element. These breakpoints are `sm` (min root width: 640px), `md` (min root width: 768px), `lg` (min root width: 1024px), `xl`, (min root width: 1280px), and `2xl` (min root width: 1536px).
+Building responsive UIs in uikit is inspired by [responsiveness in tailwind](https://tailwindcss.com/docs/responsive-design). Using the concept of breakponts UI elements can be styled based on the size of the root element. These breakpoints are
+- `sm` (min root width: 640px)
+- `md` (min root width: 768px)
+- `lg` (min root width: 1024px)
+- `xl` (min root width: 1280px)
+- `2xl` (min root width: 1536px)
 
 ```jsx
 <Container
