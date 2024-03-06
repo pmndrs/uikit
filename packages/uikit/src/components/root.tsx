@@ -1,4 +1,3 @@
-import { Yoga, loadYoga } from 'yoga-layout/wasm-async'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { FlexNode, YogaProperties } from '../flex/node.js'
 import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
@@ -72,7 +71,6 @@ const vectorHelper = new Vector3()
 export const Root = forwardRef<
   ComponentInternals,
   RootProperties & {
-    loadYoga?: () => Promise<Yoga>
     children?: ReactNode
     precision?: number
     anchorX?: keyof typeof alignmentXMap
@@ -98,7 +96,7 @@ export const Root = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
-  const yoga = useLoadYoga(properties.loadYoga ?? loadYoga)
+  const yoga = useLoadYoga()
   const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
   const groupRef = useRef<Group>(null)
   const requestLayout = useDeferredRequestLayoutCalculation()

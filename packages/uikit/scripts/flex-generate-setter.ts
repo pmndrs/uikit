@@ -1,8 +1,8 @@
 import { writeFileSync } from 'fs'
-import * as Yoga from 'yoga-layout/wasm-async'
+import { loadYoga, Edge, Gutter, Unit, Node } from 'yoga-layout/wasm-async'
 
 async function main() {
-  const yoga = await Yoga.loadYoga()
+  const yoga = await loadYoga()
   const node = yoga.Node.create()
 
   const propertiesWithEdge = new Set(['border', 'padding', 'margin', 'position'])
@@ -22,14 +22,14 @@ async function main() {
   }
 
   const edgeMap = {
-    Top: Yoga.Edge.Top,
-    Left: Yoga.Edge.Left,
-    Right: Yoga.Edge.Right,
-    Bottom: Yoga.Edge.Bottom,
+    Top: Edge.Top,
+    Left: Edge.Left,
+    Right: Edge.Right,
+    Bottom: Edge.Bottom,
   }
   const gutterMap = {
-    Row: Yoga.Gutter.Row,
-    Column: Yoga.Gutter.Column,
+    Row: Gutter.Row,
+    Column: Gutter.Column,
   }
 
   const yogaKeys = Object.entries(yoga)
@@ -87,8 +87,8 @@ async function main() {
       }
       types = [...enums.map(([name]) => `"${kebabCaseFromSnakeCase(name.slice(enumPrefix.length))}"`), 'undefined']
     } else {
-      const percentUnit = node[`set${functionName}Percent` as keyof Yoga.Node] != null
-      const autoUnit = node[`set${functionName}Auto` as keyof Yoga.Node] != null
+      const percentUnit = node[`set${functionName}Percent` as keyof Node] != null
+      const autoUnit = node[`set${functionName}Auto` as keyof Node] != null
       const pointUnit = !propertiesWithoutPointUnit.has(propertyName)
       types = ['undefined', 'number']
       if (percentUnit) {
@@ -197,13 +197,13 @@ function createLookupTable(
 function fromYoga(name: string, value: any): 'auto' | `${number}%` | number | null {
   if (typeof value === 'object') {
     switch (value.unit) {
-      case Yoga.Unit.Auto:
+      case Unit.Auto:
         return 'auto'
-      case Yoga.Unit.Percent:
+      case Unit.Percent:
         return `${value.value}%`
-      case Yoga.Unit.Point:
+      case Unit.Point:
         return value.value ?? null
-      case Yoga.Unit.Undefined:
+      case Unit.Undefined:
         return null
     }
   }

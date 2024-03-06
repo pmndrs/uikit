@@ -3,7 +3,6 @@ import { DEFAULT_PIXEL_SIZE, Root, RootProperties } from './root.js'
 import { batch, signal } from '@preact/signals-core'
 import { RootState, createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { Yoga } from 'yoga-layout/wasm-async'
 import { ScrollListeners } from '../scroll.js'
 import { ComponentInternals, LayoutListeners } from './utils.js'
 import { Group, PerspectiveCamera } from 'three'
@@ -11,7 +10,6 @@ import { Group, PerspectiveCamera } from 'three'
 export const Fullscreen = forwardRef<
   ComponentInternals,
   RootProperties & {
-    loadYoga?: () => Promise<Yoga>
     children?: ReactNode
     precision?: number
     attachCamera?: boolean

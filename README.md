@@ -21,7 +21,6 @@ TODO Release
 - feat: drag/click threshold
 - feat: input
 - fix: decrease clipping rect when scrollbar present
-- feat: upgrade to yoga2.0
 
 Roadmap
 
