@@ -1,13 +1,12 @@
-import Image from '@theme/IdealImage';
-import { CodesandboxEmbed } from '../CodesandboxEmbed.tsx'
+---
+title: First Layout
+description: Build your first layout with uikit.
+nav: 1
+---
 
-# First Layout
+Let's start creating the first layout using 2 `Container` and 1 `Root`. Every layout needs to start with a `Root` elment (or a element that wraps the `Root` element such as the `Fullscreen` component). In this example, the `Root` is of size of 2 by 1 (three.js units). The `Root` has a horizontal (row) flex-direction, while its children, the `Container`s, equally fill its width with a margin arround them.
 
-At first, we will create 3 containers. One container is the root node with a size of 2 by 1 three.js untits, expressed by `Root`. The `Root` has a horizontal (row) flex-direction, while the children expressed by `Container` equally fill its width with a margin between them.
-
-<CodesandboxEmbed path="koestlich-first-layout-owgw9d"/>
-
-<Image img={require('@site/static/images/first-layout.png')}/>
+More in the depth information to the flexbox properties can be found [here](https://yogalayout.dev/docs/).
 
 ```tsx
 import { Canvas } from "@react-three/fiber";

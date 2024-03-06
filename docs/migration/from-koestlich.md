@@ -19,7 +19,7 @@ This guide is intended for developers migrating their user interface from Koestl
 
 # Property Renaming
 
-- **Material Property**: The material property has been renamed to backgroundMaterialClass. For Image, SVG, and Icon components, it is also renamed to materialClass.
+- **Material Property**: The material property has been renamed to panelMaterialClass. For Image, SVG, and Icon components, it is also renamed to materialClass.
 - **Line Height**: The lineHeightMultiplier property has been renamed to lineHeight to better align with CSS naming conventions.
 
 - **Word Break**: The wrapper property was renamed to wordBreak to better align with CSS naming conventions.
@@ -29,6 +29,7 @@ This guide is intended for developers migrating their user interface from Koestl
 - **Object to Content Component**: The Object component is replaced with the Content component. The depth property has been removed. The Content component now allows any R3F (React Three Fiber) component to be placed inside it. To mimic the behavior of the Object component, use \<Content>\<primitive object=\{...}>\</Content>.
 - **SVG Depth Removal**: The SVG component no longer has a depth property, as SVGs are considered 2D planes.
 - **Box Component Removal**: The Box component has been removed.
+- **DefaultStyleProvider**: DefaultStyleProvider is renamed to DefaultProperties
 
 # Font Families
 - Font families are now provided as \<FontFamilies roboto={{ normal: "{url}", bold: "{url}" }}> instead of \<FontFamilies robotoNormal="url" robotoBold="bold">. When using font families, utilize them as \<Text fontFamily="roboto" fontWeight="bold"> instead of \<Text fontFamily="robotoBold">.
@@ -36,10 +37,11 @@ This guide is intended for developers migrating their user interface from Koestl
 # Migration Steps
 - Remove the index property from your UI elements. The order will be automatically managed.
 - Remove any ID and animation properties related to layout animations.
-- Update the material property to backgroundMaterialClass or materialClass as applicable.
+- Update the material property to panelMaterialClass or materialClass as applicable.
 - Replace Object components with Content components. Use \<Content>\<primitive object=\{...}>\<Content> to replicate the previous Object component's behavior.
 - Modify your font family declarations to the new format and adjust how you specify font weights in text components.
 - Rename lineHeightMultiplier to lineHeight and wrapper to wordBreak in your code to align with CSS naming.
+- Rname DefaultStyleProvider to DefaultProperties
 - Remove the depth property from all SVG components
 - Replace usages of the Box component with a Content component containing a Object3D with a BoxGeomtry.
 

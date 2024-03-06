@@ -1,11 +1,12 @@
 ---
 title: Performance
 description: Important considerations for building performant user interfaces with r3/uikit.
+nav: 1
 ---
 
 # Avoid React Re-renders
 
-When frequently changing properties of uikit components and especially when animating properties on every frame. We recommend modifying properties using a signal. This approach is similar to react-spring and allows to modify the properties of a uikit component without requiring a computiationally expensive react re-render. The following code shows how to animate the background opacity on every frame without interfering with react.
+When frequently changing properties of uikit components and especially when animating properties on every frame. We recommend modifying properties using a signal. This approach is similar to react-spring and allows to modify the properties of a uikit component without any property diffing. The following code shows how to animate the background opacity on every frame without interfering with react.
 
 ```jsx
 import { Container } from '@react-three/uikit'
@@ -19,7 +20,7 @@ export function AnimateBackground() {
         //continuously animate between 0 and 1
         opacity.value = Math.sin(clock.getElapsedTime()) / 2 + 0.5
     })
-    return <Component backgroundOpacity={opacity}></Component>
+    return <Container backgroundOpacity={opacity}></Container>
 }
 ```
 

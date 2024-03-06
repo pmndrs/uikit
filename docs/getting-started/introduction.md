@@ -1,21 +1,23 @@
-<h1>uikit</h1>
+---
+title: Introduction
+description: uikit brings user interfaces to @react-three/fiber
+nav: 0
+---
 
-[![Version](https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@react-three/uikit)
-[![Downloads](https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@react-three/uikit)
-[![Twitter](https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000)](https://twitter.com/pmndrs)
-[![Discord](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000)](https://discord.gg/ZZjjNvJ)
+![uikit banner](./banner.jpg)
 
-Full ui component kit with nested scroll, buttons, inputs, dropdowns, tabs, checkboxes etc. only rendered directly in webgl/threejs.
+Build declaritve UIs with support for nested scroll, buttons, inputs, dropdowns, tabs, checkboxes, and more.
 
 > Perfect for games, XR (VR/AR) and of course Spatial Computing Apps.
 
 ```bash
 npm install three @react-three/fiber @react-three/uikit
 ```
+
 ### What does it look like ?
 
-|A simple UI with 2 containers in a row rendered in fullscreen that change their opacity when the use hovers over them them.|![render of the above code](./basic-example.gif)|
-|-|-|
+| A simple UI with 2 containers in a row rendered in fullscreen that change their opacity when the use hovers over them. | ![render of the above code](./basic-example.gif) |
+| ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
 ```jsx
 import { createRoot } from 'react-dom/client'
@@ -33,14 +35,15 @@ createRoot(document.getElementById('root')).render(
 )
 ```
 
+## Pre-Styled Component Kits
 
-### I need pre-styled components !
+Install the source code of themeable components from available kits into your repository using the `uikit cli`.
 
-| <h3>Shadcn Default</h3> *based on [Shadcn]()*                 | ... |
-| ------------------------------- | --- |
-| ![]()                           | -   |
-| [View All Components]()             | -   |
-| `uikit add default {Component}` | -   |
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| ![Overview over all Default components](./default-overview.jpg)                                                                      | ![Overview over all Apfel components](./apfel-overview.jpg) |
+| [View All Components](../kits/default.md)                             | [View All Components](../kits/apfel.md)                     |
+| `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
 
 ## How to get started ?
 
@@ -49,18 +52,17 @@ The tutorials expect some level of familarity with react, threejs, and @react-th
 1. Build your [First Layout](./first-layout.md)
 2. Learn about the [Available Components and Their Properties](./components-and-properties.md)
 3. Get inspired by our [Examples](./examples.md)
-4. Learn more about
-- Using [Custom Materials](../tutorials/custom-materials.mdx)
-- Using [Custom Fonts](../tutorials/fonts.mdx)
-- Creating [Responsivene User Interfaces](../tutorials/responsive.mdx)
-- [Scrolling](../tutorials/scroll.mdx)
-- [Sizing](../tutorials/sizing.mdx
-)
+4. Learn more about  
+— [Interacitivity](../tutorials/interactivity.mdx)  
+— Using [Custom Materials](../tutorials/custom-materials.mdx)  
+— Using [Custom Fonts](../tutorials/fonts.mdx)  
+— Creating [Responsivene User Interfaces](../tutorials/responsive.mdx)  
+— [Scrolling](../tutorials/scroll.mdx)  
+— [Sizing](../tutorials/sizing.mdx)
 5. Learn about [Common Pitfalls]() and how to [Optimize Performance]()
 
-## Migration guides
+### Migration guides
 
 - from [Koestlich](../migration/from-koestlich.mdx)
 - from HTML/CSS
 - from Tailwind
-
