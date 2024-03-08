@@ -18,7 +18,7 @@ npm install three @react-three/fiber @react-three/uikit
 ### What does it look like ?
 
 | A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./docs/getting-started/basic-example.gif) |
-| ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 
 ```jsx
 import { createRoot } from 'react-dom/client'
@@ -38,34 +38,35 @@ createRoot(document.getElementById('root')).render(
 
 ## Pre-Styled Component Kits
 
-We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component with one command to your desired location.
-> For adding the button from the default kit, run: `npx uikit component add default Button`
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
 
-| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
-| --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| ![Overview over all default components](./docs/getting-started/default-overview.jpg)                                                                      | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
-| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                             | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
-| `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
+> For example, to add the button from the default kit, run: `npx uikit component add default Button`
 
-## How to get started ?
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
+| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
+| `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
 
-To fully utilize uikit, it's recommended to have some familiarity with
-react, threejs, and @react-three/fiber.
+## How to get started?
 
-- Build your [first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)
-- Learn about our [components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
-- Look at our [examples](https://docs.pmnd.rs/uikit/getting-started/examples) to see uikit in action.
-- Learn more about:
-  - [Interacitivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
-  - Using [custom materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)
-  - Using [custom fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)
-  - Creating [responsivene user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
-  - [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)
-  - [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
-- Learn about [common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls) and how to [optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
-- Learn about [theming components](https://docs.pmnd.rs/uikit/kits/theming)
+> Some familiarity with
+> react, threejs, and @react-three/fiber, is recommended.
 
-## Migration guides
+Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout.md)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples.md)** to see uikit in action, or learn more about:
+
+- [All components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
+- [Interacitivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
+- [Custom materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)
+- [Custom fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)
+- [Responsivene user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
+- [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)
+- [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
+- [Common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls)
+- [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
+- [Theming components](https://docs.pmnd.rs/uikit/kits/theming)
+
+## Migration Guides
 
 - from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
 - from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)

@@ -6,10 +6,10 @@ nav: 3
 
 ## Flexbox Properties
 
-All components in uikit use the flexbox properties to define the position and size inside the layout. An overview of all available Flexbox properties can be found [here](https://yogalayout.dev/docs/).
+All components in uikit use flexbox properties to define the position and size inside the layout. An overview of all available flexbox properties can be found below and [here](https://yogalayout.dev/docs/).
 
 <details>
-<summary>Table of all flexbox properties.</summary>
+<summary>View all flexbox properties</summary>
 
 | Property            | Type                                                                                                        |
 | ------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -74,7 +74,7 @@ All components in uikit use the flexbox properties to define the position and si
 
 ## Container
 
-The `Container` is a basic UI element that allows wrapping children and rendering a Panel into the background. It corresponds to the HTML `div` element.
+The `Container` componet is a basic UI component that allows wrapping children and rendering a Panel into the background. It corresponds to the HTML `div` element.
 
 ```jsx
 <Container backgroundColor="red">
@@ -86,7 +86,7 @@ The `Container` is a basic UI element that allows wrapping children and renderin
 In addition to the flexbox properties, the container has properties for styling its background panel and the scrollbars.
 
 <details>
-<summary>All properties for styling the background Panel</summary>
+<summary>View all properties for styling the background panel</summary>
 
 | Property                         | Type                |
 | -------------------------------- | ------------------- |
@@ -129,7 +129,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 ## Root
 
-Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. It allows to control the `precision` of the layout engine. A precision of `1` expresses that all values computed by the layout engines are integers, while the default precision of `0.1` allows the layout engine to measure layouts in sub-pixel values such as `10.2`. The `pixelSize` property of the `Root` component allows one to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
+Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. It allows you to control the `precision` of the layout engine. A precision of `1` expresses that all values computed by the layout engines are integers, while the default precision of `0.1` allows the layout engine to measure layouts in sub-pixel values such as `10.2`. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
 
 ```jsx
 <Root sizeX={2} sizeY={1} flexDirection="row">
@@ -139,7 +139,7 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 ```
 
 <details>
-<summary>All properties specific to the `Root` component</summary>
+<summary>View all properties specific to the `Root` component</summary>
 
 | Property  | Type                      |
 | --------- | ------------------------- |
@@ -153,7 +153,7 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 
 ## Fullscreen
 
-The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport. The `Fullscreen` automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
+The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport. The `Fullscreen` component automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
 
 ```jsx
 <Fullscreen flexDirection="row">
@@ -163,7 +163,7 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 ```
 
 <details>
-<summary>All properties specific to the `Fullscreen` component</summary>
+<summary>View all properties specific to the `Fullscreen` component</summary>
 
 | Property     | Type    |
 | ------------ | ------- |
@@ -174,7 +174,7 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 
 ## Image
 
-The `Image` component has the same properties and functionalities as a `Container` but allows to render an image inside it. The `Image` component corresponds to the HTML `img` element. The `Image` component has the `src` property, which can take and URL or a three.js texture. The `Image` component automatically sets the `aspectRatio` property based on the `src` property. This behavior can be turned off through `keepAspectRatio={false}`. The `fit` property can also be used to `cover` or `fill` the image in case the aspect ratio cannot be preserved by the layout engine or was overwritten by the user.
+The `Image` component has the same properties and functionalities as a `Container` component but allows you to render an image inside it. The `Image` component corresponds to the HTML `img` element. The `Image` component has the `src` property, which can take an URL or a three.js texture. The `Image` component automatically sets the `aspectRatio` property based on the `src` property. This behavior can be turned off through `keepAspectRatio={false}`. The `fit` property can also be used to `cover` or `fill` the image in case the aspect ratio cannot be preserved by the layout engine or was overwritten by the user.
 
 ```jsx
 <Root>
@@ -183,7 +183,7 @@ The `Image` component has the same properties and functionalities as a `Containe
 ```
 
 <details>
-<summary>All properties specific to the `Image` component</summary>
+<summary>View all properties specific to the `Image` component</summary>
 
 | Property        | Type            |
 | --------------- | --------------- |
@@ -225,7 +225,7 @@ The `Portal` component uses the `Image` component under the hood to render its c
 
 ## Text
 
-The `Text` component allows to render of text and is highly intertwined with the layout engine to allow the layout engine to measure and influence the text layout (e.g., how the text should be broken up). The text has several properties aligned with the CSS text properties such as `letterSpacing`, `lineHeight`, `fontSize`, `wordBreak`, `fontFamily`, and `fontWeight`. In addition, text has all the properties available in the `Container` component.
+The `Text` component allows you to render of text and is highly intertwined with the layout engine to allow the layout engine to measure and influence the text layout (e.g., how the text should be broken up). The `Text` component has several properties aligned with the CSS text properties such as `letterSpacing`, `lineHeight`, `fontSize`, `wordBreak`, `fontFamily`, and `fontWeight`. In addition, the `Text` component has all the properties available in the `Container` component.
 
 ```jsx
 <Root>
@@ -234,7 +234,7 @@ The `Text` component allows to render of text and is highly intertwined with the
 ```
 
 <details>
-<summary>All properties specific to the `Text` component</summary>
+<summary>View all properties specific to the `Text` component</summary>
 
 | Property        | Type                                                                                                                  |
 | --------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -262,7 +262,7 @@ The `SVG` component allows rendering an SVG file. The URL of the file is provide
 ```
 
 <details>
-<summary>All properties specific to the `SVG` component</summary>
+<summary>View all properties specific to the `SVG` component</summary>
 
 | Property      | Type                |
 | ------------- | ------------------- |
@@ -284,7 +284,7 @@ The `SVGIconFromText` component only differs from the `SVG` component in how the
 ```
 
 <details>
-<summary>All properties specific to the `SVGIconFromText` component</summary>
+<summary>View all properties specific to the `SVGIconFromText` component</summary>
 
 | Property      | Type                |
 | ------------- | ------------------- |
@@ -299,7 +299,7 @@ The `SVGIconFromText` component only differs from the `SVG` component in how the
 
 ## Content
 
-The `Content` component allows to include any R3F/Three.js element into the layout. Since the children inside the `Content` component can be 3-dimensional objects, their alignment on the z-axis can be controlled via the `depthAlign` property. By default the content will preserve the aspect ratio of the 3D objects. In case the 3D objects should be sized unrelated to its aspect ratio, set `keepAspectRatio={false}`.
+The `Content` component allows you to include any R3F/Three.js element into the layout. Since the children inside the `Content` component can be 3-dimensional objects, their alignment on the z-axis can be controlled with the `depthAlign` property. By default the content will preserve the aspect ratio of the 3D objects. In case the 3D objects should be sized independent from its aspect ratio, set `keepAspectRatio={false}`.
 
 ```jsx
 <Root>
@@ -310,7 +310,7 @@ The `Content` component allows to include any R3F/Three.js element into the layo
 ```
 
 <details>
-<summary>All properties specific to the `Content` component</summary>
+<summary>View all properties specific to the `Content` component</summary>
 
 | Property        | Type                      |
 | --------------- | ------------------------- |
@@ -321,7 +321,7 @@ The `Content` component allows to include any R3F/Three.js element into the layo
 
 ## CustomContainer
 
-The `CustomContainer` integrates a 2D panel with a custom material into the UI. The component is not instanced but provides complete control over the material of the panel.
+The `CustomContainer` component integrates a 2D panel with a custom material into the UI. The component is not instanced but provides complete control over the material of the panel.
 
 ```jsx
 <Root>
@@ -333,7 +333,7 @@ The `CustomContainer` integrates a 2D panel with a custom material into the UI. 
 
 ## DefaultProperties
 
-The `DefaultProperties` allow to override the default properties for all children. HTML/CSS uses the concept of inheritance to change properties on all children. In uikit the `DefaultProperties` component can be used to achieve the same goal. In HTML/CSS, property inheritance is implicit; the `DefaultProperties` component allows explicit expression of what properties are inherited by its children.
+The `DefaultProperties` component allows you to override the default properties for all children. HTML/CSS uses the concept of inheritance to change properties on all children. In uikit the `DefaultProperties` component can be used to achieve the same goal. In HTML/CSS, property inheritance is implicit; the `DefaultProperties` component allows explicit expression of what properties are inherited by its children.
 
 ```jsx
 <Root>
@@ -349,7 +349,7 @@ The `DefaultProperties` allow to override the default properties for all childre
 
 ## FontFamilyProvider
 
-The `FontFamilyProvider` allows to provide new font families to its children. Because uikit uses MSDF font rendering, fonts must be compiled into an MSDF texture and a JSON containing glyph information. More information on how to do this can be found [here](../tutorials/custom-fonts.md).
+The `FontFamilyProvider` component allows you to use the specified font families in all its children. The fonts must be compiled into an MSDF texture and a JSON containing glyph information, because uikit uses MSDF font rendering. More information on how to do this can be found [here](../tutorials/custom-fonts.md).
 
 ```jsx
 <FontFamilyProvider
@@ -366,9 +366,9 @@ The `FontFamilyProvider` allows to provide new font families to its children. Be
 
 ## Conditional Properties
 
-uikit allows declaring styles that depend on the element's interaction state, similar to CSS selectors, such as `:hover`. Conditional selectors also enable elements in the layout to be responsive based on several breakpoints. uikit supports a range of conditional selectors.
+uikit allows you to declare properties that depend on the element's interaction state, similar to CSS selectors, such as `:hover`. Conditional properties also enable elements in the layout to be responsive based on several breakpoints. uikit supports a range of conditional properties:
 
-| Selector | Explanation                                            |
+| Name | Explanation                                            |
 | -------- | ------------------------------------------------------ |
 | hover    | when the user hovers over the element                  |
 | active   | when the users clicks (pointer down) on the element    |
@@ -388,7 +388,7 @@ uikit allows declaring styles that depend on the element's interaction state, si
 
 ## Preferred Color Schemes
 
-By default, uikit inherits the preferred color scheme from the browser. Developers and designers can use the preferred color scheme to support users' preference for dark and light modes. The preferred color scheme can be controlled using `setPreferredColorScheme` and `getPreferredColorScheme`. The function `basedOnPreferredColorScheme` enables the creation of themes containing colors that change depending on the preferred color scheme.
+By default, uikit inherits the preferred color scheme from the browser. Developers and designers can use the preferred color scheme to support users' preference for dark and light modes. The preferred color scheme can be controlled using `setPreferredColorScheme` and `getPreferredColorScheme`. The function `basedOnPreferredColorScheme` lets you create themes containing colors that change depending on the preferred color scheme.
 
 ```jsx
 setPreferredColorScheme("light")
@@ -407,10 +407,10 @@ const theme = basedOnPreferredColorScheme({
 
 ## Event Properties
 
-All Components support the R3F event handlers. Additionally, event handlers for `onSizeChange`, `onIsInViewportChange`, and `onScroll` are provided.
+All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three-fiber/api/events). Additionally, event handlers for `onSizeChange`, `onIsInViewportChange`, and `onScroll` can be added to all components.
 
 <details>
-<summary>Table for all event handlers.</summary>
+<summary>View all event handlers</summary>
 
 | Property             | Type                                                                                         |
 | -------------------- | -------------------------------------------------------------------------------------------- |
@@ -434,7 +434,7 @@ All Components support the R3F event handlers. Additionally, event handlers for 
 
 ## Ref
 
-Each component exposes the `ComponentInternals` when using a `ref`. The component internals allow access to
+Each component exposes the `ComponentInternals` when using a `ref`. The component internals provide you with access to
 
 | Property         | Explanation                                                                      |
 | ---------------- | -------------------------------------------------------------------------------- |

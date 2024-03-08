@@ -37,8 +37,8 @@ createRoot(document.getElementById('root')).render(
 
 ## Pre-Styled Component Kits
 
-We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component with one command to your desired location.
-> For adding the button from the default kit, run: `npx uikit component add default Button`
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
+> For example, to add the button from the default kit, run: `npx uikit component add default Button`
 
 | <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
@@ -46,26 +46,25 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 | [View All Components](../kits/default.md)                             | [View All Components](../kits/apfel.md)                     |
 | `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
 
-## How to get started ?
+## How to get started?
 
-To fully utilize uikit, it's recommended to have some familiarity with
-react, threejs, and @react-three/fiber.
+> Some familiarity with
+react, threejs, and @react-three/fiber, is recommended.
 
-- Build your [first layout](./first-layout.md)
-- Learn about our [components and their properties](./components-and-properties.md)
-- Look at our [examples](./examples.md) to see uikit in action.
-- Learn more about:
-  - [Interacitivity](../tutorials/interactivity.md)
-  - Using [custom materials](../tutorials/custom-materials.md)
-  - Using [custom fonts](../tutorials/custom-fonts.md)
-  - Creating [responsivene user interfaces](../tutorials/responsive.md)
-  - [Scrolling](../tutorials/scroll.md)
-  - [Sizing](../tutorials/sizing.md)
-- Learn about [common pitfalls](../advanced/pitfalls.md) and how to
-[optimize performance](../advanced/performance.md)
-- Learn about [theming components](../kits/theming.md)
+Get started with **[building your first layout](./first-layout.md)**, take a look at our **[examples](./examples.md)** to see uikit in action, or learn more about:
 
-## Migration guides
+- [All components and their properties](./components-and-properties.md)
+- [Interacitivity](../tutorials/interactivity.md)
+- [Custom materials](../tutorials/custom-materials.md)
+- [Custom fonts](../tutorials/custom-fonts.md)
+- [Responsivene user interfaces](../tutorials/responsive.md)
+- [Scrolling](../tutorials/scroll.md)
+- [Sizing](../tutorials/sizing.md)
+- [Common pitfalls](../advanced/pitfalls.md)
+- [Optimize performance](../advanced/performance.md)
+- [Theming components](../kits/theming.md)
+
+## Migration Guides
 
 - from [Koestlich](../migration/from-koestlich.md)
 - from [HTML/CSS](../migration/from-html-css.md)

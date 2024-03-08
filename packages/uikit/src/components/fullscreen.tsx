@@ -13,27 +13,27 @@ export const Fullscreen = forwardRef<
     children?: ReactNode
     precision?: number
     attachCamera?: boolean
+    pixelSize?: number
   } & EventHandlers &
     LayoutListeners &
     ScrollListeners
 >((properties, ref) => {
   const store = useStore()
+  const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
   const [sizeX, sizeY] = useMemo(() => {
     const { width, height } = store.getState().size
-    return [signal(width * DEFAULT_PIXEL_SIZE), signal(height * DEFAULT_PIXEL_SIZE)] as const
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return [signal(width * pixelSize), signal(height * pixelSize)] as const
+  }, [pixelSize, store])
   useEffect(() => {
     const fn = (state: RootState) => {
       batch(() => {
-        sizeX.value = state.size.width * DEFAULT_PIXEL_SIZE
-        sizeY.value = state.size.height * DEFAULT_PIXEL_SIZE
+        sizeX.value = state.size.width * pixelSize
+        sizeY.value = state.size.height * pixelSize
       })
     }
     fn(store.getState())
     return store.subscribe(fn)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store])
+  }, [pixelSize, sizeX, sizeY, store])
   const camera = useThree((s) => s.camera)
   const groupRef = useRef<Group>(null)
   useFrame(() => {

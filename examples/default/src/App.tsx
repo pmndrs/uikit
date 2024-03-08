@@ -113,7 +113,7 @@ export default function App() {
                 {pcs === 'dark' ? <Moon /> : pcs === 'system' ? <SunMoon /> : <Sun />}
               </Button>
               <Separator orientation="vertical" />
-              <Text padding={8}>npx uikit component add apfel {component}</Text>
+              <Text padding={8}>npx uikit component add default {component}</Text>
               <Button
                 onClick={() => navigator.clipboard.writeText(`npx uikit component add apfel ${component}`)}
                 size="icon"
