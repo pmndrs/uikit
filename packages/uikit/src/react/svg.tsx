@@ -1,7 +1,7 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, RefObject, forwardRef, useMemo, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
-import { useFlexNode } from '../flex/react.js'
+import { useFlexNode } from './react.js'
 import {
   InteractionGroup,
   MaterialClass,
@@ -20,7 +20,7 @@ import {
 import { useResourceWithParams, useSignalEffect, fitNormalizedContentInside, useRootGroupRef } from '../utils.js'
 import { Box3, Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry, Vector3 } from 'three'
 import { computed, ReadonlySignal, Signal } from '@preact/signals-core'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { Color as ColorRepresentation } from '@react-three/fiber'
 import {
@@ -43,11 +43,11 @@ import {
 } from '../properties/alias.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { WithClasses, addToMerged } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 export type SvgProperties = WithConditionals<
   WithClasses<
@@ -195,11 +195,11 @@ export const Svg = forwardRef<
   const aspectRatio = useMemo(() => computed(() => svgObject.value?.aspectRatio), [svgObject])
 
   //apply all properties
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   writeCollection(collection, 'aspectRatio', aspectRatio)
   finalizeCollection(collection)
 

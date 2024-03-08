@@ -12,12 +12,12 @@ import {
   usePanelGroupDependencies,
 } from '../panel/react.js'
 import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
-import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
+import { FlexProvider, useDeferredRequestLayoutCalculation } from './react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
 import { Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import {
   LayoutListeners,
   useLayoutListeners,
@@ -26,7 +26,7 @@ import {
   useComponentInternals,
   WithConditionals,
 } from './utils.js'
-import { ClippingRectProvider, useClippingRect } from '../clipping.js'
+import { ClippingRectProvider, computeClippingRect } from '../clipping.js'
 import {
   ScrollGroup,
   ScrollHandler,
@@ -34,7 +34,7 @@ import {
   ScrollbarProperties,
   useGlobalScrollMatrix,
   useScrollPosition,
-  useScrollbars,
+  createScrollbars,
 } from '../scroll.js'
 import {
   WithAllAliases,
@@ -43,13 +43,13 @@ import {
 } from '../properties/alias.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { WithClasses, addToMerged } from '../properties/default.js'
 import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from '../text/react.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
@@ -124,7 +124,7 @@ export const Root = forwardRef<
   const rootMatrix = useRootMatrix(transformMatrix, node.size, pixelSize, properties)
   const scrollPosition = useScrollPosition()
   const globalScrollMatrix = useGlobalScrollMatrix(scrollPosition, node, rootMatrix)
-  useScrollbars(
+  createScrollbars(
     collection,
     scrollPosition,
     node,
@@ -151,16 +151,16 @@ export const Root = forwardRef<
   )
 
   //apply all properties
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties, node.size)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   writeCollection(collection, 'width', useDivide(sizeX, pixelSize))
   writeCollection(collection, 'height', useDivide(sizeY, pixelSize))
   finalizeCollection(collection)
 
-  const clippingRect = useClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, node, undefined)
+  const clippingRect = computeClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, node, undefined)
   useLayoutListeners(properties, node.size)
 
   const internactionPanel = useInteractionPanel(node.size, node, orderInfo, groupRef)

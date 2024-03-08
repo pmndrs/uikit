@@ -1,10 +1,10 @@
 import { signal } from '@preact/signals-core'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { useEffect, useMemo } from 'react'
 import { setCursorType, unsetCursorType } from './cursor.js'
-import { ManagerCollection, Properties } from './properties/utils.js'
-import { WithClasses, useTraverseProperties } from './properties/default.js'
-import { createConditionalPropertyTranslator } from './utils.js'
+import { Properties } from './properties/utils.js'
+import { AllOptionalProperties, WithClasses, traverseProperties } from './properties/default.js'
+import { Subscriptions, createConditionalPropertyTranslator } from './utils.js'
+import { MergedProperties } from './properties/merged.js'
 
 export type WithHover<T> = T & {
   cursor?: string
@@ -14,26 +14,28 @@ export type WithHover<T> = T & {
 
 export type HoverEventHandlers = Pick<EventHandlers, 'onPointerOver' | 'onPointerOut'>
 
-export function useApplyHoverProperties(
-  collection: ManagerCollection,
+export function applyHoverProperties(
+  merged: MergedProperties,
+  defaultProperties: AllOptionalProperties | undefined,
   properties: WithClasses<WithHover<Properties>> & EventHandlers,
+  subscriptions: Subscriptions,
 ): HoverEventHandlers | undefined {
-  const hoveredSignal = useMemo(() => signal<Array<number>>([]), [])
+  const hoveredSignal = signal<Array<number>>([])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const translate = useMemo(() => createConditionalPropertyTranslator(() => hoveredSignal.value.length > 0), [])
+  const translate = createConditionalPropertyTranslator(() => hoveredSignal.value.length > 0)
   let hoverPropertiesExist = false
 
-  useTraverseProperties(properties, (p) => {
+  traverseProperties(defaultProperties, properties, (p) => {
     if (p.hover == null) {
       return
     }
     hoverPropertiesExist = true
-    translate(collection, p.hover)
+    translate(merged, p.hover)
   })
 
   //cleanup cursor effect
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => () => unsetCursorType(hoveredSignal), [])
+  subscriptions.push(() => unsetCursorType(hoveredSignal))
 
   if (!hoverPropertiesExist && properties.onHoverChange == null && properties.cursor == null) {
     //no need to listen to hover

@@ -1,12 +1,11 @@
-import { createContext, ReactNode, useContext } from 'react'
-import { applyProperties, ManagerCollection, PropertyManager } from './utils.js'
+import { ReadonlySignal } from '@preact/signals-core'
 import { ContainerProperties } from '../components/container.js'
-import { ContentProperties } from '../components/content.js'
-import { ImageProperties } from '../components/image.js'
-import { RootProperties } from '../components/root.js'
-import { SvgProperties } from '../components/svg.js'
-import { CustomContainerProperties } from '../components/custom.js'
-import { TextProperties } from '../index.js'
+import { ContentProperties } from '../react/content.js'
+import { CustomContainerProperties } from '../react/custom.js'
+import { ImageProperties } from '../react/image.js'
+import { RootProperties } from '../react/root.js'
+import { SvgProperties } from '../react/svg.js'
+import { TextProperties } from '../react/text.js'
 
 export type AllOptionalProperties =
   | ContainerProperties
@@ -17,12 +16,19 @@ export type AllOptionalProperties =
   | SvgProperties
   | TextProperties
 
-const DefaultPropertiesContext = createContext<AllOptionalProperties>(null as any)
+export type WithReactive<T> = {
+  [Key in keyof T]?: T[Key] | ReadonlySignal<T[Key] | undefined>
+}
+
+export type Properties = Record<string, unknown>
 
 export type WithClasses<T> = T & { classes?: T | Array<T> }
 
-export function useTraverseProperties<T>(properties: WithClasses<T>, fn: (properties: T) => void): void {
-  const defaultProperties = useContext(DefaultPropertiesContext)
+export function traverseProperties<T>(
+  defaultProperties: AllOptionalProperties | undefined,
+  properties: WithClasses<T>,
+  fn: (properties: T) => void,
+): void {
   if (defaultProperties != null) {
     fn(defaultProperties as T)
   }
@@ -36,27 +42,4 @@ export function useTraverseProperties<T>(properties: WithClasses<T>, fn: (proper
     fn(classes)
   }
   fn(properties)
-}
-
-export function useApplyProperties(
-  collection: ManagerCollection,
-  properties: WithClasses<Record<string, unknown>>,
-): void {
-  useTraverseProperties(properties, (p) => applyProperties(collection, p))
-}
-
-export function DefaultProperties(properties: { children?: ReactNode } & AllOptionalProperties) {
-  const existingDefaultProperties = useContext(DefaultPropertiesContext)
-  const result: any = { ...existingDefaultProperties }
-  for (const key in properties) {
-    if (key === 'children') {
-      continue
-    }
-    const value = properties[key as keyof AllOptionalProperties]
-    if (value == null) {
-      continue
-    }
-    result[key] = value as any
-  }
-  return <DefaultPropertiesContext.Provider value={result}>{properties.children}</DefaultPropertiesContext.Provider>
 }

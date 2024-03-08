@@ -1,25 +1,13 @@
-import { createContext, useContext, useMemo, useEffect, RefObject, useCallback, useRef } from 'react'
-import { FlexNode } from './node.js'
-import { Group } from 'three'
+import { createContext, useContext, useCallback, useRef } from 'react'
+import { FlexNode } from '../flex/node.js'
 import { useFrame } from '@react-three/fiber'
 
 const FlexContext = createContext<FlexNode>(null as any)
 
+export const FlexProvider = FlexContext.Provider
+
 export function useParentFlexNode() {
   return useContext(FlexContext)
-}
-
-export function useFlexNode(groupRef: RefObject<Group>): FlexNode {
-  const parentNode = useParentFlexNode()
-  const node = useMemo(() => parentNode.createChild(groupRef), [groupRef, parentNode])
-  useEffect(() => {
-    parentNode.addChild(node)
-    return () => {
-      parentNode.removeChild(node)
-      node.destroy()
-    }
-  }, [parentNode, node])
-  return node
 }
 
 export function useDeferredRequestLayoutCalculation(): (node: FlexNode) => void {
@@ -38,5 +26,3 @@ export function useDeferredRequestLayoutCalculation(): (node: FlexNode) => void 
     requestedNodeRef.current = node
   }, [])
 }
-
-export const FlexProvider = FlexContext.Provider

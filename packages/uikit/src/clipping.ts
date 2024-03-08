@@ -87,14 +87,6 @@ export class ClippingRect {
   }
 }
 
-const ClippingRectContext = createContext<Signal<ClippingRect | undefined>>(null as any)
-
-export const ClippingRectProvider = ClippingRectContext.Provider
-
-export function useParentClippingRect(): Signal<ClippingRect | undefined> | undefined {
-  return useContext(ClippingRectContext)
-}
-
 const helperPoints = [new Vector3(), new Vector3(), new Vector3(), new Vector3()]
 const multiplier = [
   [-0.5, -0.5],
@@ -103,49 +95,45 @@ const multiplier = [
   [-0.5, 0.5],
 ]
 
-export function useIsClipped(
+export function computeIsClipped(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   psRef: { pixelSize: number },
 ): Signal<boolean> {
-  return useMemo(
-    () =>
-      computed(() => {
-        const global = globalMatrix.value
-        const rect = parentClippingRect?.value
-        if (rect == null || global == null) {
-          return false
-        }
-        const [width, height] = size.value
-        for (let i = 0; i < 4; i++) {
-          const [mx, my] = multiplier[i]
-          helperPoints[i].set(mx * psRef.pixelSize * width, my * psRef.pixelSize * height, 0).applyMatrix4(global)
-        }
+  return computed(() => {
+    const global = globalMatrix.value
+    const rect = parentClippingRect?.value
+    if (rect == null || global == null) {
+      return false
+    }
+    const [width, height] = size.value
+    for (let i = 0; i < 4; i++) {
+      const [mx, my] = multiplier[i]
+      helperPoints[i].set(mx * psRef.pixelSize * width, my * psRef.pixelSize * height, 0).applyMatrix4(global)
+    }
 
-        const { planes } = rect
-        let allOutside: boolean
-        for (let planeIndex = 0; planeIndex < 4; planeIndex++) {
-          const clippingPlane = planes[planeIndex]
-          allOutside = true
-          for (let pointIndex = 0; pointIndex < 4; pointIndex++) {
-            const point = helperPoints[pointIndex]
-            if (clippingPlane.distanceToPoint(point) >= 0) {
-              //inside
-              allOutside = false
-            }
-          }
-          if (allOutside) {
-            return true
-          }
+    const { planes } = rect
+    let allOutside: boolean
+    for (let planeIndex = 0; planeIndex < 4; planeIndex++) {
+      const clippingPlane = planes[planeIndex]
+      allOutside = true
+      for (let pointIndex = 0; pointIndex < 4; pointIndex++) {
+        const point = helperPoints[pointIndex]
+        if (clippingPlane.distanceToPoint(point) >= 0) {
+          //inside
+          allOutside = false
         }
-        return false
-      }),
-    [globalMatrix, parentClippingRect, psRef, size],
-  )
+      }
+      if (allOutside) {
+        return true
+      }
+    }
+    return false
+  })
 }
 
-export function useClippingRect(
+export function computeClippingRect(
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
@@ -153,29 +141,25 @@ export function useClippingRect(
   psRef: { pixelSize: number },
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Signal<ClippingRect | undefined> {
-  return useMemo(
-    () =>
-      computed(() => {
-        const global = globalMatrix.value
-        if (global == null || overflow.value === Overflow.Visible) {
-          return parentClippingRect?.value
-        }
-        const [width, height] = size.value
-        const [top, right, bottom, left] = borderInset.value
-        const rect = new ClippingRect(
-          global,
-          ((right - left) * psRef.pixelSize) / 2,
-          ((top - bottom) * psRef.pixelSize) / 2,
-          (width - left - right) * psRef.pixelSize,
-          (height - top - bottom) * psRef.pixelSize,
-        )
-        if (parentClippingRect?.value != null) {
-          rect.min(parentClippingRect.value)
-        }
-        return rect
-      }),
-    [globalMatrix, size, borderInset, psRef, overflow, parentClippingRect],
-  )
+  return computed(() => {
+    const global = globalMatrix.value
+    if (global == null || overflow.value === Overflow.Visible) {
+      return parentClippingRect?.value
+    }
+    const [width, height] = size.value
+    const [top, right, bottom, left] = borderInset.value
+    const rect = new ClippingRect(
+      global,
+      ((right - left) * psRef.pixelSize) / 2,
+      ((top - bottom) * psRef.pixelSize) / 2,
+      (width - left - right) * psRef.pixelSize,
+      (height - top - bottom) * psRef.pixelSize,
+    )
+    if (parentClippingRect?.value != null) {
+      rect.min(parentClippingRect.value)
+    }
+    return rect
+  })
 }
 
 export const NoClippingPlane = new Plane(new Vector3(-1, 0, 0), Number.MAX_SAFE_INTEGER)

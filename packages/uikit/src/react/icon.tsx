@@ -1,6 +1,6 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, forwardRef, useMemo, useRef } from 'react'
-import { useFlexNode } from '../flex/react.js'
+import { useFlexNode } from './react.js'
 import {
   InteractionGroup,
   MaterialClass,
@@ -12,7 +12,7 @@ import {
 import { createCollection, finalizeCollection, useGetBatchedProperties, writeCollection } from '../properties/utils.js'
 import { useSignalEffect, fitNormalizedContentInside, useRootGroupRef } from '../utils.js'
 import { Color, Group, Mesh, MeshBasicMaterial, ShapeGeometry } from 'three'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import {
   ComponentInternals,
@@ -28,12 +28,12 @@ import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { flexAliasPropertyTransformation, panelAliasPropertyTransformation } from '../properties/alias.js'
 import { useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
-import { useApplyProperties } from '../properties/default.js'
+import { addToMerged } from '../properties/default.js'
 import { SvgProperties, AppearanceProperties } from './svg.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 const colorHelper = new Color()
 
@@ -144,11 +144,11 @@ export const SvgIconFromText = forwardRef<
   //apply all properties
   writeCollection(collection, 'width', properties.svgWidth)
   writeCollection(collection, 'height', properties.svgHeight)
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   writeCollection(collection, 'aspectRatio', properties.svgWidth / properties.svgHeight)
   finalizeCollection(collection)
 

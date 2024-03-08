@@ -1,6 +1,6 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { YogaProperties } from '../flex/node.js'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import {
   InteractionGroup,
@@ -15,7 +15,7 @@ import {
   flexAliasPropertyTransformation,
   panelAliasPropertyTransformation,
 } from '../properties/alias.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { WithClasses, addToMerged } from '../properties/default.js'
 import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
 import { ScrollListeners } from '../scroll.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
@@ -31,7 +31,7 @@ import {
 } from './utils.js'
 import { forwardRef, useRef } from 'react'
 import { useParentClippingRect, useIsClipped } from '../clipping.js'
-import { useFlexNode } from '../flex/react.js'
+import { useFlexNode } from './react.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { InstancedTextProperties, useInstancedText } from '../text/react.js'
 import { ReadonlySignal } from '@preact/signals-core'
@@ -39,8 +39,8 @@ import { useRootGroupRef } from '../utils.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { Group } from 'three'
 import { ElementType, ZIndexOffset, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 export type TextProperties = WithConditionals<
   WithClasses<
@@ -97,11 +97,11 @@ export const Text = forwardRef<
     orderInfo,
   )
 
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   writeCollection(collection, 'measureFunc', measureFunc)
   finalizeCollection(collection)
 

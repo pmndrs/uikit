@@ -3,8 +3,18 @@ import { computed, effect, Signal, signal } from '@preact/signals-core'
 import { Vector2Tuple, BufferAttribute, Color, Group } from 'three'
 import { Color as ColorRepresentation } from '@react-three/fiber'
 import { Inset } from './flex/node.js'
-import { ManagerCollection, Properties } from './properties/utils.js'
+import { Properties } from './properties/utils.js'
 import { Yoga, loadYoga } from 'yoga-layout/wasm-async'
+import { MergedProperties } from './properties/merged.js'
+
+export type Subscriptions = Array<() => void>
+
+export function unsubscribeSubscriptions(subscriptions: Subscriptions): void {
+  const length = subscriptions.length
+  for (let i = 0; i < length; i++) {
+    subscriptions[i]()
+  }
+}
 
 export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
 export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 }
@@ -98,20 +108,9 @@ export function readReactive<T>(value: T | Signal<T>): T {
   return value instanceof Signal ? value.value : value
 }
 
-const RootGroupRefContext = createContext<RefObject<Group>>(null as any)
-
-export function useRootGroupRef() {
-  return useContext(RootGroupRefContext)
-}
-
-export const RootGroupProvider = RootGroupRefContext.Provider
-
-export function createConditionalPropertyTranslator(
-  condition: () => boolean,
-): (collection: ManagerCollection, properties: Properties) => void {
+export function createConditionalPropertyTranslator(condition: () => boolean) {
   const signalMap = new Map<unknown, Signal<unknown>>()
-  return (collection, properties) => {
-    const collectionLength = collection.length
+  return (merged: MergedProperties, properties: Properties) => {
     for (const key in properties) {
       const value = properties[key]
       if (value === undefined) {
@@ -121,9 +120,7 @@ export function createConditionalPropertyTranslator(
       if (result == null) {
         signalMap.set(value, (result = computed(() => (condition() ? readReactive(value) : undefined))))
       }
-      for (let i = 0; i < collectionLength; i++) {
-        collection[i].add(key, result)
-      }
+      merged.add(key, result)
     }
   }
 }

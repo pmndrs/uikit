@@ -1,11 +1,13 @@
 import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import { Edge, Node, Yoga, Overflow } from 'yoga-layout/wasm-async'
+import { Edge, Node, Yoga, Overflow, MeasureFunction } from 'yoga-layout/wasm-async'
 import { setter } from './setter.js'
-import { setMeasureFunc, yogaNodeEqual } from './utils.js'
-import { WithImmediateProperties } from '../properties/immediate.js'
 import { RefObject } from 'react'
 import { CameraDistanceRef } from '../order.js'
+import { Subscriptions } from '../utils.js'
+import { setupImmediateProperties } from '../properties/immediate.js'
+import { MergedProperties } from '../properties/merged.js'
+import { flexAliasPropertyTransformation } from '../properties/alias.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
@@ -13,7 +15,14 @@ export type YogaProperties = {
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
 
-export class FlexNode implements WithImmediateProperties {
+function hasImmediateProperty(key: string): boolean {
+  if (key === 'measureFunc') {
+    return true
+  }
+  return key in setter
+}
+
+export class FlexNode {
   public readonly size = signal<Vector2Tuple>([0, 0])
   public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
   public readonly borderInset = signal<Inset>([0, 0, 0, 0])
@@ -30,9 +39,10 @@ export class FlexNode implements WithImmediateProperties {
 
   public requestCalculateLayout: () => void
 
-  active = signal(false)
+  private active = signal(false)
 
   constructor(
+    propertiesSignal: Signal<MergedProperties>,
     private groupRef: RefObject<Group>,
     public cameraDistance: CameraDistanceRef,
     public readonly yoga: Signal<Yoga | undefined>,
@@ -40,6 +50,7 @@ export class FlexNode implements WithImmediateProperties {
     public readonly pixelSize: number,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
+    subscriptions: Subscriptions,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
@@ -51,22 +62,21 @@ export class FlexNode implements WithImmediateProperties {
       this.yogaNode = yoga.value.Node.create()
       this.active.value = true
     })
-  }
-
-  setProperty(key: string, value: unknown): void {
-    if (key === 'measureFunc') {
-      setMeasureFunc(this.yogaNode!, this.precision, value as any)
-    } else {
-      setter[key as keyof typeof setter](this.yogaNode!, this.precision, value as any)
-    }
-    this.requestCalculateLayout()
-  }
-
-  hasImmediateProperty(key: string): boolean {
-    if (key === 'measureFunc') {
-      return true
-    }
-    return key in setter
+    setupImmediateProperties(
+      propertiesSignal,
+      this.active,
+      hasImmediateProperty,
+      (key: string, value: unknown) => {
+        if (key === 'measureFunc') {
+          setMeasureFunc(this.yogaNode!, this.precision, value as any)
+        } else {
+          setter[key as keyof typeof setter](this.yogaNode!, this.precision, value as any)
+        }
+        this.requestCalculateLayout()
+      },
+      subscriptions,
+      flexAliasPropertyTransformation,
+    )
   }
 
   destroy() {
@@ -86,8 +96,13 @@ export class FlexNode implements WithImmediateProperties {
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
-  createChild(groupRef: RefObject<Group>): FlexNode {
+  createChild(
+    propertiesSignal: Signal<MergedProperties>,
+    groupRef: RefObject<Group>,
+    subscriptions: Subscriptions,
+  ): FlexNode {
     const child = new FlexNode(
+      propertiesSignal,
       groupRef,
       this.cameraDistance,
       this.yoga,
@@ -99,6 +114,7 @@ export class FlexNode implements WithImmediateProperties {
         const [x, y] = this.scrollable.value
         return [ancestorX || x, ancestorY || y]
       }),
+      subscriptions,
     )
     return child
   }
@@ -288,4 +304,23 @@ function assertNodeNotNull<T>(val: T | undefined): T {
     throw new Error(`commit cannot be called with a children that miss a yoga node`)
   }
   return val
+}
+
+function yogaNodeEqual(n1: Node, n2: Node): boolean {
+  return (n1 as any)['L'] === (n2 as any)['L']
+}
+
+function setMeasureFunc(node: Node, precision: number, func: MeasureFunction | undefined): void {
+  if (func == null) {
+    node.setMeasureFunc(null)
+    return
+  }
+  node.setMeasureFunc((width, wMode, height, hMode) => {
+    const result = func(width * precision, wMode, height * precision, hMode)
+    return {
+      width: Math.ceil(Math.ceil(result.width) / precision),
+      height: Math.ceil(Math.ceil(result.height) / precision),
+    }
+  })
+  node.markDirty()
 }

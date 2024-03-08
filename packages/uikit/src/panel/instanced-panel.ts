@@ -5,11 +5,14 @@ import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
 import { InstancedPanelGroup } from './instanced-panel-group.js'
 import { panelDefaultColor } from './panel-material.js'
-import { colorToBuffer } from '../utils.js'
+import { Subscriptions, colorToBuffer } from '../utils.js'
 import { Color as ColorRepresentation } from '@react-three/fiber'
-import { WithImmediateProperties } from '../properties/immediate.js'
-import { WithBatchedProperties } from '../properties/batched.js'
 import { isPanelVisible, setBorderRadius } from './utils.js'
+import { MergedProperties } from '../properties/merged.js'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { setupImmediateProperties } from '../properties/immediate.js'
+import { GetInstancedPanelGroup, PanelGroupDependencies } from './react.js'
+import { OrderInfo } from '../order.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number
@@ -56,80 +59,91 @@ const instancedPanelMaterialSetters: {
   backgroundOpacity: (m, i, p) => writeComponent(m.instanceData, i, 15, p ?? -1),
 }
 
-const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity'] as const
-type BatchedProperties = Pick<PanelProperties, (typeof batchedProperties)[number]>
-type BatchedPropertiesKey = keyof BatchedProperties
+const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity']
+
+function hasBatchedProperty(key: string): boolean {
+  return batchedProperties.includes(key)
+}
+
+function hasImmediateProperty(key: string): boolean {
+  return key in instancedPanelMaterialSetters
+}
 
 export type InstancedPanelSetter = (typeof instancedPanelMaterialSetters)[keyof typeof instancedPanelMaterialSetters]
 
 const matrixHelper1 = new Matrix4()
 const matrixHelper2 = new Matrix4()
 
-export class InstancedPanel implements WithImmediateProperties, WithBatchedProperties<BatchedProperties> {
+export class InstancedPanel {
   private indexInBucket?: number
   private bucket?: Bucket<unknown>
 
   private unsubscribeList: Array<() => void> = []
 
-  private unsubscribeVisible: () => void
-
   public destroyed = false
 
   private insertedIntoGroup = false
 
-  active = signal(false)
+  private active = signal(false)
+
+  private group: InstancedPanelGroup
 
   constructor(
-    private readonly group: InstancedPanelGroup,
+    propertiesSignal: Signal<MergedProperties>,
+    getGroup: GetInstancedPanelGroup,
+    private readonly orderInfo: OrderInfo,
+    panelGroupDependencies: PanelGroupDependencies,
     private readonly matrix: Signal<Matrix4 | undefined>,
     private readonly size: Signal<Vector2Tuple>,
     private readonly offset: Signal<Vector2Tuple> | undefined,
     private readonly borderInset: Signal<Inset>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isHidden: Signal<boolean> | undefined,
-    private readonly minorIndex: number,
+    subscriptions: Subscriptions,
+    renameOutput?: Record<string, string>,
   ) {
-    this.unsubscribeVisible = effect(() => {
-      const get = this.getProperty.value
-      if (
-        get != null &&
-        isPanelVisible(
-          borderInset,
-          size,
-          isHidden,
-          get('borderOpacity'),
-          get('backgroundOpacity'),
-          get('backgroundColor'),
+    this.group = getGroup(orderInfo.minorIndex, panelGroupDependencies)
+    setupImmediateProperties(
+      propertiesSignal,
+      this.active,
+      hasImmediateProperty,
+      (key, value) => {
+        const index = this.getIndexInBuffer()
+        if (index == null) {
+          return
+        }
+        instancedPanelMaterialSetters[key as keyof typeof instancedPanelMaterialSetters](
+          this.group,
+          index,
+          value as any,
+          this.size,
         )
-      ) {
-        this.requestShow()
-        return
-      }
-      this.hide()
-    })
-  }
-  getProperty: Signal<
-    (<K extends 'backgroundOpacity' | 'backgroundColor' | 'borderOpacity'>(key: K) => BatchedProperties[K]) | undefined
-  > = signal(undefined)
-
-  hasBatchedProperty(key: BatchedPropertiesKey): boolean {
-    return batchedProperties.includes(key)
-  }
-
-  hasImmediateProperty(key: string): boolean {
-    return key in instancedPanelMaterialSetters
-  }
-
-  setProperty(key: string, value: unknown) {
-    const index = this.getIndexInBuffer()
-    if (index == null) {
-      return
-    }
-    instancedPanelMaterialSetters[key as keyof typeof instancedPanelMaterialSetters](
-      this.group,
-      index,
-      value as any,
-      this.size,
+      },
+      subscriptions,
+      renameOutput,
+    )
+    const get = createGetBatchedProperties(propertiesSignal, hasBatchedProperty, renameOutput)
+    subscriptions.push(
+      effect(() => {
+        if (
+          isPanelVisible(
+            borderInset,
+            size,
+            isHidden,
+            get('borderOpacity') as number,
+            get('backgroundOpacity') as number,
+            get('backgroundColor') as ColorRepresentation,
+          )
+        ) {
+          this.requestShow()
+          return
+        }
+        this.hide()
+      }),
+      () => {
+        this.destroyed = true
+        this.hide()
+      },
     )
   }
 
@@ -220,7 +234,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       return
     }
     this.insertedIntoGroup = true
-    this.group.insert(this.minorIndex, this)
+    this.group.insert(this.orderInfo.minorIndex, this)
   }
 
   private hide(): void {
@@ -228,7 +242,7 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       return
     }
     this.active.value = false
-    this.group.delete(this.minorIndex, this.indexInBucket, this)
+    this.group.delete(this.orderInfo.minorIndex, this.indexInBucket, this)
     this.insertedIntoGroup = false
     this.bucket = undefined
     this.indexInBucket = undefined
@@ -237,12 +251,6 @@ export class InstancedPanel implements WithImmediateProperties, WithBatchedPrope
       this.unsubscribeList[i]()
     }
     this.unsubscribeList.length = 0
-  }
-
-  destroy(): void {
-    this.destroyed = true
-    this.hide()
-    this.unsubscribeVisible()
   }
 }
 

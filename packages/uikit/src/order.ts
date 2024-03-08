@@ -66,7 +66,7 @@ export const OrderInfoProvider = OrderInfoContext.Provider
 
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
-export function useOrderInfo(
+export function computeOrderInfo(
   type: ElementType,
   offset: ZIndexOffset | undefined,
   instancedGroupDependencies: Record<string, any> | undefined,
@@ -76,41 +76,40 @@ export function useOrderInfo(
   const parentOrderInfo = providedParentOrderInfo ?? (useContext(OrderInfoContext) as OrderInfo | undefined)
   const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
   const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
-  return useMemo(() => {
-    let majorIndex: number
-    let minorIndex: number
 
-    if (parentOrderInfo == null) {
-      majorIndex = 0
-      minorIndex = 0
-    } else if (type > parentOrderInfo.elementType) {
-      majorIndex = parentOrderInfo.majorIndex
-      minorIndex = 0
-    } else if (
-      type != parentOrderInfo.elementType ||
-      !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
-    ) {
-      majorIndex = parentOrderInfo.majorIndex + 1
-      minorIndex = 0
-    } else {
-      majorIndex = parentOrderInfo.majorIndex
-      minorIndex = parentOrderInfo.minorIndex + 1
-    }
+  let majorIndex: number
+  let minorIndex: number
 
-    if (majorOffset > 0) {
-      majorIndex += majorOffset
-      minorIndex = 0
-    }
+  if (parentOrderInfo == null) {
+    majorIndex = 0
+    minorIndex = 0
+  } else if (type > parentOrderInfo.elementType) {
+    majorIndex = parentOrderInfo.majorIndex
+    minorIndex = 0
+  } else if (
+    type != parentOrderInfo.elementType ||
+    !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
+  ) {
+    majorIndex = parentOrderInfo.majorIndex + 1
+    minorIndex = 0
+  } else {
+    majorIndex = parentOrderInfo.majorIndex
+    minorIndex = parentOrderInfo.minorIndex + 1
+  }
 
-    minorIndex += minorOffset
+  if (majorOffset > 0) {
+    majorIndex += majorOffset
+    minorIndex = 0
+  }
 
-    return {
-      instancedGroupDependencies,
-      elementType: type,
-      majorIndex,
-      minorIndex,
-    }
-  }, [majorOffset, minorOffset, parentOrderInfo, type, instancedGroupDependencies])
+  minorIndex += minorOffset
+
+  return {
+    instancedGroupDependencies,
+    elementType: type,
+    majorIndex,
+    minorIndex,
+  }
 }
 
 function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<string, any> | undefined): boolean {

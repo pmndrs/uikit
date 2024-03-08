@@ -5,9 +5,9 @@ import { Signal, computed } from '@preact/signals-core'
 import { Inset, YogaProperties } from '../flex/node.js'
 import { panelGeometry } from '../panel/utils.js'
 import { InteractionGroup, MaterialClass, ShadowProperties, usePanelMaterials } from '../panel/react.js'
-import { useFlexNode } from '../flex/react.js'
+import { useFlexNode } from './react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import {
   ComponentInternals,
   LayoutListeners,
@@ -29,7 +29,7 @@ import {
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import {
   ManagerCollection,
-  PropertyTransformation,
+  PropertyKeyTransformation,
   WithReactive,
   createCollection,
   finalizeCollection,
@@ -37,11 +37,11 @@ import {
   writeCollection,
 } from '../properties/utils.js'
 import { useImmediateProperties } from '../properties/immediate.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { WithClasses, addToMerged } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -64,7 +64,7 @@ export type ImageFitProperties = {
   fit?: ImageFit
 }
 
-const materialPropertyTransformation: PropertyTransformation = (key, value, hasProperty, setProperty) => {
+const materialPropertyTransformation: PropertyKeyTransformation = (key, value, hasProperty, setProperty) => {
   if (key === 'opacity') {
     setProperty('backgroundOpacity', value)
     return
@@ -132,11 +132,11 @@ export const Image = forwardRef<
   }, [node, materials, rootGroupRef, parentClippingRect, orderInfo, properties.receiveShadow, properties.castShadow])
 
   //apply all properties
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   writeCollection(collection, 'backgroundColor', 0xffffff)
   if (properties.keepAspectRatio ?? true) {
     writeCollection(collection, 'aspectRatio', aspectRatio)

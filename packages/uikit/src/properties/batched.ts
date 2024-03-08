@@ -1,44 +1,31 @@
-import { useMemo } from 'react'
-import {
-  PropertyTransformation,
-  equalReactiveProperty,
-  readReactiveProperty,
-  usePropertyManager,
-  Properties,
-  ManagerCollection,
-} from './utils.js'
-import { Signal } from '@preact/signals-core'
+import { Signal, computed } from '@preact/signals-core'
+import { MergedProperties } from './merged.js'
 
-export type WithBatchedProperties<P extends Record<string, unknown> = {}> = {
-  hasBatchedProperty(key: keyof P): boolean
-  getProperty: Signal<(<K extends keyof P>(key: K) => P[K]) | undefined>
-}
+export type GetBatchedProperties = (key: string) => unknown
 
-export function useBatchedProperties(
-  collection: ManagerCollection,
-  object: WithBatchedProperties,
-  transformProperty?: PropertyTransformation,
-): void {
-  const hasProperty = useMemo(() => object.hasBatchedProperty.bind(object), [object])
-  const finishProperties = useMemo(() => {
-    let prevProperties: Properties = {}
-    return (properties: Properties, propertiesLength: number) => {
-      let prevPropertiesLength = 0
-      let changed = false
-      for (const key in prevProperties) {
-        if (!equalReactiveProperty(prevProperties[key], properties[key])) {
-          changed = true
-          break
-        }
-        ++prevPropertiesLength
-      }
-      changed ||= prevPropertiesLength != propertiesLength
-      prevProperties = properties
-      if (!changed && object.getProperty.peek() != null) {
-        return
-      }
-      object.getProperty.value = (key) => readReactiveProperty(properties[key]) as never
+export function createGetBatchedProperties(
+  propertiesSignal: Signal<MergedProperties>,
+  hasProperty: (key: string) => boolean,
+  renameOutput?: Record<string, string>,
+): GetBatchedProperties {
+  const reverseRenameMap: Record<string, string> = {}
+  for (const key in renameOutput) {
+    reverseRenameMap[renameOutput[key]] = key
+  }
+  let currentProperties: MergedProperties | undefined
+  const computedProperties = computed(() => {
+    const newProperties = propertiesSignal.value
+    if (!newProperties.filterIsEqual(hasProperty, currentProperties)) {
+      //update current properties
+      currentProperties = newProperties
     }
-  }, [object])
-  usePropertyManager(collection, hasProperty as (key: string) => boolean, finishProperties, transformProperty)
+    //due to the referencial equality check, the computed value only updates when filterIsEqual returns false
+    return currentProperties
+  })
+  return (key) => {
+    if (key in reverseRenameMap) {
+      key = reverseRenameMap[key]
+    }
+    return computedProperties.value?.read(key)
+  }
 }

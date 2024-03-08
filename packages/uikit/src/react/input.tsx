@@ -1,6 +1,6 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { YogaProperties } from '../flex/node.js'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { InteractionGroup, MaterialClass, useInstancedPanel, useInteractionPanel } from '../panel/react.js'
 import {
@@ -8,7 +8,7 @@ import {
   flexAliasPropertyTransformation,
   panelAliasPropertyTransformation,
 } from '../properties/alias.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { WithClasses, addToMerged } from '../properties/default.js'
 import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
 import { ScrollListeners } from '../scroll.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
@@ -24,7 +24,7 @@ import {
 } from './utils.js'
 import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useParentClippingRect, useIsClipped } from '../clipping.js'
-import { useFlexNode } from '../flex/react.js'
+import { useFlexNode } from './react.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { InstancedTextProperties, useInstancedText } from '../text/react.js'
 import { Signal, signal } from '@preact/signals-core'

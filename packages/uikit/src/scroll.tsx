@@ -2,22 +2,18 @@ import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signal
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Group, Matrix4, MeshBasicMaterial, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
-import { FlexNode, Inset } from './flex/node.js'
+import { FlexNode, Inset, YogaProperties } from './flex/node.js'
 import { Color as ColorRepresentation, useFrame } from '@react-three/fiber'
-import { useSignalEffect } from './utils.js'
-import {
-  GetInstancedPanelGroup,
-  MaterialClass,
-  PanelGroupDependencies,
-  useInstancedPanel,
-  usePanelGroupDependencies,
-} from './panel/react.js'
+import { Subscriptions, useSignalEffect } from './utils.js'
+import { GetInstancedPanelGroup, MaterialClass, PanelGroupDependencies } from './panel/react.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { PanelProperties } from './panel/instanced-panel.js'
+import { InstancedPanel, PanelProperties } from './panel/instanced-panel.js'
 import { borderAliasPropertyTransformation, panelAliasPropertyTransformation } from './properties/alias.js'
-import { ManagerCollection, PropertyTransformation, WithReactive, useGetBatchedProperties } from './properties/utils.js'
-import { ElementType, OrderInfo, useOrderInfo } from './order.js'
+import { PropertyKeyTransformation, WithReactive } from './properties/utils.js'
+import { ElementType, OrderInfo, computeOrderInfo } from './order.js'
+import { createGetBatchedProperties } from './properties/batched.js'
+import { MergedProperties } from './properties/merged.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
@@ -31,28 +27,24 @@ export type ScrollListeners = {
   onScroll?: (scrollX: number, scrollY: number, event?: ThreeEvent<WheelEvent | PointerEvent>) => void
 }
 
-export function useScrollPosition() {
-  return useMemo(() => signal<Vector2Tuple>([0, 0]), [])
+export function createScrollPosition() {
+  return signal<Vector2Tuple>([0, 0])
 }
 
-export function useGlobalScrollMatrix(
+export function computeGlobalScrollMatrix(
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
   globalMatrix: Signal<Matrix4 | undefined>,
 ) {
-  return useMemo(
-    () =>
-      computed(() => {
-        const global = globalMatrix.value
-        if (global == null) {
-          return undefined
-        }
-        const [scrollX, scrollY] = scrollPosition.value
-        const { pixelSize } = node
-        return new Matrix4().makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0).premultiply(global)
-      }),
-    [scrollPosition, node, globalMatrix],
-  )
+  return computed(() => {
+    const global = globalMatrix.value
+    if (global == null) {
+      return undefined
+    }
+    const [scrollX, scrollY] = scrollPosition.value
+    const { pixelSize } = node
+    return new Matrix4().makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0).premultiply(global)
+  })
 }
 
 export function ScrollGroup({
@@ -288,6 +280,10 @@ export type ScrollbarProperties = {
     scrollbarWidth?: number
     scrollbarOpacity?: number
     scrollbarColor?: ColorRepresentation
+    scrollbarBorderRight?: number
+    scrollbarBorderTop?: ColorRepresentation
+    scrollbarBorderLeft?: ColorRepresentation
+    scrollbarBorderBottom?: ColorRepresentation
   } & {
     [Key in `scrollbar${Capitalize<
       keyof Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'>
@@ -302,40 +298,41 @@ function removeScrollbar(key: string) {
   return firstKeyUncapitalized + key.slice(scrollbarLength + 1)
 }
 
-const scrollbarBorderPropertyTransformation: PropertyTransformation = (key, value, hasProperty, setProperty) => {
-  if (!key.startsWith('scrollbarBorder')) {
-    return
-  }
-  key = removeScrollbar(key)
-  if (hasProperty(key)) {
-    setProperty(key, value)
-    return
-  }
-  borderAliasPropertyTransformation(key, value, hasProperty, setProperty)
-}
-
-const scrollbarPanelPropertyTransformation: PropertyTransformation = (key, value, hasProperty, setProperty) => {
-  if (!key.startsWith('scrollbar')) {
-    return
-  }
+const scrollbarPanelPropertyTransformation: PropertyKeyTransformation = (key, value, setProperty) => {
   if (key === 'scrollbarOpacity') {
     setProperty('backgroundOpacity', value)
-    return
+    return true
   }
   if (key === 'scrollbarColor') {
     setProperty('backgroundColor', value)
-    return
+    return true
+  }
+  if(!key.startsWith("scrollbar")) {
+
   }
   key = removeScrollbar(key)
-  if (hasProperty(key)) {
-    setProperty(key, value)
+  if (panelAliasPropertyTransformation.hasProperty(key)) {
+    panelAliasPropertyTransformation.setProperty(key, value, setProperty)
     return
   }
-  panelAliasPropertyTransformation(key, value, hasProperty, setProperty)
+  setProperty(key, value)
 }
 
-export function useScrollbars(
-  collection: ManagerCollection,
+function isScrollbarWidthPropertyKey(key: string) {
+  return key === 'scrollbarWidth'
+}
+const borderPropertyKeys = [
+  'scrollbarBorderLeft',
+  'scrollbarBorderRight',
+  'scrollbarBorderTop',
+  'scrollbarBorderBottom',
+] as const
+function isBorderPropertyKey(key: (typeof borderPropertyKeys)[number]) {
+  return borderPropertyKeys.includes(key)
+}
+
+export function createScrollbars(
+  propertiesSignal: Signal<MergedProperties>,
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
   globalMatrix: Signal<Matrix4 | undefined>,
@@ -343,36 +340,35 @@ export function useScrollbars(
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: OrderInfo,
-  providedGetGroup?: GetInstancedPanelGroup,
+  getGroup: GetInstancedPanelGroup,
+  subscriptions: Subscriptions,
 ): void {
-  const groupDeps = usePanelGroupDependencies(materialClass, { castShadow: false, receiveShadow: false })
-  const scrollbarOrderInfo = useOrderInfo(ElementType.Panel, undefined, groupDeps, orderInfo)
+  const groupDeps: PanelGroupDependencies = {
+    materialClass: materialClass ?? MeshBasicMaterial,
+    castShadow: false,
+    receiveShadow: false,
+  }
+  const scrollbarOrderInfo = computeOrderInfo(ElementType.Panel, undefined, groupDeps, orderInfo)
 
-  const getScrollbarWidthSignal = useGetBatchedProperties<{ scrollbarWidth?: number }>(collection, propertyKeys)
-  const getBorderSignal = useGetBatchedProperties<{
+  const getScrollbarWidth = createGetBatchedProperties<{ scrollbarWidth?: number }>(
+    propertiesSignal,
+    isScrollbarWidthPropertyKey,
+  )
+  const getBorder = createGetBatchedProperties<{
     scrollbarBorderLeft?: number
     scrollbarBorderRight?: number
     scrollbarBorderBottom?: number
     scrollbarBorderTop?: number
-  }>(collection, borderPropertyKeys, scrollbarBorderPropertyTransformation)
-  const borderSize = useMemo(
-    () =>
-      computed<Inset>(() => {
-        const get = getBorderSignal.value
-        return [
-          get?.('scrollbarBorderTop') ?? 0,
-          get?.('scrollbarBorderRight') ?? 0,
-          get?.('scrollbarBorderBottom') ?? 0,
-          get?.('scrollbarBorderLeft') ?? 0,
-        ]
-      }),
-    [getBorderSignal],
-  )
+  }>(propertiesSignal, isBorderPropertyKey, scrollbarBorderPropertyTransformation)
+  const borderSize = computed<Inset>(() => [
+    getBorder('borderTop') ?? 0,
+    getBorder('borderRight') ?? 0,
+    getBorder('borderBottom') ?? 0,
+    getBorder('borderLeft') ?? 0,
+  ])
 
-  const startIndex = collection.length
-
-  useScrollbar(
-    collection,
+  createScrollbar(
+    propertiesSignal,
     0,
     scrollPosition,
     node,
@@ -381,12 +377,13 @@ export function useScrollbars(
     materialClass,
     parentClippingRect,
     scrollbarOrderInfo,
-    providedGetGroup,
-    getScrollbarWidthSignal,
+    getGroup,
+    getScrollbarWidth,
     borderSize,
+    subscriptions,
   )
-  useScrollbar(
-    collection,
+  createScrollbar(
+    propertiesSignal,
     1,
     scrollPosition,
     node,
@@ -395,29 +392,22 @@ export function useScrollbars(
     materialClass,
     parentClippingRect,
     scrollbarOrderInfo,
-    providedGetGroup,
-    getScrollbarWidthSignal,
+    getGroup,
+    getScrollbarWidth,
     borderSize,
+    subscriptions,
   )
 
-  //setting the scrollbar color and opacity default for all property managers of the instanced panel
-  const collectionLength = collection.length
+  //TODO: setting the scrollbar color and opacity default for all property managers of the instanced panel
+  /*const collectionLength = collection.length
   for (let i = startIndex; i < collectionLength; i++) {
     collection[i].add('scrollbarColor', 0xffffff)
     collection[i].add('scrollbarOpacity', 1)
-  }
+  }*/
 }
 
-const propertyKeys = ['scrollbarWidth'] as const
-const borderPropertyKeys = [
-  'scrollbarBorderLeft',
-  'scrollbarBorderRight',
-  'scrollbarBorderTop',
-  'scrollbarBorderBottom',
-] as const
-
-function useScrollbar(
-  collection: ManagerCollection,
+function createScrollbar(
+  propertiesSignal: Signal<MergedProperties>,
   mainIndex: number,
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
@@ -426,47 +416,37 @@ function useScrollbar(
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: OrderInfo,
-  providedGetGroup: GetInstancedPanelGroup | undefined,
-  getScrollbarWidthSignal: Signal<undefined | ((key: 'scrollbarWidth') => number | undefined)>,
+  getGroup: GetInstancedPanelGroup,
+  get: (key: 'scrollbarWidth') => number | undefined,
   borderSize: ReadonlySignal<Inset>,
+  subscriptions: Subscriptions,
 ) {
-  const [scrollbarPosition, scrollbarSize] = useMemo(() => {
-    const scrollbarTransformation = computed(() => {
-      const get = getScrollbarWidthSignal.value
-      if (get == null) {
-        return undefined
-      }
-      return computeScrollbarTransformation(
-        mainIndex,
-        get('scrollbarWidth') ?? 10,
-        node.size.value,
-        node.maxScrollPosition.value,
-        node.borderInset.value,
-        scrollPosition.value,
-      )
-    })
-    return [
-      computed(() => (scrollbarTransformation.value?.slice(0, 2) ?? [0, 0]) as Vector2Tuple),
-      computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple),
-    ]
-  }, [mainIndex, node, scrollPosition, getScrollbarWidthSignal])
+  const scrollbarTransformation = computed(() => {
+    return computeScrollbarTransformation(
+      mainIndex,
+      get('scrollbarWidth') ?? 10,
+      node.size.value,
+      node.maxScrollPosition.value,
+      node.borderInset.value,
+      scrollPosition.value,
+    )
+  })
+  const scrollbarPosition = computed(() => (scrollbarTransformation.value?.slice(0, 2) ?? [0, 0]) as Vector2Tuple)
+  const scrollbarSize = computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple)
 
-  const groupDeps = useMemo<PanelGroupDependencies>(
-    () => ({ materialClass: materialClass ?? MeshBasicMaterial, receiveShadow: false, castShadow: false }),
-    [materialClass],
-  )
-  useInstancedPanel(
-    collection,
+  new InstancedPanel(
+    propertiesSignal,
+    getGroup,
+    orderInfo,
+    { materialClass: materialClass ?? MeshBasicMaterial, receiveShadow: false, castShadow: false },
     globalMatrix,
     scrollbarSize,
     scrollbarPosition,
     borderSize,
-    isClipped,
-    orderInfo,
     parentClippingRect,
-    groupDeps,
+    isClipped,
+    subscriptions,
     scrollbarPanelPropertyTransformation,
-    providedGetGroup,
   )
 }
 

@@ -1,22 +1,19 @@
-import { ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useMemo } from 'react'
+import { ReactNode, RefObject, createContext, useCallback, useEffect, useMemo } from 'react'
 import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from 'three'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Signal, effect } from '@preact/signals-core'
 import { Inset } from '../flex/node.js'
-import { useSignalEffect } from '../utils.js'
+import { Subscriptions } from '../utils.js'
 import { useFrame } from '@react-three/fiber'
-import { ClippingRect, useParentClippingRect } from '../clipping.js'
+import { ClippingRect } from '../clipping.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
 import { HoverEventHandlers } from '../hover.js'
 import { InstancedPanelGroup } from './instanced-panel-group.js'
-import { InstancedPanel } from './instanced-panel.js'
 import { MaterialSetter, PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from './panel-material.js'
-import { useImmediateProperties } from '../properties/immediate.js'
-import { ManagerCollection, PropertyTransformation } from '../properties/utils.js'
-import { useBatchedProperties } from '../properties/batched.js'
 import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
 import { panelGeometry } from './utils.js'
 import { ActiveEventHandlers } from '../active.js'
+import { MergedProperties } from '../properties/merged.js'
 
 export function InteractionGroup({
   handlers,
@@ -85,29 +82,27 @@ function mergeHandlers(
   }
 }
 
-export function useInteractionPanel(
+export function createInteractionPanel(
   size: Signal<Vector2Tuple>,
   psRef: { pixelSize: number },
   orderInfo: OrderInfo,
+  parentClippingRect: Signal<ClippingRect | undefined>,
   rootGroupRef: RefObject<Group>,
+  subscriptions: Subscriptions,
 ): Mesh {
-  const parentClippingRect = useParentClippingRect()
-  const panel = useMemo(() => {
-    const result = new Mesh(panelGeometry)
-    result.matrixAutoUpdate = false
-    result.raycast = makeClippedRaycast(result, makePanelRaycast(result), rootGroupRef, parentClippingRect, orderInfo)
-    result.visible = false
-    return result
-  }, [parentClippingRect, orderInfo, rootGroupRef])
-  useSignalEffect(() => {
-    const [width, height] = size.value
-    panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1)
-    panel.updateMatrix()
-  }, [size, psRef])
+  const panel = new Mesh(panelGeometry)
+  panel.matrixAutoUpdate = false
+  panel.raycast = makeClippedRaycast(panel, makePanelRaycast(panel), rootGroupRef, parentClippingRect, orderInfo)
+  panel.visible = false
+  subscriptions.push(
+    effect(() => {
+      const [width, height] = size.value
+      panel.scale.set(width * psRef.pixelSize, height * psRef.pixelSize, 1)
+      panel.updateMatrix()
+    }),
+  )
   return panel
 }
-
-export type MaterialClass = { new (...args: Array<any>): Material }
 
 export type GetInstancedPanelGroup = (
   majorIndex: number,
@@ -116,31 +111,6 @@ export type GetInstancedPanelGroup = (
 
 const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
 
-export function usePanelMaterials(
-  collection: ManagerCollection,
-  size: Signal<Vector2Tuple>,
-  borderInset: Signal<Inset>,
-  isClipped: Signal<boolean>,
-  materialClass: MaterialClass | undefined,
-  clippingPlanes: Array<Plane>,
-  propertyTransformation: PropertyTransformation,
-): readonly [Material, Material, Material] {
-  const { materials, setter } = useMemo(() => {
-    const setter = new MaterialSetter(size, borderInset, isClipped)
-    const info = { data: setter.data, type: 'normal' } as const
-    const material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
-    const depthMaterial = new PanelDepthMaterial(info)
-    const distanceMaterial = new PanelDistanceMaterial(info)
-    material.clippingPlanes = clippingPlanes
-    depthMaterial.clippingPlanes = clippingPlanes
-    distanceMaterial.clippingPlanes = clippingPlanes
-    return { materials: [material, depthMaterial, distanceMaterial], setter } as const
-  }, [size, borderInset, isClipped, materialClass, clippingPlanes])
-  useImmediateProperties(collection, setter, propertyTransformation)
-  useBatchedProperties(collection, setter, propertyTransformation)
-  useEffect(() => () => setter.destroy(), [setter])
-  return materials
-}
 
 export type PanelGroupDependencies = {
   materialClass: MaterialClass
@@ -149,57 +119,6 @@ export type PanelGroupDependencies = {
 } & ShadowProperties
 
 export type ShadowProperties = { receiveShadow?: boolean; castShadow?: boolean }
-
-export function usePanelGroupDependencies(
-  materialClass: MaterialClass = MeshBasicMaterial,
-  { castShadow = false, receiveShadow = false }: ShadowProperties,
-): PanelGroupDependencies {
-  return useMemo(
-    () => ({
-      materialClass,
-      castShadow,
-      receiveShadow,
-    }),
-    [materialClass, castShadow, receiveShadow],
-  )
-}
-
-/**
- * @param providedGetGroup provdedGetGroup should onlyever be used for inside the root component (don't provide it otherwise)
- */
-export function useInstancedPanel(
-  collection: ManagerCollection,
-  matrix: Signal<Matrix4 | undefined>,
-  size: Signal<Vector2Tuple>,
-  offset: Signal<Vector2Tuple> | undefined,
-  borderInset: Signal<Inset>,
-  isHidden: Signal<boolean> | undefined,
-  orderInfo: OrderInfo,
-  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  panelGroupDependencies: PanelGroupDependencies,
-  propertyTransformation: PropertyTransformation,
-  providedGetGroup?: GetInstancedPanelGroup,
-): void {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const getGroup = providedGetGroup ?? useContext(InstancedPanelContext)
-  const panel = useMemo(
-    () =>
-      new InstancedPanel(
-        getGroup(orderInfo.majorIndex, panelGroupDependencies),
-        matrix,
-        size,
-        offset,
-        borderInset,
-        parentClippingRect,
-        isHidden,
-        orderInfo.minorIndex,
-      ),
-    [getGroup, matrix, size, borderInset, parentClippingRect, isHidden, orderInfo, offset, panelGroupDependencies],
-  )
-  useEffect(() => () => panel.destroy(), [panel])
-  useImmediateProperties(collection, panel, propertyTransformation)
-  useBatchedProperties(collection, panel, propertyTransformation)
-}
 
 export function useGetInstancedPanelGroup(
   pixelSize: number,

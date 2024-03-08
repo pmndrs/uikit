@@ -1,7 +1,7 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReactNode, RefObject, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
-import { FlexProvider, useFlexNode } from '../flex/react.js'
+import { FlexProvider, useFlexNode } from './react.js'
 import {
   InteractionGroup,
   MaterialClass,
@@ -21,7 +21,7 @@ import {
 import { alignmentZMap, useRootGroupRef } from '../utils.js'
 import { Box3, Group, Mesh, Vector3 } from 'three'
 import { computed, effect, Signal, signal } from '@preact/signals-core'
-import { useApplyHoverProperties } from '../hover.js'
+import { applyHoverProperties } from '../hover.js'
 import {
   ComponentInternals,
   LayoutListeners,
@@ -42,11 +42,11 @@ import {
 } from '../properties/alias.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
+import { WithClasses, addToMerged } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 export type ContentProperties = WithConditionals<
   WithClasses<
@@ -108,11 +108,11 @@ export const Content = forwardRef<
   )
 
   //apply all properties
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   const aspectRatio = useMemo(
     () =>
       computed(() => {

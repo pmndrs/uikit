@@ -1,9 +1,9 @@
 import { signal } from '@preact/signals-core'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { useMemo } from 'react'
-import { ManagerCollection, Properties } from './properties/utils.js'
-import { WithClasses, useTraverseProperties } from './properties/default.js'
+import { Properties } from './properties/utils.js'
+import { AllOptionalProperties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
+import { MergedProperties } from './properties/merged.js'
 
 export type WithActive<T> = T & {
   active?: T
@@ -12,21 +12,22 @@ export type WithActive<T> = T & {
 
 export type ActiveEventHandlers = Pick<EventHandlers, 'onPointerDown' | 'onPointerUp' | 'onPointerLeave'>
 
-export function useApplyActiveProperties(
-  collection: ManagerCollection,
+export function applyActiveProperties(
+  merged: MergedProperties,
+  defaultProperties: AllOptionalProperties | undefined,
   properties: WithClasses<WithActive<Properties>> & EventHandlers,
 ): ActiveEventHandlers | undefined {
-  const activeSignal = useMemo(() => signal<Array<number>>([]), [])
+  const activeSignal = signal<Array<number>>([])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const translate = useMemo(() => createConditionalPropertyTranslator(() => activeSignal.value.length > 0), [])
+  const translate = createConditionalPropertyTranslator(() => activeSignal.value.length > 0)
   let activePropertiesExist = false
 
-  useTraverseProperties(properties, (p) => {
+  traverseProperties(defaultProperties, properties, (p) => {
     if (p.active == null) {
       return
     }
     activePropertiesExist = true
-    translate(collection, p.active)
+    translate(merged, p.active)
   })
 
   if (!activePropertiesExist && properties.onActiveChange == null) {

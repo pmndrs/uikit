@@ -1,8 +1,8 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { forwardRef, ReactNode, useEffect, useRef } from 'react'
 import { YogaProperties } from '../flex/node.js'
-import { useFlexNode, FlexProvider } from '../flex/react.js'
-import { useApplyHoverProperties } from '../hover.js'
+import { useFlexNode, FlexProvider } from './react.js'
+import { applyHoverProperties } from '../hover.js'
 import { InteractionGroup, ShadowProperties } from '../panel/react.js'
 import { createCollection, finalizeCollection, WithReactive } from '../properties/utils.js'
 import { useRootGroupRef } from '../utils.js'
@@ -23,12 +23,12 @@ import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { flexAliasPropertyTransformation, WithAllAliases } from '../properties/alias.js'
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
-import { useApplyProperties, WithClasses } from '../properties/default.js'
+import { addToMerged, WithClasses } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, setupRenderOrder, useOrderInfo, ZIndexOffset } from '../order.js'
 import { effect } from '@preact/signals-core'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+import { applyPreferredColorSchemeProperties } from '../dark.js'
+import { applyActiveProperties } from '../active.js'
 
 export type CustomContainerProperties = WithConditionals<
   WithClasses<WithAllAliases<WithReactive<YogaProperties & TransformProperties>>>
@@ -94,11 +94,11 @@ export const CustomContainer = forwardRef<
   }, [clippingPlanes, node, isClipped, parentClippingRect, orderInfo, rootGroupRef])
 
   //apply all properties
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
+  addToMerged(collection, properties)
+  applyPreferredColorSchemeProperties(collection, properties)
   useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
+  const hoverHandlers = applyHoverProperties(collection, properties)
+  const activeHandlers = applyActiveProperties(collection, properties)
   finalizeCollection(collection)
 
   useLayoutListeners(properties, node.size)
