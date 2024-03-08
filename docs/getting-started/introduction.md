@@ -6,9 +6,9 @@ nav: 0
 
 ![uikit banner](./banner.jpg)
 
-Build declarative UIs with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
+Build performant 3D user interfaces for **Three.js** using **@react-three/fiber** and **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
 
-> Perfect for games, XR (VR/AR), and, of course, Spatial Computing Apps.
+> Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
 ```bash
 npm install three @react-three/fiber @react-three/uikit
@@ -16,7 +16,7 @@ npm install three @react-three/fiber @react-three/uikit
 
 ### What does it look like ?
 
-| A simple UI rendered in fullscreen with 2 containers arranged in a row changing their opacity when the user hovers over them. | ![render of the above code](./basic-example.gif) |
+| A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./basic-example.gif) |
 | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
 ```jsx
@@ -37,29 +37,33 @@ createRoot(document.getElementById('root')).render(
 
 ## Pre-Styled Component Kits
 
-Install the source code of themeable components from available kits into your repository using the `uikit cli`.
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component with one command to your desired location.
+> For adding the button from the default kit, run: `npx uikit component add default Button`
 
 | <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| ![Overview over all Default components](./default-overview.jpg)                                                                      | ![Overview over all Apfel components](./apfel-overview.jpg) |
+| ![Overview over all default components](./default-overview.jpg)                                                                      | ![Overview over all apfel components](./apfel-overview.jpg) |
 | [View All Components](../kits/default.md)                             | [View All Components](../kits/apfel.md)                     |
 | `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
 
 ## How to get started ?
 
-The tutorials expect some familiarity with react, threejs, and @react-three/fiber.
+To fully utilize uikit, it's recommended to have some familiarity with
+react, threejs, and @react-three/fiber.
 
-- Build your [First Layout](./first-layout.md)
-- Learn about the [Available Components and Their Properties](./components-and-properties.md)
-- Get inspired by our [Examples](./examples.md)
-- Learn more about  
-  - [Interacitivity](../tutorials/interactivity.md)  
-  - Using [Custom Materials](../tutorials/custom-materials.md)  
-  - Using [Custom Fonts](../tutorials/custom-fonts.md)  
-  - Creating [Responsivene User Interfaces](../tutorials/responsive.md)  
-  - [Scrolling](../tutorials/scroll.md)  
+- Build your [first layout](./first-layout.md)
+- Learn about our [components and their properties](./components-and-properties.md)
+- Look at our [examples](./examples.md) to see uikit in action.
+- Learn more about:
+  - [Interacitivity](../tutorials/interactivity.md)
+  - Using [custom materials](../tutorials/custom-materials.md)
+  - Using [custom fonts](../tutorials/custom-fonts.md)
+  - Creating [responsivene user interfaces](../tutorials/responsive.md)
+  - [Scrolling](../tutorials/scroll.md)
   - [Sizing](../tutorials/sizing.md)
-- Learn about [Common Pitfalls](../advanced/pitfalls.md) and how to [Optimize Performance](../advanced/performance.md)
+- Learn about [common pitfalls](../advanced/pitfalls.md) and how to
+[optimize performance](../advanced/performance.md)
+- Learn about [theming components](../kits/theming.md)
 
 ## Migration guides
 

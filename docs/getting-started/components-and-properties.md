@@ -157,18 +157,18 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 
 ```jsx
 <Fullscreen flexDirection="row">
-  <Container flexGrow={1} backgroundColor="red"/>
-  <Container flexGrow={1} backgroundColor="green"/>
-</Root>
+  <Container flexGrow={1} backgroundColor="red" />
+  <Container flexGrow={1} backgroundColor="green" />
+</Fullscreen>
 ```
 
 <details>
 <summary>All properties specific to the `Fullscreen` component</summary>
 
-| Property     | Type                |
-| ------------ | ------------------- |
-| precision    | number              |
-| attachCamera | boolean             |
+| Property     | Type    |
+| ------------ | ------- |
+| precision    | number  |
+| attachCamera | boolean |
 
 </details>
 
@@ -349,7 +349,7 @@ The `DefaultProperties` allow to override the default properties for all childre
 
 ## FontFamilyProvider
 
-The `FontFamilyProvider` allows to provide new font families to its children. Because uikit uses MSDF font rendering, fonts must be compiled into an MSDF texture and a JSON containing glyph information. More information on how to do this can be found [here](../tutorials/fonts.md).
+The `FontFamilyProvider` allows to provide new font families to its children. Because uikit uses MSDF font rendering, fonts must be compiled into an MSDF texture and a JSON containing glyph information. More information on how to do this can be found [here](../tutorials/custom-fonts.md).
 
 ```jsx
 <FontFamilyProvider
@@ -380,10 +380,10 @@ uikit allows declaring styles that depend on the element's interaction state, si
 | dark     | when the preferred color scheme is dark                |
 
 ```jsx
-<Fullscreen flexDirection="column" md={{ flexDirection: "row" }} >
+<Fullscreen flexDirection="column" md={{ flexDirection: 'row' }}>
   <Container flexGrow={1} backgroundColor="red" />
   <Container flexGrow={1} backgroundColor="green" />
-</Root>
+</Fullscreen>
 ```
 
 ## Preferred Color Schemes
@@ -431,3 +431,16 @@ All Components support the R3F event handlers. Additionally, event handlers for 
 | onScroll             | `(scrollX: number, scrollY: number, event?: ThreeEvent<WheelEvent \| PointerEvent>) => void` |
 
 </details>
+
+## Ref
+
+Each component exposes the `ComponentInternals` when using a `ref`. The component internals allow access to
+
+| Property         | Explanation                                                                      |
+| ---------------- | -------------------------------------------------------------------------------- |
+| borderInset      | a tuple containing the border sizes on all 4 sides `[top, right, bottom, left]`  |
+| paddingInset     | a tuple containing the padding sizes on all 4 sides `[top, right, bottom, left]` |
+| center           | the offset between from the element's center to its parent's center              |
+| size             | the outer width/height of the element                                            |
+| interactionPanel | the mesh added to the scene graph to capture events                              |
+| scrollPosition   | the x/y scroll position of the children when the element is scrollable           |

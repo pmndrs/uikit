@@ -52,7 +52,7 @@ export default function App() {
           panelMaterialClass={FancyMaterial}
         >
           I look fancy
-        </RootText>
+        </Text>
       </Root>
     </Canvas>
   )

@@ -48,6 +48,9 @@ jobs:
       - name: Build
         run: pnpm -F "./packages/**/*" build
 
+      - name: Copy README
+        run: cp ./README.md packages/uikit
+
       - name: Gitversion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0

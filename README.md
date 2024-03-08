@@ -7,9 +7,9 @@
 
 ![uikit banner](./docs/getting-started/banner.jpg)
 
-Build declarative UIs with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
+Build performant 3D user interfaces for **Three.js** using **@react-three/fiber** and **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
 
-> Perfect for games, XR (VR/AR), and, of course, Spatial Computing Apps.
+> Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
 ```bash
 npm install three @react-three/fiber @react-three/uikit
@@ -17,7 +17,7 @@ npm install three @react-three/fiber @react-three/uikit
 
 ### What does it look like ?
 
-| A simple UI rendered in fullscreen with 2 containers arranged in a row changing their opacity when the user hovers over them. | ![render of the above code](./docs/getting-started/basic-example.gif) |
+| A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./docs/getting-started/basic-example.gif) |
 | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 
 ```jsx
@@ -38,29 +38,32 @@ createRoot(document.getElementById('root')).render(
 
 ## Pre-Styled Component Kits
 
-Install the source code of themeable components from available kits into your repository using the `uikit cli`.
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component with one command to your desired location.
+> For adding the button from the default kit, run: `npx uikit component add default Button`
 
 | <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| ![Overview over all Default components](./docs//getting-started/default-overview.jpg)                                                                      | ![Overview over all Apfel components](./docs//getting-started/apfel-overview.jpg) |
-| [View All Components]()                             | [View All Components]()                     |
+| ![Overview over all default components](./docs/getting-started/default-overview.jpg)                                                                      | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
+| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                             | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
 | `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
 
 ## How to get started ?
 
-The tutorials expect some familiarity with react, threejs, and @react-three/fiber.
+To fully utilize uikit, it's recommended to have some familiarity with
+react, threejs, and @react-three/fiber.
 
-- Build your [First Layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)
-- Learn about the [Available Components and Their Properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
-- Get inspired by our [Examples](https://docs.pmnd.rs/uikit/getting-started/examples)
-- Learn more about  
-  - [Interacitivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)  
-  - Using [Custom Materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)  
-  - Using [Custom Fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)  
-  - Creating [Responsivene User Interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)  
-  - [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)  
+- Build your [first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)
+- Learn about our [components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
+- Look at our [examples](https://docs.pmnd.rs/uikit/getting-started/examples) to see uikit in action.
+- Learn more about:
+  - [Interacitivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
+  - Using [custom materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)
+  - Using [custom fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)
+  - Creating [responsivene user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
+  - [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)
   - [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
-- Learn about [Common Pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls) and how to [Optimize Performance](https://docs.pmnd.rs/uikit/advanced/performance)
+- Learn about [common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls) and how to [optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
+- Learn about [theming components](https://docs.pmnd.rs/uikit/kits/theming)
 
 ## Migration guides
 

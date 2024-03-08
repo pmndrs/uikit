@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Environment, OrbitControls } from '@react-three/drei'
-import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
-import { Container, Root, Text, setPreferredColorScheme } from '@react-three/uikit'
+import { Container, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 
 import { Defaults, colors } from '@/theme'
@@ -29,7 +27,7 @@ export default function App() {
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
     >
-      <Root backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
+      <Fullscreen backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
         <Defaults>
           <DialogAnchor>
             <Container width="100%" height="100%" overflow="scroll">
@@ -37,12 +35,7 @@ export default function App() {
             </Container>
           </DialogAnchor>
         </Defaults>
-      </Root>
-      <Environment background blur={1} preset="city" />
-      <EffectComposer>
-        <TiltShift2 blur={0.25} />
-      </EffectComposer>
-      <OrbitControls makeDefault />
+      </Fullscreen>
     </Canvas>
   )
 }
@@ -55,6 +48,13 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
           <TeamSwitcher />
           <MainNav marginX={24} />
           <Container marginLeft="auto" flexDirection="row" alignItems="center" gap={16}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => window.open('https://github.com/pmndrs/uikit/tree/main/examples/dashboard', '_blank')}
+            >
+              <Text>Source Code</Text>
+            </Button>
             <UserNav open={open} setOpen={setOpen} />
           </Container>
         </Container>

@@ -1,6 +1,6 @@
 import { Environment, MeshPortalMaterial, PerspectiveCamera } from '@react-three/drei'
 import { Canvas, extend, useFrame } from '@react-three/fiber'
-import { Root, Container, Text, setPreferredColorScheme, Content } from '@react-three/uikit'
+import { Root, Container, Text, setPreferredColorScheme, Content, Fullscreen } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
 import { Defaults, colors } from '@/theme'
 import { Avatar } from '@/avatar'
@@ -23,16 +23,21 @@ export default function App() {
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
     >
-      <ambientLight intensity={Math.PI} />
-      <spotLight decay={0} position={[0, 5, 10]} angle={0.25} penumbra={1} intensity={2} castShadow />
-      <Root pixelSize={0.01}>
-        <Defaults>
+      <Defaults>
+        <ambientLight intensity={Math.PI} />
+        <spotLight decay={0} position={[0, 5, 10]} angle={0.25} penumbra={1} intensity={2} castShadow />
+        <Root pixelSize={0.01}>
           <CardPage />
-        </Defaults>
-      </Root>
-      <Floating position={[0, 0, 7]} />
-      <Environment preset="city" />
-      <Rig />
+        </Root>
+        <Fullscreen justifyContent="flex-end" alignItems="center" paddingBottom={32}>
+          <Button onClick={() => window.open('https://github.com/pmndrs/uikit/tree/main/examples/card', '_blank')}>
+            <Text>Source Code</Text>
+          </Button>
+        </Fullscreen>
+        <Floating position={[0, 0, 7]} />
+        <Environment preset="city" />
+        <Rig />
+      </Defaults>
     </Canvas>
   )
 }
