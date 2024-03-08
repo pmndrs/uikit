@@ -1,9 +1,10 @@
 {
   "name": "@react-three/uikit",
   "type": "module",
+  "description": "Build performant 3D user interfaces for Three.js using @react-three/fiber and yoga.",
   "version": "0.0.0",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/pmndrs/react-three-uikit",
+  "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",
   "keywords": [
     "r3f",
@@ -17,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:pmndrs/react-three-uikit.git"
+    "url": "git@github.com:pmndrs/uikit.git"
   },
   "files": [
     "dist"
@@ -28,7 +29,7 @@
   },
   "scripts": {
     "test": "mocha ./tests/allocation.spec.ts",
-    "build": "tsc",
+    "build": "tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",

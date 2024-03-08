@@ -89,8 +89,7 @@ jobs:
 
 # Examples
       - name: Building Examples
-        run: |  
-          pnpm -r inline-wasm
+        run: |
           pnpm -r convert
           pnpm -r generate
           pnpm -r build
