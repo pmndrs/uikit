@@ -53,7 +53,7 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 > Some familiarity with
 > react, threejs, and @react-three/fiber, is recommended.
 
-Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout.md)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples.md)** to see uikit in action, or learn more about:
+Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples)** to see uikit in action, or learn more about:
 
 - [All components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
 - [Interacitivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
