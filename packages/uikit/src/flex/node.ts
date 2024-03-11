@@ -129,17 +129,18 @@ export class FlexNode implements WithImmediateProperties {
       if (groupChildren == null) {
         return 0
       }
-      const i1 = groupChildren.indexOf(child1.groupRef.current as any)
-      if (i1 === -1) {
-        throw new Error(
-          `${child1.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
-        )
+      const group1 = child1.groupRef.current
+      const group2 = child2.groupRef.current
+      if (group1 == null || group2 == null) {
+        return 0
       }
-      const i2 = groupChildren.indexOf(child2.groupRef.current as any)
+      const i1 = groupChildren.indexOf(group1)
+      if (i1 === -1) {
+        throw new Error(`parent mismatch`)
+      }
+      const i2 = groupChildren.indexOf(group2)
       if (i2 === -1) {
-        throw new Error(
-          `${child2.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
-        )
+        throw new Error(`parent mismatch`)
       }
       return i1 - i2
     })
