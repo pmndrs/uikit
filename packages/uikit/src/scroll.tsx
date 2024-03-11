@@ -28,7 +28,20 @@ export type ScrollEventHandlers = Pick<
 >
 
 export type ScrollListeners = {
-  onScroll?: (scrollX: number, scrollY: number, event?: ThreeEvent<WheelEvent | PointerEvent>) => void
+  /**
+   * scroll listener called right before the new scroll position is set when a scroll event is caused
+   * @param scrollX the new scroll x position
+   * @param scrollY the new scroll y position
+   * @param scrollPosition the current/old scroll position
+   * @param event the event that caused the scrolling
+   * @returns false to prevent the new scroll x and scroll y position from beeing applied
+   */
+  onScroll?: (
+    scrollX: number,
+    scrollY: number,
+    scrollPosition: Signal<Vector2Tuple>,
+    event?: ThreeEvent<WheelEvent | PointerEvent>,
+  ) => boolean | void
 }
 
 export function useScrollPosition() {
@@ -131,10 +144,11 @@ export function ScrollHandler({
           wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
         )
       }
-      if (x != newX || y != newY) {
-        scrollPosition.value = [newX, newY]
-        onScrollRef.current?.(...scrollPosition.value, event)
+      const preventScroll = onScrollRef.current?.(newX, newY, scrollPosition, event)
+      if (preventScroll === false || (x === newX && y === newY)) {
+        return
       }
+      scrollPosition.value = [newX, newY]
     },
     [node, scrollPosition, scrollVelocity],
   )

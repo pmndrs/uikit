@@ -12,6 +12,10 @@ However, it is required to configure three.js to support visual clipping, which 
 <Canvas gl={{ localClippingEnabled: true }}>
 ```
 
+## onScroll
+
+If a `Container` component uses `overflow="scroll"`, the `onScroll` event is called when the user scrolls through their scroll wheel or touching. `onScroll` receives the new `x` and `y` coordinates for the scroll position, the signal containing the current `scrollPosition`, and the optional event that caused the scrolling. The listener passed to `onScroll` can return `false` to prevent setting the new `x` and `y` scroll position.
+
 ## Scrollbars
 
 uikit renders scrollbars if the content overflows an element that has the property `overflow="scroll"`. The scrollbar can be styled similarly to the background panel of any component via the following properties.

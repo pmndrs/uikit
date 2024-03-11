@@ -368,16 +368,16 @@ The `FontFamilyProvider` component allows you to use the specified font families
 
 uikit allows you to declare properties that depend on the element's interaction state, similar to CSS selectors, such as `:hover`. Conditional properties also enable elements in the layout to be responsive based on several breakpoints. uikit supports a range of conditional properties:
 
-| Name | Explanation                                            |
-| -------- | ------------------------------------------------------ |
-| hover    | when the user hovers over the element                  |
-| active   | when the users clicks (pointer down) on the element    |
-| sm       | when the width of the root element is bigger than 640  |
-| md       | when the width of the root element is bigger than 768  |
-| lg       | when the width of the root element is bigger than 1024 |
-| xl       | when the width of the root element is bigger than 1280 |
-| 2xl      | when the width of the root element is bigger than 1536 |
-| dark     | when the preferred color scheme is dark                |
+| Name   | Explanation                                            |
+| ------ | ------------------------------------------------------ |
+| hover  | when the user hovers over the element                  |
+| active | when the users clicks (pointer down) on the element    |
+| sm     | when the width of the root element is bigger than 640  |
+| md     | when the width of the root element is bigger than 768  |
+| lg     | when the width of the root element is bigger than 1024 |
+| xl     | when the width of the root element is bigger than 1280 |
+| 2xl    | when the width of the root element is bigger than 1536 |
+| dark   | when the preferred color scheme is dark                |
 
 ```jsx
 <Fullscreen flexDirection="column" md={{ flexDirection: 'row' }}>
@@ -412,23 +412,23 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 <details>
 <summary>View all event handlers</summary>
 
-| Property             | Type                                                                                         |
-| -------------------- | -------------------------------------------------------------------------------------------- |
-| onWheel              | `(event: ThreeEvent<WheelEvent>) => void`                                                    |
-| onPointerUp          | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerOver        | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerOut         | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerMove        | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerLeave       | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerEnter       | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerDown        | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onPointerCancel      | `(event: ThreeEvent<PointerEvent>) => void`                                                  |
-| onDoubleClick        | `(event: ThreeEvent<MouseEvent>) => void`                                                    |
-| onContextMenu        | `(event: ThreeEvent<MouseEvent>) => void`                                                    |
-| onClick              | `(event: ThreeEvent<MouseEvent>) => void`                                                    |
-| onSizeChange         | `(width: number, height: number) => void`                                                    |
-| onIsInViewportChange | `(isInViewport: boolean) => void`                                                            |
-| onScroll             | `(scrollX: number, scrollY: number, event?: ThreeEvent<WheelEvent \| PointerEvent>) => void` |
+| Property             | Type                                                                                                                                          |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| onWheel              | `(event: ThreeEvent<WheelEvent>) => void`                                                                                                     |
+| onPointerUp          | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerOver        | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerOut         | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerMove        | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerLeave       | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerEnter       | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerDown        | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerCancel      | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onDoubleClick        | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onContextMenu        | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onClick              | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onSizeChange         | `(width: number, height: number) => void`                                                                                                     |
+| onIsInViewportChange | `(isInViewport: boolean) => void`                                                                                                             |
+| onScroll             | `(scrollX: number, scrollY: number, scrollPosition: Signal<Vector2Tuple>, event?: ThreeEvent<WheelEvent \| PointerEvent>) => boolean \| void` |
 
 </details>
 
