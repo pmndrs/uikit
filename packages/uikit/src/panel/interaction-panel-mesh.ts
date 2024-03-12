@@ -21,7 +21,7 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
     planeHelper.normal.set(0, 0, 1)
     planeHelper.applyMatrix4(matrixWorld)
     if (
-      planeHelper.distanceToPoint(raycaster.ray.origin) < 0 ||
+      planeHelper.distanceToPoint(raycaster.ray.origin) <= 0 ||
       raycaster.ray.intersectPlane(planeHelper, vectorHelper) == null
     ) {
       return
