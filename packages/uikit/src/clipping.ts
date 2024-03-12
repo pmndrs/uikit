@@ -1,4 +1,4 @@
-import { Signal, computed } from '@preact/signals-core'
+import { Signal, computed, signal } from '@preact/signals-core'
 import { useFrame } from '@react-three/fiber'
 import { RefObject, createContext, useContext, useMemo } from 'react'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
@@ -87,7 +87,9 @@ export class ClippingRect {
   }
 }
 
-const ClippingRectContext = createContext<Signal<ClippingRect | undefined>>(null as any)
+const emptySignal = signal(undefined)
+
+const ClippingRectContext = createContext<Signal<ClippingRect | undefined>>(emptySignal)
 
 export const ClippingRectProvider = ClippingRectContext.Provider
 

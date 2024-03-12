@@ -114,7 +114,22 @@ export default function App() {
               borderRadius={10}
               src="https://picsum.photos/2000/3000"
               width={300}
-            />
+              overflow="scroll"
+            >
+              <Text backgroundColor="black" padding={10}>
+                Hello World!
+              </Text>
+              <Text backgroundColor="black" padding={10}>
+                Lorem voluptate aliqua est veniam pariatur enim reprehenderit nisi laboris. Tempor sit magna ea occaecat
+                velit veniam ipsum do deserunt adipisicing labore. Voluptate consectetur Lorem exercitation laborum do
+                nulla velit sit. Aliqua sit cupidatat excepteur fugiat. Labore proident ea in in ex ad aute adipisicing
+                ad in occaecat ullamco tempor pariatur. Excepteur consequat ullamco id est duis elit. Est duis mollit
+                adipisicing labore fugiat duis elit magna. Deserunt nulla dolore deserunt id sint fugiat cillum
+                cupidatat nulla dolore veniam anim nulla sunt. Excepteur excepteur nisi officia eiusmod incididunt do.
+                Id reprehenderit aute nulla dolor ut ex veniam aliqua laboris nisi. Aliqua aute nulla fugiat dolor
+                voluptate quis. Velit sit aliqua eiusmod irure.
+              </Text>
+            </SuspendingImage>
           </Suspense>
         </DefaultProperties>
 

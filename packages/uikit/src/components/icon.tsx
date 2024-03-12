@@ -17,6 +17,7 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import {
   ComponentInternals,
   LayoutListeners,
+  ChildrenProvider,
   ViewportListeners,
   useComponentInternals,
   useGlobalMatrix,
@@ -34,6 +35,7 @@ import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
+import { ScrollHandler, ScrollListeners, useScrollPosition, useScrollbars } from '../scroll.js'
 
 const colorHelper = new Color()
 
@@ -55,7 +57,8 @@ export const SvgIconFromText = forwardRef<
     EventHandlers &
     LayoutListeners &
     ViewportListeners &
-    ShadowProperties
+    ShadowProperties &
+    ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -141,6 +144,18 @@ export const SvgIconFromText = forwardRef<
     })
   }, [svgGroup, properties.color, properties.receiveShadow, properties.castShadow])
 
+  const scrollPosition = useScrollPosition()
+  useScrollbars(
+    collection,
+    scrollPosition,
+    node,
+    globalMatrix,
+    isClipped,
+    properties.scrollbarPanelMaterialClass,
+    parentClippingRect,
+    orderInfo,
+  )
+
   //apply all properties
   writeCollection(collection, 'width', properties.svgWidth)
   writeCollection(collection, 'height', properties.svgHeight)
@@ -173,7 +188,7 @@ export const SvgIconFromText = forwardRef<
 
   const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
 
-  useComponentInternals(ref, node, interactionPanel)
+  useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
   return (
     <InteractionGroup
@@ -183,8 +198,13 @@ export const SvgIconFromText = forwardRef<
       hoverHandlers={hoverHandlers}
       activeHandlers={activeHandlers}
     >
-      <primitive object={interactionPanel} />
-      <primitive object={svgGroup} />
+      <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
+        <primitive object={interactionPanel} />
+        <primitive object={svgGroup} />
+      </ScrollHandler>
+      <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
+        {properties.children}
+      </ChildrenProvider>
     </InteractionGroup>
   )
 })

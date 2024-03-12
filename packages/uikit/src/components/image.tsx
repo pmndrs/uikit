@@ -1,5 +1,5 @@
 import { Group, Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
-import { forwardRef, useMemo, useRef } from 'react'
+import { ReactNode, forwardRef, useMemo, useRef } from 'react'
 import { useResourceWithParams, useRootGroupRef, useSignalEffect } from '../utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { Inset, YogaProperties } from '../flex/node.js'
@@ -11,6 +11,7 @@ import { useApplyHoverProperties } from '../hover.js'
 import {
   ComponentInternals,
   LayoutListeners,
+  ChildrenProvider,
   ViewportListeners,
   WithConditionals,
   useComponentInternals,
@@ -42,6 +43,7 @@ import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
+import { ScrollHandler, useScrollPosition, useScrollbars, ScrollbarProperties, ScrollListeners } from '../scroll.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -55,7 +57,8 @@ export type ImageProperties = WithConditionals<
             opacity?: number
           } & TransformProperties &
           ImageFitProperties
-      >
+      > &
+        ScrollbarProperties
     >
   >
 >
@@ -76,13 +79,15 @@ export const Image = forwardRef<
   ComponentInternals,
   ImageProperties & {
     src?: string | Signal<string> | Texture | Signal<Texture | undefined>
+    children?: ReactNode
     materialClass?: MaterialClass
     zIndexOffset?: ZIndexOffset
     keepAspectRatio?: boolean
   } & EventHandlers &
     LayoutListeners &
     ViewportListeners &
-    ShadowProperties
+    ShadowProperties &
+    ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
   const texture = useResourceWithParams(loadTexture, properties.src)
@@ -131,6 +136,18 @@ export const Image = forwardRef<
     return result
   }, [node, materials, rootGroupRef, parentClippingRect, orderInfo, properties.receiveShadow, properties.castShadow])
 
+  const scrollPosition = useScrollPosition()
+  useScrollbars(
+    collection,
+    scrollPosition,
+    node,
+    globalMatrix,
+    isClipped,
+    properties.scrollbarPanelMaterialClass,
+    parentClippingRect,
+    orderInfo,
+  )
+
   //apply all properties
   useApplyProperties(collection, properties)
   useApplyPreferredColorSchemeProperties(collection, properties)
@@ -163,7 +180,7 @@ export const Image = forwardRef<
 
   useSignalEffect(() => void (mesh.visible = !isClipped.value), [mesh, isClipped])
 
-  useComponentInternals(ref, node, mesh)
+  useComponentInternals(ref, node, mesh, scrollPosition)
 
   return (
     <InteractionGroup
@@ -173,7 +190,12 @@ export const Image = forwardRef<
       matrix={transformMatrix}
       activeHandlers={activeHandlers}
     >
-      <primitive object={mesh} />
+      <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
+        <primitive object={mesh} />
+      </ScrollHandler>
+      <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
+        {properties.children}
+      </ChildrenProvider>
     </InteractionGroup>
   )
 })

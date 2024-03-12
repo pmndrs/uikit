@@ -26,6 +26,7 @@ import { Color as ColorRepresentation } from '@react-three/fiber'
 import {
   ComponentInternals,
   LayoutListeners,
+  ChildrenProvider,
   ViewportListeners,
   WithConditionals,
   useComponentInternals,
@@ -48,10 +49,13 @@ import { useApplyResponsiveProperties } from '../responsive.js'
 import { CameraDistanceRef, ElementType, OrderInfo, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
+import { ScrollHandler, ScrollListeners, ScrollbarProperties, useScrollPosition, useScrollbars } from '../scroll.js'
 
 export type SvgProperties = WithConditionals<
   WithClasses<
-    WithAllAliases<WithReactive<YogaProperties & PanelProperties & TransformProperties & AppearanceProperties>>
+    WithAllAliases<
+      WithReactive<YogaProperties & PanelProperties & TransformProperties & AppearanceProperties> & ScrollbarProperties
+    >
   >
 >
 
@@ -128,7 +132,8 @@ export const Svg = forwardRef<
     EventHandlers &
     LayoutListeners &
     ViewportListeners &
-    ShadowProperties
+    ShadowProperties &
+    ScrollListeners
 >((properties, ref) => {
   const collection = createCollection()
   const groupRef = useRef<Group>(null)
@@ -194,6 +199,18 @@ export const Svg = forwardRef<
   }, [svgObject, properties.color, properties.receiveShadow, properties.castShadow])
   const aspectRatio = useMemo(() => computed(() => svgObject.value?.aspectRatio), [svgObject])
 
+  const scrollPosition = useScrollPosition()
+  useScrollbars(
+    collection,
+    scrollPosition,
+    node,
+    globalMatrix,
+    isClipped,
+    properties.scrollbarPanelMaterialClass,
+    parentClippingRect,
+    orderInfo,
+  )
+
   //apply all properties
   useApplyProperties(collection, properties)
   useApplyPreferredColorSchemeProperties(collection, properties)
@@ -238,7 +255,7 @@ export const Svg = forwardRef<
 
   const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
 
-  useComponentInternals(ref, node, interactionPanel)
+  useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
   return (
     <InteractionGroup
@@ -248,8 +265,13 @@ export const Svg = forwardRef<
       hoverHandlers={hoverHandlers}
       activeHandlers={activeHandlers}
     >
-      <primitive object={interactionPanel} />
-      <primitive object={centerGroup} />
+      <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
+        <primitive object={interactionPanel} />
+        <primitive object={centerGroup} />
+      </ScrollHandler>
+      <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
+        {properties.children}
+      </ChildrenProvider>
     </InteractionGroup>
   )
 })

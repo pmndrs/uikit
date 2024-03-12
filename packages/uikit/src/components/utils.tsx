@@ -1,11 +1,24 @@
 import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
-import { useMemo, useEffect, createContext, useContext, useImperativeHandle, ForwardedRef, RefObject } from 'react'
+import {
+  useMemo,
+  useEffect,
+  createContext,
+  useContext,
+  useImperativeHandle,
+  ForwardedRef,
+  RefObject,
+  ReactNode,
+} from 'react'
 import { Matrix4, Mesh, Vector2Tuple } from 'three'
 import { FlexNode, Inset } from '../flex/node.js'
 import { WithHover } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
 import { WithPreferredColorScheme } from '../dark.js'
 import { WithActive } from '../active.js'
+import { ClippingRectProvider, useClippingRect, useParentClippingRect } from '../clipping.js'
+import { FlexProvider } from '../flex/react.js'
+import { OrderInfo, OrderInfoProvider } from '../order.js'
+import { ScrollGroup, useGlobalScrollMatrix } from '../scroll.js'
 
 export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T> & WithActive<T>
 
@@ -103,3 +116,39 @@ export function useGlobalMatrix(localMatrix: Signal<Matrix4 | undefined>): Signa
 const MatrixContext = createContext<Signal<Matrix4 | undefined>>(null as any)
 
 export const MatrixProvider = MatrixContext.Provider
+
+export function ChildrenProvider({
+  globalMatrix,
+  node,
+  scrollPosition,
+  children,
+  orderInfo,
+}: {
+  node: FlexNode
+  scrollPosition: Signal<Vector2Tuple>
+  globalMatrix: Signal<Matrix4 | undefined>
+  children?: ReactNode
+  orderInfo: OrderInfo
+}) {
+  const parentClippingRect = useParentClippingRect()
+  const clippingRect = useClippingRect(
+    globalMatrix,
+    node.size,
+    node.borderInset,
+    node.overflow,
+    node,
+    parentClippingRect,
+  )
+  const globalScrollMatrix = useGlobalScrollMatrix(scrollPosition, node, globalMatrix)
+  return (
+    <ScrollGroup node={node} scrollPosition={scrollPosition}>
+      <MatrixProvider value={globalScrollMatrix}>
+        <FlexProvider value={node}>
+          <ClippingRectProvider value={clippingRect}>
+            <OrderInfoProvider value={orderInfo}>{children}</OrderInfoProvider>
+          </ClippingRectProvider>
+        </FlexProvider>
+      </MatrixProvider>
+    </ScrollGroup>
+  )
+}

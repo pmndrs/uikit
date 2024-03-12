@@ -12,7 +12,7 @@ import {
   usePanelGroupDependencies,
 } from '../panel/react.js'
 import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
-import { FlexProvider, useDeferredRequestLayoutCalculation } from '../flex/react.js'
+import { useDeferredRequestLayoutCalculation } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
 import { Group, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
@@ -21,21 +21,12 @@ import { useApplyHoverProperties } from '../hover.js'
 import {
   LayoutListeners,
   useLayoutListeners,
-  MatrixProvider,
   ComponentInternals,
   useComponentInternals,
   WithConditionals,
+  ChildrenProvider,
 } from './utils.js'
-import { ClippingRectProvider, useClippingRect } from '../clipping.js'
-import {
-  ScrollGroup,
-  ScrollHandler,
-  ScrollListeners,
-  ScrollbarProperties,
-  useGlobalScrollMatrix,
-  useScrollPosition,
-  useScrollbars,
-} from '../scroll.js'
+import { ScrollHandler, ScrollListeners, ScrollbarProperties, useScrollPosition, useScrollbars } from '../scroll.js'
 import {
   WithAllAliases,
   flexAliasPropertyTransformation,
@@ -47,7 +38,7 @@ import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from '../text/react.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
-import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
+import { ElementType, patchRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
 
@@ -123,7 +114,6 @@ export const Root = forwardRef<
 
   const rootMatrix = useRootMatrix(transformMatrix, node.size, pixelSize, properties)
   const scrollPosition = useScrollPosition()
-  const globalScrollMatrix = useGlobalScrollMatrix(scrollPosition, node, rootMatrix)
   useScrollbars(
     collection,
     scrollPosition,
@@ -160,7 +150,6 @@ export const Root = forwardRef<
   writeCollection(collection, 'height', useDivide(sizeY, pixelSize))
   finalizeCollection(collection)
 
-  const clippingRect = useClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, node, undefined)
   useLayoutListeners(properties, node.size)
 
   const internactionPanel = useInteractionPanel(node.size, node, orderInfo, groupRef)
@@ -191,17 +180,16 @@ export const Root = forwardRef<
               <ScrollHandler node={node} scrollPosition={scrollPosition} listeners={properties}>
                 <primitive object={internactionPanel} />
               </ScrollHandler>
-              <ScrollGroup node={node} scrollPosition={scrollPosition}>
-                <MatrixProvider value={globalScrollMatrix}>
-                  <FlexProvider value={node}>
-                    <ClippingRectProvider value={clippingRect}>
-                      <OrderInfoProvider value={orderInfo}>
-                        <RootSizeProvider value={node.size}>{properties.children}</RootSizeProvider>
-                      </OrderInfoProvider>
-                    </ClippingRectProvider>
-                  </FlexProvider>
-                </MatrixProvider>
-              </ScrollGroup>
+              <RootSizeProvider value={node.size}>
+                <ChildrenProvider
+                  globalMatrix={rootMatrix}
+                  node={node}
+                  orderInfo={orderInfo}
+                  scrollPosition={scrollPosition}
+                >
+                  {properties.children}
+                </ChildrenProvider>
+              </RootSizeProvider>
             </InstancedPanelProvider>
           </InstancedGlyphProvider>
         </RootGroupProvider>
