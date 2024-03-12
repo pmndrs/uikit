@@ -1,0 +1,5 @@
+node_modules
+dist
+.DS_Store
+.expo
+package-lock.json

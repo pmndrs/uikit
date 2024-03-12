@@ -7,8 +7,8 @@ import { Group, Matrix4 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { ManagerCollection, useGetBatchedProperties } from '../properties/utils.js'
 import { readReactive, useSignalEffect } from '../utils.js'
-import { loadCachedFont } from './cache.js'
-import { MeasureFunction, MeasureMode } from 'yoga-layout/wasm-async'
+import { FontLoadingData, loadCachedFont } from './cache.js'
+import { MeasureFunction, MeasureMode } from 'yoga-layout'
 import { Font } from './font.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, measureGlyphLayout } from './layout.js'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -61,7 +61,7 @@ export function useGetInstancedGlyphGroup(
   return getGroup
 }
 
-export type FontFamilyUrls = Partial<Record<FontWeight, string>>
+export type FontFamilyUrls = Partial<Record<FontWeight, FontLoadingData>>
 
 const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null as any)
 
@@ -90,10 +90,10 @@ const fontWeightNames = {
 
 export type FontWeight = keyof typeof fontWeightNames | number
 
-export function FontFamilyProvider({
-  children,
-  ...fontFamilies
-}: Record<string, FontFamilyUrls> & { children?: ReactNode }) {
+export function FontFamilyProvider<T extends string = never>(properties: {
+  [Key in T]: Key extends 'children' ? ReactNode : FontFamilyUrls
+}) {
+  let { children, ...fontFamilies } = properties as any
   const existinFontFamilyUrls = useContext(FontFamiliesContext)
   if (existinFontFamilyUrls != null) {
     fontFamilies = { ...existinFontFamilyUrls, ...fontFamilies }
@@ -195,7 +195,7 @@ export function useFont(collection: ManagerCollection) {
     if (fontFamily == null) {
       fontFamily = Object.keys(fontFamilies)[0]
     }
-    const url = getMatchingFontUrl(fontFamilies[fontFamily], fontWeight)
+    const url = getMatchingFontLoadingData(fontFamilies[fontFamily], fontWeight)
     let canceled = false
     loadCachedFont(url, renderer, (font) => (canceled ? undefined : (result.value = font)))
     return () => (canceled = true)
@@ -203,9 +203,9 @@ export function useFont(collection: ManagerCollection) {
   return result
 }
 
-function getMatchingFontUrl(fontFamily: FontFamilyUrls, weight: number): string {
+function getMatchingFontLoadingData(fontFamily: FontFamilyUrls, weight: number): FontLoadingData {
   let distance = Infinity
-  let result: string | undefined
+  let result: FontLoadingData | undefined
   for (const fontWeight in fontFamily) {
     const d = Math.abs(weight - getWeightNumber(fontWeight))
     if (d === 0) {

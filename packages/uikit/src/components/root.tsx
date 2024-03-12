@@ -50,6 +50,7 @@ import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js
 import { ElementType, OrderInfoProvider, patchRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
+import type { loadYoga } from 'yoga-layout'
 
 export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
@@ -76,6 +77,7 @@ export const Root = forwardRef<
     anchorX?: keyof typeof alignmentXMap
     anchorY?: keyof typeof alignmentYMap
     pixelSize?: number
+    loadYoga?: typeof loadYoga
     panelMaterialClass?: MaterialClass
   } & WithReactive<{
       sizeX?: number
@@ -96,7 +98,7 @@ export const Root = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
-  const yoga = useLoadYoga()
+  const yoga = useLoadYoga(properties.loadYoga)
   const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
   const groupRef = useRef<Group>(null)
   const requestLayout = useDeferredRequestLayoutCalculation()

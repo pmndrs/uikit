@@ -6,6 +6,7 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ScrollListeners } from '../scroll.js'
 import { ComponentInternals, LayoutListeners } from './utils.js'
 import { Group, PerspectiveCamera } from 'three'
+import type { loadYoga } from 'yoga-layout'
 
 export const Fullscreen = forwardRef<
   ComponentInternals,
@@ -14,6 +15,7 @@ export const Fullscreen = forwardRef<
     precision?: number
     attachCamera?: boolean
     pixelSize?: number
+    loadYoga?: typeof loadYoga
   } & EventHandlers &
     LayoutListeners &
     ScrollListeners

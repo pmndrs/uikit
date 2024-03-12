@@ -1,7 +1,10 @@
 {
   "type": "module",
   "devDependencies": {
+    "@react-three/drei": "^9.101.0",
     "@react-three/eslint-plugin": "^0.1.1",
+    "@react-three/fiber": "^8.15.13",
+    "@react-three/uikit": "workspace:^",
     "@types/chai": "^4.3.10",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
@@ -23,8 +26,16 @@
     "json": "^11.0.0",
     "mocha": "^10.2.0",
     "prettier": "^3.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "three": "^0.161.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
-    "vite": "^5.0.12"
+    "vite": "^5.0.12",
+    "yoga-layout": "^2.0.1"
+  },
+  "dependencies": {
+    "@react-three/uikit-lucide": "^0.1.16",
+    "expo-gl": "~13.6.0"
   }
 }

@@ -1,12 +1,14 @@
 import { TextureLoader, WebGLRenderer } from 'three'
 import { Font, FontInfo } from './font.js'
+import { PlatformConstants } from '../index.js'
 
 const fontCache = new Map<string, Set<(font: Font) => void> | Font>()
 
-const textureLoader = new TextureLoader()
+export type FontLoadingData = string | { json: any; url: string }
 
-export function loadCachedFont(url: string, renderer: WebGLRenderer, onLoad: (font: Font) => void): void {
-  let entry = fontCache.get(url)
+export function loadCachedFont(data: FontLoadingData, renderer: WebGLRenderer, onLoad: (font: Font) => void): void {
+  const identifier = typeof data === 'string' ? data : data.url
+  let entry = fontCache.get(identifier)
   if (entry instanceof Set) {
     entry.add(onLoad)
     return
@@ -18,26 +20,37 @@ export function loadCachedFont(url: string, renderer: WebGLRenderer, onLoad: (fo
 
   const set = new Set<(font: Font) => void>()
   set.add(onLoad)
-  fontCache.set(url, set)
+  fontCache.set(identifier, set)
 
-  loadFont(url, renderer)
+  loadFont(data, renderer)
     .then((font) => {
       for (const fn of set) {
         fn(font)
       }
-      fontCache.set(url, font)
+      fontCache.set(identifier, font)
     })
     .catch(console.error)
 }
 
-async function loadFont(url: string, renderer: WebGLRenderer): Promise<Font> {
-  const info: FontInfo = await (await fetch(url)).json()
+let textureLoader: TextureLoader | undefined
 
-  if (info.pages.length !== 1) {
-    throw new Error('only supporting exactly 1 page')
+async function loadFont(data: FontLoadingData, renderer: WebGLRenderer): Promise<Font> {
+  let info: FontInfo
+  let url: string | URL
+  if (typeof data === 'string') {
+    info = await (await fetch(data)).json()
+
+    if (info.pages.length !== 1) {
+      throw new Error('only supporting exactly 1 page')
+    }
+    url = new URL(info.pages[0], data).href
+  } else {
+    info = data.json
+    url = data.url
   }
 
-  const page = await textureLoader.loadAsync(new URL(info.pages[0], url).href)
+  textureLoader ??= new PlatformConstants.TextureLoader()
+  const page = await textureLoader.loadAsync(url)
 
   page.anisotropy = renderer.capabilities.getMaxAnisotropy()
   page.flipY = false

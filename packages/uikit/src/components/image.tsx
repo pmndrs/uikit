@@ -1,4 +1,4 @@
-import { Group, Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
+import { Group, Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple, WebGLRenderer } from 'three'
 import { forwardRef, useMemo, useRef } from 'react'
 import { useResourceWithParams, useRootGroupRef, useSignalEffect } from '../utils.js'
 import { Signal, computed } from '@preact/signals-core'
@@ -42,6 +42,7 @@ import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
+import { useThree } from '@react-three/fiber'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -85,6 +86,7 @@ export const Image = forwardRef<
     ShadowProperties
 >((properties, ref) => {
   const collection = createCollection()
+  const gl = useThree((state) => state.gl)
   const texture = useResourceWithParams(loadTexture, properties.src)
   const aspectRatio = useMemo(
     () =>
@@ -233,9 +235,14 @@ function transformInsideBorder(borderInset: Signal<Inset>, size: Signal<Vector2T
     .scale(outerWidth / width, outerHeight / height)
 }
 
-const textureLoader = new TextureLoader()
+let textureLoader: TextureLoader | undefined
+
+export const PlatformConstants = {
+  TextureLoader: TextureLoader,
+}
 
 async function loadTexture(src?: string | Texture) {
+  textureLoader ??= new PlatformConstants.TextureLoader()
   if (src == null) {
     return Promise.resolve(undefined)
   }

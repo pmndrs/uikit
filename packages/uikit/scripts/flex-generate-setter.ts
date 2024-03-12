@@ -155,8 +155,8 @@ async function main() {
 
   writeFileSync(
     'src/flex/setter.ts',
-    `import { Node } from "yoga-layout/wasm-async"
-    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/wasm-async"
+    `import type { Node } from "yoga-layout"
+    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout"
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue

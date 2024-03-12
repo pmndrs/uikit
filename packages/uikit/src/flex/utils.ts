@@ -1,4 +1,4 @@
-import { Node, MeasureFunction } from 'yoga-layout/wasm-async'
+import type { Node, MeasureFunction } from 'yoga-layout'
 
 export function yogaNodeEqual(n1: Node, n2: Node): boolean {
   return (n1 as any)['L'] === (n2 as any)['L']
