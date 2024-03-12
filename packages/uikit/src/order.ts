@@ -1,5 +1,7 @@
-import { createContext, useContext, useMemo } from 'react'
+import { Signal, computed } from '@preact/signals-core'
 import { RenderItem, WebGLRenderer } from 'three'
+import { MergedProperties } from './properties/merged'
+import { createGetBatchedProperties } from './properties/batched'
 
 export type CameraDistanceRef = { current: number }
 
@@ -60,56 +62,59 @@ function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
   return o1.minorIndex - o2.minorIndex
 }
 
-export const OrderInfoContext = createContext<OrderInfo>(null as any)
-
-export const OrderInfoProvider = OrderInfoContext.Provider
-
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
+const propertyKeys = ['zIndexOffset']
+
 export function computeOrderInfo(
+  propertiesSignal: Signal<MergedProperties>,
   type: ElementType,
-  offset: ZIndexOffset | undefined,
   instancedGroupDependencies: Record<string, any> | undefined,
-  providedParentOrderInfo?: OrderInfo,
-): OrderInfo {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const parentOrderInfo = providedParentOrderInfo ?? (useContext(OrderInfoContext) as OrderInfo | undefined)
-  const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
-  const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
+  parentOrderInfoSignal: Signal<OrderInfo>,
+): Signal<OrderInfo> {
+  const get = createGetBatchedProperties(propertiesSignal, propertyKeys)
+  return computed(() => {
+    const parentOrderInfo = parentOrderInfoSignal.value
 
-  let majorIndex: number
-  let minorIndex: number
+    const offset = get('zIndexOffset') as ZIndexOffset
 
-  if (parentOrderInfo == null) {
-    majorIndex = 0
-    minorIndex = 0
-  } else if (type > parentOrderInfo.elementType) {
-    majorIndex = parentOrderInfo.majorIndex
-    minorIndex = 0
-  } else if (
-    type != parentOrderInfo.elementType ||
-    !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
-  ) {
-    majorIndex = parentOrderInfo.majorIndex + 1
-    minorIndex = 0
-  } else {
-    majorIndex = parentOrderInfo.majorIndex
-    minorIndex = parentOrderInfo.minorIndex + 1
-  }
+    const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
+    const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
 
-  if (majorOffset > 0) {
-    majorIndex += majorOffset
-    minorIndex = 0
-  }
+    let majorIndex: number
+    let minorIndex: number
 
-  minorIndex += minorOffset
+    if (parentOrderInfo == null) {
+      majorIndex = 0
+      minorIndex = 0
+    } else if (type > parentOrderInfo.elementType) {
+      majorIndex = parentOrderInfo.majorIndex
+      minorIndex = 0
+    } else if (
+      type != parentOrderInfo.elementType ||
+      !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
+    ) {
+      majorIndex = parentOrderInfo.majorIndex + 1
+      minorIndex = 0
+    } else {
+      majorIndex = parentOrderInfo.majorIndex
+      minorIndex = parentOrderInfo.minorIndex + 1
+    }
 
-  return {
-    instancedGroupDependencies,
-    elementType: type,
-    majorIndex,
-    minorIndex,
-  }
+    if (majorOffset > 0) {
+      majorIndex += majorOffset
+      minorIndex = 0
+    }
+
+    minorIndex += minorOffset
+
+    return {
+      instancedGroupDependencies,
+      elementType: type,
+      majorIndex,
+      minorIndex,
+    }
+  })
 }
 
 function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<string, any> | undefined): boolean {

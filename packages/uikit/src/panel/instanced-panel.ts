@@ -61,10 +61,6 @@ const instancedPanelMaterialSetters: {
 
 const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity']
 
-function hasBatchedProperty(key: string): boolean {
-  return batchedProperties.includes(key)
-}
-
 function hasImmediateProperty(key: string): boolean {
   return key in instancedPanelMaterialSetters
 }
@@ -80,29 +76,22 @@ export class InstancedPanel {
 
   private unsubscribeList: Array<() => void> = []
 
-  public destroyed = false
-
   private insertedIntoGroup = false
 
   private active = signal(false)
 
-  private group: InstancedPanelGroup
-
   constructor(
     propertiesSignal: Signal<MergedProperties>,
-    getGroup: GetInstancedPanelGroup,
-    private readonly orderInfo: OrderInfo,
-    panelGroupDependencies: PanelGroupDependencies,
+    private group: InstancedPanelGroup,
+    private readonly minorIndex: number,
     private readonly matrix: Signal<Matrix4 | undefined>,
     private readonly size: Signal<Vector2Tuple>,
     private readonly offset: Signal<Vector2Tuple> | undefined,
     private readonly borderInset: Signal<Inset>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isHidden: Signal<boolean> | undefined,
-    subscriptions: Subscriptions,
     renameOutput?: Record<string, string>,
   ) {
-    this.group = getGroup(orderInfo.minorIndex, panelGroupDependencies)
     setupImmediateProperties(
       propertiesSignal,
       this.active,
@@ -122,7 +111,7 @@ export class InstancedPanel {
       subscriptions,
       renameOutput,
     )
-    const get = createGetBatchedProperties(propertiesSignal, hasBatchedProperty, renameOutput)
+    const get = createGetBatchedProperties(propertiesSignal, batchedProperties, renameOutput)
     subscriptions.push(
       effect(() => {
         if (
@@ -140,10 +129,7 @@ export class InstancedPanel {
         }
         this.hide()
       }),
-      () => {
-        this.destroyed = true
-        this.hide()
-      },
+      () => this.hide(),
     )
   }
 
@@ -234,7 +220,7 @@ export class InstancedPanel {
       return
     }
     this.insertedIntoGroup = true
-    this.group.insert(this.orderInfo.minorIndex, this)
+    this.group.insert(this.minorIndex, this)
   }
 
   private hide(): void {
@@ -242,7 +228,7 @@ export class InstancedPanel {
       return
     }
     this.active.value = false
-    this.group.delete(this.orderInfo.minorIndex, this.indexInBucket, this)
+    this.group.delete(this.minorIndex, this.indexInBucket, this)
     this.insertedIntoGroup = false
     this.bucket = undefined
     this.indexInBucket = undefined

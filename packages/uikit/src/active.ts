@@ -1,7 +1,6 @@
 import { signal } from '@preact/signals-core'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { Properties } from './properties/utils.js'
-import { AllOptionalProperties, WithClasses, traverseProperties } from './properties/default.js'
+import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
 

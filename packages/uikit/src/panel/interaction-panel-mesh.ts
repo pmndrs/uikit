@@ -51,13 +51,14 @@ export function makeClippedRaycast(
   fn: Mesh['raycast'],
   rootGroupRef: RefObject<Group>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: OrderInfo,
+  orderInfo: Signal<OrderInfo>,
 ): Mesh['raycast'] {
   return (raycaster: Raycaster, intersects: Intersection<Object3D<Object3DEventMap>>[]) => {
     const rootGroup = rootGroupRef.current
     if (rootGroup == null) {
       return
     }
+    const { majorIndex, minorIndex, elementType } = orderInfo.value
     const oldLength = intersects.length
     fn.call(mesh, raycaster, intersects)
     const clippingPlanes = clippingRect?.value?.planes
@@ -65,9 +66,9 @@ export function makeClippedRaycast(
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]
       intersection.distance -=
-        orderInfo.majorIndex * 0.01 +
-        orderInfo.elementType * 0.001 + //1-10
-        orderInfo.minorIndex * 0.00001 //1-100
+        majorIndex * 0.01 +
+        elementType * 0.001 + //1-10
+        minorIndex * 0.00001 //1-100
       if (clippingPlanes == null) {
         continue
       }

@@ -1,10 +1,11 @@
 import { ReadonlySignal, computed, signal } from '@preact/signals-core'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { Properties } from './properties/utils.js'
-import { AllOptionalProperties, WithClasses, traverseProperties } from './properties/default.js'
+import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
 import { MergedProperties } from './properties/merged.js'
+import { Color, Vector3Tuple } from 'three'
+
+export type ColorRepresentation = Color | string | number | Vector3Tuple
 
 export type WithPreferredColorScheme<T> = { dark?: T } & T
 

@@ -40,50 +40,6 @@ export function useComponentInternals(
   )
 }
 
-export type LayoutListeners = {
-  onSizeChange?: (width: number, height: number) => void
-}
-
-export function useLayoutListeners({ onSizeChange }: LayoutListeners, size: Signal<Vector2Tuple>): void {
-  const unsubscribe = useMemo(() => {
-    if (onSizeChange == null) {
-      return undefined
-    }
-    let first = true
-    return effect(() => {
-      const s = size.value
-      if (first) {
-        first = false
-        return
-      }
-      onSizeChange(...s)
-    })
-  }, [onSizeChange, size])
-  useEffect(() => unsubscribe, [unsubscribe])
-}
-
-export type ViewportListeners = {
-  onIsInViewportChange?: (isInViewport: boolean) => void
-}
-
-export function useViewportListeners({ onIsInViewportChange }: ViewportListeners, isClipped: Signal<boolean>) {
-  const unsubscribe = useMemo(() => {
-    if (onIsInViewportChange == null) {
-      return undefined
-    }
-    let first = true
-    return effect(() => {
-      const isInViewport = !isClipped.value
-      if (first) {
-        first = false
-        return
-      }
-      onIsInViewportChange(isInViewport)
-    })
-  }, [isClipped, onIsInViewportChange])
-  useEffect(() => unsubscribe, [unsubscribe])
-}
-
 const MatrixContext = createContext<Signal<Matrix4 | undefined>>(null as any)
 
 export const MatrixProvider = MatrixContext.Provider

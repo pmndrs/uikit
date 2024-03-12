@@ -1,19 +1,20 @@
-import { ReactNode, RefObject, createContext, useCallback, useEffect, useMemo } from 'react'
-import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from 'three'
+import { Group, Matrix4, Mesh, MeshBasicMaterial, Vector2Tuple } from 'three'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { Signal, effect } from '@preact/signals-core'
-import { Inset } from '../flex/node.js'
+import { Signal, computed, effect } from '@preact/signals-core'
 import { Subscriptions } from '../utils.js'
 import { useFrame } from '@react-three/fiber'
 import { ClippingRect } from '../clipping.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
 import { HoverEventHandlers } from '../hover.js'
 import { InstancedPanelGroup } from './instanced-panel-group.js'
-import { MaterialSetter, PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from './panel-material.js'
+import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
 import { panelGeometry } from './utils.js'
 import { ActiveEventHandlers } from '../active.js'
 import { MergedProperties } from '../properties/merged.js'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { Inset } from '../flex/node.js'
+import { InstancedPanel } from './instanced-panel.js'
 
 export function InteractionGroup({
   handlers,
@@ -85,9 +86,9 @@ function mergeHandlers(
 export function createInteractionPanel(
   size: Signal<Vector2Tuple>,
   psRef: { pixelSize: number },
-  orderInfo: OrderInfo,
+  orderInfo: Signal<OrderInfo>,
   parentClippingRect: Signal<ClippingRect | undefined>,
-  rootGroupRef: RefObject<Group>,
+  rootGroupRef: { current: Group },
   subscriptions: Subscriptions,
 ): Mesh {
   const panel = new Mesh(panelGeometry)
@@ -109,16 +110,42 @@ export type GetInstancedPanelGroup = (
   panelGroupDependencies: PanelGroupDependencies,
 ) => InstancedPanelGroup
 
-const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
-
-
 export type PanelGroupDependencies = {
   materialClass: MaterialClass
-  receiveShadow: boolean
-  castShadow: boolean
 } & ShadowProperties
 
+const propertyKeys = ["materialClass", "castShadow", "receiveShadow"]
+
+export function computePanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
+  const get = createGetBatchedProperties(propertiesSignal, propertyKeys)
+  return computed<PanelGroupDependencies>(() => ({
+    materialClass: get("materialClass") as MaterialClass | undefined ?? MeshBasicMaterial,
+    castShadow: get("castShadow") as boolean | undefined,
+    receiveShadow: get("receiveShadow") as boolean | undefined
+  }))
+}
+
 export type ShadowProperties = { receiveShadow?: boolean; castShadow?: boolean }
+
+export function createInstancePanel(
+  propertiesSignal: Signal<MergedProperties>,
+  orderInfo: Signal<OrderInfo>,
+  panelGroupDependencies: Signal<PanelGroupDependencies>,
+  getGroup: GetInstancedPanelGroup,
+  matrix: Signal<Matrix4 | undefined>,
+  size: Signal<Vector2Tuple>,
+  offset: Signal<Vector2Tuple> | undefined,
+  borderInset: Signal<Inset>,
+  clippingRect: Signal<ClippingRect | undefined> | undefined,
+  isHidden: Signal<boolean> | undefined,
+  renameOutput?: Record<string, string>,
+  subscriptions: Subscriptions) {
+    subscriptions.push(effect(() => {
+      const group = getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
+      const panel = new InstancedPanel(propertiesSignal, group, orderInfo.value.minorIndex, matrix, size, offset, borderInset, clippingRect, isHidden, renameOutput)
+      return () => panel.destroy()
+    }))
+}
 
 export function useGetInstancedPanelGroup(
   pixelSize: number,
@@ -167,5 +194,3 @@ export function useGetInstancedPanelGroup(
   })
   return getGroup
 }
-
-export const InstancedPanelProvider = InstancedPanelContext.Provider

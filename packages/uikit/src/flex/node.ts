@@ -7,7 +7,6 @@ import { CameraDistanceRef } from '../order.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { MergedProperties } from '../properties/merged.js'
-import { flexAliasPropertyTransformation } from '../properties/alias.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
@@ -51,6 +50,7 @@ export class FlexNode {
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
     subscriptions: Subscriptions,
+    renameOutput?: Record<string, string>,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
@@ -75,7 +75,7 @@ export class FlexNode {
         this.requestCalculateLayout()
       },
       subscriptions,
-      flexAliasPropertyTransformation,
+      renameOutput,
     )
   }
 

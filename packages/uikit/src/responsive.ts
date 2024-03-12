@@ -1,10 +1,9 @@
 import { Signal } from '@preact/signals-core'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { createContext, useContext, useMemo } from 'react'
-import { ManagerCollection, Properties } from './properties/utils.js'
-import { AllOptionalProperties, WithClasses, traverseProperties } from './properties/default.js'
+import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
 import { Vector2Tuple } from 'three'
+import { MergedProperties } from './properties/merged.js'
 
 const breakPoints = {
   sm: 640,
@@ -20,16 +19,8 @@ export type WithResponsive<T> = T & {
   [Key in keyof typeof breakPoints]?: T
 }
 
-export function useRootSize() {
-  return useContext(RootSizeContext)
-}
-
-const RootSizeContext = createContext<Signal<Vector2Tuple>>(null as any)
-
-export const RootSizeProvider = RootSizeContext.Provider
-
 export function applyResponsiveProperties(
-  collection: ManagerCollection,
+  merged: MergedProperties,
   defaultProperties: AllOptionalProperties | undefined,
   properties: WithClasses<WithResponsive<Properties>> & EventHandlers,
   rootSize: Signal<Vector2Tuple>,
@@ -49,7 +40,7 @@ export function applyResponsiveProperties(
       if (properties == null) {
         continue
       }
-      translator[key](collection, properties)
+      translator[key](merged, properties)
     }
   })
 }

@@ -13,6 +13,7 @@ import {
 } from '../utils.js'
 import { InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout } from '../layout.js'
+import { GetBatchedProperties } from '../../properties/batched.js'
 
 export type TextAlignProperties = {
   horizontalAlign?: keyof typeof alignmentXMap | 'block'
@@ -36,20 +37,15 @@ export class InstancedText {
 
   constructor(
     private group: InstancedGlyphGroup,
-    private getAlignmentProperties: Signal<
-      (<K extends keyof TextAlignProperties>(key: K) => TextAlignProperties[K]) | undefined
-    >,
-    private getAppearanceProperties: Signal<
-      (<K extends keyof TextAppearanceProperties>(key: K) => TextAppearanceProperties[K]) | undefined
-    >,
+    private getAlignment: GetBatchedProperties,
+    private getAppearance: GetBatchedProperties,
     private layout: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
     isHidden: Signal<boolean> | undefined,
     private parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   ) {
     this.unsubscribe = effect(() => {
-      const get = getAppearanceProperties.value
-      if (get == null || isHidden?.value === true || (get('opacity') ?? 1) < 0.01) {
+      if (isHidden?.value === true || ((getAppearance('opacity') as number) ?? 1) < 0.01) {
         this.hide()
         return
       }
@@ -75,25 +71,16 @@ export class InstancedText {
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateClippingRect(clippingRect))
       }),
       effect(() => {
-        const get = this.getAppearanceProperties.value
-        if (get == null) {
-          return
-        }
-        const color = (this.color = get('color') ?? 0xffffff)
+        const color = (this.color = (this.getAppearance('color') as number) ?? 0xffffff)
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateColor(color))
       }),
       effect(() => {
-        const get = this.getAppearanceProperties.value
-        if (get == null) {
-          return
-        }
-        const opacity = (this.opacity = get('opacity') ?? 1)
+        const opacity = (this.opacity = (this.getAppearance('opacity') as number) ?? 1)
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateOpacity(opacity))
       }),
       effect(() => {
         const layout = this.layout.value
-        const get = this.getAlignmentProperties.value
-        if (layout == null || get == null) {
+        if (layout == null) {
           return
         }
         const {
@@ -109,7 +96,7 @@ export class InstancedText {
 
         let y = -availableHeight / 2
 
-        switch (get('verticalAlign')) {
+        switch (this.getAlignment('verticalAlign')) {
           case 'center':
             y += (availableHeight - getGlyphLayoutHeight(layout.lines.length, layout)) / 2
             break
@@ -118,7 +105,7 @@ export class InstancedText {
             break
         }
 
-        const horizontalAlign = get('horizontalAlign') ?? 'left'
+        const horizontalAlign = this.getAlignment('horizontalAlign') ?? 'left'
         const linesLength = lines.length
         const pixelSize = this.group.pixelSize
         for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {

@@ -110,10 +110,6 @@ export const panelMaterialDefaultData = [
 
 const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity']
 
-function hasBatchedProperty(key: string): boolean {
-  return batchedProperties.includes(key)
-}
-
 function hasImmediateProperty(key: string): boolean {
   return key in panelMaterialSetters
 }
@@ -162,7 +158,7 @@ export function applyPropsToMaterialData(
     }
     unsubscribeList.length = 0
   }
-  const get = createGetBatchedProperties(propertiesSignal, hasBatchedProperty, renameOutput)
+  const get = createGetBatchedProperties(propertiesSignal, batchedProperties, renameOutput)
   subscriptions.push(
     effect(() => {
       const isVisible = isPanelVisible(

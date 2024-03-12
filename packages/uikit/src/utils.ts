@@ -1,11 +1,10 @@
-import { RefObject, createContext, useContext, useEffect, useMemo } from 'react'
 import { computed, effect, Signal, signal } from '@preact/signals-core'
-import { Vector2Tuple, BufferAttribute, Color, Group } from 'three'
+import { Vector2Tuple, BufferAttribute, Color } from 'three'
 import { Color as ColorRepresentation } from '@react-three/fiber'
 import { Inset } from './flex/node.js'
-import { Properties } from './properties/utils.js'
-import { Yoga, loadYoga } from 'yoga-layout/wasm-async'
+import { Yoga, loadYoga as loadYogaImpl } from 'yoga-layout/wasm-async'
 import { MergedProperties } from './properties/merged.js'
+import { Properties } from './properties/default.js'
 
 export type Subscriptions = Array<() => void>
 
@@ -20,44 +19,14 @@ export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
 export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 }
 export const alignmentZMap = { back: -0.5, center: 0, front: 0.5 }
 
-export function useSignalEffect(fn: () => (() => void) | void, deps: Array<any>) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const unsubscribe = useMemo(() => effect(fn), deps)
-  useEffect(() => unsubscribe, [unsubscribe])
-}
-
 let yoga: Signal<Yoga | undefined> | undefined
 
-export function useLoadYoga(): Signal<Yoga | undefined> {
+export function loadYoga(): Signal<Yoga | undefined> {
   if (yoga == null) {
     const result = (yoga = signal<Yoga | undefined>(undefined))
-    loadYoga().then((value) => (result.value = value))
+    loadYogaImpl().then((value) => (result.value = value))
   }
   return yoga
-}
-
-export function useResourceWithParams<P, R, A extends Array<unknown>>(
-  fn: (param: P, ...additional: A) => Promise<R>,
-  param: Signal<P> | P,
-  ...additionals: A
-): Signal<R | undefined> {
-  const result = useMemo(() => signal<R | undefined>(undefined), [])
-  useEffect(() => {
-    if (!(param instanceof Signal)) {
-      let canceled = false
-      fn(param, ...additionals).then((value) => (canceled ? undefined : (result.value = value)))
-      return () => (canceled = true)
-    }
-    return effect(() => {
-      let canceled = false
-      fn(param.value, ...additionals)
-        .then((value) => (canceled ? undefined : (result.value = value)))
-        .catch(console.error)
-      return () => (canceled = true)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [param, ...additionals])
-  return result
 }
 
 /**

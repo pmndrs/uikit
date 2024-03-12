@@ -1,8 +1,7 @@
 import { signal } from '@preact/signals-core'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { setCursorType, unsetCursorType } from './cursor.js'
-import { Properties } from './properties/utils.js'
-import { AllOptionalProperties, WithClasses, traverseProperties } from './properties/default.js'
+import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { Subscriptions, createConditionalPropertyTranslator } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
 

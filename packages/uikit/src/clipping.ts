@@ -1,6 +1,4 @@
 import { Signal, computed } from '@preact/signals-core'
-import { useFrame } from '@react-three/fiber'
-import { RefObject, createContext, useContext, useMemo } from 'react'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
@@ -169,26 +167,23 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
-export function useGlobalClippingPlanes(
+export function createGlobalClippingPlanes() {
+  return [new Plane(), new Plane(), new Plane(), new Plane()]
+}
+
+export function updateGlobalClippingPlanes(
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  rootGroupRef: RefObject<Group>,
-): Array<Plane> {
-  const clippingPlanes = useMemo<Array<Plane>>(() => [new Plane(), new Plane(), new Plane(), new Plane()], [])
-  useFrame(() => {
-    const rootGroup = rootGroupRef.current
-    if (rootGroup == null) {
-      return
-    }
-    const localPlanes = clippingRect?.value?.planes
-    if (localPlanes == null) {
-      for (let i = 0; i < 4; i++) {
-        clippingPlanes[i].copy(NoClippingPlane)
-      }
-      return
-    }
+  rootGroup: Group,
+  clippingPlanes: Array<Plane>,
+): void {
+  const localPlanes = clippingRect?.value?.planes
+  if (localPlanes == null) {
     for (let i = 0; i < 4; i++) {
-      clippingPlanes[i].copy(localPlanes[i]).applyMatrix4(rootGroup.matrixWorld)
+      clippingPlanes[i].copy(NoClippingPlane)
     }
-  })
-  return clippingPlanes
+    return
+  }
+  for (let i = 0; i < 4; i++) {
+    clippingPlanes[i].copy(localPlanes[i]).applyMatrix4(rootGroup.matrixWorld)
+  }
 }

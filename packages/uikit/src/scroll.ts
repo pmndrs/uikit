@@ -1,19 +1,18 @@
 import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Group, Matrix4, MeshBasicMaterial, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
-import { FlexNode, Inset, YogaProperties } from './flex/node.js'
+import { Group, Matrix4, MeshBasicMaterial, Object3D, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
+import { FlexNode, Inset } from './flex/node.js'
 import { Color as ColorRepresentation, useFrame } from '@react-three/fiber'
-import { Subscriptions, useSignalEffect } from './utils.js'
-import { GetInstancedPanelGroup, MaterialClass, PanelGroupDependencies } from './panel/react.js'
+import { Subscriptions } from './utils.js'
+import { GetInstancedPanelGroup, PanelGroupDependencies } from './panel/react.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { InstancedPanel, PanelProperties } from './panel/instanced-panel.js'
-import { borderAliasPropertyTransformation, panelAliasPropertyTransformation } from './properties/alias.js'
-import { PropertyKeyTransformation, WithReactive } from './properties/utils.js'
 import { ElementType, OrderInfo, computeOrderInfo } from './order.js'
 import { createGetBatchedProperties } from './properties/batched.js'
 import { MergedProperties } from './properties/merged.js'
+import { MaterialClass } from './panel/panel-material.js'
+import { WithReactive } from './properties/default.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
@@ -47,91 +46,66 @@ export function computeGlobalScrollMatrix(
   })
 }
 
-export function ScrollGroup({
-  node,
-  scrollPosition,
-  children,
-}: {
-  node: FlexNode
-  scrollPosition: Signal<Vector2Tuple>
-  children?: ReactNode
-}) {
-  const ref = useRef<Group>(null)
-
-  useEffect(
-    () =>
-      effect(() => {
-        const [scrollX, scrollY] = scrollPosition.value
-        const { pixelSize } = node
-        ref.current?.position.set(-scrollX * pixelSize, scrollY * pixelSize, 0)
-        ref.current?.updateMatrix()
-      }),
-    [node, scrollPosition],
-  )
-
-  return <group ref={ref}>{children}</group>
+export function setupScrollGroup(node: FlexNode, scrollPosition: Signal<Vector2Tuple>, ref: { current: Object3D }) {
+  return effect(() => {
+    const [scrollX, scrollY] = scrollPosition.value
+    const { pixelSize } = node
+    ref.current?.position.set(-scrollX * pixelSize, scrollY * pixelSize, 0)
+    ref.current?.updateMatrix()
+  })
 }
 
-export function ScrollHandler({
-  listeners,
-  node,
-  scrollPosition,
-  children,
-}: {
-  node: FlexNode
-  scrollPosition: Signal<Vector2Tuple>
-  listeners: ScrollListeners
-  children?: ReactNode
-}) {
-  const [isScrollable, setIsScrollable] = useState(() => node.scrollable.value.some((scrollable) => scrollable))
-  useSignalEffect(() => setIsScrollable(node.scrollable.value.some((scrollable) => scrollable)), [node])
-  const onScrollRef = useRef(listeners.onScroll)
-  onScrollRef.current = listeners.onScroll
-  const downPointerMap = useMemo(() => new Map(), [])
-  const scrollVelocity = useMemo(() => new Vector2(), [])
+export function setupScrollHandler(
+  node: FlexNode,
+  scrollPosition: Signal<Vector2Tuple>,
+  ref: { current: Object3D },
+  onScrollRef: { current: ScrollListeners['onScroll'] },
+  onFrames: Array<(delta: number) => void>,
+): Signal<EventHandlers> {
+  const isScrollable = computed(() => node.scrollable.value.some((scrollable) => scrollable))
 
-  const scroll = useCallback(
-    (
-      event: ThreeEvent<WheelEvent | PointerEvent> | undefined,
-      deltaX: number,
-      deltaY: number,
-      deltaTime: number | undefined,
-      enableRubberBand: boolean,
-    ) => {
-      const [wasScrolledX, wasScrolledY] = event == null ? [false, false] : getWasScrolled(event.nativeEvent)
-      if (wasScrolledX && wasScrolledY) {
-        return
-      }
-      const [x, y] = scrollPosition.value
-      const [maxX, maxY] = node.maxScrollPosition.value
-      let [newX, newY] = scrollPosition.value
-      const [ancestorScrollableX, ancestorScrollableY] = node.anyAncestorScrollable?.value ?? [false, false]
-      if (!wasScrolledX) {
-        newX = computeScroll(x, maxX, deltaX, enableRubberBand && !ancestorScrollableX)
-      }
-      if (!wasScrolledY) {
-        newY = computeScroll(y, maxY, deltaY, enableRubberBand && !ancestorScrollableY)
-      }
-      if (deltaTime != null && deltaTime > 0) {
-        scrollVelocity.set(deltaX, deltaY).divideScalar(deltaTime)
-      }
+  const downPointerMap = new Map()
+  const scrollVelocity = new Vector2()
 
-      if (event != null) {
-        setWasScrolled(
-          event.nativeEvent,
-          wasScrolledX || Math.min(x, (maxX ?? 0) - x) > 5,
-          wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
-        )
-      }
-      if (x != newX || y != newY) {
-        scrollPosition.value = [newX, newY]
-        onScrollRef.current?.(...scrollPosition.value, event)
-      }
-    },
-    [node, scrollPosition, scrollVelocity],
-  )
+  const scroll = (
+    event: ThreeEvent<WheelEvent | PointerEvent> | undefined,
+    deltaX: number,
+    deltaY: number,
+    deltaTime: number | undefined,
+    enableRubberBand: boolean,
+  ) => {
+    const [wasScrolledX, wasScrolledY] = event == null ? [false, false] : getWasScrolled(event.nativeEvent)
+    if (wasScrolledX && wasScrolledY) {
+      return
+    }
+    const [x, y] = scrollPosition.value
+    const [maxX, maxY] = node.maxScrollPosition.value
+    let [newX, newY] = scrollPosition.value
+    const [ancestorScrollableX, ancestorScrollableY] = node.anyAncestorScrollable?.value ?? [false, false]
+    if (!wasScrolledX) {
+      newX = computeScroll(x, maxX, deltaX, enableRubberBand && !ancestorScrollableX)
+    }
+    if (!wasScrolledY) {
+      newY = computeScroll(y, maxY, deltaY, enableRubberBand && !ancestorScrollableY)
+    }
+    if (deltaTime != null && deltaTime > 0) {
+      scrollVelocity.set(deltaX, deltaY).divideScalar(deltaTime)
+    }
 
-  useFrame((_, deltaTime) => {
+    if (event != null) {
+      setWasScrolled(
+        event.nativeEvent,
+        wasScrolledX || Math.min(x, (maxX ?? 0) - x) > 5,
+        wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
+      )
+    }
+    if (x != newX || y != newY) {
+      scrollPosition.value = [newX, newY]
+      onScrollRef.current?.(...scrollPosition.value, event)
+    }
+  }
+
+  onFrames.push((deltaTime) => {
     if (downPointerMap.size > 0) {
       return
     }
@@ -163,35 +137,24 @@ export function ScrollHandler({
     scroll(undefined, deltaX, deltaY, undefined, true)
   })
 
-  const ref = useRef<Group>(null)
-
-  if (!isScrollable) {
-    return <group matrixAutoUpdate={false}>{children}</group>
-  }
-
-  return (
-    <group
-      ref={ref}
-      matrixAutoUpdate={false}
-      onPointerDown={(event) => {
+  return computed(() => {
+    if (!isScrollable.value) {
+      return {}
+    }
+    return {
+      onPointerDown: (event) => {
         let interaction = downPointerMap.get(event.pointerId)
         if (interaction == null) {
           downPointerMap.set(event.pointerId, (interaction = { timestamp: 0, point: new Vector3() }))
         }
         interaction.timestamp = performance.now() / 1000
         ref.current!.worldToLocal(interaction.point.copy(event.point))
-      }}
-      onPointerUp={(event) => {
-        downPointerMap.delete(event.pointerId)
-      }}
-      onPointerLeave={(event) => {
-        downPointerMap.delete(event.pointerId)
-      }}
-      onPointerCancel={(event) => {
-        downPointerMap.delete(event.pointerId)
-      }}
-      onContextMenu={(e) => e.nativeEvent.preventDefault()}
-      onPointerMove={(event) => {
+      },
+      onPointerUp: (event) => downPointerMap.delete(event.pointerId),
+      onPointerLeave: (event) => downPointerMap.delete(event.pointerId),
+      onPointerCancel: (event) => downPointerMap.delete(event.pointerId),
+      onContextMenu: (e) => e.nativeEvent.preventDefault(),
+      onPointerMove: (event) => {
         const prevInteraction = downPointerMap.get(event.pointerId)
 
         if (prevInteraction == null) {
@@ -210,17 +173,15 @@ export function ScrollHandler({
         }
 
         scroll(event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
-      }}
-      onWheel={(event) => {
+      },
+      onWheel: (event) => {
         if (event.defaultPrevented) {
           return
         }
         scroll(event, event.deltaX, event.deltaY, undefined, false)
-      }}
-    >
-      {children}
-    </group>
-  )
+      },
+    }
+  })
 }
 
 const wasScrolledSymbol = Symbol('was-scrolled')
@@ -291,45 +252,26 @@ export type ScrollbarProperties = {
   }
 >
 
-const scrollbarLength = 'scrollbar'.length
-
-function removeScrollbar(key: string) {
-  const firstKeyUncapitalized = key[scrollbarLength].toLowerCase()
-  return firstKeyUncapitalized + key.slice(scrollbarLength + 1)
+const scrollbarPanelPropertyRename = {
+  scrollbarColor: 'backgroundColor',
+  scrollbarBorderBottomLeftRadius: 'borderBottomLeftRadius',
+  scrollbarBorderBottomRightRadius: 'borderBottomRightRadius',
+  scrollbarBorderTopRightRadius: 'borderTopRightRadius',
+  scrollbarBorderTopLeftRadius: 'borderTopLeftRadius',
+  scrollbarBorderColor: 'borderColor',
+  scrollbarBorderBend: 'borderBend',
+  scrollbarBorderOpacity: 'borderOpacity',
+  scrollbarOpacity: 'backgroundOpacity',
 }
 
-const scrollbarPanelPropertyTransformation: PropertyKeyTransformation = (key, value, setProperty) => {
-  if (key === 'scrollbarOpacity') {
-    setProperty('backgroundOpacity', value)
-    return true
-  }
-  if (key === 'scrollbarColor') {
-    setProperty('backgroundColor', value)
-    return true
-  }
-  if(!key.startsWith("scrollbar")) {
+const scrollbarWidthPropertyKeys = ['scrollbarWidth']
 
-  }
-  key = removeScrollbar(key)
-  if (panelAliasPropertyTransformation.hasProperty(key)) {
-    panelAliasPropertyTransformation.setProperty(key, value, setProperty)
-    return
-  }
-  setProperty(key, value)
-}
-
-function isScrollbarWidthPropertyKey(key: string) {
-  return key === 'scrollbarWidth'
-}
-const borderPropertyKeys = [
+const scrollbarBorderPropertyKeys = [
   'scrollbarBorderLeft',
   'scrollbarBorderRight',
   'scrollbarBorderTop',
   'scrollbarBorderBottom',
-] as const
-function isBorderPropertyKey(key: (typeof borderPropertyKeys)[number]) {
-  return borderPropertyKeys.includes(key)
-}
+]
 
 export function createScrollbars(
   propertiesSignal: Signal<MergedProperties>,
@@ -339,7 +281,7 @@ export function createScrollbars(
   isClipped: Signal<boolean> | undefined,
   materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: OrderInfo,
+  orderInfo: Signal<OrderInfo>,
   getGroup: GetInstancedPanelGroup,
   subscriptions: Subscriptions,
 ): void {
@@ -348,24 +290,11 @@ export function createScrollbars(
     castShadow: false,
     receiveShadow: false,
   }
-  const scrollbarOrderInfo = computeOrderInfo(ElementType.Panel, undefined, groupDeps, orderInfo)
+  const scrollbarOrderInfo = computeOrderInfo(propertiesSignal, ElementType.Panel, groupDeps, orderInfo)
 
-  const getScrollbarWidth = createGetBatchedProperties<{ scrollbarWidth?: number }>(
-    propertiesSignal,
-    isScrollbarWidthPropertyKey,
-  )
-  const getBorder = createGetBatchedProperties<{
-    scrollbarBorderLeft?: number
-    scrollbarBorderRight?: number
-    scrollbarBorderBottom?: number
-    scrollbarBorderTop?: number
-  }>(propertiesSignal, isBorderPropertyKey, scrollbarBorderPropertyTransformation)
-  const borderSize = computed<Inset>(() => [
-    getBorder('borderTop') ?? 0,
-    getBorder('borderRight') ?? 0,
-    getBorder('borderBottom') ?? 0,
-    getBorder('borderLeft') ?? 0,
-  ])
+  const getScrollbarWidth = createGetBatchedProperties(propertiesSignal, scrollbarWidthPropertyKeys)
+  const getBorder = createGetBatchedProperties(propertiesSignal, scrollbarBorderPropertyKeys)
+  const borderSize = computed(() => scrollbarBorderPropertyKeys.map((key) => (getBorder(key) as number) ?? 0) as Inset)
 
   createScrollbar(
     propertiesSignal,
@@ -412,19 +341,19 @@ function createScrollbar(
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
   globalMatrix: Signal<Matrix4 | undefined>,
+  panelGroupDependencies: Signal<PanelGroupDependencies>,
   isClipped: Signal<boolean> | undefined,
-  materialClass: MaterialClass | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: OrderInfo,
+  orderInfo: Signal<OrderInfo>,
   getGroup: GetInstancedPanelGroup,
-  get: (key: 'scrollbarWidth') => number | undefined,
+  get: (key: string) => unknown,
   borderSize: ReadonlySignal<Inset>,
   subscriptions: Subscriptions,
 ) {
   const scrollbarTransformation = computed(() => {
     return computeScrollbarTransformation(
       mainIndex,
-      get('scrollbarWidth') ?? 10,
+      (get('scrollbarWidth') as number) ?? 10,
       node.size.value,
       node.maxScrollPosition.value,
       node.borderInset.value,
@@ -434,19 +363,23 @@ function createScrollbar(
   const scrollbarPosition = computed(() => (scrollbarTransformation.value?.slice(0, 2) ?? [0, 0]) as Vector2Tuple)
   const scrollbarSize = computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple)
 
-  new InstancedPanel(
-    propertiesSignal,
-    getGroup,
-    orderInfo,
-    { materialClass: materialClass ?? MeshBasicMaterial, receiveShadow: false, castShadow: false },
-    globalMatrix,
-    scrollbarSize,
-    scrollbarPosition,
-    borderSize,
-    parentClippingRect,
-    isClipped,
-    subscriptions,
-    scrollbarPanelPropertyTransformation,
+  subscriptions.push(
+    effect(() => {
+      const panel = new InstancedPanel(
+        propertiesSignal,
+        getGroup,
+        orderInfo,
+        panelGroupDependencies,
+        globalMatrix,
+        scrollbarSize,
+        scrollbarPosition,
+        borderSize,
+        parentClippingRect,
+        isClipped,
+        subscriptions,
+        scrollbarPanelPropertyRename,
+      )
+    }),
   )
 }
 
