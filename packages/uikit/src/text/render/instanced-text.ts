@@ -34,6 +34,8 @@ export class InstancedText {
   private opacity: number = 1
   private color: ColorRepresentation = 0xffffff
 
+  
+
   constructor(
     private group: InstancedGlyphGroup,
     private getAlignmentProperties: Signal<

@@ -114,7 +114,7 @@ export type GetInstancedPanelGroup = (
   panelGroupDependencies: PanelGroupDependencies,
 ) => InstancedPanelGroup
 
-const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
+export const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
 
 export function usePanelMaterials(
   collection: ManagerCollection,
