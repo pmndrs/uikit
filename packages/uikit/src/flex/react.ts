@@ -28,8 +28,9 @@ export function useDeferredRequestLayoutCalculation(): (node: FlexNode) => void 
     if (requestedNodeRef.current == null) {
       return
     }
-    requestedNodeRef.current.calculateLayout()
+    const node = requestedNodeRef.current
     requestedNodeRef.current = undefined
+    node.calculateLayout()
   })
   return useCallback((node) => {
     if (requestedNodeRef.current != null || node['yogaNode'] == null) {
