@@ -5,6 +5,7 @@
     "@react-three/eslint-plugin": "^0.1.1",
     "@react-three/fiber": "^8.15.13",
     "@react-three/uikit": "workspace:^",
+    "@react-three/uikit-lucide": "workspace:^",
     "@types/chai": "^4.3.10",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
@@ -35,7 +36,6 @@
     "yoga-layout": "^2.0.1"
   },
   "dependencies": {
-    "@react-three/uikit-lucide": "^0.1.16",
     "expo-gl": "~13.6.0"
   },
   "workspaces": [
