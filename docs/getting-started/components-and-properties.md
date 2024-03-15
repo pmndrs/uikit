@@ -392,17 +392,17 @@ The `FontFamilyProvider` component allows you to use the specified font families
 
 uikit allows you to declare properties that depend on the element's interaction state, similar to CSS selectors, such as `:hover`. Conditional properties also enable elements in the layout to be responsive based on several breakpoints. uikit supports a range of conditional properties:
 
-| Name   | Explanation                                                      |
-| ------ | ---------------------------------------------------------------- |
-| focus  | when the element is focussed (currently only available on input) |
-| hover  | when the user hovers over the element                            |
-| active | when the users clicks (pointer down) on the element              |
-| sm     | when the width of the root element is bigger than 640            |
-| md     | when the width of the root element is bigger than 768            |
-| lg     | when the width of the root element is bigger than 1024           |
-| xl     | when the width of the root element is bigger than 1280           |
-| 2xl    | when the width of the root element is bigger than 1536           |
-| dark   | when the preferred color scheme is dark                          |
+| Name   | Explanation                                                                |
+| ------ | -------------------------------------------------------------------------- |
+| focus  | when the user has focussed the element (currently only available on input) |
+| hover  | when the user hovers over the element                                      |
+| active | when the users clicks (pointer down) on the element                        |
+| sm     | when the width of the root element is bigger than 640                      |
+| md     | when the width of the root element is bigger than 768                      |
+| lg     | when the width of the root element is bigger than 1024                     |
+| xl     | when the width of the root element is bigger than 1280                     |
+| 2xl    | when the width of the root element is bigger than 1536                     |
+| dark   | when the preferred color scheme is dark                                    |
 
 ```jsx
 <Fullscreen flexDirection="column" md={{ flexDirection: 'row' }}>
