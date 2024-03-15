@@ -16,6 +16,7 @@
     "@types/react": "~18.2.45",
     "@types/three": "^0.161.0",
     "expo": "~50.0.11",
+    "expo-gl": "~13.6.0",
     "expo-status-bar": "~1.11.1",
     "expo-three": "^7.0.0",
     "metro-react-native-babel-preset": "^0.77.0",

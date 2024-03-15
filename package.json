@@ -35,9 +35,6 @@
     "vite": "^5.0.12",
     "yoga-layout": "^2.0.1"
   },
-  "dependencies": {
-    "expo-gl": "~13.6.0"
-  },
   "workspaces": [
     "packages/uikit",
     "packages/icons/*",
