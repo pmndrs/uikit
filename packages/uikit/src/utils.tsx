@@ -98,10 +98,14 @@ export function readReactive<T>(value: T | Signal<T>): T {
   return value instanceof Signal ? value.value : value
 }
 
-const RootGroupRefContext = createContext<RefObject<Group>>(null as any)
+const RootGroupRefContext = createContext<RefObject<Group> | undefined>(undefined)
 
 export function useRootGroupRef() {
-  return useContext(RootGroupRefContext)
+  const rootGroupRef = useContext(RootGroupRefContext)
+  if (rootGroupRef == null) {
+    throw new Error(`Can only be used inside a <Root> component.`)
+  }
+  return rootGroupRef
 }
 
 export const RootGroupProvider = RootGroupRefContext.Provider

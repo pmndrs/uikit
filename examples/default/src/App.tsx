@@ -30,6 +30,7 @@ import { SwitchDemo } from './components/switch'
 import { TabsDemo } from './components/tabs'
 import { ToggleDemo } from './components/toggle'
 import { ToggleGroupDemo } from './components/toggle-group'
+import InputDemo from './components/input'
 
 const componentPages = {
   accordion: AccordionDemo,
@@ -53,6 +54,7 @@ const componentPages = {
   toggle: ToggleDemo,
   'toggle-group': ToggleGroupDemo,
   tooltip: TooltipDemo,
+  input: InputDemo,
 }
 
 const defaultComponent = 'card'

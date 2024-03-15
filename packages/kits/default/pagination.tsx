@@ -1,6 +1,6 @@
 import { Container, Text } from '@react-three/uikit'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from '@react-three/uikit-lucide'
-import { ComponentPropsWithoutRef } from 'react'
+import React, { ComponentPropsWithoutRef } from 'react'
 import { colors } from './theme'
 
 export function Pagination(props: ComponentPropsWithoutRef<typeof Container>) {

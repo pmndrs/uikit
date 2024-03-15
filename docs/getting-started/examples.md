@@ -17,4 +17,7 @@ nav: 2
   <li>
     [![Screenshot from Lucide example](./example-lucide.png)](https://pmndrs.github.io/uikit/examples/lucide/)
   </li>
+  <li>
+    [![Screenshot from Auth example](./example-auth.png)](https://pmndrs.github.io/uikit/examples/auth/)
+  </li>
 </Grid>

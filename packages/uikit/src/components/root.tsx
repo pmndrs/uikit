@@ -6,7 +6,7 @@ import {
   InteractionGroup,
   MaterialClass,
   ShadowProperties,
-  useGetInstancedPanelGroup,
+  useCreateGetInstancedPanelGroup,
   useInstancedPanel,
   useInteractionPanel,
   usePanelGroupDependencies,
@@ -35,7 +35,7 @@ import {
 import { TransformProperties, useTransformMatrix } from '../transform.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
-import { InstancedGlyphProvider, useGetInstancedGlyphGroup } from '../text/react.js'
+import { InstancedGlyphProvider, useCreateGetInstancedGlyphGroup } from '../text/react.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { RootSizeProvider, useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, patchRenderOrder, useOrderInfo } from '../order.js'
@@ -106,8 +106,8 @@ export const Root = forwardRef<
     result.matrixAutoUpdate = false
     return result
   }, [])
-  const getPanelGroup = useGetInstancedPanelGroup(pixelSize, node.cameraDistance, groupsContainer)
-  const getGylphGroup = useGetInstancedGlyphGroup(pixelSize, node.cameraDistance, groupsContainer)
+  const getPanelGroup = useCreateGetInstancedPanelGroup(pixelSize, node.cameraDistance, groupsContainer)
+  const getGylphGroup = useCreateGetInstancedGlyphGroup(pixelSize, node.cameraDistance, groupsContainer)
 
   const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
   const orderInfo = useOrderInfo(ElementType.Panel, undefined, groupDeps)

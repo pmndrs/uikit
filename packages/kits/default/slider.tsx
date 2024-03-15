@@ -1,6 +1,6 @@
 import { Container, ComponentInternals } from '@react-three/uikit'
 import { colors } from './theme'
-import { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Vector3 } from 'three'
 

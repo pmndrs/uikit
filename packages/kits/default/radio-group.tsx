@@ -1,11 +1,11 @@
 import { Container } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
+import React, { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
 import { colors } from './theme'
 
 const RadioGroupContext = createContext<{
   value?: string
   setValue?: (value: string) => void
-}>(null as any)
+}>({})
 
 export function RadioGroup({
   defaultValue,

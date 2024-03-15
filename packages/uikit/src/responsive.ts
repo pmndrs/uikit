@@ -24,7 +24,7 @@ export function useRootSize() {
   return useContext(RootSizeContext)
 }
 
-const RootSizeContext = createContext<Signal<Vector2Tuple>>(null as any)
+const RootSizeContext = createContext<Signal<Vector2Tuple> | undefined>(undefined)
 
 export const RootSizeProvider = RootSizeContext.Provider
 
@@ -35,6 +35,9 @@ export function useApplyResponsiveProperties(
 ): void {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const size = providedSize ?? useContext(RootSizeContext)
+  if (size == null) {
+    throw new Error(`Can only be used inside a <Root> component.`)
+  }
   const translator = useMemo(
     () => ({
       sm: createConditionalPropertyTranslator(() => size.value[0] > breakPoints.sm),

@@ -17,6 +17,7 @@ export type HoverEventHandlers = Pick<EventHandlers, 'onPointerOver' | 'onPointe
 export function useApplyHoverProperties(
   collection: ManagerCollection,
   properties: WithClasses<WithHover<Properties>> & EventHandlers,
+  defaultCursor?: string,
 ): HoverEventHandlers | undefined {
   const hoveredSignal = useMemo(() => signal<Array<number>>([]), [])
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,7 +36,8 @@ export function useApplyHoverProperties(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => unsetCursorType(hoveredSignal), [])
 
-  if (!hoverPropertiesExist && properties.onHoverChange == null && properties.cursor == null) {
+  const cursor = properties.cursor ?? defaultCursor
+  if (!hoverPropertiesExist && properties.onHoverChange == null && cursor == null) {
     //no need to listen to hover
     hoveredSignal.value.length = 0
     return undefined
@@ -46,8 +48,8 @@ export function useApplyHoverProperties(
       if (properties.onHoverChange != null && hoveredSignal.value.length === 1) {
         properties.onHoverChange(true)
       }
-      if (properties.cursor != null) {
-        setCursorType(hoveredSignal, properties.cursor)
+      if (cursor != null) {
+        setCursorType(hoveredSignal, cursor)
       }
     },
     onPointerOut: (e) => {

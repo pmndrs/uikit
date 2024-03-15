@@ -251,6 +251,30 @@ The `Text` component allows you to render of text and is highly intertwined with
 
 </details>
 
+## Input
+
+The `Input` component extends the `Text` component and allows the user to change the text through their preferred input device. The `Input` component has all the formatting capabilities as the `Text` element. Additionally, it allows specifying whether the `multiline` texts are allowed (similar to a textarea), whether the input is `disabled,` the current `value,` the `defaultValue,` an `onValueChange` listener, and the `tabIndex` to customize the tab order.
+
+```jsx
+<Root>
+  <Input fontWeight="bold" defaultValue="Hello World" />
+</Root>
+```
+
+<details>
+<summary>View all properties specific to the `Input` component</summary>
+
+| Property      | Type                    |
+| ------------- | ----------------------- |
+| multiline     | boolean                 |
+| value         | string                  |
+| defaultValue  | string                  |
+| onValueChange | (value: string) => void |
+| tabIndex      | number                  |
+| disabled      | boolean                 |
+
+</details>
+
 ## SVG
 
 The `SVG` component allows rendering an SVG file. The URL of the file is provided in the `src` property. Additionally, the `opacity`, `color`, and `materialClass` properties can be used to transform the appearance of the SVG, and all the `Container` properties are available for styling the background panel.
@@ -368,16 +392,17 @@ The `FontFamilyProvider` component allows you to use the specified font families
 
 uikit allows you to declare properties that depend on the element's interaction state, similar to CSS selectors, such as `:hover`. Conditional properties also enable elements in the layout to be responsive based on several breakpoints. uikit supports a range of conditional properties:
 
-| Name   | Explanation                                            |
-| ------ | ------------------------------------------------------ |
-| hover  | when the user hovers over the element                  |
-| active | when the users clicks (pointer down) on the element    |
-| sm     | when the width of the root element is bigger than 640  |
-| md     | when the width of the root element is bigger than 768  |
-| lg     | when the width of the root element is bigger than 1024 |
-| xl     | when the width of the root element is bigger than 1280 |
-| 2xl    | when the width of the root element is bigger than 1536 |
-| dark   | when the preferred color scheme is dark                |
+| Name   | Explanation                                                                |
+| ------ | -------------------------------------------------------------------------- |
+| focus  | when the user has focussed the element (currently only available on input) |
+| hover  | when the user hovers over the element                                      |
+| active | when the users clicks (pointer down) on the element                        |
+| sm     | when the width of the root element is bigger than 640                      |
+| md     | when the width of the root element is bigger than 768                      |
+| lg     | when the width of the root element is bigger than 1024                     |
+| xl     | when the width of the root element is bigger than 1280                     |
+| 2xl    | when the width of the root element is bigger than 1536                     |
+| dark   | when the preferred color scheme is dark                                    |
 
 ```jsx
 <Fullscreen flexDirection="column" md={{ flexDirection: 'row' }}>

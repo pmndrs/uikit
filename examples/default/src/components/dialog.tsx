@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog.js'
+} from '@/dialog'
 
 export function DialogDemo() {
   return (

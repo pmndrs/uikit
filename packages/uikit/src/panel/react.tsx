@@ -22,6 +22,7 @@ export function InteractionGroup({
   handlers,
   hoverHandlers,
   activeHandlers,
+  inputHandlers,
   matrix,
   children,
   groupRef,
@@ -30,6 +31,7 @@ export function InteractionGroup({
   hoverHandlers: HoverEventHandlers | undefined
   activeHandlers: ActiveEventHandlers | undefined
   matrix: Signal<Matrix4 | undefined>
+  inputHandlers?: Pick<EventHandlers, 'onPointerDown' | 'onPointerUp' | 'onPointerMove'>
   children?: ReactNode
   groupRef: RefObject<Group>
 }) {
@@ -47,11 +49,17 @@ export function InteractionGroup({
       onPointerOut={mergeHandlers(handlers.onPointerOut, hoverHandlers?.onPointerOut)}
       onPointerOver={mergeHandlers(handlers.onPointerOver, hoverHandlers?.onPointerOver)}
       /** handlers + active handlers */
-      onPointerUp={mergeHandlers(handlers.onPointerUp, activeHandlers?.onPointerUp)}
-      onPointerDown={mergeHandlers(handlers.onPointerDown, activeHandlers?.onPointerDown)}
+      onPointerUp={mergeHandlers(
+        handlers.onPointerUp,
+        mergeHandlers(activeHandlers?.onPointerUp, inputHandlers?.onPointerUp),
+      )}
+      onPointerDown={mergeHandlers(
+        handlers.onPointerDown,
+        mergeHandlers(activeHandlers?.onPointerDown, inputHandlers?.onPointerDown),
+      )}
       onPointerLeave={mergeHandlers(handlers.onPointerLeave, activeHandlers?.onPointerLeave)}
       /** only handlers */
-      onPointerMove={handlers.onPointerMove}
+      onPointerMove={mergeHandlers(handlers.onPointerMove, inputHandlers?.onPointerMove)}
       onWheel={handlers.onWheel}
       onClick={handlers.onClick}
       onContextMenu={handlers.onContextMenu}
@@ -114,7 +122,15 @@ export type GetInstancedPanelGroup = (
   panelGroupDependencies: PanelGroupDependencies,
 ) => InstancedPanelGroup
 
-const InstancedPanelContext = createContext<GetInstancedPanelGroup>(null as any)
+const InstancedPanelContext = createContext<GetInstancedPanelGroup | undefined>(undefined)
+
+export function useGetInstancedPanelGroup() {
+  const get = useContext(InstancedPanelContext)
+  if (get == null) {
+    throw new Error(`Can only be used inside a <Root> component.`)
+  }
+  return get
+}
 
 export function usePanelMaterials(
   collection: ManagerCollection,
@@ -181,7 +197,7 @@ export function useInstancedPanel(
   providedGetGroup?: GetInstancedPanelGroup,
 ): void {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const getGroup = providedGetGroup ?? useContext(InstancedPanelContext)
+  const getGroup = providedGetGroup ?? useGetInstancedPanelGroup()
   const panel = useMemo(
     () =>
       new InstancedPanel(
@@ -201,7 +217,7 @@ export function useInstancedPanel(
   useBatchedProperties(collection, panel, propertyTransformation)
 }
 
-export function useGetInstancedPanelGroup(
+export function useCreateGetInstancedPanelGroup(
   pixelSize: number,
   cameraDistance: CameraDistanceRef,
   groupsContainer: Group,

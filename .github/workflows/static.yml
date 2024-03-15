@@ -102,12 +102,14 @@ jobs:
           mkdir -p public/examples/default
           mkdir -p public/examples/lucide
           mkdir -p public/examples/market
+          mkdir -p public/examples/auth
           cp -r ./examples/apfel/dist/* ./public/examples/apfel
           cp -r ./examples/card/dist/* ./public/examples/card
           cp -r ./examples/dashboard/dist/* ./public/examples/dashboard
           cp -r ./examples/default/dist/* ./public/examples/default
           cp -r ./examples/lucide/dist/* ./public/examples/lucide
           cp -r ./examples/market/dist/* ./public/examples/market
+          cp -r ./examples/auth/dist/* ./public/examples/auth
 
 # Deploy to GH Pages
       - name: Add no jekyll

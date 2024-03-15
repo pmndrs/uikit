@@ -1,6 +1,6 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { colors } from './theme'
-import {
+import React, {
   ComponentPropsWithoutRef,
   ReactNode,
   createContext,
@@ -16,7 +16,7 @@ import { X } from '@react-three/uikit-lucide'
 
 type DialogAnchorSetElement = (prevElement: ReactNode | undefined, element: ReactNode | undefined) => void
 
-const DialogAnchorContext = createContext<DialogAnchorSetElement>(null as any)
+const DialogAnchorContext = createContext<DialogAnchorSetElement | undefined>(undefined)
 
 export function DialogAnchor({ children }: { children?: ReactNode }) {
   const [element, setElement] = useState<ReactNode | undefined>(undefined)
@@ -36,10 +36,21 @@ const DialogAnchorProvider = memo(({ children, set }: { children?: ReactNode; se
   return <DialogAnchorContext.Provider value={set}>{children}</DialogAnchorContext.Provider>
 })
 
-const DialogContext = createContext<{
-  setOpen: (open: boolean) => void
-  setContent: (element: ReactNode) => void
-}>(null as any)
+const DialogContext = createContext<
+  | {
+      setOpen: (open: boolean) => void
+      setContent: (element: ReactNode) => void
+    }
+  | undefined
+>(undefined)
+
+export function useDialogContext() {
+  const ctx = useContext(DialogContext)
+  if (ctx == null) {
+    throw new Error(`Can only be used inside a <Dialog> component.`)
+  }
+  return ctx
+}
 
 export function Dialog({
   children,
@@ -55,6 +66,9 @@ export function Dialog({
   const [uncontrolled, setUncontrolled] = useState(defaultOpen ?? false)
   const open = providedOpen ?? uncontrolled
   const setElement = useContext(DialogAnchorContext)
+  if (setElement == null) {
+    throw new Error(`Can only be used inside a <DialogAnchor> component.`)
+  }
   const contentRef = useRef<ReactNode | undefined>(undefined)
   const displayedRef = useRef<ReactNode | undefined>(undefined)
   useEffect(() => {
@@ -94,7 +108,7 @@ export function Dialog({
 }
 
 export function DialogTrigger({ children }: { children?: ReactNode }) {
-  const { setOpen } = useContext(DialogContext)
+  const { setOpen } = useDialogContext()
   return <Container onClick={() => setOpen(true)}>{children}</Container>
 }
 
@@ -114,12 +128,12 @@ export function DialogOverlay(props: ComponentPropsWithoutRef<typeof Container>)
 }
 
 export function useCloseDialog() {
-  const { setOpen } = useContext(DialogContext)
+  const { setOpen } = useDialogContext()
   return useCallback(() => setOpen(false), [setOpen])
 }
 
 export function DialogContentPrimitive({ children }: { children?: ReactNode }) {
-  const dialogContext = useContext(DialogContext)
+  const dialogContext = useDialogContext()
   useEffect(() =>
     dialogContext.setContent(<DialogContext.Provider value={dialogContext}>{children}</DialogContext.Provider>),
   )

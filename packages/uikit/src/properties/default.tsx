@@ -6,7 +6,7 @@ import { ImageProperties } from '../components/image.js'
 import { RootProperties } from '../components/root.js'
 import { SvgProperties } from '../components/svg.js'
 import { CustomContainerProperties } from '../components/custom.js'
-import { TextProperties } from '../index.js'
+import { InputProperties, TextProperties } from '../index.js'
 
 export type AllOptionalProperties =
   | ContainerProperties
@@ -16,8 +16,9 @@ export type AllOptionalProperties =
   | RootProperties
   | SvgProperties
   | TextProperties
+  | InputProperties
 
-const DefaultPropertiesContext = createContext<AllOptionalProperties>(null as any)
+const DefaultPropertiesContext = createContext<AllOptionalProperties | undefined>(undefined)
 
 export type WithClasses<T> = T & { classes?: T | Array<T> }
 
