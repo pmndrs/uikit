@@ -24,9 +24,12 @@
     "@react-three/uikit": "workspace:^"
   },
   "devDependencies": {
-    "oslllo-svg-fixer": "^3.0.0",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.47",
-    "lucide-static": "^0.331.0"
+    "lucide-static": "^0.331.0",
+    "oslllo-svg-fixer": "^3.0.0"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
   }
 }
