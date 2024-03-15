@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@react-three/uikit-lucide':
-        specifier: ^0.1.16
-        version: 0.1.16(@react-three/fiber@8.15.19)(react@18.2.0)(three@0.161.0)
       expo-gl:
         specifier: ~13.6.0
         version: 13.6.0(expo@50.0.11)
@@ -27,6 +24,9 @@ importers:
       '@react-three/uikit':
         specifier: workspace:^
         version: link:packages/uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:packages/icons/lucide
       '@types/chai':
         specifier: ^4.3.10
         version: 4.3.12
@@ -3701,36 +3701,6 @@ packages:
       three: 0.161.0
       three-stdlib: 2.23.9(three@0.161.0)
       use-asset: 1.0.4(react@18.2.0)
-    dev: false
-
-  /@react-three/uikit-lucide@0.1.16(@react-three/fiber@8.15.19)(react@18.2.0)(three@0.161.0):
-    resolution: {integrity: sha512-SlUerPtcWgzqK+fi3uNNbo21i/4m1iv3p4iizXnDZzvSvltPRdvyF1S9mZdnD2upr+THB4y19L9lOPmgkEkWbA==}
-    dependencies:
-      '@react-three/uikit': 0.1.16(@react-three/fiber@8.15.19)(react@18.2.0)(three@0.161.0)
-    transitivePeerDependencies:
-      - '@react-three/fiber'
-      - react
-      - three
-    dev: false
-
-  /@react-three/uikit@0.1.16(@react-three/fiber@8.15.19)(react@18.2.0)(three@0.161.0):
-    resolution: {integrity: sha512-ICWIP+oBwe5eQxeQssUPzK4OTXuuUJEUL3yyiBfE2pEfjHaH9StFBNvJe1pO2WsWGJPkAQsZqZeYxag/LGvplw==}
-    hasBin: true
-    peerDependencies:
-      '@react-three/fiber': '>=8'
-      react: '>=18'
-      three: '>=0.160'
-    dependencies:
-      '@preact/signals-core': 1.5.1
-      '@react-three/fiber': 8.15.19(expo-gl@13.6.0)(expo@50.0.11)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
-      chalk: 5.3.0
-      commander: 12.0.0
-      ora: 8.0.1
-      prompts: 2.4.2
-      react: 18.2.0
-      three: 0.161.0
-      yoga-layout: 2.0.1
-      zod: 3.22.4
     dev: false
 
   /@resvg/resvg-js-android-arm-eabi@2.6.0:
