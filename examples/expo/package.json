@@ -1,28 +1,28 @@
 {
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android --reset-cache",
-    "ios": "expo start --ios --reset-cache",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web --reset-cache"
   },
   "main": "index.js",
-  "type": "module",
   "dependencies": {
     "@babel/core": "^7.24.0",
     "@expo/metro-runtime": "~3.1.3",
     "@react-native/metro-config": "^0.73.5",
-    "@rnx-kit/metro-config": "^1.3.15",
-    "@rnx-kit/metro-resolver-symlinks": "^0.1.35",
+    "@react-three/uikit": "workspace:*",
+    "@react-three/uikit-default": "workspace:*",
+    "@react-three/uikit-lucide": "workspace:^",
     "@types/react": "~18.2.45",
     "@types/three": "^0.161.0",
     "expo": "~50.0.11",
     "expo-status-bar": "~1.11.1",
     "expo-three": "^7.0.0",
-    "metro-react-native-babel-preset": "^0.77.0"
+    "metro-react-native-babel-preset": "^0.77.0",
+    "react": "18.2.0",
+    "react-native": "0.73.5",
+    "yoga-layout": "2.0.1"
   },
-  "devDependencies": {
-    "react-native": "0.73.4",
-    "react-native-web": "~0.19.6"
-  },
-  "legacy-peer-deps": true
+  "name": "uikit-expo",
+  "version": "1.0.0"
 }

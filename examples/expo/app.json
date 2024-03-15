@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "r3f-ui-ts",
-    "slug": "r3f-ui-ts",
+    "name": "uikit",
+    "slug": "uikit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,11 +11,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "org.pmndrs.uikit"
     },
     "android": {
       "adaptiveIcon": {
