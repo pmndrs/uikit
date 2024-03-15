@@ -37,5 +37,11 @@
   "dependencies": {
     "@react-three/uikit-lucide": "^0.1.16",
     "expo-gl": "~13.6.0"
-  }
+  },
+  "workspaces": [
+    "packages/uikit",
+    "packages/icons/*",
+    "packages/kits/*",
+    "examples/expo"
+  ]
 }
