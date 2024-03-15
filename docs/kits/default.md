@@ -381,7 +381,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog.js'
+} from '@/dialog'
 
 export function DialogDemo() {
   return (
@@ -919,5 +919,27 @@ export function TooltipDemo() {
 [Live View](https://pmndrs.github.io/uikit/examples/default/?component=tooltip)   
 ```bash
 npx uikit component add default tooltip
+```
+
+## Input
+![input example image](./default/input.png)
+
+<details>
+<summary>Code</summary>
+
+```tsx
+import { Input } from '@/input'
+
+export default function InputDemo() {
+  return <Input width={200} placeholder="Email" />
+}
+
+```
+
+</details>
+
+[Live View](https://pmndrs.github.io/uikit/examples/default/?component=input)   
+```bash
+npx uikit component add default input
 ```
 

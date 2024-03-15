@@ -1,5 +1,5 @@
 import { DefaultProperties } from '@react-three/uikit'
-import { ReactNode } from 'react'
+import React, { ReactNode } from 'react'
 
 export function Label({ disabled, children }: { disabled?: boolean; children?: ReactNode }) {
   return (

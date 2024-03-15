@@ -1,4 +1,4 @@
-import { Group, Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Vector3 } from 'three'
+import { Group, Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Vector2, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { RefObject } from 'react'
@@ -8,11 +8,17 @@ const planeHelper = new Plane()
 const vectorHelper = new Vector3()
 
 const sides: Array<Plane> = [
+  //left
   new Plane().setFromNormalAndCoplanarPoint(new Vector3(1, 0, 0), new Vector3(-0.5, 0, 0)),
+  //right
   new Plane().setFromNormalAndCoplanarPoint(new Vector3(-1, 0, 0), new Vector3(0.5, 0, 0)),
+  //bottom
   new Plane().setFromNormalAndCoplanarPoint(new Vector3(0, 1, 0), new Vector3(0, -0.5, 0)),
+  //top
   new Plane().setFromNormalAndCoplanarPoint(new Vector3(0, -1, 0), new Vector3(0, 0.5, 0)),
 ]
+
+const distancesHelper = [0, 0, 0, 0]
 
 export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
   return (raycaster: Raycaster, intersects: Array<Intersection<Object3D<Object3DEventMap>>>) => {
@@ -32,7 +38,7 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
     for (let i = 0; i < 4; i++) {
       const side = sides[i]
       planeHelper.copy(side).applyMatrix4(matrixWorld)
-      if (planeHelper.distanceToPoint(vectorHelper) < 0) {
+      if ((distancesHelper[i] = planeHelper.distanceToPoint(vectorHelper)) < 0) {
         return
       }
     }
@@ -41,6 +47,10 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
       distance: vectorHelper.distanceTo(raycaster.ray.origin),
       object: mesh,
       point: vectorHelper.clone(),
+      uv: new Vector2(
+        distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
+        distancesHelper[3] / (distancesHelper[2] + distancesHelper[3]),
+      ),
       normal,
     })
   }

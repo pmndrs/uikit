@@ -16,6 +16,7 @@ import { TabsOnCard } from './components/tabs'
 import { TabBarWithText } from './components/tab-bar'
 import { ProgressBarsOnCard } from './components/progress'
 import { LoadingSpinnersOnCard } from './components/loading'
+import { InputsOnCard } from './components/input'
 
 const componentPages = {
   card: TextOnCard,
@@ -27,6 +28,7 @@ const componentPages = {
   'tab-bar': TabBarWithText,
   progress: ProgressBarsOnCard,
   loading: LoadingSpinnersOnCard,
+  input: InputsOnCard,
 }
 const defaultComponent = 'button'
 

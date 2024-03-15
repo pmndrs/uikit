@@ -1,5 +1,5 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, createContext, useContext, useMemo, useRef, useState } from 'react'
 import { GlassMaterial, colors } from './theme'
 
 type TabsContext = {

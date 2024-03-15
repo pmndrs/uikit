@@ -1,5 +1,5 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, ReactNode, createContext, useContext } from 'react'
+import React, { ComponentPropsWithoutRef, ReactNode, createContext, useContext } from 'react'
 import { colors } from './theme'
 
 type Type = 'plain' | 'inset'

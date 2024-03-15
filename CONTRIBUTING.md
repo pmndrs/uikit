@@ -16,7 +16,8 @@ pnpm -F "./packages/**/*" build
 Locally run examples with:
 
 ```bash
-yarn examples
+cd examples/dashboard
+pnpm dev
 ```
 
 **Important**

@@ -13,6 +13,7 @@ import {
   Fullscreen,
   Portal,
   SuspendingImage,
+  Input,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/skeleton'
@@ -49,7 +50,7 @@ export default function App() {
         </Portal>
         <Container backgroundColor="blue" width={100} positionType="relative">
           <Container>
-            <Text>Escribe algo...</Text>
+            <Text height={100}>Escribe algo...</Text>
           </Container>
           <Container backgroundColor="red" positionType="absolute" positionTop="100%" positionRight="100%">
             <Text>Escribe algo...</Text>
@@ -116,7 +117,13 @@ export default function App() {
               width={300}
               overflow="scroll"
             >
-              <Text backgroundColor="black" padding={10}>
+              <Text
+                minHeight={100}
+                backgroundColor="black"
+                verticalAlign="center"
+                horizontalAlign="center"
+                padding={10}
+              >
                 Hello World!
               </Text>
               <Text backgroundColor="black" padding={10}>
@@ -133,15 +140,7 @@ export default function App() {
           </Suspense>
         </DefaultProperties>
 
-        <Container
-          positionType="relative"
-          width="60%"
-          height="60%"
-          alignItems="center"
-          justifyContent="center"
-          backgroundColor="green"
-          zIndexOffset={1}
-        >
+        <Container positionType="relative" width="60%" alignItems="center" justifyContent="center" zIndexOffset={1}>
           <Container
             width={100}
             height={100}
@@ -151,7 +150,19 @@ export default function App() {
             marginRight={10}
             backgroundColor="red"
           ></Container>
-          <Text>Hello world</Text>
+          <Input
+            backgroundColor="white"
+            width="100%"
+            height="100%"
+            fontSize={100}
+            color="red"
+            wordBreak="keep-all"
+            focus={{ borderRadius: 20 }}
+            verticalAlign="center"
+            horizontalAlign="center"
+            multiline
+            defaultValue="Hello world"
+          />
         </Container>
 
         {show ? (

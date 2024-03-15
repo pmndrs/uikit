@@ -3,7 +3,7 @@ import { InstancedText, TextAlignProperties, TextAppearanceProperties } from './
 import { InstancedGlyphGroup } from './render/instanced-glyph-group.js'
 import { MutableRefObject, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { FlexNode } from '../flex/node.js'
-import { Group, Matrix4 } from 'three'
+import { Group, Matrix4, Vector2Tuple, Vector3Tuple } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { ManagerCollection, useGetBatchedProperties } from '../properties/utils.js'
 import { readReactive, useSignalEffect } from '../utils.js'
@@ -12,15 +12,16 @@ import { MeasureFunction, MeasureMode } from 'yoga-layout/wasm-async'
 import { Font } from './font.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, measureGlyphLayout } from './layout.js'
 import { useFrame, useThree } from '@react-three/fiber'
-import { CameraDistanceRef, ElementType, OrderInfo } from '../order.js'
+import { CameraDistanceRef, ElementType, OrderInfo, useOrderInfo } from '../order.js'
+import { SelectionBoxes } from '../selection.js'
 
 export type GetInstancedGlyphGroup = (majorIndex: number, font: Font) => InstancedGlyphGroup
 
-const InstancedGlyphContext = createContext<GetInstancedGlyphGroup>(null as any)
+const InstancedGlyphContext = createContext<GetInstancedGlyphGroup | undefined>(undefined)
 
 export const InstancedGlyphProvider = InstancedGlyphContext.Provider
 
-export function useGetInstancedGlyphGroup(
+export function useCreateGetInstancedGlyphGroup(
   pixelSize: number,
   cameraDistance: CameraDistanceRef,
   groupsContainer: Group,
@@ -119,9 +120,17 @@ export function useInstancedText(
   node: FlexNode,
   isHidden: Signal<boolean> | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: OrderInfo,
+  parentOrderInfo: OrderInfo,
+  selectionRange?: Signal<Vector2Tuple | undefined> | undefined,
+  selectionBoxes?: Signal<SelectionBoxes> | undefined,
+  caretPosition?: Signal<Vector3Tuple | undefined> | undefined,
+  ref?: MutableRefObject<InstancedText | undefined> | undefined,
 ) {
+  const orderInfo = useOrderInfo(ElementType.Text, undefined, undefined, parentOrderInfo)
   const getGroup = useContext(InstancedGlyphContext)
+  if (getGroup == null) {
+    throw new Error(`Can only be used inside a <Root> component.`)
+  }
   const fontSignal = useFont(collection)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const textSignal = useMemo(() => signal<string | Signal<string> | Array<string | Signal<string>>>(text), [])
@@ -166,9 +175,15 @@ export function useInstancedText(
       matrix,
       isHidden,
       parentClippingRect,
+      selectionRange,
+      selectionBoxes,
+      caretPosition,
     )
+    if (ref != null) {
+      ref.current = instancedText
+    }
     return () => instancedText.destroy()
-  }, [getGroup, matrix, node, isHidden, parentClippingRect, orderInfo.majorIndex])
+  }, [getGroup, matrix, node, isHidden, parentClippingRect, orderInfo.majorIndex, selectionBoxes, ref])
 
   return measureFunc
 }
@@ -249,28 +264,20 @@ export function useMeasureFunc(
           return undefined
         }
         const textSignalValue = textSignal.value
-        const text = Array.isArray(textSignalValue)
-          ? textSignalValue.map((t) => readReactive(t)).join('')
-          : readReactive(textSignalValue)
-        const letterSpacing = get('letterSpacing') ?? 0
-        const lineHeight = get('lineHeight') ?? 1.2
-        const fontSize = get('fontSize') ?? 16
-        const wordBreak = get('wordBreak') ?? 'break-word'
-
-        return (width, widthMode) => {
-          const availableWidth = widthMode === MeasureMode.Undefined ? undefined : width
-          return measureGlyphLayout(
-            (propertiesRef.current = {
-              font,
-              fontSize,
-              letterSpacing,
-              lineHeight,
-              text,
-              wordBreak,
-            }),
-            availableWidth,
-          )
+        const layoutProperties: GlyphLayoutProperties = {
+          font,
+          fontSize: get('fontSize') ?? 16,
+          letterSpacing: get('letterSpacing') ?? 0,
+          lineHeight: get('lineHeight') ?? 1.2,
+          text: Array.isArray(textSignalValue)
+            ? textSignalValue.map((t) => readReactive(t)).join('')
+            : readReactive(textSignalValue),
+          wordBreak: get('wordBreak') ?? 'break-word',
         }
+        propertiesRef.current = layoutProperties
+
+        return (width, widthMode) =>
+          measureGlyphLayout(layoutProperties, widthMode === MeasureMode.Undefined ? undefined : width)
       }),
     [fontSignal, getGlyphProperties, propertiesRef, textSignal],
   )

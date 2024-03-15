@@ -99,6 +99,9 @@ export function useViewportListeners({ onIsInViewportChange }: ViewportListeners
 
 export function useGlobalMatrix(localMatrix: Signal<Matrix4 | undefined>): Signal<Matrix4 | undefined> {
   const parentMatrix = useContext(MatrixContext)
+  if (parentMatrix == null) {
+    throw new Error(`Can only be used inside a uikit component.`)
+  }
   return useMemo(
     () =>
       computed(() => {
@@ -113,7 +116,7 @@ export function useGlobalMatrix(localMatrix: Signal<Matrix4 | undefined>): Signa
   )
 }
 
-const MatrixContext = createContext<Signal<Matrix4 | undefined>>(null as any)
+const MatrixContext = createContext<Signal<Matrix4 | undefined> | undefined>(undefined)
 
 export const MatrixProvider = MatrixContext.Provider
 

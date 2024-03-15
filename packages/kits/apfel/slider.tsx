@@ -1,7 +1,7 @@
 import { ThreeEvent } from '@react-three/fiber'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { ComponentInternals, Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, ReactNode, useMemo, useRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, ReactNode, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { GlassMaterial, colors } from './theme'

@@ -60,7 +60,7 @@ function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
   return o1.minorIndex - o2.minorIndex
 }
 
-export const OrderInfoContext = createContext<OrderInfo>(null as any)
+export const OrderInfoContext = createContext<OrderInfo | undefined>(undefined)
 
 export const OrderInfoProvider = OrderInfoContext.Provider
 

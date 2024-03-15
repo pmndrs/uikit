@@ -86,7 +86,6 @@ export const Text = forwardRef<
     groupDeps,
     panelAliasPropertyTransformation,
   )
-  const orderInfo = useOrderInfo(ElementType.Text, undefined, undefined, backgroundOrderInfo)
   const measureFunc = useInstancedText(
     collection,
     properties.children,
@@ -94,7 +93,7 @@ export const Text = forwardRef<
     node,
     isClipped,
     parentClippingRect,
-    orderInfo,
+    backgroundOrderInfo,
   )
 
   useApplyProperties(collection, properties)

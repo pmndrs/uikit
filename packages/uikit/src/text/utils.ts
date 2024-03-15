@@ -11,8 +11,9 @@ export function getGlyphOffsetX(
   return (kerning + glyphInfo.xoffset) * fontSize
 }
 
-export function getGlyphOffsetY(fontSize: number, lineHeight: number, glyphInfo: GlyphInfo): number {
-  return (glyphInfo.yoffset + (lineHeight - 1) / 2) * fontSize
+export function getGlyphOffsetY(fontSize: number, lineHeight: number, glyphInfo?: GlyphInfo): number {
+  //glyphInfo undefined for the caret, which has no yoffset
+  return ((glyphInfo?.yoffset ?? 0) + (lineHeight - 1) / 2) * fontSize
 }
 
 export function getOffsetToNextGlyph(fontSize: number, glyphInfo: GlyphInfo, letterSpacing: number): number {
@@ -24,7 +25,7 @@ export function getOffsetToNextLine(lineHeight: number, fontSize: number): numbe
 }
 
 export function getGlyphLayoutWidth(layout: GlyphLayout): number {
-  return Math.max(...layout.lines.map(({ width }) => width))
+  return Math.max(...layout.lines.map(({ nonWhitespaceWidth }) => nonWhitespaceWidth))
 }
 
 export function getGlyphLayoutHeight(linesAmount: number, { lineHeight, fontSize }: GlyphLayoutProperties): number {

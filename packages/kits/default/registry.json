@@ -64,5 +64,8 @@
   },
   "tooltip": {
     "files": ["tooltip.tsx"]
+  },
+  "input": {
+    "files": ["input.tsx"]
   }
 }
