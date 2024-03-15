@@ -17,5 +17,7 @@
   "type": "module",
   "dependencies": {
     "tunnel-rat": "^0.1.2"
-  }
+  },
+  "name": "@react-three/uikit-default",
+  "version": "0.0.0"
 }
