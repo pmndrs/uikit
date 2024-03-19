@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 //TODO: type="single" collapsible
 export function AccordionDemo() {
   return (
-    <Container width={300}>
+    <Container flexDirection="column" width={300}>
       <Accordion>
         <AccordionItem value="item-1">
           <AccordionTrigger>

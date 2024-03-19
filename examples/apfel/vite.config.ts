@@ -8,6 +8,9 @@ export default defineConfig({
   plugins: [react(), basicSsl()],
   optimizeDeps: {
     include: ['@react-three/uikit-lucide', '@react-three/uikit'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   base: '/uikit/examples/apfel/',
   resolve: {

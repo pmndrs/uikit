@@ -20,6 +20,7 @@ export function AccordionItem({ children, ...props }: ComponentPropsWithoutRef<t
   return (
     <Container
       cursor="pointer"
+      flexDirection="column"
       onClick={() => setValue(isSelected ? undefined : props.value)}
       borderBottom={1}
       {...props}

@@ -82,7 +82,13 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
       <Defaults>
-        <Fullscreen scrollbarColor="black" backgroundColor={colors.background} alignItems="center" padding={32}>
+        <Fullscreen
+          flexDirection="column"
+          scrollbarColor="black"
+          backgroundColor={colors.background}
+          alignItems="center"
+          padding={32}
+        >
           <DialogAnchor>
             <Tabs alignSelf="stretch" flexGrow={1} value={component} onValueChange={setComponent}>
               <TabsList height={55} paddingBottom={10} overflow="scroll" maxWidth="100%">
@@ -96,10 +102,15 @@ export default function App() {
                 ))}
               </TabsList>
               {Object.entries(componentPages).map(([name, Component]) => (
-                <TabsContent flexGrow={1} alignItems="center" justifyContent="center" value={name} key={name}>
-                  <Container>
-                    <Component />
-                  </Container>
+                <TabsContent
+                  flexDirection="column"
+                  flexGrow={1}
+                  alignItems="center"
+                  justifyContent="center"
+                  value={name}
+                  key={name}
+                >
+                  <Component />
                 </TabsContent>
               ))}
             </Tabs>

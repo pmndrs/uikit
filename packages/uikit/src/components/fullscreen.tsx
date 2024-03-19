@@ -11,7 +11,6 @@ export const Fullscreen = forwardRef<
   ComponentInternals,
   RootProperties & {
     children?: ReactNode
-    precision?: number
     attachCamera?: boolean
     pixelSize?: number
   } & EventHandlers &

@@ -91,6 +91,8 @@ export function buildGlyphLayout(
     })
   }
 
+  console.log(text, availableWidth, lines)
+
   return {
     lines,
     availableHeight,

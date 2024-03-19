@@ -1,6 +1,6 @@
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { FlexNode, YogaProperties } from '../flex/node.js'
-import { RootGroupProvider, alignmentXMap, alignmentYMap, useLoadYoga } from '../utils.js'
+import { RootGroupProvider, alignmentXMap, alignmentYMap } from '../utils.js'
 import {
   InstancedPanelProvider,
   InteractionGroup,
@@ -42,10 +42,8 @@ import { ElementType, patchRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
 
-export const DEFAULT_PRECISION = 0.1
+//export const DEFAULT_PRECISION = 0.1
 export const DEFAULT_PIXEL_SIZE = 0.002
-
-export function useRootLayout() {}
 
 export type RootProperties = WithConditionals<
   WithClasses<
@@ -63,7 +61,6 @@ export const Root = forwardRef<
   ComponentInternals,
   RootProperties & {
     children?: ReactNode
-    precision?: number
     anchorX?: keyof typeof alignmentXMap
     anchorY?: keyof typeof alignmentYMap
     pixelSize?: number
@@ -82,19 +79,14 @@ export const Root = forwardRef<
 
   useEffect(() => patchRenderOrder(renderer), [renderer])
   const { sizeX, sizeY } = properties
-  const [precision, pixelSize] = useMemo(
-    () => [properties.precision ?? DEFAULT_PRECISION, properties.pixelSize ?? DEFAULT_PIXEL_SIZE],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  )
-  const yoga = useLoadYoga()
+  const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
   const distanceToCameraRef = useMemo(() => ({ current: 0 }), [])
   const groupRef = useRef<Group>(null)
   const requestLayout = useDeferredRequestLayoutCalculation()
   const node = useMemo(
-    () => new FlexNode(groupRef, distanceToCameraRef, yoga, precision, pixelSize, requestLayout, undefined),
+    () => new FlexNode(groupRef, distanceToCameraRef, pixelSize, requestLayout, undefined),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [requestLayout, groupRef, yoga],
+    [requestLayout, groupRef],
   )
   useImmediateProperties(collection, node, flexAliasPropertyTransformation)
   useEffect(() => () => node.destroy(), [node])

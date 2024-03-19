@@ -70,7 +70,7 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
               gap={17}
             >
               <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
-              <Container gap={4}>
+              <Container flexDirection="column" gap={4}>
                 <Text fontSize={14} lineHeight={1}>
                   {notification.title}
                 </Text>

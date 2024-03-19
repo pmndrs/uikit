@@ -7,7 +7,7 @@ import { useState } from 'react'
 export function InputsOnCard() {
   const [text, setText] = useState('')
   return (
-    <Card borderRadius={32} padding={16}>
+    <Card flexDirection="column" borderRadius={32} padding={16}>
       <Container flexDirection="row" gapColumn={16}>
         <Container flexDirection="column" alignItems="stretch" gapRow={16} width={300}>
           <Input value={text} onValueChange={setText} variant="rect" placeholder="Placeholder" />

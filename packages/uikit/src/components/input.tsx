@@ -52,10 +52,10 @@ export type InputProperties = WithFocus<TextProperties>
 
 export type InputInternals = ComponentInternals & { readonly value: string | ReadonlySignal<string>; focus: () => void }
 
-const cancelMap = new Map<PointerEvent, number>()
+const cancelSet = new Set<PointerEvent>()
 
 function cancelBlur(event: PointerEvent) {
-  cancelMap.delete(event)
+  cancelSet.add(event)
 }
 
 export const canvasInputProps = {
@@ -63,13 +63,11 @@ export const canvasInputProps = {
     if (!(document.activeElement instanceof HTMLElement)) {
       return
     }
+    if (!cancelSet.has(e.nativeEvent)) {
+      return
+    }
+    cancelSet.delete(e.nativeEvent)
     e.preventDefault()
-    const element = document.activeElement
-    const ref = setTimeout(() => {
-      cancelMap.delete(e.nativeEvent)
-      element.blur()
-    })
-    cancelMap.set(e.nativeEvent, ref as any)
   },
 }
 

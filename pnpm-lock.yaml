@@ -468,8 +468,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       yoga-layout:
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^3.0.2
+        version: 3.0.2
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -7127,8 +7127,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yoga-layout@2.0.1:
-    resolution: {integrity: sha512-tT/oChyDXelLo2A+UVnlW9GU7CsvFMaEnd9kVFsaiCQonFAXd3xrHhkLYu+suwwosrAEQ746xBU+HvYtm1Zs2Q==}
+  /yoga-layout@3.0.2:
+    resolution: {integrity: sha512-/QSkaNPadLnnBbKoN2Pk36bihWO9b8herZ4nkry/h51KGnKb1CliASdeTmio9wVXmzecqnrfaf9aPIb+GTwLCg==}
     dev: false
 
   /zod@3.22.4:

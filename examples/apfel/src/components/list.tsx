@@ -8,7 +8,7 @@ export function ListsOnCard() {
   return (
     <Container flexDirection="column" gapRow={32} alignItems="center">
       <Container flexDirection="column" md={{ flexDirection: 'row' }} gap={32}>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="plain" width={400}>
             <ListItem
               subtitle={<Text>Subtitle</Text>}
@@ -28,7 +28,7 @@ export function ListsOnCard() {
             </ListItem>
           </List>
         </Card>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="plain" width={400}>
             <ListItem
               subtitle={<Text>Subtitle</Text>}
@@ -67,7 +67,7 @@ export function ListsOnCard() {
         </Card>
       </Container>
       <Container flexDirection="column" md={{ flexDirection: 'row' }} gap={32}>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="inset" width={400}>
             <ListItem
               isFirst
@@ -88,7 +88,7 @@ export function ListsOnCard() {
             </ListItem>
           </List>
         </Card>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="inset" width={400}>
             <ListItem
               isFirst

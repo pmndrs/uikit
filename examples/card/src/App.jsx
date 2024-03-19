@@ -29,7 +29,7 @@ export default function App() {
         <Root pixelSize={0.01}>
           <CardPage />
         </Root>
-        <Fullscreen justifyContent="flex-end" alignItems="center" paddingBottom={32}>
+        <Fullscreen flexDirection="column" justifyContent="flex-end" alignItems="center" paddingBottom={32}>
           <Button onClick={() => window.open('https://github.com/pmndrs/uikit/tree/main/examples/card', '_blank')}>
             <Text>Source Code</Text>
           </Button>
@@ -58,7 +58,7 @@ export function CardPage() {
     easing.damp(translateZ, 'value', openRef.current ? 200 : 0, 0.2, delta)
   })
   return (
-    <Root pixelSize={0.01} sizeX={4.4}>
+    <Root flexDirection="column" pixelSize={0.01} sizeX={4.4}>
       <Defaults>
         <Container
           backgroundColor={0xffffff}
@@ -66,6 +66,7 @@ export function CardPage() {
           borderRadius={20}
           onClick={(e) => (e.stopPropagation(), (openRef.current = !openRef.current))}
           cursor="pointer"
+          flexDirection="column"
           zIndexOffset={10}
           transformTranslateZ={translateZ}
         >
@@ -92,7 +93,7 @@ export function CardPage() {
             borderBottomRadius={20}
             castShadow
           >
-            <Container gap={8}>
+            <Container flexDirection="column" gap={8}>
               <Text fontWeight="normal" fontSize={24} lineHeight={1}>
                 VanArsdel Marketing
               </Text>
@@ -100,19 +101,20 @@ export function CardPage() {
                 1 activities for you
               </Text>
             </Container>
-            <Container flexDirection="row" gap={-6}>
+            <Container flexDirection="row">
               <Avatar width={40} src="https://avatar.iran.liara.run/public/boy?username=Scot" />
-              <Avatar width={40} src="https://avatar.iran.liara.run/public/boy?username=Theo" />
-              <Avatar width={40} src="https://avatar.iran.liara.run/public/boy?username=Paul" />
+              <Avatar marginLeft={-6} width={40} src="https://avatar.iran.liara.run/public/boy?username=Theo" />
+              <Avatar marginLeft={-6} width={40} src="https://avatar.iran.liara.run/public/boy?username=Paul" />
             </Container>
           </Container>
         </Container>
-        <Container transformTranslateY={-40} overflow="hidden">
+        <Container flexDirection="column" transformTranslateY={-40} overflow="hidden">
           <Container
             paddingTop={40}
             transformTranslateY={translateY}
             backgroundColor={colors.secondary}
             borderRadius={20}
+            flexDirection="column"
           >
             <CardHeader>
               <CardTitle>
@@ -125,7 +127,7 @@ export function CardPage() {
             <CardContent flexDirection="column" gap={16}>
               <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
                 <BellRing />
-                <Container gap={4}>
+                <Container flexDirection="column" gap={4}>
                   <Text fontSize={14} lineHeight={1}>
                     Push Notifications
                   </Text>
@@ -136,7 +138,7 @@ export function CardPage() {
                 <Container flexGrow={1} />
                 <Switch />
               </Container>
-              <Container>
+              <Container flexDirection="column">
                 {notifications.map((notification, index) => (
                   <Container
                     key={index}
@@ -153,7 +155,7 @@ export function CardPage() {
                       borderRadius={1000}
                       backgroundColor={colors.primary}
                     />
-                    <Container gap={4}>
+                    <Container gap={4} flexDirection="column">
                       <Text fontSize={14} lineHeight={1}>
                         {notification.title}
                       </Text>

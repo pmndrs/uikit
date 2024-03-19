@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     include: ['@react-three/uikit-lucide', '@react-three/uikit'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   base: '/uikit/examples/auth/',
   resolve: {

@@ -1,6 +1,6 @@
 import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import { Edge, Node, Yoga, Overflow } from 'yoga-layout/wasm-async'
+import Yoga, { Edge, ExperimentalFeature, Node, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
@@ -8,10 +8,17 @@ import { RefObject } from 'react'
 import { CameraDistanceRef } from '../order.js'
 
 export type YogaProperties = {
-  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
+  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
+
+export const PointScaleFactor = 100
+
+export const defaultYogaConfig = Yoga.Config.create()
+defaultYogaConfig.setUseWebDefaults(true)
+defaultYogaConfig.setExperimentalFeatureEnabled(ExperimentalFeature.WebFlexBasis, true)
+defaultYogaConfig.setPointScaleFactor(PointScaleFactor)
 
 export class FlexNode implements WithImmediateProperties {
   public readonly size = signal<Vector2Tuple>([0, 0])
@@ -35,29 +42,24 @@ export class FlexNode implements WithImmediateProperties {
   constructor(
     private groupRef: RefObject<Group>,
     public cameraDistance: CameraDistanceRef,
-    public readonly yoga: Signal<Yoga | undefined>,
-    private precision: number,
     public readonly pixelSize: number,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
-      if (yoga.value == null) {
-        return
-      }
       this.unsubscribeYoga?.()
       this.unsubscribeYoga = undefined
-      this.yogaNode = yoga.value.Node.create()
+      this.yogaNode = Yoga.Node.create(defaultYogaConfig)
       this.active.value = true
     })
   }
 
   setProperty(key: string, value: unknown): void {
     if (key === 'measureFunc') {
-      setMeasureFunc(this.yogaNode!, this.precision, value as any)
+      setMeasureFunc(this.yogaNode!, value as any)
     } else {
-      setter[key as keyof typeof setter](this.yogaNode!, this.precision, value as any)
+      setter[key as keyof typeof setter](this.yogaNode!, value as any)
     }
     this.requestCalculateLayout()
   }
@@ -82,7 +84,7 @@ export class FlexNode implements WithImmediateProperties {
       return
     }
     this.commit()
-    this.yogaNode.calculateLayout()
+    this.yogaNode.calculateLayout(undefined, undefined)
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
@@ -90,8 +92,6 @@ export class FlexNode implements WithImmediateProperties {
     const child = new FlexNode(
       groupRef,
       this.cameraDistance,
-      this.yoga,
-      this.precision,
       this.pixelSize,
       this.requestCalculateLayout,
       computed(() => {
@@ -191,30 +191,30 @@ export class FlexNode implements WithImmediateProperties {
 
     this.overflow.value = this.yogaNode.getOverflow()
 
-    const width = this.yogaNode.getComputedWidth() * this.precision
-    const height = this.yogaNode.getComputedHeight() * this.precision
+    const width = this.yogaNode.getComputedWidth()
+    const height = this.yogaNode.getComputedHeight()
     updateVector2Signal(this.size, width, height)
 
     parentWidth ??= width
     parentHeight ??= height
 
-    const x = this.yogaNode.getComputedLeft() * this.precision
-    const y = this.yogaNode.getComputedTop() * this.precision
+    const x = this.yogaNode.getComputedLeft()
+    const y = this.yogaNode.getComputedTop()
 
     const relativeCenterX = x + width * 0.5 - parentWidth * 0.5
     const relativeCenterY = -(y + height * 0.5 - parentHeight * 0.5)
     updateVector2Signal(this.relativeCenter, relativeCenterX, relativeCenterY)
 
-    const paddingTop = this.yogaNode.getComputedPadding(Edge.Top) * this.precision
-    const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left) * this.precision
-    const paddingRight = this.yogaNode.getComputedPadding(Edge.Right) * this.precision
-    const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom) * this.precision
+    const paddingTop = this.yogaNode.getComputedPadding(Edge.Top)
+    const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left)
+    const paddingRight = this.yogaNode.getComputedPadding(Edge.Right)
+    const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom)
     updateInsetSignal(this.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
 
-    const borderTop = this.yogaNode.getComputedBorder(Edge.Top) * this.precision
-    const borderRight = this.yogaNode.getComputedBorder(Edge.Right) * this.precision
-    const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom) * this.precision
-    const borderLeft = this.yogaNode.getComputedBorder(Edge.Left) * this.precision
+    const borderTop = this.yogaNode.getComputedBorder(Edge.Top)
+    const borderRight = this.yogaNode.getComputedBorder(Edge.Right)
+    const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom)
+    const borderLeft = this.yogaNode.getComputedBorder(Edge.Left)
     updateInsetSignal(this.borderInset, borderTop, borderRight, borderBottom, borderLeft)
 
     for (const layoutChangeListener of this.layoutChangeListeners) {

@@ -4,7 +4,7 @@ import { RefObject, createContext, useContext, useMemo } from 'react'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
-import { Overflow } from 'yoga-layout/wasm-async'
+import { Overflow } from 'yoga-layout'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 

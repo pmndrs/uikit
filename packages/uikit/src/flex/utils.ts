@@ -1,19 +1,20 @@
-import { Node, MeasureFunction } from 'yoga-layout/wasm-async'
+import { Node, MeasureFunction } from 'yoga-layout'
+import { PointScaleFactor } from '.'
 
 export function yogaNodeEqual(n1: Node, n2: Node): boolean {
-  return (n1 as any)['L'] === (n2 as any)['L']
+  return (n1 as any)['M']['O'] === (n2 as any)['M']['O']
 }
 
-export function setMeasureFunc(node: Node, precision: number, func: MeasureFunction | undefined): void {
+export function setMeasureFunc(node: Node, func: MeasureFunction | undefined): void {
   if (func == null) {
     node.setMeasureFunc(null)
     return
   }
   node.setMeasureFunc((width, wMode, height, hMode) => {
-    const result = func(width * precision, wMode, height * precision, hMode)
+    const result = func(width, wMode, height, hMode)
     return {
-      width: Math.ceil(Math.ceil(result.width) / precision),
-      height: Math.ceil(Math.ceil(result.height) / precision),
+      width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+      height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
     }
   })
   node.markDirty()

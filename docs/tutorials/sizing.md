@@ -1,6 +1,6 @@
 ---
 title: Sizing
-description: How to size elements and use pixelSize, sizeX, sizeY, and precision.
+description: How to size elements and use pixelSize, sizeX, and sizeY.
 nav: 10
 ---
 
@@ -17,6 +17,4 @@ The `pixelSize` should be set so that the default font height (`16px`) is reason
   The root element size is specified in three.js units using the optional `sizeX` and `sizeY` parameters.
   
   Declaring the size of elements inside the root element using parameters, such as the `width` of an image or the `fontSize` of a text element, is based on `pixel` units, which strongly relate to the `px` unit in CSS. The relation between three.js units and pixel units can be set using the `pixelSize` property. The property expresses the size of one pixel in three.js units and defaults to `0.002`. With this default, `500px` is equal to 1 three.js unit. To make interoperability between code bases and different component libraries easier, we encourage to use the intuition of pixel sizes from the web. For instance, the default text height relates to 16 pixels. If these pixel sizes appear too small or too high in the szene, the `pixelSize` should be increased or decreased respectively.
-  
-  Another property exposed by the `Root` component is the `precision`, which expresses the resolution of the units. For instance, the default `precision` of `0.1` allows the layout engine to interpret the values `0.5` and `0.4 correctly` but will misinterpret `0.45`.
 </details>

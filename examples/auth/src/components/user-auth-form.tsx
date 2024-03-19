@@ -6,16 +6,16 @@ import { colors } from '@/theme'
 
 export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Container>) {
   return (
-    <Container gap={24} {...props}>
-      <Container gap={8}>
-        <Container gap={4}>
+    <Container flexDirection="column" gap={24} {...props}>
+      <Container flexDirection="column" gap={8}>
+        <Container flexDirection="column" gap={4}>
           <Input placeholder="name@example.com" />
         </Container>
         <Button>
           <Text>Sign In with Email</Text>
         </Button>
       </Container>
-      <Container positionType="relative">
+      <Container flexDirection="column" positionType="relative">
         <Container positionType="absolute" inset={0} alignItems="center" flexDirection="row">
           <Container width="100%" borderTop={1} />
         </Container>

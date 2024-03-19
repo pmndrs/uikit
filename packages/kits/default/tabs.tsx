@@ -36,7 +36,7 @@ export function Tabs({
     }
   }, [uncontrolled, onValueChange, providedValue])
   return (
-    <Container {...props}>
+    <Container flexDirection="column" {...props}>
       <TabsContext.Provider value={contextValue}>{children}</TabsContext.Provider>
     </Container>
   )

@@ -73,8 +73,8 @@ export function Overview() {
       </Container>
       <Container gap={16} height="100%" flexGrow={1} flexDirection="row">
         {data.map(({ name, total }) => (
-          <Container gap={8} flexGrow={1} key={name} alignItems="center">
-            <Container flexGrow={1} flexShrink={1} justifyContent="flex-end" width="100%">
+          <Container flexDirection="column" gap={8} flexGrow={1} key={name} alignItems="center">
+            <Container flexDirection="column" flexGrow={1} flexShrink={1} justifyContent="flex-end" width="100%">
               <Container
                 borderTopRadius={4}
                 height={`${Math.min(1, total / max) * 100}%`}
