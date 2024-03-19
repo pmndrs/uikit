@@ -116,6 +116,8 @@ export function DialogOverlay(props: ComponentPropsWithoutRef<typeof Container>)
   return (
     <Container
       onPointerMove={(e) => e.stopPropagation()}
+      onPointerEnter={(e) => e.stopPropagation()}
+      onPointerLeave={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
       positionType="absolute"
       inset={0}
@@ -169,6 +171,7 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
             onClick={close}
             cursor="pointer"
             positionType="absolute"
+            zIndexOffset={50}
             positionRight={16}
             positionTop={16}
             borderRadius={2}

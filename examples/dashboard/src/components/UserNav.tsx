@@ -1,4 +1,4 @@
-import { Text, Container, CustomContainer } from '@react-three/uikit'
+import { Text, Container } from '@react-three/uikit'
 import { BellRing } from '@react-three/uikit-lucide'
 import { Avatar } from '@/avatar'
 import { Button } from '@/button'
@@ -36,9 +36,6 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
         <Avatar cursor="pointer" src="/uikit/examples/dashboard/01.png" height={32} width={32} />
       </DialogTrigger>
       <DialogContent positionType="relative" transformTranslateZ={200} sm={{ maxWidth: 425 }}>
-        <CustomContainer transformTranslateZ={-1} positionType="absolute" inset={0}>
-          <meshBasicMaterial colorWrite={false} />
-        </CustomContainer>
         <DialogHeader>
           <DialogTitle>
             <Text>Edit profile</Text>
