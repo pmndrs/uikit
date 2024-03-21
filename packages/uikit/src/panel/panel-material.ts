@@ -1,8 +1,8 @@
 import {
   Color,
-  ColorRepresentation,
   FrontSide,
   Material,
+  Mesh,
   MeshBasicMaterial,
   MeshDepthMaterial,
   MeshDistanceMaterial,
@@ -12,38 +12,45 @@ import {
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from 'three'
-import { Constructor, isPanelVisible, setBorderRadius } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { Constructor, computeIsPanelVisible, setBorderRadius } from './utils.js'
+import { Signal, effect } from '@preact/signals-core'
 import { Inset } from '../flex/node.js'
-import { PanelProperties } from './instanced-panel.js'
+import type { PanelProperties } from './instanced-panel.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
-import { Subscriptions } from '../utils.js'
+import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 
 export type MaterialClass = { new (...args: Array<any>): Material }
 
-export function createPanelMaterials(
+const panelMaterialClassKey = ['panelMaterialClass']
+
+export function setupPanelMaterials(
   propertiesSignal: Signal<MergedProperties>,
+  target: Mesh,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
   isClipped: Signal<boolean>,
-  materialClass: MaterialClass | undefined,
   clippingPlanes: Array<Plane>,
   subscriptions: Subscriptions,
   renameOutput?: Record<string, string>,
-): readonly [Material, Material, Material] {
+) {
   const data = new Float32Array(16)
   const info = { data: data, type: 'normal' } as const
-  const material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
-  const depthMaterial = new PanelDepthMaterial(info)
-  const distanceMaterial = new PanelDistanceMaterial(info)
-  material.clippingPlanes = clippingPlanes
-  depthMaterial.clippingPlanes = clippingPlanes
-  distanceMaterial.clippingPlanes = clippingPlanes
-  const materials = [material, depthMaterial, distanceMaterial] as const
-  applyPropsToMaterialData(propertiesSignal, data, size, borderInset, isClipped, materials, subscriptions, renameOutput)
-  return materials
+  target.customDepthMaterial = new PanelDepthMaterial(info)
+  target.customDistanceMaterial = new PanelDistanceMaterial(info)
+  target.customDepthMaterial.clippingPlanes = clippingPlanes
+  target.customDistanceMaterial.clippingPlanes = clippingPlanes
+
+  const get = createGetBatchedProperties(propertiesSignal, panelMaterialClassKey)
+  subscriptions.push(
+    effect(() => {
+      const materialClass = get('panelMaterialClass') as MaterialClass | undefined
+      target.material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
+      target.material.clippingPlanes = clippingPlanes
+    }),
+  )
+  applyPropsToMaterialData(propertiesSignal, data, size, borderInset, isClipped, [], subscriptions, renameOutput)
 }
 
 type InstanceOf<T> = T extends { new (): infer K } ? K : never
@@ -108,8 +115,6 @@ export const panelMaterialDefaultData = [
   -1, //background opacity
 ]
 
-const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity']
-
 function hasImmediateProperty(key: string): boolean {
   return key in panelMaterialSetters
 }
@@ -124,20 +129,9 @@ export function applyPropsToMaterialData(
   subscriptions: Subscriptions,
   renameOutput?: Record<string, string>,
 ) {
-  const unsubscribeList: Array<() => void> = []
-  const active = signal(false)
+  const internalSubscriptions: Array<() => void> = []
+  const isVisible = computeIsPanelVisible(propertiesSignal, borderInset, size, isClipped, renameOutput)
   let visible = false
-  setupImmediateProperties(
-    propertiesSignal,
-    active,
-    hasImmediateProperty,
-    (key, value) => {
-      const setter = panelMaterialSetters[key as keyof typeof panelMaterialSetters]
-      setter(data, value as any, size)
-    },
-    subscriptions,
-    renameOutput,
-  )
   const materialsLength = materials.length
   const syncVisible = () => {
     for (let i = 0; i < materialsLength; i++) {
@@ -151,26 +145,11 @@ export function applyPropsToMaterialData(
 
     visible = false
     syncVisible()
-
-    const unsubscribeListLength = unsubscribeList.length
-    for (let i = 0; i < unsubscribeListLength; i++) {
-      unsubscribeList[i]()
-    }
-    unsubscribeList.length = 0
+    unsubscribeSubscriptions(internalSubscriptions)
   }
-  const get = createGetBatchedProperties(propertiesSignal, batchedProperties, renameOutput)
   subscriptions.push(
     effect(() => {
-      const isVisible = isPanelVisible(
-        borderInset,
-        size,
-        isClipped,
-        get('borderOpacity') as number,
-        get('backgroundOpacity') as number,
-        get('backgroundColor') as ColorRepresentation,
-      )
-      active.value = isVisible
-      if (!isVisible) {
+      if (!isVisible.value) {
         deactivate()
         return
       }
@@ -182,13 +161,25 @@ export function applyPropsToMaterialData(
       syncVisible()
 
       data.set(panelMaterialDefaultData)
-      unsubscribeList.push(
+
+      internalSubscriptions.push(
         effect(() => data.set(size.value, 13)),
         effect(() => data.set(borderInset.value, 0)),
       )
     }),
   )
   subscriptions.push(deactivate)
+  setupImmediateProperties(
+    propertiesSignal,
+    isVisible,
+    hasImmediateProperty,
+    (key, value) => {
+      const setter = panelMaterialSetters[key as keyof typeof panelMaterialSetters]
+      setter(data, value as any, size)
+    },
+    subscriptions,
+    renameOutput,
+  )
 }
 
 export type PanelMaterialInfo = { type: 'instanced' } | { type: 'normal'; data: Float32Array }

@@ -3,6 +3,7 @@ import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { Overflow } from 'yoga-layout/wasm-async'
+import { Object3DRef } from './context.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -97,7 +98,7 @@ export function computeIsClipped(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
-  psRef: { pixelSize: number },
+  pixelSize: number,
 ): Signal<boolean> {
   return computed(() => {
     const global = globalMatrix.value
@@ -108,7 +109,7 @@ export function computeIsClipped(
     const [width, height] = size.value
     for (let i = 0; i < 4; i++) {
       const [mx, my] = multiplier[i]
-      helperPoints[i].set(mx * psRef.pixelSize * width, my * psRef.pixelSize * height, 0).applyMatrix4(global)
+      helperPoints[i].set(mx * pixelSize * width, my * pixelSize * height, 0).applyMatrix4(global)
     }
 
     const { planes } = rect
@@ -136,7 +137,7 @@ export function computeClippingRect(
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
   overflow: Signal<Overflow>,
-  psRef: { pixelSize: number },
+  pixelSize: number,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Signal<ClippingRect | undefined> {
   return computed(() => {
@@ -148,10 +149,10 @@ export function computeClippingRect(
     const [top, right, bottom, left] = borderInset.value
     const rect = new ClippingRect(
       global,
-      ((right - left) * psRef.pixelSize) / 2,
-      ((top - bottom) * psRef.pixelSize) / 2,
-      (width - left - right) * psRef.pixelSize,
-      (height - top - bottom) * psRef.pixelSize,
+      ((right - left) * pixelSize) / 2,
+      ((top - bottom) * pixelSize) / 2,
+      (width - left - right) * pixelSize,
+      (height - top - bottom) * pixelSize,
     )
     if (parentClippingRect?.value != null) {
       rect.min(parentClippingRect.value)
@@ -173,9 +174,12 @@ export function createGlobalClippingPlanes() {
 
 export function updateGlobalClippingPlanes(
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  rootGroup: Group,
+  rootObject: Object3DRef,
   clippingPlanes: Array<Plane>,
 ): void {
+  if (rootObject.current == null) {
+    return
+  }
   const localPlanes = clippingRect?.value?.planes
   if (localPlanes == null) {
     for (let i = 0; i < 4; i++) {
@@ -184,6 +188,6 @@ export function updateGlobalClippingPlanes(
     return
   }
   for (let i = 0; i < 4; i++) {
-    clippingPlanes[i].copy(localPlanes[i]).applyMatrix4(rootGroup.matrixWorld)
+    clippingPlanes[i].copy(localPlanes[i]).applyMatrix4(rootObject.current.matrixWorld)
   }
 }

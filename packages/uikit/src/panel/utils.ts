@@ -1,8 +1,10 @@
-import { Signal } from '@preact/signals-core'
+import { Signal, computed } from '@preact/signals-core'
 import { BufferAttribute, PlaneGeometry, TypedArray, Vector2Tuple } from 'three'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { Inset } from '../flex/node.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { MergedProperties } from '../properties/merged.js'
+import { ColorRepresentation } from '../utils.js'
 
 export type Constructor<T> = new (...args: any[]) => T
 export type FirstConstructorParameter<T extends new (...args: any[]) => any> = T extends new (
@@ -32,28 +34,35 @@ export function setComponentInFloat(from: number, index: number, value: number):
 
 export const panelGeometry = createPanelGeometry()
 
-export function isPanelVisible(
+const visibleProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity']
+
+export function computeIsPanelVisible(
+  propertiesSignal: Signal<MergedProperties>,
   borderInset: Signal<Inset>,
   size: Signal<Vector2Tuple>,
   isHidden: Signal<boolean> | undefined,
-  borderOpacity: number | undefined,
-  backgroundOpacity: number | undefined,
-  backgroundColor: ColorRepresentation | undefined,
-): boolean {
-  const borderVisible = borderInset.value.some((s) => s > 0) && (borderOpacity == null || borderOpacity > 0)
-  const [width, height] = size.value
-  const backgroundVisible =
-    width > 0 && height > 0 && (backgroundOpacity == null || backgroundOpacity > 0) && backgroundColor != null
+  renameOutput?: Record<string, string>,
+) {
+  const get = createGetBatchedProperties(propertiesSignal, visibleProperties, renameOutput)
+  return computed(() => {
+    const borderOpacity = get('borderOpacity') as number
+    const backgroundOpacity = get('backgroundOpacity') as number
+    const backgroundColor = get('backgroundColor') as ColorRepresentation
+    const borderVisible = borderInset.value.some((s) => s > 0) && (borderOpacity == null || borderOpacity > 0)
+    const [width, height] = size.value
+    const backgroundVisible =
+      width > 0 && height > 0 && (backgroundOpacity == null || backgroundOpacity > 0) && backgroundColor != null
 
-  if (!backgroundVisible && !borderVisible) {
-    return false
-  }
+    if (!backgroundVisible && !borderVisible) {
+      return false
+    }
 
-  if (isHidden == null) {
-    return true
-  }
+    if (isHidden == null) {
+      return true
+    }
 
-  return !isHidden.value
+    return !isHidden.value
+  })
 }
 
 export function setBorderRadius(

@@ -3,15 +3,12 @@ import { InstancedBufferAttribute, Matrix4, Vector2Tuple } from 'three'
 import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
-import { InstancedPanelGroup } from './instanced-panel-group.js'
+import { InstancedPanelGroup, PanelGroupManager, PanelGroupDependencies } from './instanced-panel-group.js'
 import { panelDefaultColor } from './panel-material.js'
-import { Subscriptions, colorToBuffer } from '../utils.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
-import { isPanelVisible, setBorderRadius } from './utils.js'
+import { ColorRepresentation, Subscriptions, colorToBuffer, unsubscribeSubscriptions } from '../utils.js'
+import { computeIsPanelVisible, setBorderRadius } from './utils.js'
 import { MergedProperties } from '../properties/merged.js'
-import { createGetBatchedProperties } from '../properties/batched.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
-import { GetInstancedPanelGroup, PanelGroupDependencies } from './react.js'
 import { OrderInfo } from '../order.js'
 
 export type PanelProperties = {
@@ -24,6 +21,42 @@ export type PanelProperties = {
   borderColor?: ColorRepresentation
   borderBend?: number
   borderOpacity?: number
+}
+
+export function createInstancedPanel(
+  propertiesSignal: Signal<MergedProperties>,
+  orderInfo: Signal<OrderInfo>,
+  panelGroupDependencies: Signal<PanelGroupDependencies>,
+  panelGroupManager: PanelGroupManager,
+  matrix: Signal<Matrix4 | undefined>,
+  size: Signal<Vector2Tuple>,
+  offset: Signal<Vector2Tuple> | undefined,
+  borderInset: Signal<Inset>,
+  clippingRect: Signal<ClippingRect | undefined> | undefined,
+  isHidden: Signal<boolean> | undefined,
+  outerSubscriptions: Subscriptions,
+  renameOutput?: Record<string, string>,
+) {
+  outerSubscriptions.push(
+    effect(() => {
+      const subscriptions: Subscriptions = []
+      const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
+      new InstancedPanel(
+        propertiesSignal,
+        group,
+        orderInfo.value.minorIndex,
+        matrix,
+        size,
+        offset,
+        borderInset,
+        clippingRect,
+        isHidden,
+        outerSubscriptions,
+        renameOutput,
+      )
+      return () => unsubscribeSubscriptions(subscriptions)
+    }),
+  )
 }
 
 const instancedPanelMaterialSetters: {
@@ -59,8 +92,6 @@ const instancedPanelMaterialSetters: {
   backgroundOpacity: (m, i, p) => writeComponent(m.instanceData, i, 15, p ?? -1),
 }
 
-const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity']
-
 function hasImmediateProperty(key: string): boolean {
   return key in instancedPanelMaterialSetters
 }
@@ -78,7 +109,7 @@ export class InstancedPanel {
 
   private insertedIntoGroup = false
 
-  private active = signal(false)
+  private active = signal<boolean>(false)
 
   constructor(
     propertiesSignal: Signal<MergedProperties>,
@@ -90,6 +121,7 @@ export class InstancedPanel {
     private readonly borderInset: Signal<Inset>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isHidden: Signal<boolean> | undefined,
+    subscriptions: Subscriptions,
     renameOutput?: Record<string, string>,
   ) {
     setupImmediateProperties(
@@ -111,19 +143,10 @@ export class InstancedPanel {
       subscriptions,
       renameOutput,
     )
-    const get = createGetBatchedProperties(propertiesSignal, batchedProperties, renameOutput)
+    const isVisible = computeIsPanelVisible(propertiesSignal, borderInset, size, isHidden, renameOutput)
     subscriptions.push(
       effect(() => {
-        if (
-          isPanelVisible(
-            borderInset,
-            size,
-            isHidden,
-            get('borderOpacity') as number,
-            get('backgroundOpacity') as number,
-            get('backgroundColor') as ColorRepresentation,
-          )
-        ) {
+        if (isVisible.value) {
           this.requestShow()
           return
         }

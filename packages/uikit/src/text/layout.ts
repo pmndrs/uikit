@@ -1,6 +1,11 @@
 import { BreakallWrapper, NowrapWrapper, WordWrapper } from './wrapper/index.js'
 import { Font } from './font.js'
 import { getGlyphLayoutHeight } from './utils.js'
+import { Signal, computed } from '@preact/signals-core'
+import { MeasureFunction, MeasureMode } from 'yoga-layout'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { MergedProperties } from '../properties/merged.js'
+import { readReactive } from '../utils.js'
 
 export type GlyphLayoutLine = { start: number; end: number; width: number; whitespaces: number }
 
@@ -19,6 +24,46 @@ export type GlyphLayoutProperties = {
   lineHeight: number
   fontSize: number
   wordBreak: keyof typeof wrappers
+}
+
+const glyphPropertyKeys = ['fontSize', 'letterSpacing', 'lineHeight', 'wordBreak']
+
+export function computeMeasureFunc(
+  properties: Signal<MergedProperties>,
+  fontSignal: Signal<Font | undefined>,
+  textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
+  propertiesRef: { current: GlyphLayoutProperties | undefined },
+) {
+  const get = createGetBatchedProperties(properties, glyphPropertyKeys)
+  return computed<MeasureFunction | undefined>(() => {
+    const font = fontSignal.value
+    if (font == null) {
+      return undefined
+    }
+    const textSignalValue = textSignal.value
+    const text = Array.isArray(textSignalValue)
+      ? textSignalValue.map((t) => readReactive(t)).join('')
+      : readReactive(textSignalValue)
+    const letterSpacing = (get('letterSpacing') as number) ?? 0
+    const lineHeight = (get('lineHeight') as number) ?? 1.2
+    const fontSize = (get('fontSize') as number) ?? 16
+    const wordBreak = (get('wordBreak') as GlyphLayoutProperties['wordBreak']) ?? 'break-word'
+
+    return (width, widthMode) => {
+      const availableWidth = widthMode === MeasureMode.Undefined ? undefined : width
+      return measureGlyphLayout(
+        (propertiesRef.current = {
+          font,
+          fontSize,
+          letterSpacing,
+          lineHeight,
+          text,
+          wordBreak,
+        }),
+        availableWidth,
+      )
+    }
+  })
 }
 
 const wrappers = {

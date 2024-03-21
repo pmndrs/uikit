@@ -1,6 +1,79 @@
-import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
-import { createPanelGeometry } from './utils.js'
+import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
+import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
+import { Signal, effect } from '@preact/signals-core'
+import { ClippingRect } from '../clipping.js'
+import { OrderInfo } from '../order.js'
+import { Subscriptions } from '../utils.js'
+import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
+import { Object3DRef } from '../context.js'
+import { EventHandlers, ThreeEvent } from '../events.js'
+
+export function createInteractionPanel(
+  size: Signal<Vector2Tuple>,
+  pixelSize: number,
+  orderInfo: Signal<OrderInfo>,
+  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  rootObject: Object3DRef,
+  subscriptions: Subscriptions,
+): Mesh {
+  const panel = new Mesh(panelGeometry)
+  panel.matrixAutoUpdate = false
+  panel.raycast = makeClippedRaycast(panel, makePanelRaycast(panel), rootObject, parentClippingRect, orderInfo)
+  panel.visible = false
+  subscriptions.push(
+    effect(() => {
+      const [width, height] = size.value
+      panel.scale.set(width * pixelSize, height * pixelSize, 1)
+      panel.updateMatrix()
+    }),
+  )
+  return panel
+}
+
+export function cloneHandlers(handlers: EventHandlers): EventHandlers {
+  return {
+    onClick: handlers.onClick,
+    onContextMenu: handlers.onContextMenu,
+    onDoubleClick: handlers.onDoubleClick,
+    onPointerCancel: handlers.onPointerCancel,
+    onPointerDown: handlers.onPointerDown,
+    onPointerEnter: handlers.onPointerEnter,
+    onPointerLeave: handlers.onPointerLeave,
+    onPointerMissed: handlers.onPointerMissed,
+    onPointerMove: handlers.onPointerMove,
+    onPointerOut: handlers.onPointerOut,
+    onPointerOver: handlers.onPointerOver,
+    onPointerUp: handlers.onPointerUp,
+    onWheel: handlers.onWheel,
+  }
+}
+
+function setHandler<K extends keyof EventHandlers>(key: K, target: EventHandlers, fn: EventHandlers[K]) {
+  if (fn == null) {
+    return
+  }
+  target[key] = fn
+}
+
+export function addHandler(
+  key: Exclude<keyof EventHandlers, 'onClick' | 'onContextMenu' | 'onDoubleClick' | 'onPointerMissed' | 'onWheel'>,
+  target: EventHandlers,
+  handler: (event: ThreeEvent<PointerEvent>) => void,
+): void {
+  const existingHandler = target[key]
+  if (existingHandler == null) {
+    target[key] = handler
+    return
+  }
+  target[key] = (e: ThreeEvent<PointerEvent>) => {
+    existingHandler(e)
+    if (e.stopped) {
+      return
+    }
+    handler(e)
+  }
+}
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0

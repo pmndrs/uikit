@@ -1,9 +1,8 @@
 import { Signal, effect } from '@preact/signals-core'
 import { InstancedGlyph } from './instanced-glyph.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
 import { Matrix4 } from 'three'
 import { ClippingRect } from '../../clipping.js'
-import { alignmentXMap, alignmentYMap } from '../../utils.js'
+import { ColorRepresentation, alignmentXMap, alignmentYMap } from '../../utils.js'
 import {
   getGlyphLayoutHeight,
   getGlyphOffsetX,

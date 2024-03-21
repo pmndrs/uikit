@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@react-three/uikit": "workspace:^",
+    "react-dom": "^18.2.0",
+    "three": "^0.161.0"
+  },
+  "scripts": {
+    "dev": "vite --host"
+  },
+  "devDependencies": {
+    "@types/three": "^0.161.0"
+  }
+}

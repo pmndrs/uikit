@@ -1,20 +1,17 @@
 import { ReadonlySignal } from '@preact/signals-core'
-import { ContainerProperties } from '../components/container.js'
-import { ContentProperties } from '../react/content.js'
-import { CustomContainerProperties } from '../react/custom.js'
-import { ImageProperties } from '../react/image.js'
-import { RootProperties } from '../react/root.js'
-import { SvgProperties } from '../react/svg.js'
-import { TextProperties } from '../react/text.js'
+import { InheritableContainerProperties } from '../components/container.js'
+import { InheritableRootProperties } from '../components/root.js'
+import { InheritableImageProperties } from '../components/image.js'
 
 export type AllOptionalProperties =
-  | ContainerProperties
-  | ContentProperties
-  | CustomContainerProperties
-  | ImageProperties
-  | RootProperties
-  | SvgProperties
-  | TextProperties
+  | InheritableContainerProperties
+  | InheritableRootProperties
+  | InheritableImageProperties
+//  | ContentProperties
+//  | CustomContainerProperties
+//  | ImageProperties
+//  | SvgProperties
+//  | TextProperties
 
 export type WithReactive<T> = {
   [Key in keyof T]?: T[Key] | ReadonlySignal<T[Key] | undefined>

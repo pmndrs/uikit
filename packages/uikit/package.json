@@ -1,30 +1,29 @@
 {
-  "name": "@react-three/uikit",
+  "name": "@vanilla-three/uikit",
   "type": "module",
   "version": "0.0.0",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/pmndrs/react-three-uikit",
+  "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",
   "keywords": [
-    "r3f",
     "uikit",
     "three.js",
     "userinterface",
-    "react",
     "flexbox",
     "yoga",
     "typescript"
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:pmndrs/react-three-uikit.git"
+    "url": "git@github.com:pmndrs/uikit.git"
   },
   "files": [
     "dist"
   ],
   "main": "dist/index.js",
-  "bin": {
-    "uikit": "./dist/cli/index.js"
+  "exports": {
+    ".": "./dist/index.js",
+    "./internals": "./dist/internals.js"
   },
   "scripts": {
     "test": "mocha ./tests/allocation.spec.ts",
@@ -36,30 +35,14 @@
     "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {
-    "@react-three/fiber": ">=8",
-    "react": ">=18",
     "three": ">=0.160"
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
-    "chalk": "^5.3.0",
-    "commander": "^12.0.0",
-    "ora": "^8.0.1",
-    "prompts": "^2.4.2",
-    "yoga-layout": "^2.0.1",
-    "zod": "^3.22.4"
+    "yoga-layout": "^2.0.1"
   },
   "devDependencies": {
-    "@react-three/drei": "^9.96.1",
-    "@react-three/fiber": "^8.15.13",
-    "@types/node": "^20.11.0",
-    "@types/prompts": "^2.4.9",
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
     "@types/three": "^0.161.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "replace-in-files-cli": "^2.2.0",
     "three": "^0.161.0"
   }
 }

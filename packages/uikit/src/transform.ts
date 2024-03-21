@@ -1,9 +1,10 @@
-import { Signal, computed } from '@preact/signals-core'
+import { Signal, computed, effect } from '@preact/signals-core'
 import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { FlexNode } from './flex/node.js'
-import { alignmentXMap, alignmentYMap } from './utils.js'
+import { Subscriptions, alignmentXMap, alignmentYMap } from './utils.js'
 import { createGetBatchedProperties } from './properties/batched.js'
 import { MergedProperties } from './properties/merged.js'
+import { Object3DRef } from './context.js'
 
 export type TransformProperties = {
   transformTranslateX?: number
@@ -51,6 +52,7 @@ function toQuaternion([x, y, z]: Vector3Tuple): Quaternion {
 export function computeTransformMatrix(
   propertiesSignal: Signal<MergedProperties>,
   node: FlexNode,
+  pixelSize: number,
   renameOutput?: Record<string, string>,
 ): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
@@ -59,7 +61,7 @@ export function computeTransformMatrix(
   //T = transform matrix (translate, rotate, scale)
   const get = createGetBatchedProperties(propertiesSignal, propertyKeys, renameOutput)
   return computed(() => {
-    const { pixelSize, relativeCenter } = node
+    const { relativeCenter } = node
     const [x, y] = relativeCenter.value
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
@@ -90,4 +92,20 @@ export function computeTransformMatrix(
 
     return result
   })
+}
+
+export function applyTransform(
+  object: Object3DRef,
+  transformMatrix: Signal<Matrix4 | undefined>,
+  subscriptions: Subscriptions,
+) {
+  subscriptions.push(
+    effect(() => {
+      if (transformMatrix.value == null) {
+        object.current?.matrix.elements.fill(0)
+        return
+      }
+      object.current?.matrix.copy(transformMatrix.value)
+    }),
+  )
 }

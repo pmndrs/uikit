@@ -1,12 +1,11 @@
-import { Group, Object3D, Vector2Tuple } from 'three'
+import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
 import { Edge, Node, Yoga, Overflow, MeasureFunction } from 'yoga-layout/wasm-async'
 import { setter } from './setter.js'
-import { RefObject } from 'react'
-import { CameraDistanceRef } from '../order.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { MergedProperties } from '../properties/merged.js'
+import { Object3DRef } from '../context.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
@@ -22,7 +21,6 @@ function hasImmediateProperty(key: string): boolean {
 }
 
 export class FlexNode {
-  public readonly size = signal<Vector2Tuple>([0, 0])
   public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
   public readonly borderInset = signal<Inset>([0, 0, 0, 0])
   public readonly paddingInset = signal<Inset>([0, 0, 0, 0])
@@ -42,11 +40,10 @@ export class FlexNode {
 
   constructor(
     propertiesSignal: Signal<MergedProperties>,
-    private groupRef: RefObject<Group>,
-    public cameraDistance: CameraDistanceRef,
+    public readonly size = signal<Vector2Tuple>([0, 0]),
+    private object: Object3DRef,
     public readonly yoga: Signal<Yoga | undefined>,
     private precision: number,
-    public readonly pixelSize: number,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
     subscriptions: Subscriptions,
@@ -96,18 +93,13 @@ export class FlexNode {
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
-  createChild(
-    propertiesSignal: Signal<MergedProperties>,
-    groupRef: RefObject<Group>,
-    subscriptions: Subscriptions,
-  ): FlexNode {
+  createChild(propertiesSignal: Signal<MergedProperties>, object: Object3DRef, subscriptions: Subscriptions): FlexNode {
     const child = new FlexNode(
       propertiesSignal,
-      groupRef,
-      this.cameraDistance,
+      undefined,
+      object,
       this.yoga,
       this.precision,
-      this.pixelSize,
       this.requestCalculateLayout,
       computed(() => {
         const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]
@@ -141,21 +133,22 @@ export class FlexNode {
     //commiting the children
     let groupChildren: Array<Object3D> | undefined
     this.children.sort((child1, child2) => {
-      groupChildren ??= child1.groupRef.current?.parent?.children
+      groupChildren ??= child1.object.current?.parent?.children
       if (groupChildren == null) {
         return 0
       }
-      const i1 = groupChildren.indexOf(child1.groupRef.current as any)
-      if (i1 === -1) {
-        throw new Error(
-          `${child1.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
-        )
+      const group1 = child1.object.current
+      const group2 = child2.object.current
+      if (group1 == null || group2 == null) {
+        return 0
       }
-      const i2 = groupChildren.indexOf(child2.groupRef.current as any)
+      const i1 = groupChildren.indexOf(group1)
+      if (i1 === -1) {
+        throw new Error(`parent mismatch`)
+      }
+      const i2 = groupChildren.indexOf(group2)
       if (i2 === -1) {
-        throw new Error(
-          `${child2.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
-        )
+        throw new Error(`parent mismatch`)
       }
       return i1 - i2
     })

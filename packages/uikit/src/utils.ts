@@ -1,10 +1,10 @@
-import { computed, effect, Signal, signal } from '@preact/signals-core'
-import { Vector2Tuple, BufferAttribute, Color } from 'three'
-import { Color as ColorRepresentation } from '@react-three/fiber'
+import { computed, Signal, signal } from '@preact/signals-core'
+import { Vector2Tuple, BufferAttribute, Color, Vector3Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { Yoga, loadYoga as loadYogaImpl } from 'yoga-layout/wasm-async'
 import { MergedProperties } from './properties/merged.js'
-import { Properties } from './properties/default.js'
+
+export type ColorRepresentation = Color | string | number | Vector3Tuple
 
 export type Subscriptions = Array<() => void>
 
@@ -13,6 +13,7 @@ export function unsubscribeSubscriptions(subscriptions: Subscriptions): void {
   for (let i = 0; i < length; i++) {
     subscriptions[i]()
   }
+  subscriptions.length = 0
 }
 
 export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
@@ -79,9 +80,12 @@ export function readReactive<T>(value: T | Signal<T>): T {
 
 export function createConditionalPropertyTranslator(condition: () => boolean) {
   const signalMap = new Map<unknown, Signal<unknown>>()
-  return (merged: MergedProperties, properties: Properties) => {
+  return (properties: unknown, merged: MergedProperties) => {
+    if (typeof properties != 'object') {
+      throw new Error(`Invalid properties "${properties}"`)
+    }
     for (const key in properties) {
-      const value = properties[key]
+      const value = properties[key as never]
       if (value === undefined) {
         return
       }

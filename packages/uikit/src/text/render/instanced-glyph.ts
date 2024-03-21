@@ -1,12 +1,88 @@
-import { Matrix4 } from 'three'
-import { InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
-import { colorToBuffer } from '../../utils.js'
+import { Matrix4, WebGLRenderer } from 'three'
+import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
+import { ColorRepresentation, Subscriptions, colorToBuffer } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { GlyphInfo, glyphIntoToUV } from '../font.js'
+import { FontFamilies, FontFamilyProperties, GlyphInfo, computeFont, glyphIntoToUV } from '../font.js'
+import { Signal, ReadonlySignal, signal, effect } from '@preact/signals-core'
+import { FlexNode } from '../../flex/node.js'
+import { OrderInfo } from '../../order.js'
+import { createGetBatchedProperties } from '../../properties/batched.js'
+import { MergedProperties } from '../../properties/merged.js'
+import { GlyphLayoutProperties, GlyphLayout, buildGlyphLayout, computeMeasureFunc } from '../layout.js'
+import { TextAlignProperties, TextAppearanceProperties, InstancedText } from './instanced-text.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
+
+const alignPropertyKeys = ['horizontalAlign', 'verticalAlign']
+const appearancePropertyKeys = ['color', 'opacity']
+
+export type InstancedTextProperties = TextAlignProperties &
+  TextAppearanceProperties &
+  Omit<GlyphLayoutProperties, 'text'> &
+  FontFamilyProperties
+
+export function createInstancedText(
+  properties: Signal<MergedProperties>,
+  text: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>,
+  matrix: Signal<Matrix4 | undefined>,
+  node: FlexNode,
+  isHidden: Signal<boolean> | undefined,
+  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: OrderInfo,
+  fontFamilies: FontFamilies | undefined,
+  renderer: WebGLRenderer,
+  glyphGroupManager: GlyphGroupManager,
+  subscriptions: Subscriptions,
+) {
+  const fontSignal = computeFont(properties, fontFamilies, renderer, subscriptions)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const textSignal = signal<string | Signal<string> | Array<string | Signal<string>>>(text)
+  let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
+
+  const measureFunc = computeMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
+
+  const getAlign = createGetBatchedProperties(properties, alignPropertyKeys)
+  const getAppearance = createGetBatchedProperties(properties, appearancePropertyKeys)
+
+  const layoutSignal = signal<GlyphLayout | undefined>(undefined)
+  subscriptions.push(
+    node.addLayoutChangeListener(() => {
+      const layoutProperties = layoutPropertiesRef.current
+      if (layoutProperties == null) {
+        return
+      }
+      const { size, paddingInset, borderInset } = node
+      const [width, height] = size.value
+      const [pTop, pRight, pBottom, pLeft] = paddingInset.value
+      const [bTop, bRight, bBottom, bLeft] = borderInset.value
+      const actualWidth = width - pRight - pLeft - bRight - bLeft
+      const actualheight = height - pTop - pBottom - bTop - bBottom
+      layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
+    }),
+  )
+
+  subscriptions.push(
+    effect(() => {
+      const font = fontSignal.value
+      if (font == null) {
+        return
+      }
+      const instancedText = new InstancedText(
+        glyphGroupManager.getGroup(orderInfo.majorIndex, font),
+        getAlign,
+        getAppearance,
+        layoutSignal,
+        matrix,
+        isHidden,
+        parentClippingRect,
+      )
+      return () => instancedText.destroy()
+    }),
+  )
+
+  return measureFunc
+}
 
 /**
  * renders an initially specified glyph

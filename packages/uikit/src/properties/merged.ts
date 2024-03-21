@@ -2,12 +2,21 @@ import { Signal } from '@preact/signals-core'
 import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './default'
 import { AllAliases, allAliases } from './alias'
 
+export type PropertyTransformers = Record<string, (value: unknown, target: MergedProperties) => void>
+
 export class MergedProperties {
   private propertyMap = new Map<string, Array<unknown | Signal<unknown>>>()
+
+  constructor(private transformers: PropertyTransformers) {}
 
   add(key: string, value: unknown) {
     if (value === undefined) {
       //only adding non undefined values to the properties
+      return
+    }
+    const transform = this.transformers[key]
+    if (transform != null) {
+      transform(value, this)
       return
     }
     //applying the aliases

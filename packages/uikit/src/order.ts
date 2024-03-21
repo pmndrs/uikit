@@ -3,7 +3,7 @@ import { RenderItem, WebGLRenderer } from 'three'
 import { MergedProperties } from './properties/merged'
 import { createGetBatchedProperties } from './properties/batched'
 
-export type CameraDistanceRef = { current: number }
+export type WithCameraDistance = { cameraDistance: number }
 
 export const cameraDistanceKey = Symbol('camera-distance-key')
 export const orderInfoKey = Symbol('order-info-key')
@@ -15,8 +15,8 @@ function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.renderOrder !== b.renderOrder) {
     return a.renderOrder - b.renderOrder
   }
-  const aDistanceRef = (a.object as any)[cameraDistanceKey] as CameraDistanceRef
-  const bDistanceRef = (b.object as any)[cameraDistanceKey] as CameraDistanceRef
+  const aDistanceRef = (a.object as any)[cameraDistanceKey] as WithCameraDistance
+  const bDistanceRef = (b.object as any)[cameraDistanceKey] as WithCameraDistance
   if (aDistanceRef == null || bDistanceRef == null) {
     //default z comparison
     return a.z !== b.z ? b.z - a.z : a.id - b.id
@@ -24,7 +24,7 @@ function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (aDistanceRef === bDistanceRef) {
     return compareOrderInfo((a.object as any)[orderInfoKey], (b.object as any)[orderInfoKey])
   }
-  return bDistanceRef.current - aDistanceRef.current
+  return bDistanceRef.cameraDistance - aDistanceRef.cameraDistance
 }
 
 export function patchRenderOrder(renderer: WebGLRenderer): void {
@@ -70,11 +70,11 @@ export function computeOrderInfo(
   propertiesSignal: Signal<MergedProperties>,
   type: ElementType,
   instancedGroupDependencies: Record<string, any> | undefined,
-  parentOrderInfoSignal: Signal<OrderInfo>,
+  parentOrderInfoSignal: Signal<OrderInfo> | undefined,
 ): Signal<OrderInfo> {
   const get = createGetBatchedProperties(propertiesSignal, propertyKeys)
   return computed(() => {
-    const parentOrderInfo = parentOrderInfoSignal.value
+    const parentOrderInfo = parentOrderInfoSignal?.value
 
     const offset = get('zIndexOffset') as ZIndexOffset
 
@@ -135,7 +135,7 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
   return i === Object.keys(r2).length
 }
 
-export function setupRenderOrder<T>(result: T, rootCameraDistance: CameraDistanceRef, orderInfo: OrderInfo): T {
+export function setupRenderOrder<T>(result: T, rootCameraDistance: WithCameraDistance, orderInfo: OrderInfo): T {
   ;(result as any)[cameraDistanceKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo
   return result
