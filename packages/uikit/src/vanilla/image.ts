@@ -40,12 +40,7 @@ export class Image extends Object3D {
     this.textureAspectRatio = computeTextureAspectRatio(this.texture)
     const scrollHandlers = signal<EventHandlers>({})
     const rootSize = parent.ctx.root.node.size
-    this.propertyTransformers = createImagePropertyTransformers(
-      rootSize,
-      this.hoveredSignal,
-      this.activeSignal,
-      this.textureAspectRatio,
-    )
+    this.propertyTransformers = createImagePropertyTransformers(rootSize, this.hoveredSignal, this.activeSignal)
     this.bindEventHandlers = parent.bindEventHandlers
     this.container = new Object3D()
     this.container.matrixAutoUpdate = false

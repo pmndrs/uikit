@@ -41,8 +41,8 @@ export const Root: (
     () => createRootPropertyTransformers(rootSize, hoveredSignal, activeSignal),
     [rootSize, hoveredSignal, activeSignal],
   )
-  const propertiesSubscriptions = useMemo<Subscriptions>(() => [], [])
-  unsubscribeSubscriptions(propertiesSubscriptions)
+  const propertySubscriptions = useMemo<Subscriptions>(() => [], [])
+  unsubscribeSubscriptions(propertySubscriptions)
   const handlers = updateRootProperties(
     propertiesSignal,
     properties,
@@ -50,7 +50,7 @@ export const Root: (
     hoveredSignal,
     activeSignal,
     tranformers,
-    propertiesSubscriptions,
+    propertySubscriptions,
   )
 
   const listeners = useMemo(() => createListeners(), [])
@@ -79,10 +79,10 @@ export const Root: (
   )
   useEffect(
     () => () => {
-      unsubscribeSubscriptions(propertiesSubscriptions)
+      unsubscribeSubscriptions(propertySubscriptions)
       unsubscribeSubscriptions(subscriptions)
     },
-    [propertiesSubscriptions, subscriptions],
+    [propertySubscriptions, subscriptions],
   )
 
   useFrame((_, delta) => {

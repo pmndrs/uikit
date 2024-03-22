@@ -3,7 +3,6 @@ import { WithContext } from '../context'
 import { createListeners, updateListeners } from '../listeners'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { MergedProperties, PropertyTransformers } from '../properties/merged'
-import { BindEventHandlers } from './utils'
 import { Subscriptions, unsubscribeSubscriptions } from '../utils'
 import { AllOptionalProperties } from '../properties/default'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh'
@@ -29,7 +28,6 @@ export class Root extends Object3D {
     object: Object3D,
     properties: RootProperties,
     defaultProperties?: AllOptionalProperties,
-    public readonly bindEventHandlers: BindEventHandlers = () => {},
   ) {
     super()
     const rootSize = signal<Vector2Tuple>([0, 0])

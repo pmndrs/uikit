@@ -4,19 +4,13 @@ import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context'
 import { AddHandlers, AddScrollHandler } from './utilts'
 import {
-  createContainer,
   createInteractionPanel,
-  createListeners,
-  MergedProperties,
-  Subscriptions,
-  unsubscribeSubscriptions,
-  updateListeners,
-  EventHandlers as CoreEventHandlers,
   updateContainerProperties,
-  createContainerPropertyTransfomers,
   ContainerProperties,
+  createContainerState,
+  cleanContainerState,
+  createContainerContext,
 } from '@vanilla-three/uikit/internals'
-import { signal } from '@preact/signals-core'
 import { useDefaultProperties } from './default'
 
 export const Container: (
@@ -26,65 +20,24 @@ export const Container: (
     EventHandlers,
 ) => ReactNode = forwardRef((properties, ref) => {
   //TODO: ComponentInternals
+  const parent = useParent()
+  const state = useMemo(() => createContainerState(parent.root.node.size), [parent])
+  useEffect(() => () => cleanContainerState(state), [state])
+
+  const defaultProperties = useDefaultProperties()
+  const handlers = updateContainerProperties(state, properties, defaultProperties)
+
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
-  const parent = useParent()
-  const defaultProperties = useDefaultProperties()
-  const propertiesSignal = useMemo(() => signal<MergedProperties>(undefined as any), [])
-  const hoveredSignal = useMemo(() => signal<Array<number>>([]), [])
-  const activeSignal = useMemo(() => signal<Array<number>>([]), [])
-  const tranformers = useMemo(
-    () => createContainerPropertyTransfomers(parent.root.node.size, hoveredSignal, activeSignal),
-    [parent, hoveredSignal, activeSignal],
-  )
-  const propertiesSubscriptions = useMemo<Subscriptions>(() => [], [])
-  unsubscribeSubscriptions(propertiesSubscriptions)
-  const handlers = updateContainerProperties(
-    propertiesSignal,
-    properties,
-    defaultProperties,
-    hoveredSignal,
-    activeSignal,
-    tranformers,
-    propertiesSubscriptions,
-  )
-
-  const listeners = useMemo(() => createListeners(), [])
-  updateListeners(listeners, properties)
-
-  const scrollHandlers = useMemo(() => signal<CoreEventHandlers>({}), [])
-
-  const subscriptions = useMemo<Subscriptions>(() => [], [])
-  const ctx = useMemo(
-    () => createContainer(propertiesSignal, outerRef, innerRef, parent, scrollHandlers, listeners, subscriptions),
-    [listeners, parent, propertiesSignal, scrollHandlers, subscriptions],
-  )
-  useEffect(
-    () => () => {
-      unsubscribeSubscriptions(propertiesSubscriptions)
-      unsubscribeSubscriptions(subscriptions)
-    },
-    [propertiesSubscriptions, subscriptions],
-  )
+  const ctx = useMemo(() => createContainerContext(state, outerRef, innerRef, parent), [parent, state])
 
   //TBD: useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
-  const interactionPanel = useMemo(
-    () =>
-      createInteractionPanel(
-        ctx.node.size,
-        parent.root.pixelSize,
-        ctx.orderInfo,
-        parent.clippingRect,
-        ctx.root.object,
-        subscriptions,
-      ),
-    [ctx, parent, subscriptions],
-  )
+  const interactionPanel = useMemo(() => createInteractionPanel(ctx, parent, state.subscriptions), [ctx, parent, state])
 
   return (
     <AddHandlers handlers={handlers} ref={outerRef}>
-      <AddScrollHandler handlers={scrollHandlers}>
+      <AddScrollHandler handlers={state.scrollHandlers}>
         <primitive object={interactionPanel} />
       </AddScrollHandler>
       <object3D ref={innerRef}>

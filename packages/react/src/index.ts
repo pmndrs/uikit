@@ -14,3 +14,4 @@ export {
 export { DefaultProperties } from './default.js'
 export * from './container.js'
 export * from './root.js'
+export * from './image.js'

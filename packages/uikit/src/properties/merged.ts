@@ -9,6 +9,10 @@ export class MergedProperties {
 
   constructor(private transformers: PropertyTransformers) {}
 
+  remove(key: string) {
+    this.propertyMap.delete(key)
+  }
+
   add(key: string, value: unknown) {
     if (value === undefined) {
       //only adding non undefined values to the properties

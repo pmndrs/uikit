@@ -156,10 +156,14 @@ export function createImagePropertyTransformers(
   rootSize: Signal<Vector2Tuple>,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
-  textureAspectRatio: Signal<number | undefined>,
 ): PropertyTransformers {
   return {
-    keepAspectRatio: (value, target) => target.add('aspectRatio', value === false ? undefined : textureAspectRatio),
+    keepAspectRatio: (value, target) => {
+      if (value !== false) {
+        return
+      }
+      target.remove('aspectRatio')
+    },
     ...preferredColorSchemePropertyTransformers,
     ...createResponsivePropertyTransformers(rootSize),
     ...createHoverPropertyTransformers(hoveredSignal),

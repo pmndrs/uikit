@@ -1,29 +1,31 @@
-import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
+import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
 import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
-import { Signal, effect } from '@preact/signals-core'
-import { ClippingRect } from '../clipping.js'
-import { OrderInfo } from '../order.js'
+import { effect } from '@preact/signals-core'
 import { Subscriptions } from '../utils.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
-import { Object3DRef } from '../context.js'
+import { WithContext } from '../context.js'
 import { EventHandlers, ThreeEvent } from '../events.js'
 
 export function createInteractionPanel(
-  size: Signal<Vector2Tuple>,
-  pixelSize: number,
-  orderInfo: Signal<OrderInfo>,
-  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  rootObject: Object3DRef,
+  context: WithContext,
+  parentContext: WithContext,
   subscriptions: Subscriptions,
 ): Mesh {
   const panel = new Mesh(panelGeometry)
   panel.matrixAutoUpdate = false
-  panel.raycast = makeClippedRaycast(panel, makePanelRaycast(panel), rootObject, parentClippingRect, orderInfo)
+  panel.raycast = makeClippedRaycast(
+    panel,
+    makePanelRaycast(panel),
+    context.root.object,
+    parentContext.clippingRect,
+    context.orderInfo,
+  )
   panel.visible = false
   subscriptions.push(
     effect(() => {
-      const [width, height] = size.value
+      const [width, height] = context.node.size.value
+      const pixelSize = context.root.pixelSize
       panel.scale.set(width * pixelSize, height * pixelSize, 1)
       panel.updateMatrix()
     }),

@@ -1,5 +1,5 @@
 import { BoxGeometry, Mesh, MeshNormalMaterial, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { patchRenderOrder, Container, Root, Image } from '@react-three/uikit'
+import { patchRenderOrder, Container, Root, Image } from '@vanilla-three/uikit'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 // init
@@ -21,9 +21,16 @@ const root = new Root(camera, scene, {
   sizeY: 0.5,
   backgroundColor: 'red',
 })
-new Image(root, { flexBasis: 0, flexGrow: 1, border: 10, borderColor: 'green', src: 'https://picsum.photos/300/300' })
 new Container(root, { flexGrow: 1, backgroundColor: 'blue' })
-new Container(root, { flexGrow: 1, backgroundColor: 'green' })
+const x = new Container(root, { padding: 30, flexGrow: 1, backgroundColor: 'green' })
+new Image(x, {
+  keepAspectRatio: false,
+  borderRadius: 1000,
+  height: '100%',
+  flexBasis: 0,
+  flexGrow: 1,
+  src: 'https://picsum.photos/300/300',
+})
 
 const geometry = new BoxGeometry(0.2, 0.2, 0.2)
 const material = new MeshNormalMaterial()
