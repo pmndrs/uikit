@@ -3,14 +3,7 @@ import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context'
 import { AddHandlers, AddScrollHandler } from './utilts'
-import {
-  createInteractionPanel,
-  updateContainerProperties,
-  ContainerProperties,
-  createContainerState,
-  cleanContainerState,
-  createContainerContext,
-} from '@vanilla-three/uikit/internals'
+import { ContainerProperties, createContainer, destroyContainer } from '@vanilla-three/uikit/internals'
 import { useDefaultProperties } from './default'
 
 export const Container: (
@@ -21,27 +14,22 @@ export const Container: (
 ) => ReactNode = forwardRef((properties, ref) => {
   //TODO: ComponentInternals
   const parent = useParent()
-  const state = useMemo(() => createContainerState(parent.root.node.size), [parent])
-  useEffect(() => () => cleanContainerState(state), [state])
-
-  const defaultProperties = useDefaultProperties()
-  const handlers = updateContainerProperties(state, properties, defaultProperties)
-
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
-  const ctx = useMemo(() => createContainerContext(state, outerRef, innerRef, parent), [parent, state])
+  const defaultProperties = useDefaultProperties()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const internals = useMemo(() => createContainer(parent, properties, defaultProperties, outerRef, innerRef), [parent])
+  useEffect(() => () => destroyContainer(internals), [internals])
 
   //TBD: useComponentInternals(ref, node, interactionPanel, scrollPosition)
 
-  const interactionPanel = useMemo(() => createInteractionPanel(ctx, parent, state.subscriptions), [ctx, parent, state])
-
   return (
-    <AddHandlers handlers={handlers} ref={outerRef}>
-      <AddScrollHandler handlers={state.scrollHandlers}>
-        <primitive object={interactionPanel} />
+    <AddHandlers handlers={internals.handlers} ref={outerRef}>
+      <AddScrollHandler handlers={internals.scrollHandlers}>
+        <primitive object={internals.interactionPanel} />
       </AddScrollHandler>
       <object3D ref={innerRef}>
-        <ParentProvider value={ctx}>{properties.children}</ParentProvider>
+        <ParentProvider value={internals}>{properties.children}</ParentProvider>
       </object3D>
     </AddHandlers>
   )

@@ -3,8 +3,10 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
 import { Object3D } from 'three'
 
-export const AddHandlers = forwardRef<Object3D, { handlers: EventHandlers; children?: ReactNode }>(
-  ({ handlers, children }, ref) => {
+export const AddHandlers = forwardRef<Object3D, { handlers: Signal<EventHandlers>; children?: ReactNode }>(
+  ({ handlers: handlersSignal, children }, ref) => {
+    const [handlers, setHandlers] = useState(() => handlersSignal.value)
+    useSignalEffect(() => setHandlers(handlersSignal.value), [handlersSignal])
     return (
       <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
         {children}

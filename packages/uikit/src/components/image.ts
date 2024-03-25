@@ -1,4 +1,4 @@
-import { Signal, computed, effect } from '@preact/signals-core'
+import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
 import { Listeners } from '..'
 import { Object3DRef, WithContext } from '../context'
@@ -20,7 +20,7 @@ import {
 import { TransformProperties, applyTransform, computeTransformMatrix } from '../transform'
 import { WithConditionals, computeGlobalMatrix, loadResourceWithParams } from './utils'
 import { MergedProperties, PropertyTransformers } from '../properties/merged'
-import { Subscriptions, unsubscribeSubscriptions } from '../utils'
+import { Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils'
 import { computeIsPanelVisible, panelGeometry } from '../panel/utils'
 import { setupImmediateProperties } from '../properties/immediate'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh'
@@ -33,7 +33,7 @@ import {
 import { setupLayoutListeners, setupViewportListeners } from '../listeners'
 import { createGetBatchedProperties } from '../properties/batched'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active'
-import { addHoverHandlers, createHoverPropertyTransformers } from '../hover'
+import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover'
 import { cloneHandlers } from '../panel/instanced-panel-mesh'
 import { preferredColorSchemePropertyTransformers } from '../dark'
 import { createResponsivePropertyTransformers } from '../responsive'
@@ -66,38 +66,78 @@ export type ImageProperties = InheritableImageProperties & Listeners & EventHand
 const shadowProperties = ['castShadow', 'receiveShadow']
 
 export function createImage(
-  propertiesSignal: Signal<MergedProperties>,
+  parentContext: WithContext,
+  properties: ImageProperties,
+  defaultProperties: AllOptionalProperties | undefined,
   object: Object3DRef,
   childrenContainer: Object3DRef,
-  parent: WithContext,
-  scrollHandlers: Signal<EventHandlers | undefined>,
-  listeners: Listeners,
-  subscriptions: Subscriptions,
-): WithContext {
-  const node = parent.node.createChild(propertiesSignal, object, subscriptions)
-  parent.node.addChild(node)
+) {
+  const subscriptions: Subscriptions = []
+  const texture = signal<Texture | undefined>(undefined)
+  const hoveredSignal = signal<Array<number>>([])
+  const activeSignal = signal<Array<number>>([])
+  setupCursorCleanup(hoveredSignal, subscriptions)
+  const scrollHandlers = signal<EventHandlers>({})
+  const propertiesSignal = signal(properties)
+  const defaultPropertiesSignal = signal(defaultProperties)
 
-  const transformMatrix = computeTransformMatrix(propertiesSignal, node, parent.root.pixelSize)
+  const src = computed(() => readReactive(propertiesSignal.value.src))
+  loadResourceWithParams(texture, loadTextureImpl, subscriptions, src)
+
+  const textureAspectRatio = computed(() => {
+    const tex = texture.value
+    if (tex == null) {
+      return undefined
+    }
+    const image = tex.source.data as { width: number; height: number }
+    return image.width / image.height
+  })
+
+  const propertyTransformers: PropertyTransformers = {
+    keepAspectRatio: (value, target) => {
+      if (value !== false) {
+        return
+      }
+      target.remove('aspectRatio')
+    },
+    ...preferredColorSchemePropertyTransformers,
+    ...createResponsivePropertyTransformers(parentContext.root.node.size),
+    ...createHoverPropertyTransformers(hoveredSignal),
+    ...createActivePropertyTransfomers(activeSignal),
+  }
+
+  const mergedProperties = computed(() => {
+    const merged = new MergedProperties(propertyTransformers)
+    merged.add('backgroundColor', 0xffffff)
+    merged.add('aspectRatio', textureAspectRatio)
+    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value)
+    return merged
+  })
+
+  const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
+  parentContext.node.addChild(node)
+
+  const transformMatrix = computeTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, subscriptions)
 
-  const globalMatrix = computeGlobalMatrix(parent.matrix, transformMatrix)
+  const globalMatrix = computeGlobalMatrix(parentContext.matrix, transformMatrix)
 
-  const isClipped = computeIsClipped(parent.clippingRect, globalMatrix, node.size, parent.root.pixelSize)
+  const isClipped = computeIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
 
-  const orderInfo = computeOrderInfo(propertiesSignal, ElementType.Image, undefined, parent.orderInfo)
+  const orderInfo = computeOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parent.root.pixelSize)
-  const matrix = computeGlobalScrollMatrix(scrollPosition, globalMatrix, parent.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
+  const matrix = computeGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
-    propertiesSignal,
+    mergedProperties,
     scrollPosition,
     node,
     globalMatrix,
     isClipped,
-    parent.clippingRect,
+    parentContext.clippingRect,
     orderInfo,
-    parent.root.panelGroupManager,
+    parentContext.root.panelGroupManager,
     subscriptions,
   )
 
@@ -106,96 +146,59 @@ export function createImage(
     node.size,
     node.borderInset,
     node.overflow,
-    parent.root.pixelSize,
-    parent.clippingRect,
+    parentContext.root.pixelSize,
+    parentContext.clippingRect,
   )
 
-  setupLayoutListeners(listeners, node.size, subscriptions)
-  setupViewportListeners(listeners, isClipped, subscriptions)
+  setupLayoutListeners(propertiesSignal, node.size, subscriptions)
+  setupViewportListeners(propertiesSignal, isClipped, subscriptions)
 
   const onScrollFrame = setupScrollHandler(
     node,
     scrollPosition,
     object,
-    listeners,
-    parent.root.pixelSize,
+    propertiesSignal,
+    parentContext.root.pixelSize,
     scrollHandlers,
     subscriptions,
   )
-  parent.root.onFrameSet.add(onScrollFrame)
+  parentContext.root.onFrameSet.add(onScrollFrame)
 
   subscriptions.push(() => {
-    parent.root.onFrameSet.delete(onScrollFrame)
-    parent.node.removeChild(node)
+    parentContext.root.onFrameSet.delete(onScrollFrame)
+    parentContext.node.removeChild(node)
     node.destroy()
   })
 
-  return {
+  const ctx: WithContext = {
     isClipped,
     clippingRect,
     matrix,
     node,
     object,
     orderInfo,
-    root: parent.root,
+    root: parentContext.root,
   }
-}
-
-export function computeTextureAspectRatio(texture: Signal<Texture | undefined>) {
-  return computed(() => {
-    const tex = texture.value
-    if (tex == null) {
-      return undefined
-    }
-    const image = tex.source.data as { width: number; height: number }
-    return image.width / image.height
+  return Object.assign(ctx, {
+    subscriptions,
+    scrollHandlers,
+    propertiesSignal,
+    defaultPropertiesSignal,
+    handlers: computed(() => {
+      const handlers = cloneHandlers(properties)
+      addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal)
+      addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
+      return handlers
+    }),
+    mesh: createImageMesh(mergedProperties, texture, parentContext, ctx, subscriptions),
   })
 }
 
-export function createImagePropertyTransformers(
-  rootSize: Signal<Vector2Tuple>,
-  hoveredSignal: Signal<Array<number>>,
-  activeSignal: Signal<Array<number>>,
-): PropertyTransformers {
-  return {
-    keepAspectRatio: (value, target) => {
-      if (value !== false) {
-        return
-      }
-      target.remove('aspectRatio')
-    },
-    ...preferredColorSchemePropertyTransformers,
-    ...createResponsivePropertyTransformers(rootSize),
-    ...createHoverPropertyTransformers(hoveredSignal),
-    ...createActivePropertyTransfomers(activeSignal),
-  }
+export function destroyImage(internals: ReturnType<typeof createImage>) {
+  unsubscribeSubscriptions(internals.subscriptions)
 }
 
-export function updateImageProperties(
-  propertiesSignal: Signal<MergedProperties>,
-  textureAspectRatio: Signal<number | undefined>,
-  properties: Properties,
-  defaultProperties: AllOptionalProperties | undefined,
-  hoveredSignal: Signal<Array<number>>,
-  activeSignal: Signal<Array<number>>,
-  transformers: PropertyTransformers,
-  subscriptions: Subscriptions,
-) {
-  //build merged properties
-  const merged = new MergedProperties(transformers)
-  merged.add('backgroundColor', 0xffffff)
-  merged.add('aspectRatio', textureAspectRatio)
-  merged.addAll(defaultProperties, properties)
-  propertiesSignal.value = merged
-
-  //build handlers
-  const handlers = cloneHandlers(properties)
-  addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal, subscriptions)
-  addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
-  return handlers
-}
-
-export function createImageMesh(
+function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   texture: Signal<Texture | undefined>,
   parent: WithContext,
@@ -301,14 +304,6 @@ function transformInsideBorder(borderInset: Signal<Inset>, size: Signal<Vector2T
   texture.matrix
     .translate(-1 + (left + width) / outerWidth, -1 + (top + height) / outerHeight)
     .scale(outerWidth / width, outerHeight / height)
-}
-
-export function loadImageTexture(
-  target: Signal<Texture | undefined>,
-  src: Signal<string> | string,
-  subscriptions: Subscriptions,
-): void {
-  loadResourceWithParams(target, loadTextureImpl, subscriptions, src)
 }
 
 const textureLoader = new TextureLoader()

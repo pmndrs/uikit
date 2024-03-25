@@ -1,4 +1,1 @@
-
-export function useRootSize() {
-
-}
+export function useRootSize() {}

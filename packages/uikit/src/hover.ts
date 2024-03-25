@@ -12,16 +12,17 @@ export type WithHover<T> = T & {
 }
 export type HoverEventHandlers = Pick<EventHandlers, 'onPointerOver' | 'onPointerOut'>
 
+export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, subscriptions: Subscriptions) {
+  //cleanup cursor effect
+  subscriptions.push(() => unsetCursorType(hoveredSignal))
+}
+
 export function addHoverHandlers(
   target: EventHandlers,
   properties: WithHover<{}>,
   defaultProperties: AllOptionalProperties | undefined,
   hoveredSignal: Signal<Array<number>>,
-  subscriptions: Subscriptions,
 ): void {
-  //cleanup cursor effect
-  subscriptions.push(() => unsetCursorType(hoveredSignal))
-
   let hoverPropertiesExist = false
   traverseProperties(defaultProperties, properties, (p) => {
     if ('hover' in p) {

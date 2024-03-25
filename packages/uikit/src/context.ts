@@ -5,11 +5,6 @@ import { ClippingRect } from './clipping'
 import { OrderInfo, WithCameraDistance } from './order'
 import { GlyphGroupManager } from './text/render/instanced-glyph-group'
 import { PanelGroupManager } from './panel/instanced-panel-group'
-import { EventHandlers } from './events'
-
-export type BindEventHandlers = (object: Object3D, handlers: EventHandlers) => void
-
-export type UnbindEventHandlers = (object: Object3D, handlers: EventHandlers) => void
 
 export type WithContext = ElementContext & Readonly<{ root: RootContext }>
 
@@ -21,8 +16,6 @@ export type RootContext = WithCameraDistance &
     panelGroupManager: PanelGroupManager
     pixelSize: number
     onFrameSet: Set<(delta: number) => void>
-    bindEventHandlers: BindEventHandlers
-    unbindEventHandlers: UnbindEventHandlers
   }> &
   ElementContext
 

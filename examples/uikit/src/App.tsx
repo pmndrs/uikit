@@ -15,11 +15,11 @@ export default function App() {
       <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
       <Root flexDirection="row" gap={10} padding={10} sizeX={1} sizeY={0.5} backgroundColor="red">
         <Image
-          keepAspectRatio={false}
-          height="100%"
           flexBasis={0}
           flexGrow={1}
           border={10}
+          hover={{ border: 0 }}
+          cursor="pointer"
           borderColor="green"
           src="https://picsum.photos/300/300"
         />

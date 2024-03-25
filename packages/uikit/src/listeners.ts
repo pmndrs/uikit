@@ -5,19 +5,6 @@ import { ThreeEvent } from './events'
 
 export type Listeners = ScrollListeners & LayoutListeners & ViewportListeners
 
-export function createListeners(): Listeners {
-  return {}
-}
-
-export function updateListeners(
-  target: ScrollListeners & LayoutListeners & ViewportListeners,
-  { onIsInViewportChange, onScroll, onSizeChange }: ScrollListeners & LayoutListeners & ViewportListeners,
-): void {
-  target.onIsInViewportChange = onIsInViewportChange
-  target.onScroll = onScroll
-  target.onSizeChange = onSizeChange
-}
-
 export type ScrollListeners = {
   onScroll?: (scrollX: number, scrollY: number, event?: ThreeEvent<WheelEvent | PointerEvent>) => void
 }
@@ -31,7 +18,7 @@ export type ViewportListeners = {
 }
 
 export function setupLayoutListeners(
-  listeners: LayoutListeners,
+  listeners: Signal<LayoutListeners>,
   size: Signal<Vector2Tuple>,
   subscriptions: Subscriptions,
 ) {
@@ -43,13 +30,13 @@ export function setupLayoutListeners(
         first = false
         return
       }
-      listeners.onSizeChange?.(...s)
+      listeners.peek().onSizeChange?.(...s)
     }),
   )
 }
 
 export function setupViewportListeners(
-  listeners: ViewportListeners,
+  listeners: Signal<ViewportListeners>,
   isClipped: Signal<boolean>,
   subscriptions: Subscriptions,
 ) {
@@ -61,7 +48,7 @@ export function setupViewportListeners(
         first = false
         return
       }
-      listeners.onIsInViewportChange?.(isInViewport)
+      listeners.peek().onIsInViewportChange?.(isInViewport)
     }),
   )
 }

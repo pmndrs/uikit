@@ -1,5 +1,5 @@
 import { YogaProperties } from '../flex/node.js'
-import { addHoverHandlers, createHoverPropertyTransformers } from '../hover.js'
+import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computeIsClipped, computeClippingRect } from '../clipping.js'
 import {
   ScrollbarProperties,
@@ -17,20 +17,14 @@ import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexOffset, computeOrderInfo } from '../order.js'
 import { preferredColorSchemePropertyTransformers } from '../dark.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { Signal, signal } from '@preact/signals-core'
+import { Signal, computed, signal } from '@preact/signals-core'
 import { WithConditionals, computeGlobalMatrix } from './utils.js'
 import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
-import {
-  Listeners,
-  createListeners,
-  setupLayoutListeners,
-  setupViewportListeners,
-  updateListeners,
-} from '../listeners.js'
+import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, WithContext } from '../context.js'
 import { ShadowProperties, computePanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { cloneHandlers } from '../panel/instanced-panel-mesh.js'
+import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { MaterialClass } from '../panel/panel-material.js'
 import { Vector2Tuple } from 'three'
 import { EventHandlers } from '../events.js'
@@ -53,73 +47,74 @@ export type InheritableContainerProperties = WithConditionals<
 
 export type ContainerProperties = InheritableContainerProperties & Listeners & EventHandlers
 
-export type ContainerState = ReturnType<typeof createContainerState>
-
-export function createContainerState(rootSize: Signal<Vector2Tuple>) {
-  const hoveredSignal = signal<Array<number>>([])
-  const activeSignal = signal<Array<number>>([])
-  return {
-    scrollHandlers: signal<EventHandlers>({}),
-    propertiesSignal: signal<MergedProperties>(undefined as any),
-    subscriptions: [] as Subscriptions,
-    propertySubscriptions: [] as Subscriptions,
-    listeners: createListeners(),
-    hoveredSignal,
-    activeSignal,
-    propertyTransformers: {
-      ...preferredColorSchemePropertyTransformers,
-      ...createResponsivePropertyTransformers(rootSize),
-      ...createHoverPropertyTransformers(hoveredSignal),
-      ...createActivePropertyTransfomers(activeSignal),
-    },
-  }
-}
-
-export function createContainerContext(
-  { subscriptions, propertiesSignal, listeners, scrollHandlers }: ContainerState,
+export function createContainer(
+  parentContext: WithContext,
+  properties: ContainerProperties,
+  defaultProperties: AllOptionalProperties | undefined,
   object: Object3DRef,
   childrenContainer: Object3DRef,
-  parent: WithContext,
-): WithContext {
-  const node = parent.node.createChild(propertiesSignal, object, subscriptions)
-  parent.node.addChild(node)
+) {
+  const hoveredSignal = signal<Array<number>>([])
+  const activeSignal = signal<Array<number>>([])
+  const subscriptions = [] as Subscriptions
+  setupCursorCleanup(hoveredSignal, subscriptions)
 
-  const transformMatrix = computeTransformMatrix(propertiesSignal, node, parent.root.pixelSize)
+  const propertyTransformers = {
+    ...preferredColorSchemePropertyTransformers,
+    ...createResponsivePropertyTransformers(parentContext.root.node.size),
+    ...createHoverPropertyTransformers(hoveredSignal),
+    ...createActivePropertyTransfomers(activeSignal),
+  }
+
+  const scrollHandlers = signal<EventHandlers>({})
+  const propertiesSignal = signal(properties)
+  const defaultPropertiesSignal = signal(defaultProperties)
+
+  const mergedProperties = computed(() => {
+    const merged = new MergedProperties(propertyTransformers)
+    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value)
+    return merged
+  })
+
+  const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
+  parentContext.node.addChild(node)
+
+  const transformMatrix = computeTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, subscriptions)
 
-  const globalMatrix = computeGlobalMatrix(parent.matrix, transformMatrix)
+  const globalMatrix = computeGlobalMatrix(parentContext.matrix, transformMatrix)
 
-  const isClipped = computeIsClipped(parent.clippingRect, globalMatrix, node.size, parent.root.pixelSize)
-  const groupDeps = computePanelGroupDependencies(propertiesSignal)
+  const isClipped = computeIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const groupDeps = computePanelGroupDependencies(mergedProperties)
 
-  const orderInfo = computeOrderInfo(propertiesSignal, ElementType.Panel, groupDeps, parent.orderInfo)
+  const orderInfo = computeOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
 
   createInstancedPanel(
-    propertiesSignal,
+    mergedProperties,
     orderInfo,
     groupDeps,
-    parent.root.panelGroupManager,
+    parentContext.root.panelGroupManager,
     globalMatrix,
     node.size,
     undefined,
     node.borderInset,
-    parent.clippingRect,
+    parentContext.clippingRect,
     isClipped,
     subscriptions,
   )
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parent.root.pixelSize)
-  const matrix = computeGlobalScrollMatrix(scrollPosition, globalMatrix, parent.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
+  const matrix = computeGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
-    propertiesSignal,
+    mergedProperties,
     scrollPosition,
     node,
     globalMatrix,
     isClipped,
-    parent.clippingRect,
+    parentContext.clippingRect,
     orderInfo,
-    parent.root.panelGroupManager,
+    parentContext.root.panelGroupManager,
     subscriptions,
   )
 
@@ -128,71 +123,60 @@ export function createContainerContext(
     node.size,
     node.borderInset,
     node.overflow,
-    parent.root.pixelSize,
-    parent.clippingRect,
+    parentContext.root.pixelSize,
+    parentContext.clippingRect,
   )
 
-  setupLayoutListeners(listeners, node.size, subscriptions)
-  setupViewportListeners(listeners, isClipped, subscriptions)
+  setupLayoutListeners(propertiesSignal, node.size, subscriptions)
+  setupViewportListeners(propertiesSignal, isClipped, subscriptions)
 
   const onScrollFrame = setupScrollHandler(
     node,
     scrollPosition,
     object,
-    listeners,
-    parent.root.pixelSize,
+    propertiesSignal,
+    parentContext.root.pixelSize,
     scrollHandlers,
     subscriptions,
   )
-  parent.root.onFrameSet.add(onScrollFrame)
+  parentContext.root.onFrameSet.add(onScrollFrame)
 
   subscriptions.push(() => {
-    parent.root.onFrameSet.delete(onScrollFrame)
-    parent.node.removeChild(node)
+    parentContext.root.onFrameSet.delete(onScrollFrame)
+    parentContext.node.removeChild(node)
     node.destroy()
   })
 
   return {
+    scrollHandlers,
     isClipped,
     clippingRect,
     matrix,
     node,
     object,
     orderInfo,
-    root: parent.root,
+    root: parentContext.root,
+    propertiesSignal,
+    defaultPropertiesSignal,
+    interactionPanel: createInteractionPanel(
+      node,
+      orderInfo,
+      parentContext.root,
+      parentContext.clippingRect,
+      subscriptions,
+    ),
+    handlers: computed(() => {
+      const properties = propertiesSignal.value
+      const defaultProperties = defaultPropertiesSignal.value
+      const handlers = cloneHandlers(properties)
+      addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal)
+      addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
+      return handlers
+    }),
+    subscriptions,
   }
 }
 
-export function updateContainerProperties(
-  {
-    activeSignal,
-    hoveredSignal,
-    propertiesSignal,
-    propertySubscriptions,
-    propertyTransformers,
-    listeners,
-  }: ContainerState,
-  properties: Properties,
-  defaultProperties: AllOptionalProperties | undefined,
-) {
-  //build merged properties
-  const merged = new MergedProperties(propertyTransformers)
-  merged.addAll(defaultProperties, properties)
-  propertiesSignal.value = merged
-
-  //build handlers
-  const handlers = cloneHandlers(properties)
-  unsubscribeSubscriptions(propertySubscriptions)
-  addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal, propertySubscriptions)
-  addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
-
-  //update listeners
-  updateListeners(listeners, properties)
-
-  return handlers
-}
-
-export function cleanContainerState(state: ContainerState) {
-  unsubscribeSubscriptions(state.propertySubscriptions)
-  unsubscribeSubscriptions(state.subscriptions)
+export function destroyContainer(container: ReturnType<typeof createContainer>) {
+  unsubscribeSubscriptions(container.subscriptions)
 }

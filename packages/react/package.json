@@ -30,7 +30,7 @@
     "build": "tsc",
     "check:prettier": "prettier --check src scripts tests",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
-    "fix:prettier": "prettier --write src scripts tests",
+    "fix:prettier": "prettier --write src",
     "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {

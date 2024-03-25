@@ -1,31 +1,28 @@
 import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
 import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
-import { effect } from '@preact/signals-core'
+import { Signal, effect } from '@preact/signals-core'
 import { Subscriptions } from '../utils.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
-import { WithContext } from '../context.js'
 import { EventHandlers, ThreeEvent } from '../events.js'
+import { OrderInfo } from '../order.js'
+import { ClippingRect, FlexNode, RootContext } from '../internals.js'
 
 export function createInteractionPanel(
-  context: WithContext,
-  parentContext: WithContext,
+  node: FlexNode,
+  orderInfo: Signal<OrderInfo>,
+  rootContext: RootContext,
+  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   subscriptions: Subscriptions,
 ): Mesh {
   const panel = new Mesh(panelGeometry)
   panel.matrixAutoUpdate = false
-  panel.raycast = makeClippedRaycast(
-    panel,
-    makePanelRaycast(panel),
-    context.root.object,
-    parentContext.clippingRect,
-    context.orderInfo,
-  )
+  panel.raycast = makeClippedRaycast(panel, makePanelRaycast(panel), rootContext.object, parentClippingRect, orderInfo)
   panel.visible = false
   subscriptions.push(
     effect(() => {
-      const [width, height] = context.node.size.value
-      const pixelSize = context.root.pixelSize
+      const [width, height] = node.size.value
+      const pixelSize = rootContext.pixelSize
       panel.scale.set(width * pixelSize, height * pixelSize, 1)
       panel.updateMatrix()
     }),

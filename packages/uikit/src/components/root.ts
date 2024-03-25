@@ -26,8 +26,8 @@ import { GlyphGroupManager } from '../text/render/instanced-glyph-group'
 import { createGetBatchedProperties } from '../properties/batched'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active'
 import { preferredColorSchemePropertyTransformers } from '../dark'
-import { addHoverHandlers, createHoverPropertyTransformers } from '../hover'
-import { cloneHandlers } from '../panel/instanced-panel-mesh'
+import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover'
+import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh'
 import { createResponsivePropertyTransformers } from '../responsive'
 import { EventHandlers } from '../events'
 
@@ -65,22 +65,42 @@ const planeHelper = new Plane()
 const notClipped = signal(false)
 
 export function createRoot(
-  propertiesSignal: Signal<MergedProperties>,
-  rootSize: Signal<Vector2Tuple>,
+  properties: RootProperties,
+  defaultProperties: AllOptionalProperties | undefined,
   object: Object3DRef,
   childrenContainer: Object3DRef,
-  scrollHandlers: Signal<EventHandlers | undefined>,
-  listeners: Listeners,
-  pixelSize: number | undefined,
-  onFrameSet: Set<(delta: number) => void>,
   getCamera: () => Camera,
-  subscriptions: Subscriptions,
-): RootContext & WithContext {
-  pixelSize ??= DEFAULT_PIXEL_SIZE
+) {
+  const rootSize = signal<Vector2Tuple>([0, 0])
+  const hoveredSignal = signal<Array<number>>([])
+  const activeSignal = signal<Array<number>>([])
+  const subscriptions = [] as Subscriptions
+  setupCursorCleanup(hoveredSignal, subscriptions)
+  const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
+
+  const transformers: PropertyTransformers = {
+    ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
+    ...createSizeTranslator(pixelSize, 'sizeY', 'height'),
+    ...preferredColorSchemePropertyTransformers,
+    ...createResponsivePropertyTransformers(rootSize),
+    ...createHoverPropertyTransformers(hoveredSignal),
+    ...createActivePropertyTransfomers(activeSignal),
+  }
+
+  const scrollHandlers = signal<EventHandlers>({})
+  const propertiesSignal = signal(properties)
+  const defaultPropertiesSignal = signal(defaultProperties)
+  const onFrameSet = new Set<(delta: number) => void>()
+
+  const mergedProperties = computed(() => {
+    const merged = new MergedProperties(transformers)
+    merged.addAll(defaultProperties, properties)
+    return merged
+  })
 
   const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, subscriptions)
   const node = new FlexNode(
-    propertiesSignal,
+    mergedProperties,
     rootSize,
     object,
     loadYoga(),
@@ -91,13 +111,13 @@ export function createRoot(
   )
   subscriptions.push(() => node.destroy())
 
-  const transformMatrix = computeTransformMatrix(propertiesSignal, node, pixelSize)
-  const rootMatrix = computeRootMatrix(propertiesSignal, transformMatrix, node.size, pixelSize)
+  const transformMatrix = computeTransformMatrix(mergedProperties, node, pixelSize)
+  const rootMatrix = computeRootMatrix(mergedProperties, transformMatrix, node.size, pixelSize)
 
   applyTransform(object, transformMatrix, subscriptions)
-  const groupDeps = computePanelGroupDependencies(propertiesSignal)
+  const groupDeps = computePanelGroupDependencies(mergedProperties)
 
-  const orderInfo = computeOrderInfo(propertiesSignal, ElementType.Panel, groupDeps, undefined)
+  const orderInfo = computeOrderInfo(mergedProperties, ElementType.Panel, groupDeps, undefined)
 
   const ctx: WithCameraDistance = { cameraDistance: 0 }
 
@@ -120,7 +140,7 @@ export function createRoot(
   subscriptions.push(() => onFrameSet.delete(onCameraDistanceFrame))
 
   createInstancedPanel(
-    propertiesSignal,
+    mergedProperties,
     orderInfo,
     groupDeps,
     panelGroupManager,
@@ -137,7 +157,7 @@ export function createRoot(
   applyScrollPosition(childrenContainer, scrollPosition, pixelSize)
   const matrix = computeGlobalScrollMatrix(scrollPosition, rootMatrix, pixelSize)
   createScrollbars(
-    propertiesSignal,
+    mergedProperties,
     scrollPosition,
     node,
     rootMatrix,
@@ -150,13 +170,13 @@ export function createRoot(
 
   const clippingRect = computeClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, pixelSize, undefined)
 
-  setupLayoutListeners(listeners, node.size, subscriptions)
+  setupLayoutListeners(propertiesSignal, node.size, subscriptions)
 
   const onScrollFrame = setupScrollHandler(
     node,
     scrollPosition,
     object,
-    listeners,
+    propertiesSignal,
     pixelSize,
     scrollHandlers,
     subscriptions,
@@ -181,45 +201,24 @@ export function createRoot(
     pixelSize,
   })
 
-  return Object.assign(rootCtx, { root: rootCtx })
+  return Object.assign(rootCtx, {
+    subscriptions,
+    propertiesSignal,
+    defaultPropertiesSignal,
+    scrollHandlers,
+    interactionPanel: createInteractionPanel(node, orderInfo, rootCtx, undefined, subscriptions),
+    handlers: computed(() => {
+      const handlers = cloneHandlers(properties)
+      addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal)
+      addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
+      return handlers
+    }),
+    root: rootCtx,
+  })
 }
 
-export function createRootPropertyTransformers(
-  rootSize: Signal<Vector2Tuple>,
-  hoveredSignal: Signal<Array<number>>,
-  activeSignal: Signal<Array<number>>,
-  pixelSize: number = DEFAULT_PIXEL_SIZE,
-): PropertyTransformers {
-  return {
-    ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
-    ...createSizeTranslator(pixelSize, 'sizeY', 'height'),
-    ...preferredColorSchemePropertyTransformers,
-    ...createResponsivePropertyTransformers(rootSize),
-    ...createHoverPropertyTransformers(hoveredSignal),
-    ...createActivePropertyTransfomers(activeSignal),
-  }
-}
-
-export function updateRootProperties(
-  propertiesSignal: Signal<MergedProperties>,
-  properties: Properties,
-  defaultProperties: AllOptionalProperties | undefined,
-  hoveredSignal: Signal<Array<number>>,
-  activeSignal: Signal<Array<number>>,
-  transformers: PropertyTransformers,
-  propertiesSubscriptions: Subscriptions,
-) {
-  //build merged properties
-  const merged = new MergedProperties(transformers)
-  merged.addAll(defaultProperties, properties)
-  propertiesSignal.value = merged
-
-  //build handlers
-  const handlers = cloneHandlers(properties)
-  unsubscribeSubscriptions(propertiesSubscriptions)
-  addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal, propertiesSubscriptions)
-  addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
-  return handlers
+export function destroyRoot(internals: ReturnType<typeof createRoot>) {
+  unsubscribeSubscriptions(internals.subscriptions)
 }
 
 function createDeferredRequestLayoutCalculation(

@@ -58,7 +58,7 @@ export function setupScrollHandler(
   node: FlexNode,
   scrollPosition: Signal<Vector2Tuple>,
   object: Object3DRef,
-  listeners: ScrollListeners,
+  listeners: Signal<ScrollListeners>,
   pixelSize: number,
   scrollHandlers: Signal<EventHandlers | undefined>,
   subscriptions: Subscriptions,
@@ -102,7 +102,7 @@ export function setupScrollHandler(
     }
     if (x != newX || y != newY) {
       scrollPosition.value = [newX, newY]
-      listeners.onScroll?.(...scrollPosition.value, event)
+      listeners.peek().onScroll?.(...scrollPosition.value, event)
     }
   }
 
