@@ -91,10 +91,10 @@ const fontWeightNames = {
 
 export type FontWeight = keyof typeof fontWeightNames | number
 
-export function FontFamilyProvider({
-  children,
-  ...fontFamilies
-}: Record<string, FontFamilyUrls> & { children?: ReactNode }) {
+export function FontFamilyProvider<T extends string = never>(properties: {
+  [Key in T]: Key extends 'children' ? ReactNode : FontFamilyUrls
+}) {
+  let { children, ...fontFamilies } = properties as any
   const existinFontFamilyUrls = useContext(FontFamiliesContext)
   if (existinFontFamilyUrls != null) {
     fontFamilies = { ...existinFontFamilyUrls, ...fontFamilies }
