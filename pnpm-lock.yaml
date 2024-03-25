@@ -399,6 +399,13 @@ importers:
         version: 3.0.0
 
   packages/kits/apfel:
+    dependencies:
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../icons/lucide
     devDependencies:
       '@preact/signals-core':
         specifier: ^1.5.1
@@ -406,12 +413,6 @@ importers:
       '@react-three/fiber':
         specifier: ^8.15.13
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../uikit
-      '@react-three/uikit-lucide':
-        specifier: workspace:^
-        version: link:../../icons/lucide
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47
@@ -424,6 +425,12 @@ importers:
 
   packages/kits/default:
     dependencies:
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../icons/lucide
       tunnel-rat:
         specifier: ^0.1.2
         version: 0.1.2(@types/react@18.2.47)(react@18.2.0)
@@ -434,12 +441,6 @@ importers:
       '@react-three/fiber':
         specifier: ^8.15.13
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../uikit
-      '@react-three/uikit-lucide':
-        specifier: workspace:^
-        version: link:../../icons/lucide
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47

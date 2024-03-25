@@ -69,3 +69,11 @@ jobs:
         working-directory: ./packages/icons/lucide
         run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
           
+      - name: Deploy Uikit-Default Package
+        working-directory: ./packages/kits/default
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+          
+      - name: Deploy Uikit-Apfel Package
+        working-directory: ./packages/kits/apfel
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+          

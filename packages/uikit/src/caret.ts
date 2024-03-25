@@ -1,14 +1,14 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Matrix4, Vector3Tuple } from 'three'
-import { ClippingRect } from './clipping'
-import { ElementType, OrderInfo, useOrderInfo } from './order'
-import { GetInstancedPanelGroup, useGetInstancedPanelGroup, usePanelGroupDependencies } from './panel/react'
+import { ClippingRect } from './clipping.js'
+import { ElementType, OrderInfo, useOrderInfo } from './order.js'
+import { GetInstancedPanelGroup, useGetInstancedPanelGroup, usePanelGroupDependencies } from './panel/react.js'
 import { useEffect, useMemo } from 'react'
-import { InstancedPanel } from './panel/instanced-panel'
-import { Inset } from './flex'
-import { ManagerCollection, PropertyTransformation } from './properties/utils'
-import { useImmediateProperties } from './properties/immediate'
-import { useBatchedProperties } from './properties/batched'
+import { InstancedPanel } from './panel/instanced-panel.js'
+import { Inset } from './flex/index.js'
+import { ManagerCollection, PropertyTransformation } from './properties/utils.js'
+import { useImmediateProperties } from './properties/immediate.js'
+import { useBatchedProperties } from './properties/batched.js'
 
 const noBorder = signal<Inset>([0, 0, 0, 0])
 

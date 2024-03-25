@@ -1,5 +1,31 @@
 {
+  "name": "@react-three/uikit-apfel",
+  "description": "Apfel kit for @react-three/uikit",
+  "version": "0.0.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/pmndrs/uikit",
+  "author": "Bela Bohlender",
+  "keywords": [
+    "r3f",
+    "uikit",
+    "three.js",
+    "userinterface",
+    "react",
+    "flexbox",
+    "yoga",
+    "typescript",
+    "apfel"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/uikit.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "check:prettier": "prettier --check .",
     "check:eslint": "eslint '**/*.{tsx,ts}'",
     "fix:prettier": "prettier --write .",
@@ -8,11 +34,13 @@
   "devDependencies": {
     "@preact/signals-core": "^1.5.1",
     "@react-three/fiber": "^8.15.13",
-    "@react-three/uikit": "workspace:^",
-    "@react-three/uikit-lucide": "workspace:^",
     "@types/react": "^18.2.47",
     "@types/three": "^0.161.0",
     "three": "^0.161.0"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@react-three/uikit": "workspace:^",
+    "@react-three/uikit-lucide": "workspace:^"
+  }
 }
