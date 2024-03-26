@@ -114,17 +114,19 @@ export const CustomContainer = forwardRef<
       hoverHandlers={hoverHandlers}
       activeHandlers={activeHandlers}
     >
-      <mesh
-        receiveShadow={properties.receiveShadow}
-        castShadow={properties.castShadow}
-        customDepthMaterial={properties.customDepthMaterial}
-        customDistanceMaterial={properties.customDistanceMaterial}
-        ref={meshRef}
-        matrixAutoUpdate={false}
-        geometry={panelGeometry}
-      >
-        <FlexProvider value={undefined as any}>{properties.children}</FlexProvider>
-      </mesh>
+      <FlexProvider value={undefined as any}>
+        <mesh
+          receiveShadow={properties.receiveShadow}
+          castShadow={properties.castShadow}
+          customDepthMaterial={properties.customDepthMaterial}
+          customDistanceMaterial={properties.customDistanceMaterial}
+          ref={meshRef}
+          matrixAutoUpdate={false}
+          geometry={panelGeometry}
+        >
+          {properties.children}
+        </mesh>
+      </FlexProvider>
     </InteractionGroup>
   )
 })

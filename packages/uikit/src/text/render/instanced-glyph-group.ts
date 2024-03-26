@@ -16,7 +16,7 @@ export class InstancedGlyphGroup extends Group {
   private holeIndicies: Array<number> = []
   private mesh?: InstancedGlyphMesh
 
-  private material: Material
+  private instanceMaterial: Material
 
   private timeTillDecimate?: number
 
@@ -27,7 +27,7 @@ export class InstancedGlyphGroup extends Group {
     private orderInfo: OrderInfo,
   ) {
     super()
-    this.material = new InstancedGlyphMaterial(font)
+    this.instanceMaterial = new InstancedGlyphMaterial(font)
   }
 
   requestActivate(glyph: InstancedGlyph): void {
@@ -148,7 +148,7 @@ export class InstancedGlyphGroup extends Group {
       this.instanceRGBA,
       this.instanceUV,
       this.instanceClipping,
-      this.material,
+      this.instanceMaterial,
     )
 
     //copy over old arrays and merging the holes

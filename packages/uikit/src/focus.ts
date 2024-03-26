@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { WithClasses, useTraverseProperties } from './properties/default'
-import { ManagerCollection, Properties } from './properties/utils'
-import { createConditionalPropertyTranslator } from './utils'
+import { WithClasses, useTraverseProperties } from './properties/default.js'
+import { ManagerCollection, Properties } from './properties/utils.js'
+import { createConditionalPropertyTranslator } from './utils.js'
 import { Signal } from '@preact/signals-core'
 
 export type WithFocus<T> = T & {

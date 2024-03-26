@@ -6,7 +6,6 @@ import {
   DefaultProperties,
   Container,
   Content,
-  CustomContainer,
   Svg,
   Text,
   Image,
@@ -84,9 +83,6 @@ export default function App() {
             width={300}
             height={100}
           />
-          <CustomContainer transformRotateZ={45} height={200} width={4}>
-            <meshPhongMaterial depthWrite={false} transparent color="green" />
-          </CustomContainer>
           <Content
             height={200}
             width={200}

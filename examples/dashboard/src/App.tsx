@@ -8,7 +8,7 @@ import { Button } from '@/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
 import { DialogAnchor } from '@/dialog'
-
+import { noEvents, XWebPointers } from '@coconut-xr/xinteraction/react'
 import { CalendarDateRangePicker } from './components/DateRangePicker'
 import { MainNav } from './components/MainNav'
 import { Overview } from './components/Overview'
@@ -22,11 +22,13 @@ export default function App() {
   const [open, setOpen] = useState(false)
   return (
     <Canvas
+      events={noEvents}
       flat
       camera={{ position: [0, 0, 18], fov: 35 }}
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
     >
+      <XWebPointers />
       <Fullscreen backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
         <Defaults>
           <DialogAnchor>

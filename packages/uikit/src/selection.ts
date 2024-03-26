@@ -1,11 +1,11 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { GetInstancedPanelGroup, useGetInstancedPanelGroup, usePanelGroupDependencies } from './panel/react'
+import { GetInstancedPanelGroup, useGetInstancedPanelGroup, usePanelGroupDependencies } from './panel/react.js'
 import { useEffect, useMemo } from 'react'
-import { InstancedPanel } from './panel/instanced-panel'
+import { InstancedPanel } from './panel/instanced-panel.js'
 import { Matrix4, Vector2Tuple } from 'three'
-import { ClippingRect } from './clipping'
-import { ElementType, OrderInfo, useOrderInfo } from './order'
-import { Inset } from './flex'
+import { ClippingRect } from './clipping.js'
+import { ElementType, OrderInfo, useOrderInfo } from './order.js'
+import { Inset } from './flex/index.js'
 
 const noBorder = signal<Inset>([0, 0, 0, 0])
 
