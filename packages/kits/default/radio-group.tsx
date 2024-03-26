@@ -35,7 +35,7 @@ export function RadioGroup({
     }
   }, [uncontrolled, onValueChange, providedValue])
   return (
-    <Container gap={8} {...props}>
+    <Container flexDirection="column" gap={8} {...props}>
       <RadioGroupContext.Provider value={contextValue}>{children}</RadioGroupContext.Provider>
     </Container>
   )

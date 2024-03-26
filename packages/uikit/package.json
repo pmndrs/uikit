@@ -28,7 +28,7 @@
     "uikit": "./dist/cli/index.js"
   },
   "scripts": {
-    "test": "mocha ./tests/allocation.spec.ts",
+    "test": "mocha ./tests/flex.spec.ts",
     "build": "tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
@@ -47,7 +47,7 @@
     "commander": "^12.0.0",
     "ora": "^8.0.1",
     "prompts": "^2.4.2",
-    "yoga-layout": "^2.0.1",
+    "yoga-layout": "^3.0.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {

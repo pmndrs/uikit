@@ -39,6 +39,7 @@ export function Loading({
         <Container
           key={i}
           positionType="absolute"
+          flexDirection="column"
           inset={0}
           transformRotateZ={(i * 360) / PILL_AMOUNT}
           alignItems="center"

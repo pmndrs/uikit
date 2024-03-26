@@ -10,7 +10,8 @@ import {
 } from '@react-three/uikit'
 import { Defaults, colors } from '@/theme.js'
 import { Button } from '@/button.js'
-import { UserAuthForm } from './components/user-auth-form'
+import { UserAuthForm } from './components/user-auth-form.js'
+import { Perf } from 'r3f-perf'
 
 setPreferredColorScheme('light')
 
@@ -23,6 +24,7 @@ export default function App() {
       gl={{ localClippingEnabled: true }}
       {...canvasInputProps}
     >
+      <Perf />
       {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
         <Defaults>
           <DialogAnchor>
@@ -48,7 +50,7 @@ export default function App() {
 
 function AuthenticationPage() {
   return (
-    <Container height="100%" positionType="relative" flexDirection="row" alignItems="center">
+    <Container width="100%" height="100%" positionType="relative" flexDirection="row" alignItems="center">
       <Button
         variant="ghost"
         positionType="absolute"
@@ -97,8 +99,8 @@ function AuthenticationPage() {
               Acme Inc
             </Text>
           </Container>
-          <Container marginTop="auto">
-            <Container gap={8}>
+          <Container flexDirection="column" marginTop="auto">
+            <Container flexDirection="column" gap={8}>
               <Text fontSize={18} lineHeight={1.555}>
                 "Culpa eiusmod ut ipsum sunt velit labore minim eu. Occaecat magna mollit aliqua cupidatat."
               </Text>
@@ -109,9 +111,16 @@ function AuthenticationPage() {
           </Container>
         </DefaultProperties>
       </Container>
-      <Container flexBasis={0} flexGrow={1} padding={16} lg={{ padding: 32 }}>
-        <Container marginX="auto" width="100%" justifyContent="center" gap={24} sm={{ width: 350 }}>
-          <Container gap={8}>
+      <Container flexDirection="column" flexBasis={0} flexGrow={1} padding={16} lg={{ padding: 32 }}>
+        <Container
+          flexDirection="column"
+          marginX="auto"
+          width="100%"
+          justifyContent="center"
+          gap={24}
+          sm={{ width: 350 }}
+        >
+          <Container alignItems="center" flexDirection="column" gap={8}>
             <DefaultProperties horizontalAlign="center">
               <Text fontSize={24} lineHeight={1.3333} fontWeight="semi-bold" letterSpacing={-0.4}>
                 Create an account

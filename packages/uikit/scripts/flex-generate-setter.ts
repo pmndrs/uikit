@@ -1,9 +1,9 @@
 import { writeFileSync } from 'fs'
-import { loadYoga, Edge, Gutter, Unit, Node } from 'yoga-layout/wasm-async'
+import Yoga, { Edge, Gutter, Unit, Node } from 'yoga-layout'
+import { defaultYogaConfig } from '../src/flex/index.js'
 
 async function main() {
-  const yoga = await loadYoga()
-  const node = yoga.Node.create()
+  const node = Yoga.Node.create(defaultYogaConfig)
 
   const propertiesWithEdge = new Set(['border', 'padding', 'margin', 'position'])
   const propertiesWithGutter = new Set(['gap'])
@@ -32,7 +32,7 @@ async function main() {
     Column: Gutter.Column,
   }
 
-  const yogaKeys = Object.entries(yoga)
+  const yogaKeys = Object.entries(Yoga)
 
   const kebabCaseFromSnakeCase = (str: string) =>
     str.toLowerCase().replace(/_[a-z]/g, (letter) => `-${letter.slice(1)}`)
@@ -100,11 +100,7 @@ async function main() {
       convertFunction = (defaultValue, setter) => {
         const defaultValueString =
           defaultValue === null || isNaN(defaultValue as any) ? 'NaN' : JSON.stringify(defaultValue)
-        return setter(
-          pointUnit
-            ? `convertPoint(input, precision, ${defaultValueString})${propertyName === 'margin' ? ' as number' : ''}`
-            : `input ?? ${defaultValueString}`,
-        )
+        return setter(`input ?? ${defaultValueString}${propertyName === 'margin' ? ' as number' : ''}`)
       }
     }
     if (propertiesWithEdge.has(propertyName)) {
@@ -115,7 +111,7 @@ async function main() {
         const edgeType = `Edge.${edgeKey}`
         setterFunctions.push([
           edgePropertyName,
-          `(node: Node, precision: number, input: ${types.join(' | ')}) =>
+          `(node: Node, input: ${types.join(' | ')}) =>
               ${convertFunction(
                 defaultValue,
                 (value) => `
@@ -131,7 +127,7 @@ async function main() {
         const gutterType = `Gutter.${gutterKey}`
         setterFunctions.push([
           gutterPropertyName,
-          `(node: Node, precision: number, input: ${types.join(' | ')}) =>
+          `(node: Node, input: ${types.join(' | ')}) =>
               ${convertFunction(
                 defaultValue,
                 (value) => `
@@ -143,7 +139,7 @@ async function main() {
       const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getWidth']())
       setterFunctions.push([
         propertyName,
-        `(node: Node, precision: number, input: ${types.join(' | ')}) =>
+        `(node: Node, input: ${types.join(' | ')}) =>
           ${convertFunction(
             defaultValue,
             (value) => `
@@ -155,8 +151,8 @@ async function main() {
 
   writeFileSync(
     'src/flex/setter.ts',
-    `import { Node } from "yoga-layout/wasm-async"
-    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/wasm-async"
+    `import { Node } from "yoga-layout"
+    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout"
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
@@ -167,10 +163,7 @@ async function main() {
       }
       return resolvedValue
     }
-    function convertPoint<T>(input: T | undefined, precision: number, defaultValue: T): T | number {
-      if(typeof input === "number") {
-        return Math.round(input / precision)
-      }
+    function convertPoint<T>(input: T | undefined, defaultValue: T): T | number {
       return input ?? defaultValue
     }
     ${Array.from(lookupTables.values()).join('\n')}

@@ -1,5 +1,5 @@
 import { Container } from '@react-three/uikit'
-import { Avatar } from '@/avatar'
+import { Avatar } from '@/avatar.js'
 
 export function AvatarDemo() {
   return (

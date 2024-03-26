@@ -1,7 +1,7 @@
 import { Text, Container } from '@react-three/uikit'
 import { BellRing } from '@react-three/uikit-lucide'
-import { Avatar } from '@/avatar'
-import { Button } from '@/button'
+import { Avatar } from '@/avatar.js'
+import { Button } from '@/button.js'
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog'
-import { colors } from '@/theme'
-import { Switch } from '@/switch'
+} from '@/dialog.js'
+import { colors } from '@/theme.js'
+import { Switch } from '@/switch.js'
 
 const notifications = [
   {
@@ -67,7 +67,7 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
               gap={17}
             >
               <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
-              <Container gap={4}>
+              <Container flexDirection="column" gap={4}>
                 <Text fontSize={14} lineHeight={1}>
                   {notification.title}
                 </Text>

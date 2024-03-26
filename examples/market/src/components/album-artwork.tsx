@@ -14,7 +14,7 @@ export function AlbumArtwork({
   aspectRatio?: 'portrait' | 'square'
 } & Omit<ComponentPropsWithoutRef<typeof Container>, 'aspectRatio'>) {
   return (
-    <Container gap={12} {...props}>
+    <Container flexShrink={0} flexDirection="column" gap={12} {...props}>
       <Image
         borderRadius={6}
         src={album.cover}
@@ -23,7 +23,7 @@ export function AlbumArtwork({
         fit="cover"
         aspectRatio={aspectRatio === 'portrait' ? 3 / 4 : 1}
       />
-      <Container gap={4}>
+      <Container flexDirection="column" gap={4}>
         <Text fontWeight="medium" fontSize={14} lineHeight={1}>
           {album.name}
         </Text>

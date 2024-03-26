@@ -129,7 +129,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 ## Root
 
-Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. It allows you to control the `precision` of the layout engine. A precision of `1` expresses that all values computed by the layout engines are integers, while the default precision of `0.1` allows the layout engine to measure layouts in sub-pixel values such as `10.2`. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
+Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
 
 ```jsx
 <Root sizeX={2} sizeY={1} flexDirection="row">
@@ -143,7 +143,6 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 
 | Property  | Type                      |
 | --------- | ------------------------- |
-| precision | number                    |
 | anchorX   | "left", "center", "right" |
 | anchorY   | "top", "center", "bottom" |
 | sizeX     | number                    |
@@ -167,7 +166,6 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 
 | Property     | Type    |
 | ------------ | ------- |
-| precision    | number  |
 | attachCamera | boolean |
 
 </details>

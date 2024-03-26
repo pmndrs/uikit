@@ -1,8 +1,8 @@
 import { ComponentPropsWithoutRef } from 'react'
 import { Text } from '@react-three/uikit'
 import { ChevronDown } from '@react-three/uikit-lucide'
-import { Button } from '@/button'
-import { Avatar } from '@/avatar'
+import { Button } from '@/button.js'
+import { Avatar } from '@/avatar.js'
 
 const groups = [
   {

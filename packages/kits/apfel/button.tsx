@@ -75,7 +75,7 @@ export function Button({
       cursor={disabled ? undefined : 'pointer'}
       height={height}
       width={variant === 'icon' ? height : undefined}
-      paddingX={padding}
+      paddingX={variant === 'icon' ? undefined : padding}
       borderRadius={variant === 'rect' ? borderRadius : height / 2}
       justifyContent="center"
       alignItems="center"

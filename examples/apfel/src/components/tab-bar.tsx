@@ -1,6 +1,6 @@
 import { Text } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
-import { TabBar, TabBarItem } from '@/tab-bar'
+import { TabBar, TabBarItem } from '@/tab-bar.js'
 
 export function TabBarWithText() {
   return (

@@ -1,5 +1,5 @@
-import { Card } from '@/card'
-import { Checkbox } from '@/checkbox'
+import { Card } from '@/card.js'
+import { Checkbox } from '@/checkbox.js'
 
 export function CheckboxOnCard() {
   return (

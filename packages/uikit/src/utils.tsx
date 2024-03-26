@@ -4,7 +4,6 @@ import { Vector2Tuple, BufferAttribute, Color, Group } from 'three'
 import { Color as ColorRepresentation } from '@react-three/fiber'
 import { Inset } from './flex/node.js'
 import { ManagerCollection, Properties } from './properties/utils.js'
-import { Yoga, loadYoga } from 'yoga-layout/wasm-async'
 
 export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
 export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 }
@@ -14,16 +13,6 @@ export function useSignalEffect(fn: () => (() => void) | void, deps: Array<any>)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const unsubscribe = useMemo(() => effect(fn), deps)
   useEffect(() => unsubscribe, [unsubscribe])
-}
-
-let yoga: Signal<Yoga | undefined> | undefined
-
-export function useLoadYoga(): Signal<Yoga | undefined> {
-  if (yoga == null) {
-    const result = (yoga = signal<Yoga | undefined>(undefined))
-    loadYoga().then((value) => (result.value = value))
-  }
-  return yoga
 }
 
 export function useResourceWithParams<P, R, A extends Array<unknown>>(

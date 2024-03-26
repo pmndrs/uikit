@@ -4,7 +4,7 @@ import { colors } from './theme'
 
 export function Card({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
   return (
-    <Container borderRadius={8} border={1} backgroundColor={colors.card} {...props}>
+    <Container flexDirection="column" borderRadius={8} border={1} backgroundColor={colors.card} {...props}>
       <DefaultProperties color={colors.cardForeground}>{children}</DefaultProperties>
     </Container>
   )

@@ -36,7 +36,7 @@ export function Tabs({
     }
   }, [uncontrolled, onValueChange, providedValue])
   return (
-    <Container {...props}>
+    <Container flexDirection="column" {...props}>
       <TabsContext.Provider value={contextValue}>{children}</TabsContext.Provider>
     </Container>
   )
@@ -51,6 +51,7 @@ export function TabsList({ children, ...props }: ComponentPropsWithoutRef<typeof
       borderRadius={6}
       backgroundColor={colors.muted}
       padding={4}
+      flexShrink={0}
       {...props}
     >
       <DefaultProperties color={colors.mutedForeground}>{children}</DefaultProperties>

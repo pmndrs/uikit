@@ -1,6 +1,6 @@
 import { Container, Text } from '@react-three/uikit'
-import { Card } from '@/card'
-import { Button } from '@/button'
+import { Card } from '@/card.js'
+import { Button } from '@/button.js'
 import { BoxSelect } from '@react-three/uikit-lucide'
 
 export function ButtonsOnCard() {

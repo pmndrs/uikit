@@ -1,7 +1,7 @@
 import { Container } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
-import { Card } from '@/card'
-import { Slider } from '@/slider'
+import { Card } from '@/card.js'
+import { Slider } from '@/slider.js'
 
 export function SlidersOnCard() {
   return (

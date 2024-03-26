@@ -1,11 +1,11 @@
 import { DefaultProperties, Text, Container } from '@react-three/uikit'
-import { colors } from '@/theme'
-import { Separator } from '@/separator'
+import { colors } from '@/theme.js'
+import { Separator } from '@/separator.js'
 
 export function SeparatorDemo() {
   return (
-    <Container>
-      <Container gap={4}>
+    <Container width={300} flexDirection="column">
+      <Container flexDirection="column" gap={4}>
         <Text fontSize={14} lineHeight={1}>
           Radix Primitives
         </Text>

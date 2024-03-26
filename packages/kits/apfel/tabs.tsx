@@ -75,6 +75,7 @@ export function TabsButton({ children, value, disabled, ...props }: SegmentedCon
     <Container
       height={32}
       paddingX={20}
+      flexShrink={0}
       cursor={tabsDisabled || disabled ? undefined : 'pointer'}
       {...props}
       onClick={(e) => {

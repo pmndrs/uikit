@@ -1,5 +1,5 @@
 import { Bold } from '@react-three/uikit-lucide'
-import { Toggle } from '@/toggle'
+import { Toggle } from '@/toggle.js'
 
 export function ToggleDemo() {
   return (

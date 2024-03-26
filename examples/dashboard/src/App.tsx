@@ -3,18 +3,18 @@ import { Canvas } from '@react-three/fiber'
 import { Container, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 
-import { Defaults, colors } from '@/theme'
-import { Button } from '@/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
-import { DialogAnchor } from '@/dialog'
+import { Defaults, colors } from '@/theme.js'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card.js'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
+import { DialogAnchor } from '@/dialog.js'
 import { noEvents, XWebPointers } from '@coconut-xr/xinteraction/react'
-import { CalendarDateRangePicker } from './components/DateRangePicker'
-import { MainNav } from './components/MainNav'
-import { Overview } from './components/Overview'
-import { RecentSales } from './components/RecentSales'
-import { TeamSwitcher } from './components/TeamSwitcher'
-import { UserNav } from './components/UserNav'
+import { CalendarDateRangePicker } from './components/DateRangePicker.js'
+import { MainNav } from './components/MainNav.js'
+import { Overview } from './components/Overview.js'
+import { RecentSales } from './components/RecentSales.js'
+import { TeamSwitcher } from './components/TeamSwitcher.js'
+import { UserNav } from './components/UserNav.js'
 
 setPreferredColorScheme('light')
 
@@ -32,7 +32,7 @@ export default function App() {
       <Fullscreen backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
         <Defaults>
           <DialogAnchor>
-            <Container width="100%" height="100%" overflow="scroll">
+            <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
               <DashboardPage open={open} setOpen={setOpen} />
             </Container>
           </DialogAnchor>
@@ -44,8 +44,8 @@ export default function App() {
 
 export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   return (
-    <Container flexDirection="column">
-      <Container borderBottom={1}>
+    <Container flexShrink={0} flexDirection="column">
+      <Container flexShrink={0} flexDirection="column" borderBottom={1}>
         <Container height={64} alignItems="center" flexDirection="row" paddingX={16}>
           <TeamSwitcher />
           <MainNav marginX={24} />
@@ -61,8 +61,8 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
           </Container>
         </Container>
       </Container>
-      <Container flexGrow={1} gap={16} padding={32} paddingTop={24}>
-        <Container flexDirection="row" justifyContent="space-between" gap={8}>
+      <Container flexDirection="column" flexGrow={1} gap={16} padding={32} paddingTop={24}>
+        <Container flexShrink={0} flexDirection="row" justifyContent="space-between" gap={8}>
           <Text fontSize={30} lineHeight={1}>
             Dashboard
           </Text>
@@ -73,7 +73,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
             </Button>
           </Container>
         </Container>
-        <Tabs defaultValue="overview" gap={16}>
+        <Tabs flexDirection="column" defaultValue="overview" gap={16}>
           <TabsList alignSelf="flex-start">
             <TabsTrigger value="overview">
               <Text>Overview</Text>
@@ -88,11 +88,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
               <Text>Notifications</Text>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="overview" gap={16}>
-            <Container gap={16} lg={{ flexDirection: 'row' }}>
+          <TabsContent flexShrink={0} flexDirection="column" value="overview" gap={16}>
+            <Container flexShrink={0} flexDirection="column" gap={16} lg={{ flexDirection: 'row' }}>
               <Container flexGrow={1} gap={16} flexDirection="row">
-                <Card flexBasis={0} flexGrow={1}>
-                  <CardHeader flexDirection="row" alignItems="center" justifyContent="space-between" paddingBottom={8}>
+                <Card flexDirection="column" flexBasis={0} flexGrow={1}>
+                  <CardHeader
+                    flexShrink={0}
+                    flexDirection="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    paddingBottom={8}
+                  >
                     <CardTitle>
                       <Text fontSize={14} lineHeight={1.43}>
                         Total Revenue
@@ -100,7 +106,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     </CardTitle>
                     <DollarSign width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent flexShrink={0} flexDirection="column">
                     <Text fontSize={24} lineHeight={1.3333}>
                       $45,231.89
                     </Text>
@@ -109,12 +115,13 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     </Text>
                   </CardContent>
                 </Card>
-                <Card flexBasis={0} flexGrow={1}>
+                <Card flexDirection="column" flexBasis={0} flexGrow={1}>
                   <CardHeader
                     flexDirection="row"
                     alignItems="center"
                     justifyContent="space-between"
                     paddingBottom={8}
+                    flexShrink={0}
                     gap={0}
                   >
                     <CardTitle>
@@ -124,7 +131,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     </CardTitle>
                     <Users height={16} width={16} color={colors.mutedForeground} />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent flexShrink={0} flexDirection="column">
                     <Text fontSize={24} lineHeight={1.3333}>
                       +2350
                     </Text>
@@ -135,13 +142,14 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                 </Card>
               </Container>
               <Container flexGrow={1} gap={16} flexDirection="row">
-                <Card flexBasis={0} flexGrow={1}>
+                <Card flexDirection="column" flexBasis={0} flexGrow={1}>
                   <CardHeader
                     flexDirection="row"
                     alignItems="center"
                     justifyContent="space-between"
                     paddingBottom={2}
                     gap={0}
+                    flexShrink={0}
                   >
                     <CardTitle>
                       <Text fontSize={14} lineHeight={1.43}>
@@ -150,7 +158,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     </CardTitle>
                     <CreditCard width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent flexShrink={0} flexDirection="column">
                     <Text fontSize={24} lineHeight={1.3333}>
                       +12,234
                     </Text>
@@ -159,13 +167,14 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     </Text>
                   </CardContent>
                 </Card>
-                <Card flexBasis={0} flexGrow={1}>
+                <Card flexDirection="column" flexBasis={0} flexGrow={1}>
                   <CardHeader
                     flexDirection="row"
                     alignItems="center"
                     justifyContent="space-between"
                     paddingBottom={2}
                     gap={0}
+                    flexShrink={0}
                   >
                     <CardTitle>
                       <Text fontSize={14} lineHeight={1.43}>
@@ -174,7 +183,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     </CardTitle>
                     <Activity width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent flexShrink={0} flexDirection="column">
                     <Text fontSize={24} lineHeight={1.3333}>
                       +573
                     </Text>
@@ -185,18 +194,18 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                 </Card>
               </Container>
             </Container>
-            <Container lg={{ flexDirection: 'row' }} flexDirection="column" gap={16}>
-              <Card lg={{ flexGrow: 4 }}>
+            <Container flexShrink={0} lg={{ flexDirection: 'row' }} flexDirection="column" gap={16}>
+              <Card flexDirection="column" lg={{ flexGrow: 4 }} flexBasis={0}>
                 <CardHeader>
                   <CardTitle>
                     <Text>Overview</Text>
                   </CardTitle>
                 </CardHeader>
-                <CardContent paddingLeft={8}>
+                <CardContent flexShrink={0} paddingLeft={8}>
                   <Overview />
                 </CardContent>
               </Card>
-              <Card lg={{ flexGrow: 3 }}>
+              <Card flexDirection="column" lg={{ flexGrow: 3 }} flexBasis={0}>
                 <CardHeader>
                   <CardTitle>
                     <Text>Recent Sales</Text>
@@ -205,7 +214,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     <Text>You made 265 sales this month.</Text>
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent flexDirection="column">
                   <RecentSales />
                 </CardContent>
               </Card>

@@ -1,5 +1,5 @@
 import { Text } from '@react-three/uikit'
-import { Card } from '@/card'
+import { Card } from '@/card.js'
 
 export function TextOnCard() {
   return (

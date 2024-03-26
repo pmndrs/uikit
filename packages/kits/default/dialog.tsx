@@ -157,6 +157,7 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
         <Container
           onClick={(e) => e.stopPropagation()}
           positionType="relative"
+          flexDirection="column"
           width="100%"
           gap={16}
           border={1}

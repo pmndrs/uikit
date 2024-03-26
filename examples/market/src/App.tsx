@@ -8,11 +8,11 @@ import { DialogAnchor } from '@/dialog.js'
 import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/tabs.js'
 import { Separator } from '@/separator.js'
 import { Button } from '@/button.js'
-import { AlbumArtwork } from './components/album-artwork'
-import { listenNowAlbums, madeForYouAlbums } from './data/albums'
-import { Sidebar } from './components/sidebar'
-import { playlists } from './data/playlists'
-import { Menu } from './components/menu'
+import { AlbumArtwork } from './components/album-artwork.js'
+import { listenNowAlbums, madeForYouAlbums } from './data/albums.js'
+import { Sidebar } from './components/sidebar.js'
+import { playlists } from './data/playlists.js'
+import { Menu } from './components/menu.js'
 
 export default function App() {
   return (
@@ -34,7 +34,7 @@ export default function App() {
         <TiltShift2 blur={0.25} />
       </EffectComposer>
       <OrbitControls makeDefault />*/}
-      <Fullscreen>
+      <Fullscreen flexDirection="column">
         <Defaults>
           <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>
             <MarketPage />
@@ -61,9 +61,10 @@ export function MarketPage() {
           paddingBottom={24}
           paddingTop={8}
           lg={{ paddingX: 32 }}
+          flexDirection="column"
         >
           <Tabs defaultValue="music" height="100%" gap={24}>
-            <Container flexDirection="row" justifyContent="space-between" alignItems="center">
+            <Container flexShrink={0} flexDirection="row" justifyContent="space-between" alignItems="center">
               <TabsList>
                 <TabsTrigger value="music">
                   <Text>Models</Text>
@@ -75,16 +76,14 @@ export function MarketPage() {
                   <Text>Materials</Text>
                 </TabsTrigger>
               </TabsList>
-              <Container marginLeft="auto" marginRight={16}>
-                <Button>
-                  <PlusCircle marginRight={8} height={16} width={16} />
-                  <Text>Request Model</Text>
-                </Button>
-              </Container>
+              <Button marginRight={16}>
+                <PlusCircle marginRight={8} height={16} width={16} />
+                <Text>Request Model</Text>
+              </Button>
             </Container>
-            <TabsContent value="music" border={0} padding={0}>
+            <TabsContent flexShrink={0} flexDirection="column" value="music" border={0} padding={0}>
               <Container flexDirection="row" alignItems="center" justifyContent="space-between">
-                <Container gap={4}>
+                <Container flexDirection="column" gap={4}>
                   <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={1.55555}>
                     Trending
                   </Text>
@@ -99,7 +98,7 @@ export function MarketPage() {
                   <AlbumArtwork key={album.name} album={album} width={250} height={330} aspectRatio="portrait" />
                 ))}
               </Container>
-              <Container marginTop={24} gap={4}>
+              <Container flexDirection="column" marginTop={24} gap={4}>
                 <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={1.55555}>
                   Made By You
                 </Text>
