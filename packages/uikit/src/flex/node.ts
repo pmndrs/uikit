@@ -6,18 +6,13 @@ import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
 import { RefObject } from 'react'
 import { CameraDistanceRef } from '../order.js'
+import { defaultYogaConfig } from './config.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
-
-export const PointScaleFactor = 100
-
-export const defaultYogaConfig = Yoga.Config.create()
-defaultYogaConfig.setUseWebDefaults(true)
-defaultYogaConfig.setPointScaleFactor(PointScaleFactor)
 
 export class FlexNode implements WithImmediateProperties {
   public readonly size = signal<Vector2Tuple>([0, 0])

@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs'
 import Yoga, { Edge, Gutter, Unit, Node } from 'yoga-layout'
-import { defaultYogaConfig } from '../src/flex/index.js'
+import { defaultYogaConfig } from '../src/flex/config.js'
 
 async function main() {
   const node = Yoga.Node.create(defaultYogaConfig)

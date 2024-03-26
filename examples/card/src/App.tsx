@@ -9,10 +9,9 @@ import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from 
 import { Switch } from '@/switch.js'
 import { useMemo, useRef } from 'react'
 import { signal } from '@preact/signals-core'
-import { geometry, easing } from 'maath'
+import { easing, geometry } from 'maath'
 import { Floating, Physical } from './components/Simulation.js'
 
-extend(geometry)
 setPreferredColorScheme('light')
 const notifications = [{ title: 'Your call has been confirmed.', description: '1 hour ago' }]
 
@@ -47,7 +46,10 @@ function Rig() {
     easing.damp3(state.camera.position, [state.pointer.x * 2, state.pointer.y * 2, 18], 0.35, delta)
     state.camera.lookAt(0, 0, -10)
   })
+  return null
 }
+
+const cardGeometry = new geometry.RoundedPlaneGeometry(1, 1, 0.025)
 
 export function CardPage() {
   const openRef = useRef(false)
@@ -71,8 +73,7 @@ export function CardPage() {
           transformTranslateZ={translateZ}
         >
           <Content transformTranslateZ={1} padding={14} keepAspectRatio={false} width="100%" height={400}>
-            <mesh>
-              <roundedPlaneGeometry args={[1, 1, 0.025]} />
+            <mesh geometry={cardGeometry}>
               <MeshPortalMaterial>
                 <color attach="background" args={['white']} />
                 <ambientLight intensity={Math.PI} />
