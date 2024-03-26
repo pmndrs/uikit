@@ -55,6 +55,17 @@ This guide is intended for developers migrating their user interface from Koestl
     <Text fontFamily="robotoBold">
     ```
 
+
+## Defaults
+
+The defaults of the yoga layout engine have changed to match the web defaults. Therefore, some properties turn unnecassary while others need to be added.
+
+- **flexDirection** defaults to `row` instead of `column`
+- **alignContent** defaults to `stretch` instead of `flex-start`
+- **flexShrink** defaults to `1` instead of `0`
+
+In most cases explicitly specifying the flexDirection is enough.
+
 ## Migration Steps
 
 - Remove the index property from your UI elements. The order will be automatically managed.
@@ -72,5 +83,6 @@ This guide is intended for developers migrating their user interface from Koestl
 - Rname DefaultStyleProvider to DefaultProperties
 - Remove the depth property from all SVG components
 - Replace usages of the Box component with a Content component containing an Object3D with a BoxGeomtry.
+- Adapt the components to use to the new defaults, which most likely means explicitly setting `flexDirection` to `row` and `flexShrink` to `0`.
 
 By following these steps, you should be able to smoothly transition your user interface from Koestlich to uikit, taking advantage of the latter's streamlined properties and components.
