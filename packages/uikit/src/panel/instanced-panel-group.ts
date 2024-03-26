@@ -49,7 +49,7 @@ export class InstancedPanelGroup extends Group {
   }
 
   constructor(
-    private readonly material: Material,
+    private readonly instanceMaterial: Material,
     public readonly pixelSize: number,
     private readonly cameraDistance: CameraDistanceRef,
     private readonly orderInfo: OrderInfo,
@@ -159,7 +159,7 @@ export class InstancedPanelGroup extends Group {
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
     setupRenderOrder(this.mesh, this.cameraDistance, this.orderInfo)
-    this.mesh.material = this.material
+    this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.meshReceiveShadow
     this.mesh.castShadow = this.meshCastShadow
     this.add(this.mesh)
