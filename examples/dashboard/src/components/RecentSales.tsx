@@ -1,6 +1,6 @@
 import { Container, Text } from '@react-three/uikit'
-import { Avatar } from '@/avatar'
-import { colors } from '@/theme'
+import { Avatar } from '@/avatar.js'
+import { colors } from '@/theme.js'
 
 export function RecentSales() {
   return (

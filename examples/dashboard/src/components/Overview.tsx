@@ -1,5 +1,5 @@
 import { Container, Text } from '@react-three/uikit'
-import { colors } from '@/theme'
+import { colors } from '@/theme.js'
 
 const data = [
   {
@@ -58,7 +58,7 @@ const yAxisLabels = ['$6000', '$4500', '$3000', '$1500', '$0']
 
 export function Overview() {
   return (
-    <Container paddingX={16} gap={16} width="100%" height={350} flexDirection="row">
+    <Container flexShrink={0} paddingX={16} gap={16} width="100%" height={350} flexDirection="row">
       <Container
         paddingBottom={12 * 1.333 + 8}
         flexDirection="column"

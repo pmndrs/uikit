@@ -76,6 +76,7 @@ export function Slider({
       ref={ref}
       {...(disabled ? {} : handler)}
       positionType="relative"
+      flexDirection="column"
       height={8}
       width="100%"
       alignItems="center"

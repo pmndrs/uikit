@@ -10,7 +10,7 @@ import {
 } from '@react-three/uikit'
 import { Defaults, colors } from '@/theme.js'
 import { Button } from '@/button.js'
-import { UserAuthForm } from './components/user-auth-form'
+import { UserAuthForm } from './components/user-auth-form.js'
 import { Perf } from 'r3f-perf'
 
 setPreferredColorScheme('light')

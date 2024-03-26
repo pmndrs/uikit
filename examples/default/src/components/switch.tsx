@@ -1,6 +1,6 @@
 import { Text, Container } from '@react-three/uikit'
-import { Label } from '@/label'
-import { Switch } from '@/switch'
+import { Label } from '@/label.js'
+import { Switch } from '@/switch.js'
 
 export function SwitchDemo() {
   return (

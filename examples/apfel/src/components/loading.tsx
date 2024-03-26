@@ -1,5 +1,5 @@
-import { Card } from '@/card'
-import { Loading } from '@/loading'
+import { Card } from '@/card.js'
+import { Loading } from '@/loading.js'
 
 export function LoadingSpinnersOnCard() {
   return (

@@ -1,4 +1,4 @@
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 import { Menubar, MenubarMenu, MenubarTrigger } from '@/menubar.js'
 import { Container, SvgIconFromText, Text, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { useState } from 'react'

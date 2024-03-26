@@ -11,9 +11,9 @@ export function Sidebar({
   playlists: Playlist[]
 }) {
   return (
-    <Container overflow="scroll" paddingRight={20} paddingBottom={48} {...props}>
-      <Container paddingBottom={16} gap={16}>
-        <Container paddingX={12} paddingY={8}>
+    <Container flexDirection="column" overflow="scroll" paddingRight={20} paddingBottom={48} {...props}>
+      <Container flexShrink={0} flexDirection="column" paddingBottom={16} gap={16}>
+        <Container flexDirection="column" paddingX={12} paddingY={8}>
           <Text
             marginBottom={8}
             paddingX={16}
@@ -24,7 +24,7 @@ export function Sidebar({
           >
             Discover
           </Text>
-          <Container gap={4}>
+          <Container flexDirection="column" gap={4}>
             <Button variant="secondary" justifyContent="flex-start">
               <Package marginRight={8} width={16} height={16} />
               <Text>Models</Text>
@@ -39,7 +39,7 @@ export function Sidebar({
             </Button>
           </Container>
         </Container>
-        <Container paddingX={12} paddingY={8}>
+        <Container flexDirection="column" paddingX={12} paddingY={8}>
           <Text
             marginBottom={8}
             paddingX={16}
@@ -50,7 +50,7 @@ export function Sidebar({
           >
             Collections
           </Text>
-          <Container gap={4}>
+          <Container flexDirection="column" gap={4}>
             <Button variant="ghost" justifyContent="flex-start">
               <Star marginRight={8} width={16} height={16} />
               <Text>Favorits</Text>
@@ -73,7 +73,7 @@ export function Sidebar({
             </Button>
           </Container>
         </Container>
-        <Container paddingY={8}>
+        <Container flexDirection="column" paddingY={8}>
           <Text paddingX={28} fontSize={18} lineHeight={1.5555} fontWeight="semi-bold" letterSpacing={-0.4}>
             Favorits
           </Text>

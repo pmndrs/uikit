@@ -19,4 +19,7 @@ export default defineConfig({
       { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/uikit/src/index.ts') },
     ],
   },
+  build: {
+    target: 'esnext',
+  },
 })

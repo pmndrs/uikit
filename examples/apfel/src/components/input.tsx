@@ -1,5 +1,5 @@
-import { Card } from '@/card'
-import { Input } from '@/input'
+import { Card } from '@/card.js'
+import { Input } from '@/input.js'
 import { Container } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
 import { useState } from 'react'

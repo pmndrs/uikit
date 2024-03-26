@@ -15,7 +15,7 @@ import {
   Input,
 } from '@react-three/uikit'
 import { Texture } from 'three'
-import { Skeleton } from '../../../packages/kits/default/skeleton'
+import { Skeleton } from '../../../packages/kits/default/skeleton.js'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
@@ -42,26 +42,33 @@ export default function App() {
         borderRight={0}
         borderColor="red"
       >
-        <Portal borderRadius={30} width={200} aspectRatio={2}>
+        <Portal flexShrink={0} borderRadius={30} width={200} aspectRatio={2}>
           <PerspectiveCamera makeDefault position={[0, 0, 4]} />
           <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
           <color attach="background" args={['red']} />
         </Portal>
-        <Container backgroundColor="blue" width={100} positionType="relative">
-          <Container>
+        <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
+          <Container flexDirection="column">
             <Text height={100}>Escribe algo...</Text>
           </Container>
-          <Container backgroundColor="red" positionType="absolute" positionTop="100%" positionRight="100%">
+          <Container
+            flexDirection="column"
+            backgroundColor="red"
+            positionType="absolute"
+            positionTop="100%"
+            positionRight="100%"
+          >
             <Text>Escribe algo...</Text>
           </Container>
         </Container>
         <DefaultProperties opacity={0.5} border={s}>
-          <Image width={300} height={300} src={texture ?? undefined} />
+          <Image flexShrink={0} width={300} height={300} src={texture ?? undefined} />
           <Text
             onClick={() => {
               t.value += 'X'
               setShow((s) => !s)
             }}
+            flexShrink={0}
             width="100%"
             backgroundOpacity={0.5}
             backgroundColor="black"
@@ -74,9 +81,11 @@ export default function App() {
             more
           </Text>
           <Container
+            flexShrink={0}
             onHoverChange={(hover) => (x.value = hover ? 'yellow' : undefined)}
             backgroundColor={x}
             borderColor="white"
+            flexDirection="column"
             borderBend={1}
             border={20}
             borderRadius={30}
@@ -84,6 +93,7 @@ export default function App() {
             height={100}
           />
           <Content
+            flexShrink={0}
             height={200}
             width={200}
             hover={{ height: 300 }}
@@ -98,22 +108,25 @@ export default function App() {
               <meshPhongMaterial depthWrite={false} transparent />
             </mesh>
           </Content>
-          <Content width={100}>
+          <Content flexShrink={0} width={100}>
             <Gltf src="example.glb" />
           </Content>
-          <Svg marginLeft={-100} color={x} backgroundColor="red" src="example.svg" width={200} />
+          <Svg flexShrink={0} marginLeft={-100} color={x} backgroundColor="red" src="example.svg" width={200} />
           <Suspense fallback={<Skeleton width={300} aspectRatio={2 / 3} />}>
             <SuspendingImage
+              flexShrink={0}
               hover={{ padding: 30, border: 0, marginLeft: -30, opacity: 1 }}
               fit="cover"
               border={20}
               borderOpacity={0.2}
               borderRadius={10}
+              flexDirection="column"
               src="https://picsum.photos/2000/3000"
               width={300}
               overflow="scroll"
             >
               <Text
+                flexShrink={0}
                 minHeight={100}
                 backgroundColor="black"
                 verticalAlign="center"
@@ -122,7 +135,7 @@ export default function App() {
               >
                 Hello World!
               </Text>
-              <Text backgroundColor="black" padding={10}>
+              <Text flexShrink={0} backgroundColor="black" padding={10}>
                 Lorem voluptate aliqua est veniam pariatur enim reprehenderit nisi laboris. Tempor sit magna ea occaecat
                 velit veniam ipsum do deserunt adipisicing labore. Voluptate consectetur Lorem exercitation laborum do
                 nulla velit sit. Aliqua sit cupidatat excepteur fugiat. Labore proident ea in in ex ad aute adipisicing
@@ -136,7 +149,15 @@ export default function App() {
           </Suspense>
         </DefaultProperties>
 
-        <Container positionType="relative" width="60%" alignItems="center" justifyContent="center" zIndexOffset={1}>
+        <Container
+          flexShrink={0}
+          flexDirection="column"
+          positionType="relative"
+          width="60%"
+          alignItems="center"
+          justifyContent="center"
+          zIndexOffset={1}
+        >
           <Container
             width={100}
             height={100}
@@ -144,6 +165,7 @@ export default function App() {
             positionBottom="100%"
             positionRight="100%"
             marginRight={10}
+            flexDirection="column"
             backgroundColor="red"
           ></Container>
           <Input
@@ -162,15 +184,23 @@ export default function App() {
         </Container>
 
         {show ? (
-          <Container overflow="scroll" maxHeight={500} height={500} paddingRight={10}>
+          <Container
+            flexShrink={0}
+            flexDirection="column"
+            overflow="scroll"
+            maxHeight={500}
+            height={500}
+            paddingRight={10}
+          >
             <Container
               onClick={() => (s.value += 10)}
               backgroundColor="yellow"
               width={300}
               minHeight={300}
               height={300}
+              flexDirection="column"
             />
-            <Container backgroundColor="black" width={300} minHeight={300} height={300} />
+            <Container flexDirection="column" backgroundColor="black" width={300} minHeight={300} height={300} />
           </Container>
         ) : undefined}
       </Fullscreen>

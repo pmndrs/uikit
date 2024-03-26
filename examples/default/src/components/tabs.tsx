@@ -1,8 +1,8 @@
 import { Text, Container } from '@react-three/uikit'
-import { Button } from '@/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
-import { Label } from '@/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
+import { Label } from '@/label.js'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 
 export function TabsDemo() {
   return (
@@ -25,14 +25,14 @@ export function TabsDemo() {
               <Text>Make changes to your account here. Click save when you're done.</Text>
             </CardDescription>
           </CardHeader>
-          <CardContent gap={8}>
-            <Container gap={4}>
+          <CardContent flexDirection="column" gap={8}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>Name</Text>
               </Label>
               <Text>Pedro Duarte</Text>
             </Container>
-            <Container gap={4}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>Username</Text>
               </Label>
@@ -56,14 +56,14 @@ export function TabsDemo() {
               <Text>Change your password here. After saving, you'll be logged out.</Text>
             </CardDescription>
           </CardHeader>
-          <CardContent gap={8}>
-            <Container gap={4}>
+          <CardContent flexDirection="column" gap={8}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>Current password</Text>
               </Label>
               <Text>password</Text>
             </Container>
-            <Container gap={4}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>New password</Text>
               </Label>

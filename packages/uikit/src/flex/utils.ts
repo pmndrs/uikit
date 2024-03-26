@@ -1,5 +1,5 @@
 import { Node, MeasureFunction } from 'yoga-layout'
-import { PointScaleFactor } from '.'
+import { PointScaleFactor } from './index.js'
 
 export function yogaNodeEqual(n1: Node, n2: Node): boolean {
   return (n1 as any)['M']['O'] === (n2 as any)['M']['O']

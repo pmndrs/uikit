@@ -1,6 +1,6 @@
 import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import Yoga, { Edge, ExperimentalFeature, Node, Overflow } from 'yoga-layout'
+import Yoga, { Edge, Node, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
@@ -17,7 +17,6 @@ export const PointScaleFactor = 100
 
 export const defaultYogaConfig = Yoga.Config.create()
 defaultYogaConfig.setUseWebDefaults(true)
-defaultYogaConfig.setExperimentalFeatureEnabled(ExperimentalFeature.WebFlexBasis, true)
 defaultYogaConfig.setPointScaleFactor(PointScaleFactor)
 
 export class FlexNode implements WithImmediateProperties {
@@ -113,6 +112,7 @@ export class FlexNode implements WithImmediateProperties {
     if (i === -1) {
       return
     }
+    node.yogaNode?.getParent()?.removeChild(node.yogaNode)
     this.children.splice(i, 1)
     this.requestCalculateLayout()
   }
@@ -175,6 +175,10 @@ export class FlexNode implements WithImmediateProperties {
 
       //the yoga node MUST be updated via getChild even for insert since the returned value is somehow bound to the index
       oldChildNode = this.yogaNode.getChild(i)
+    }
+
+    if (this.children.length != this.yogaNode.getChildCount()) {
+      throw new Error('alarm')
     }
 
     //recursively executing commit in children
@@ -243,12 +247,15 @@ export class FlexNode implements WithImmediateProperties {
       const maxScrollX = maxContentWidth - widthWithoutBorder
       const maxScrollY = maxContentHeight - heightWithoutBorder
 
+      const xScrollable = maxScrollX > 0.5
+      const yScrollable = maxScrollY > 0.5
+
       updateVector2Signal(
         this.maxScrollPosition,
-        maxScrollX <= 0 ? undefined : maxScrollX,
-        maxScrollY <= 0 ? undefined : maxScrollY,
+        xScrollable ? maxScrollX : undefined,
+        yScrollable ? maxScrollY : undefined,
       )
-      updateVector2Signal(this.scrollable, maxScrollX > 0, maxScrollY > 0)
+      updateVector2Signal(this.scrollable, xScrollable, yScrollable)
     } else {
       updateVector2Signal(this.maxScrollPosition, undefined, undefined)
       updateVector2Signal(this.scrollable, false, false)

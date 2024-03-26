@@ -7,7 +7,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/pagination'
+} from '@/pagination.js'
 
 export function PaginationDemo() {
   return (

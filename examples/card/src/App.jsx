@@ -2,15 +2,15 @@ import { Environment, MeshPortalMaterial, PerspectiveCamera } from '@react-three
 import { Canvas, extend, useFrame } from '@react-three/fiber'
 import { Root, Container, Text, setPreferredColorScheme, Content, Fullscreen } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
-import { Defaults, colors } from '@/theme'
-import { Avatar } from '@/avatar'
-import { Button } from '@/button'
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
-import { Switch } from '@/switch'
+import { Defaults, colors } from '@/theme.js'
+import { Avatar } from '@/avatar.js'
+import { Button } from '@/button.js'
+import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
+import { Switch } from '@/switch.js'
 import { useMemo, useRef } from 'react'
 import { signal } from '@preact/signals-core'
 import { geometry, easing } from 'maath'
-import { Floating, Physical } from './components/Simulation'
+import { Floating, Physical } from './components/Simulation.js'
 
 extend(geometry)
 setPreferredColorScheme('light')

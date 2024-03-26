@@ -33,6 +33,7 @@ export function AlertDialogContent(props: ComponentPropsWithoutRef<typeof Dialog
         <Container
           onClick={(e) => e.stopPropagation()}
           positionType="relative"
+          flexDirection="column"
           maxWidth={512}
           width="100%"
           gap={16}

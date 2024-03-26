@@ -54,13 +54,13 @@ export function Input({
     >
       <DefaultProperties color={colors.foreground} opacity={disabled ? 0.2 : 0.5}>
         {prefix && (
-          <Container paddingX={12}>
+          <Container flexShrink={0} paddingX={12}>
             <DefaultProperties width={14} height={14}>
               {prefix}
             </DefaultProperties>
           </Container>
         )}
-        <Container justifyContent="center" minHeight={1} flexGrow={1} positionType="relative">
+        <Container alignItems="center" minHeight={1} flexGrow={1} positionType="relative">
           {placeholder != null && (
             <Text fontSize={14} positionType="absolute" opacity={placeholderOpacity}>
               {placeholder}
