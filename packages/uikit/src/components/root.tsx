@@ -170,17 +170,17 @@ export const Root = forwardRef<
             <InstancedPanelProvider value={getPanelGroup}>
               <ScrollHandler node={node} scrollPosition={scrollPosition} listeners={properties}>
                 <primitive object={internactionPanel} />
+                <RootSizeProvider value={node.size}>
+                  <ChildrenProvider
+                    globalMatrix={rootMatrix}
+                    node={node}
+                    orderInfo={orderInfo}
+                    scrollPosition={scrollPosition}
+                  >
+                    {properties.children}
+                  </ChildrenProvider>
+                </RootSizeProvider>
               </ScrollHandler>
-              <RootSizeProvider value={node.size}>
-                <ChildrenProvider
-                  globalMatrix={rootMatrix}
-                  node={node}
-                  orderInfo={orderInfo}
-                  scrollPosition={scrollPosition}
-                >
-                  {properties.children}
-                </ChildrenProvider>
-              </RootSizeProvider>
             </InstancedPanelProvider>
           </InstancedGlyphProvider>
         </RootGroupProvider>

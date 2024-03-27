@@ -122,10 +122,10 @@ export const Container = forwardRef<
     >
       <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
         <primitive object={interactionPanel} />
+        <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
+          {properties.children}
+        </ChildrenProvider>
       </ScrollHandler>
-      <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
-        {properties.children}
-      </ChildrenProvider>
     </InteractionGroup>
   )
 })

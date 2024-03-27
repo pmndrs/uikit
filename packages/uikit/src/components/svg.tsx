@@ -268,10 +268,10 @@ export const Svg = forwardRef<
       <ScrollHandler listeners={properties} node={node} scrollPosition={scrollPosition}>
         <primitive object={interactionPanel} />
         <primitive object={centerGroup} />
+        <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
+          {properties.children}
+        </ChildrenProvider>
       </ScrollHandler>
-      <ChildrenProvider globalMatrix={globalMatrix} node={node} orderInfo={orderInfo} scrollPosition={scrollPosition}>
-        {properties.children}
-      </ChildrenProvider>
     </InteractionGroup>
   )
 })
