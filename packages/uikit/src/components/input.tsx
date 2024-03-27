@@ -225,7 +225,6 @@ export const Input = forwardRef<
           ? undefined
           : {
               onPointerDown: (e) => {
-                properties.onPointerDown?.(e)
                 if (e.defaultPrevented || e.uv == null || instancedTextRef.current == null) {
                   return
                 }
@@ -241,11 +240,12 @@ export const Input = forwardRef<
                 })
               },
               onPointerUp: (e) => {
-                properties.onPointerUp?.(e)
+                startCharIndex.current = undefined
+              },
+              onPointerLeave: (e) => {
                 startCharIndex.current = undefined
               },
               onPointerMove: (e) => {
-                properties.onPointerMove?.(e)
                 if (startCharIndex.current == null || e.uv == null || instancedTextRef.current == null) {
                   return
                 }

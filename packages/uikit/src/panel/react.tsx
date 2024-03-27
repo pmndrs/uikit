@@ -31,7 +31,7 @@ export function InteractionGroup({
   hoverHandlers: HoverEventHandlers | undefined
   activeHandlers: ActiveEventHandlers | undefined
   matrix: Signal<Matrix4 | undefined>
-  inputHandlers?: Pick<EventHandlers, 'onPointerDown' | 'onPointerUp' | 'onPointerMove'>
+  inputHandlers?: Pick<EventHandlers, 'onPointerDown' | 'onPointerUp' | 'onPointerMove' | 'onPointerLeave'>
   children?: ReactNode
   groupRef: RefObject<Group>
 }) {
@@ -57,7 +57,10 @@ export function InteractionGroup({
         handlers.onPointerDown,
         mergeHandlers(activeHandlers?.onPointerDown, inputHandlers?.onPointerDown),
       )}
-      onPointerLeave={mergeHandlers(handlers.onPointerLeave, activeHandlers?.onPointerLeave)}
+      onPointerLeave={mergeHandlers(
+        handlers.onPointerLeave,
+        mergeHandlers(activeHandlers?.onPointerLeave, inputHandlers?.onPointerLeave),
+      )}
       /** only handlers */
       onPointerMove={mergeHandlers(handlers.onPointerMove, inputHandlers?.onPointerMove)}
       onWheel={handlers.onWheel}
