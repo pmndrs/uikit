@@ -20,7 +20,7 @@ export const Image: (props: ImageProperties & { children?: ReactNode }) => React
   return (
     <AddHandlers ref={outerRef} handlers={internals.handlers}>
       <AddScrollHandler handlers={internals.scrollHandlers}>
-        <primitive object={internals.mesh} />
+        <primitive object={internals.interactionPanel} />
       </AddScrollHandler>
       <object3D ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>

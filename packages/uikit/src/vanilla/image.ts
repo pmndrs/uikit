@@ -28,8 +28,8 @@ export class Image extends Object3D {
     )
     this.setProperties(properties, defaultProperties)
 
-    this.container.add(this.internals.mesh)
-    bindHandlers(this.internals, this, this.internals.mesh, this.eventConfig)
+    this.container.add(this.internals.interactionPanel)
+    bindHandlers(this.internals, this, this.internals.interactionPanel, this.eventConfig)
   }
 
   setProperties(properties: ImageProperties, defaultProperties?: AllOptionalProperties) {

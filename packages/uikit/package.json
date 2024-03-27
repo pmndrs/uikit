@@ -42,6 +42,7 @@
     "yoga-layout": "^2.0.1"
   },
   "devDependencies": {
+    "@types/node": "^20.11.0",
     "@types/three": "^0.161.0",
     "three": "^0.161.0"
   }

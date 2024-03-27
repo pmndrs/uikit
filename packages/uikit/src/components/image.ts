@@ -190,7 +190,7 @@ export function createImage(
       addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
       return handlers
     }),
-    mesh: createImageMesh(mergedProperties, texture, parentContext, ctx, subscriptions),
+    interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, subscriptions),
   })
 }
 
