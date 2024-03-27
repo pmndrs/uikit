@@ -113,11 +113,12 @@ export const Image = forwardRef<
   const clippingPlanes = useGlobalClippingPlanes(parentClippingRect, rootGroupRef)
   const globalMatrix = useGlobalMatrix(transformMatrix)
   const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
+  const isHidden = useMemo(() => computed(() => isClipped.value || texture.value == null), [isClipped, texture])
   const materials = usePanelMaterials(
     collection,
     node.size,
     node.borderInset,
-    isClipped,
+    isHidden,
     properties.materialClass,
     clippingPlanes,
     materialPropertyTransformation,
@@ -178,7 +179,7 @@ export const Image = forwardRef<
     mesh.updateMatrix()
   }, [mesh])
 
-  useSignalEffect(() => void (mesh.visible = !isClipped.value), [mesh, isClipped])
+  useSignalEffect(() => void (mesh.visible = !isHidden.value), [mesh, isHidden])
 
   useComponentInternals(ref, node, mesh, scrollPosition)
 
