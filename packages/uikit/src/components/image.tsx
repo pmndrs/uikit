@@ -68,9 +68,13 @@ export type ImageFitProperties = {
 }
 
 const materialPropertyTransformation: PropertyTransformation = (key, value, hasProperty, setProperty) => {
-  if (key === 'opacity') {
-    setProperty('backgroundOpacity', value)
-    return
+  switch (key) {
+    case 'backgroundOpacity':
+    case 'backgroundColor':
+      return
+    case 'opacity':
+      setProperty('backgroundOpacity', value)
+      return
   }
   panelAliasPropertyTransformation(key, value, hasProperty, setProperty)
 }
