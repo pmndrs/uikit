@@ -9,12 +9,9 @@ import {
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from 'three'
-import { Constructor, isPanelVisible, setBorderRadius } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
-import { Inset } from '../flex/node.js'
+import { Constructor, setBorderRadius } from './utils.js'
+import { Signal } from '@preact/signals-core'
 import { PanelProperties } from './instanced-panel.js'
-import { WithImmediateProperties } from '../properties/immediate.js'
-import { WithBatchedProperties } from '../properties/batched.js'
 
 type InstanceOf<T> = T extends { new (): infer K } ? K : never
 
@@ -22,7 +19,7 @@ const colorHelper = new Color()
 
 export const panelDefaultColor = new Color(-1, -1, -1)
 
-const panelMaterialSetters: {
+export const panelMaterialSetters: {
   [Key in keyof PanelProperties]-?: (
     data: Float32Array,
     value: PanelProperties[Key],
@@ -77,111 +74,6 @@ export const panelMaterialDefaultData = [
   1, //height
   -1, //background opacity
 ]
-
-const batchedProperties = ['borderOpacity', 'backgroundColor', 'backgroundOpacity'] as const
-type BatchedProperties = Pick<PanelProperties, (typeof batchedProperties)[number]>
-type BatchedPropertiesKey = keyof BatchedProperties
-
-export class MaterialSetter implements WithBatchedProperties, WithImmediateProperties {
-  //data layout: vec4 borderSize = data[0]; vec4 borderRadius = data[1]; vec3 borderColor = data[2].xyz; float borderBend = data[2].w; float borderOpacity = data[3].x; float width = data[3].y; float height = data[3].z; float backgroundOpacity = data[3].w;
-  public readonly data = new Float32Array(16)
-
-  private unsubscribeList: Array<() => void> = []
-  private unsubscribe: () => void
-  private visible = false
-  private materials: Array<Material> = []
-
-  active = signal(false)
-
-  constructor(
-    private size: Signal<Vector2Tuple>,
-    borderInset: Signal<Inset>,
-    isClipped: Signal<boolean>,
-  ) {
-    this.size = size
-    this.unsubscribe = effect(() => {
-      const get = this.getProperty.value
-      const isVisible =
-        get != null &&
-        isPanelVisible(
-          borderInset,
-          size,
-          isClipped,
-          get('borderOpacity'),
-          get('backgroundOpacity'),
-          get('backgroundColor'),
-        )
-      this.active.value = isVisible
-      if (!isVisible) {
-        this.deactivate()
-        return
-      }
-      this.activate(size, borderInset)
-    })
-  }
-  addMaterial(material: Material) {
-    material.visible = this.visible
-    this.materials.push(material)
-  }
-
-  hasBatchedProperty(key: BatchedPropertiesKey): boolean {
-    return batchedProperties.includes(key)
-  }
-
-  getProperty: Signal<undefined | (<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]) | undefined> =
-    signal(undefined)
-
-  hasImmediateProperty(key: string): boolean {
-    return key in panelMaterialSetters
-  }
-
-  setProperty(key: string, value: unknown): void {
-    const setter = panelMaterialSetters[key as keyof typeof panelMaterialSetters]
-    setter(this.data, value as any, this.size)
-  }
-
-  private activate(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>): void {
-    if (this.visible) {
-      return
-    }
-
-    this.visible = true
-    this.syncVisible()
-
-    this.data.set(panelMaterialDefaultData)
-    this.unsubscribeList.push(
-      effect(() => this.data.set(size.value, 13)),
-      effect(() => this.data.set(borderInset.value, 0)),
-    )
-  }
-
-  private deactivate(): void {
-    if (!this.visible) {
-      return
-    }
-
-    this.visible = false
-    this.syncVisible()
-
-    const unsubscribeListLength = this.unsubscribeList.length
-    for (let i = 0; i < unsubscribeListLength; i++) {
-      this.unsubscribeList[i]()
-    }
-    this.unsubscribeList.length = 0
-  }
-
-  destroy(): void {
-    this.deactivate()
-    this.unsubscribe()
-  }
-
-  private syncVisible() {
-    const materialsLength = this.materials.length
-    for (let i = 0; i < materialsLength; i++) {
-      this.materials[i].visible = this.visible
-    }
-  }
-}
 
 export type PanelMaterialInfo = { type: 'instanced' } | { type: 'normal'; data: Float32Array }
 

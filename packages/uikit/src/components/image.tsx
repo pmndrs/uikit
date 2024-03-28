@@ -1,10 +1,20 @@
-import { Group, Mesh, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
-import { ReactNode, forwardRef, useMemo, useRef } from 'react'
+import {
+  Group,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  Plane,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
+  Vector2Tuple,
+} from 'three'
+import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { useResourceWithParams, useRootGroupRef, useSignalEffect } from '../utils.js'
-import { Signal, computed } from '@preact/signals-core'
+import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Inset, YogaProperties } from '../flex/node.js'
-import { panelGeometry } from '../panel/utils.js'
-import { InteractionGroup, MaterialClass, ShadowProperties, usePanelMaterials } from '../panel/react.js'
+import { isPanelVisible, panelGeometry } from '../panel/utils.js'
+import { InteractionGroup, MaterialClass, ShadowProperties } from '../panel/react.js'
 import { useFlexNode } from '../flex/react.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { useApplyHoverProperties } from '../hover.js'
@@ -37,13 +47,21 @@ import {
   useGetBatchedProperties,
   writeCollection,
 } from '../properties/utils.js'
-import { useImmediateProperties } from '../properties/immediate.js'
+import { WithImmediateProperties, useImmediateProperties } from '../properties/immediate.js'
 import { WithClasses, useApplyProperties } from '../properties/default.js'
 import { useApplyResponsiveProperties } from '../responsive.js'
 import { ElementType, ZIndexOffset, setupRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
 import { ScrollHandler, useScrollPosition, useScrollbars, ScrollbarProperties, ScrollListeners } from '../scroll.js'
+import {
+  createPanelMaterial,
+  PanelDepthMaterial,
+  PanelDistanceMaterial,
+  panelMaterialDefaultData,
+  panelMaterialSetters,
+} from '../panel/panel-material.js'
+import { WithBatchedProperties, useBatchedProperties } from '../properties/batched.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -65,18 +83,6 @@ export type ImageProperties = WithConditionals<
 
 export type ImageFitProperties = {
   fit?: ImageFit
-}
-
-const materialPropertyTransformation: PropertyTransformation = (key, value, hasProperty, setProperty) => {
-  switch (key) {
-    case 'backgroundOpacity':
-    case 'backgroundColor':
-      return
-    case 'opacity':
-      setProperty('backgroundOpacity', value)
-      return
-  }
-  panelAliasPropertyTransformation(key, value, hasProperty, setProperty)
 }
 
 export const Image = forwardRef<
@@ -125,7 +131,7 @@ export const Image = forwardRef<
     isHidden,
     properties.materialClass,
     clippingPlanes,
-    materialPropertyTransformation,
+    panelAliasPropertyTransformation,
   )
   const orderInfo = useOrderInfo(ElementType.Image, properties.zIndexOffset, undefined)
   const mesh = useMemo(() => {
@@ -159,7 +165,6 @@ export const Image = forwardRef<
   useApplyResponsiveProperties(collection, properties)
   const hoverHandlers = useApplyHoverProperties(collection, properties)
   const activeHandlers = useApplyActiveProperties(collection, properties)
-  writeCollection(collection, 'backgroundColor', 0xffffff)
   if (properties.keepAspectRatio ?? true) {
     writeCollection(collection, 'aspectRatio', aspectRatio)
   }
@@ -277,5 +282,141 @@ async function loadTexture(src?: string | Texture) {
   } catch (error) {
     console.error(error)
     return undefined
+  }
+}
+
+function usePanelMaterials(
+  collection: ManagerCollection,
+  size: Signal<Vector2Tuple>,
+  borderInset: Signal<Inset>,
+  isClipped: Signal<boolean>,
+  materialClass: MaterialClass | undefined,
+  clippingPlanes: Array<Plane>,
+  propertyTransformation: PropertyTransformation,
+): readonly [Material, Material, Material] {
+  const { materials, setter } = useMemo(() => {
+    const setter = new MaterialSetter(size, borderInset, isClipped)
+    const info = { data: setter.data, type: 'normal' } as const
+    const material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
+    const depthMaterial = new PanelDepthMaterial(info)
+    const distanceMaterial = new PanelDistanceMaterial(info)
+    material.clippingPlanes = clippingPlanes
+    depthMaterial.clippingPlanes = clippingPlanes
+    distanceMaterial.clippingPlanes = clippingPlanes
+    return { materials: [material, depthMaterial, distanceMaterial], setter } as const
+  }, [size, borderInset, isClipped, materialClass, clippingPlanes])
+  useImmediateProperties(collection, setter, propertyTransformation)
+  useBatchedProperties(collection, setter, propertyTransformation)
+  useEffect(() => () => setter.destroy(), [setter])
+  return materials
+}
+
+const batchedProperties = ['borderOpacity', 'opacity'] as const
+type BatchedProperties = { borderOpacity?: number; opacity?: number }
+type BatchedPropertiesKey = keyof BatchedProperties
+
+const imageMaterialDefaultData = [...panelMaterialDefaultData]
+imageMaterialDefaultData[4] = 1
+imageMaterialDefaultData[5] = 1
+imageMaterialDefaultData[6] = 1
+
+class MaterialSetter implements WithBatchedProperties, WithImmediateProperties {
+  //data layout: vec4 borderSize = data[0]; vec4 borderRadius = data[1]; vec3 borderColor = data[2].xyz; float borderBend = data[2].w; float borderOpacity = data[3].x; float width = data[3].y; float height = data[3].z; float backgroundOpacity = data[3].w;
+  public readonly data = new Float32Array(16)
+
+  private unsubscribeList: Array<() => void> = []
+  private unsubscribe: () => void
+  private visible = false
+  private materials: Array<Material> = []
+
+  active = signal(false)
+
+  constructor(
+    private size: Signal<Vector2Tuple>,
+    borderInset: Signal<Inset>,
+    isClipped: Signal<boolean>,
+  ) {
+    this.size = size
+    this.unsubscribe = effect(() => {
+      const get = this.getProperty.value
+      const isVisible =
+        get != null && isPanelVisible(borderInset, size, isClipped, get('borderOpacity'), get('opacity'), 0xffffff)
+      this.active.value = isVisible
+      if (!isVisible) {
+        this.deactivate()
+        return
+      }
+      this.activate(size, borderInset)
+    })
+  }
+  addMaterial(material: Material) {
+    material.visible = this.visible
+    this.materials.push(material)
+  }
+
+  hasBatchedProperty(key: BatchedPropertiesKey): boolean {
+    return batchedProperties.includes(key)
+  }
+
+  getProperty: Signal<undefined | (<K extends BatchedPropertiesKey>(key: K) => BatchedProperties[K]) | undefined> =
+    signal(undefined)
+
+  hasImmediateProperty(key: string): boolean {
+    return key in panelMaterialSetters
+  }
+
+  setProperty(key: string, value: unknown): void {
+    switch (key) {
+      case 'backgroundOpacity':
+      case 'backgroundColor':
+        return
+      case 'opacity':
+        key = 'backgroundOpacity'
+        break
+    }
+    const setter = panelMaterialSetters[key as keyof typeof panelMaterialSetters]
+    setter(this.data, value as any, this.size)
+  }
+
+  private activate(size: Signal<Vector2Tuple>, borderInset: Signal<Inset>): void {
+    if (this.visible) {
+      return
+    }
+
+    this.visible = true
+    this.syncVisible()
+
+    this.data.set(imageMaterialDefaultData)
+    this.unsubscribeList.push(
+      effect(() => this.data.set(size.value, 13)),
+      effect(() => this.data.set(borderInset.value, 0)),
+    )
+  }
+
+  private deactivate(): void {
+    if (!this.visible) {
+      return
+    }
+
+    this.visible = false
+    this.syncVisible()
+
+    const unsubscribeListLength = this.unsubscribeList.length
+    for (let i = 0; i < unsubscribeListLength; i++) {
+      this.unsubscribeList[i]()
+    }
+    this.unsubscribeList.length = 0
+  }
+
+  destroy(): void {
+    this.deactivate()
+    this.unsubscribe()
+  }
+
+  private syncVisible() {
+    const materialsLength = this.materials.length
+    for (let i = 0; i < materialsLength; i++) {
+      this.materials[i].visible = this.visible
+    }
   }
 }

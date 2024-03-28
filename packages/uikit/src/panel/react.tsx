@@ -1,5 +1,5 @@
 import { ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useMemo } from 'react'
-import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Plane, Vector2Tuple } from 'three'
+import { Group, Material, Matrix4, Mesh, MeshBasicMaterial, Vector2Tuple } from 'three'
 import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Signal, effect } from '@preact/signals-core'
 import { Inset } from '../flex/node.js'
@@ -10,7 +10,7 @@ import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.j
 import { HoverEventHandlers } from '../hover.js'
 import { InstancedPanelGroup } from './instanced-panel-group.js'
 import { InstancedPanel } from './instanced-panel.js'
-import { MaterialSetter, PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from './panel-material.js'
+import { createPanelMaterial } from './panel-material.js'
 import { useImmediateProperties } from '../properties/immediate.js'
 import { ManagerCollection, PropertyTransformation } from '../properties/utils.js'
 import { useBatchedProperties } from '../properties/batched.js'
@@ -133,32 +133,6 @@ export function useGetInstancedPanelGroup() {
     throw new Error(`Can only be used inside a <Root> component.`)
   }
   return get
-}
-
-export function usePanelMaterials(
-  collection: ManagerCollection,
-  size: Signal<Vector2Tuple>,
-  borderInset: Signal<Inset>,
-  isClipped: Signal<boolean>,
-  materialClass: MaterialClass | undefined,
-  clippingPlanes: Array<Plane>,
-  propertyTransformation: PropertyTransformation,
-): readonly [Material, Material, Material] {
-  const { materials, setter } = useMemo(() => {
-    const setter = new MaterialSetter(size, borderInset, isClipped)
-    const info = { data: setter.data, type: 'normal' } as const
-    const material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
-    const depthMaterial = new PanelDepthMaterial(info)
-    const distanceMaterial = new PanelDistanceMaterial(info)
-    material.clippingPlanes = clippingPlanes
-    depthMaterial.clippingPlanes = clippingPlanes
-    distanceMaterial.clippingPlanes = clippingPlanes
-    return { materials: [material, depthMaterial, distanceMaterial], setter } as const
-  }, [size, borderInset, isClipped, materialClass, clippingPlanes])
-  useImmediateProperties(collection, setter, propertyTransformation)
-  useBatchedProperties(collection, setter, propertyTransformation)
-  useEffect(() => () => setter.destroy(), [setter])
-  return materials
 }
 
 export type PanelGroupDependencies = {
