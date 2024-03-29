@@ -29,6 +29,7 @@ export type ComponentInternals = {
   borderInset: ReadonlySignal<Inset>
   paddingInset: ReadonlySignal<Inset>
   scrollPosition?: Signal<Vector2Tuple>
+  maxScrollPosition?: Signal<Partial<Vector2Tuple>>
   interactionPanel: Mesh
 }
 
@@ -45,6 +46,7 @@ export function useComponentInternals(
       paddingInset: node.paddingInset,
       pixelSize: node.pixelSize,
       center: node.relativeCenter,
+      maxScrollPosition: node.maxScrollPosition,
       size: node.size,
       interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
       scrollPosition,
