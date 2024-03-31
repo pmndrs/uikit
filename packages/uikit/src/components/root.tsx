@@ -42,7 +42,7 @@ import { ElementType, patchRenderOrder, useOrderInfo } from '../order.js'
 import { useApplyPreferredColorSchemeProperties } from '../dark.js'
 import { useApplyActiveProperties } from '../active.js'
 
-export const DEFAULT_PIXEL_SIZE = 0.002
+export const DEFAULT_PIXEL_SIZE = 0.01
 
 export type RootProperties = WithConditionals<
   WithClasses<
