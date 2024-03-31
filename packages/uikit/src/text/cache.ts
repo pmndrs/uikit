@@ -37,7 +37,7 @@ async function loadFont(url: string, renderer: WebGLRenderer): Promise<Font> {
     throw new Error('only supporting exactly 1 page')
   }
 
-  const page = await textureLoader.loadAsync(new URL(info.pages[0], url).href)
+  const page = await textureLoader.loadAsync(new URL(info.pages[0], new URL(url, window.location.href)).href)
 
   page.anisotropy = renderer.capabilities.getMaxAnisotropy()
   page.flipY = false
