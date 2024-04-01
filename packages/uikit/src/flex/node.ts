@@ -1,12 +1,12 @@
 import { Group, Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import Yoga, { Edge, Node, Overflow } from 'yoga-layout'
+import { Edge, Node, Overflow } from 'yoga-layout/load'
 import { setter } from './setter.js'
 import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 import { WithImmediateProperties } from '../properties/immediate.js'
 import { RefObject } from 'react'
 import { CameraDistanceRef } from '../order.js'
-import { defaultYogaConfig } from './config.js'
+import { createYogaNode } from './yoga.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -42,9 +42,13 @@ export class FlexNode implements WithImmediateProperties {
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
+      const yogaNode = createYogaNode()
+      if (yogaNode == null) {
+        return
+      }
       this.unsubscribeYoga?.()
       this.unsubscribeYoga = undefined
-      this.yogaNode = Yoga.Node.create(defaultYogaConfig)
+      this.yogaNode = yogaNode
       this.active.value = true
     })
   }

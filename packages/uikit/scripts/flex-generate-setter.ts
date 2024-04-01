@@ -1,9 +1,10 @@
 import { writeFileSync } from 'fs'
-import Yoga, { Edge, Gutter, Unit, Node } from 'yoga-layout'
-import { defaultYogaConfig } from '../src/flex/config.js'
+import { Edge, Gutter, Unit, Node, loadYoga } from 'yoga-layout/load'
+import { createDefaultConfig } from '../src/flex/yoga.js'
 
 async function main() {
-  const node = Yoga.Node.create(defaultYogaConfig)
+  const Yoga = await loadYoga()
+  const node = Yoga.Node.create(createDefaultConfig(Yoga.Config))
 
   const propertiesWithEdge = new Set(['border', 'padding', 'margin', 'position'])
   const propertiesWithGutter = new Set(['gap'])
@@ -151,8 +152,8 @@ async function main() {
 
   writeFileSync(
     'src/flex/setter.ts',
-    `import { Node } from "yoga-layout"
-    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout"
+    `import { Node } from "yoga-layout/load"
+    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/load"
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
