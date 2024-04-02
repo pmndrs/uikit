@@ -17,41 +17,10 @@ import { Signal, effect } from '@preact/signals-core'
 import { Inset } from '../flex/node.js'
 import type { PanelProperties } from './instanced-panel.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
-import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 
 export type MaterialClass = { new (...args: Array<any>): Material }
-
-const panelMaterialClassKey = ['panelMaterialClass']
-
-export function setupPanelMaterials(
-  propertiesSignal: Signal<MergedProperties>,
-  target: Mesh,
-  size: Signal<Vector2Tuple>,
-  borderInset: Signal<Inset>,
-  isClipped: Signal<boolean>,
-  clippingPlanes: Array<Plane>,
-  subscriptions: Subscriptions,
-  renameOutput?: Record<string, string>,
-) {
-  const data = new Float32Array(16)
-  const info = { data: data, type: 'normal' } as const
-  target.customDepthMaterial = new PanelDepthMaterial(info)
-  target.customDistanceMaterial = new PanelDistanceMaterial(info)
-  target.customDepthMaterial.clippingPlanes = clippingPlanes
-  target.customDistanceMaterial.clippingPlanes = clippingPlanes
-
-  const get = createGetBatchedProperties(propertiesSignal, panelMaterialClassKey)
-  subscriptions.push(
-    effect(() => {
-      const materialClass = get('panelMaterialClass') as MaterialClass | undefined
-      target.material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
-      target.material.clippingPlanes = clippingPlanes
-    }),
-  )
-  applyPropsToMaterialData(propertiesSignal, data, size, borderInset, isClipped, [], subscriptions, renameOutput)
-}
 
 type InstanceOf<T> = T extends { new (): infer K } ? K : never
 
@@ -59,7 +28,7 @@ const colorHelper = new Color()
 
 export const panelDefaultColor = new Color(-1, -1, -1)
 
-const panelMaterialSetters: {
+export const panelMaterialSetters: {
   [Key in keyof PanelProperties]-?: (
     data: Float32Array,
     value: PanelProperties[Key],
@@ -127,7 +96,6 @@ export function applyPropsToMaterialData(
   isClipped: Signal<boolean>,
   materials: ReadonlyArray<Material>,
   subscriptions: Subscriptions,
-  renameOutput?: Record<string, string>,
 ) {
   const internalSubscriptions: Array<() => void> = []
   const isVisible = computeIsPanelVisible(propertiesSignal, borderInset, size, isClipped, renameOutput)

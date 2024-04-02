@@ -1,10 +1,10 @@
 import { Text, Container } from '@react-three/uikit'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion.js'
 
 //TODO: type="single" collapsible
 export function AccordionDemo() {
   return (
-    <Container width={300}>
+    <Container flexDirection="column" width={300}>
       <Accordion>
         <AccordionItem value="item-1">
           <AccordionTrigger>

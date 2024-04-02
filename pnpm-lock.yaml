@@ -20,6 +20,9 @@ importers:
       '@types/mocha':
         specifier: ^10.0.4
         version: 10.0.6
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47
@@ -122,6 +125,39 @@ importers:
       maath:
         specifier: ^0.10.7
         version: 0.10.7(@types/three@0.161.2)(three@0.161.0)
+      r3f-perf:
+        specifier: ^7.1.2
+        version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      three:
+        specifier: ^0.161.0
+        version: 0.161.0
+
+  examples/auth:
+    dependencies:
+      '@react-three/drei':
+        specifier: ^9.96.1
+        version: 9.96.1(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
+      '@react-three/fiber':
+        specifier: ^8.15.13
+        version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
+      '@react-three/postprocessing':
+        specifier: ^2.16.0
+        version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide
+      '@types/three':
+        specifier: ^0.161.0
+        version: 0.161.2
       r3f-perf:
         specifier: ^7.1.2
         version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
@@ -382,6 +418,13 @@ importers:
         version: 3.0.0
 
   packages/kits/apfel:
+    dependencies:
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../icons/lucide
     devDependencies:
       '@preact/signals-core':
         specifier: ^1.5.1
@@ -407,6 +450,12 @@ importers:
 
   packages/kits/default:
     dependencies:
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../uikit
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../icons/lucide
       tunnel-rat:
         specifier: ^0.1.2
         version: 0.1.2(@types/react@18.2.47)(react@18.2.0)
@@ -7126,8 +7175,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yoga-layout@2.0.1:
-    resolution: {integrity: sha512-tT/oChyDXelLo2A+UVnlW9GU7CsvFMaEnd9kVFsaiCQonFAXd3xrHhkLYu+suwwosrAEQ746xBU+HvYtm1Zs2Q==}
+  /yoga-layout@3.0.2:
+    resolution: {integrity: sha512-/QSkaNPadLnnBbKoN2Pk36bihWO9b8herZ4nkry/h51KGnKb1CliASdeTmio9wVXmzecqnrfaf9aPIb+GTwLCg==}
     dev: false
 
   /zod@3.22.4:

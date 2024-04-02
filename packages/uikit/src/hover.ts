@@ -22,6 +22,7 @@ export function addHoverHandlers(
   properties: WithHover<{}>,
   defaultProperties: AllOptionalProperties | undefined,
   hoveredSignal: Signal<Array<number>>,
+  defaultCursor?: string,
 ): void {
   let hoverPropertiesExist = false
   traverseProperties(defaultProperties, properties, (p) => {
@@ -30,7 +31,8 @@ export function addHoverHandlers(
     }
   })
 
-  if (!hoverPropertiesExist && properties.onHoverChange == null && properties.cursor == null) {
+  const cursor = properties.cursor ?? defaultCursor
+  if (!hoverPropertiesExist && properties.onHoverChange == null && cursor == null) {
     //no need to listen to hover
     hoveredSignal.value.length = 0
     return

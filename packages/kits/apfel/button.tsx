@@ -1,6 +1,17 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef } from 'react'
+import React, { ComponentPropsWithoutRef } from 'react'
 import { colors } from './theme'
+
+function getAribtrarySize(size: number) {
+  const multiplier = size / 44
+  return {
+    height: 44 * multiplier,
+    padding: 20 * multiplier,
+    borderRadius: 12 * multiplier,
+    fontSize: 14 * multiplier,
+    iconSize: 18 * multiplier,
+  }
+}
 
 const sizes = {
   xs: {
@@ -41,7 +52,6 @@ const sizes = {
 }
 
 type Variant = 'pill' | 'rect' | 'icon'
-type Size = keyof typeof sizes
 
 export function Button({
   children,
@@ -52,19 +62,20 @@ export function Button({
   disabled,
   ...props
 }: ComponentPropsWithoutRef<typeof Container> & {
-  size?: Size
+  size?: keyof typeof sizes | number
   variant?: Variant
   platter?: boolean
   selected?: boolean
   disabled?: boolean
 }) {
-  const { borderRadius, fontSize, height, padding, iconSize } = sizes[size]
+  const { borderRadius, fontSize, height, padding, iconSize } =
+    typeof size === 'number' ? getAribtrarySize(size) : sizes[size]
   return (
     <Container
       cursor={disabled ? undefined : 'pointer'}
       height={height}
       width={variant === 'icon' ? height : undefined}
-      paddingX={padding}
+      paddingX={variant === 'icon' ? undefined : padding}
       borderRadius={variant === 'rect' ? borderRadius : height / 2}
       justifyContent="center"
       alignItems="center"

@@ -76,19 +76,19 @@ export function setupScrollHandler(
     enableRubberBand: boolean,
   ) => {
     const [wasScrolledX, wasScrolledY] = event == null ? [false, false] : getWasScrolled(event.nativeEvent)
-    if (wasScrolledX && wasScrolledY) {
-      return
+    if (wasScrolledX) {
+      deltaX = 0
+    }
+    if (wasScrolledY) {
+      deltaY = 0
     }
     const [x, y] = scrollPosition.value
     const [maxX, maxY] = node.maxScrollPosition.value
     let [newX, newY] = scrollPosition.value
     const [ancestorScrollableX, ancestorScrollableY] = node.anyAncestorScrollable?.value ?? [false, false]
-    if (!wasScrolledX) {
-      newX = computeScroll(x, maxX, deltaX, enableRubberBand && !ancestorScrollableX)
-    }
-    if (!wasScrolledY) {
-      newY = computeScroll(y, maxY, deltaY, enableRubberBand && !ancestorScrollableY)
-    }
+    newX = computeScroll(x, maxX, deltaX, enableRubberBand && !ancestorScrollableX)
+    newY = computeScroll(y, maxY, deltaY, enableRubberBand && !ancestorScrollableY)
+
     if (deltaTime != null && deltaTime > 0) {
       scrollVelocity.set(deltaX, deltaY).divideScalar(deltaTime)
     }
@@ -100,10 +100,11 @@ export function setupScrollHandler(
         wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
       )
     }
-    if (x != newX || y != newY) {
-      scrollPosition.value = [newX, newY]
-      listeners.peek().onScroll?.(...scrollPosition.value, event)
+    const preventScroll = listeners.peek().onScroll?.(newX, newY, scrollPosition, event)
+    if (preventScroll === false || (x === newX && y === newY)) {
+      return
     }
+    scrollPosition.value = [newX, newY]
   }
 
   subscriptions.push(

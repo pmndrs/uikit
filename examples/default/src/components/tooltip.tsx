@@ -1,5 +1,5 @@
 import { Text } from '@react-three/uikit'
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/tooltip.js'
 
 export function TooltipDemo() {

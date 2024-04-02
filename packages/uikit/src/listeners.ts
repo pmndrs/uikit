@@ -1,12 +1,25 @@
 import { Signal, effect } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
-import { Subscriptions } from './utils'
-import { ThreeEvent } from './events'
+import { Subscriptions } from './utils.js'
+import { ThreeEvent } from './events.js'
 
 export type Listeners = ScrollListeners & LayoutListeners & ViewportListeners
 
 export type ScrollListeners = {
-  onScroll?: (scrollX: number, scrollY: number, event?: ThreeEvent<WheelEvent | PointerEvent>) => void
+  /**
+   * scroll listener called right before the new scroll position is set when a scroll event is caused
+   * @param scrollX the new scroll x position
+   * @param scrollY the new scroll y position
+   * @param scrollPosition the current/old scroll position
+   * @param event the event that caused the scrolling
+   * @returns false to prevent the new scroll x and scroll y position from beeing applied
+   */
+  onScroll?: (
+    scrollX: number,
+    scrollY: number,
+    scrollPosition: Signal<Vector2Tuple>,
+    event?: ThreeEvent<WheelEvent | PointerEvent>,
+  ) => boolean | void
 }
 
 export type LayoutListeners = {

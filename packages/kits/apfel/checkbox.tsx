@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { Check } from '@react-three/uikit-lucide'
-import { ComponentPropsWithoutRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, useState } from 'react'
 import { colors } from './theme'
 
 type CheckboxProps = ComponentPropsWithoutRef<typeof Container> & {

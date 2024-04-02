@@ -1,12 +1,29 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
+import {
+  Mesh,
+  MeshBasicMaterial,
+  Plane,
+  PlaneGeometry,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
+  Vector2Tuple,
+} from 'three'
 import { Listeners } from '..'
 import { Object3DRef, WithContext } from '../context'
 import { Inset, YogaProperties } from '../flex'
 import { ElementType, ZIndexOffset, computeOrderInfo, setupRenderOrder } from '../order'
 import { PanelProperties } from '../panel/instanced-panel'
 import { ShadowProperties } from '../panel/instanced-panel-group'
-import { MaterialClass, setupPanelMaterials } from '../panel/panel-material'
+import {
+  MaterialClass,
+  PanelDepthMaterial,
+  PanelDistanceMaterial,
+  applyPropsToMaterialData,
+  createPanelMaterial,
+  panelMaterialDefaultData,
+  setupPanelMaterials,
+} from '../panel/panel-material'
 import { WithAllAliases } from '../properties/alias'
 import { AllOptionalProperties, Properties, WithClasses, WithReactive } from '../properties/default'
 import {
@@ -123,6 +140,7 @@ export function createImage(
   const globalMatrix = computeGlobalMatrix(parentContext.matrix, transformMatrix)
 
   const isClipped = computeIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isHidden = computed(() => isClipped.value || texture.value == null)
 
   const orderInfo = computeOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
 
@@ -171,7 +189,6 @@ export function createImage(
   })
 
   const ctx: WithContext = {
-    isClipped,
     clippingRect,
     matrix,
     node,
@@ -190,7 +207,7 @@ export function createImage(
       addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
       return handlers
     }),
-    interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, subscriptions),
+    interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, isHidden, subscriptions),
   })
 }
 
@@ -202,7 +219,8 @@ function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   texture: Signal<Texture | undefined>,
   parent: WithContext,
-  { node, orderInfo, root, clippingRect, isClipped }: WithContext,
+  { node, orderInfo, root, clippingRect }: WithContext,
+  isHidden: Signal<boolean>,
   subscriptions: Subscriptions,
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
@@ -211,8 +229,8 @@ function createImageMesh(
   const updateClippingPlanes = () => updateGlobalClippingPlanes(clippingRect, root.object, clippingPlanes)
   root.onFrameSet.add(updateClippingPlanes)
   subscriptions.push(() => root.onFrameSet.delete(updateClippingPlanes))
-  setupPanelMaterials(propertiesSignal, mesh, node.size, node.borderInset, isClipped, clippingPlanes, subscriptions)
-  const isVisible = computeIsPanelVisible(propertiesSignal, node.borderInset, node.size, isClipped)
+  setupPanelMaterials(propertiesSignal, mesh, node.size, node.borderInset, isHidden, clippingPlanes, subscriptions)
+  const isVisible = computeIsPanelVisible(propertiesSignal, node.borderInset, node.size, isHidden, 0xffffff)
   setupImmediateProperties(
     propertiesSignal,
     isVisible,
@@ -324,4 +342,42 @@ async function loadTextureImpl(src?: string | Texture) {
     console.error(error)
     return undefined
   }
+}
+
+const panelMaterialClassKey = ['panelMaterialClass']
+
+//TODO: rename setter: opacity => backgroundOpacity and remove backgroundColor
+//TODO: allow providing own default material data
+
+const imageMaterialDefaultData = [...panelMaterialDefaultData]
+imageMaterialDefaultData[4] = 1
+imageMaterialDefaultData[5] = 1
+imageMaterialDefaultData[6] = 1
+
+export function setupPanelMaterials(
+  propertiesSignal: Signal<MergedProperties>,
+  target: Mesh,
+  size: Signal<Vector2Tuple>,
+  borderInset: Signal<Inset>,
+  isClipped: Signal<boolean>,
+  clippingPlanes: Array<Plane>,
+  subscriptions: Subscriptions,
+  renameOutput?: Record<string, string>,
+) {
+  const data = new Float32Array(16)
+  const info = { data: data, type: 'normal' } as const
+  target.customDepthMaterial = new PanelDepthMaterial(info)
+  target.customDistanceMaterial = new PanelDistanceMaterial(info)
+  target.customDepthMaterial.clippingPlanes = clippingPlanes
+  target.customDistanceMaterial.clippingPlanes = clippingPlanes
+
+  const get = createGetBatchedProperties(propertiesSignal, panelMaterialClassKey)
+  subscriptions.push(
+    effect(() => {
+      const materialClass = get('panelMaterialClass') as MaterialClass | undefined
+      target.material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
+      target.material.clippingPlanes = clippingPlanes
+    }),
+  )
+  applyPropsToMaterialData(propertiesSignal, data, size, borderInset, isClipped, [], subscriptions, renameOutput)
 }

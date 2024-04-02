@@ -96,6 +96,7 @@ export class InstancedGlyph {
   private x: number = 0
   private y: number = 0
   private fontSize: number = 0
+  private pixelSize: number = 0
 
   constructor(
     private readonly group: InstancedGlyphGroup,
@@ -105,6 +106,13 @@ export class InstancedGlyph {
     private opacity: number,
     private clippingRect: ClippingRect | undefined,
   ) {}
+
+  getX(widthMultiplier: number): number {
+    if (this.glyphInfo == null) {
+      return this.x
+    }
+    return this.x + widthMultiplier * this.glyphInfo.width * this.fontSize
+  }
 
   show(): void {
     if (!this.hidden) {
@@ -171,8 +179,14 @@ export class InstancedGlyph {
     instanceRGBA.needsUpdate = true
   }
 
-  updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number): void {
-    if (this.glyphInfo === glyphInfo && this.x === x && this.y === y && this.fontSize === fontSize) {
+  updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number, pixelSize: number): void {
+    if (
+      this.glyphInfo === glyphInfo &&
+      this.x === x &&
+      this.y === y &&
+      this.fontSize === fontSize &&
+      this.pixelSize === pixelSize
+    ) {
       return
     }
     if (this.glyphInfo != glyphInfo) {
@@ -182,6 +196,7 @@ export class InstancedGlyph {
     this.x = x
     this.y = y
     this.fontSize = fontSize
+    this.pixelSize = pixelSize
     this.writeUpdatedMatrix()
   }
 
@@ -212,8 +227,14 @@ export class InstancedGlyph {
     const { instanceMatrix } = this.group
     instanceMatrix.addUpdateRange(offset, 16)
     helperMatrix1
-      .makeTranslation(this.x, this.y, 0)
-      .multiply(helperMatrix2.makeScale(this.fontSize * this.glyphInfo.width, this.fontSize * this.glyphInfo.height, 1))
+      .makeTranslation(this.x * this.pixelSize, this.y * this.pixelSize, 0)
+      .multiply(
+        helperMatrix2.makeScale(
+          this.fontSize * this.glyphInfo.width * this.pixelSize,
+          this.fontSize * this.glyphInfo.height * this.pixelSize,
+          1,
+        ),
+      )
       .premultiply(this.baseMatrix)
     helperMatrix1.toArray(instanceMatrix.array, offset)
     instanceMatrix.needsUpdate = true

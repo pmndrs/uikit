@@ -41,13 +41,13 @@ export function computeIsPanelVisible(
   borderInset: Signal<Inset>,
   size: Signal<Vector2Tuple>,
   isHidden: Signal<boolean> | undefined,
-  renameOutput?: Record<string, string>,
+  defaultBackgroundColor?: ColorRepresentation,
 ) {
-  const get = createGetBatchedProperties(propertiesSignal, visibleProperties, renameOutput)
+  const get = createGetBatchedProperties(propertiesSignal, visibleProperties)
   return computed(() => {
     const borderOpacity = get('borderOpacity') as number
     const backgroundOpacity = get('backgroundOpacity') as number
-    const backgroundColor = get('backgroundColor') as ColorRepresentation
+    const backgroundColor = defaultBackgroundColor ?? (get('backgroundColor') as ColorRepresentation)
     const borderVisible = borderInset.value.some((s) => s > 0) && (borderOpacity == null || borderOpacity > 0)
     const [width, height] = size.value
     const backgroundVisible =

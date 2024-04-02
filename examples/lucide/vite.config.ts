@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     include: ['@react-three/uikit-lucide', '@react-three/uikit'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   base: '/uikit/examples/lucide/',
   resolve: {
@@ -14,5 +17,8 @@ export default defineConfig({
       { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default') },
       { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/uikit/src/index.ts') },
     ],
+  },
+  build: {
+    target: 'esnext',
   },
 })

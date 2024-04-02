@@ -3,33 +3,34 @@ import { Canvas } from '@react-three/fiber'
 import { Fullscreen, Text, Container, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { Copy, Moon, Sun, SunMoon } from '@react-three/uikit-lucide'
 
-import { Defaults, colors } from '@/theme'
-import { Button } from '@/button'
-import { Card } from '@/card'
-import { Separator } from '@/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
+import { Defaults, colors } from '@/theme.js'
+import { Button } from '@/button.js'
+import { Card } from '@/card.js'
+import { Separator } from '@/separator.js'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 import { DialogAnchor } from '@/dialog.js'
 import { XWebPointers, noEvents } from '@coconut-xr/xinteraction/react'
-import { TooltipDemo } from './components/tooltip'
-import { AccordionDemo } from './components/accordion'
-import { AlertDemo } from './components/alert'
-import { AlertDialogDemo } from './components/alert-dialog'
-import { AvatarDemo } from './components/avatar'
-import { BadgeDemo } from './components/badge'
-import { ButtonDemo } from './components/button'
-import { CardDemo } from './components/card'
-import { CheckboxDemo } from './components/checkbox'
-import { DialogDemo } from './components/dialog'
-import { PaginationDemo } from './components/pagination'
-import { ProgressDemo } from './components/progress'
-import { RadioGroupDemo } from './components/radio-group'
-import { SeparatorDemo } from './components/separator'
-import { SkeletonDemo } from './components/skeleton'
-import { SliderDemo } from './components/slider'
-import { SwitchDemo } from './components/switch'
-import { TabsDemo } from './components/tabs'
-import { ToggleDemo } from './components/toggle'
-import { ToggleGroupDemo } from './components/toggle-group'
+import { TooltipDemo } from './components/tooltip.js'
+import { AccordionDemo } from './components/accordion.js'
+import { AlertDemo } from './components/alert.js'
+import { AlertDialogDemo } from './components/alert-dialog.js'
+import { AvatarDemo } from './components/avatar.js'
+import { BadgeDemo } from './components/badge.js'
+import { ButtonDemo } from './components/button.js'
+import { CardDemo } from './components/card.js'
+import { CheckboxDemo } from './components/checkbox.js'
+import { DialogDemo } from './components/dialog.js'
+import { PaginationDemo } from './components/pagination.js'
+import { ProgressDemo } from './components/progress.js'
+import { RadioGroupDemo } from './components/radio-group.js'
+import { SeparatorDemo } from './components/separator.js'
+import { SkeletonDemo } from './components/skeleton.js'
+import { SliderDemo } from './components/slider.js'
+import { SwitchDemo } from './components/switch.js'
+import { TabsDemo } from './components/tabs.js'
+import { ToggleDemo } from './components/toggle.js'
+import { ToggleGroupDemo } from './components/toggle-group.js'
+import InputDemo from './components/input.js'
 
 const componentPages = {
   accordion: AccordionDemo,
@@ -53,6 +54,7 @@ const componentPages = {
   toggle: ToggleDemo,
   'toggle-group': ToggleGroupDemo,
   tooltip: TooltipDemo,
+  input: InputDemo,
 }
 
 const defaultComponent = 'card'
@@ -80,12 +82,18 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
       <Defaults>
-        <Fullscreen scrollbarColor="black" backgroundColor={colors.background} alignItems="center" padding={32}>
+        <Fullscreen
+          flexDirection="column"
+          scrollbarColor="black"
+          backgroundColor={colors.background}
+          alignItems="center"
+          padding={32}
+        >
           <DialogAnchor>
             <Tabs alignSelf="stretch" flexGrow={1} value={component} onValueChange={setComponent}>
               <TabsList height={55} paddingBottom={10} overflow="scroll" maxWidth="100%">
                 {Object.keys(componentPages).map((name) => (
-                  <TabsTrigger value={name} key={name}>
+                  <TabsTrigger flexShrink={0} value={name} key={name}>
                     <Text>
                       {name[0].toUpperCase()}
                       {name.slice(1)}
@@ -94,10 +102,15 @@ export default function App() {
                 ))}
               </TabsList>
               {Object.entries(componentPages).map(([name, Component]) => (
-                <TabsContent flexGrow={1} alignItems="center" justifyContent="center" value={name} key={name}>
-                  <Container>
-                    <Component />
-                  </Container>
+                <TabsContent
+                  flexDirection="column"
+                  flexGrow={1}
+                  alignItems="center"
+                  justifyContent="center"
+                  value={name}
+                  key={name}
+                >
+                  <Component />
                 </TabsContent>
               ))}
             </Tabs>
@@ -113,7 +126,7 @@ export default function App() {
                 {pcs === 'dark' ? <Moon /> : pcs === 'system' ? <SunMoon /> : <Sun />}
               </Button>
               <Separator orientation="vertical" />
-              <Text padding={8}>npx uikit component add apfel {component}</Text>
+              <Text padding={8}>npx uikit component add default {component}</Text>
               <Button
                 onClick={() => navigator.clipboard.writeText(`npx uikit component add apfel ${component}`)}
                 size="icon"

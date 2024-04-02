@@ -1,6 +1,6 @@
 import { Text, Container } from '@react-three/uikit'
-import { Button } from '@/button'
-import { Label } from '@/label'
+import { Button } from '@/button.js'
+import { Label } from '@/label.js'
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,7 @@ export function DialogDemo() {
             <Text>Make changes to your profile here. Click save when you're done.</Text>
           </DialogDescription>
         </DialogHeader>
-        <Container gap={16} paddingY={16}>
+        <Container flexDirection="column" alignItems="center" gap={16} paddingY={16}>
           <Container alignItems="center" gap={16}>
             <Label>
               <Text horizontalAlign="right">Name</Text>

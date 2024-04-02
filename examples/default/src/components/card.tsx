@@ -1,9 +1,9 @@
 import { Text, Container } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
-import { colors } from '@/theme'
-import { Button } from '@/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
-import { Switch } from '@/switch'
+import { colors } from '@/theme.js'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
+import { Switch } from '@/switch.js'
 
 const notifications = [
   {
@@ -34,7 +34,7 @@ export function CardDemo() {
       <CardContent flexDirection="column" gap={16}>
         <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
           <BellRing />
-          <Container gap={4}>
+          <Container flexDirection="column" gap={4}>
             <Text fontSize={14} lineHeight={1}>
               Push Notifications
             </Text>
@@ -44,7 +44,7 @@ export function CardDemo() {
           </Container>
           <Switch />
         </Container>
-        <Container>
+        <Container flexDirection="column">
           {notifications.map((notification, index) => (
             <Container
               key={index}
@@ -55,7 +55,7 @@ export function CardDemo() {
               gap={17}
             >
               <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
-              <Container gap={4}>
+              <Container flexDirection="column" gap={4}>
                 <Text fontSize={14} lineHeight={1}>
                   {notification.title}
                 </Text>

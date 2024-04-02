@@ -1,10 +1,10 @@
 import { Text } from '@react-three/uikit'
 import { Terminal } from '@react-three/uikit-lucide'
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert.js'
 
 export function AlertDemo() {
   return (
-    <Alert>
+    <Alert maxWidth={500}>
       <AlertIcon>
         <Terminal width={16} height={16} />
       </AlertIcon>

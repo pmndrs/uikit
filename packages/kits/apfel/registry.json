@@ -26,5 +26,8 @@
   },
   "tabs": {
     "files": ["tabs.tsx"]
+  },
+  "input": {
+    "files": ["input.tsx"]
   }
 }

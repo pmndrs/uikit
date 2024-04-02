@@ -1,6 +1,6 @@
 import { Container } from '@react-three/uikit'
 import { useFrame } from '@react-three/fiber'
-import { ComponentPropsWithoutRef, useMemo } from 'react'
+import React, { ComponentPropsWithoutRef, useMemo } from 'react'
 import { signal } from '@preact/signals-core'
 import { colors } from './theme'
 
@@ -39,6 +39,7 @@ export function Loading({
         <Container
           key={i}
           positionType="absolute"
+          flexDirection="column"
           inset={0}
           transformRotateZ={(i * 360) / PILL_AMOUNT}
           alignItems="center"

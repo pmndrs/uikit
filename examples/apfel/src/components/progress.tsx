@@ -1,5 +1,5 @@
-import { Card } from '@/card'
-import { Progress } from '@/progress'
+import { Card } from '@/card.js'
+import { Progress } from '@/progress.js'
 
 export function ProgressBarsOnCard() {
   return (

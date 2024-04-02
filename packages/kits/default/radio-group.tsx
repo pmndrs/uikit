@@ -1,11 +1,11 @@
 import { Container } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
+import React, { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
 import { colors } from './theme'
 
 const RadioGroupContext = createContext<{
   value?: string
   setValue?: (value: string) => void
-}>(null as any)
+}>({})
 
 export function RadioGroup({
   defaultValue,
@@ -35,7 +35,7 @@ export function RadioGroup({
     }
   }, [uncontrolled, onValueChange, providedValue])
   return (
-    <Container gap={8} {...props}>
+    <Container flexDirection="column" gap={8} {...props}>
       <RadioGroupContext.Provider value={contextValue}>{children}</RadioGroupContext.Provider>
     </Container>
   )

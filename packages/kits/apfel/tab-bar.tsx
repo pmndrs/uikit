@@ -1,5 +1,5 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
-import {
+import React, {
   ComponentPropsWithoutRef,
   ReactNode,
   SetStateAction,

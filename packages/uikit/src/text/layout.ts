@@ -7,7 +7,13 @@ import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
 import { readReactive } from '../utils.js'
 
-export type GlyphLayoutLine = { start: number; end: number; width: number; whitespaces: number }
+export type GlyphLayoutLine = {
+  charIndexOffset: number
+  charLength: number
+  nonWhitespaceCharLength: number
+  nonWhitespaceWidth: number
+  whitespacesBetween: number
+}
 
 export type GlyphLayout = {
   lines: Array<GlyphLayoutLine>
@@ -41,28 +47,20 @@ export function computeMeasureFunc(
       return undefined
     }
     const textSignalValue = textSignal.value
-    const text = Array.isArray(textSignalValue)
-      ? textSignalValue.map((t) => readReactive(t)).join('')
-      : readReactive(textSignalValue)
-    const letterSpacing = (get('letterSpacing') as number) ?? 0
-    const lineHeight = (get('lineHeight') as number) ?? 1.2
-    const fontSize = (get('fontSize') as number) ?? 16
-    const wordBreak = (get('wordBreak') as GlyphLayoutProperties['wordBreak']) ?? 'break-word'
-
-    return (width, widthMode) => {
-      const availableWidth = widthMode === MeasureMode.Undefined ? undefined : width
-      return measureGlyphLayout(
-        (propertiesRef.current = {
-          font,
-          fontSize,
-          letterSpacing,
-          lineHeight,
-          text,
-          wordBreak,
-        }),
-        availableWidth,
-      )
+    const layoutProperties: GlyphLayoutProperties = {
+      font,
+      fontSize: get('fontSize') ?? 16,
+      letterSpacing: get('letterSpacing') ?? 0,
+      lineHeight: get('lineHeight') ?? 1.2,
+      text: Array.isArray(textSignalValue)
+        ? textSignalValue.map((t) => readReactive(t)).join('')
+        : readReactive(textSignalValue),
+      wordBreak: get('wordBreak') ?? 'break-word',
     }
+    propertiesRef.current = layoutProperties
+
+    return (width, widthMode) =>
+      measureGlyphLayout(layoutProperties, widthMode === MeasureMode.Undefined ? undefined : width)
   })
 }
 
@@ -72,6 +70,8 @@ const wrappers = {
   'break-word': WordWrapper,
 }
 
+const lineHelper = {} as GlyphLayoutLine
+
 export function measureGlyphLayout(
   properties: GlyphLayoutProperties,
   availableWidth?: number,
@@ -79,29 +79,22 @@ export function measureGlyphLayout(
   width: number
   height: number
 } {
-  let width = 0
-
-  let textIndex = 0
-
   const wrapper = wrappers[properties.wordBreak]
-
-  let lines = 0
-
   const text = properties.text
-  textIndex = skipWhitespace(text, textIndex, 0)
 
-  while (textIndex < text.length) {
-    const line = wrapper(properties, availableWidth, textIndex)
+  let width = 0
+  let lines = 0
+  let charIndex = 0
 
-    const newTextIndex = skipWhitespace(text, line.end, 1)
-
-    if (textIndex === newTextIndex) {
-      break
-    }
-
-    width = Math.max(width, line.width)
+  while (charIndex < text.length) {
+    wrapper(properties, availableWidth, charIndex, lineHelper)
+    width = Math.max(width, lineHelper.nonWhitespaceWidth)
     lines += 1
-    textIndex = newTextIndex
+    charIndex = lineHelper.charLength + lineHelper.charIndexOffset
+  }
+
+  if (text[text.length - 1] === '\n') {
+    lines += 1
   }
 
   return { width, height: getGlyphLayoutHeight(lines, properties) }
@@ -113,26 +106,26 @@ export function buildGlyphLayout(
   availableHeight: number,
 ): GlyphLayout {
   const lines: Array<GlyphLayoutLine> = []
-
-  let textIndex = 0
-
   const wrapper = wrappers[properties.wordBreak]
-
   const text = properties.text
-  textIndex = skipWhitespace(text, textIndex, 0)
 
-  while (textIndex < text.length) {
-    const line = wrapper(properties, availableWidth, textIndex)
+  let charIndex = 0
 
-    const newTextIndex = skipWhitespace(text, line.end, 1)
-
-    if (textIndex === newTextIndex) {
-      break
-    }
-
+  while (charIndex < text.length) {
+    const line = {} as GlyphLayoutLine
+    wrapper(properties, availableWidth, charIndex, line)
     lines.push(line)
+    charIndex = line.charLength + line.charIndexOffset
+  }
 
-    textIndex = newTextIndex
+  if (lines.length === 0 || text[text.length - 1] === '\n') {
+    lines.push({
+      charLength: 0,
+      nonWhitespaceWidth: 0,
+      whitespacesBetween: 0,
+      charIndexOffset: text.length,
+      nonWhitespaceCharLength: 0,
+    })
   }
 
   return {
@@ -141,21 +134,4 @@ export function buildGlyphLayout(
     availableWidth,
     ...properties,
   }
-}
-
-function skipWhitespace(text: string, index: number, skipLinefeeds: number): number {
-  const textLength = text.length
-  while (index < textLength) {
-    const char = text[index]
-    if (char === '\n') {
-      if (skipLinefeeds === 0) {
-        break
-      }
-      skipLinefeeds -= 1
-    } else if (char != ' ') {
-      break
-    }
-    index += 1
-  }
-  return index
 }

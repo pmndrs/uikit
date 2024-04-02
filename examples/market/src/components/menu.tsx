@@ -1,4 +1,4 @@
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 import { Menubar, MenubarMenu, MenubarTrigger } from '@/menubar.js'
 import { Container, SvgIconFromText, Text, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { useState } from 'react'
@@ -39,7 +39,15 @@ export function Menu() {
         </MenubarTrigger>
       </MenubarMenu>
       <Container flexGrow={1} />
-
+      <MenubarMenu>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => window.open('https://github.com/pmndrs/uikit/tree/main/examples/market', '_blank')}
+        >
+          <Text>Source Code</Text>
+        </Button>
+      </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger
           onClick={() => {

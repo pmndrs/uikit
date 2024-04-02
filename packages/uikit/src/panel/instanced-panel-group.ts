@@ -118,7 +118,7 @@ export class InstancedPanelGroup {
 
   constructor(
     private readonly object: Object3DRef,
-    private readonly material: Material,
+    private readonly instanceMaterial: Material,
     public readonly pixelSize: number,
     private readonly root: WithCameraDistance,
     private readonly orderInfo: OrderInfo,
@@ -229,7 +229,7 @@ export class InstancedPanelGroup {
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
     setupRenderOrder(this.mesh, this.root, this.orderInfo)
-    this.mesh.material = this.material
+    this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.meshReceiveShadow ?? false
     this.mesh.castShadow = this.meshCastShadow ?? false
     this.object.current?.add(this.mesh)

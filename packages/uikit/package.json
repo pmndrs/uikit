@@ -1,6 +1,7 @@
 {
   "name": "@vanilla-three/uikit",
   "type": "module",
+  "description": "Build performant 3D user interfaces for Three.js using @react-three/fiber and yoga.",
   "version": "0.0.0",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
@@ -26,8 +27,8 @@
     "./internals": "./dist/internals.js"
   },
   "scripts": {
-    "test": "mocha ./tests/allocation.spec.ts",
-    "build": "tsc",
+    "test": "mocha ./tests/flex.spec.ts",
+    "build": "tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
@@ -39,7 +40,7 @@
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
-    "yoga-layout": "^2.0.1"
+    "yoga-layout": "^3.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

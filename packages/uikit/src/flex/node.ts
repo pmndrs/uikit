@@ -1,14 +1,16 @@
 import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import { Edge, Node, Yoga, Overflow, MeasureFunction } from 'yoga-layout/wasm-async'
+import { Edge, Node, Yoga, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef } from '../context.js'
+import { defaultYogaConfig } from './config.js'
+import { setMeasureFunc, yogaNodeEqual } from './utils.js'
 
 export type YogaProperties = {
-  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
+  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
@@ -43,7 +45,6 @@ export class FlexNode {
     public readonly size = signal<Vector2Tuple>([0, 0]),
     private object: Object3DRef,
     public readonly yoga: Signal<Yoga | undefined>,
-    private precision: number,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
     subscriptions: Subscriptions,
@@ -51,12 +52,9 @@ export class FlexNode {
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
-      if (yoga.value == null) {
-        return
-      }
       this.unsubscribeYoga?.()
       this.unsubscribeYoga = undefined
-      this.yogaNode = yoga.value.Node.create()
+      this.yogaNode = Yoga.Node.create(defaultYogaConfig)
       this.active.value = true
     })
     setupImmediateProperties(
@@ -65,9 +63,9 @@ export class FlexNode {
       hasImmediateProperty,
       (key: string, value: unknown) => {
         if (key === 'measureFunc') {
-          setMeasureFunc(this.yogaNode!, this.precision, value as any)
+          setMeasureFunc(this.yogaNode!, value as any)
         } else {
-          setter[key as keyof typeof setter](this.yogaNode!, this.precision, value as any)
+          setter[key as keyof typeof setter](this.yogaNode!, value as any)
         }
         this.requestCalculateLayout()
       },
@@ -89,7 +87,7 @@ export class FlexNode {
       return
     }
     this.commit()
-    this.yogaNode.calculateLayout()
+    this.yogaNode.calculateLayout(undefined, undefined)
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
@@ -99,7 +97,6 @@ export class FlexNode {
       undefined,
       object,
       this.yoga,
-      this.precision,
       this.requestCalculateLayout,
       computed(() => {
         const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]
@@ -121,6 +118,7 @@ export class FlexNode {
     if (i === -1) {
       return
     }
+    node.yogaNode?.getParent()?.removeChild(node.yogaNode)
     this.children.splice(i, 1)
     this.requestCalculateLayout()
   }
@@ -199,30 +197,30 @@ export class FlexNode {
 
     this.overflow.value = this.yogaNode.getOverflow()
 
-    const width = this.yogaNode.getComputedWidth() * this.precision
-    const height = this.yogaNode.getComputedHeight() * this.precision
+    const width = this.yogaNode.getComputedWidth()
+    const height = this.yogaNode.getComputedHeight()
     updateVector2Signal(this.size, width, height)
 
     parentWidth ??= width
     parentHeight ??= height
 
-    const x = this.yogaNode.getComputedLeft() * this.precision
-    const y = this.yogaNode.getComputedTop() * this.precision
+    const x = this.yogaNode.getComputedLeft()
+    const y = this.yogaNode.getComputedTop()
 
     const relativeCenterX = x + width * 0.5 - parentWidth * 0.5
     const relativeCenterY = -(y + height * 0.5 - parentHeight * 0.5)
     updateVector2Signal(this.relativeCenter, relativeCenterX, relativeCenterY)
 
-    const paddingTop = this.yogaNode.getComputedPadding(Edge.Top) * this.precision
-    const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left) * this.precision
-    const paddingRight = this.yogaNode.getComputedPadding(Edge.Right) * this.precision
-    const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom) * this.precision
+    const paddingTop = this.yogaNode.getComputedPadding(Edge.Top)
+    const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left)
+    const paddingRight = this.yogaNode.getComputedPadding(Edge.Right)
+    const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom)
     updateInsetSignal(this.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
 
-    const borderTop = this.yogaNode.getComputedBorder(Edge.Top) * this.precision
-    const borderRight = this.yogaNode.getComputedBorder(Edge.Right) * this.precision
-    const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom) * this.precision
-    const borderLeft = this.yogaNode.getComputedBorder(Edge.Left) * this.precision
+    const borderTop = this.yogaNode.getComputedBorder(Edge.Top)
+    const borderRight = this.yogaNode.getComputedBorder(Edge.Right)
+    const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom)
+    const borderLeft = this.yogaNode.getComputedBorder(Edge.Left)
     updateInsetSignal(this.borderInset, borderTop, borderRight, borderBottom, borderLeft)
 
     for (const layoutChangeListener of this.layoutChangeListeners) {
@@ -251,12 +249,15 @@ export class FlexNode {
       const maxScrollX = maxContentWidth - widthWithoutBorder
       const maxScrollY = maxContentHeight - heightWithoutBorder
 
+      const xScrollable = maxScrollX > 0.5
+      const yScrollable = maxScrollY > 0.5
+
       updateVector2Signal(
         this.maxScrollPosition,
-        maxScrollX <= 0 ? undefined : maxScrollX,
-        maxScrollY <= 0 ? undefined : maxScrollY,
+        xScrollable ? maxScrollX : undefined,
+        yScrollable ? maxScrollY : undefined,
       )
-      updateVector2Signal(this.scrollable, maxScrollX > 0, maxScrollY > 0)
+      updateVector2Signal(this.scrollable, xScrollable, yScrollable)
     } else {
       updateVector2Signal(this.maxScrollPosition, undefined, undefined)
       updateVector2Signal(this.scrollable, false, false)
@@ -297,23 +298,4 @@ function assertNodeNotNull<T>(val: T | undefined): T {
     throw new Error(`commit cannot be called with a children that miss a yoga node`)
   }
   return val
-}
-
-function yogaNodeEqual(n1: Node, n2: Node): boolean {
-  return (n1 as any)['L'] === (n2 as any)['L']
-}
-
-function setMeasureFunc(node: Node, precision: number, func: MeasureFunction | undefined): void {
-  if (func == null) {
-    node.setMeasureFunc(null)
-    return
-  }
-  node.setMeasureFunc((width, wMode, height, hMode) => {
-    const result = func(width * precision, wMode, height * precision, hMode)
-    return {
-      width: Math.ceil(Math.ceil(result.width) / precision),
-      height: Math.ceil(Math.ceil(result.height) / precision),
-    }
-  })
-  node.markDirty()
 }
