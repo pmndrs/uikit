@@ -1,6 +1,6 @@
 import { Signal } from '@preact/signals-core'
-import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './default'
-import { AllAliases, allAliases } from './alias'
+import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './default.js'
+import { AllAliases, allAliases } from './alias.js'
 
 export type PropertyTransformers = Record<string, (value: unknown, target: MergedProperties) => void>
 

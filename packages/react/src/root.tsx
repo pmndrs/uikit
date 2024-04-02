@@ -1,10 +1,10 @@
 import { useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
-import { ParentProvider } from './context'
-import { AddHandlers, AddScrollHandler } from './utilts'
+import { ParentProvider } from './context.js'
+import { AddHandlers, AddScrollHandler } from './utilts.js'
 import { RootProperties, patchRenderOrder, createRoot, destroyRoot } from '@vanilla-three/uikit/internals'
-import { useDefaultProperties } from './default'
+import { useDefaultProperties } from './default.js'
 import { Object3D } from 'three'
 
 export const Root: (

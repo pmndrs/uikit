@@ -1,7 +1,7 @@
 import { Signal, computed } from '@preact/signals-core'
 import { RenderItem, WebGLRenderer } from 'three'
-import { MergedProperties } from './properties/merged'
-import { createGetBatchedProperties } from './properties/batched'
+import { MergedProperties } from './properties/merged.js'
+import { createGetBatchedProperties } from './properties/batched.js'
 
 export type WithCameraDistance = { cameraDistance: number }
 
@@ -62,21 +62,26 @@ function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
   return o1.minorIndex - o2.minorIndex
 }
 
+export type ZIndexProperties = {
+  zIndexOffset?: ZIndexOffset
+}
+
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
-const propertyKeys = ['zIndexOffset']
+const propertyKeys = ['zIndexOffset'] as const
 
-export function computeOrderInfo(
-  propertiesSignal: Signal<MergedProperties>,
+export function computedOrderInfo(
+  propertiesSignal: Signal<MergedProperties> | undefined,
   type: ElementType,
   instancedGroupDependencies: Record<string, any> | undefined,
   parentOrderInfoSignal: Signal<OrderInfo> | undefined,
 ): Signal<OrderInfo> {
-  const get = createGetBatchedProperties(propertiesSignal, propertyKeys)
+  const get =
+    propertiesSignal == null ? undefined : createGetBatchedProperties<ZIndexProperties>(propertiesSignal, propertyKeys)
   return computed(() => {
     const parentOrderInfo = parentOrderInfoSignal?.value
 
-    const offset = get('zIndexOffset') as ZIndexOffset
+    const offset = get?.('zIndexOffset')
 
     const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
     const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0

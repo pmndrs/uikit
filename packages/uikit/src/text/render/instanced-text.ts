@@ -40,8 +40,8 @@ export class InstancedText {
 
   constructor(
     private group: InstancedGlyphGroup,
-    private getAlignment: GetBatchedProperties,
-    private getAppearance: GetBatchedProperties,
+    private getAlignment: GetBatchedProperties<TextAlignProperties>,
+    private getAppearance: GetBatchedProperties<TextAppearanceProperties>,
     private layoutSignal: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
     isHidden: Signal<boolean> | undefined,
@@ -70,7 +70,7 @@ export class InstancedText {
   }
 
   public getCharIndex(x: number, y: number): number {
-    const verticalAlign = untracked(() => this.getAlignmentProperties.value?.('verticalAlign') ?? 'top')
+    const verticalAlign = untracked(() => this.getAlignment('verticalAlign') ?? 'top')
     const layout = this.lastLayout
     if (layout == null) {
       return 0

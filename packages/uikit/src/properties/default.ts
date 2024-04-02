@@ -1,7 +1,7 @@
 import { ReadonlySignal } from '@preact/signals-core'
-import { InheritableContainerProperties } from '../components/container.js'
-import { InheritableRootProperties } from '../components/root.js'
-import { InheritableImageProperties } from '../components/image.js'
+import type { InheritableContainerProperties } from '../components/container.js'
+import type { InheritableRootProperties } from '../components/root.js'
+import type { InheritableImageProperties } from '../components/image.js'
 
 export type AllOptionalProperties =
   | InheritableContainerProperties

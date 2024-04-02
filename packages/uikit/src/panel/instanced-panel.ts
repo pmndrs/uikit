@@ -1,15 +1,14 @@
 import { Signal, signal, effect } from '@preact/signals-core'
-import { InstancedBufferAttribute, Matrix4, Vector2Tuple } from 'three'
+import { Matrix4, Vector2Tuple } from 'three'
 import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
-import { InstancedPanelGroup, PanelGroupManager, PanelGroupDependencies } from './instanced-panel-group.js'
-import { panelDefaultColor } from './panel-material.js'
-import { ColorRepresentation, Subscriptions, colorToBuffer, unsubscribeSubscriptions } from '../utils.js'
-import { computeIsPanelVisible, setBorderRadius } from './utils.js'
+import { InstancedPanelGroup, PanelGroupManager, PanelGroupProperties } from './instanced-panel-group.js'
+import { ColorRepresentation, Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { OrderInfo } from '../order.js'
+import { PanelMaterialConfig } from './index.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number
@@ -26,7 +25,7 @@ export type PanelProperties = {
 export function createInstancedPanel(
   propertiesSignal: Signal<MergedProperties>,
   orderInfo: Signal<OrderInfo>,
-  panelGroupDependencies: Signal<PanelGroupDependencies>,
+  panelGroupDependencies: Signal<PanelGroupProperties> | undefined,
   panelGroupManager: PanelGroupManager,
   matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
@@ -34,13 +33,13 @@ export function createInstancedPanel(
   borderInset: Signal<Inset>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   isHidden: Signal<boolean> | undefined,
-  outerSubscriptions: Subscriptions,
-  renameOutput?: Record<string, string>,
+  materialConfig: PanelMaterialConfig,
+  subscriptions: Subscriptions,
 ) {
-  outerSubscriptions.push(
+  subscriptions.push(
     effect(() => {
-      const subscriptions: Subscriptions = []
-      const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
+      const innerSubscriptions: Subscriptions = []
+      const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies?.value)
       new InstancedPanel(
         propertiesSignal,
         group,
@@ -51,52 +50,13 @@ export function createInstancedPanel(
         borderInset,
         clippingRect,
         isHidden,
-        outerSubscriptions,
-        renameOutput,
+        materialConfig,
+        innerSubscriptions,
       )
-      return () => unsubscribeSubscriptions(subscriptions)
+      return () => unsubscribeSubscriptions(innerSubscriptions)
     }),
   )
 }
-
-const instancedPanelMaterialSetters: {
-  [Key in keyof PanelProperties]-?: (
-    group: InstancedPanelGroup,
-    index: number,
-    value: PanelProperties[Key],
-    size: Signal<Vector2Tuple>,
-  ) => void
-} = {
-  //0-3 = borderSizes
-
-  //4-6 = background color
-  backgroundColor: (m, i, p) => colorToBuffer(m.instanceData, i, p ?? panelDefaultColor, 4),
-
-  //7
-  borderBottomLeftRadius: (m, i, p, { value }) => writeBorderRadius(m.instanceData, i, 7, 0, p, value[1]),
-  borderBottomRightRadius: (m, i, p, { value }) => writeBorderRadius(m.instanceData, i, 7, 1, p, value[1]),
-  borderTopRightRadius: (m, i, p, { value }) => writeBorderRadius(m.instanceData, i, 7, 2, p, value[1]),
-  borderTopLeftRadius: (m, i, p, { value }) => writeBorderRadius(m.instanceData, i, 7, 3, p, value[1]),
-
-  //8-10 = border color
-  borderColor: (m, i, p) => colorToBuffer(m.instanceData, i, p ?? 0xffffff, 8),
-  //11
-  borderBend: (m, i, p) => writeComponent(m.instanceData, i, 11, p ?? 0),
-  //12
-  borderOpacity: (m, i, p) => writeComponent(m.instanceData, i, 12, p ?? 1),
-
-  //13 = width
-  //14 = height
-
-  //15
-  backgroundOpacity: (m, i, p) => writeComponent(m.instanceData, i, 15, p ?? -1),
-}
-
-function hasImmediateProperty(key: string): boolean {
-  return key in instancedPanelMaterialSetters
-}
-
-export type InstancedPanelSetter = (typeof instancedPanelMaterialSetters)[keyof typeof instancedPanelMaterialSetters]
 
 const matrixHelper1 = new Matrix4()
 const matrixHelper2 = new Matrix4()
@@ -121,29 +81,25 @@ export class InstancedPanel {
     private readonly borderInset: Signal<Inset>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isHidden: Signal<boolean> | undefined,
+    public readonly materialConfig: PanelMaterialConfig,
     subscriptions: Subscriptions,
-    renameOutput?: Record<string, string>,
   ) {
+    const setters = materialConfig.setters
     setupImmediateProperties(
       propertiesSignal,
       this.active,
-      hasImmediateProperty,
+      materialConfig.hasProperty,
       (key, value) => {
         const index = this.getIndexInBuffer()
         if (index == null) {
           return
         }
-        instancedPanelMaterialSetters[key as keyof typeof instancedPanelMaterialSetters](
-          this.group,
-          index,
-          value as any,
-          this.size,
-        )
+        const { instanceData, instanceDataOnUpdate: instanceDataAddUpdateRange } = this.group
+        setters[key](instanceData.array, instanceData.itemSize * index, value, size, instanceDataAddUpdateRange)
       },
       subscriptions,
-      renameOutput,
     )
-    const isVisible = computeIsPanelVisible(propertiesSignal, borderInset, size, isHidden, renameOutput)
+    const isVisible = materialConfig.computedIsVisibile(propertiesSignal, borderInset, size, isHidden)
     subscriptions.push(
       effect(() => {
         if (isVisible.value) {
@@ -261,25 +217,4 @@ export class InstancedPanel {
     }
     this.unsubscribeList.length = 0
   }
-}
-
-function writeBorderRadius(
-  buffer: InstancedBufferAttribute,
-  index: number,
-  component: number,
-  indexInFloat: number,
-  value: number | undefined,
-  height: number,
-): void {
-  const bufferIndex = index * buffer.itemSize + component
-  buffer.addUpdateRange(bufferIndex, 1)
-  setBorderRadius(buffer.array, bufferIndex, indexInFloat, value, height)
-  buffer.needsUpdate = true
-}
-
-function writeComponent(buffer: InstancedBufferAttribute, index: number, component: number, value: number): void {
-  const bufferIndex = index * buffer.itemSize + component
-  buffer.addUpdateRange(bufferIndex, 1)
-  buffer.array[bufferIndex] = value
-  buffer.needsUpdate = true
 }

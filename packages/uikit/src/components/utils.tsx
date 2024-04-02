@@ -1,12 +1,12 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Matrix4 } from 'three'
-import { WithActive } from '../active'
-import { WithPreferredColorScheme } from '../dark'
-import { WithHover } from '../hover'
-import { WithResponsive } from '../responsive'
-import { Subscriptions } from '../utils'
+import { WithActive } from '../active.js'
+import { WithPreferredColorScheme } from '../dark.js'
+import { WithHover } from '../hover.js'
+import { WithResponsive } from '../responsive.js'
+import { Subscriptions } from '../utils.js'
 
-export function computeGlobalMatrix(
+export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
   localMatrix: Signal<Matrix4 | undefined>,
 ): Signal<Matrix4 | undefined> {

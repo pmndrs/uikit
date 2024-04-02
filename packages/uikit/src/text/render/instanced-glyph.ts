@@ -1,21 +1,23 @@
-import { Matrix4, WebGLRenderer } from 'three'
+import { Matrix4, Vector2Tuple, Vector3Tuple, WebGLRenderer } from 'three'
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { ColorRepresentation, Subscriptions, colorToBuffer } from '../../utils.js'
+import { ColorRepresentation, Subscriptions } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { FontFamilies, FontFamilyProperties, GlyphInfo, computeFont, glyphIntoToUV } from '../font.js'
+import { FontFamilies, FontFamilyProperties, GlyphInfo, computedFont, glyphIntoToUV } from '../font.js'
 import { Signal, ReadonlySignal, signal, effect } from '@preact/signals-core'
 import { FlexNode } from '../../flex/node.js'
 import { OrderInfo } from '../../order.js'
 import { createGetBatchedProperties } from '../../properties/batched.js'
 import { MergedProperties } from '../../properties/merged.js'
-import { GlyphLayoutProperties, GlyphLayout, buildGlyphLayout, computeMeasureFunc } from '../layout.js'
+import { GlyphLayoutProperties, GlyphLayout, buildGlyphLayout, computedMeasureFunc } from '../layout.js'
 import { TextAlignProperties, TextAppearanceProperties, InstancedText } from './instanced-text.js'
+import { SelectionBoxes } from '../../selection.js'
+import { writeColor } from '../../internals.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
 
-const alignPropertyKeys = ['horizontalAlign', 'verticalAlign']
-const appearancePropertyKeys = ['color', 'opacity']
+const alignPropertyKeys = ['horizontalAlign', 'verticalAlign'] as const
+const appearancePropertyKeys = ['color', 'opacity'] as const
 
 export type InstancedTextProperties = TextAlignProperties &
   TextAppearanceProperties &
@@ -33,17 +35,20 @@ export function createInstancedText(
   fontFamilies: FontFamilies | undefined,
   renderer: WebGLRenderer,
   glyphGroupManager: GlyphGroupManager,
+  selectionRange: Signal<Vector2Tuple | undefined> | undefined,
+  selectionBoxes: Signal<SelectionBoxes> | undefined,
+  caretPosition: Signal<Vector3Tuple | undefined> | undefined,
   subscriptions: Subscriptions,
 ) {
-  const fontSignal = computeFont(properties, fontFamilies, renderer, subscriptions)
+  const fontSignal = computedFont(properties, fontFamilies, renderer, subscriptions)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const textSignal = signal<string | Signal<string> | Array<string | Signal<string>>>(text)
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
-  const measureFunc = computeMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
+  const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
 
-  const getAlign = createGetBatchedProperties(properties, alignPropertyKeys)
-  const getAppearance = createGetBatchedProperties(properties, appearancePropertyKeys)
+  const getAlign = createGetBatchedProperties<TextAlignProperties>(properties, alignPropertyKeys)
+  const getAppearance = createGetBatchedProperties<TextAppearanceProperties>(properties, appearancePropertyKeys)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
   subscriptions.push(
@@ -76,6 +81,9 @@ export function createInstancedText(
         matrix,
         isHidden,
         parentClippingRect,
+        selectionRange,
+        selectionBoxes,
+        caretPosition,
       )
       return () => instancedText.destroy()
     }),
@@ -164,7 +172,11 @@ export class InstancedGlyph {
     if (this.index == null) {
       return
     }
-    colorToBuffer(this.group.instanceRGBA, this.index, color)
+    const { instanceRGBA } = this.group
+    const offset = instanceRGBA.itemSize * this.index
+    writeColor(instanceRGBA.array, offset, color, undefined)
+    instanceRGBA.addUpdateRange(offset, 3)
+    instanceRGBA.needsUpdate = true
   }
 
   updateOpacity(opacity: number): void {

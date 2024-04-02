@@ -1,8 +1,8 @@
 import { Camera, Object3D } from 'three'
 import { batch } from '@preact/signals-core'
-import { AllOptionalProperties } from '../properties/default'
-import { createRoot, destroyRoot, RootProperties } from '../components/root'
-import { EventConfig, bindHandlers } from './utils'
+import { AllOptionalProperties } from '../properties/default.js'
+import { createRoot, destroyRoot, RootProperties } from '../components/root.js'
+import { EventConfig, bindHandlers } from './utils.js'
 
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>

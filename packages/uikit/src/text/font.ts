@@ -1,9 +1,9 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray, WebGLRenderer } from 'three'
-import { createGetBatchedProperties } from '../properties/batched'
-import { MergedProperties } from '../properties/merged'
-import { Subscriptions } from '../utils'
-import { loadCachedFont } from './cache'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { MergedProperties } from '../properties/merged.js'
+import { Subscriptions } from '../utils.js'
+import { loadCachedFont } from './cache.js'
 
 export type FontFamilyUrls = Partial<Record<FontWeight, string>>
 
@@ -24,7 +24,7 @@ const fontWeightNames = {
 
 export type FontWeight = keyof typeof fontWeightNames | number
 
-const fontKeys = ['fontFamily', 'fontWeight']
+const fontKeys = ['fontFamily', 'fontWeight'] as const
 
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight }
 
@@ -38,21 +38,21 @@ const defaultFontFamilyUrls = {
   },
 } satisfies FontFamilies
 
-export function computeFont(
+export function computedFont(
   properties: Signal<MergedProperties>,
   fontFamilies: FontFamilies = defaultFontFamilyUrls,
   renderer: WebGLRenderer,
   subscriptions: Subscriptions,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
-  const get = createGetBatchedProperties(properties, fontKeys)
+  const get = createGetBatchedProperties<FontFamilyProperties>(properties, fontKeys)
   subscriptions.push(
     effect(() => {
-      let fontWeight = (get('fontWeight') as FontWeight) ?? 'normal'
+      let fontWeight = get('fontWeight') ?? 'normal'
       if (typeof fontWeight === 'string') {
         fontWeight = fontWeightNames[fontWeight]
       }
-      let fontFamily = get('fontFamily') as string
+      let fontFamily = get('fontFamily')
       if (fontFamily == null) {
         fontFamily = Object.keys(fontFamilies)[0]
       }

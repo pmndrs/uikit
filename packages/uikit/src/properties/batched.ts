@@ -1,19 +1,14 @@
 import { Signal, computed } from '@preact/signals-core'
 import { MergedProperties } from './merged.js'
 
-export type GetBatchedProperties = (key: string) => unknown
+export type GetBatchedProperties<T> = <K extends keyof T>(key: K) => T[K]
 
-export function createGetBatchedProperties(
+export function createGetBatchedProperties<T>(
   propertiesSignal: Signal<MergedProperties>,
-  keys: Array<string>,
-  renameOutput?: Record<string, string>,
-): GetBatchedProperties {
-  const reverseRenameMap: Record<string, string> = {}
-  for (const key in renameOutput) {
-    reverseRenameMap[renameOutput[key]] = key
-  }
+  keys: ReadonlyArray<keyof T>,
+): GetBatchedProperties<T> {
   let currentProperties: MergedProperties | undefined
-  const hasPropertiy = (key: string) => keys.includes(key)
+  const hasPropertiy = (key: string) => keys.includes(key as any)
   const computedProperties = computed(() => {
     const newProperties = propertiesSignal.value
     if (!newProperties.filterIsEqual(hasPropertiy, currentProperties)) {
@@ -23,10 +18,5 @@ export function createGetBatchedProperties(
     //due to the referencial equality check, the computed value only updates when filterIsEqual returns false
     return currentProperties
   })
-  return (key) => {
-    if (key in reverseRenameMap) {
-      key = reverseRenameMap[key]
-    }
-    return computedProperties.value?.read(key)
-  }
+  return (key) => computedProperties.value?.read(key as any) as any
 }

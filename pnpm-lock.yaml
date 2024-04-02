@@ -151,7 +151,7 @@ importers:
         version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide
@@ -421,7 +421,7 @@ importers:
     dependencies:
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../uikit
+        version: link:../../react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../icons/lucide
@@ -432,12 +432,6 @@ importers:
       '@react-three/fiber':
         specifier: ^8.15.13
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../react
-      '@react-three/uikit-lucide':
-        specifier: workspace:^
-        version: link:../../icons/lucide
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47
@@ -452,7 +446,7 @@ importers:
     dependencies:
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../uikit
+        version: link:../../react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../icons/lucide
@@ -466,12 +460,6 @@ importers:
       '@react-three/fiber':
         specifier: ^8.15.13
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../react
-      '@react-three/uikit-lucide':
-        specifier: workspace:^
-        version: link:../../icons/lucide
       '@types/react':
         specifier: ^18.2.47
         version: 18.2.47
@@ -543,8 +531,8 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
       yoga-layout:
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.0

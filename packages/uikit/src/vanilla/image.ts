@@ -1,8 +1,8 @@
 import { Object3D } from 'three'
-import { ImageProperties, createImage, destroyImage } from '../components/image'
-import { AllOptionalProperties } from '../properties/default'
-import { Component } from '.'
-import { EventConfig, bindHandlers } from './utils'
+import { ImageProperties, createImage, destroyImage } from '../components/image.js'
+import { AllOptionalProperties } from '../properties/default.js'
+import { Component } from './index.js'
+import { EventConfig, bindHandlers } from './utils.js'
 import { batch } from '@preact/signals-core'
 
 export class Image extends Object3D {

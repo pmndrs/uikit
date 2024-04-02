@@ -1,33 +1,32 @@
 import { YogaProperties } from '../flex/node.js'
 import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { computeIsClipped, computeClippingRect } from '../clipping.js'
+import { computedIsClipped, computedClippingRect } from '../clipping.js'
 import {
   ScrollbarProperties,
   applyScrollPosition,
-  computeGlobalScrollMatrix,
+  computedGlobalScrollMatrix,
   createScrollPosition,
   createScrollbars,
   setupScrollHandler,
 } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
-import { TransformProperties, applyTransform, computeTransformMatrix } from '../transform.js'
-import { AllOptionalProperties, Properties, WithClasses, WithReactive } from '../properties/default.js'
+import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
+import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { ElementType, ZIndexOffset, computeOrderInfo } from '../order.js'
+import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { preferredColorSchemePropertyTransformers } from '../dark.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { Signal, computed, signal } from '@preact/signals-core'
-import { WithConditionals, computeGlobalMatrix } from './utils.js'
+import { computed, signal } from '@preact/signals-core'
+import { WithConditionals, computedGlobalMatrix } from './utils.js'
 import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, WithContext } from '../context.js'
-import { ShadowProperties, computePanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { MaterialClass } from '../panel/panel-material.js'
-import { Vector2Tuple } from 'three'
 import { EventHandlers } from '../events.js'
+import { getDefaultPanelMaterialConfig } from '../internals.js'
 
 export type InheritableContainerProperties = WithConditionals<
   WithClasses<
@@ -35,11 +34,10 @@ export type InheritableContainerProperties = WithConditionals<
       WithReactive<
         YogaProperties &
           PanelProperties &
-          TransformProperties & {
-            zIndexOffset?: ZIndexOffset
-            panelMaterialClass?: MaterialClass
-          } & ScrollbarProperties &
-          ShadowProperties
+          ZIndexProperties &
+          TransformProperties &
+          ScrollbarProperties &
+          PanelGroupProperties
       >
     >
   >
@@ -79,15 +77,15 @@ export function createContainer(
   const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
   parentContext.node.addChild(node)
 
-  const transformMatrix = computeTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
+  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, subscriptions)
 
-  const globalMatrix = computeGlobalMatrix(parentContext.matrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentContext.matrix, transformMatrix)
 
-  const isClipped = computeIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
-  const groupDeps = computePanelGroupDependencies(mergedProperties)
+  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const groupDeps = computedPanelGroupDependencies(mergedProperties)
 
-  const orderInfo = computeOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
 
   createInstancedPanel(
     mergedProperties,
@@ -100,12 +98,13 @@ export function createContainer(
     node.borderInset,
     parentContext.clippingRect,
     isClipped,
+    getDefaultPanelMaterialConfig(),
     subscriptions,
   )
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
-  const matrix = computeGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const matrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -118,7 +117,7 @@ export function createContainer(
     subscriptions,
   )
 
-  const clippingRect = computeClippingRect(
+  const clippingRect = computedClippingRect(
     globalMatrix,
     node.size,
     node.borderInset,

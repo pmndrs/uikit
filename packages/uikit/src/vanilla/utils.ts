@@ -1,8 +1,7 @@
 import { Signal, effect } from '@preact/signals-core'
-import { Subscriptions } from '../utils'
-import { EventHandlers } from '../events'
+import { Subscriptions } from '../utils.js'
+import { EventHandlers } from '../events.js'
 import { Mesh, Object3D } from 'three'
-import { RootContext } from '../context'
 
 export type EventConfig = {
   bindEventHandlers: (object: Object3D, handlers: EventHandlers) => void

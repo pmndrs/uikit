@@ -6,7 +6,7 @@ import {
   updateSortedBucketsAllocation,
   resizeSortedBucketsSpace,
 } from '../allocation/sorted-buckets.js'
-import { MaterialClass, createPanelMaterial, panelMaterialDefaultData } from './panel-material.js'
+import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../order.js'
@@ -15,22 +15,24 @@ import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef } from '../context.js'
 
-export type PanelGroupDependencies = {
-  materialClass: MaterialClass
-} & ShadowProperties
+export type PanelGroupProperties = {
+  panelMaterialClass?: MaterialClass
+  receiveShadow?: boolean
+  castShadow?: boolean
+}
 
-const propertyKeys = ['materialClass', 'castShadow', 'receiveShadow']
+const propertyKeys = ['panelMaterialClass', 'castShadow', 'receiveShadow'] as const
 
-export function computePanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
-  const get = createGetBatchedProperties(propertiesSignal, propertyKeys)
-  return computed<PanelGroupDependencies>(() => ({
-    materialClass: (get('materialClass') as MaterialClass | undefined) ?? MeshBasicMaterial,
-    castShadow: get('castShadow') as boolean | undefined,
-    receiveShadow: get('receiveShadow') as boolean | undefined,
+export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
+  const get = createGetBatchedProperties<PanelGroupProperties>(propertiesSignal, propertyKeys)
+  return computed<PanelGroupProperties>(() => ({
+    panelMaterialClass: get('panelMaterialClass'),
+    castShadow: get('castShadow'),
+    receiveShadow: get('receiveShadow'),
   }))
 }
 
-export type ShadowProperties = { receiveShadow?: boolean; castShadow?: boolean }
+const defaultDependencies: PanelGroupProperties = { panelMaterialClass: MeshBasicMaterial }
 
 export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<number, InstancedPanelGroup>>()
@@ -41,15 +43,18 @@ export class PanelGroupManager {
     private object: Object3DRef,
   ) {}
 
-  getGroup(majorIndex: number, { materialClass, receiveShadow, castShadow }: PanelGroupDependencies) {
-    let groups = this.map.get(materialClass)
+  getGroup(
+    majorIndex: number,
+    { panelMaterialClass = MeshBasicMaterial, receiveShadow, castShadow }: PanelGroupProperties = defaultDependencies,
+  ) {
+    let groups = this.map.get(panelMaterialClass)
     if (groups == null) {
-      this.map.set(materialClass, (groups = new Map()))
+      this.map.set(panelMaterialClass, (groups = new Map()))
     }
     const key = (majorIndex << 2) + ((receiveShadow ? 1 : 0) << 1) + (castShadow ? 1 : 0)
     let panelGroup = groups.get(key)
     if (panelGroup == null) {
-      const material = createPanelMaterial(materialClass, { type: 'instanced' })
+      const material = createPanelMaterial(panelMaterialClass, { type: 'instanced' })
       groups.set(
         key,
         (panelGroup = new InstancedPanelGroup(
@@ -90,9 +95,11 @@ export class InstancedPanelGroup {
   private bufferElementSize: number = 0
   private timeToNextUpdate: number | undefined
 
+  public instanceDataOnUpdate!: InstancedBufferAttribute['addUpdateRange']
+
   private activateElement = (element: InstancedPanel, bucket: Bucket<InstancedPanel>, indexInBucket: number) => {
     const index = bucket.offset + indexInBucket
-    this.instanceData.set(panelMaterialDefaultData, 16 * index)
+    this.instanceData.set(element.materialConfig.defaultData, 16 * index)
     this.instanceData.addUpdateRange(16 * index, 16)
     this.instanceData.needsUpdate = true
     element.activate(bucket, indexInBucket)
@@ -220,6 +227,10 @@ export class InstancedPanelGroup {
       dataArray.set(this.instanceData.array.subarray(0, dataArray.length))
     }
     this.instanceData = new InstancedBufferAttribute(dataArray, 16, false)
+    this.instanceDataOnUpdate = (start, count) => {
+      this.instanceData.addUpdateRange(start, count)
+      this.instanceData.needsUpdate = true
+    }
     this.instanceData.setUsage(DynamicDrawUsage)
     const clippingArray = new Float32Array(this.bufferElementSize * 16)
     if (this.instanceClipping != null) {

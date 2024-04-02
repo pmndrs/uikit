@@ -1,7 +1,6 @@
-import { computed, Signal, signal } from '@preact/signals-core'
-import { Vector2Tuple, BufferAttribute, Color, Vector3Tuple } from 'three'
+import { computed, Signal } from '@preact/signals-core'
+import { Vector2Tuple, Color, Vector3Tuple } from 'three'
 import { Inset } from './flex/node.js'
-import { Yoga, loadYoga as loadYogaImpl } from 'yoga-layout/wasm-async'
 import { MergedProperties } from './properties/merged.js'
 
 export type ColorRepresentation = Color | string | number | Vector3Tuple
@@ -19,16 +18,6 @@ export function unsubscribeSubscriptions(subscriptions: Subscriptions): void {
 export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
 export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 }
 export const alignmentZMap = { back: -0.5, center: 0, front: 0.5 }
-
-let yoga: Signal<Yoga | undefined> | undefined
-
-export function loadYoga(): Signal<Yoga | undefined> {
-  if (yoga == null) {
-    const result = (yoga = signal<Yoga | undefined>(undefined))
-    loadYogaImpl().then((value) => (result.value = value))
-  }
-  return yoga
-}
 
 /**
  * calculates the offsetX, offsetY, and scale to fit content with size [aspectRatio, 1] inside
@@ -58,20 +47,6 @@ export function fitNormalizedContentInside(
     scaling = (innerWidth * pixelSize) / aspectRatio
   }
   return [(leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, scaling]
-}
-
-const colorHelper = new Color()
-
-export function colorToBuffer(buffer: BufferAttribute, index: number, color: ColorRepresentation, offset = 0): void {
-  const bufferIndex = index * buffer.itemSize + offset
-  buffer.addUpdateRange(bufferIndex, 3)
-  if (Array.isArray(color)) {
-    buffer.set(color, bufferIndex)
-  } else {
-    colorHelper.set(color)
-    colorHelper.toArray(buffer.array, bufferIndex)
-  }
-  buffer.needsUpdate = true
 }
 
 export function readReactive<T>(value: T | Signal<T>): T {

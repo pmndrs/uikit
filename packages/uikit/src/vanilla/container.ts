@@ -1,8 +1,8 @@
 import { Object3D } from 'three'
-import { ContainerProperties, createContainer, destroyContainer } from '../components/container'
-import { AllOptionalProperties, Properties } from '../properties/default'
-import { Component } from '.'
-import { EventConfig, bindHandlers } from './utils'
+import { ContainerProperties, createContainer, destroyContainer } from '../components/container.js'
+import { AllOptionalProperties, Properties } from '../properties/default.js'
+import { Component } from './index.js'
+import { EventConfig, bindHandlers } from './utils.js'
 import { batch } from '@preact/signals-core'
 
 export class Container extends Object3D {

@@ -1,1 +1,1 @@
-export * from './sorted-buckets'
+export * from './sorted-buckets.js'

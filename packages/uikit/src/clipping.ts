@@ -2,7 +2,7 @@ import { Signal, computed } from '@preact/signals-core'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
-import { Overflow } from 'yoga-layout/wasm-async'
+import { Overflow } from 'yoga-layout'
 import { Object3DRef } from './context.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
@@ -94,7 +94,7 @@ const multiplier = [
   [-0.5, 0.5],
 ]
 
-export function computeIsClipped(
+export function computedIsClipped(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
@@ -132,7 +132,7 @@ export function computeIsClipped(
   })
 }
 
-export function computeClippingRect(
+export function computedClippingRect(
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,

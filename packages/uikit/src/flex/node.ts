@@ -1,6 +1,6 @@
 import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import { Edge, Node, Yoga, Overflow } from 'yoga-layout'
+import Yoga, { Edge, Node, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
@@ -44,7 +44,6 @@ export class FlexNode {
     propertiesSignal: Signal<MergedProperties>,
     public readonly size = signal<Vector2Tuple>([0, 0]),
     private object: Object3DRef,
-    public readonly yoga: Signal<Yoga | undefined>,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
     subscriptions: Subscriptions,
@@ -96,7 +95,6 @@ export class FlexNode {
       propertiesSignal,
       undefined,
       object,
-      this.yoga,
       this.requestCalculateLayout,
       computed(() => {
         const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]

@@ -1,10 +1,10 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
-import { ParentProvider, useParent } from './context'
-import { AddHandlers, AddScrollHandler } from './utilts'
+import { ParentProvider, useParent } from './context.js'
+import { AddHandlers, AddScrollHandler } from './utilts.js'
 import { ContainerProperties, createContainer, destroyContainer } from '@vanilla-three/uikit/internals'
-import { useDefaultProperties } from './default'
+import { useDefaultProperties } from './default.js'
 
 export const Container: (
   props: {

@@ -1,35 +1,39 @@
 import { Signal, computed, signal } from '@preact/signals-core'
-import { Object3DRef, RootContext, WithContext } from '../context'
-import { FlexNode, YogaProperties } from '../flex'
-import { LayoutListeners, Listeners, ScrollListeners, setupLayoutListeners } from '../listeners'
-import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel'
-import { PanelGroupManager, ShadowProperties, computePanelGroupDependencies } from '../panel/instanced-panel-group'
-import { MaterialClass } from '../panel/panel-material'
-import { WithAllAliases } from '../properties/alias'
-import { AllOptionalProperties, Properties, WithClasses, WithReactive } from '../properties/default'
-import { MergedProperties, PropertyTransformers } from '../properties/merged'
+import { Object3DRef, RootContext } from '../context.js'
+import { FlexNode, YogaProperties } from '../flex/index.js'
+import { LayoutListeners, ScrollListeners, setupLayoutListeners } from '../listeners.js'
+import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
+import {
+  PanelGroupManager,
+  PanelGroupProperties,
+  computedPanelGroupDependencies,
+} from '../panel/instanced-panel-group.js'
+import { WithAllAliases } from '../properties/alias.js'
+import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
+import { MergedProperties, PropertyTransformers } from '../properties/merged.js'
 import {
   ScrollbarProperties,
   applyScrollPosition,
-  computeGlobalScrollMatrix,
+  computedGlobalScrollMatrix,
   createScrollPosition,
   createScrollbars,
   setupScrollHandler,
-} from '../scroll'
-import { TransformProperties, applyTransform, computeTransformMatrix } from '../transform'
-import { Subscriptions, alignmentXMap, alignmentYMap, loadYoga, readReactive, unsubscribeSubscriptions } from '../utils'
-import { WithConditionals } from './utils'
-import { computeClippingRect } from '../clipping'
-import { computeOrderInfo, ElementType, WithCameraDistance } from '../order'
+} from '../scroll.js'
+import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
+import { Subscriptions, alignmentXMap, alignmentYMap, readReactive, unsubscribeSubscriptions } from '../utils.js'
+import { WithConditionals } from './utils.js'
+import { computedClippingRect } from '../clipping.js'
+import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
 import { Camera, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
-import { GlyphGroupManager } from '../text/render/instanced-glyph-group'
-import { createGetBatchedProperties } from '../properties/batched'
-import { addActiveHandlers, createActivePropertyTransfomers } from '../active'
-import { preferredColorSchemePropertyTransformers } from '../dark'
-import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover'
-import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh'
-import { createResponsivePropertyTransformers } from '../responsive'
-import { EventHandlers } from '../events'
+import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
+import { preferredColorSchemePropertyTransformers } from '../dark.js'
+import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { createResponsivePropertyTransformers } from '../responsive.js'
+import { EventHandlers } from '../events.js'
+import { getDefaultPanelMaterialConfig } from '../internals.js'
 
 export type InheritableRootProperties = WithConditionals<
   WithClasses<
@@ -39,8 +43,7 @@ export type InheritableRootProperties = WithConditionals<
           TransformProperties &
           PanelProperties &
           ScrollbarProperties &
-          ShadowProperties & {
-            panelMaterialClass?: MaterialClass
+          PanelGroupProperties & {
             sizeX?: number
             sizeY?: number
             anchorX?: keyof typeof alignmentXMap
@@ -99,25 +102,16 @@ export function createRoot(
   })
 
   const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, subscriptions)
-  const node = new FlexNode(
-    mergedProperties,
-    rootSize,
-    object,
-    loadYoga(),
-    0.01,
-    requestCalculateLayout,
-    undefined,
-    subscriptions,
-  )
+  const node = new FlexNode(mergedProperties, rootSize, object, requestCalculateLayout, undefined, subscriptions)
   subscriptions.push(() => node.destroy())
 
-  const transformMatrix = computeTransformMatrix(mergedProperties, node, pixelSize)
-  const rootMatrix = computeRootMatrix(mergedProperties, transformMatrix, node.size, pixelSize)
+  const transformMatrix = computedTransformMatrix(mergedProperties, node, pixelSize)
+  const rootMatrix = computedRootMatrix(mergedProperties, transformMatrix, node.size, pixelSize)
 
   applyTransform(object, transformMatrix, subscriptions)
-  const groupDeps = computePanelGroupDependencies(mergedProperties)
+  const groupDeps = computedPanelGroupDependencies(mergedProperties)
 
-  const orderInfo = computeOrderInfo(mergedProperties, ElementType.Panel, groupDeps, undefined)
+  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
 
   const ctx: WithCameraDistance = { cameraDistance: 0 }
 
@@ -150,12 +144,13 @@ export function createRoot(
     node.borderInset,
     undefined,
     undefined,
+    getDefaultPanelMaterialConfig(),
     subscriptions,
   )
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, pixelSize)
-  const matrix = computeGlobalScrollMatrix(scrollPosition, rootMatrix, pixelSize)
+  const matrix = computedGlobalScrollMatrix(scrollPosition, rootMatrix, pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -168,7 +163,14 @@ export function createRoot(
     subscriptions,
   )
 
-  const clippingRect = computeClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, pixelSize, undefined)
+  const clippingRect = computedClippingRect(
+    rootMatrix,
+    node.size,
+    node.borderInset,
+    node.overflow,
+    pixelSize,
+    undefined,
+  )
 
   setupLayoutListeners(propertiesSignal, node.size, subscriptions)
 
@@ -269,7 +271,7 @@ const matrixHelper = new Matrix4()
 
 const keys = ['anchorX', 'anchorY']
 
-function computeRootMatrix(
+function computedRootMatrix(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,

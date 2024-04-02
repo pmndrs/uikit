@@ -32,15 +32,15 @@ export type GlyphLayoutProperties = {
   wordBreak: keyof typeof wrappers
 }
 
-const glyphPropertyKeys = ['fontSize', 'letterSpacing', 'lineHeight', 'wordBreak']
+const glyphPropertyKeys = ['fontSize', 'letterSpacing', 'lineHeight', 'wordBreak'] as const
 
-export function computeMeasureFunc(
+export function computedMeasureFunc(
   properties: Signal<MergedProperties>,
   fontSignal: Signal<Font | undefined>,
   textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
 ) {
-  const get = createGetBatchedProperties(properties, glyphPropertyKeys)
+  const get = createGetBatchedProperties<GlyphProperties>(properties, glyphPropertyKeys)
   return computed<MeasureFunction | undefined>(() => {
     const font = fontSignal.value
     if (font == null) {

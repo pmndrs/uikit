@@ -35,7 +35,7 @@ const sX = 'transformScaleX'
 const sY = 'transformScaleY'
 const sZ = 'transformScaleZ'
 
-const propertyKeys = [tX, tY, tZ, rX, rY, rZ, sX, sY, sZ]
+const propertyKeys = [tX, tY, tZ, rX, rY, rZ, sX, sY, sZ] as const
 
 const tHelper = new Vector3()
 const sHelper = new Vector3()
@@ -49,24 +49,23 @@ function toQuaternion([x, y, z]: Vector3Tuple): Quaternion {
   return quaternionHelper.setFromEuler(eulerHelper.set(x * toRad, y * toRad, z * toRad))
 }
 
-export function computeTransformMatrix(
+export function computedTransformMatrix(
   propertiesSignal: Signal<MergedProperties>,
   node: FlexNode,
   pixelSize: number,
-  renameOutput?: Record<string, string>,
 ): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
   //B = bound transformation matrix
   //O = matrix to transform the origin for matrix T
   //T = transform matrix (translate, rotate, scale)
-  const get = createGetBatchedProperties(propertiesSignal, propertyKeys, renameOutput)
+  const get = createGetBatchedProperties<TransformProperties>(propertiesSignal, propertyKeys)
   return computed(() => {
     const { relativeCenter } = node
     const [x, y] = relativeCenter.value
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
-    const tOriginX = (get('transformOriginX') ?? 'center') as keyof typeof alignmentXMap
-    const tOriginY = (get('transformOriginY') ?? 'center') as keyof typeof alignmentYMap
+    const tOriginX = get('transformOriginX') ?? 'center'
+    const tOriginY = get('transformOriginY') ?? 'center'
     let originCenter = true
 
     if (tOriginX != 'center' || tOriginY != 'center') {
@@ -77,9 +76,9 @@ export function computeTransformMatrix(
       originVector.negate()
     }
 
-    const r: Vector3Tuple = [(get(rX) as number) ?? 0, (get(rY) as number) ?? 0, (get(rZ) as number) ?? 0]
-    const t: Vector3Tuple = [(get(tX) as number) ?? 0, -((get(tY) as number) ?? 0), (get(tZ) as number) ?? 0]
-    const s: Vector3Tuple = [(get(sX) as number) ?? 1, (get(sY) as number) ?? 1, (get(sZ) as number) ?? 1]
+    const r: Vector3Tuple = [get(rX) ?? 0, get(rY) ?? 0, get(rZ) ?? 0]
+    const t: Vector3Tuple = [get(tX) ?? 0, -(get(tY) ?? 0), get(tZ) ?? 0]
+    const s: Vector3Tuple = [get(sX) ?? 1, get(sY) ?? 1, get(sZ) ?? 1]
     if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
       result.multiply(
         matrixHelper.compose(tHelper.fromArray(t).multiplyScalar(pixelSize), toQuaternion(r), sHelper.fromArray(s)),

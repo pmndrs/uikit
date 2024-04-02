@@ -1,9 +1,9 @@
 import { createImage, ImageProperties, destroyImage } from '@vanilla-three/uikit/internals'
 import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
-import { AddHandlers, AddScrollHandler } from './utilts'
-import { ParentProvider, useParent } from './context'
-import { useDefaultProperties } from './default'
+import { AddHandlers, AddScrollHandler } from './utilts.js'
+import { ParentProvider, useParent } from './context.js'
+import { useDefaultProperties } from './default.js'
 
 export const Image: (props: ImageProperties & { children?: ReactNode }) => ReactNode = forwardRef((properties, ref) => {
   //TODO: ComponentInternals

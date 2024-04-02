@@ -9,52 +9,44 @@ import {
   TextureLoader,
   Vector2Tuple,
 } from 'three'
-import { Listeners } from '..'
-import { Object3DRef, WithContext } from '../context'
-import { Inset, YogaProperties } from '../flex'
-import { ElementType, ZIndexOffset, computeOrderInfo, setupRenderOrder } from '../order'
-import { PanelProperties } from '../panel/instanced-panel'
-import { ShadowProperties } from '../panel/instanced-panel-group'
-import {
-  MaterialClass,
-  PanelDepthMaterial,
-  PanelDistanceMaterial,
-  applyPropsToMaterialData,
-  createPanelMaterial,
-  panelMaterialDefaultData,
-  setupPanelMaterials,
-} from '../panel/panel-material'
-import { WithAllAliases } from '../properties/alias'
-import { AllOptionalProperties, Properties, WithClasses, WithReactive } from '../properties/default'
+import { Listeners } from '../index.js'
+import { Object3DRef, WithContext } from '../context.js'
+import { Inset, YogaProperties } from '../flex/index.js'
+import { ElementType, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
+import { PanelProperties } from '../panel/instanced-panel.js'
+import { PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from '../panel/panel-material.js'
+import { WithAllAliases } from '../properties/alias.js'
+import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import {
   ScrollbarProperties,
   applyScrollPosition,
-  computeGlobalScrollMatrix,
+  computedGlobalScrollMatrix,
   createScrollPosition,
   createScrollbars,
   setupScrollHandler,
-} from '../scroll'
-import { TransformProperties, applyTransform, computeTransformMatrix } from '../transform'
-import { WithConditionals, computeGlobalMatrix, loadResourceWithParams } from './utils'
-import { MergedProperties, PropertyTransformers } from '../properties/merged'
-import { Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils'
-import { computeIsPanelVisible, panelGeometry } from '../panel/utils'
-import { setupImmediateProperties } from '../properties/immediate'
-import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh'
+} from '../scroll.js'
+import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
+import { WithConditionals, computedGlobalMatrix, loadResourceWithParams } from './utils.js'
+import { MergedProperties, PropertyTransformers } from '../properties/merged.js'
+import { Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils.js'
+import { panelGeometry } from '../panel/utils.js'
+import { setupImmediateProperties } from '../properties/immediate.js'
+import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
 import {
-  computeIsClipped,
-  computeClippingRect,
+  computedIsClipped,
+  computedClippingRect,
   createGlobalClippingPlanes,
   updateGlobalClippingPlanes,
-} from '../clipping'
-import { setupLayoutListeners, setupViewportListeners } from '../listeners'
-import { createGetBatchedProperties } from '../properties/batched'
-import { addActiveHandlers, createActivePropertyTransfomers } from '../active'
-import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover'
-import { cloneHandlers } from '../panel/instanced-panel-mesh'
-import { preferredColorSchemePropertyTransformers } from '../dark'
-import { createResponsivePropertyTransformers } from '../responsive'
-import { EventHandlers } from '../events'
+} from '../clipping.js'
+import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { createGetBatchedProperties } from '../properties/batched.js'
+import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
+import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { cloneHandlers } from '../panel/instanced-panel-mesh.js'
+import { preferredColorSchemePropertyTransformers } from '../dark.js'
+import { createResponsivePropertyTransformers } from '../responsive.js'
+import { EventHandlers } from '../events.js'
+import { PanelGroupProperties, PanelMaterialConfig, createPanelMaterialConfig } from '../internals.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
@@ -64,14 +56,13 @@ export type InheritableImageProperties = WithConditionals<
     WithAllAliases<
       WithReactive<
         YogaProperties &
+          ZIndexProperties &
           Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'> & {
             opacity?: number
             fit?: ImageFit
-            panelMaterialClass?: MaterialClass
-            zIndexOffset?: ZIndexOffset
             keepAspectRatio?: boolean
           } & TransformProperties &
-          ShadowProperties
+          PanelGroupProperties
       > &
         ScrollbarProperties
     >
@@ -79,8 +70,6 @@ export type InheritableImageProperties = WithConditionals<
 >
 
 export type ImageProperties = InheritableImageProperties & Listeners & EventHandlers & { src: Signal<string> | string }
-
-const shadowProperties = ['castShadow', 'receiveShadow']
 
 export function createImage(
   parentContext: WithContext,
@@ -134,19 +123,19 @@ export function createImage(
   const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
   parentContext.node.addChild(node)
 
-  const transformMatrix = computeTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
+  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, subscriptions)
 
-  const globalMatrix = computeGlobalMatrix(parentContext.matrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentContext.matrix, transformMatrix)
 
-  const isClipped = computeIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
   const isHidden = computed(() => isClipped.value || texture.value == null)
 
-  const orderInfo = computeOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
+  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
-  const matrix = computeGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const matrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -159,7 +148,7 @@ export function createImage(
     subscriptions,
   )
 
-  const clippingRect = computeClippingRect(
+  const clippingRect = computedClippingRect(
     globalMatrix,
     node.size,
     node.borderInset,
@@ -215,6 +204,26 @@ export function destroyImage(internals: ReturnType<typeof createImage>) {
   unsubscribeSubscriptions(internals.subscriptions)
 }
 
+let imageMaterialConfig: PanelMaterialConfig | undefined
+function getImageMaterialConfig() {
+  imageMaterialConfig ??= createPanelMaterialConfig(
+    {
+      borderBend: 'borderBend',
+      borderBottomLeftRadius: 'borderBottomLeftRadius',
+      borderBottomRightRadius: 'borderBottomRightRadius',
+      borderColor: 'borderColor',
+      borderOpacity: 'borderOpacity',
+      borderTopLeftRadius: 'borderTopLeftRadius',
+      borderTopRightRadius: 'borderTopRightRadius',
+      backgroundOpacity: 'opacity',
+    },
+    {
+      backgroundColor: 0xffffff,
+    },
+  )
+  return imageMaterialConfig
+}
+
 function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   texture: Signal<Texture | undefined>,
@@ -229,15 +238,8 @@ function createImageMesh(
   const updateClippingPlanes = () => updateGlobalClippingPlanes(clippingRect, root.object, clippingPlanes)
   root.onFrameSet.add(updateClippingPlanes)
   subscriptions.push(() => root.onFrameSet.delete(updateClippingPlanes))
-  setupPanelMaterials(propertiesSignal, mesh, node.size, node.borderInset, isHidden, clippingPlanes, subscriptions)
-  const isVisible = computeIsPanelVisible(propertiesSignal, node.borderInset, node.size, isHidden, 0xffffff)
-  setupImmediateProperties(
-    propertiesSignal,
-    isVisible,
-    (key) => shadowProperties.includes(key),
-    (key, value) => (mesh[key as 'castShadow' | 'receiveShadow'] = (value as boolean | undefined) ?? false),
-    subscriptions,
-  )
+  const isVisible = getImageMaterialConfig().computedIsVisibile(propertiesSignal, node.borderInset, node.size, isHidden)
+  setupImageMaterials(propertiesSignal, mesh, node.size, node.borderInset, isVisible, clippingPlanes, subscriptions)
   mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parent.clippingRect, orderInfo)
   subscriptions.push(effect(() => setupRenderOrder(mesh, root, orderInfo.value)))
 
@@ -344,25 +346,16 @@ async function loadTextureImpl(src?: string | Texture) {
   }
 }
 
-const panelMaterialClassKey = ['panelMaterialClass']
+const panelMaterialClassKey = ['panelMaterialClass'] as const
 
-//TODO: rename setter: opacity => backgroundOpacity and remove backgroundColor
-//TODO: allow providing own default material data
-
-const imageMaterialDefaultData = [...panelMaterialDefaultData]
-imageMaterialDefaultData[4] = 1
-imageMaterialDefaultData[5] = 1
-imageMaterialDefaultData[6] = 1
-
-export function setupPanelMaterials(
+function setupImageMaterials(
   propertiesSignal: Signal<MergedProperties>,
   target: Mesh,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
-  isClipped: Signal<boolean>,
+  isVisible: Signal<boolean>,
   clippingPlanes: Array<Plane>,
   subscriptions: Subscriptions,
-  renameOutput?: Record<string, string>,
 ) {
   const data = new Float32Array(16)
   const info = { data: data, type: 'normal' } as const
@@ -371,13 +364,39 @@ export function setupPanelMaterials(
   target.customDepthMaterial.clippingPlanes = clippingPlanes
   target.customDistanceMaterial.clippingPlanes = clippingPlanes
 
-  const get = createGetBatchedProperties(propertiesSignal, panelMaterialClassKey)
+  const get = createGetBatchedProperties<PanelGroupProperties>(propertiesSignal, panelMaterialClassKey)
   subscriptions.push(
     effect(() => {
-      const materialClass = get('panelMaterialClass') as MaterialClass | undefined
-      target.material = createPanelMaterial(materialClass ?? MeshBasicMaterial, info)
+      target.material = createPanelMaterial(get('panelMaterialClass') ?? MeshBasicMaterial, info)
       target.material.clippingPlanes = clippingPlanes
     }),
+    effect(() => (target.castShadow = get('castShadow') ?? false)),
+    effect(() => (target.receiveShadow = get('receiveShadow') ?? false)),
   )
-  applyPropsToMaterialData(propertiesSignal, data, size, borderInset, isClipped, [], subscriptions, renameOutput)
+
+  const imageMaterialConfig = getImageMaterialConfig()
+  const internalSubscriptions: Array<() => void> = []
+  subscriptions.push(
+    effect(() => {
+      if (!isVisible.value) {
+        return
+      }
+
+      data.set(imageMaterialConfig.defaultData)
+
+      internalSubscriptions.push(
+        effect(() => data.set(size.value, 13)),
+        effect(() => data.set(borderInset.value, 0)),
+      )
+      return () => unsubscribeSubscriptions(internalSubscriptions)
+    }),
+  )
+  const setters = imageMaterialConfig.setters
+  setupImmediateProperties(
+    propertiesSignal,
+    isVisible,
+    imageMaterialConfig.hasProperty,
+    (key, value) => setters[key](data, 0, value as any, size, undefined),
+    subscriptions,
+  )
 }

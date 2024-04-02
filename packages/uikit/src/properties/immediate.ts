@@ -1,6 +1,6 @@
 import { Signal, effect, untracked } from '@preact/signals-core'
 import { MergedProperties } from './merged.js'
-import { Subscriptions } from '../utils.js'
+import type { Subscriptions } from '../utils.js'
 
 type PropertySubscriptions = Record<string, () => void>
 
