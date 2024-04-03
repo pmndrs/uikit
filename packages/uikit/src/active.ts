@@ -47,9 +47,6 @@ export function addActiveHandlers(
   addHandler('onPointerUp', target, onLeave)
   addHandler('onPointerLeave', target, onLeave)
 }
-
-//TODO: this does not work because active: { ... } should always overwrite even properties after
-
 export function createActivePropertyTransfomers(activeSignal: Signal<Array<number>>) {
   return {
     active: createConditionalPropertyTranslator(() => activeSignal.value.length > 0),

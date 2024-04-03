@@ -7,18 +7,14 @@ export type PropertyTransformers = Record<string, (value: unknown, target: Merge
 export class MergedProperties {
   private propertyMap = new Map<string, Array<unknown | Signal<unknown>>>()
 
-  constructor(private transformers: PropertyTransformers) {}
-
-  remove(key: string) {
-    this.propertyMap.delete(key)
-  }
+  constructor(private preTransformers?: PropertyTransformers) {}
 
   add(key: string, value: unknown) {
     if (value === undefined) {
       //only adding non undefined values to the properties
       return
     }
-    const transform = this.transformers[key]
+    const transform = this.preTransformers?.[key]
     if (transform != null) {
       transform(value, this)
       return
@@ -146,10 +142,21 @@ export class MergedProperties {
     return shallodwEqual(entry1, entry2)
   }
 
-  addAll(defaultProperties: AllOptionalProperties | undefined, properties: WithClasses<Properties>): void {
+  addAll(
+    defaultProperties: AllOptionalProperties | undefined,
+    properties: WithClasses<Properties>,
+    postTransformers: PropertyTransformers,
+  ): void {
     traverseProperties(defaultProperties, properties, (p) => {
       for (const key in p) {
         this.add(key, p[key])
+      }
+      for (const key in postTransformers) {
+        const property = p[key]
+        if (property == null) {
+          continue
+        }
+        postTransformers[key](property, this)
       }
     })
   }

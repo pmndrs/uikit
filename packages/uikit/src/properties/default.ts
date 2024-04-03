@@ -27,16 +27,24 @@ export function traverseProperties<T>(
   fn: (properties: T) => void,
 ): void {
   if (defaultProperties != null) {
+    traverseClasses(defaultProperties.classes as any, fn)
     fn(defaultProperties as T)
   }
-  const { classes } = properties
-  if (Array.isArray(classes)) {
-    const classesLength = classes.length
-    for (let i = 0; i < classesLength; i++) {
-      fn(classes[i])
-    }
-  } else if (classes != null) {
-    fn(classes)
-  }
+  traverseClasses(properties.classes as any, fn)
   fn(properties)
+}
+
+function traverseClasses<T>(classes: WithClasses<T>['classes'], fn: (properties: T) => void) {
+  if (classes == null) {
+    return
+  }
+  if (!Array.isArray(classes)) {
+    fn(classes as T)
+    return
+  }
+  const classesLength = classes.length
+  for (let i = 0; i < classesLength; i++) {
+    fn(classes[i])
+  }
+  return
 }

@@ -43,16 +43,20 @@ import { createGetBatchedProperties } from '../properties/batched.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
 import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { cloneHandlers } from '../panel/instanced-panel-mesh.js'
-import { preferredColorSchemePropertyTransformers } from '../dark.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
-import { PanelGroupProperties, PanelMaterialConfig, createPanelMaterialConfig } from '../internals.js'
+import {
+  PanelGroupProperties,
+  PanelMaterialConfig,
+  createPanelMaterialConfig,
+  darkPropertyTransformers,
+} from '../internals.js'
 
 export type ImageFit = 'cover' | 'fill'
 const FIT_DEFAULT: ImageFit = 'fill'
 
-export type InheritableImageProperties = WithConditionals<
-  WithClasses<
+export type InheritableImageProperties = WithClasses<
+  WithConditionals<
     WithAllAliases<
       WithReactive<
         YogaProperties &
@@ -62,9 +66,9 @@ export type InheritableImageProperties = WithConditionals<
             fit?: ImageFit
             keepAspectRatio?: boolean
           } & TransformProperties &
-          PanelGroupProperties
-      > &
-        ScrollbarProperties
+          PanelGroupProperties &
+          ScrollbarProperties
+      >
     >
   >
 >
@@ -99,24 +103,30 @@ export function createImage(
     return image.width / image.height
   })
 
-  const propertyTransformers: PropertyTransformers = {
+  const signalMap = new Map<unknown, Signal<undefined | null>>()
+
+  const prePropertyTransformers: PropertyTransformers = {
     keepAspectRatio: (value, target) => {
-      if (value !== false) {
-        return
+      let signal = signalMap.get(value)
+      if (signal == null) {
+        //if keep aspect ratio is "false" => we write "null" => which overrides the previous properties and returns null
+        signalMap.set(value, (signal = computed(() => (readReactive(value) === false ? null : undefined))))
       }
-      target.remove('aspectRatio')
+      target.add('aspectRatio', signal)
     },
-    ...preferredColorSchemePropertyTransformers,
+  }
+
+  const postTransformers = {
+    ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   }
 
   const mergedProperties = computed(() => {
-    const merged = new MergedProperties(propertyTransformers)
-    merged.add('backgroundColor', 0xffffff)
+    const merged = new MergedProperties(prePropertyTransformers)
     merged.add('aspectRatio', textureAspectRatio)
-    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value)
+    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value, postTransformers)
     return merged
   })
 

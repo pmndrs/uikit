@@ -28,18 +28,17 @@ import { Camera, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { preferredColorSchemePropertyTransformers } from '../dark.js'
 import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
-import { getDefaultPanelMaterialConfig } from '../internals.js'
+import { darkPropertyTransformers, getDefaultPanelMaterialConfig, traverseProperties } from '../internals.js'
 
-export type InheritableRootProperties = WithConditionals<
-  WithClasses<
+export type InheritableRootProperties = WithClasses<
+  WithConditionals<
     WithAllAliases<
       WithReactive<
-        Omit<YogaProperties, 'width' | 'height'> &
+        YogaProperties &
           TransformProperties &
           PanelProperties &
           ScrollbarProperties &
@@ -81,10 +80,13 @@ export function createRoot(
   setupCursorCleanup(hoveredSignal, subscriptions)
   const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
 
-  const transformers: PropertyTransformers = {
+  const preTransformers: PropertyTransformers = {
     ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
     ...createSizeTranslator(pixelSize, 'sizeY', 'height'),
-    ...preferredColorSchemePropertyTransformers,
+  }
+
+  const postTransformers = {
+    ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(rootSize),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
@@ -96,8 +98,8 @@ export function createRoot(
   const onFrameSet = new Set<(delta: number) => void>()
 
   const mergedProperties = computed(() => {
-    const merged = new MergedProperties(transformers)
-    merged.addAll(defaultProperties, properties)
+    const merged = new MergedProperties(preTransformers)
+    merged.addAll(defaultProperties, properties, postTransformers)
     return merged
   })
 

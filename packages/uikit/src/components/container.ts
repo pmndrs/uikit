@@ -15,7 +15,6 @@ import { TransformProperties, applyTransform, computedTransformMatrix } from '..
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
-import { preferredColorSchemePropertyTransformers } from '../dark.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
 import { computed, signal } from '@preact/signals-core'
 import { WithConditionals, computedGlobalMatrix } from './utils.js'
@@ -26,10 +25,10 @@ import { Object3DRef, WithContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers } from '../events.js'
-import { getDefaultPanelMaterialConfig } from '../internals.js'
+import { darkPropertyTransformers, getDefaultPanelMaterialConfig, traverseProperties } from '../internals.js'
 
-export type InheritableContainerProperties = WithConditionals<
-  WithClasses<
+export type InheritableContainerProperties = WithClasses<
+  WithConditionals<
     WithAllAliases<
       WithReactive<
         YogaProperties &
@@ -57,20 +56,20 @@ export function createContainer(
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
 
-  const propertyTransformers = {
-    ...preferredColorSchemePropertyTransformers,
+  const scrollHandlers = signal<EventHandlers>({})
+  const propertiesSignal = signal(properties)
+  const defaultPropertiesSignal = signal(defaultProperties)
+
+  const postTranslators = {
+    ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   }
 
-  const scrollHandlers = signal<EventHandlers>({})
-  const propertiesSignal = signal(properties)
-  const defaultPropertiesSignal = signal(defaultProperties)
-
   const mergedProperties = computed(() => {
-    const merged = new MergedProperties(propertyTransformers)
-    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value)
+    const merged = new MergedProperties()
+    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value, postTranslators)
     return merged
   })
 

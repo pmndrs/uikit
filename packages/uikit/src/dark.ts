@@ -33,7 +33,7 @@ export function getPreferredColorScheme() {
   return preferredColorScheme.peek()
 }
 
-export const preferredColorSchemePropertyTransformers: PropertyTransformers = {
+export const darkPropertyTransformers: PropertyTransformers = {
   dark: createConditionalPropertyTranslator(() => isDarkMode.value),
 }
 

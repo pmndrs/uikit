@@ -1,6 +1,5 @@
 import { createConditionalPropertyTranslator } from './utils.js'
 import { Signal } from '@preact/signals-core'
-import { PropertyTransformers } from './internals.js'
 
 export type WithFocus<T> = T & {
   focus?: T
