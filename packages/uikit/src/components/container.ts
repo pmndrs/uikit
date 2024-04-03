@@ -1,5 +1,5 @@
 import { YogaProperties } from '../flex/node.js'
-import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, computedClippingRect } from '../clipping.js'
 import {
   ScrollbarProperties,
@@ -15,8 +15,8 @@ import { TransformProperties, applyTransform, computedTransformMatrix } from '..
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
-import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { Signal, computed, signal } from '@preact/signals-core'
+import { createActivePropertyTransfomers } from '../active.js'
+import { Signal, signal } from '@preact/signals-core'
 import {
   WithConditionals,
   computedGlobalMatrix,
@@ -24,12 +24,11 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
-import { MergedProperties } from '../properties/merged.js'
+import { Subscriptions } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
-import { Object3DRef, WithContext } from '../context.js'
+import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { addHandlers, cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers } from '../events.js'
 import { darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
 
@@ -51,7 +50,7 @@ export type InheritableContainerProperties = WithClasses<
 export type ContainerProperties = InheritableContainerProperties & Listeners & EventHandlers
 
 export function createContainer(
-  parentContext: WithContext,
+  parentContext: ParentContext,
   properties: Signal<ContainerProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
@@ -139,7 +138,6 @@ export function createContainer(
     ),
     childrenMatrix,
     node,
-    object,
     orderInfo,
     root: parentContext.root,
     scrollPosition,

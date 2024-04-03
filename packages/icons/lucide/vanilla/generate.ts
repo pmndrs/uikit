@@ -17,7 +17,7 @@ async function main() {
       import { IconProperties } from '@vanilla-three/uikit/internals'
       const text = \`${svg}\`;
       export class ${name} extends Icon {
-        constructor(parent: Parent, properties: IconProperties, defaultProperties?: AllOptionalProperties,) {
+        constructor(parent: Parent, properties: IconProperties = {}, defaultProperties?: AllOptionalProperties,) {
           super(parent, text, 24, 24, properties, defaultProperties)
         }
       }

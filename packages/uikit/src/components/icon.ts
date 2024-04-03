@@ -1,7 +1,7 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
 import { Listeners } from '../index.js'
-import { Object3DRef, WithContext } from '../context.js'
+import { Object3DRef, ParentContext } from '../context.js'
 import { FlexNode, YogaProperties } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
@@ -55,7 +55,7 @@ export type InheritableIconProperties = WithClasses<
 export type IconProperties = InheritableIconProperties & Listeners & EventHandlers
 
 export function createIcon(
-  parentContext: WithContext,
+  parentContext: ParentContext,
   text: string,
   svgWidth: number,
   svgHeight: number,
@@ -113,18 +113,7 @@ export function createIcon(
   setupViewportListeners(properties, isClipped, subscriptions)
 
   return {
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      node.size,
-      node.borderInset,
-      node.overflow,
-      parentContext.root.pixelSize,
-      parentContext.clippingRect,
-    ),
     node,
-    object,
-    orderInfo,
-    root: parentContext.root,
     subscriptions,
     iconGroup,
     handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal),
@@ -144,7 +133,7 @@ function createIconGroup(
   text: string,
   svgWidth: number,
   svgHeight: number,
-  parentContext: WithContext,
+  parentContext: ParentContext,
   orderInfo: Signal<OrderInfo>,
   node: FlexNode,
   isClipped: Signal<boolean>,

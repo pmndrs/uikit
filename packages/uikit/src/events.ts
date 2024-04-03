@@ -4,6 +4,7 @@ export type ThreeEvent<TSourceEvent> = Intersection & {
   nativeEvent: TSourceEvent
   defaultPrevented?: boolean
   stopped?: boolean
+  stopPropagation?: () => void
 }
 
 export type KeyToEvent<K extends keyof EventHandlers> = Parameters<Required<EventHandlers>[K]>[0]

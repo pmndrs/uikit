@@ -19,7 +19,7 @@ import {
 } from './utils.js'
 import { Subscriptions } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
-import { Object3DRef, WithContext } from '../context.js'
+import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers } from '../events.js'
@@ -52,7 +52,7 @@ export type InheritableTextProperties = WithClasses<
 export type TextProperties = InheritableTextProperties & Listeners & EventHandlers
 
 export function createText(
-  parentContext: WithContext,
+  parentContext: ParentContext,
   textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
   properties: Signal<TextProperties>,
@@ -102,7 +102,7 @@ export function createText(
     undefined,
     ElementType.Text,
     computedGylphGroupDependencies(fontSignal),
-    parentContext.orderInfo,
+    backgroundOrderInfo,
   )
 
   const measureFunc = createInstancedText(
@@ -118,6 +118,7 @@ export function createText(
     undefined,
     undefined,
     undefined,
+    undefined,
     subscriptions,
   )
   subscriptions.push(node.setMeasureFunc(measureFunc))
@@ -126,18 +127,7 @@ export function createText(
   setupViewportListeners(properties, isClipped, subscriptions)
 
   return {
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      node.size,
-      node.borderInset,
-      node.overflow,
-      parentContext.root.pixelSize,
-      parentContext.clippingRect,
-    ),
     node,
-    object,
-    orderInfo: backgroundOrderInfo,
-    root: parentContext.root,
     interactionPanel: createInteractionPanel(
       node,
       backgroundOrderInfo,

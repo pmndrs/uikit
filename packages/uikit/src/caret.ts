@@ -30,7 +30,7 @@ function getCaretMaterialConfig() {
   return caretMaterialConfig
 }
 
-export function useCaret(
+export function createCaret(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   caretPosition: Signal<Vector3Tuple | undefined>,

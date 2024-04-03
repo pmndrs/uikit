@@ -1,30 +1,25 @@
-import { Object3D } from 'three'
+import { Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Parent } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
-import { TextProperties, createText } from '../components/text.js'
-import { unsubscribeSubscriptions } from '../internals.js'
+import { unsubscribeSubscriptions } from '../utils.js'
+import { CustomContainerProperties, FontFamilies, createCustomContainer, panelGeometry } from '../internals.js'
 
-export class Text extends Object3D {
+export class CustomContainer extends Object3D {
   private object: Object3D
-  public readonly internals: ReturnType<typeof createText>
+  public readonly internals: ReturnType<typeof createCustomContainer>
   public readonly eventConfig: EventConfig
+  public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private readonly propertiesSignal: Signal<TextProperties>
+  private readonly propertiesSignal: Signal<CustomContainerProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
 
-  constructor(
-    parent: Parent,
-    text: string | Signal<string> | Array<string | Signal<string>> = '',
-    properties: TextProperties = {},
-    defaultProperties?: AllOptionalProperties,
-  ) {
+  constructor(parent: Parent, properties: CustomContainerProperties = {}, defaultProperties?: AllOptionalProperties) {
     super()
+    this.fontFamiliesSignal = parent.fontFamiliesSignal
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.textSignal = signal(text)
     this.eventConfig = parent.eventConfig
     //setting up the threejs elements
     this.object = new Object3D()
@@ -33,24 +28,19 @@ export class Text extends Object3D {
     this.matrixAutoUpdate = false
     parent.add(this.object)
 
-    //setting up the text
-    this.internals = createText(
-      parent.internals,
-      this.textSignal,
-      parent.fontFamiliesSignal,
-      this.propertiesSignal,
-      this.defaultPropertiesSignal,
-      { current: this.object },
-    )
+    //setting up the container
+    this.internals = createCustomContainer(parent.internals, this.propertiesSignal, this.defaultPropertiesSignal, {
+      current: this.object,
+    })
 
     //setup events
-    const { handlers, interactionPanel, subscriptions } = this.internals
-    this.add(interactionPanel)
+    const { handlers, subscriptions, setupMesh, setupMaterial } = this.internals
+    //TODO: make the custom container the mesh
+    const mesh = new Mesh(panelGeometry, new MeshBasicMaterial())
+    setupMesh(mesh)
+    setupMaterial(mesh.material)
+    this.add(mesh)
     bindHandlers(handlers, this, this.eventConfig, subscriptions)
-  }
-
-  setText(text: string | Signal<string> | Array<string | Signal<string>>) {
-    this.textSignal.value = text
   }
 
   setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {

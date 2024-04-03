@@ -19,7 +19,7 @@ export class Icon extends Object3D {
     text: string,
     svgWidth: number,
     svgHeight: number,
-    properties: IconProperties,
+    properties: IconProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()

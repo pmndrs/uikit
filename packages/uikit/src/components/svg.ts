@@ -1,7 +1,7 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Box3, Color, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
 import { Listeners } from '../index.js'
-import { Object3DRef, WithContext } from '../context.js'
+import { Object3DRef, ParentContext } from '../context.js'
 import { FlexNode, YogaProperties } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
@@ -30,9 +30,9 @@ import { ColorRepresentation, Subscriptions, fitNormalizedContentInside, readRea
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
-import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { addHandlers, cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { createActivePropertyTransfomers } from '../active.js'
+import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
 import {
@@ -68,7 +68,7 @@ export type AppearanceProperties = {
 export type SVGProperties = InheritableSVGProperties & Listeners & EventHandlers
 
 export function createSVG(
-  parentContext: WithContext,
+  parentContext: ParentContext,
   srcSignal: Signal<Signal<string> | string>,
   properties: Signal<SVGProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -168,7 +168,6 @@ export function createSVG(
     ),
     childrenMatrix,
     node,
-    object,
     orderInfo,
     root: parentContext.root,
     subscriptions,

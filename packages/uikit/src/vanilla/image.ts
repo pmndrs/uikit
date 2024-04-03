@@ -5,10 +5,12 @@ import { Parent } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
+import { FontFamilies } from '../internals.js'
 
 export class Image extends Object3D {
   public readonly internals: ReturnType<typeof createImage>
   public readonly eventConfig: EventConfig
+  public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   private container: Object3D
   private readonly propertiesSignal: Signal<ImageProperties>
@@ -22,6 +24,7 @@ export class Image extends Object3D {
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
+    this.fontFamiliesSignal = parent.fontFamiliesSignal
     this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)

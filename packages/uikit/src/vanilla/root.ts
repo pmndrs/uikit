@@ -4,9 +4,11 @@ import { AllOptionalProperties } from '../properties/default.js'
 import { createRoot, RootProperties } from '../components/root.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { unsubscribeSubscriptions } from '../utils.js'
+import { FontFamilies } from '../internals.js'
 
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
+  public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
   private object: Object3D
 
   private readonly propertiesSignal: Signal<RootProperties>
@@ -17,10 +19,12 @@ export class Root extends Object3D {
     camera: Camera | (() => Camera),
     renderer: WebGLRenderer,
     parent: Object3D,
-    properties: RootProperties,
+    fontFamilies?: FontFamilies,
+    properties: RootProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
+    this.fontFamiliesSignal = signal(fontFamilies)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     this.object = new Object3D()
@@ -48,6 +52,10 @@ export class Root extends Object3D {
     for (const onFrame of this.internals.onFrameSet) {
       onFrame(delta)
     }
+  }
+
+  setFontFamilies(fontFamilies: FontFamilies | undefined) {
+    this.fontFamiliesSignal.value = fontFamilies
   }
 
   setProperties(properties: RootProperties, defaultProperties?: AllOptionalProperties) {

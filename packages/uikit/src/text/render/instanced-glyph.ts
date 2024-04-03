@@ -41,6 +41,7 @@ export function createInstancedText(
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
   selectionBoxes: Signal<SelectionBoxes> | undefined,
   caretPosition: Signal<Vector3Tuple | undefined> | undefined,
+  instancedTextRef: { current?: InstancedText } | undefined,
   subscriptions: Subscriptions,
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
@@ -85,6 +86,9 @@ export function createInstancedText(
         selectionBoxes,
         caretPosition,
       )
+      if (instancedTextRef != null) {
+        instancedTextRef.current = instancedText
+      }
       return () => instancedText.destroy()
     }),
   )

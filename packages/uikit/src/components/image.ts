@@ -10,7 +10,7 @@ import {
   Vector2Tuple,
 } from 'three'
 import { Listeners } from '../index.js'
-import { Object3DRef, WithContext } from '../context.js'
+import { Object3DRef, ParentContext } from '../context.js'
 import { Inset, YogaProperties } from '../flex/index.js'
 import { ElementType, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
@@ -78,7 +78,7 @@ export type InheritableImageProperties = WithClasses<
 export type ImageProperties = InheritableImageProperties & Listeners & EventHandlers
 
 export function createImage(
-  parentContext: WithContext,
+  parentContext: ParentContext,
   srcSignal: Signal<Signal<string> | string | Texture | Signal<Texture>>,
   properties: Signal<ImageProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -155,7 +155,7 @@ export function createImage(
   setupLayoutListeners(properties, node.size, subscriptions)
   setupViewportListeners(properties, isClipped, subscriptions)
 
-  const ctx: WithContext = {
+  const ctx: ParentContext = {
     clippingRect: computedClippingRect(
       globalMatrix,
       node.size,
@@ -166,7 +166,6 @@ export function createImage(
     ),
     childrenMatrix,
     node,
-    object,
     orderInfo,
     root: parentContext.root,
   }
@@ -200,8 +199,8 @@ function getImageMaterialConfig() {
 function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   texture: Signal<Texture | undefined>,
-  parent: WithContext,
-  { node, orderInfo, root, clippingRect }: WithContext,
+  parent: ParentContext,
+  { node, orderInfo, root, clippingRect }: ParentContext,
   isHidden: Signal<boolean>,
   subscriptions: Subscriptions,
 ) {

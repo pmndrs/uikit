@@ -5,10 +5,12 @@ import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
 import { SVGProperties, createSVG } from '../components/svg.js'
+import { FontFamilies } from '../internals.js'
 
 export class SVG extends Object3D {
   public readonly internals: ReturnType<typeof createSVG>
   public readonly eventConfig: EventConfig
+  public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   private container: Object3D
   private readonly propertiesSignal: Signal<SVGProperties>
@@ -18,10 +20,11 @@ export class SVG extends Object3D {
   constructor(
     parent: Parent,
     src: string | Signal<string>,
-    properties: SVGProperties,
+    properties: SVGProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
+    this.fontFamiliesSignal = parent.fontFamiliesSignal
     this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)

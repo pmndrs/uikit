@@ -1,5 +1,4 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { useMemo } from 'react'
 import { createInstancedPanel } from './panel/instanced-panel.js'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
@@ -33,24 +32,22 @@ function getSelectionMaterialConfig() {
   return selectionMaterialConfig
 }
 
-export function useSelection(
+export function createSelection(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   selectionBoxes: Signal<SelectionBoxes>,
   isHidden: Signal<boolean> | undefined,
-  parentOrderInfo: Signal<OrderInfo>,
+  prevOrderInfo: Signal<OrderInfo>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
   subscriptions: Subscriptions,
 ): Signal<OrderInfo> {
-  const panels = useMemo<
-    Array<{
-      size: Signal<Vector2Tuple>
-      offset: Signal<Vector2Tuple>
-      panelSubscriptions: Subscriptions
-    }>
-  >(() => [], [])
-  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, undefined, parentOrderInfo)
+  const panels: Array<{
+    size: Signal<Vector2Tuple>
+    offset: Signal<Vector2Tuple>
+    panelSubscriptions: Subscriptions
+  }> = []
+  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, undefined, prevOrderInfo)
 
   subscriptions.push(
     effect(() => {

@@ -16,7 +16,7 @@ import {
   PropertyTransformers,
   RootContext,
   ShadowProperties,
-  WithContext,
+  ParentContext,
   addHandlers,
   cloneHandlers,
   createGetBatchedProperties,
@@ -64,7 +64,7 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
 }
 
 export function createNode(
-  parentContext: WithContext,
+  parentContext: ParentContext,
   mergedProperties: Signal<MergedProperties>,
   object: Object3DRef,
   subscriptions: Subscriptions,
@@ -95,11 +95,11 @@ export function computedHandlers(
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
-  scrollHandlers?: Signal<EventHandlers | undefined>,
+  dynamicHandlers?: Signal<EventHandlers | undefined>,
 ) {
   return computed(() => {
     const handlers = cloneHandlers(properties.value)
-    addHandlers(handlers, scrollHandlers?.value)
+    addHandlers(handlers, dynamicHandlers?.value)
     addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
     addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
     return handlers

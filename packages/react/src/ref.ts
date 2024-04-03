@@ -7,6 +7,7 @@ import {
   createSVG,
   createText,
   createIcon,
+  createCustomContainer,
 } from '@vanilla-three/uikit/internals'
 import { ForwardedRef, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
@@ -32,6 +33,7 @@ export function useComponentInternals<T>(
     | typeof createSVG
     | typeof createText
     | typeof createIcon
+    | typeof createCustomContainer
   > & {
     scrollPosition?: Signal<Vector2Tuple>
   },
