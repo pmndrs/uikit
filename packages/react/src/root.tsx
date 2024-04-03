@@ -3,7 +3,7 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { RootProperties, patchRenderOrder, createRoot, destroyRoot } from '@vanilla-three/uikit/internals'
+import { RootProperties, createRoot, destroyRoot, reversePainterSortStable } from '@vanilla-three/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -15,7 +15,7 @@ export const Root: (
 ) => ReactNode = forwardRef((properties, ref) => {
   const renderer = useThree((state) => state.gl)
 
-  useEffect(() => patchRenderOrder(renderer), [renderer])
+  useEffect(() => renderer.setTransparentSort(reversePainterSortStable), [renderer])
   const store = useStore()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
@@ -28,8 +28,9 @@ export const Root: (
         outerRef,
         innerRef,
         () => store.getState().camera,
+        renderer,
       ),
-    [store, propertySignals],
+    [store, propertySignals, renderer],
   )
   useEffect(() => () => destroyRoot(internals), [internals])
 

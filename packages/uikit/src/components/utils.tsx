@@ -42,7 +42,6 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
         .then((value) => (canceled ? undefined : (target.value = value)))
         .catch(console.error)
       return () => (canceled = true)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
   )
 }

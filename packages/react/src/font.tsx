@@ -1,3 +1,8 @@
+import { FontFamilies, FontFamilyUrls } from '@vanilla-three/uikit/internals'
+import { useContext, createContext, ReactNode } from 'react'
+
+const FontFamiliesContext = createContext<FontFamilies>(null as any)
+
 export function FontFamilyProvider<T extends string = never>(properties: {
   [Key in T]: Key extends 'children' ? ReactNode : FontFamilyUrls
 }) {
@@ -7,4 +12,8 @@ export function FontFamilyProvider<T extends string = never>(properties: {
     fontFamilies = { ...existinFontFamilyUrls, ...fontFamilies }
   }
   return <FontFamiliesContext.Provider value={fontFamilies}>{children}</FontFamiliesContext.Provider>
+}
+
+export function useFontFamilies(): FontFamilies | undefined {
+  return useContext(FontFamiliesContext)
 }

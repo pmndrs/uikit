@@ -1,13 +1,12 @@
 import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import Yoga, { Edge, Node, Overflow } from 'yoga-layout'
+import Yoga, { Edge, MeasureFunction, Node, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef } from '../context.js'
-import { defaultYogaConfig } from './config.js'
-import { setMeasureFunc, yogaNodeEqual } from './utils.js'
+import { PointScaleFactor, defaultYogaConfig } from './config.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -61,16 +60,34 @@ export class FlexNode {
       this.active,
       hasImmediateProperty,
       (key: string, value: unknown) => {
-        if (key === 'measureFunc') {
-          setMeasureFunc(this.yogaNode!, value as any)
-        } else {
-          setter[key as keyof typeof setter](this.yogaNode!, value as any)
-        }
+        setter[key as keyof typeof setter](this.yogaNode!, value as any)
         this.requestCalculateLayout()
       },
       subscriptions,
       renameOutput,
     )
+  }
+
+  setMeasureFunc(func: Signal<MeasureFunction | undefined>) {
+    return effect(() => {
+      if (!this.active.value) {
+        return
+      }
+      if (func.value == null) {
+        this.yogaNode!.setMeasureFunc(null)
+        return
+      }
+      const fn = func.value
+      this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
+        const result = fn(width, wMode, height, hMode)
+        return {
+          width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+          height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
+        }
+      })
+      this.yogaNode!.markDirty()
+      this.requestCalculateLayout()
+    })
   }
 
   destroy() {
@@ -296,4 +313,8 @@ function assertNodeNotNull<T>(val: T | undefined): T {
     throw new Error(`commit cannot be called with a children that miss a yoga node`)
   }
   return val
+}
+
+function yogaNodeEqual(n1: Node, n2: Node): boolean {
+  return (n1 as any)['M']['O'] === (n2 as any)['M']['O']
 }

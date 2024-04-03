@@ -1,4 +1,4 @@
-import { Camera, Object3D } from 'three'
+import { Camera, Object3D, WebGLRenderer } from 'three'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createRoot, destroyRoot, RootProperties } from '../components/root.js'
@@ -14,6 +14,7 @@ export class Root extends Object3D {
   constructor(
     public readonly eventConfig: EventConfig,
     camera: Camera | (() => Camera),
+    renderer: WebGLRenderer,
     parent: Object3D,
     properties: RootProperties,
     defaultProperties?: AllOptionalProperties,
@@ -33,6 +34,7 @@ export class Root extends Object3D {
       { current: this },
       { current: this },
       typeof camera === 'function' ? camera : () => camera,
+      renderer,
     )
 
     //setup scrolling & events

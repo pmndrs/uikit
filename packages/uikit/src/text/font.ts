@@ -28,7 +28,7 @@ const fontKeys = ['fontFamily', 'fontWeight'] as const
 
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight }
 
-const defaultFontFamilyUrls = {
+const defaultFontFamilyUrls: FontFamilies = {
   inter: {
     light: 'https://pmndrs.github.io/uikit/fonts/inter-light.json',
     normal: 'https://pmndrs.github.io/uikit/fonts/inter-normal.json',
@@ -36,11 +36,11 @@ const defaultFontFamilyUrls = {
     'semi-bold': 'https://pmndrs.github.io/uikit/fonts/inter-semi-bold.json',
     bold: 'https://pmndrs.github.io/uikit/fonts/inter-bold.json',
   },
-} satisfies FontFamilies
+}
 
 export function computedFont(
   properties: Signal<MergedProperties>,
-  fontFamilies: FontFamilies = defaultFontFamilyUrls,
+  fontFamiliesSignal: Signal<FontFamilies | undefined> | undefined,
   renderer: WebGLRenderer,
   subscriptions: Subscriptions,
 ): Signal<Font | undefined> {
@@ -48,6 +48,7 @@ export function computedFont(
   const get = createGetBatchedProperties<FontFamilyProperties>(properties, fontKeys)
   subscriptions.push(
     effect(() => {
+      const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
       let fontWeight = get('fontWeight') ?? 'normal'
       if (typeof fontWeight === 'string') {
         fontWeight = fontWeightNames[fontWeight]

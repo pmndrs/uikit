@@ -14,5 +14,5 @@ export * from './panel/index.js'
 export * from './scroll.js'
 export * from './components/index.js'
 
-export type * from './events'
-export type * from './context'
+export type * from './events.js'
+export type * from './context.js'

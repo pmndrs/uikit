@@ -1,122 +1,57 @@
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { YogaProperties } from '../flex/node.js'
-import { useApplyHoverProperties } from '../hover.js'
-import { PanelProperties } from '../panel/instanced-panel.js'
+import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
+import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
+import { Object3D } from 'three'
+import { ParentProvider, useParent } from './context.js'
+import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
-  InteractionGroup,
-  MaterialClass,
-  ShadowProperties,
-  useInstancedPanel,
-  useInteractionPanel,
-  usePanelGroupDependencies,
-} from '../panel/react.js'
-import {
-  WithAllAliases,
-  flexAliasPropertyTransformation,
-  panelAliasPropertyTransformation,
-} from '../properties/alias.js'
-import { WithClasses, useApplyProperties } from '../properties/default.js'
-import { WithReactive, createCollection, finalizeCollection, writeCollection } from '../properties/utils.js'
-import { ScrollListeners } from '../scroll.js'
-import { TransformProperties, useTransformMatrix } from '../transform.js'
-import {
-  ComponentInternals,
-  LayoutListeners,
-  ViewportListeners,
-  WithConditionals,
-  useComponentInternals,
-  useGlobalMatrix,
-  useLayoutListeners,
-  useViewportListeners,
-} from './utils.js'
-import { forwardRef, useRef } from 'react'
-import { useParentClippingRect, useIsClipped } from '../clipping.js'
-import { useFlexNode } from '../flex/react.js'
-import { useImmediateProperties } from '../properties/immediate.js'
-import { InstancedTextProperties, useInstancedText } from '../text/react.js'
-import { ReadonlySignal } from '@preact/signals-core'
-import { useRootGroupRef } from '../utils.js'
-import { useApplyResponsiveProperties } from '../responsive.js'
-import { Group } from 'three'
-import { ElementType, ZIndexOffset, useOrderInfo } from '../order.js'
-import { useApplyPreferredColorSchemeProperties } from '../dark.js'
-import { useApplyActiveProperties } from '../active.js'
+  ContainerProperties,
+  createContainer,
+  createText,
+  destroyContainer,
+  FontFamilies,
+} from '@vanilla-three/uikit/internals'
+import { ComponentInternals, useComponentInternals } from './ref.js'
+import { Signal, signal } from '@preact/signals-core'
+import { useFontFamilies } from './font.js'
 
-export type TextProperties = WithConditionals<
-  WithClasses<
-    WithAllAliases<WithReactive<YogaProperties & PanelProperties & TransformProperties & InstancedTextProperties>>
-  >
->
-
-export const Text = forwardRef<
-  ComponentInternals,
-  {
-    children: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>
-    panelMaterialClass?: MaterialClass
-    zIndexOffset?: ZIndexOffset
-  } & TextProperties &
+export const Text: (
+  props: {
+    children: string | Array<string | Signal<string>> | Signal<string>
+  } & ContainerProperties &
     EventHandlers &
-    LayoutListeners &
-    ViewportListeners &
-    ScrollListeners &
-    ShadowProperties
->((properties, ref) => {
-  const collection = createCollection()
-  const groupRef = useRef<Group>(null)
-  const node = useFlexNode(groupRef)
-  useImmediateProperties(collection, node, flexAliasPropertyTransformation)
-  const transformMatrix = useTransformMatrix(collection, node)
-  const rootGroupRef = useRootGroupRef()
-  const globalMatrix = useGlobalMatrix(transformMatrix)
-  const parentClippingRect = useParentClippingRect()
-  const isClipped = useIsClipped(parentClippingRect, globalMatrix, node.size, node)
-  useLayoutListeners(properties, node.size)
-  useViewportListeners(properties, isClipped)
-  const groupDeps = usePanelGroupDependencies(properties.panelMaterialClass, properties)
-  const backgroundOrderInfo = useOrderInfo(ElementType.Panel, properties.zIndexOffset, groupDeps)
-  useInstancedPanel(
-    collection,
-    globalMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    isClipped,
-    backgroundOrderInfo,
-    parentClippingRect,
-    groupDeps,
-    panelAliasPropertyTransformation,
+    RefAttributes<ComponentInternals>,
+) => ReactNode = forwardRef((properties, ref) => {
+  const parent = useParent()
+  const outerRef = useRef<Object3D>(null)
+  const innerRef = useRef<Object3D>(null)
+  const propertySignals = usePropertySignals(properties)
+  const textSignal = useMemo(
+    () => signal<string | Array<string | Signal<string>> | Signal<string>>(undefined as any),
+    [],
   )
-  const measureFunc = useInstancedText(
-    collection,
-    properties.children,
-    globalMatrix,
-    node,
-    isClipped,
-    parentClippingRect,
-    backgroundOrderInfo,
+  textSignal.value = properties.children
+  const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
+  fontFamilies.value = useFontFamilies()
+  const internals = useMemo(
+    () =>
+      createText(
+        parent,
+        textSignal,
+        fontFamilies,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+      ),
+    [fontFamilies, parent, propertySignals, textSignal],
   )
+  useEffect(() => () => destroyContainer(internals), [internals])
 
-  useApplyProperties(collection, properties)
-  useApplyPreferredColorSchemeProperties(collection, properties)
-  useApplyResponsiveProperties(collection, properties)
-  const hoverHandlers = useApplyHoverProperties(collection, properties)
-  const activeHandlers = useApplyActiveProperties(collection, properties)
-  writeCollection(collection, 'measureFunc', measureFunc)
-  finalizeCollection(collection)
-
-  const interactionPanel = useInteractionPanel(node.size, node, backgroundOrderInfo, rootGroupRef)
-
-  useComponentInternals(ref, node, interactionPanel)
+  useComponentInternals(ref, propertySignals.style, internals)
 
   return (
-    <InteractionGroup
-      groupRef={groupRef}
-      matrix={transformMatrix}
-      handlers={properties}
-      hoverHandlers={hoverHandlers}
-      activeHandlers={activeHandlers}
-    >
-      <primitive object={interactionPanel} />
-    </InteractionGroup>
+    <AddHandlers handlers={internals.handlers} ref={outerRef}>
+      <primitive object={internals.interactionPanel} />
+    </AddHandlers>
   )
 })

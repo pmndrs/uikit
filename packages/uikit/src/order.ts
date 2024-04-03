@@ -8,7 +8,7 @@ export type WithCameraDistance = { cameraDistance: number }
 export const cameraDistanceKey = Symbol('camera-distance-key')
 export const orderInfoKey = Symbol('order-info-key')
 
-function reversePainterSortStable(a: RenderItem, b: RenderItem) {
+export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.groupOrder !== b.groupOrder) {
     return a.groupOrder - b.groupOrder
   }
@@ -27,10 +27,6 @@ function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   return bDistanceRef.cameraDistance - aDistanceRef.cameraDistance
 }
 
-export function patchRenderOrder(renderer: WebGLRenderer): void {
-  renderer.setTransparentSort(reversePainterSortStable)
-}
-
 //the following order tries to represent the most common element order of the respective element types (e.g. panels are most likely the background element)
 export const ElementType = {
   Panel: 0, //render first
@@ -47,7 +43,7 @@ export type OrderInfo = {
   majorIndex: number
   elementType: ElementType
   minorIndex: number
-  instancedGroupDependencies?: Record<string, any> | undefined
+  instancedGroupDependencies?: Signal<Record<string, any>>
 }
 
 function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
@@ -73,7 +69,7 @@ const propertyKeys = ['zIndexOffset'] as const
 export function computedOrderInfo(
   propertiesSignal: Signal<MergedProperties> | undefined,
   type: ElementType,
-  instancedGroupDependencies: Record<string, any> | undefined,
+  instancedGroupDependencies: Signal<Record<string, any>> | undefined,
   parentOrderInfoSignal: Signal<OrderInfo> | undefined,
 ): Signal<OrderInfo> {
   const get =
@@ -97,7 +93,7 @@ export function computedOrderInfo(
       minorIndex = 0
     } else if (
       type != parentOrderInfo.elementType ||
-      !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
+      !shallowEqualRecord(instancedGroupDependencies?.value, parentOrderInfo.instancedGroupDependencies?.value)
     ) {
       majorIndex = parentOrderInfo.majorIndex + 1
       minorIndex = 0

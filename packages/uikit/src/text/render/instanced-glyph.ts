@@ -2,8 +2,8 @@ import { Matrix4, Vector2Tuple, Vector3Tuple, WebGLRenderer } from 'three'
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { ColorRepresentation, Subscriptions } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { FontFamilies, FontFamilyProperties, GlyphInfo, computedFont, glyphIntoToUV } from '../font.js'
-import { Signal, ReadonlySignal, signal, effect } from '@preact/signals-core'
+import { Font, FontFamilies, FontFamilyProperties, GlyphInfo, computedFont, glyphIntoToUV } from '../font.js'
+import { Signal, ReadonlySignal, signal, effect, computed } from '@preact/signals-core'
 import { FlexNode } from '../../flex/node.js'
 import { OrderInfo } from '../../order.js'
 import { createGetBatchedProperties } from '../../properties/batched.js'
@@ -24,25 +24,25 @@ export type InstancedTextProperties = TextAlignProperties &
   Omit<GlyphLayoutProperties, 'text'> &
   FontFamilyProperties
 
+export function computedGylphGroupDependencies(fontSignal: Signal<Font | undefined>) {
+  return computed(() => ({ font: fontSignal.value }))
+}
+
 export function createInstancedText(
   properties: Signal<MergedProperties>,
-  text: string | ReadonlySignal<string> | Array<string | ReadonlySignal<string>>,
+  textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
   matrix: Signal<Matrix4 | undefined>,
   node: FlexNode,
   isHidden: Signal<boolean> | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: OrderInfo,
-  fontFamilies: FontFamilies | undefined,
-  renderer: WebGLRenderer,
+  orderInfo: Signal<OrderInfo>,
+  fontSignal: Signal<Font | undefined>,
   glyphGroupManager: GlyphGroupManager,
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
   selectionBoxes: Signal<SelectionBoxes> | undefined,
   caretPosition: Signal<Vector3Tuple | undefined> | undefined,
   subscriptions: Subscriptions,
 ) {
-  const fontSignal = computedFont(properties, fontFamilies, renderer, subscriptions)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const textSignal = signal<string | Signal<string> | Array<string | Signal<string>>>(text)
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
   const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
@@ -74,7 +74,7 @@ export function createInstancedText(
         return
       }
       const instancedText = new InstancedText(
-        glyphGroupManager.getGroup(orderInfo.majorIndex, font),
+        glyphGroupManager.getGroup(orderInfo.value.majorIndex, font),
         getAlign,
         getAppearance,
         layoutSignal,

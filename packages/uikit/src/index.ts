@@ -1,4 +1,4 @@
-export { patchRenderOrder } from './order.js'
+export { reversePainterSortStable } from './order.js'
 export {
   basedOnPreferredColorScheme,
   setPreferredColorScheme,

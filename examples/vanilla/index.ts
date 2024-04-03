@@ -1,12 +1,12 @@
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { patchRenderOrder, Container, Root, Image } from '@vanilla-three/uikit'
+import { Container, Root, Image, Text } from '@vanilla-three/uikit'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { EventHandlers } from '@vanilla-three/uikit/internals'
+import { EventHandlers, reversePainterSortStable } from '@vanilla-three/uikit/internals'
 
 // init
 
-const camera = new PerspectiveCamera(70, 1, 0.01, 10)
-camera.position.z = 1
+const camera = new PerspectiveCamera(70, 1, 0.01, 100)
+camera.position.z = 10
 
 const scene = new Scene()
 
@@ -16,6 +16,8 @@ const controls = new OrbitControls(camera, canvas)
 function handlerToEventName(key: string) {
   return key[2].toLocaleLowerCase() + key.slice(3)
 }
+
+const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 //UI
 const root = new Root(
@@ -40,16 +42,19 @@ const root = new Root(
     },
   },
   camera,
+  renderer,
   scene,
   {
     flexDirection: 'row',
     gap: 10,
     padding: 10,
-    sizeX: 1,
-    sizeY: 0.5,
+    sizeX: 15,
+    sizeY: 5,
     backgroundColor: 'red',
   },
 )
+
+new Text(root, 'Hello World', undefined, { fontSize: 50 })
 new Container(root, { flexGrow: 1, backgroundColor: 'blue' })
 const x = new Container(root, {
   padding: 30,
@@ -67,13 +72,13 @@ new Image(x, {
   src: 'https://picsum.photos/300/300',
 })
 
-const renderer = new WebGLRenderer({ antialias: true, canvas })
 renderer.setAnimationLoop(animation)
 renderer.localClippingEnabled = true
-patchRenderOrder(renderer)
+renderer.setTransparentSort(reversePainterSortStable)
 
 function updateSize() {
   renderer.setSize(window.innerWidth, window.innerHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
 }

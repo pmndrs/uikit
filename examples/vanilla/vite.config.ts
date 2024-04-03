@@ -6,6 +6,10 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default') },
+      {
+        find: '@vanilla-three/uikit/internals',
+        replacement: path.resolve(__dirname, '../../packages/uikit/src/internals.ts'),
+      },
       { find: '@vanilla-three/uikit', replacement: path.resolve(__dirname, '../../packages/uikit/src/index.ts') },
     ],
   },

@@ -24,7 +24,7 @@ import { Subscriptions, alignmentXMap, alignmentYMap, readReactive, unsubscribeS
 import { WithConditionals } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
-import { Camera, Matrix4, Plane, Vector2Tuple, Vector3 } from 'three'
+import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
@@ -59,7 +59,7 @@ export type RootProperties = InheritableRootProperties & {
   LayoutListeners &
   ScrollListeners
 
-const DEFAULT_PIXEL_SIZE = 0.002
+const DEFAULT_PIXEL_SIZE = 0.01
 
 const vectorHelper = new Vector3()
 const planeHelper = new Plane()
@@ -72,6 +72,7 @@ export function createRoot(
   object: Object3DRef,
   childrenContainer: Object3DRef,
   getCamera: () => Camera,
+  renderer: WebGLRenderer,
 ) {
   const rootSize = signal<Vector2Tuple>([0, 0])
   const hoveredSignal = signal<Array<number>>([])
@@ -198,6 +199,7 @@ export function createRoot(
     orderInfo,
     panelGroupManager,
     pixelSize,
+    renderer,
   })
 
   return Object.assign(rootCtx, {

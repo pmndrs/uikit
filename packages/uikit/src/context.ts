@@ -1,6 +1,6 @@
 import { Signal } from '@preact/signals-core'
 import { FlexNode } from './flex/index.js'
-import { Matrix4, Object3D } from 'three'
+import { Matrix4, Object3D, WebGLRenderer } from 'three'
 import { ClippingRect } from './clipping.js'
 import { OrderInfo, WithCameraDistance } from './order.js'
 import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
@@ -16,6 +16,7 @@ export type RootContext = WithCameraDistance &
     panelGroupManager: PanelGroupManager
     pixelSize: number
     onFrameSet: Set<(delta: number) => void>
+    renderer: WebGLRenderer
   }> &
   ElementContext
 
