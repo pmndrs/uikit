@@ -30,13 +30,13 @@ fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' rob
 #### Generating the msdf font
 Next, we use `msdf-bmfont` to convert the `.ttf` file to a texture and a `.json` file. For that we need the *FontForge* generated font and a charset file containing all the characters we want to include in our msdf-font.
 
-```
-charset.txt
- !\"#$%&'()*+,-./0123456789:;<=>?@ÄÖÜABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`äöüabcdefghijklmnopqrstuvwxyz{|}~ß§
-```
-
 ```bash
 npx msdf-bmfont -f json fixed-roboto.ttf -i charset.txt -m 256,512 -o public/roboto -s 48
+```
+
+example charset.txt:
+```txt
+ !\"#$%&'()*+,-./0123456789:;<=>?@ÄÖÜABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`äöüabcdefghijklmnopqrstuvwxyz{|}~ß§
 ```
 
 > **IMPORTANT:** Only a single texture file is supported by uikit, so make sure the generated texture is a single file. Otherwise adjust the texture by increasing the resolution or by decreasing the font size.
