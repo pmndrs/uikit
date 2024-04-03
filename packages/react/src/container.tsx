@@ -3,7 +3,7 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { ContainerProperties, createContainer, destroyContainer } from '@vanilla-three/uikit/internals'
+import { ContainerProperties, createContainer, unsubscribeSubscriptions } from '@vanilla-three/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export const Container: (
@@ -21,7 +21,7 @@ export const Container: (
     () => createContainer(parent, propertySignals.properties, propertySignals.default, outerRef, innerRef),
     [parent, propertySignals],
   )
-  useEffect(() => () => destroyContainer(internals), [internals])
+  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
   useComponentInternals(ref, propertySignals.style, internals)
 

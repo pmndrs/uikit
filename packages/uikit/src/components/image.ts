@@ -32,12 +32,7 @@ import { Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils.
 import { panelGeometry } from '../panel/utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
-import {
-  computedIsClipped,
-  computedClippingRect,
-  createGlobalClippingPlanes,
-  updateGlobalClippingPlanes,
-} from '../clipping.js'
+import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
@@ -73,7 +68,9 @@ export type InheritableImageProperties = WithClasses<
   >
 >
 
-export type ImageProperties = InheritableImageProperties & Listeners & EventHandlers & { src: Signal<string> | string }
+export type ImageProperties = InheritableImageProperties &
+  Listeners &
+  EventHandlers & { src: Signal<string> | string | Texture | Signal<Texture> }
 
 export function createImage(
   parentContext: WithContext,
@@ -204,10 +201,6 @@ export function createImage(
   })
 }
 
-export function destroyImage(internals: ReturnType<typeof createImage>) {
-  unsubscribeSubscriptions(internals.subscriptions)
-}
-
 let imageMaterialConfig: PanelMaterialConfig | undefined
 function getImageMaterialConfig() {
   imageMaterialConfig ??= createPanelMaterialConfig(
@@ -238,14 +231,11 @@ function createImageMesh(
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
-  const clippingPlanes = createGlobalClippingPlanes()
-  const updateClippingPlanes = () => updateGlobalClippingPlanes(clippingRect, root.object, clippingPlanes)
-  root.onFrameSet.add(updateClippingPlanes)
-  subscriptions.push(() => root.onFrameSet.delete(updateClippingPlanes))
+  const clippingPlanes = createGlobalClippingPlanes(root, clippingRect, subscriptions)
   const isVisible = getImageMaterialConfig().computedIsVisibile(propertiesSignal, node.borderInset, node.size, isHidden)
   setupImageMaterials(propertiesSignal, mesh, node.size, node.borderInset, isVisible, clippingPlanes, subscriptions)
   mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parent.clippingRect, orderInfo)
-  subscriptions.push(effect(() => setupRenderOrder(mesh, root, orderInfo.value)))
+  setupRenderOrder(mesh, root, orderInfo)
 
   setupTextureFit(propertiesSignal, texture, node.borderInset, node.size, subscriptions)
 

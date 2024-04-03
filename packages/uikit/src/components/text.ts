@@ -200,7 +200,3 @@ export function createText(
     subscriptions,
   }
 }
-
-export function destroyText(text: ReturnType<typeof createText>) {
-  unsubscribeSubscriptions(text.subscriptions)
-}

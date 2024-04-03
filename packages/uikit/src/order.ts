@@ -1,5 +1,5 @@
 import { Signal, computed } from '@preact/signals-core'
-import { RenderItem, WebGLRenderer } from 'three'
+import { RenderItem } from 'three'
 import { MergedProperties } from './properties/merged.js'
 import { createGetBatchedProperties } from './properties/batched.js'
 
@@ -22,7 +22,7 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
     return a.z !== b.z ? b.z - a.z : a.id - b.id
   }
   if (aDistanceRef === bDistanceRef) {
-    return compareOrderInfo((a.object as any)[orderInfoKey], (b.object as any)[orderInfoKey])
+    return compareOrderInfo((a.object as any)[orderInfoKey].value, (b.object as any)[orderInfoKey].value)
   }
   return bDistanceRef.cameraDistance - aDistanceRef.cameraDistance
 }
@@ -136,7 +136,11 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
   return i === Object.keys(r2).length
 }
 
-export function setupRenderOrder<T>(result: T, rootCameraDistance: WithCameraDistance, orderInfo: OrderInfo): T {
+export function setupRenderOrder<T>(
+  result: T,
+  rootCameraDistance: WithCameraDistance,
+  orderInfo: { value: OrderInfo },
+): T {
   ;(result as any)[cameraDistanceKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo
   return result

@@ -1,11 +1,11 @@
 import { Object3D } from 'three'
-import { ContainerProperties, createContainer, destroyContainer } from '../components/container.js'
+import { createContainer } from '../components/container.js'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Component } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
-import { TextProperties, createText, destroyText } from '../components/text.js'
-import { FontFamilies } from '../internals.js'
+import { TextProperties, createText } from '../components/text.js'
+import { FontFamilies, unsubscribeSubscriptions } from '../internals.js'
 
 export class Text extends Object3D {
   private object: Object3D
@@ -51,7 +51,7 @@ export class Text extends Object3D {
     //setup scrolling & events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
-    bindHandlers(handlers, interactionPanel, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, this.eventConfig, subscriptions)
   }
 
   setFontFamilies(fontFamilies: FontFamilies) {
@@ -71,6 +71,6 @@ export class Text extends Object3D {
 
   destroy() {
     this.object.parent?.remove(this.object)
-    destroyText(this.internals)
+    unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

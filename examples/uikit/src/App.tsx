@@ -1,8 +1,10 @@
 import { Canvas } from '@react-three/fiber'
 import { Gltf } from '@react-three/drei'
-import { Container, Root, Image } from '@react-three/uikit'
+import { Container, Root, Image, Text, SVG } from '@react-three/uikit'
+import { useState } from 'react'
 
 export default function App() {
+  const [text, setText] = useState('abc')
   return (
     <Canvas
       style={{ height: '100dvh', touchAction: 'none' }}
@@ -13,10 +15,15 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <directionalLight intensity={10} position={[5, 1, 10]} />
       <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
-      <Root flexDirection="row" gap={10} padding={10} sizeX={1} sizeY={0.5} backgroundColor="red">
+      <Root flexDirection="row" sizeX={2} sizeY={0.5} backgroundColor="red">
+        <SVG width={20} src="example.svg"></SVG>
+        <Text fontSize={5} onClick={() => setText('Hello World')}>
+          {text}
+        </Text>
         <Image
           flexBasis={0}
           flexGrow={1}
+          maxHeight="100%"
           border={10}
           hover={{ border: 0 }}
           cursor="pointer"

@@ -1,5 +1,5 @@
 import { ReadonlySignal, Signal } from '@preact/signals-core'
-import { Inset, createContainer, createImage, createRoot } from '@vanilla-three/uikit/internals'
+import { Inset, createContainer, createImage, createRoot, createSVG } from '@vanilla-three/uikit/internals'
 import { ForwardedRef, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
 
@@ -17,7 +17,7 @@ export type ComponentInternals = {
 export function useComponentInternals<T>(
   ref: ForwardedRef<ComponentInternals>,
   styleSignal: Signal<T>,
-  internals: ReturnType<typeof createContainer | typeof createImage | typeof createRoot> & {
+  internals: ReturnType<typeof createContainer | typeof createImage | typeof createRoot | typeof createSVG> & {
     scrollPosition?: Signal<Vector2Tuple>
   },
 ): void {

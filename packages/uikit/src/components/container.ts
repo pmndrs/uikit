@@ -165,7 +165,3 @@ export function createContainer(
     subscriptions,
   }
 }
-
-export function destroyContainer(container: ReturnType<typeof createContainer>) {
-  unsubscribeSubscriptions(container.subscriptions)
-}

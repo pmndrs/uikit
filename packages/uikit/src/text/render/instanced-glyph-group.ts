@@ -219,7 +219,7 @@ export class InstancedGlyphGroup {
     }
 
     //finalizing the new mesh
-    setupRenderOrder(this.mesh, this.rootCameraDistance, this.orderInfo)
+    setupRenderOrder(this.mesh, this.rootCameraDistance, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
     this.object.current?.add(this.mesh)
   }

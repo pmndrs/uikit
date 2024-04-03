@@ -15,11 +15,14 @@ import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef } from '../context.js'
 
-export type PanelGroupProperties = {
-  panelMaterialClass?: MaterialClass
+export type ShadowProperties = {
   receiveShadow?: boolean
   castShadow?: boolean
 }
+
+export type PanelGroupProperties = {
+  panelMaterialClass?: MaterialClass
+} & ShadowProperties
 
 const propertyKeys = ['panelMaterialClass', 'castShadow', 'receiveShadow'] as const
 
@@ -239,7 +242,7 @@ export class InstancedPanelGroup {
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
-    setupRenderOrder(this.mesh, this.root, this.orderInfo)
+    setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.meshReceiveShadow ?? false
     this.mesh.castShadow = this.meshCastShadow ?? false

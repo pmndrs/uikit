@@ -3,7 +3,12 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { RootProperties, createRoot, destroyRoot, reversePainterSortStable } from '@vanilla-three/uikit/internals'
+import {
+  RootProperties,
+  createRoot,
+  reversePainterSortStable,
+  unsubscribeSubscriptions,
+} from '@vanilla-three/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -32,7 +37,7 @@ export const Root: (
       ),
     [store, propertySignals, renderer],
   )
-  useEffect(() => () => destroyRoot(internals), [internals])
+  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
   useFrame((_, delta) => {
     for (const onFrame of internals.onFrameSet) {

@@ -3,7 +3,8 @@ import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { Overflow } from 'yoga-layout'
-import { Object3DRef } from './context.js'
+import { Object3DRef, RootContext } from './context.js'
+import { Subscriptions } from './utils.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -168,26 +169,28 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
-export function createGlobalClippingPlanes() {
-  return [new Plane(), new Plane(), new Plane(), new Plane()]
-}
-
-export function updateGlobalClippingPlanes(
-  clippingRect: Signal<ClippingRect | undefined> | undefined,
-  rootObject: Object3DRef,
-  clippingPlanes: Array<Plane>,
-): void {
-  if (rootObject.current == null) {
-    return
-  }
-  const localPlanes = clippingRect?.value?.planes
-  if (localPlanes == null) {
-    for (let i = 0; i < 4; i++) {
-      clippingPlanes[i].copy(NoClippingPlane)
+export function createGlobalClippingPlanes(
+  root: RootContext,
+  clippingRect: Signal<ClippingRect | undefined>,
+  subscriptions: Subscriptions,
+) {
+  const planes = [new Plane(), new Plane(), new Plane(), new Plane()]
+  const updateClippingPlanes = () => {
+    if (root.object.current == null) {
+      return
     }
-    return
+    const localPlanes = clippingRect?.value?.planes
+    if (localPlanes == null) {
+      for (let i = 0; i < 4; i++) {
+        planes[i].copy(NoClippingPlane)
+      }
+      return
+    }
+    for (let i = 0; i < 4; i++) {
+      planes[i].copy(localPlanes[i]).applyMatrix4(root.object.current.matrixWorld)
+    }
   }
-  for (let i = 0; i < 4; i++) {
-    clippingPlanes[i].copy(localPlanes[i]).applyMatrix4(rootObject.current.matrixWorld)
-  }
+  root.onFrameSet.add(updateClippingPlanes)
+  subscriptions.push(() => root.onFrameSet.delete(updateClippingPlanes))
+  return planes
 }

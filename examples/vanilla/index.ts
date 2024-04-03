@@ -1,5 +1,5 @@
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { Container, Root, Image, Text } from '@vanilla-three/uikit'
+import { Container, Root, Image, Text, SVG } from '@vanilla-three/uikit'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { EventHandlers, reversePainterSortStable } from '@vanilla-three/uikit/internals'
 
@@ -50,21 +50,22 @@ const root = new Root(
     padding: 10,
     sizeX: 15,
     sizeY: 5,
+    alignItems: 'center',
     backgroundColor: 'red',
   },
 )
 
+new SVG(root, { src: 'example.svg', height: '50%' })
 new Text(root, 'Hello World', undefined, { fontSize: 50 })
-new Container(root, { flexGrow: 1, backgroundColor: 'blue' })
+new Container(root, { alignSelf: 'stretch', flexGrow: 1, backgroundColor: 'blue' })
 const x = new Container(root, {
   padding: 30,
   flexGrow: 1,
-  backgroundColor: 'green',
   hover: { backgroundColor: 'yellow' },
+  backgroundColor: 'green',
 })
 x.dispatchEvent({ type: 'pointerOver', target: x, nativeEvent: { pointerId: 1 } } as any)
 new Image(x, {
-  keepAspectRatio: false,
   borderRadius: 1000,
   height: '100%',
   flexBasis: 0,

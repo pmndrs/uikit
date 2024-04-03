@@ -1,12 +1,13 @@
-import { createImage, ImageProperties, destroyImage } from '@vanilla-three/uikit/internals'
+import { createImage, ImageProperties, unsubscribeSubscriptions } from '@vanilla-three/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
+import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 
 export const Image: (
-  props: ImageProperties & RefAttributes<ComponentInternals> & { children?: ReactNode },
+  props: ImageProperties & EventHandlers & RefAttributes<ComponentInternals> & { children?: ReactNode },
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
@@ -16,7 +17,7 @@ export const Image: (
     () => createImage(parent, propertySignals.properties, propertySignals.default, outerRef, innerRef),
     [parent, propertySignals],
   )
-  useEffect(() => () => destroyImage(internals), [internals])
+  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
   useComponentInternals(ref, propertySignals.style, internals)
 

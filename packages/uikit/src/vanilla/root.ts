@@ -1,8 +1,9 @@
 import { Camera, Object3D, WebGLRenderer } from 'three'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createRoot, destroyRoot, RootProperties } from '../components/root.js'
+import { createRoot, RootProperties } from '../components/root.js'
 import { EventConfig, bindHandlers } from './utils.js'
+import { unsubscribeSubscriptions } from '../utils.js'
 
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
@@ -40,7 +41,7 @@ export class Root extends Object3D {
     //setup scrolling & events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
-    bindHandlers(handlers, interactionPanel, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, this.eventConfig, subscriptions)
   }
 
   update(delta: number) {
@@ -58,6 +59,6 @@ export class Root extends Object3D {
 
   destroy() {
     this.object.parent?.remove(this.object)
-    destroyRoot(this.internals)
+    unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

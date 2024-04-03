@@ -1,15 +1,9 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
-import { ParentProvider, useParent } from './context.js'
+import { useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import {
-  ContainerProperties,
-  createContainer,
-  createText,
-  destroyContainer,
-  FontFamilies,
-} from '@vanilla-three/uikit/internals'
+import { createText, FontFamilies, TextProperties, unsubscribeSubscriptions } from '@vanilla-three/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
@@ -17,7 +11,7 @@ import { useFontFamilies } from './font.js'
 export const Text: (
   props: {
     children: string | Array<string | Signal<string>> | Signal<string>
-  } & ContainerProperties &
+  } & TextProperties &
     EventHandlers &
     RefAttributes<ComponentInternals>,
 ) => ReactNode = forwardRef((properties, ref) => {
@@ -45,7 +39,7 @@ export const Text: (
       ),
     [fontFamilies, parent, propertySignals, textSignal],
   )
-  useEffect(() => () => destroyContainer(internals), [internals])
+  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
   useComponentInternals(ref, propertySignals.style, internals)
 

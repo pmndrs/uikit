@@ -1,9 +1,10 @@
 import { Object3D } from 'three'
-import { ContainerProperties, createContainer, destroyContainer } from '../components/container.js'
+import { ContainerProperties, createContainer } from '../components/container.js'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Component } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
+import { unsubscribeSubscriptions } from '../utils.js'
 
 export class Container extends Object3D {
   private object: Object3D
@@ -37,7 +38,7 @@ export class Container extends Object3D {
     //setup scrolling & events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
-    bindHandlers(handlers, interactionPanel, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, this.eventConfig, subscriptions)
   }
 
   setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
@@ -49,6 +50,6 @@ export class Container extends Object3D {
 
   destroy() {
     this.object.parent?.remove(this.object)
-    destroyContainer(this.internals)
+    unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

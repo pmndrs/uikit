@@ -216,10 +216,6 @@ export function createRoot(
   })
 }
 
-export function destroyRoot(internals: ReturnType<typeof createRoot>) {
-  unsubscribeSubscriptions(internals.subscriptions)
-}
-
 function createDeferredRequestLayoutCalculation(
   onFrameSet: Set<(delta: number) => void>,
   subscriptions: Subscriptions,
