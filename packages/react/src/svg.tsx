@@ -5,17 +5,22 @@ import { AddHandlers, usePropertySignals } from './utilts.js'
 import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { Signal, signal } from '@preact/signals-core'
 
 export const SVG: (
-  props: SVGProperties & EventHandlers & RefAttributes<ComponentInternals> & { children?: ReactNode },
+  props: SVGProperties &
+    EventHandlers &
+    RefAttributes<ComponentInternals> & { src: string | Signal<string>; children?: ReactNode },
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
+  const srcSignal = useMemo(() => signal<string | Signal<string>>(''), [])
+  srcSignal.value = properties.src
   const internals = useMemo(
-    () => createSVG(parent, propertySignals.properties, propertySignals.default, outerRef, innerRef),
-    [parent, propertySignals],
+    () => createSVG(parent, srcSignal, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    [parent, propertySignals, srcSignal],
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 

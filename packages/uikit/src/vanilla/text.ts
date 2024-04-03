@@ -1,7 +1,7 @@
 import { Object3D } from 'three'
 import { createContainer } from '../components/container.js'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
-import { Component } from './index.js'
+import { Parent } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
@@ -9,7 +9,7 @@ import { FontFamilies, unsubscribeSubscriptions } from '../internals.js'
 
 export class Text extends Object3D {
   private object: Object3D
-  public readonly internals: ReturnType<typeof createContainer>
+  public readonly internals: ReturnType<typeof createText>
   public readonly eventConfig: EventConfig
 
   private readonly propertiesSignal: Signal<TextProperties>
@@ -18,7 +18,7 @@ export class Text extends Object3D {
   private readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   constructor(
-    parent: Component,
+    parent: Parent,
     text: string | Signal<string> | Array<string | Signal<string>>,
     fontFamilies: FontFamilies | undefined,
     properties: TextProperties,
@@ -37,7 +37,7 @@ export class Text extends Object3D {
     this.matrixAutoUpdate = false
     parent.add(this.object)
 
-    //setting up the container
+    //setting up the text
     this.internals = createText(
       parent.internals,
       this.textSignal,
@@ -45,10 +45,9 @@ export class Text extends Object3D {
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this.object },
-      { current: this },
     )
 
-    //setup scrolling & events
+    //setup events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
     bindHandlers(handlers, this, this.eventConfig, subscriptions)

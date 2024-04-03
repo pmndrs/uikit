@@ -4,7 +4,7 @@ import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './p
 import { Signal, effect } from '@preact/signals-core'
 import { Subscriptions } from '../utils.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
-import { EventHandlers, KeyToEvent, ThreeEvent } from '../events.js'
+import { EventHandlers, KeyToEvent } from '../events.js'
 import { OrderInfo } from '../order.js'
 import { ClippingRect, FlexNode, RootContext } from '../internals.js'
 

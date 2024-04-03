@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from 'fs/promises'
 
-const baseDir = 'icons/'
+const baseDir = '../icons/'
 
 async function main() {
   const icons = await readdir(baseDir)
@@ -13,12 +13,12 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { Icon, ComponentInternals } from "@react-three/uikit";
       import { ComponentPropsWithoutRef, forwardRef } from "react"; 
-      export type ${name}Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      export type ${name}Props = Omit<ComponentPropsWithoutRef<typeof Icon>, "text" | "svgWidth" | "svgHeight">;
       const text = \`${svg}\`;
       export const ${name} = /*@__PURE__*/ forwardRef<ComponentInternals, ${name}Props>((props, ref) => {
-        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+        return <Icon {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
       })
     `
     writeFile(`src/${name}.tsx`, code)

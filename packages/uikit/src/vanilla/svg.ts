@@ -1,6 +1,6 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
-import { Component } from './index.js'
+import { Parent } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
@@ -13,9 +13,16 @@ export class SVG extends Object3D {
   private container: Object3D
   private readonly propertiesSignal: Signal<SVGProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
+  private srcSignal: Signal<string | Signal<string>>
 
-  constructor(parent: Component, properties: SVGProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(
+    parent: Parent,
+    src: string | Signal<string>,
+    properties: SVGProperties,
+    defaultProperties?: AllOptionalProperties,
+  ) {
     super()
+    this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     this.eventConfig = parent.eventConfig
@@ -26,6 +33,7 @@ export class SVG extends Object3D {
     parent.add(this.container)
     this.internals = createSVG(
       parent.internals,
+      this.srcSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this.container },
@@ -37,6 +45,10 @@ export class SVG extends Object3D {
     this.container.add(interactionPanel)
     this.container.add(centerGroup)
     bindHandlers(handlers, this, this.eventConfig, subscriptions)
+  }
+
+  setSrc(src: string | Signal<string>) {
+    this.srcSignal.value = src
   }
 
   setProperties(properties: SVGProperties, defaultProperties?: AllOptionalProperties) {

@@ -17,7 +17,13 @@ import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
 import { Signal, computed, signal } from '@preact/signals-core'
-import { WithConditionals, computedGlobalMatrix } from './utils.js'
+import {
+  WithConditionals,
+  computedGlobalMatrix,
+  computedHandlers,
+  computedMergedProperties,
+  createNode,
+} from './utils.js'
 import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
@@ -54,34 +60,31 @@ export function createContainer(
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const subscriptions = [] as Subscriptions
+
   setupCursorCleanup(hoveredSignal, subscriptions)
 
-  const postTranslators = {
+  //properties
+  const mergedProperties = computedMergedProperties(properties, defaultProperties, {
     ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
-  }
-
-  const mergedProperties = computed(() => {
-    const merged = new MergedProperties()
-    merged.addAll(defaultProperties.value, properties.value, postTranslators)
-    return merged
   })
 
-  const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
-  parentContext.node.addChild(node)
+  //create node
+  const node = createNode(parentContext, mergedProperties, object, subscriptions)
 
+  //transform
   const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, subscriptions)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.matrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
   const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+
+  //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
-
   createInstancedPanel(
     mergedProperties,
     orderInfo,
@@ -97,9 +100,10 @@ export function createContainer(
     subscriptions,
   )
 
+  //scrolling:
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
-  const matrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -111,19 +115,6 @@ export function createContainer(
     parentContext.root.panelGroupManager,
     subscriptions,
   )
-
-  const clippingRect = computedClippingRect(
-    globalMatrix,
-    node.size,
-    node.borderInset,
-    node.overflow,
-    parentContext.root.pixelSize,
-    parentContext.clippingRect,
-  )
-
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
-
   const scrollHandlers = setupScrollHandler(
     node,
     scrollPosition,
@@ -134,15 +125,19 @@ export function createContainer(
     subscriptions,
   )
 
-  subscriptions.push(() => {
-    parentContext.node.removeChild(node)
-    node.destroy()
-  })
+  setupLayoutListeners(properties, node.size, subscriptions)
+  setupViewportListeners(properties, isClipped, subscriptions)
 
   return {
-    isClipped,
-    clippingRect,
-    matrix,
+    clippingRect: computedClippingRect(
+      globalMatrix,
+      node.size,
+      node.borderInset,
+      node.overflow,
+      parentContext.root.pixelSize,
+      parentContext.clippingRect,
+    ),
+    childrenMatrix,
     node,
     object,
     orderInfo,
@@ -155,13 +150,7 @@ export function createContainer(
       parentContext.clippingRect,
       subscriptions,
     ),
-    handlers: computed(() => {
-      const handlers = cloneHandlers(properties.value)
-      addHandlers(handlers, scrollHandlers.value)
-      addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
-      addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
-      return handlers
-    }),
+    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     subscriptions,
   }
 }

@@ -26,8 +26,16 @@ import {
   setupScrollHandler,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
-import { WithConditionals, computedGlobalMatrix, loadResourceWithParams } from './utils.js'
-import { MergedProperties, PropertyTransformers } from '../properties/merged.js'
+import {
+  WithConditionals,
+  computedGlobalMatrix,
+  computedHandlers,
+  computedMergedProperties,
+  createNode,
+  keepAspectRatioPropertyTransformer,
+  loadResourceWithParams,
+} from './utils.js'
+import { MergedProperties } from '../properties/merged.js'
 import { Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { panelGeometry } from '../panel/utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
@@ -35,9 +43,8 @@ import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
-import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { addHandlers, cloneHandlers } from '../panel/instanced-panel-mesh.js'
+import { createActivePropertyTransfomers } from '../active.js'
+import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
 import {
@@ -68,12 +75,11 @@ export type InheritableImageProperties = WithClasses<
   >
 >
 
-export type ImageProperties = InheritableImageProperties &
-  Listeners &
-  EventHandlers & { src: Signal<string> | string | Texture | Signal<Texture> }
+export type ImageProperties = InheritableImageProperties & Listeners & EventHandlers
 
 export function createImage(
   parentContext: WithContext,
+  srcSignal: Signal<Signal<string> | string | Texture | Signal<Texture>>,
   properties: Signal<ImageProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
@@ -85,7 +91,7 @@ export function createImage(
   const activeSignal = signal<Array<number>>([])
   setupCursorCleanup(hoveredSignal, subscriptions)
 
-  const src = computed(() => readReactive(properties.value.src))
+  const src = computed(() => readReactive(srcSignal.value))
   loadResourceWithParams(texture, loadTextureImpl, subscriptions, src)
 
   const textureAspectRatio = computed(() => {
@@ -97,40 +103,25 @@ export function createImage(
     return image.width / image.height
   })
 
-  const signalMap = new Map<unknown, Signal<undefined | null>>()
-
-  const prePropertyTransformers: PropertyTransformers = {
-    keepAspectRatio: (value, target) => {
-      let signal = signalMap.get(value)
-      if (signal == null) {
-        //if keep aspect ratio is "false" => we write "null" => which overrides the previous properties and returns null
-        signalMap.set(value, (signal = computed(() => (readReactive(value) === false ? null : undefined))))
-      }
-      target.add('aspectRatio', signal)
+  const mergedProperties = computedMergedProperties(
+    properties,
+    defaultProperties,
+    {
+      ...darkPropertyTransformers,
+      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createHoverPropertyTransformers(hoveredSignal),
+      ...createActivePropertyTransfomers(activeSignal),
     },
-  }
+    keepAspectRatioPropertyTransformer,
+    (m) => m.add('aspectRatio', textureAspectRatio),
+  )
 
-  const postTransformers = {
-    ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.node.size),
-    ...createHoverPropertyTransformers(hoveredSignal),
-    ...createActivePropertyTransfomers(activeSignal),
-  }
-
-  const mergedProperties = computed(() => {
-    const merged = new MergedProperties(prePropertyTransformers)
-    merged.add('aspectRatio', textureAspectRatio)
-    merged.addAll(defaultProperties.value, properties.value, postTransformers)
-    return merged
-  })
-
-  const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
-  parentContext.node.addChild(node)
+  const node = createNode(parentContext, mergedProperties, object, subscriptions)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, subscriptions)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.matrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
   const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
   const isHidden = computed(() => isClipped.value || texture.value == null)
@@ -139,7 +130,7 @@ export function createImage(
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
-  const matrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -151,19 +142,6 @@ export function createImage(
     parentContext.root.panelGroupManager,
     subscriptions,
   )
-
-  const clippingRect = computedClippingRect(
-    globalMatrix,
-    node.size,
-    node.borderInset,
-    node.overflow,
-    parentContext.root.pixelSize,
-    parentContext.clippingRect,
-  )
-
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
-
   const scrollHandlers = setupScrollHandler(
     node,
     scrollPosition,
@@ -174,14 +152,19 @@ export function createImage(
     subscriptions,
   )
 
-  subscriptions.push(() => {
-    parentContext.node.removeChild(node)
-    node.destroy()
-  })
+  setupLayoutListeners(properties, node.size, subscriptions)
+  setupViewportListeners(properties, isClipped, subscriptions)
 
   const ctx: WithContext = {
-    clippingRect,
-    matrix,
+    clippingRect: computedClippingRect(
+      globalMatrix,
+      node.size,
+      node.borderInset,
+      node.overflow,
+      parentContext.root.pixelSize,
+      parentContext.clippingRect,
+    ),
+    childrenMatrix,
     node,
     object,
     orderInfo,
@@ -189,14 +172,7 @@ export function createImage(
   }
   return Object.assign(ctx, {
     subscriptions,
-    scrollHandlers,
-    handlers: computed(() => {
-      const handlers = cloneHandlers(properties.value)
-      addHandlers(handlers, scrollHandlers.value)
-      addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
-      addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
-      return handlers
-    }),
+    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, isHidden, subscriptions),
   })
 }

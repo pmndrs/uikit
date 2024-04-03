@@ -1,3 +1,4 @@
+export type { EventHandlers, ThreeEvent } from './events.js'
 export { reversePainterSortStable } from './order.js'
 export {
   basedOnPreferredColorScheme,

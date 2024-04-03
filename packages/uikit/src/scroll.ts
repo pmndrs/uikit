@@ -284,8 +284,7 @@ export function createScrollbars(
   panelGroupManager: PanelGroupManager,
   subscriptions: Subscriptions,
 ): void {
-  const groupDeps = computedPanelGroupDependencies(propertiesSignal)
-  const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, orderInfo)
+  const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, undefined, orderInfo)
 
   const getScrollbarWidth = createGetBatchedProperties<ScrollbarWidthProperties>(
     propertiesSignal,
@@ -303,7 +302,6 @@ export function createScrollbars(
     scrollPosition,
     node,
     globalMatrix,
-    groupDeps,
     isClipped,
     parentClippingRect,
     scrollbarOrderInfo,
@@ -318,7 +316,6 @@ export function createScrollbars(
     scrollPosition,
     node,
     globalMatrix,
-    groupDeps,
     isClipped,
     parentClippingRect,
     scrollbarOrderInfo,
@@ -357,7 +354,6 @@ function createScrollbar(
   scrollPosition: Signal<Vector2Tuple>,
   node: FlexNode,
   globalMatrix: Signal<Matrix4 | undefined>,
-  panelGroupDependencies: Signal<PanelGroupProperties>,
   isClipped: Signal<boolean> | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo>,
@@ -382,7 +378,7 @@ function createScrollbar(
   createInstancedPanel(
     propertiesSignal,
     orderInfo,
-    panelGroupDependencies,
+    undefined,
     panelGroupManager,
     globalMatrix,
     scrollbarSize,

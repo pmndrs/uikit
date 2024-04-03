@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {
     "@vanilla-three/uikit": "workspace:^",
+    "@vanilla-three/uikit-lucide": "workspace:^",
     "react-dom": "^18.2.0",
     "three": "^0.161.0"
   },

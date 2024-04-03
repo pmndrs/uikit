@@ -1,7 +1,7 @@
 import { Object3D } from 'three'
 import { ContainerProperties, createContainer } from '../components/container.js'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
-import { Component } from './index.js'
+import { Parent } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
@@ -14,7 +14,7 @@ export class Container extends Object3D {
   private readonly propertiesSignal: Signal<ContainerProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
-  constructor(parent: Component, properties: ContainerProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(parent: Parent, properties: ContainerProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
@@ -35,7 +35,7 @@ export class Container extends Object3D {
       { current: this },
     )
 
-    //setup scrolling & events
+    //setup events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
     bindHandlers(handlers, this, this.eventConfig, subscriptions)

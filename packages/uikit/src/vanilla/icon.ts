@@ -1,28 +1,28 @@
-import { Object3D, Texture } from 'three'
-import { ImageProperties, createImage } from '../components/image.js'
+import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
+import { IconProperties, createIcon } from '../components/icon.js'
 
-export class Image extends Object3D {
-  public readonly internals: ReturnType<typeof createImage>
+export class Icon extends Object3D {
+  public readonly internals: ReturnType<typeof createIcon>
   public readonly eventConfig: EventConfig
 
   private container: Object3D
-  private readonly propertiesSignal: Signal<ImageProperties>
+  private readonly propertiesSignal: Signal<IconProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly srcSignal: Signal<string | Signal<string> | Texture | Signal<Texture>>
 
   constructor(
     parent: Parent,
-    src: string | Signal<string>,
-    properties: ImageProperties,
+    text: string,
+    svgWidth: number,
+    svgHeight: number,
+    properties: IconProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
-    this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     this.eventConfig = parent.eventConfig
@@ -31,29 +31,24 @@ export class Image extends Object3D {
     this.container.add(this)
     this.matrixAutoUpdate = false
     parent.add(this.container)
-
-    //creating the image
-    this.internals = createImage(
+    this.internals = createIcon(
       parent.internals,
-      this.srcSignal,
+      text,
+      svgWidth,
+      svgHeight,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this.container },
-      { current: this },
     )
     this.setProperties(properties, defaultProperties)
 
-    //setting up events
-    const { handlers, interactionPanel, subscriptions } = this.internals
+    const { handlers, iconGroup, interactionPanel, subscriptions } = this.internals
     this.container.add(interactionPanel)
+    this.container.add(iconGroup)
     bindHandlers(handlers, this, this.eventConfig, subscriptions)
   }
 
-  setSrc(src: string | Signal<string> | Texture | Signal<Texture>) {
-    this.srcSignal.value = src
-  }
-
-  setProperties(properties: ImageProperties, defaultProperties?: AllOptionalProperties) {
+  setProperties(properties: IconProperties, defaultProperties?: AllOptionalProperties) {
     batch(() => {
       this.propertiesSignal.value = properties
       this.defaultPropertiesSignal.value = defaultProperties

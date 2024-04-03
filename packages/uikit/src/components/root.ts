@@ -21,7 +21,7 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import { Subscriptions, alignmentXMap, alignmentYMap, readReactive, unsubscribeSubscriptions } from '../utils.js'
-import { WithConditionals } from './utils.js'
+import { WithConditionals, computedHandlers, computedMergedProperties } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
 import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
@@ -64,8 +64,6 @@ const DEFAULT_PIXEL_SIZE = 0.01
 const vectorHelper = new Vector3()
 const planeHelper = new Plane()
 
-const notClipped = signal(false)
-
 export function createRoot(
   properties: Signal<RootProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -81,25 +79,22 @@ export function createRoot(
   setupCursorCleanup(hoveredSignal, subscriptions)
   const pixelSize = untracked(() => properties.value.pixelSize ?? DEFAULT_PIXEL_SIZE)
 
-  const preTransformers: PropertyTransformers = {
-    ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
-    ...createSizeTranslator(pixelSize, 'sizeY', 'height'),
-  }
-
-  const postTransformers = {
-    ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(rootSize),
-    ...createHoverPropertyTransformers(hoveredSignal),
-    ...createActivePropertyTransfomers(activeSignal),
-  }
-
   const onFrameSet = new Set<(delta: number) => void>()
 
-  const mergedProperties = computed(() => {
-    const merged = new MergedProperties(preTransformers)
-    merged.addAll(defaultProperties.value, properties.value, postTransformers)
-    return merged
-  })
+  const mergedProperties = computedMergedProperties(
+    properties,
+    defaultProperties,
+    {
+      ...darkPropertyTransformers,
+      ...createResponsivePropertyTransformers(rootSize),
+      ...createHoverPropertyTransformers(hoveredSignal),
+      ...createActivePropertyTransfomers(activeSignal),
+    },
+    {
+      ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
+      ...createSizeTranslator(pixelSize, 'sizeY', 'height'),
+    },
+  )
 
   const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, subscriptions)
   const node = new FlexNode(mergedProperties, rootSize, object, requestCalculateLayout, undefined, subscriptions)
@@ -150,7 +145,7 @@ export function createRoot(
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, pixelSize)
-  const matrix = computedGlobalScrollMatrix(scrollPosition, rootMatrix, pixelSize)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, rootMatrix, pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -163,17 +158,6 @@ export function createRoot(
     subscriptions,
   )
 
-  const clippingRect = computedClippingRect(
-    rootMatrix,
-    node.size,
-    node.borderInset,
-    node.overflow,
-    pixelSize,
-    undefined,
-  )
-
-  setupLayoutListeners(properties, node.size, subscriptions)
-
   const scrollHandlers = setupScrollHandler(
     node,
     scrollPosition,
@@ -183,17 +167,19 @@ export function createRoot(
     onFrameSet,
     subscriptions,
   )
+
+  setupLayoutListeners(properties, node.size, subscriptions)
+
   const gylphGroupManager = new GlyphGroupManager(pixelSize, ctx, object)
   onFrameSet.add(gylphGroupManager.onFrame)
   subscriptions.push(() => onFrameSet.delete(gylphGroupManager.onFrame))
 
   const rootCtx: RootContext = Object.assign(ctx, {
-    isClipped: notClipped,
     onFrameSet,
     cameraDistance: 0,
-    clippingRect,
+    clippingRect: computedClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, pixelSize, undefined),
     gylphGroupManager,
-    matrix,
+    childrenMatrix,
     node,
     object,
     orderInfo,
@@ -205,13 +191,7 @@ export function createRoot(
   return Object.assign(rootCtx, {
     subscriptions,
     interactionPanel: createInteractionPanel(node, orderInfo, rootCtx, undefined, subscriptions),
-    handlers: computed(() => {
-      const handlers = cloneHandlers(properties.value)
-      addHandlers(handlers, scrollHandlers.value)
-      addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
-      addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
-      return handlers
-    }),
+    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     root: rootCtx,
   })
 }

@@ -13,7 +13,9 @@ export default defineConfig({
       { find: '@vanilla-three/uikit', replacement: path.resolve(__dirname, '../../packages/uikit/src/index.ts') },
     ],
   },
+  base: '/uikit/examples/vanilla/',
   optimizeDeps: {
+    include: ['@vanilla-three/uikit-lucide', '@vanilla-three/uikit'],
     esbuildOptions: {
       target: 'esnext',
     },

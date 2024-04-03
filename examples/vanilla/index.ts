@@ -1,7 +1,7 @@
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { Container, Root, Image, Text, SVG } from '@vanilla-three/uikit'
+import { EventHandlers, reversePainterSortStable, Container, Root, Image, Text, SVG } from '@vanilla-three/uikit'
+import { Delete } from '@vanilla-three/uikit-lucide'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { EventHandlers, reversePainterSortStable } from '@vanilla-three/uikit/internals'
 
 // init
 
@@ -54,8 +54,8 @@ const root = new Root(
     backgroundColor: 'red',
   },
 )
-
-new SVG(root, { src: 'example.svg', height: '50%' })
+new Delete(root, { width: 100 })
+new SVG(root, 'example.svg', { height: '50%' })
 new Text(root, 'Hello World', undefined, { fontSize: 50 })
 new Container(root, { alignSelf: 'stretch', flexGrow: 1, backgroundColor: 'blue' })
 const x = new Container(root, {
@@ -65,12 +65,11 @@ const x = new Container(root, {
   backgroundColor: 'green',
 })
 x.dispatchEvent({ type: 'pointerOver', target: x, nativeEvent: { pointerId: 1 } } as any)
-new Image(x, {
+new Image(x, 'https://picsum.photos/300/300', {
   borderRadius: 1000,
   height: '100%',
   flexBasis: 0,
   flexGrow: 1,
-  src: 'https://picsum.photos/300/300',
 })
 
 renderer.setAnimationLoop(animation)

@@ -23,7 +23,7 @@ export type RootContext = WithCameraDistance &
 export type ElementContext = Readonly<{
   node: FlexNode
   clippingRect: Signal<ClippingRect | undefined>
-  matrix: Signal<Matrix4 | undefined>
+  childrenMatrix: Signal<Matrix4 | undefined>
   orderInfo: Signal<OrderInfo>
   object: Object3DRef
 }>

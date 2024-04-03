@@ -1,10 +1,27 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Matrix4 } from 'three'
-import { WithActive } from '../active.js'
+import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
-import { WithHover } from '../hover.js'
+import { WithHover, addHoverHandlers } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
-import { Subscriptions } from '../utils.js'
+import { Subscriptions, readReactive } from '../utils.js'
+import {
+  AllOptionalProperties,
+  AppearanceProperties,
+  EventHandlers,
+  MergedProperties,
+  Object3DRef,
+  OrderInfo,
+  Properties,
+  PropertyTransformers,
+  RootContext,
+  ShadowProperties,
+  WithContext,
+  addHandlers,
+  cloneHandlers,
+  createGetBatchedProperties,
+  setupRenderOrder,
+} from '../internals.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -42,6 +59,108 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
         .then((value) => (canceled ? undefined : (target.value = value)))
         .catch(console.error)
       return () => (canceled = true)
+    }),
+  )
+}
+
+export function createNode(
+  parentContext: WithContext,
+  mergedProperties: Signal<MergedProperties>,
+  object: Object3DRef,
+  subscriptions: Subscriptions,
+) {
+  const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
+  parentContext.node.addChild(node)
+  subscriptions.push(() => {
+    parentContext.node.removeChild(node)
+    node.destroy()
+  })
+  return node
+}
+
+const signalMap = new Map<unknown, Signal<undefined | null>>()
+export const keepAspectRatioPropertyTransformer: PropertyTransformers = {
+  keepAspectRatio: (value, target) => {
+    let signal = signalMap.get(value)
+    if (signal == null) {
+      //if keep aspect ratio is "false" => we write "null" => which overrides the previous properties and returns null
+      signalMap.set(value, (signal = computed(() => (readReactive(value) === false ? null : undefined))))
+    }
+    target.add('aspectRatio', signal)
+  },
+}
+
+export function computedHandlers(
+  properties: Signal<Properties>,
+  defaultProperties: Signal<AllOptionalProperties | undefined>,
+  hoveredSignal: Signal<Array<number>>,
+  activeSignal: Signal<Array<number>>,
+  scrollHandlers?: Signal<EventHandlers | undefined>,
+) {
+  return computed(() => {
+    const handlers = cloneHandlers(properties.value)
+    addHandlers(handlers, scrollHandlers?.value)
+    addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
+    addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
+    return handlers
+  })
+}
+
+export function computedMergedProperties(
+  properties: Signal<Properties>,
+  defaultProperties: Signal<AllOptionalProperties | undefined>,
+  postTransformers: PropertyTransformers,
+  preTransformers?: PropertyTransformers,
+  onInit?: (merged: MergedProperties) => void,
+) {
+  return computed(() => {
+    const merged = new MergedProperties(preTransformers)
+    onInit?.(merged)
+    merged.addAll(defaultProperties.value, properties.value, postTransformers)
+    return merged
+  })
+}
+
+const colorHelper = new Color()
+const propertyKeys = ['opacity', 'color', 'receiveShadow', 'castShadow'] as const
+
+/**
+ * @requires that each mesh inside the group has its default color stored inside object.userData.color
+ */
+export function applyAppearancePropertiesToGroup(
+  propertiesSignal: Signal<MergedProperties>,
+  root: RootContext,
+  orderInfo: Signal<OrderInfo>,
+  group: Signal<Object3D | undefined> | Object3D,
+  subscriptions: Subscriptions,
+) {
+  const getPropertySignal = createGetBatchedProperties<AppearanceProperties & ShadowProperties>(
+    propertiesSignal,
+    propertyKeys,
+  )
+  subscriptions.push(
+    effect(() => {
+      const colorRepresentation = getPropertySignal('color')
+      const opacity = getPropertySignal('opacity')
+      const receiveShadow = getPropertySignal('receiveShadow')
+      const castShadow = getPropertySignal('castShadow')
+      let color: Color | undefined
+      if (Array.isArray(colorRepresentation)) {
+        color = colorHelper.setRGB(...colorRepresentation)
+      } else if (colorRepresentation != null) {
+        color = colorHelper.set(colorRepresentation)
+      }
+      readReactive(group)?.traverse((object) => {
+        if (!(object instanceof Mesh)) {
+          return
+        }
+        object.receiveShadow = receiveShadow ?? false
+        object.castShadow = castShadow ?? false
+        setupRenderOrder(object, root, orderInfo)
+        const material: MeshBasicMaterial = object.material
+        material.color.copy(color ?? object.userData.color)
+        material.opacity = opacity ?? 1
+      })
     }),
   )
 }
