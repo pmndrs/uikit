@@ -3,16 +3,20 @@ import { ContainerProperties, createContainer, destroyContainer } from '../compo
 import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Component } from './index.js'
 import { EventConfig, bindHandlers } from './utils.js'
-import { batch } from '@preact/signals-core'
+import { Signal, batch, signal } from '@preact/signals-core'
 
 export class Container extends Object3D {
   private object: Object3D
   public readonly internals: ReturnType<typeof createContainer>
   public readonly eventConfig: EventConfig
 
+  private readonly propertiesSignal: Signal<ContainerProperties>
+  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
+
   constructor(parent: Component, properties: ContainerProperties, defaultProperties?: AllOptionalProperties) {
     super()
-
+    this.propertiesSignal = signal(properties)
+    this.defaultPropertiesSignal = signal(defaultProperties)
     this.eventConfig = parent.eventConfig
     //setting up the threejs elements
     this.object = new Object3D()
@@ -24,21 +28,22 @@ export class Container extends Object3D {
     //setting up the container
     this.internals = createContainer(
       parent.internals,
-      properties,
-      defaultProperties,
+      this.propertiesSignal,
+      this.defaultPropertiesSignal,
       { current: this.object },
       { current: this },
     )
 
     //setup scrolling & events
-    this.add(this.internals.interactionPanel)
-    bindHandlers(this.internals, this, this.internals.interactionPanel, this.eventConfig)
+    const { handlers, interactionPanel, subscriptions } = this.internals
+    this.add(interactionPanel)
+    bindHandlers(handlers, interactionPanel, this.eventConfig, subscriptions)
   }
 
   setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
     batch(() => {
-      this.internals.propertiesSignal.value = properties
-      this.internals.defaultPropertiesSignal.value = defaultProperties
+      this.propertiesSignal.value = properties
+      this.defaultPropertiesSignal.value = defaultProperties
     })
   }
 

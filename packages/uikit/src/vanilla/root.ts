@@ -1,5 +1,5 @@
 import { Camera, Object3D } from 'three'
-import { batch } from '@preact/signals-core'
+import { Signal, batch, signal } from '@preact/signals-core'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createRoot, destroyRoot, RootProperties } from '../components/root.js'
 import { EventConfig, bindHandlers } from './utils.js'
@@ -7,6 +7,9 @@ import { EventConfig, bindHandlers } from './utils.js'
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
   private object: Object3D
+
+  private readonly propertiesSignal: Signal<RootProperties>
+  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
   constructor(
     public readonly eventConfig: EventConfig,
@@ -16,6 +19,8 @@ export class Root extends Object3D {
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
+    this.propertiesSignal = signal(properties)
+    this.defaultPropertiesSignal = signal(defaultProperties)
     this.object = new Object3D()
     this.object.matrixAutoUpdate = false
     this.object.add(this)
@@ -23,16 +28,17 @@ export class Root extends Object3D {
     parent.add(this.object)
 
     this.internals = createRoot(
-      properties,
-      defaultProperties,
+      this.propertiesSignal,
+      this.defaultPropertiesSignal,
       { current: this },
       { current: this },
       typeof camera === 'function' ? camera : () => camera,
     )
 
     //setup scrolling & events
-    this.add(this.internals.interactionPanel)
-    bindHandlers(this.internals, this, this.internals.interactionPanel, this.eventConfig)
+    const { handlers, interactionPanel, subscriptions } = this.internals
+    this.add(interactionPanel)
+    bindHandlers(handlers, interactionPanel, this.eventConfig, subscriptions)
   }
 
   update(delta: number) {
@@ -43,8 +49,8 @@ export class Root extends Object3D {
 
   setProperties(properties: RootProperties, defaultProperties?: AllOptionalProperties) {
     batch(() => {
-      this.internals.propertiesSignal.value = properties
-      this.internals.defaultPropertiesSignal.value = defaultProperties
+      this.propertiesSignal.value = properties
+      this.defaultPropertiesSignal.value = defaultProperties
     })
   }
 

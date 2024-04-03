@@ -24,7 +24,7 @@ const localPointHelper = new Vector3()
 
 export type ScrollEventHandlers = Pick<
   EventHandlers,
-  'onPointerDown' | 'onPointerUp' | 'onPointerMove' | 'onWheel' | 'onPointerLeave'
+  'onPointerDown' | 'onPointerUp' | 'onPointerMove' | 'onWheel' | 'onPointerLeave' | 'onPointerCancel'
 >
 
 export function createScrollPosition() {
@@ -60,7 +60,7 @@ export function setupScrollHandler(
   object: Object3DRef,
   listeners: Signal<ScrollListeners>,
   pixelSize: number,
-  scrollHandlers: Signal<EventHandlers | undefined>,
+  onFrameSet: Set<(delta: number) => void>,
   subscriptions: Subscriptions,
 ) {
   const isScrollable = computed(() => node.scrollable.value.some((scrollable) => scrollable))
@@ -107,56 +107,7 @@ export function setupScrollHandler(
     scrollPosition.value = [newX, newY]
   }
 
-  subscriptions.push(
-    effect(() => {
-      if (!isScrollable.value) {
-        scrollHandlers.value = undefined
-      }
-      scrollHandlers.value = {
-        onPointerDown: ({ nativeEvent, point }) => {
-          let interaction = downPointerMap.get(nativeEvent.pointerId)
-          if (interaction == null) {
-            downPointerMap.set(nativeEvent.pointerId, (interaction = { timestamp: 0, point: new Vector3() }))
-          }
-          interaction.timestamp = performance.now() / 1000
-          object.current!.worldToLocal(interaction.point.copy(point))
-        },
-        onPointerUp: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
-        onPointerLeave: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
-        onPointerCancel: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
-        onContextMenu: (e) => e.nativeEvent.preventDefault(),
-        onPointerMove: (event) => {
-          const prevInteraction = downPointerMap.get(event.nativeEvent.pointerId)
-
-          if (prevInteraction == null) {
-            return
-          }
-          object.current!.worldToLocal(localPointHelper.copy(event.point))
-          distanceHelper.copy(localPointHelper).sub(prevInteraction.point).divideScalar(pixelSize)
-          const timestamp = performance.now() / 1000
-          const deltaTime = timestamp - prevInteraction.timestamp
-
-          prevInteraction.point.copy(localPointHelper)
-          prevInteraction.timestamp = timestamp
-
-          if (event.defaultPrevented) {
-            return
-          }
-
-          scroll(event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
-        },
-        onWheel: (event) => {
-          if (event.defaultPrevented) {
-            return
-          }
-          const { nativeEvent } = event
-          scroll(event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
-        },
-      }
-    }),
-  )
-
-  return (delta: number) => {
+  const onFrame = (delta: number) => {
     if (downPointerMap.size > 0) {
       return
     }
@@ -187,6 +138,55 @@ export function setupScrollHandler(
     }
     scroll(undefined, deltaX, deltaY, undefined, true)
   }
+
+  onFrameSet.add(onFrame)
+  subscriptions.push(() => onFrameSet.delete(onFrame))
+
+  return computed<ScrollEventHandlers | undefined>(() => {
+    if (!isScrollable.value) {
+      return undefined
+    }
+    return {
+      onPointerDown: ({ nativeEvent, point }) => {
+        let interaction = downPointerMap.get(nativeEvent.pointerId)
+        if (interaction == null) {
+          downPointerMap.set(nativeEvent.pointerId, (interaction = { timestamp: 0, point: new Vector3() }))
+        }
+        interaction.timestamp = performance.now() / 1000
+        object.current!.worldToLocal(interaction.point.copy(point))
+      },
+      onPointerUp: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
+      onPointerLeave: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
+      onPointerCancel: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
+      onPointerMove: (event) => {
+        const prevInteraction = downPointerMap.get(event.nativeEvent.pointerId)
+
+        if (prevInteraction == null) {
+          return
+        }
+        object.current!.worldToLocal(localPointHelper.copy(event.point))
+        distanceHelper.copy(localPointHelper).sub(prevInteraction.point).divideScalar(pixelSize)
+        const timestamp = performance.now() / 1000
+        const deltaTime = timestamp - prevInteraction.timestamp
+
+        prevInteraction.point.copy(localPointHelper)
+        prevInteraction.timestamp = timestamp
+
+        if (event.defaultPrevented) {
+          return
+        }
+
+        scroll(event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
+      },
+      onWheel: (event) => {
+        if (event.defaultPrevented) {
+          return
+        }
+        const { nativeEvent } = event
+        scroll(event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
+      },
+    }
+  })
 }
 
 const wasScrolledSymbol = Symbol('was-scrolled')

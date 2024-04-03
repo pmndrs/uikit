@@ -1,16 +1,17 @@
 import { useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
-import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
+import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
-import { AddHandlers, AddScrollHandler } from './utilts.js'
+import { AddHandlers, usePropertySignals } from './utilts.js'
 import { RootProperties, patchRenderOrder, createRoot, destroyRoot } from '@vanilla-three/uikit/internals'
-import { useDefaultProperties } from './default.js'
 import { Object3D } from 'three'
+import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export const Root: (
   props: RootProperties & {
     children?: ReactNode
-  } & EventHandlers,
+  } & EventHandlers &
+    RefAttributes<ComponentInternals>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const renderer = useThree((state) => state.gl)
 
@@ -18,11 +19,17 @@ export const Root: (
   const store = useStore()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
-  const defaultProperties = useDefaultProperties()
+  const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
-    () => createRoot(properties, defaultProperties, outerRef, innerRef, () => store.getState().camera),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
+    () =>
+      createRoot(
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+        () => store.getState().camera,
+      ),
+    [store, propertySignals],
   )
   useEffect(() => () => destroyRoot(internals), [internals])
 
@@ -32,13 +39,11 @@ export const Root: (
     }
   })
 
-  //TBD: useComponentInternals(ref, node, interactionPanel, scrollPosition)
+  useComponentInternals(ref, propertySignals.style, internals)
 
   return (
     <AddHandlers handlers={internals.handlers} ref={outerRef}>
-      <AddScrollHandler handlers={internals.scrollHandlers}>
-        <primitive object={internals.interactionPanel} />
-      </AddScrollHandler>
+      <primitive object={internals.interactionPanel} />
       <object3D ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>
       </object3D>

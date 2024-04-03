@@ -1,33 +1,33 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
-import { forwardRef, ReactNode, useEffect, useMemo, useRef } from 'react'
+import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
-import { AddHandlers, AddScrollHandler } from './utilts.js'
+import { AddHandlers, usePropertySignals } from './utilts.js'
 import { ContainerProperties, createContainer, destroyContainer } from '@vanilla-three/uikit/internals'
-import { useDefaultProperties } from './default.js'
+import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export const Container: (
   props: {
     children?: ReactNode
   } & ContainerProperties &
-    EventHandlers,
+    EventHandlers &
+    RefAttributes<ComponentInternals>,
 ) => ReactNode = forwardRef((properties, ref) => {
-  //TODO: ComponentInternals
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
-  const defaultProperties = useDefaultProperties()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const internals = useMemo(() => createContainer(parent, properties, defaultProperties, outerRef, innerRef), [parent])
+  const propertySignals = usePropertySignals(properties)
+  const internals = useMemo(
+    () => createContainer(parent, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    [parent, propertySignals],
+  )
   useEffect(() => () => destroyContainer(internals), [internals])
 
-  //TBD: useComponentInternals(ref, node, interactionPanel, scrollPosition)
+  useComponentInternals(ref, propertySignals.style, internals)
 
   return (
     <AddHandlers handlers={internals.handlers} ref={outerRef}>
-      <AddScrollHandler handlers={internals.scrollHandlers}>
-        <primitive object={internals.interactionPanel} />
-      </AddScrollHandler>
+      <primitive object={internals.interactionPanel} />
       <object3D ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>
       </object3D>

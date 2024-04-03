@@ -16,14 +16,14 @@ import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { computed, signal } from '@preact/signals-core'
+import { Signal, computed, signal } from '@preact/signals-core'
 import { WithConditionals, computedGlobalMatrix } from './utils.js'
 import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, WithContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { addHandlers, cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers } from '../events.js'
 import { darkPropertyTransformers, getDefaultPanelMaterialConfig, traverseProperties } from '../internals.js'
 
@@ -46,8 +46,8 @@ export type ContainerProperties = InheritableContainerProperties & Listeners & E
 
 export function createContainer(
   parentContext: WithContext,
-  properties: ContainerProperties,
-  defaultProperties: AllOptionalProperties | undefined,
+  properties: Signal<ContainerProperties>,
+  defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
 ) {
@@ -55,10 +55,6 @@ export function createContainer(
   const activeSignal = signal<Array<number>>([])
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
-
-  const scrollHandlers = signal<EventHandlers>({})
-  const propertiesSignal = signal(properties)
-  const defaultPropertiesSignal = signal(defaultProperties)
 
   const postTranslators = {
     ...darkPropertyTransformers,
@@ -69,7 +65,7 @@ export function createContainer(
 
   const mergedProperties = computed(() => {
     const merged = new MergedProperties()
-    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value, postTranslators)
+    merged.addAll(defaultProperties.value, properties.value, postTranslators)
     return merged
   })
 
@@ -125,28 +121,25 @@ export function createContainer(
     parentContext.clippingRect,
   )
 
-  setupLayoutListeners(propertiesSignal, node.size, subscriptions)
-  setupViewportListeners(propertiesSignal, isClipped, subscriptions)
+  setupLayoutListeners(properties, node.size, subscriptions)
+  setupViewportListeners(properties, isClipped, subscriptions)
 
-  const onScrollFrame = setupScrollHandler(
+  const scrollHandlers = setupScrollHandler(
     node,
     scrollPosition,
     object,
-    propertiesSignal,
+    properties,
     parentContext.root.pixelSize,
-    scrollHandlers,
+    parentContext.root.onFrameSet,
     subscriptions,
   )
-  parentContext.root.onFrameSet.add(onScrollFrame)
 
   subscriptions.push(() => {
-    parentContext.root.onFrameSet.delete(onScrollFrame)
     parentContext.node.removeChild(node)
     node.destroy()
   })
 
   return {
-    scrollHandlers,
     isClipped,
     clippingRect,
     matrix,
@@ -154,8 +147,7 @@ export function createContainer(
     object,
     orderInfo,
     root: parentContext.root,
-    propertiesSignal,
-    defaultPropertiesSignal,
+    scrollPosition,
     interactionPanel: createInteractionPanel(
       node,
       orderInfo,
@@ -164,11 +156,10 @@ export function createContainer(
       subscriptions,
     ),
     handlers: computed(() => {
-      const properties = propertiesSignal.value
-      const defaultProperties = defaultPropertiesSignal.value
-      const handlers = cloneHandlers(properties)
-      addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal)
-      addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
+      const handlers = cloneHandlers(properties.value)
+      addHandlers(handlers, scrollHandlers.value)
+      addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
+      addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
       return handlers
     }),
     subscriptions,

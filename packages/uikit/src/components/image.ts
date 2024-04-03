@@ -42,7 +42,7 @@ import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
 import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { cloneHandlers } from '../panel/instanced-panel-mesh.js'
+import { addHandlers, cloneHandlers } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
 import {
@@ -77,8 +77,8 @@ export type ImageProperties = InheritableImageProperties & Listeners & EventHand
 
 export function createImage(
   parentContext: WithContext,
-  properties: ImageProperties,
-  defaultProperties: AllOptionalProperties | undefined,
+  properties: Signal<ImageProperties>,
+  defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
 ) {
@@ -87,11 +87,8 @@ export function createImage(
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   setupCursorCleanup(hoveredSignal, subscriptions)
-  const scrollHandlers = signal<EventHandlers>({})
-  const propertiesSignal = signal(properties)
-  const defaultPropertiesSignal = signal(defaultProperties)
 
-  const src = computed(() => readReactive(propertiesSignal.value.src))
+  const src = computed(() => readReactive(properties.value.src))
   loadResourceWithParams(texture, loadTextureImpl, subscriptions, src)
 
   const textureAspectRatio = computed(() => {
@@ -126,7 +123,7 @@ export function createImage(
   const mergedProperties = computed(() => {
     const merged = new MergedProperties(prePropertyTransformers)
     merged.add('aspectRatio', textureAspectRatio)
-    merged.addAll(defaultPropertiesSignal.value, propertiesSignal.value, postTransformers)
+    merged.addAll(defaultProperties.value, properties.value, postTransformers)
     return merged
   })
 
@@ -167,22 +164,20 @@ export function createImage(
     parentContext.clippingRect,
   )
 
-  setupLayoutListeners(propertiesSignal, node.size, subscriptions)
-  setupViewportListeners(propertiesSignal, isClipped, subscriptions)
+  setupLayoutListeners(properties, node.size, subscriptions)
+  setupViewportListeners(properties, isClipped, subscriptions)
 
-  const onScrollFrame = setupScrollHandler(
+  const scrollHandlers = setupScrollHandler(
     node,
     scrollPosition,
     object,
-    propertiesSignal,
+    properties,
     parentContext.root.pixelSize,
-    scrollHandlers,
+    parentContext.root.onFrameSet,
     subscriptions,
   )
-  parentContext.root.onFrameSet.add(onScrollFrame)
 
   subscriptions.push(() => {
-    parentContext.root.onFrameSet.delete(onScrollFrame)
     parentContext.node.removeChild(node)
     node.destroy()
   })
@@ -198,12 +193,11 @@ export function createImage(
   return Object.assign(ctx, {
     subscriptions,
     scrollHandlers,
-    propertiesSignal,
-    defaultPropertiesSignal,
     handlers: computed(() => {
-      const handlers = cloneHandlers(properties)
-      addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal)
-      addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
+      const handlers = cloneHandlers(properties.value)
+      addHandlers(handlers, scrollHandlers.value)
+      addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
+      addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
       return handlers
     }),
     interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, isHidden, subscriptions),

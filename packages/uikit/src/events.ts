@@ -6,6 +6,8 @@ export type ThreeEvent<TSourceEvent> = Intersection & {
   stopped?: boolean
 }
 
+export type KeyToEvent<K extends keyof EventHandlers> = Parameters<Required<EventHandlers>[K]>[0]
+
 export type EventHandlers = {
   onClick?: (event: ThreeEvent<MouseEvent>) => void
   onContextMenu?: (event: ThreeEvent<MouseEvent>) => void

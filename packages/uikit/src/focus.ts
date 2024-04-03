@@ -6,7 +6,7 @@ export type WithFocus<T> = T & {
   onFocusChange?: (focus: boolean) => void
 }
 
-export function createFocusPropertyTransformers(hasFocusSignal: Signal<Array<number>>): PropertyTransformers {
+export function createFocusPropertyTransformers(hasFocusSignal: Signal<Array<number>>) {
   return {
     hover: createConditionalPropertyTranslator(() => hasFocusSignal.value.length > 0),
   }

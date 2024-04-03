@@ -1,4 +1,4 @@
-import { Signal, computed, signal } from '@preact/signals-core'
+import { Signal, computed, signal, untracked } from '@preact/signals-core'
 import { Object3DRef, RootContext } from '../context.js'
 import { FlexNode, YogaProperties } from '../flex/index.js'
 import { LayoutListeners, ScrollListeners, setupLayoutListeners } from '../listeners.js'
@@ -29,7 +29,7 @@ import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
 import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
 import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { addHandler, addHandlers, cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
 import { darkPropertyTransformers, getDefaultPanelMaterialConfig, traverseProperties } from '../internals.js'
@@ -67,8 +67,8 @@ const planeHelper = new Plane()
 const notClipped = signal(false)
 
 export function createRoot(
-  properties: RootProperties,
-  defaultProperties: AllOptionalProperties | undefined,
+  properties: Signal<RootProperties>,
+  defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
   getCamera: () => Camera,
@@ -78,7 +78,7 @@ export function createRoot(
   const activeSignal = signal<Array<number>>([])
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
-  const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
+  const pixelSize = untracked(() => properties.value.pixelSize ?? DEFAULT_PIXEL_SIZE)
 
   const preTransformers: PropertyTransformers = {
     ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
@@ -92,14 +92,11 @@ export function createRoot(
     ...createActivePropertyTransfomers(activeSignal),
   }
 
-  const scrollHandlers = signal<EventHandlers>({})
-  const propertiesSignal = signal(properties)
-  const defaultPropertiesSignal = signal(defaultProperties)
   const onFrameSet = new Set<(delta: number) => void>()
 
   const mergedProperties = computed(() => {
     const merged = new MergedProperties(preTransformers)
-    merged.addAll(defaultProperties, properties, postTransformers)
+    merged.addAll(defaultProperties.value, properties.value, postTransformers)
     return merged
   })
 
@@ -174,19 +171,17 @@ export function createRoot(
     undefined,
   )
 
-  setupLayoutListeners(propertiesSignal, node.size, subscriptions)
+  setupLayoutListeners(properties, node.size, subscriptions)
 
-  const onScrollFrame = setupScrollHandler(
+  const scrollHandlers = setupScrollHandler(
     node,
     scrollPosition,
     object,
-    propertiesSignal,
+    properties,
     pixelSize,
-    scrollHandlers,
+    onFrameSet,
     subscriptions,
   )
-  onFrameSet.add(onScrollFrame)
-  subscriptions.push(() => onFrameSet.delete(onScrollFrame))
   const gylphGroupManager = new GlyphGroupManager(pixelSize, ctx, object)
   onFrameSet.add(gylphGroupManager.onFrame)
   subscriptions.push(() => onFrameSet.delete(gylphGroupManager.onFrame))
@@ -207,14 +202,12 @@ export function createRoot(
 
   return Object.assign(rootCtx, {
     subscriptions,
-    propertiesSignal,
-    defaultPropertiesSignal,
-    scrollHandlers,
     interactionPanel: createInteractionPanel(node, orderInfo, rootCtx, undefined, subscriptions),
     handlers: computed(() => {
-      const handlers = cloneHandlers(properties)
-      addHoverHandlers(handlers, properties, defaultProperties, hoveredSignal)
-      addActiveHandlers(handlers, properties, defaultProperties, activeSignal)
+      const handlers = cloneHandlers(properties.value)
+      addHandlers(handlers, scrollHandlers.value)
+      addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal)
+      addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
       return handlers
     }),
     root: rootCtx,
