@@ -32,7 +32,7 @@ const panelAliases = {
   borderBottomRadius: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
 } as const satisfies Aliases
 
-const scrollbarPanelAliases = {
+const scrollbarAliases = {
   scrollbarBorderRadius: [
     'scrollbarBorderTopLeftRadius',
     'scrollbarBorderTopRightRadius',
@@ -57,7 +57,7 @@ const transformAliases = {
 
 export type AllAliases = typeof flexAliases &
   typeof panelAliases &
-  typeof scrollbarPanelAliases &
+  typeof scrollbarAliases &
   typeof transformAliases &
   typeof scrollbarBorderAliases
 
@@ -65,7 +65,7 @@ export const allAliases: AllAliases = Object.assign(
   {},
   flexAliases,
   panelAliases,
-  scrollbarPanelAliases,
+  scrollbarAliases,
   transformAliases,
   scrollbarBorderAliases,
 )

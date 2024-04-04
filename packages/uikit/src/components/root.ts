@@ -20,19 +20,19 @@ import {
   setupScrollHandler,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
-import { Subscriptions, alignmentXMap, alignmentYMap, readReactive, unsubscribeSubscriptions } from '../utils.js'
+import { Subscriptions, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
 import { WithConditionals, computedHandlers, computedMergedProperties } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
 import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createGetBatchedProperties } from '../properties/batched.js'
-import { addActiveHandlers, createActivePropertyTransfomers } from '../active.js'
-import { addHoverHandlers, createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { addHandler, addHandlers, cloneHandlers, createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { createActivePropertyTransfomers } from '../active.js'
+import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { EventHandlers } from '../events.js'
-import { darkPropertyTransformers, getDefaultPanelMaterialConfig, traverseProperties } from '../internals.js'
+import { darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
 
 export type InheritableRootProperties = WithClasses<
   WithConditionals<

@@ -1,6 +1,6 @@
 import { YogaProperties } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { computedIsClipped, computedClippingRect } from '../clipping.js'
+import { computedIsClipped } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
@@ -17,7 +17,7 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Subscriptions, readReactive } from '../utils.js'
+import { Subscriptions } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
@@ -39,19 +39,22 @@ import {
 import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
 import { createCaret } from '../caret.js'
 import { SelectionBoxes, createSelection } from '../selection.js'
+import { WithFocus, createFocusPropertyTransformers } from '../focus.js'
 
 export type InheritableInputProperties = WithClasses<
-  WithConditionals<
-    WithAllAliases<
-      WithReactive<
-        YogaProperties &
-          PanelProperties &
-          ZIndexProperties &
-          TransformProperties &
-          ScrollbarProperties &
-          PanelGroupProperties &
-          InstancedTextProperties &
-          DisabledProperties
+  WithFocus<
+    WithConditionals<
+      WithAllAliases<
+        WithReactive<
+          YogaProperties &
+            PanelProperties &
+            ZIndexProperties &
+            TransformProperties &
+            ScrollbarProperties &
+            PanelGroupProperties &
+            InstancedTextProperties &
+            DisabledProperties
+        >
       >
     >
   >
@@ -82,14 +85,14 @@ export const canvasInputProps = {
 }
 
 export type InputProperties = InheritableInputProperties &
-  Listeners &
-  EventHandlers & {
+  Listeners & {
     onValueChange?: (value: string) => void
   }
 
 export function createInput(
   parentContext: ParentContext,
-  proviedValue: string | Signal<string | Signal<string>>,
+  valueSignal: Signal<string>,
+  onChange: (newValue: string) => void,
   multiline: boolean,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
   properties: Signal<InputProperties>,
@@ -98,6 +101,7 @@ export function createInput(
 ) {
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
+  const hasFocusSignal = signal<boolean>(false)
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
 
@@ -106,6 +110,7 @@ export function createInput(
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
+    ...createFocusPropertyTransformers(hasFocusSignal),
   })
 
   const node = createNode(parentContext, mergedProperties, object, subscriptions)
@@ -134,19 +139,10 @@ export function createInput(
     subscriptions,
   )
 
-  let valueSignal: Signal<string>
-  let controlled: boolean
-  if (proviedValue instanceof Signal) {
-    valueSignal = computed(() => readReactive(valueSignal.value))
-    controlled = true
-  } else {
-    valueSignal = signal(proviedValue)
-    controlled = false
-  }
-
   const instancedTextRef: { current?: InstancedText } = {}
   const selectionBoxes = signal<SelectionBoxes>([])
   const caretPosition = signal<Vector3Tuple | undefined>(undefined)
+  const selectionRange = signal<Vector2Tuple | undefined>(undefined)
   createCaret(
     mergedProperties,
     globalMatrix,
@@ -185,9 +181,9 @@ export function createInput(
     orderInfo,
     fontSignal,
     parentContext.root.gylphGroupManager,
-    undefined,
-    undefined,
-    undefined,
+    selectionRange,
+    selectionBoxes,
+    caretPosition,
     instancedTextRef,
     subscriptions,
   )
@@ -198,40 +194,26 @@ export function createInput(
 
   const getDisabled = createGetBatchedProperties<DisabledProperties>(mergedProperties, disabledKeys)
 
-  const selectionRange = signal<Vector2Tuple | undefined>(undefined)
-  const element = createHtmlInputElement(
-    valueSignal,
-    selectionRange,
-    (newValue) => {
-      if (!controlled) {
-        valueSignal.value = newValue
-      }
-      properties.peek().onValueChange?.(newValue)
-    },
-    multiline,
-    getDisabled,
-    subscriptions,
-  )
-  const hasFocusSignal = computedHasFocus(element, subscriptions)
+  const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, getDisabled, subscriptions)
+  const focus = () => {
+    if (hasFocusSignal.peek()) {
+      return
+    }
+    element.focus()
+  }
+  updateHasFocus(element, hasFocusSignal, subscriptions)
   const selectionHandlers = computedSelectionHandlers(
     node,
     element,
     instancedTextRef,
     selectionRange,
-    (focus) => {
-      if (hasFocusSignal.peek() === focus) {
-        return
-      }
-      if (focus) {
-        element.focus()
-      } else {
-        element.blur()
-      }
-    },
+    focus,
     getDisabled,
   )
 
   return {
+    focus,
+    root: parentContext.root,
     element,
     node,
     interactionPanel: createInteractionPanel(
@@ -241,7 +223,7 @@ export function createInput(
       parentContext.clippingRect,
       subscriptions,
     ),
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, selectionHandlers),
+    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, selectionHandlers, 'text'),
     subscriptions,
   }
 }
@@ -251,7 +233,7 @@ export function computedSelectionHandlers(
   element: HTMLInputElement | HTMLTextAreaElement,
   instancedTextRef: { current?: InstancedText },
   selectionRange: Signal<Vector2Tuple | undefined>,
-  setFocus: (focus: boolean) => void,
+  focus: () => void,
   getDisabled: GetBatchedProperties<DisabledProperties>,
 ) {
   return computed<EventHandlers | undefined>(() => {
@@ -270,7 +252,7 @@ export function computedSelectionHandlers(
         startCharIndex = charIndex
 
         setTimeout(() => {
-          setFocus(true)
+          focus()
           selectionRange.value = [charIndex, charIndex]
           element.setSelectionRange(charIndex, charIndex)
         })
@@ -293,7 +275,7 @@ export function computedSelectionHandlers(
         const direction = startCharIndex < charIndex ? 'forward' : 'backward'
 
         setTimeout(() => {
-          setFocus(true)
+          focus()
           selectionRange.value = [start, end]
           element.setSelectionRange(start, end, direction)
         })
@@ -303,7 +285,7 @@ export function computedSelectionHandlers(
 }
 
 export function createHtmlInputElement(
-  value: string | Signal<string>,
+  value: Signal<string>,
   selectionRange: Signal<Vector2Tuple | undefined>,
   onChange: (value: string) => void,
   multiline: boolean,
@@ -337,18 +319,18 @@ export function createHtmlInputElement(
   element.addEventListener('blur', () => (selectionRange.value = undefined))
   document.body.appendChild(element)
   subscriptions.push(
-    effect(() => (element.value = readReactive(value))),
+    effect(() => (element.value = value.value)),
     effect(() => (element.disabled = getDisabled('disabled') ?? false)),
     () => element.remove(),
   )
   return element
 }
 
-function computedHasFocus(element: HTMLElement, subscriptions: Subscriptions) {
-  const hasFocusSignal = signal(document.activeElement === element)
+function updateHasFocus(element: HTMLElement, hasFocusSignal: Signal<boolean>, subscriptions: Subscriptions) {
   subscriptions.push(
     effect(() => {
       const updateFocus = () => (hasFocusSignal.value = document.activeElement === element)
+      updateFocus()
       element.addEventListener('focus', updateFocus)
       element.addEventListener('blur', updateFocus)
       return () => {
@@ -357,7 +339,6 @@ function computedHasFocus(element: HTMLElement, subscriptions: Subscriptions) {
       }
     }),
   )
-  return hasFocusSignal
 }
 
 function uvToCharIndex(

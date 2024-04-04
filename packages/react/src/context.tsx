@@ -1,11 +1,11 @@
-import { WithContext } from '@vanilla-three/uikit/internals'
+import type { ParentContext } from '@vanilla-three/uikit/internals'
 import { createContext, useContext } from 'react'
 
 //const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null as any)
 
-const ParentContext = createContext<WithContext | undefined>(undefined)
+const ParentContext = createContext<ParentContext | undefined>(undefined)
 
-export function useParent(): WithContext {
+export function useParent(): ParentContext {
   const parent = useContext(ParentContext)
   if (parent == null) {
     throw new Error(`Cannot be used outside of a uikit component.`)

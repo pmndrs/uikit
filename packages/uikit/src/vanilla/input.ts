@@ -1,34 +1,32 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Parent } from './index.js'
-import { EventConfig, bindHandlers } from './utils.js'
-import { Signal, batch, signal } from '@preact/signals-core'
-import { unsubscribeSubscriptions } from '../internals.js'
+import { bindHandlers } from './utils.js'
+import { Signal, batch, computed, signal } from '@preact/signals-core'
+import { EventHandlers, readReactive, unsubscribeSubscriptions } from '../internals.js'
 import { InputProperties, createInput } from '../components/input.js'
 
 export class Input extends Object3D {
   private object: Object3D
   public readonly internals: ReturnType<typeof createInput>
-  public readonly eventConfig: EventConfig
 
   private readonly propertiesSignal: Signal<InputProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
-  private textSignal?: Signal<Signal<string> | string>
+  private valueSignal: Signal<Signal<string> | string>
 
   constructor(
     parent: Parent,
     value: string | Signal<string> = '',
-    controlled: boolean = false,
+    private readonly controlled: boolean = false,
     multiline: boolean = false,
     properties: InputProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
+    this.valueSignal = signal(value)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.textSignal = signal(value)
-    this.eventConfig = parent.eventConfig
     //setting up the threejs elements
     this.object = new Object3D()
     this.object.matrixAutoUpdate = false
@@ -43,7 +41,13 @@ export class Input extends Object3D {
     //setting up the text
     this.internals = createInput(
       parent.internals,
-      controlled ? (this.textSignal = signal(value)) : value,
+      computed(() => readReactive(this.valueSignal.value)),
+      (newValue) => {
+        if (!controlled) {
+          this.valueSignal.value = newValue
+        }
+        this.propertiesSignal.peek().onValueChange?.(newValue)
+      },
       multiline,
       parent.fontFamiliesSignal,
       this.propertiesSignal,
@@ -54,7 +58,7 @@ export class Input extends Object3D {
     //setup events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
-    bindHandlers(handlers, this, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, subscriptions)
   }
 
   setTabIndex(tabIndex: number) {
@@ -62,10 +66,10 @@ export class Input extends Object3D {
   }
 
   setValue(text: string | Signal<string>) {
-    if (this.textSignal == null) {
+    if (!this.controlled) {
       throw new Error(`cannot setValue on an uncontrolled input`)
     }
-    this.textSignal.value = text
+    this.valueSignal.value = text
   }
 
   setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {

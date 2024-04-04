@@ -1,8 +1,8 @@
 import { Signal } from '@preact/signals-core'
 import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
-import { addHandler } from './panel/instanced-panel-mesh.js'
 import { EventHandlers, ThreeEvent } from './events.js'
+import { addHandler } from './internals.js'
 
 export type WithActive<T> = T & {
   active?: T

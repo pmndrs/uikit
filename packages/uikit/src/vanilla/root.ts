@@ -2,25 +2,24 @@ import { Camera, Object3D, WebGLRenderer } from 'three'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createRoot, RootProperties } from '../components/root.js'
-import { EventConfig, bindHandlers } from './utils.js'
+import { bindHandlers } from './utils.js'
 import { unsubscribeSubscriptions } from '../utils.js'
-import { FontFamilies } from '../internals.js'
+import { EventHandlers, FontFamilies } from '../internals.js'
 
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
   private object: Object3D
 
-  private readonly propertiesSignal: Signal<RootProperties>
+  private readonly propertiesSignal: Signal<RootProperties & EventHandlers>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
   constructor(
-    public readonly eventConfig: EventConfig,
     camera: Camera | (() => Camera),
     renderer: WebGLRenderer,
     parent: Object3D,
     fontFamilies?: FontFamilies,
-    properties: RootProperties = {},
+    properties: RootProperties & EventHandlers = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -36,7 +35,7 @@ export class Root extends Object3D {
     this.internals = createRoot(
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this },
+      { current: this.object },
       { current: this },
       typeof camera === 'function' ? camera : () => camera,
       renderer,
@@ -45,7 +44,7 @@ export class Root extends Object3D {
     //setup scrolling & events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
-    bindHandlers(handlers, this, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, subscriptions)
   }
 
   update(delta: number) {

@@ -1,14 +1,13 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent } from './index.js'
-import { EventConfig, bindHandlers } from './utils.js'
+import { bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
 import { IconProperties, createIcon } from '../components/icon.js'
 
 export class Icon extends Object3D {
   public readonly internals: ReturnType<typeof createIcon>
-  public readonly eventConfig: EventConfig
 
   private container: Object3D
   private readonly propertiesSignal: Signal<IconProperties>
@@ -25,7 +24,6 @@ export class Icon extends Object3D {
     super()
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.eventConfig = parent.eventConfig
     this.container = new Object3D()
     this.container.matrixAutoUpdate = false
     this.container.add(this)
@@ -45,7 +43,7 @@ export class Icon extends Object3D {
     const { handlers, iconGroup, interactionPanel, subscriptions } = this.internals
     this.container.add(interactionPanel)
     this.container.add(iconGroup)
-    bindHandlers(handlers, this, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, subscriptions)
   }
 
   setProperties(properties: IconProperties, defaultProperties?: AllOptionalProperties) {

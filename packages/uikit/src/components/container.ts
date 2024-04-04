@@ -29,7 +29,6 @@ import { Listeners, setupLayoutListeners, setupViewportListeners } from '../list
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { EventHandlers } from '../events.js'
 import { darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
 
 export type InheritableContainerProperties = WithClasses<
@@ -47,7 +46,7 @@ export type InheritableContainerProperties = WithClasses<
   >
 >
 
-export type ContainerProperties = InheritableContainerProperties & Listeners & EventHandlers
+export type ContainerProperties = InheritableContainerProperties & Listeners
 
 export function createContainer(
   parentContext: ParentContext,

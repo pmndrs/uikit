@@ -3,21 +3,51 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
 import { Object3D } from 'three'
 import { useDefaultProperties } from './default.js'
-import { AllOptionalProperties } from '@vanilla-three/uikit/internals'
+import { AllOptionalProperties, addHandler } from '@vanilla-three/uikit/internals'
 
-export const AddHandlers = forwardRef<Object3D, { handlers: Signal<EventHandlers>; children?: ReactNode }>(
-  ({ handlers: handlersSignal, children }, ref) => {
-    const [handlers, setHandlers] = useState(() => handlersSignal.value)
-    useSignalEffect(() => setHandlers(handlersSignal.value), [handlersSignal])
-    return (
-      <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
-        {children}
-      </object3D>
-    )
-  },
-)
+const eventHandlerKeys: Array<keyof EventHandlers> = [
+  'onClick',
+  'onContextMenu',
+  'onDoubleClick',
+  'onPointerCancel',
+  'onPointerDown',
+  'onPointerEnter',
+  'onPointerLeave',
+  'onPointerMissed',
+  'onPointerMove',
+  'onPointerOut',
+  'onPointerOver',
+  'onPointerUp',
+  'onWheel',
+]
 
-export function useSignalEffect(fn: () => (() => void) | void, deps: Array<any>) {
+export const AddHandlers = forwardRef<
+  Object3D,
+  { userHandlers: EventHandlers; handlers: Signal<EventHandlers>; children?: ReactNode }
+>(({ handlers: handlersSignal, userHandlers, children }, ref) => {
+  const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.value)
+  useSignalEffect(() => {
+    const handlers = handlersSignal.value
+    const ref = void setTimeout(() => setSystemHandlers(handlers), 0)
+    return () => clearTimeout(ref)
+  }, [handlersSignal])
+  const handlers = useMemo(() => {
+    const result: EventHandlers = { ...systemHandlers }
+    const keysLength = eventHandlerKeys.length
+    for (let i = 0; i < keysLength; i++) {
+      const key = eventHandlerKeys[i]
+      addHandler(key, result, userHandlers[key])
+    }
+    return result
+  }, [systemHandlers, userHandlers])
+  return (
+    <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
+      {children}
+    </object3D>
+  )
+})
+
+function useSignalEffect(fn: () => (() => void) | void, deps: Array<any>) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const unsubscribe = useMemo(() => effect(fn), deps)
   useEffect(() => unsubscribe, [unsubscribe])

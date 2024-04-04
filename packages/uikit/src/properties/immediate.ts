@@ -68,7 +68,7 @@ function applyProperties(
     subscriptions[key]?.()
     delete subscriptions[key]
     //read is fine since we execute the compare in "untracked"
-    if (currentProperties.read(key) === undefined) {
+    if (oldProperties!.read(key) === undefined) {
       //no need to set to undefined if already was undefined
       return
     }

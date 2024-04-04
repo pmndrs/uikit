@@ -30,7 +30,7 @@ export const CustomContainer: (
   )
   useEffect(() => {
     if (innerRef.current != null) {
-      internals.setupMesh(innerRef.current)
+      internals.setupMesh(innerRef.current, internals.subscriptions)
       if (innerRef.current.material instanceof Material) {
         internals.setupMaterial(innerRef.current.material)
       }
@@ -38,10 +38,10 @@ export const CustomContainer: (
     return () => unsubscribeSubscriptions(internals.subscriptions)
   }, [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals)
+  useComponentInternals(ref, propertySignals.style, internals, innerRef)
 
   return (
-    <AddHandlers handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
       <ParentProvider value={undefined}>
         <mesh
           ref={innerRef}

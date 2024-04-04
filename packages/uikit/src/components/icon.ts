@@ -1,20 +1,13 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
+import { Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
 import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { FlexNode, YogaProperties } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { PanelProperties } from '../panel/instanced-panel.js'
+import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
-import {
-  ScrollbarProperties,
-  applyScrollPosition,
-  computedGlobalScrollMatrix,
-  createScrollPosition,
-  createScrollbars,
-  setupScrollHandler,
-} from '../scroll.js'
+import { ScrollbarProperties } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
   WithConditionals,
@@ -24,16 +17,23 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
-import { ColorRepresentation, Subscriptions, fitNormalizedContentInside } from '../utils.js'
+import { Subscriptions, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
-import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
+import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { EventHandlers } from '../events.js'
-import { AppearanceProperties, PanelGroupProperties, darkPropertyTransformers } from '../internals.js'
+import {
+  AppearanceProperties,
+  MergedProperties,
+  PanelGroupProperties,
+  computedPanelGroupDependencies,
+  createGetBatchedProperties,
+  darkPropertyTransformers,
+  getDefaultPanelMaterialConfig,
+} from '../internals.js'
 import { SVGLoader } from 'three/examples/jsm/Addons.js'
 
 export type InheritableIconProperties = WithClasses<
@@ -42,7 +42,7 @@ export type InheritableIconProperties = WithClasses<
       WithReactive<
         YogaProperties &
           ZIndexProperties &
-          Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'> &
+          PanelProperties &
           AppearanceProperties &
           TransformProperties &
           PanelGroupProperties &
@@ -52,7 +52,7 @@ export type InheritableIconProperties = WithClasses<
   >
 >
 
-export type IconProperties = InheritableIconProperties & Listeners & EventHandlers
+export type IconProperties = InheritableIconProperties & Listeners
 
 export function createIcon(
   parentContext: ParentContext,
@@ -94,10 +94,28 @@ export function createIcon(
 
   const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
 
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Svg, undefined, parentContext.orderInfo)
+  const groupDeps = computedPanelGroupDependencies(mergedProperties)
+  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  createInstancedPanel(
+    mergedProperties,
+    backgroundOrderInfo,
+    groupDeps,
+    parentContext.root.panelGroupManager,
+    globalMatrix,
+    node.size,
+    undefined,
+    node.borderInset,
+    parentContext.clippingRect,
+    isClipped,
+    getDefaultPanelMaterialConfig(),
+    subscriptions,
+  )
+
+  const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
   const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, subscriptions)
   const iconGroup = createIconGroup(
+    mergedProperties,
     text,
     svgWidth,
     svgHeight,
@@ -113,6 +131,7 @@ export function createIcon(
   setupViewportListeners(properties, isClipped, subscriptions)
 
   return {
+    root: parentContext.root,
     node,
     subscriptions,
     iconGroup,
@@ -128,8 +147,11 @@ export function createIcon(
 }
 
 const loader = new SVGLoader()
+const colorHelper = new Color()
+const propertyKeys = ['opacity', 'color'] as const
 
 function createIconGroup(
+  propertiesSignal: Signal<MergedProperties>,
   text: string,
   svgWidth: number,
   svgHeight: number,
@@ -172,6 +194,7 @@ function createIconGroup(
     }
   }
   const aspectRatio = svgWidth / svgHeight
+  const getAppearance = createGetBatchedProperties<AppearanceProperties>(propertiesSignal, propertyKeys)
   subscriptions.push(
     effect(() => {
       const [offsetX, offsetY, scale] = fitNormalizedContentInside(
@@ -186,6 +209,24 @@ function createIconGroup(
       group.updateMatrix()
     }),
     effect(() => void (group.visible = !isClipped.value)),
+    effect(() => {
+      const colorRepresentation = getAppearance('color')
+      const opacity = getAppearance('opacity')
+      let color: Color | undefined
+      if (Array.isArray(colorRepresentation)) {
+        color = colorHelper.setRGB(...colorRepresentation)
+      } else if (colorRepresentation != null) {
+        color = colorHelper.set(colorRepresentation)
+      }
+      group.traverse((object) => {
+        if (!(object instanceof Mesh)) {
+          return
+        }
+        const material: MeshBasicMaterial = object.material
+        material.color.copy(color ?? object.userData.color)
+        material.opacity = opacity ?? 1
+      })
+    }),
   )
   return group
 }

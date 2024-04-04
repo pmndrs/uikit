@@ -4,7 +4,6 @@ import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './p
 import { Signal, effect } from '@preact/signals-core'
 import { Subscriptions } from '../utils.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
-import { EventHandlers, KeyToEvent } from '../events.js'
 import { OrderInfo } from '../order.js'
 import { ClippingRect, FlexNode, RootContext } from '../internals.js'
 
@@ -28,49 +27,6 @@ export function createInteractionPanel(
     }),
   )
   return panel
-}
-
-export function cloneHandlers(handlers: EventHandlers): EventHandlers {
-  return {
-    onClick: handlers.onClick,
-    onContextMenu: handlers.onContextMenu,
-    onDoubleClick: handlers.onDoubleClick,
-    onPointerCancel: handlers.onPointerCancel,
-    onPointerDown: handlers.onPointerDown,
-    onPointerEnter: handlers.onPointerEnter,
-    onPointerLeave: handlers.onPointerLeave,
-    onPointerMissed: handlers.onPointerMissed,
-    onPointerMove: handlers.onPointerMove,
-    onPointerOut: handlers.onPointerOut,
-    onPointerOver: handlers.onPointerOver,
-    onPointerUp: handlers.onPointerUp,
-    onWheel: handlers.onWheel,
-  }
-}
-
-export function addHandlers(target: EventHandlers, handlers: EventHandlers | undefined) {
-  for (const key in handlers) {
-    addHandler(key as any, target, handlers[key as never])
-  }
-}
-
-export function addHandler<K extends keyof EventHandlers>(
-  key: K,
-  target: EventHandlers,
-  handler: (event: KeyToEvent<K>) => void,
-): void {
-  const existingHandler = target[key]
-  if (existingHandler == null) {
-    target[key] = handler
-    return
-  }
-  target[key] = (e: KeyToEvent<K>) => {
-    existingHandler(e as any)
-    if ('stopped' in e && e.stopped) {
-      return
-    }
-    handler(e)
-  }
 }
 
 export class InstancedPanelMesh extends Mesh {

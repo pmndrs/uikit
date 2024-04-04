@@ -4,7 +4,7 @@ import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { FlexNode, YogaProperties } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { PanelProperties } from '../panel/instanced-panel.js'
+import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import {
@@ -34,13 +34,14 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { EventHandlers } from '../events.js'
 import {
+  KeepAspectRatioProperties,
   PanelGroupProperties,
   RootContext,
-  ShadowProperties,
+  computedPanelGroupDependencies,
   createGetBatchedProperties,
   darkPropertyTransformers,
+  getDefaultPanelMaterialConfig,
 } from '../internals.js'
 import { SVGLoader } from 'three/examples/jsm/Addons.js'
 
@@ -50,10 +51,10 @@ export type InheritableSVGProperties = WithClasses<
       WithReactive<
         YogaProperties &
           ZIndexProperties &
-          Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'> &
-          AppearanceProperties & {
-            keepAspectRatio?: boolean
-          } & TransformProperties &
+          PanelProperties &
+          AppearanceProperties &
+          KeepAspectRatioProperties &
+          TransformProperties &
           PanelGroupProperties &
           ScrollbarProperties
       >
@@ -65,7 +66,7 @@ export type AppearanceProperties = {
   color?: ColorRepresentation
 }
 
-export type SVGProperties = InheritableSVGProperties & Listeners & EventHandlers
+export type SVGProperties = InheritableSVGProperties & Listeners
 
 export function createSVG(
   parentContext: ParentContext,
@@ -104,7 +105,24 @@ export function createSVG(
 
   const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
 
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Svg, undefined, parentContext.orderInfo)
+  const groupDeps = computedPanelGroupDependencies(mergedProperties)
+  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  createInstancedPanel(
+    mergedProperties,
+    backgroundOrderInfo,
+    groupDeps,
+    parentContext.root.panelGroupManager,
+    globalMatrix,
+    node.size,
+    undefined,
+    node.borderInset,
+    parentContext.clippingRect,
+    isClipped,
+    getDefaultPanelMaterialConfig(),
+    subscriptions,
+  )
+
+  const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
   const src = computed(() => readReactive(srcSignal.value))
   const svgObject = signal<Object3D | undefined>(undefined)
@@ -120,7 +138,7 @@ export function createSVG(
     orderInfo,
     aspectRatio,
   )
-  applySVGProperties(mergedProperties, parentContext.root, orderInfo, svgObject, subscriptions)
+  applySVGProperties(mergedProperties, svgObject, subscriptions)
   const centerGroup = createCenterGroup(
     node,
     parentContext.root.pixelSize,
@@ -225,25 +243,18 @@ const box3Helper = new Box3()
 const vectorHelper = new Vector3()
 const colorHelper = new Color()
 
-const propertyKeys = ['opacity', 'color', 'receiveShadow', 'castShadow'] as const
+const propertyKeys = ['opacity', 'color'] as const
 
 function applySVGProperties(
   propertiesSignal: Signal<MergedProperties>,
-  root: RootContext,
-  orderInfo: Signal<OrderInfo>,
   svgObject: Signal<Object3D | undefined>,
   subscriptions: Subscriptions,
 ) {
-  const getPropertySignal = createGetBatchedProperties<AppearanceProperties & ShadowProperties>(
-    propertiesSignal,
-    propertyKeys,
-  )
+  const getPropertySignal = createGetBatchedProperties<AppearanceProperties>(propertiesSignal, propertyKeys)
   subscriptions.push(
     effect(() => {
       const colorRepresentation = getPropertySignal('color')
       const opacity = getPropertySignal('opacity')
-      const receiveShadow = getPropertySignal('receiveShadow')
-      const castShadow = getPropertySignal('castShadow')
       let color: Color | undefined
       if (Array.isArray(colorRepresentation)) {
         color = colorHelper.setRGB(...colorRepresentation)
@@ -254,9 +265,6 @@ function applySVGProperties(
         if (!(object instanceof Mesh)) {
           return
         }
-        object.receiveShadow = receiveShadow ?? false
-        object.castShadow = castShadow ?? false
-        setupRenderOrder(object, root, orderInfo)
         const material: MeshBasicMaterial = object.material
         material.color.copy(color ?? object.userData.color)
         material.opacity = opacity ?? 1
@@ -292,6 +300,7 @@ async function loadSVG(
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
       mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, root.object, clippedRect, orderInfo)
+      setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1
       mesh.updateMatrix()

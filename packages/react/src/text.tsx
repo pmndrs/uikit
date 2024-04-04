@@ -31,10 +31,10 @@ export const Text: (
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals)
+  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
     </AddHandlers>
   )

@@ -3,49 +3,71 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { FontFamilies, unsubscribeSubscriptions, InputProperties, createInput } from '@vanilla-three/uikit/internals'
+import {
+  FontFamilies,
+  unsubscribeSubscriptions,
+  InputProperties,
+  createInput,
+  readReactive,
+} from '@vanilla-three/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
-import { Signal, signal } from '@preact/signals-core'
+import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
+
+export type InputInternals = ComponentInternals & { current: ReadonlySignal<string>; focus: () => void }
 
 export const Input: (
   props: {
-    children: string | Array<string | Signal<string>> | Signal<string>
     multiline?: boolean
     value?: string | Signal<string>
     defaultValue?: string
+    tabIndex?: number
   } & InputProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<InputInternals>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const valueSignal = useMemo(() => signal<Signal<string> | string>(''), [])
-  valueSignal.value = properties.value ?? ''
+  const controlled = useRef(properties.value != null)
+  valueSignal.value = (controlled ? properties.value : properties.defaultValue) ?? ''
+  const current = useMemo(() => computed(() => readReactive(valueSignal.value)), [valueSignal])
   const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
   fontFamilies.value = useFontFamilies()
   //allows to not get a eslint error because of dependencies (we deliberatly never update this ref)
-  const defaultValue = useRef(properties.defaultValue)
   const internals = useMemo(
     () =>
       createInput(
         parent,
-        defaultValue.current == null ? valueSignal : defaultValue.current,
+        current,
+        (newValue) => {
+          if (!controlled.current) {
+            valueSignal.value = newValue
+          }
+          propertySignals.properties.peek().onValueChange?.(newValue)
+        },
         properties.multiline ?? false,
         fontFamilies,
         propertySignals.properties,
         propertySignals.default,
         outerRef,
       ),
-    [parent, valueSignal, properties.multiline, fontFamilies, propertySignals],
+    [parent, current, properties.multiline, fontFamilies, propertySignals, valueSignal],
   )
+  internals.element.tabIndex = properties.tabIndex ?? 0
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals)
+  useComponentInternals(
+    ref,
+    propertySignals.style,
+    internals,
+    internals.interactionPanel,
+    useMemo(() => ({ focus: internals.focus, current }), [internals.focus, current]),
+  )
 
   return (
-    <AddHandlers handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
     </AddHandlers>
   )

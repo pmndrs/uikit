@@ -1,24 +1,21 @@
-import { ReactNode, forwardRef, useEffect, useMemo, useRef } from 'react'
-import { DEFAULT_PIXEL_SIZE, Root, RootProperties } from './root.js'
+import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
+import { Root } from './root.js'
 import { batch, signal } from '@preact/signals-core'
 import { RootState, createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { ScrollListeners } from '../scroll.js'
-import { ComponentInternals, LayoutListeners } from './utils.js'
 import { Group, PerspectiveCamera } from 'three'
+import { RootProperties } from '@vanilla-three/uikit/internals'
+import { ComponentInternals } from './ref.js'
 
-export const Fullscreen = forwardRef<
-  ComponentInternals,
-  RootProperties & {
+export const Fullscreen: (
+  props: RootProperties & {
     children?: ReactNode
     attachCamera?: boolean
-    pixelSize?: number
   } & EventHandlers &
-    LayoutListeners &
-    ScrollListeners
->((properties, ref) => {
+    RefAttributes<ComponentInternals>,
+) => ReactNode = forwardRef((properties, ref) => {
   const store = useStore()
-  const pixelSize = properties.pixelSize ?? DEFAULT_PIXEL_SIZE
+  const pixelSize = properties.pixelSize ?? 0.01
   const [sizeX, sizeY] = useMemo(() => {
     const { width, height } = store.getState().size
     return [signal(width * pixelSize), signal(height * pixelSize)] as const

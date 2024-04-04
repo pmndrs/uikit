@@ -9,7 +9,7 @@ import {
   createIcon,
   createCustomContainer,
 } from '@vanilla-three/uikit/internals'
-import { ForwardedRef, useImperativeHandle } from 'react'
+import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
 
 export type ComponentInternals = {
@@ -23,8 +23,8 @@ export type ComponentInternals = {
   interactionPanel: Mesh
 }
 
-export function useComponentInternals<T>(
-  ref: ForwardedRef<ComponentInternals>,
+export function useComponentInternals<T, O = {}>(
+  ref: ForwardedRef<ComponentInternals & O>,
   styleSignal: Signal<T>,
   internals: ReturnType<
     | typeof createContainer
@@ -37,28 +37,26 @@ export function useComponentInternals<T>(
   > & {
     scrollPosition?: Signal<Vector2Tuple>
   },
+  interactionPanel: Mesh | RefObject<Mesh>,
+  additional?: O,
 ): void {
   useImperativeHandle(
     ref,
     () => {
-      const {
-        scrollPosition,
-        node,
-        root: { pixelSize },
-        interactionPanel,
-      } = internals
+      const { scrollPosition, node, root } = internals
       return {
         setStyle: (style: T) => (styleSignal.value = style),
-        pixelSize,
+        pixelSize: root.pixelSize,
         borderInset: node.borderInset,
         paddingInset: node.paddingInset,
         center: node.relativeCenter,
         maxScrollPosition: node.maxScrollPosition,
         size: node.size,
-        interactionPanel,
+        interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
         scrollPosition,
+        ...(additional as any),
       }
     },
-    [styleSignal, internals],
+    [internals, interactionPanel, styleSignal, additional],
   )
 }

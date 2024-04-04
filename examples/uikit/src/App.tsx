@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
-import { Gltf } from '@react-three/drei'
-import { Container, Root, Image, Text, SVG } from '@react-three/uikit'
+import { Gltf, OrbitControls } from '@react-three/drei'
+import { Container, Root, Image, Text, SVG, Content } from '@react-three/uikit'
 import { useState } from 'react'
 
 export default function App() {
@@ -11,13 +11,17 @@ export default function App() {
       camera={{ position: [0, 0, 1], fov: 70 }}
       gl={{ localClippingEnabled: true }}
     >
+      <OrbitControls />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={10} position={[5, 1, 10]} />
       <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
-      <Root flexDirection="row" sizeX={2} sizeY={0.5} backgroundColor="red">
+      <Root pixelSize={0.002} flexDirection="row" sizeX={2} sizeY={0.5} backgroundColor="red">
+        <Content backgroundColor="white">
+          <Gltf src="example.glb" />
+        </Content>
         <SVG width={20} src="example.svg"></SVG>
-        <Text fontSize={5} onClick={() => setText('Hello World')}>
+        <Text fontSize={30} onClick={() => setText('Hello World')}>
           {text}
         </Text>
         <Image

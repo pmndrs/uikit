@@ -1,6 +1,6 @@
 import { YogaProperties } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { computedIsClipped, computedClippingRect } from '../clipping.js'
+import { computedIsClipped } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
@@ -22,7 +22,6 @@ import { Listeners, setupLayoutListeners, setupViewportListeners } from '../list
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { EventHandlers } from '../events.js'
 import {
   FontFamilies,
   InstancedTextProperties,
@@ -49,7 +48,7 @@ export type InheritableTextProperties = WithClasses<
   >
 >
 
-export type TextProperties = InheritableTextProperties & Listeners & EventHandlers
+export type TextProperties = InheritableTextProperties & Listeners
 
 export function createText(
   parentContext: ParentContext,
@@ -127,6 +126,7 @@ export function createText(
   setupViewportListeners(properties, isClipped, subscriptions)
 
   return {
+    root: parentContext.root,
     node,
     interactionPanel: createInteractionPanel(
       node,

@@ -7,8 +7,12 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
-      { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default') },
       { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') },
+      {
+        find: '@vanilla-three/uikit/internals',
+        replacement: path.resolve(__dirname, '../../packages/uikit/src/internals.ts'),
+      },
+      { find: '@vanilla-three/uikit', replacement: path.resolve(__dirname, '../../packages/uikit/src/index.ts') },
     ],
   },
   optimizeDeps: {

@@ -1,4 +1,4 @@
-import { Signal, computed } from '@preact/signals-core'
+import { computed } from '@preact/signals-core'
 import { GlassMaterial, colors } from './theme'
 import { Input as InputImpl, Container, DefaultProperties, Text, InputInternals } from '@react-three/uikit'
 import React, { ComponentPropsWithoutRef, ReactNode, useMemo, useState } from 'react'
@@ -25,11 +25,7 @@ export function Input({
     if (internal == null) {
       return undefined
     }
-    if (internal.value instanceof Signal) {
-      const signal = internal.value
-      return computed(() => (signal.value.length > 0 ? 0 : undefined))
-    }
-    return internal.value.length > 0 ? 0 : undefined
+    return computed(() => (internal.current.value.length > 0 ? 0 : undefined))
   }, [internal])
 
   return (

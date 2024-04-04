@@ -23,10 +23,10 @@ export const Container: (
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals)
+  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>

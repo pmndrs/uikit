@@ -46,8 +46,8 @@ import { createGetBatchedProperties } from '../properties/batched.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { EventHandlers } from '../events.js'
 import {
+  AppearanceProperties,
   PanelGroupProperties,
   PanelMaterialConfig,
   createPanelMaterialConfig,
@@ -63,19 +63,27 @@ export type InheritableImageProperties = WithClasses<
       WithReactive<
         YogaProperties &
           ZIndexProperties &
-          Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'> & {
-            opacity?: number
-            fit?: ImageFit
-            keepAspectRatio?: boolean
-          } & TransformProperties &
+          Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'> &
+          TransformProperties &
+          AppearanceProperties &
           PanelGroupProperties &
-          ScrollbarProperties
+          ScrollbarProperties &
+          KeepAspectRatioProperties &
+          ImageFitProperties
       >
     >
   >
 >
 
-export type ImageProperties = InheritableImageProperties & Listeners & EventHandlers
+export type ImageFitProperties = {
+  fit?: ImageFit
+}
+
+export type KeepAspectRatioProperties = {
+  keepAspectRatio?: boolean
+}
+
+export type ImageProperties = InheritableImageProperties & Listeners
 
 export function createImage(
   parentContext: ParentContext,
@@ -238,7 +246,7 @@ function createImageMesh(
   return mesh
 }
 
-const propertyKeys = ['fit']
+const propertyKeys = ['fit'] as const
 
 function setupTextureFit(
   propertiesSignal: Signal<MergedProperties>,
@@ -247,7 +255,7 @@ function setupTextureFit(
   size: Signal<Vector2Tuple>,
   subscriptions: Subscriptions,
 ): void {
-  const get = createGetBatchedProperties(propertiesSignal, propertyKeys)
+  const get = createGetBatchedProperties<ImageFitProperties>(propertiesSignal, propertyKeys)
   subscriptions.push(
     effect(() => {
       const texture = textureSignal.value

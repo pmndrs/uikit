@@ -4,7 +4,7 @@ import {
   Fullscreen,
   DefaultProperties,
   Text,
-  SvgIconFromText,
+  Icon,
   setPreferredColorScheme,
   canvasInputProps,
 } from '@react-three/uikit'
@@ -75,7 +75,7 @@ function AuthenticationPage() {
       >
         <DefaultProperties color="white">
           <Container flexDirection="row" alignItems="center">
-            <SvgIconFromText
+            <Icon
               text={`<svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"

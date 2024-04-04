@@ -10,11 +10,7 @@ import { GetBatchedProperties, createGetBatchedProperties } from './properties/b
 import { MergedProperties } from './properties/merged.js'
 import { MaterialClass, PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { WithReactive } from './properties/default.js'
-import {
-  PanelGroupProperties,
-  PanelGroupManager,
-  computedPanelGroupDependencies,
-} from './panel/instanced-panel-group.js'
+import { PanelGroupManager } from './panel/instanced-panel-group.js'
 import { Object3DRef } from './context.js'
 import { ScrollListeners } from './listeners.js'
 import { EventHandlers, ThreeEvent } from './events.js'
@@ -251,18 +247,15 @@ export type ScrollbarBorderSizeProperties = {
 }
 
 export type ScrollbarProperties = {
-  scrollbarPanelMaterialClass?: MaterialClass
-} & WithReactive<
-  {
-    scrollbarOpacity?: number
-    scrollbarColor?: ColorRepresentation
-  } & ScrollbarWidthProperties &
-    ScrollbarBorderSizeProperties & {
-      [Key in `scrollbar${Capitalize<
-        keyof Omit<PanelProperties, 'backgroundColor' | 'backgroundOpacity'>
-      >}`]: PanelProperties
-    }
->
+  scrollbarOpacity?: number
+  scrollbarColor?: ColorRepresentation
+} & ScrollbarWidthProperties &
+  ScrollbarBorderSizeProperties & {
+    [Key in Exclude<
+      keyof PanelProperties,
+      'backgroundColor' | 'backgroundOpacity'
+    > as `scrollbar${Capitalize<Key>}`]: PanelProperties[Key]
+  }
 
 const scrollbarWidthPropertyKeys = ['scrollbarWidth'] as const
 

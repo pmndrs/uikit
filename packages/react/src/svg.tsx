@@ -6,6 +6,7 @@ import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Signal, signal } from '@preact/signals-core'
+import {} from '@react-three/fiber'
 
 export const SVG: (
   props: SVGProperties &
@@ -24,10 +25,10 @@ export const SVG: (
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals)
+  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <primitive object={internals.centerGroup} />
       <object3D ref={innerRef}>

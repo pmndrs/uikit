@@ -36,7 +36,7 @@ export class InstancedText {
   private unsubscribeShowList: Array<() => void> = []
 
   private opacity: number = 1
-  private color: ColorRepresentation = 0xffffff
+  private color: ColorRepresentation = 0x0
 
   constructor(
     private group: InstancedGlyphGroup,
@@ -227,7 +227,7 @@ export class InstancedText {
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateClippingRect(clippingRect))
       }),
       effect(() => {
-        const color = (this.color = (this.getAppearance('color') as number) ?? 0xffffff)
+        const color = (this.color = (this.getAppearance('color') as number) ?? 0x0)
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateColor(color))
       }),
       effect(() => {

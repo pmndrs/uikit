@@ -1,7 +1,17 @@
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { EventHandlers, reversePainterSortStable, Container, Root, Image, Text, SVG } from '@vanilla-three/uikit'
+import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import {
+  EventHandlers,
+  reversePainterSortStable,
+  Container,
+  Root,
+  Image,
+  Text,
+  SVG,
+  Content,
+} from '@vanilla-three/uikit'
 import { Delete } from '@vanilla-three/uikit-lucide'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/examples/jsm/Addons.js'
 
 // init
 
@@ -9,6 +19,7 @@ const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 10
 
 const scene = new Scene()
+scene.add(new AmbientLight(undefined, 2))
 
 const canvas = document.getElementById('root') as HTMLCanvasElement
 const controls = new OrbitControls(camera, canvas)
@@ -20,43 +31,21 @@ function handlerToEventName(key: string) {
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 //UI
-const root = new Root(
-  {
-    bindEventHandlers(object, handlers) {
-      for (const key in handlers) {
-        const handler = handlers[key as keyof EventHandlers]
-        if (handler == null) {
-          continue
-        }
-        object.addEventListener(handlerToEventName(key), handler as any)
-      }
-    },
-    unbindEventHandlers(object, handlers) {
-      for (const key in handlers) {
-        const handler = handlers[key as keyof EventHandlers]
-        if (handler == null) {
-          continue
-        }
-        object.removeEventListener(handlerToEventName(key), handler as any)
-      }
-    },
-  },
-  camera,
-  renderer,
-  scene,
-  {
-    flexDirection: 'row',
-    gap: 10,
-    padding: 10,
-    sizeX: 15,
-    sizeY: 5,
-    alignItems: 'center',
-    backgroundColor: 'red',
-  },
-)
+const root = new Root(camera, renderer, scene, undefined, {
+  flexDirection: 'row',
+  gap: 10,
+  padding: 10,
+  sizeX: 15,
+  sizeY: 5,
+  alignItems: 'center',
+  backgroundColor: 'red',
+})
+const c = new Content(root, { height: 100, backgroundColor: 'black' })
+const loader = new GLTFLoader()
+loader.load('example.glb', (gltf) => c.setContent(gltf.scene))
 new Delete(root, { width: 100 })
-new SVG(root, 'example.svg', { height: '50%' })
-new Text(root, 'Hello World', undefined, { fontSize: 50 })
+new SVG(root, 'example.svg', { height: '20%' })
+new Text(root, 'Hello World', { fontSize: 40 })
 new Container(root, { alignSelf: 'stretch', flexGrow: 1, backgroundColor: 'blue' })
 const x = new Container(root, {
   padding: 30,

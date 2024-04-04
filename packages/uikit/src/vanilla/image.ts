@@ -2,14 +2,13 @@ import { Object3D, Texture } from 'three'
 import { ImageProperties, createImage } from '../components/image.js'
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent } from './index.js'
-import { EventConfig, bindHandlers } from './utils.js'
+import { bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
 import { FontFamilies } from '../internals.js'
 
 export class Image extends Object3D {
   public readonly internals: ReturnType<typeof createImage>
-  public readonly eventConfig: EventConfig
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   private container: Object3D
@@ -28,7 +27,6 @@ export class Image extends Object3D {
     this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.eventConfig = parent.eventConfig
     this.container = new Object3D()
     this.container.matrixAutoUpdate = false
     this.container.add(this)
@@ -49,7 +47,7 @@ export class Image extends Object3D {
     //setting up events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.container.add(interactionPanel)
-    bindHandlers(handlers, this, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, subscriptions)
   }
 
   setSrc(src: string | Signal<string> | Texture | Signal<Texture>) {

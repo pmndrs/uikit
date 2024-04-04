@@ -1,26 +1,25 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent } from './index.js'
-import { EventConfig, bindHandlers } from './utils.js'
+import { bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
 import { SVGProperties, createSVG } from '../components/svg.js'
-import { FontFamilies } from '../internals.js'
+import { EventHandlers, FontFamilies } from '../internals.js'
 
 export class SVG extends Object3D {
   public readonly internals: ReturnType<typeof createSVG>
-  public readonly eventConfig: EventConfig
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   private container: Object3D
-  private readonly propertiesSignal: Signal<SVGProperties>
+  private readonly propertiesSignal: Signal<SVGProperties & EventHandlers>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private srcSignal: Signal<string | Signal<string>>
 
   constructor(
     parent: Parent,
     src: string | Signal<string>,
-    properties: SVGProperties = {},
+    properties: SVGProperties & EventHandlers = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -28,7 +27,6 @@ export class SVG extends Object3D {
     this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.eventConfig = parent.eventConfig
     this.container = new Object3D()
     this.container.matrixAutoUpdate = false
     this.container.add(this)
@@ -47,7 +45,7 @@ export class SVG extends Object3D {
     const { handlers, centerGroup, interactionPanel, subscriptions } = this.internals
     this.container.add(interactionPanel)
     this.container.add(centerGroup)
-    bindHandlers(handlers, this, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, subscriptions)
   }
 
   setSrc(src: string | Signal<string>) {

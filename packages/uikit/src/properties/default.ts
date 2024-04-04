@@ -1,17 +1,27 @@
 import { ReadonlySignal } from '@preact/signals-core'
-import type { InheritableContainerProperties } from '../components/container.js'
-import type { InheritableRootProperties } from '../components/root.js'
-import type { InheritableImageProperties } from '../components/image.js'
+import type {
+  InheritableContainerProperties,
+  InheritableRootProperties,
+  InheritableImageProperties,
+  InheritableContentProperties,
+  InheritableCustomContainerProperties,
+  InheritableTextProperties,
+  InheritableIconProperties,
+  InheritableInputProperties,
+  InheritableSVGProperties,
+} from '../internals.js'
 
 export type AllOptionalProperties =
   | InheritableContainerProperties
   | InheritableRootProperties
   | InheritableImageProperties
-//  | ContentProperties
-//  | CustomContainerProperties
-//  | ImageProperties
-//  | SvgProperties
-//  | TextProperties
+  | InheritableContentProperties
+  | InheritableCustomContainerProperties
+  | InheritableImageProperties
+  | InheritableSVGProperties
+  | InheritableTextProperties
+  | InheritableIconProperties
+  | InheritableInputProperties
 
 export type WithReactive<T> = {
   [Key in keyof T]?: T[Key] | ReadonlySignal<T[Key] | undefined>

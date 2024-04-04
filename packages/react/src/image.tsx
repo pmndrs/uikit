@@ -27,10 +27,10 @@ export const Image: (
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals)
+  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <object3D ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>

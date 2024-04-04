@@ -20,8 +20,6 @@ import {
 import { Subscriptions } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { EventHandlers } from '../events.js'
 import {
   ShadowProperties,
   createGetBatchedProperties,
@@ -45,7 +43,7 @@ export type InheritableCustomContainerProperties = WithClasses<
   >
 >
 
-export type CustomContainerProperties = InheritableCustomContainerProperties & Listeners & EventHandlers
+export type CustomContainerProperties = InheritableCustomContainerProperties & Listeners
 
 const shadowPropertyKeys = ['castShadow', 'receiveShadow'] as const
 
@@ -85,7 +83,7 @@ export function createCustomContainer(
 
   const getShadowProperties = createGetBatchedProperties<ShadowProperties>(mergedProperties, shadowPropertyKeys)
 
-  const setupMesh = (mesh: Mesh): (() => void) => {
+  const setupMesh = (mesh: Mesh, subscriptions: Subscriptions) => {
     mesh.matrixAutoUpdate = false
     mesh.raycast = makeClippedRaycast(
       mesh,
@@ -95,23 +93,19 @@ export function createCustomContainer(
       orderInfo,
     )
     setupRenderOrder(mesh, parentContext.root, orderInfo)
-    const unsubscribeShadows = effect(() => {
-      mesh.receiveShadow = getShadowProperties('receiveShadow') ?? false
-      mesh.castShadow = getShadowProperties('castShadow') ?? false
-    })
-    const unsubscribeScale = effect(() => {
-      const [width, height] = node.size.value
-      const pixelSize = parentContext.root.pixelSize
-      mesh.scale.set(width * pixelSize, height * pixelSize, 1)
-      mesh.updateMatrix()
-    })
-    const unsubscribeVisible = effect(() => void (mesh.visible = !isClipped.value))
-
-    return () => {
-      unsubscribeShadows()
-      unsubscribeScale()
-      unsubscribeVisible()
-    }
+    subscriptions.push(
+      effect(() => {
+        mesh.receiveShadow = getShadowProperties('receiveShadow') ?? false
+        mesh.castShadow = getShadowProperties('castShadow') ?? false
+      }),
+      effect(() => {
+        const [width, height] = node.size.value
+        const pixelSize = parentContext.root.pixelSize
+        mesh.scale.set(width * pixelSize, height * pixelSize, 1)
+        mesh.updateMatrix()
+      }),
+      effect(() => void (mesh.visible = !isClipped.value)),
+    )
   }
 
   const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, subscriptions)
@@ -125,6 +119,7 @@ export function createCustomContainer(
   setupViewportListeners(properties, isClipped, subscriptions)
 
   return {
+    root: parentContext.root,
     setupMesh,
     setupMaterial,
     node,

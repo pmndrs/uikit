@@ -1,31 +1,29 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Parent } from './index.js'
-import { EventConfig, bindHandlers } from './utils.js'
+import { bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
-import { unsubscribeSubscriptions } from '../internals.js'
+import { EventHandlers, unsubscribeSubscriptions } from '../internals.js'
 
 export class Text extends Object3D {
   private object: Object3D
   public readonly internals: ReturnType<typeof createText>
-  public readonly eventConfig: EventConfig
 
-  private readonly propertiesSignal: Signal<TextProperties>
+  private readonly propertiesSignal: Signal<TextProperties & EventHandlers>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
 
   constructor(
     parent: Parent,
     text: string | Signal<string> | Array<string | Signal<string>> = '',
-    properties: TextProperties = {},
+    properties: TextProperties & EventHandlers = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     this.textSignal = signal(text)
-    this.eventConfig = parent.eventConfig
     //setting up the threejs elements
     this.object = new Object3D()
     this.object.matrixAutoUpdate = false
@@ -46,7 +44,7 @@ export class Text extends Object3D {
     //setup events
     const { handlers, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
-    bindHandlers(handlers, this, this.eventConfig, subscriptions)
+    bindHandlers(handlers, this, subscriptions)
   }
 
   setText(text: string | Signal<string> | Array<string | Signal<string>>) {
