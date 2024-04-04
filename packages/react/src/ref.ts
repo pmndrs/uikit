@@ -4,7 +4,7 @@ import {
   createContainer,
   createImage,
   createRoot,
-  createSVG,
+  createSvg,
   createText,
   createIcon,
   createCustomContainer,
@@ -30,7 +30,7 @@ export function useComponentInternals<T, O = {}>(
     | typeof createContainer
     | typeof createImage
     | typeof createRoot
-    | typeof createSVG
+    | typeof createSvg
     | typeof createText
     | typeof createIcon
     | typeof createCustomContainer

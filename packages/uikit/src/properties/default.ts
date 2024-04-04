@@ -8,7 +8,7 @@ import type {
   InheritableTextProperties,
   InheritableIconProperties,
   InheritableInputProperties,
-  InheritableSVGProperties,
+  InheritableSvgProperties,
 } from '../internals.js'
 
 export type AllOptionalProperties =
@@ -18,7 +18,7 @@ export type AllOptionalProperties =
   | InheritableContentProperties
   | InheritableCustomContainerProperties
   | InheritableImageProperties
-  | InheritableSVGProperties
+  | InheritableSvgProperties
   | InheritableTextProperties
   | InheritableIconProperties
   | InheritableInputProperties

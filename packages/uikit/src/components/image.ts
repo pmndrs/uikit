@@ -87,7 +87,7 @@ export type ImageProperties = InheritableImageProperties & Listeners
 
 export function createImage(
   parentContext: ParentContext,
-  srcSignal: Signal<Signal<string> | string | Texture | Signal<Texture>>,
+  srcSignal: Signal<Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined>,
   properties: Signal<ImageProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,

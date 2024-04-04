@@ -4,21 +4,21 @@ import { AllOptionalProperties } from '../properties/default.js'
 import { createRoot, RootProperties } from '../components/root.js'
 import { bindHandlers } from './utils.js'
 import { unsubscribeSubscriptions } from '../utils.js'
-import { EventHandlers, FontFamilies } from '../internals.js'
+import { FontFamilies } from '../internals.js'
 
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
   private childrenContainer: Object3D
 
-  private readonly propertiesSignal: Signal<RootProperties & EventHandlers>
+  private readonly propertiesSignal: Signal<RootProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
   constructor(
     camera: Camera | (() => Camera),
     renderer: WebGLRenderer,
     fontFamilies?: FontFamilies,
-    properties: RootProperties & EventHandlers = {},
+    properties: RootProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()

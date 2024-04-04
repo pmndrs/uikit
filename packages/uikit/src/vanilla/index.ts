@@ -1,9 +1,9 @@
 import type { Container } from './container.js'
 import type { Root } from './root.js'
 import type { Image } from './image.js'
-import type { SVG } from './svg.js'
+import type { Svg } from './svg.js'
 
-export type Parent = Container | Root | Image | SVG
+export type Parent = Container | Root | Image | Svg
 
 export * from './container.js'
 export * from './root.js'

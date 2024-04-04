@@ -31,7 +31,7 @@ export const Input: (
   const propertySignals = usePropertySignals(properties)
   const valueSignal = useMemo(() => signal<Signal<string> | string>(''), [])
   const controlled = useRef(properties.value != null)
-  valueSignal.value = (controlled ? properties.value : properties.defaultValue) ?? ''
+  valueSignal.value = (controlled.current ? properties.value : properties.defaultValue) ?? ''
   const current = useMemo(() => computed(() => readReactive(valueSignal.value)), [valueSignal])
   const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
   fontFamilies.value = useFontFamilies()

@@ -1,4 +1,4 @@
-import { unsubscribeSubscriptions, SVGProperties, createSVG } from '@vanilla-three/uikit/internals'
+import { unsubscribeSubscriptions, SvgProperties, createSvg } from '@vanilla-three/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'
@@ -8,8 +8,8 @@ import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/cor
 import { Signal, signal } from '@preact/signals-core'
 import {} from '@react-three/fiber'
 
-export const SVG: (
-  props: SVGProperties &
+export const Svg: (
+  props: SvgProperties &
     EventHandlers &
     RefAttributes<ComponentInternals> & { src: string | Signal<string>; children?: ReactNode },
 ) => ReactNode = forwardRef((properties, ref) => {
@@ -20,7 +20,7 @@ export const SVG: (
   const srcSignal = useMemo(() => signal<string | Signal<string>>(''), [])
   srcSignal.value = properties.src
   const internals = useMemo(
-    () => createSVG(parent, srcSignal, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    () => createSvg(parent, srcSignal, propertySignals.properties, propertySignals.default, outerRef, innerRef),
     [parent, propertySignals, srcSignal],
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])

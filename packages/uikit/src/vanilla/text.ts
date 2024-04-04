@@ -4,19 +4,19 @@ import { Parent } from './index.js'
 import { bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
-import { EventHandlers, unsubscribeSubscriptions } from '../internals.js'
+import { unsubscribeSubscriptions } from '../internals.js'
 
 export class Text extends Object3D {
   public readonly internals: ReturnType<typeof createText>
 
-  private readonly propertiesSignal: Signal<TextProperties & EventHandlers>
+  private readonly propertiesSignal: Signal<TextProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
 
   constructor(
     parent: Parent,
     text: string | Signal<string> | Array<string | Signal<string>> = '',
-    properties: TextProperties & EventHandlers = {},
+    properties: TextProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()

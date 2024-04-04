@@ -1,5 +1,5 @@
 import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Root, Image, Text, SVG, Content } from '@vanilla-three/uikit'
+import { reversePainterSortStable, Container, Root, Image, Text, Svg, Content } from '@vanilla-three/uikit'
 import { Delete } from '@vanilla-three/uikit-lucide'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/Addons.js'
@@ -32,7 +32,7 @@ const c = new Content(root, { height: 100, backgroundColor: 'black' })
 const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => c.setContent(gltf.scene))
 new Delete(root, { width: 100 })
-new SVG(root, 'example.svg', { height: '20%' })
+new Svg(root, 'example.svg', { height: '20%' })
 new Text(root, 'Hello World', { fontSize: 40 })
 new Container(root, { alignSelf: 'stretch', flexGrow: 1, backgroundColor: 'blue' })
 const x = new Container(root, {

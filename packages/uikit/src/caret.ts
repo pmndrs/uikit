@@ -3,28 +3,61 @@ import { Matrix4, Vector3Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { Inset } from './flex/index.js'
-import { createInstancedPanel } from './panel/instanced-panel.js'
+import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import {
+  ColorRepresentation,
   MergedProperties,
   PanelGroupManager,
   PanelMaterialConfig,
   Subscriptions,
+  computedBorderInset,
+  createGetBatchedProperties,
   createPanelMaterialConfig,
 } from './internals.js'
 
-const noBorder = signal<Inset>([0, 0, 0, 0])
+const caretWidthKeys = ['caretWidth'] as const
 
-const CARET_WIDTH = 1.5
+export type CaretWidthProperties = {
+  caretWidth?: number
+}
+
+export type CaretBorderSizeProperties = {
+  caretBorderRight?: number
+  caretBorderTop?: number
+  caretBorderLeft?: number
+  caretBorderBottom?: number
+}
+
+const caretBorderKeys = ['caretBorderRight', 'caretBorderTop', 'caretBorderLeft', 'caretBorderBottom']
+
+export type CaretProperties = {
+  caretOpacity?: number
+  caretColor?: ColorRepresentation
+} & CaretWidthProperties &
+  CaretBorderSizeProperties & {
+    [Key in Exclude<
+      keyof PanelProperties,
+      'backgroundColor' | 'backgroundOpacity'
+    > as `caret${Capitalize<Key>}`]: PanelProperties[Key]
+  }
 
 let caretMaterialConfig: PanelMaterialConfig | undefined
 function getCaretMaterialConfig() {
   caretMaterialConfig ??= createPanelMaterialConfig(
     {
-      backgroundColor: 'color',
-      backgroundOpacity: 'opacity',
+      backgroundColor: 'caretColor',
+      backgroundOpacity: 'caretOpacity',
+      borderBend: 'caretBorderBend',
+      borderBottomLeftRadius: 'caretBorderBottomLeftRadius',
+      borderBottomRightRadius: 'caretBorderBottomRightRadius',
+      borderColor: 'caretBorderColor',
+      borderOpacity: 'caretBorderOpacity',
+      borderTopLeftRadius: 'caretBorderTopLeftRadius',
+      borderTopRightRadius: 'caretBorderTopRightRadius',
     },
     {
       backgroundColor: 0xffffff,
+      backgroundOpacity: 1,
     },
   )
   return caretMaterialConfig
@@ -56,6 +89,8 @@ export function createCaret(
       return () => clearInterval(ref)
     }),
   )
+  const getCaretWidth = createGetBatchedProperties<CaretWidthProperties>(propertiesSignal, caretWidthKeys)
+  const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
   createInstancedPanel(
     propertiesSignal,
     orderInfo,
@@ -67,16 +102,16 @@ export function createCaret(
       if (size == null) {
         return [0, 0]
       }
-      return [CARET_WIDTH, size[2]]
+      return [getCaretWidth('caretWidth') ?? 1.5, size[2]]
     }),
     computed(() => {
       const position = blinkingCaretPosition.value
       if (position == null) {
         return [0, 0]
       }
-      return [position[0] - CARET_WIDTH / 2, position[1]]
+      return [position[0] - (getCaretWidth('caretWidth') ?? 1.5) / 2, position[1]]
     }),
-    noBorder,
+    borderInset,
     parentClippingRect,
     isHidden,
     getCaretMaterialConfig(),

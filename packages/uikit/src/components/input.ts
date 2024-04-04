@@ -37,8 +37,8 @@ import {
   getDefaultPanelMaterialConfig,
 } from '../internals.js'
 import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
-import { createCaret } from '../caret.js'
-import { SelectionBoxes, createSelection } from '../selection.js'
+import { CaretProperties, createCaret } from '../caret.js'
+import { SelectionBoxes, SelectionProperties, createSelection } from '../selection.js'
 import { WithFocus, createFocusPropertyTransformers } from '../focus.js'
 
 export type InheritableInputProperties = WithClasses<
@@ -51,6 +51,8 @@ export type InheritableInputProperties = WithClasses<
             ZIndexProperties &
             TransformProperties &
             ScrollbarProperties &
+            CaretProperties &
+            SelectionProperties &
             PanelGroupProperties &
             InstancedTextProperties &
             DisabledProperties
@@ -105,13 +107,23 @@ export function createInput(
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
 
-  const mergedProperties = computedMergedProperties(properties, defaultProperties, {
-    ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.node.size),
-    ...createHoverPropertyTransformers(hoveredSignal),
-    ...createActivePropertyTransfomers(activeSignal),
-    ...createFocusPropertyTransformers(hasFocusSignal),
-  })
+  const mergedProperties = computedMergedProperties(
+    properties,
+    defaultProperties,
+    {
+      ...darkPropertyTransformers,
+      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createHoverPropertyTransformers(hoveredSignal),
+      ...createActivePropertyTransfomers(activeSignal),
+      ...createFocusPropertyTransformers(hasFocusSignal),
+    },
+    undefined,
+    (m) => {
+      const { value } = properties
+      m.add('caretOpacity', value.opacity)
+      m.add('caretColor', value.color)
+    },
+  )
 
   const node = createNode(parentContext, mergedProperties, object, subscriptions)
 

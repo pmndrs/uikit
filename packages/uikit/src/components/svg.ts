@@ -45,7 +45,7 @@ import {
 } from '../internals.js'
 import { SVGLoader } from 'three/examples/jsm/Addons.js'
 
-export type InheritableSVGProperties = WithClasses<
+export type InheritableSvgProperties = WithClasses<
   WithConditionals<
     WithAllAliases<
       WithReactive<
@@ -66,12 +66,12 @@ export type AppearanceProperties = {
   color?: ColorRepresentation
 }
 
-export type SVGProperties = InheritableSVGProperties & Listeners
+export type SvgProperties = InheritableSvgProperties & Listeners
 
-export function createSVG(
+export function createSvg(
   parentContext: ParentContext,
   srcSignal: Signal<Signal<string> | string>,
-  properties: Signal<SVGProperties>,
+  properties: Signal<SvgProperties>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -129,7 +129,7 @@ export function createSVG(
   const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, subscriptions)
   loadResourceWithParams(
     svgObject,
-    loadSVG,
+    loadSvg,
     subscriptions,
     src,
     parentContext.root,
@@ -138,7 +138,7 @@ export function createSVG(
     orderInfo,
     aspectRatio,
   )
-  applySVGProperties(mergedProperties, svgObject, subscriptions)
+  applySvgProperties(mergedProperties, svgObject, subscriptions)
   const centerGroup = createCenterGroup(
     node,
     parentContext.root.pixelSize,
@@ -245,7 +245,7 @@ const colorHelper = new Color()
 
 const propertyKeys = ['opacity', 'color'] as const
 
-function applySVGProperties(
+function applySvgProperties(
   propertiesSignal: Signal<MergedProperties>,
   svgObject: Signal<Object3D | undefined>,
   subscriptions: Subscriptions,
@@ -273,7 +273,7 @@ function applySVGProperties(
   )
 }
 
-async function loadSVG(
+async function loadSvg(
   url: string,
   root: RootContext,
   clippingPlanes: Array<Plane>,

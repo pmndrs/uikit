@@ -14,7 +14,9 @@ export class Image extends Object3D {
   private childrenContainer: Object3D
   private readonly propertiesSignal: Signal<ImageProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly srcSignal: Signal<string | Signal<string> | Texture | Signal<Texture>>
+  private readonly srcSignal: Signal<
+    Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined
+  >
 
   constructor(
     parent: Parent,

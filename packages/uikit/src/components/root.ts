@@ -55,8 +55,7 @@ export type InheritableRootProperties = WithClasses<
 
 export type RootProperties = InheritableRootProperties & {
   pixelSize?: number
-} & EventHandlers &
-  LayoutListeners &
+} & LayoutListeners &
   ScrollListeners
 
 const DEFAULT_PIXEL_SIZE = 0.01

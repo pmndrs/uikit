@@ -4,7 +4,7 @@ import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Parent } from './index.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
-import { EventHandlers, FontFamilies } from '../internals.js'
+import { FontFamilies } from '../internals.js'
 import { EventMap, bindHandlers } from './utils.js'
 
 export class Container extends Object3D<EventMap> {
@@ -12,7 +12,7 @@ export class Container extends Object3D<EventMap> {
   public readonly internals: ReturnType<typeof createContainer>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private readonly propertiesSignal: Signal<ContainerProperties & EventHandlers>
+  private readonly propertiesSignal: Signal<ContainerProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
   constructor(parent: Parent, properties: ContainerProperties = {}, defaultProperties?: AllOptionalProperties) {

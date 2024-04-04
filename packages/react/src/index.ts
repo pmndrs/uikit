@@ -1,3 +1,4 @@
+export { FontFamilyProvider } from './font.js'
 export { useRootSize } from './responsive.js'
 export {
   basedOnPreferredColorScheme,
@@ -24,3 +25,5 @@ export * from './input.js'
 export * from './custom.js'
 export * from './content.js'
 export * from './fullscreen.js'
+export * from './suspending.js'
+export * from './portal.js'

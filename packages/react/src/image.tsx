@@ -11,7 +11,7 @@ export const Image: (
   props: ImageProperties &
     EventHandlers &
     RefAttributes<ComponentInternals> & {
-      src: string | Signal<string> | Texture | Signal<Texture>
+      src?: Signal<string | undefined> | string | Texture | Signal<Texture | undefined>
       children?: ReactNode
     },
 ) => ReactNode = forwardRef((properties, ref) => {
@@ -19,7 +19,10 @@ export const Image: (
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
-  const srcSignal = useMemo(() => signal<string | Signal<string> | Texture | Signal<Texture>>(''), [])
+  const srcSignal = useMemo(
+    () => signal<Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined>(undefined),
+    [],
+  )
   srcSignal.value = properties.src
   const internals = useMemo(
     () => createImage(parent, srcSignal, propertySignals.properties, propertySignals.default, outerRef, innerRef),

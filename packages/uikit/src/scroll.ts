@@ -1,15 +1,14 @@
 import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
 import { Matrix4, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
 import { FlexNode, Inset } from './flex/node.js'
-import { ColorRepresentation, Subscriptions } from './utils.js'
+import { ColorRepresentation, Subscriptions, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { GetBatchedProperties, createGetBatchedProperties } from './properties/batched.js'
 import { MergedProperties } from './properties/merged.js'
-import { MaterialClass, PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
-import { WithReactive } from './properties/default.js'
+import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupManager } from './panel/instanced-panel-group.js'
 import { Object3DRef } from './context.js'
 import { ScrollListeners } from './listeners.js'
@@ -283,12 +282,8 @@ export function createScrollbars(
     propertiesSignal,
     scrollbarWidthPropertyKeys,
   )
-  const getBorder = createGetBatchedProperties<ScrollbarBorderSizeProperties>(
-    propertiesSignal,
-    scrollbarBorderPropertyKeys,
-  )
-  const borderSize = computed(() => scrollbarBorderPropertyKeys.map((key) => getBorder(key) ?? 0) as Inset)
 
+  const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
   createScrollbar(
     propertiesSignal,
     0,
@@ -300,7 +295,7 @@ export function createScrollbars(
     scrollbarOrderInfo,
     panelGroupManager,
     getScrollbarWidth,
-    borderSize,
+    borderInset,
     subscriptions,
   )
   createScrollbar(
@@ -314,7 +309,7 @@ export function createScrollbars(
     scrollbarOrderInfo,
     panelGroupManager,
     getScrollbarWidth,
-    borderSize,
+    borderInset,
     subscriptions,
   )
 }

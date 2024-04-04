@@ -1,21 +1,45 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { createInstancedPanel } from './panel/instanced-panel.js'
+import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { Inset } from './flex/index.js'
 import {
+  ColorRepresentation,
   MergedProperties,
   PanelGroupManager,
   PanelMaterialConfig,
   Subscriptions,
+  computedBorderInset,
   createPanelMaterialConfig,
   unsubscribeSubscriptions,
 } from './internals.js'
 
-const noBorder = signal<Inset>([0, 0, 0, 0])
-
 export type SelectionBoxes = Array<{ size: Vector2Tuple; position: Vector2Tuple }>
+
+export type SelectionBorderSizeProperties = {
+  selectionBorderRight?: number
+  selectionBorderTop?: number
+  selectionBorderLeft?: number
+  selectionBorderBottom?: number
+}
+
+const selectionBorderKeys = [
+  'selectionBorderRight',
+  'selectionBorderTop',
+  'selectionBorderLeft',
+  'selectionBorderBottom',
+]
+
+export type SelectionProperties = {
+  selectionOpacity?: number
+  selectionColor?: ColorRepresentation
+} & SelectionBorderSizeProperties & {
+    [Key in Exclude<
+      keyof PanelProperties,
+      'backgroundColor' | 'backgroundOpacity'
+    > as `selection${Capitalize<Key>}`]: PanelProperties[Key]
+  }
 
 let selectionMaterialConfig: PanelMaterialConfig | undefined
 function getSelectionMaterialConfig() {
@@ -23,6 +47,13 @@ function getSelectionMaterialConfig() {
     {
       backgroundColor: 'selectionColor',
       backgroundOpacity: 'selectionOpacity',
+      borderBend: 'selectionBorderBend',
+      borderBottomLeftRadius: 'selectionBorderBottomLeftRadius',
+      borderBottomRightRadius: 'selectionBorderBottomRightRadius',
+      borderColor: 'selectionBorderColor',
+      borderOpacity: 'selectionBorderOpacity',
+      borderTopLeftRadius: 'selectionBorderTopLeftRadius',
+      borderTopRightRadius: 'selectionBorderTopRightRadius',
     },
     {
       backgroundColor: 0xb4d7ff,
@@ -48,6 +79,7 @@ export function createSelection(
     panelSubscriptions: Subscriptions
   }> = []
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, undefined, prevOrderInfo)
+  const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
 
   subscriptions.push(
     effect(() => {
@@ -67,7 +99,7 @@ export function createSelection(
             matrix,
             size,
             offset,
-            noBorder,
+            borderInset,
             parentClippingRect,
             isHidden,
             getSelectionMaterialConfig(),

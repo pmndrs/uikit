@@ -4,22 +4,22 @@ import { Parent } from './index.js'
 import { bindHandlers } from './utils.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { unsubscribeSubscriptions } from '../utils.js'
-import { SVGProperties, createSVG } from '../components/svg.js'
-import { EventHandlers, FontFamilies } from '../internals.js'
+import { SvgProperties, createSvg } from '../components/svg.js'
+import { FontFamilies } from '../internals.js'
 
-export class SVG extends Object3D {
-  public readonly internals: ReturnType<typeof createSVG>
+export class Svg extends Object3D {
+  public readonly internals: ReturnType<typeof createSvg>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   private childrenContainer: Object3D
-  private readonly propertiesSignal: Signal<SVGProperties & EventHandlers>
+  private readonly propertiesSignal: Signal<SvgProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private srcSignal: Signal<string | Signal<string>>
 
   constructor(
     parent: Parent,
     src: string | Signal<string>,
-    properties: SVGProperties & EventHandlers = {},
+    properties: SvgProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -32,7 +32,7 @@ export class SVG extends Object3D {
     this.add(this.childrenContainer)
     this.matrixAutoUpdate = false
     parent.add(this)
-    this.internals = createSVG(
+    this.internals = createSvg(
       parent.internals,
       this.srcSignal,
       this.propertiesSignal,
@@ -52,7 +52,7 @@ export class SVG extends Object3D {
     this.srcSignal.value = src
   }
 
-  setProperties(properties: SVGProperties, defaultProperties?: AllOptionalProperties) {
+  setProperties(properties: SvgProperties, defaultProperties?: AllOptionalProperties) {
     batch(() => {
       this.propertiesSignal.value = properties
       this.defaultPropertiesSignal.value = defaultProperties
