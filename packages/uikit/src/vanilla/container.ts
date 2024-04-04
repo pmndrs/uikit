@@ -8,7 +8,7 @@ import { EventHandlers, FontFamilies } from '../internals.js'
 import { EventMap, bindHandlers } from './utils.js'
 
 export class Container extends Object3D<EventMap> {
-  private object: Object3D
+  private childrenContainer: Object3D
   public readonly internals: ReturnType<typeof createContainer>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
@@ -21,19 +21,19 @@ export class Container extends Object3D<EventMap> {
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     //setting up the threejs elements
-    this.object = new Object3D()
-    this.object.matrixAutoUpdate = false
-    this.object.add(this)
+    this.childrenContainer = new Object3D()
+    this.childrenContainer.matrixAutoUpdate = false
+    this.add(this.childrenContainer)
     this.matrixAutoUpdate = false
-    parent.add(this.object)
+    parent.add(this)
 
     //setting up the container
     this.internals = createContainer(
       parent.internals,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this.object },
       { current: this },
+      { current: this.childrenContainer },
     )
 
     //setup events
@@ -50,7 +50,7 @@ export class Container extends Object3D<EventMap> {
   }
 
   destroy() {
-    this.object.parent?.remove(this.object)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

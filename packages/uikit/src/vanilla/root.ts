@@ -9,7 +9,7 @@ import { EventHandlers, FontFamilies } from '../internals.js'
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
-  private object: Object3D
+  private childrenContainer: Object3D
 
   private readonly propertiesSignal: Signal<RootProperties & EventHandlers>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -17,7 +17,6 @@ export class Root extends Object3D {
   constructor(
     camera: Camera | (() => Camera),
     renderer: WebGLRenderer,
-    parent: Object3D,
     fontFamilies?: FontFamilies,
     properties: RootProperties & EventHandlers = {},
     defaultProperties?: AllOptionalProperties,
@@ -26,17 +25,16 @@ export class Root extends Object3D {
     this.fontFamiliesSignal = signal(fontFamilies)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.object = new Object3D()
-    this.object.matrixAutoUpdate = false
-    this.object.add(this)
+    this.childrenContainer = new Object3D()
+    this.childrenContainer.matrixAutoUpdate = false
+    this.add(this.childrenContainer)
     this.matrixAutoUpdate = false
-    parent.add(this.object)
 
     this.internals = createRoot(
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this.object },
       { current: this },
+      { current: this.childrenContainer },
       typeof camera === 'function' ? camera : () => camera,
       renderer,
     )
@@ -65,7 +63,7 @@ export class Root extends Object3D {
   }
 
   destroy() {
-    this.object.parent?.remove(this.object)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

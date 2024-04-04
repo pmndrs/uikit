@@ -11,7 +11,7 @@ export class Image extends Object3D {
   public readonly internals: ReturnType<typeof createImage>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private container: Object3D
+  private childrenContainer: Object3D
   private readonly propertiesSignal: Signal<ImageProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly srcSignal: Signal<string | Signal<string> | Texture | Signal<Texture>>
@@ -27,11 +27,11 @@ export class Image extends Object3D {
     this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.container = new Object3D()
-    this.container.matrixAutoUpdate = false
-    this.container.add(this)
+    this.childrenContainer = new Object3D()
+    this.childrenContainer.matrixAutoUpdate = false
+    this.add(this.childrenContainer)
     this.matrixAutoUpdate = false
-    parent.add(this.container)
+    parent.add(this)
 
     //creating the image
     this.internals = createImage(
@@ -39,14 +39,14 @@ export class Image extends Object3D {
       this.srcSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this.container },
       { current: this },
+      { current: this.childrenContainer },
     )
     this.setProperties(properties, defaultProperties)
 
     //setting up events
     const { handlers, interactionPanel, subscriptions } = this.internals
-    this.container.add(interactionPanel)
+    this.add(interactionPanel)
     bindHandlers(handlers, this, subscriptions)
   }
 
@@ -62,7 +62,7 @@ export class Image extends Object3D {
   }
 
   destroy() {
-    this.container.parent?.remove(this.container)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

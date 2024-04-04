@@ -1,14 +1,5 @@
 import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import {
-  EventHandlers,
-  reversePainterSortStable,
-  Container,
-  Root,
-  Image,
-  Text,
-  SVG,
-  Content,
-} from '@vanilla-three/uikit'
+import { reversePainterSortStable, Container, Root, Image, Text, SVG, Content } from '@vanilla-three/uikit'
 import { Delete } from '@vanilla-three/uikit-lucide'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/Addons.js'
@@ -24,14 +15,10 @@ scene.add(new AmbientLight(undefined, 2))
 const canvas = document.getElementById('root') as HTMLCanvasElement
 const controls = new OrbitControls(camera, canvas)
 
-function handlerToEventName(key: string) {
-  return key[2].toLocaleLowerCase() + key.slice(3)
-}
-
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 //UI
-const root = new Root(camera, renderer, scene, undefined, {
+const root = new Root(camera, renderer, undefined, {
   flexDirection: 'row',
   gap: 10,
   padding: 10,
@@ -40,6 +27,7 @@ const root = new Root(camera, renderer, scene, undefined, {
   alignItems: 'center',
   backgroundColor: 'red',
 })
+scene.add(root)
 const c = new Content(root, { height: 100, backgroundColor: 'black' })
 const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => c.setContent(gltf.scene))

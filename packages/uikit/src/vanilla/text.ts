@@ -7,7 +7,6 @@ import { TextProperties, createText } from '../components/text.js'
 import { EventHandlers, unsubscribeSubscriptions } from '../internals.js'
 
 export class Text extends Object3D {
-  private object: Object3D
   public readonly internals: ReturnType<typeof createText>
 
   private readonly propertiesSignal: Signal<TextProperties & EventHandlers>
@@ -25,11 +24,8 @@ export class Text extends Object3D {
     this.defaultPropertiesSignal = signal(defaultProperties)
     this.textSignal = signal(text)
     //setting up the threejs elements
-    this.object = new Object3D()
-    this.object.matrixAutoUpdate = false
-    this.object.add(this)
     this.matrixAutoUpdate = false
-    parent.add(this.object)
+    parent.add(this)
 
     //setting up the text
     this.internals = createText(
@@ -38,7 +34,7 @@ export class Text extends Object3D {
       parent.fontFamiliesSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this.object },
+      { current: this },
     )
 
     //setup events
@@ -59,7 +55,7 @@ export class Text extends Object3D {
   }
 
   destroy() {
-    this.object.parent?.remove(this.object)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

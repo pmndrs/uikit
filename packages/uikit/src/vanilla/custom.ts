@@ -7,7 +7,6 @@ import { unsubscribeSubscriptions } from '../utils.js'
 import { CustomContainerProperties, FontFamilies, createCustomContainer, panelGeometry } from '../internals.js'
 
 export class CustomContainer extends Object3D {
-  private object: Object3D
   public readonly internals: ReturnType<typeof createCustomContainer>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
@@ -20,15 +19,12 @@ export class CustomContainer extends Object3D {
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     //setting up the threejs elements
-    this.object = new Object3D()
-    this.object.matrixAutoUpdate = false
-    this.object.add(this)
     this.matrixAutoUpdate = false
-    parent.add(this.object)
+    parent.add(this)
 
     //setting up the container
     this.internals = createCustomContainer(parent.internals, this.propertiesSignal, this.defaultPropertiesSignal, {
-      current: this.object,
+      current: this,
     })
 
     //setup events
@@ -49,7 +45,7 @@ export class CustomContainer extends Object3D {
   }
 
   destroy() {
-    this.object.parent?.remove(this.object)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

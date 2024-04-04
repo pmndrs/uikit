@@ -3,11 +3,10 @@ import { AllOptionalProperties, Properties } from '../properties/default.js'
 import { Parent } from './index.js'
 import { bindHandlers } from './utils.js'
 import { Signal, batch, computed, signal } from '@preact/signals-core'
-import { EventHandlers, readReactive, unsubscribeSubscriptions } from '../internals.js'
+import { readReactive, unsubscribeSubscriptions } from '../internals.js'
 import { InputProperties, createInput } from '../components/input.js'
 
 export class Input extends Object3D {
-  private object: Object3D
   public readonly internals: ReturnType<typeof createInput>
 
   private readonly propertiesSignal: Signal<InputProperties>
@@ -28,11 +27,8 @@ export class Input extends Object3D {
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     //setting up the threejs elements
-    this.object = new Object3D()
-    this.object.matrixAutoUpdate = false
-    this.object.add(this)
     this.matrixAutoUpdate = false
-    parent.add(this.object)
+    parent.add(this)
 
     if (!controlled && value instanceof Signal) {
       throw new Error(`uncontrolled inputs can only receive string values`)
@@ -52,7 +48,7 @@ export class Input extends Object3D {
       parent.fontFamiliesSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this.object },
+      { current: this },
     )
 
     //setup events
@@ -80,7 +76,7 @@ export class Input extends Object3D {
   }
 
   destroy() {
-    this.object.parent?.remove(this.object)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }

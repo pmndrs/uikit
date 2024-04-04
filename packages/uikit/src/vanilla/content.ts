@@ -7,7 +7,7 @@ import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { ContentProperties, createContent, FontFamilies } from '../internals.js'
 
 export class Content extends Object3D<EventMap> {
-  private object: Object3D
+  private contentContainer: Object3D
   public readonly internals: ReturnType<typeof createContent>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
@@ -21,15 +21,15 @@ export class Content extends Object3D<EventMap> {
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     //setting up the threejs elements
-    this.object = new Object3D()
-    this.object.matrixAutoUpdate = false
-    this.object.add(this)
+    this.contentContainer = new Object3D()
+    this.contentContainer.matrixAutoUpdate = false
+    this.add(this.contentContainer)
     this.matrixAutoUpdate = false
-    parent.add(this.object)
+    parent.add(this)
 
     //setting up the container
     this.internals = createContent(parent.internals, this.propertiesSignal, this.defaultPropertiesSignal, {
-      current: this.object,
+      current: this,
     })
 
     //setup events
@@ -39,10 +39,10 @@ export class Content extends Object3D<EventMap> {
   }
 
   setContent(...objects: Array<Object3D>) {
-    this.remove(...this.children)
-    this.add(...objects)
+    this.contentContainer.remove(...this.children)
+    this.contentContainer.add(...objects)
     unsubscribeSubscriptions(this.contentSubscriptions)
-    this.internals.setupContent(this, this.contentSubscriptions)
+    this.internals.setupContent(this.contentContainer, this.contentSubscriptions)
   }
 
   setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
@@ -53,7 +53,7 @@ export class Content extends Object3D<EventMap> {
   }
 
   destroy() {
-    this.object.parent?.remove(this.object)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.contentSubscriptions)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }

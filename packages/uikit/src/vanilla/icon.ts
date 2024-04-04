@@ -9,7 +9,6 @@ import { IconProperties, createIcon } from '../components/icon.js'
 export class Icon extends Object3D {
   public readonly internals: ReturnType<typeof createIcon>
 
-  private container: Object3D
   private readonly propertiesSignal: Signal<IconProperties>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
@@ -24,11 +23,8 @@ export class Icon extends Object3D {
     super()
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.container = new Object3D()
-    this.container.matrixAutoUpdate = false
-    this.container.add(this)
     this.matrixAutoUpdate = false
-    parent.add(this.container)
+    parent.add(this)
     this.internals = createIcon(
       parent.internals,
       text,
@@ -36,13 +32,13 @@ export class Icon extends Object3D {
       svgHeight,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
-      { current: this.container },
+      { current: this },
     )
     this.setProperties(properties, defaultProperties)
 
     const { handlers, iconGroup, interactionPanel, subscriptions } = this.internals
-    this.container.add(interactionPanel)
-    this.container.add(iconGroup)
+    this.add(interactionPanel)
+    this.add(iconGroup)
     bindHandlers(handlers, this, subscriptions)
   }
 
@@ -54,7 +50,7 @@ export class Icon extends Object3D {
   }
 
   destroy() {
-    this.container.parent?.remove(this.container)
+    this.parent?.remove(this)
     unsubscribeSubscriptions(this.internals.subscriptions)
   }
 }
