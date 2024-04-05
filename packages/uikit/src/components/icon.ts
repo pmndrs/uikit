@@ -11,13 +11,14 @@ import { ScrollbarProperties } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
   WithConditionals,
+  applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
-import { Subscriptions, fitNormalizedContentInside } from '../utils.js'
+import { ColorRepresentation, Subscriptions, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
@@ -30,7 +31,7 @@ import {
   MergedProperties,
   PanelGroupProperties,
   computedPanelGroupDependencies,
-  createGetBatchedProperties,
+  computedProperty,
   darkPropertyTransformers,
   getDefaultPanelMaterialConfig,
 } from '../internals.js'
@@ -148,7 +149,6 @@ export function createIcon(
 
 const loader = new SVGLoader()
 const colorHelper = new Color()
-const propertyKeys = ['opacity', 'color'] as const
 
 function createIconGroup(
   propertiesSignal: Signal<MergedProperties>,
@@ -194,7 +194,6 @@ function createIconGroup(
     }
   }
   const aspectRatio = svgWidth / svgHeight
-  const getAppearance = createGetBatchedProperties<AppearanceProperties>(propertiesSignal, propertyKeys)
   subscriptions.push(
     effect(() => {
       const [offsetX, offsetY, scale] = fitNormalizedContentInside(
@@ -209,24 +208,7 @@ function createIconGroup(
       group.updateMatrix()
     }),
     effect(() => void (group.visible = !isClipped.value)),
-    effect(() => {
-      const colorRepresentation = getAppearance('color')
-      const opacity = getAppearance('opacity')
-      let color: Color | undefined
-      if (Array.isArray(colorRepresentation)) {
-        color = colorHelper.setRGB(...colorRepresentation)
-      } else if (colorRepresentation != null) {
-        color = colorHelper.set(colorRepresentation)
-      }
-      group.traverse((object) => {
-        if (!(object instanceof Mesh)) {
-          return
-        }
-        const material: MeshBasicMaterial = object.material
-        material.color.copy(color ?? object.userData.color)
-        material.opacity = opacity ?? 1
-      })
-    }),
   )
+  applyAppearancePropertiesToGroup(propertiesSignal, group, subscriptions)
   return group
 }

@@ -46,10 +46,10 @@ export class MergedProperties {
   /**
    * @returns undefined if the property doesn't exist
    */
-  read(key: string): unknown {
+  read<T>(key: string, defaultValue: T): T {
     const entry = this.propertyMap.get(key)
     if (entry == null) {
-      return undefined
+      return defaultValue
     }
     const length = entry.length
     //searching for the property with the highest precedence (most right) that is not undefined
@@ -62,33 +62,7 @@ export class MergedProperties {
       return result
     }
     //no property found that is not undefined
-    return undefined
-  }
-
-  filterIsEqual(filter: (key: string) => boolean, old: MergedProperties | undefined): boolean {
-    if (old == null) {
-      return this.propertyMap.size === 0
-    }
-    if (old.propertyMap.size != this.propertyMap.size) {
-      return false
-    }
-    for (const key of this.propertyMap.keys()) {
-      if (!filter(key)) {
-        continue
-      }
-      if (!this.isEqual(old, key)) {
-        return false
-      }
-    }
-    for (const key of old.propertyMap.keys()) {
-      if (!filter(key)) {
-        continue
-      }
-      if (!old.isEqual(this, key)) {
-        return false
-      }
-    }
-    return true
+    return defaultValue
   }
 
   filterCompare(

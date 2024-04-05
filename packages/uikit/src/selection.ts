@@ -12,6 +12,7 @@ import {
   Subscriptions,
   computedBorderInset,
   createPanelMaterialConfig,
+  defaultPanelDependencies,
   unsubscribeSubscriptions,
 } from './internals.js'
 
@@ -78,7 +79,7 @@ export function createSelection(
     offset: Signal<Vector2Tuple>
     panelSubscriptions: Subscriptions
   }> = []
-  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, undefined, prevOrderInfo)
+  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, prevOrderInfo)
   const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
 
   subscriptions.push(

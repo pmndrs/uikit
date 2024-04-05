@@ -6,10 +6,10 @@ import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
-import { GetBatchedProperties, createGetBatchedProperties } from './properties/batched.js'
+import { computedProperty } from './properties/batched.js'
 import { MergedProperties } from './properties/merged.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
-import { PanelGroupManager } from './panel/instanced-panel-group.js'
+import { PanelGroupManager, defaultPanelDependencies } from './panel/instanced-panel-group.js'
 import { Object3DRef } from './context.js'
 import { ScrollListeners } from './listeners.js'
 import { EventHandlers, ThreeEvent } from './events.js'
@@ -256,8 +256,6 @@ export type ScrollbarProperties = {
     > as `scrollbar${Capitalize<Key>}`]: PanelProperties[Key]
   }
 
-const scrollbarWidthPropertyKeys = ['scrollbarWidth'] as const
-
 const scrollbarBorderPropertyKeys = [
   'scrollbarBorderLeft',
   'scrollbarBorderRight',
@@ -276,12 +274,9 @@ export function createScrollbars(
   panelGroupManager: PanelGroupManager,
   subscriptions: Subscriptions,
 ): void {
-  const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, undefined, orderInfo)
+  const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, orderInfo)
 
-  const getScrollbarWidth = createGetBatchedProperties<ScrollbarWidthProperties>(
-    propertiesSignal,
-    scrollbarWidthPropertyKeys,
-  )
+  const scrollbarWidth = computedProperty(propertiesSignal, 'scrollbarWidth', 10)
 
   const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
   createScrollbar(
@@ -294,7 +289,7 @@ export function createScrollbars(
     parentClippingRect,
     scrollbarOrderInfo,
     panelGroupManager,
-    getScrollbarWidth,
+    scrollbarWidth,
     borderInset,
     subscriptions,
   )
@@ -308,7 +303,7 @@ export function createScrollbars(
     parentClippingRect,
     scrollbarOrderInfo,
     panelGroupManager,
-    getScrollbarWidth,
+    scrollbarWidth,
     borderInset,
     subscriptions,
   )
@@ -346,20 +341,20 @@ function createScrollbar(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo>,
   panelGroupManager: PanelGroupManager,
-  get: GetBatchedProperties<ScrollbarWidthProperties>,
+  scrollbarWidth: Signal<number>,
   borderSize: ReadonlySignal<Inset>,
   subscriptions: Subscriptions,
 ) {
-  const scrollbarTransformation = computed(() => {
-    return computeScrollbarTransformation(
+  const scrollbarTransformation = computed(() =>
+    computeScrollbarTransformation(
       mainIndex,
-      get('scrollbarWidth') ?? 10,
+      scrollbarWidth.value,
       node.size.value,
       node.maxScrollPosition.value,
       node.borderInset.value,
       scrollPosition.value,
-    )
-  })
+    ),
+  )
   const scrollbarPosition = computed(() => (scrollbarTransformation.value?.slice(0, 2) ?? [0, 0]) as Vector2Tuple)
   const scrollbarSize = computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple)
 

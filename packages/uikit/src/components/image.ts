@@ -42,7 +42,7 @@ import { setupImmediateProperties } from '../properties/immediate.js'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
-import { createGetBatchedProperties } from '../properties/batched.js'
+import { computedProperty } from '../properties/batched.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
@@ -55,7 +55,7 @@ import {
 } from '../internals.js'
 
 export type ImageFit = 'cover' | 'fill'
-const FIT_DEFAULT: ImageFit = 'fill'
+const defaultImageFit: ImageFit = 'fill'
 
 export type InheritableImageProperties = WithClasses<
   WithConditionals<
@@ -246,8 +246,6 @@ function createImageMesh(
   return mesh
 }
 
-const propertyKeys = ['fit'] as const
-
 function setupTextureFit(
   propertiesSignal: Signal<MergedProperties>,
   textureSignal: Signal<Texture | undefined>,
@@ -255,17 +253,16 @@ function setupTextureFit(
   size: Signal<Vector2Tuple>,
   subscriptions: Subscriptions,
 ): void {
-  const get = createGetBatchedProperties<ImageFitProperties>(propertiesSignal, propertyKeys)
+  const fit = computedProperty(propertiesSignal, 'fit', defaultImageFit)
   subscriptions.push(
     effect(() => {
       const texture = textureSignal.value
       if (texture == null) {
         return
       }
-      const fit = (get('fit') as ImageFit | undefined) ?? FIT_DEFAULT
       texture.matrix.identity()
 
-      if (fit === 'fill' || texture == null) {
+      if (fit.value === 'fill' || texture == null) {
         transformInsideBorder(borderInset, size, texture)
         return
       }
@@ -323,8 +320,6 @@ async function loadTextureImpl(src?: string | Texture) {
   }
 }
 
-const panelMaterialClassKey = ['panelMaterialClass'] as const
-
 function setupImageMaterials(
   propertiesSignal: Signal<MergedProperties>,
   target: Mesh,
@@ -341,14 +336,14 @@ function setupImageMaterials(
   target.customDepthMaterial.clippingPlanes = clippingPlanes
   target.customDistanceMaterial.clippingPlanes = clippingPlanes
 
-  const get = createGetBatchedProperties<PanelGroupProperties>(propertiesSignal, panelMaterialClassKey)
+  const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
   subscriptions.push(
     effect(() => {
-      target.material = createPanelMaterial(get('panelMaterialClass') ?? MeshBasicMaterial, info)
+      target.material = createPanelMaterial(panelMaterialClass.value, info)
       target.material.clippingPlanes = clippingPlanes
     }),
-    effect(() => (target.castShadow = get('castShadow') ?? false)),
-    effect(() => (target.receiveShadow = get('receiveShadow') ?? false)),
+    effect(() => (target.castShadow = propertiesSignal.value.read('castShadow', false))),
+    effect(() => (target.receiveShadow = propertiesSignal.value.read('receiveShadow', false))),
   )
 
   const imageMaterialConfig = getImageMaterialConfig()

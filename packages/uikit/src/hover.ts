@@ -42,8 +42,8 @@ export function addHoverHandlers(
     if (properties.onHoverChange != null && hoveredSignal.value.length === 1) {
       properties.onHoverChange(true)
     }
-    if (properties.cursor != null) {
-      setCursorType(hoveredSignal, properties.cursor)
+    if (cursor != null) {
+      setCursorType(hoveredSignal, cursor)
     }
   })
   addHandler('onPointerOut', target, ({ nativeEvent }) => {

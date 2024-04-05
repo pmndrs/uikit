@@ -28,7 +28,7 @@ import {
   KeepAspectRatioProperties,
   MergedProperties,
   RootContext,
-  createGetBatchedProperties,
+  computedProperty,
   darkPropertyTransformers,
   getDefaultPanelMaterialConfig,
   makeClippedRaycast,
@@ -157,7 +157,7 @@ const box3Helper = new Box3()
 const smallValue = new Vector3().setScalar(0.001)
 const vectorHelper = new Vector3()
 
-const propertyKeys = ['depthAlign', 'keepAspectRatio'] as const
+const defaultDepthAlign: keyof typeof alignmentZMap = 'back'
 
 /**
  * normalizes the content so it has a height of 1
@@ -172,10 +172,8 @@ function createSetupContent(
   subscriptions: Subscriptions,
 ) {
   const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect, subscriptions)
-  const get = createGetBatchedProperties<DepthAlignProperties & KeepAspectRatioProperties>(
-    propertiesSignal,
-    propertyKeys,
-  )
+  const depthAlign = computedProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
+  const keepAspectRatio = computedProperty(propertiesSignal, 'keepAspectRatio', true)
   return (content: Object3D, subscriptions: Subscriptions) => {
     content.traverse((object) => {
       if (object instanceof Mesh) {
@@ -215,13 +213,13 @@ function createSetupContent(
           .set(
             innerWidth * pixelSize,
             innerHeight * pixelSize,
-            get('keepAspectRatio') ?? true ? (innerHeight * pixelSize * size.z) / size.y : size.z,
+            keepAspectRatio.value ? (innerHeight * pixelSize * size.z) / size.y : size.z,
           )
           .divide(size)
 
         content.position.copy(center).negate()
 
-        content.position.z -= alignmentZMap[get('depthAlign') ?? 'back'] * size.z
+        content.position.z -= alignmentZMap[depthAlign.value] * size.z
         content.position.multiply(content.scale)
         content.position.add(
           vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),

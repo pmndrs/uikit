@@ -2,9 +2,9 @@ import { Signal, computed, effect } from '@preact/signals-core'
 import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { FlexNode } from './flex/node.js'
 import { Subscriptions, alignmentXMap, alignmentYMap } from './utils.js'
-import { createGetBatchedProperties } from './properties/batched.js'
 import { MergedProperties } from './properties/merged.js'
 import { Object3DRef } from './context.js'
+import { computedProperty } from './internals.js'
 
 export type TransformProperties = {
   transformTranslateX?: number
@@ -23,20 +23,6 @@ export type TransformProperties = {
   transformOriginY?: keyof typeof alignmentYMap
 }
 
-const tX = 'transformTranslateX'
-const tY = 'transformTranslateY'
-const tZ = 'transformTranslateZ'
-
-const rX = 'transformRotateX'
-const rY = 'transformRotateY'
-const rZ = 'transformRotateZ'
-
-const sX = 'transformScaleX'
-const sY = 'transformScaleY'
-const sZ = 'transformScaleZ'
-
-const propertyKeys = [tX, tY, tZ, rX, rY, rZ, sX, sY, sZ] as const
-
 const tHelper = new Vector3()
 const sHelper = new Vector3()
 const originVector = new Vector3()
@@ -49,6 +35,9 @@ function toQuaternion([x, y, z]: Vector3Tuple): Quaternion {
   return quaternionHelper.setFromEuler(eulerHelper.set(x * toRad, y * toRad, z * toRad))
 }
 
+const defaultTransformOriginX: keyof typeof alignmentXMap = 'center'
+const defaultTransformOriginY: keyof typeof alignmentYMap = 'center'
+
 export function computedTransformMatrix(
   propertiesSignal: Signal<MergedProperties>,
   node: FlexNode,
@@ -58,27 +47,37 @@ export function computedTransformMatrix(
   //B = bound transformation matrix
   //O = matrix to transform the origin for matrix T
   //T = transform matrix (translate, rotate, scale)
-  const get = createGetBatchedProperties<TransformProperties>(propertiesSignal, propertyKeys)
+
+  const tTX = computedProperty(propertiesSignal, 'transformTranslateX', 0)
+  const tTY = computedProperty(propertiesSignal, 'transformTranslateY', 0)
+  const tTZ = computedProperty(propertiesSignal, 'transformTranslateZ', 0)
+  const tRX = computedProperty(propertiesSignal, 'transformRotateX', 0)
+  const tRY = computedProperty(propertiesSignal, 'transformRotateY', 0)
+  const tRZ = computedProperty(propertiesSignal, 'transformRotateZ', 0)
+  const tSX = computedProperty(propertiesSignal, 'transformScaleX', 1)
+  const tSY = computedProperty(propertiesSignal, 'transformScaleY', 1)
+  const tSZ = computedProperty(propertiesSignal, 'transformScaleZ', 1)
+  const tOX = computedProperty(propertiesSignal, 'transformOriginX', defaultTransformOriginX)
+  const tOY = computedProperty(propertiesSignal, 'transformOriginY', defaultTransformOriginY)
+
   return computed(() => {
     const { relativeCenter } = node
     const [x, y] = relativeCenter.value
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
-    const tOriginX = get('transformOriginX') ?? 'center'
-    const tOriginY = get('transformOriginY') ?? 'center'
     let originCenter = true
 
-    if (tOriginX != 'center' || tOriginY != 'center') {
+    if (tOX.value != 'center' || tOY.value != 'center') {
       const [width, height] = node.size.value
       originCenter = false
-      originVector.set(-alignmentXMap[tOriginX] * width * pixelSize, -alignmentYMap[tOriginY] * height * pixelSize, 0)
+      originVector.set(-alignmentXMap[tOX.value] * width * pixelSize, -alignmentYMap[tOY.value] * height * pixelSize, 0)
       result.multiply(matrixHelper.makeTranslation(originVector))
       originVector.negate()
     }
 
-    const r: Vector3Tuple = [get(rX) ?? 0, get(rY) ?? 0, get(rZ) ?? 0]
-    const t: Vector3Tuple = [get(tX) ?? 0, -(get(tY) ?? 0), get(tZ) ?? 0]
-    const s: Vector3Tuple = [get(sX) ?? 1, get(sY) ?? 1, get(sZ) ?? 1]
+    const r: Vector3Tuple = [tRX.value, tRY.value, tRZ.value]
+    const t: Vector3Tuple = [tTX.value, -tTY.value, tTZ.value]
+    const s: Vector3Tuple = [tSX.value, tSY.value, tSZ.value]
     if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
       result.multiply(
         matrixHelper.compose(tHelper.fromArray(t).multiplyScalar(pixelSize), toQuaternion(r), sHelper.fromArray(s)),

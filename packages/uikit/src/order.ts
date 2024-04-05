@@ -1,7 +1,7 @@
 import { Signal, computed } from '@preact/signals-core'
 import { RenderItem } from 'three'
 import { MergedProperties } from './properties/merged.js'
-import { createGetBatchedProperties } from './properties/batched.js'
+import { computedProperty, readReactive } from './internals.js'
 
 export type WithCameraDistance = { cameraDistance: number }
 
@@ -43,7 +43,7 @@ export type OrderInfo = {
   majorIndex: number
   elementType: ElementType
   minorIndex: number
-  instancedGroupDependencies?: Signal<Record<string, any>>
+  instancedGroupDependencies?: Signal<Record<string, any>> | Record<string, any>
 }
 
 function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
@@ -64,20 +64,20 @@ export type ZIndexProperties = {
 
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
-const propertyKeys = ['zIndexOffset'] as const
-
 export function computedOrderInfo(
   propertiesSignal: Signal<MergedProperties> | undefined,
   type: ElementType,
-  instancedGroupDependencies: Signal<Record<string, any>> | undefined,
+  instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
   parentOrderInfoSignal: Signal<OrderInfo> | undefined,
 ): Signal<OrderInfo> {
-  const get =
-    propertiesSignal == null ? undefined : createGetBatchedProperties<ZIndexProperties>(propertiesSignal, propertyKeys)
+  const zIndexOffset =
+    propertiesSignal == null
+      ? undefined
+      : computedProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
   return computed(() => {
     const parentOrderInfo = parentOrderInfoSignal?.value
 
-    const offset = get?.('zIndexOffset')
+    const offset = zIndexOffset?.value
 
     const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
     const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
@@ -93,7 +93,10 @@ export function computedOrderInfo(
       minorIndex = 0
     } else if (
       type != parentOrderInfo.elementType ||
-      !shallowEqualRecord(instancedGroupDependencies?.value, parentOrderInfo.instancedGroupDependencies?.value)
+      !shallowEqualRecord(
+        readReactive(instancedGroupDependencies),
+        readReactive(parentOrderInfo.instancedGroupDependencies),
+      )
     ) {
       majorIndex = parentOrderInfo.majorIndex + 1
       minorIndex = 0

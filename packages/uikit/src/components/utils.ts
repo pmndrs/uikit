@@ -1,25 +1,19 @@
-import { Signal, computed, effect, signal } from '@preact/signals-core'
+import { Signal, computed, effect } from '@preact/signals-core'
 import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
 import { WithHover, addHoverHandlers } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
-import { Subscriptions, readReactive } from '../utils.js'
+import { ColorRepresentation, Subscriptions, readReactive } from '../utils.js'
 import {
   AllOptionalProperties,
-  AppearanceProperties,
   EventHandlers,
   MergedProperties,
   Object3DRef,
-  OrderInfo,
   Properties,
   PropertyTransformers,
-  RootContext,
-  ShadowProperties,
   ParentContext,
-  createGetBatchedProperties,
-  setupRenderOrder,
-  KeyToEvent,
+  computedProperty,
 } from '../internals.js'
 
 export function computedGlobalMatrix(
@@ -150,44 +144,32 @@ export function computedMergedProperties(
 }
 
 const colorHelper = new Color()
-const propertyKeys = ['opacity', 'color', 'receiveShadow', 'castShadow'] as const
 
 /**
  * @requires that each mesh inside the group has its default color stored inside object.userData.color
  */
 export function applyAppearancePropertiesToGroup(
   propertiesSignal: Signal<MergedProperties>,
-  root: RootContext,
-  orderInfo: Signal<OrderInfo>,
   group: Signal<Object3D | undefined> | Object3D,
   subscriptions: Subscriptions,
 ) {
-  const getPropertySignal = createGetBatchedProperties<AppearanceProperties & ShadowProperties>(
-    propertiesSignal,
-    propertyKeys,
-  )
+  const color = computedProperty<ColorRepresentation | undefined>(propertiesSignal, 'color', undefined)
+  const opacity = computedProperty(propertiesSignal, 'opacity', 1)
   subscriptions.push(
     effect(() => {
-      const colorRepresentation = getPropertySignal('color')
-      const opacity = getPropertySignal('opacity')
-      const receiveShadow = getPropertySignal('receiveShadow')
-      const castShadow = getPropertySignal('castShadow')
-      let color: Color | undefined
-      if (Array.isArray(colorRepresentation)) {
-        color = colorHelper.setRGB(...colorRepresentation)
-      } else if (colorRepresentation != null) {
-        color = colorHelper.set(colorRepresentation)
+      let c: Color | undefined
+      if (Array.isArray(color.value)) {
+        c = colorHelper.setRGB(...color.value)
+      } else if (color.value != null) {
+        c = colorHelper.set(color.value)
       }
       readReactive(group)?.traverse((object) => {
         if (!(object instanceof Mesh)) {
           return
         }
-        object.receiveShadow = receiveShadow ?? false
-        object.castShadow = castShadow ?? false
-        setupRenderOrder(object, root, orderInfo)
         const material: MeshBasicMaterial = object.material
-        material.color.copy(color ?? object.userData.color)
-        material.opacity = opacity ?? 1
+        material.color.copy(c ?? object.userData.color)
+        material.opacity = opacity.value
       })
     }),
   )

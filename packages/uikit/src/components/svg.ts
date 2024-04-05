@@ -18,6 +18,7 @@ import {
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
   WithConditionals,
+  applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
   computedMergedProperties,
@@ -39,7 +40,6 @@ import {
   PanelGroupProperties,
   RootContext,
   computedPanelGroupDependencies,
-  createGetBatchedProperties,
   darkPropertyTransformers,
   getDefaultPanelMaterialConfig,
 } from '../internals.js'
@@ -138,7 +138,7 @@ export function createSvg(
     orderInfo,
     aspectRatio,
   )
-  applySvgProperties(mergedProperties, svgObject, subscriptions)
+  applyAppearancePropertiesToGroup(mergedProperties, svgObject, subscriptions)
   const centerGroup = createCenterGroup(
     node,
     parentContext.root.pixelSize,
@@ -241,37 +241,6 @@ const loader = new SVGLoader()
 
 const box3Helper = new Box3()
 const vectorHelper = new Vector3()
-const colorHelper = new Color()
-
-const propertyKeys = ['opacity', 'color'] as const
-
-function applySvgProperties(
-  propertiesSignal: Signal<MergedProperties>,
-  svgObject: Signal<Object3D | undefined>,
-  subscriptions: Subscriptions,
-) {
-  const getPropertySignal = createGetBatchedProperties<AppearanceProperties>(propertiesSignal, propertyKeys)
-  subscriptions.push(
-    effect(() => {
-      const colorRepresentation = getPropertySignal('color')
-      const opacity = getPropertySignal('opacity')
-      let color: Color | undefined
-      if (Array.isArray(colorRepresentation)) {
-        color = colorHelper.setRGB(...colorRepresentation)
-      } else if (colorRepresentation != null) {
-        color = colorHelper.set(colorRepresentation)
-      }
-      svgObject.value?.traverse((object) => {
-        if (!(object instanceof Mesh)) {
-          return
-        }
-        const material: MeshBasicMaterial = object.material
-        material.color.copy(color ?? object.userData.color)
-        material.opacity = opacity ?? 1
-      })
-    }),
-  )
-}
 
 async function loadSvg(
   url: string,

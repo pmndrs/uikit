@@ -11,9 +11,9 @@ import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../order.js'
 import { Signal, computed } from '@preact/signals-core'
-import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef } from '../context.js'
+import { computedProperty } from '../internals.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -24,18 +24,22 @@ export type PanelGroupProperties = {
   panelMaterialClass?: MaterialClass
 } & ShadowProperties
 
-const propertyKeys = ['panelMaterialClass', 'castShadow', 'receiveShadow'] as const
-
 export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
-  const get = createGetBatchedProperties<PanelGroupProperties>(propertiesSignal, propertyKeys)
-  return computed<PanelGroupProperties>(() => ({
-    panelMaterialClass: get('panelMaterialClass'),
-    castShadow: get('castShadow'),
-    receiveShadow: get('receiveShadow'),
+  const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
+  const castShadow = computedProperty(propertiesSignal, 'castShadow', false)
+  const receiveShadow = computedProperty(propertiesSignal, 'receiveShadow', false)
+  return computed<Required<PanelGroupProperties>>(() => ({
+    panelMaterialClass: panelMaterialClass.value,
+    castShadow: castShadow.value,
+    receiveShadow: receiveShadow.value,
   }))
 }
 
-const defaultDependencies: PanelGroupProperties = { panelMaterialClass: MeshBasicMaterial }
+export const defaultPanelDependencies: Required<PanelGroupProperties> = {
+  panelMaterialClass: MeshBasicMaterial,
+  castShadow: false,
+  receiveShadow: false,
+}
 
 export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<number, InstancedPanelGroup>>()
@@ -48,7 +52,7 @@ export class PanelGroupManager {
 
   getGroup(
     majorIndex: number,
-    { panelMaterialClass = MeshBasicMaterial, receiveShadow, castShadow }: PanelGroupProperties = defaultDependencies,
+    { panelMaterialClass, receiveShadow, castShadow }: Required<PanelGroupProperties> = defaultPanelDependencies,
   ) {
     let groups = this.map.get(panelMaterialClass)
     if (groups == null) {
@@ -132,8 +136,8 @@ export class InstancedPanelGroup {
     public readonly pixelSize: number,
     private readonly root: WithCameraDistance,
     private readonly orderInfo: OrderInfo,
-    private readonly meshReceiveShadow?: boolean,
-    private readonly meshCastShadow?: boolean,
+    private readonly meshReceiveShadow: boolean,
+    private readonly meshCastShadow: boolean,
   ) {}
 
   private updateCount(): void {
@@ -244,8 +248,8 @@ export class InstancedPanelGroup {
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
     setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial
-    this.mesh.receiveShadow = this.meshReceiveShadow ?? false
-    this.mesh.castShadow = this.meshCastShadow ?? false
+    this.mesh.receiveShadow = this.meshReceiveShadow
+    this.mesh.castShadow = this.meshCastShadow
     this.object.current?.add(this.mesh)
   }
 

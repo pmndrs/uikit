@@ -12,7 +12,7 @@ import {
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
-import { ColorRepresentation, Inset, MergedProperties, createGetBatchedProperties } from '../internals.js'
+import { ColorRepresentation, Inset, MergedProperties } from '../internals.js'
 
 export type MaterialClass = { new (...args: Array<any>): Material }
 
@@ -73,7 +73,6 @@ export function createPanelMaterialConfig(
       fn(data, offset, (value ?? defaultValue) as any, size, onUpdate)
   }
 
-  const visibleProperties = [keys.backgroundColor, keys.backgroundOpacity, keys.borderOpacity].filter(filterNull)
   const defaultData = new Float32Array(16) //filled with 0s by default
   writeColor(defaultData, 4, defaults.backgroundColor, undefined)
   writeColor(defaultData, 8, defaults.borderColor, undefined)
@@ -90,20 +89,19 @@ export function createPanelMaterialConfig(
       size: Signal<Vector2Tuple>,
       isHidden: Signal<boolean> | undefined,
     ) => {
-      const get = createGetBatchedProperties(propertiesSignal, visibleProperties)
       return computed(() => {
         const borderOpacity =
           keys.borderOpacity == null
             ? defaults.borderOpacity
-            : (get(keys.borderOpacity) as number) ?? defaults.borderOpacity
+            : propertiesSignal.value.read(keys.borderOpacity, defaults.borderOpacity)
         const backgroundOpacity =
           keys.backgroundOpacity == null
             ? defaults.backgroundOpacity
-            : (get(keys.backgroundOpacity) as number) ?? defaults.backgroundOpacity
+            : propertiesSignal.value.read(keys.backgroundOpacity, defaults.backgroundOpacity)
         const backgroundColor =
           keys.backgroundColor == null
             ? defaults.backgroundColor
-            : (get(keys.backgroundColor) as ColorRepresentation) ?? defaults.backgroundColor
+            : propertiesSignal.value.read(keys.backgroundColor, defaults.backgroundColor)
         const borderVisible = borderInset.value.some((s) => s > 0) && borderOpacity > 0
         const [width, height] = size.value
         const backgroundVisible =

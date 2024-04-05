@@ -26,12 +26,11 @@ import { EventHandlers } from '../events.js'
 import {
   FlexNode,
   FontFamilies,
-  GetBatchedProperties,
   InstancedText,
   InstancedTextProperties,
   computedFont,
   computedGylphGroupDependencies,
-  createGetBatchedProperties,
+  computedProperty,
   createInstancedText,
   darkPropertyTransformers,
   getDefaultPanelMaterialConfig,
@@ -65,7 +64,6 @@ export type InheritableInputProperties = WithClasses<
 export type DisabledProperties = {
   disabled?: boolean
 }
-const disabledKeys = ['disabled'] as const
 
 const cancelSet = new Set<PointerEvent>()
 
@@ -204,9 +202,9 @@ export function createInput(
   setupLayoutListeners(properties, node.size, subscriptions)
   setupViewportListeners(properties, isClipped, subscriptions)
 
-  const getDisabled = createGetBatchedProperties<DisabledProperties>(mergedProperties, disabledKeys)
+  const disabled = computedProperty(mergedProperties, 'disabled', false)
 
-  const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, getDisabled, subscriptions)
+  const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, disabled, subscriptions)
   const focus = () => {
     if (hasFocusSignal.peek()) {
       return
@@ -214,14 +212,7 @@ export function createInput(
     element.focus()
   }
   updateHasFocus(element, hasFocusSignal, subscriptions)
-  const selectionHandlers = computedSelectionHandlers(
-    node,
-    element,
-    instancedTextRef,
-    selectionRange,
-    focus,
-    getDisabled,
-  )
+  const selectionHandlers = computedSelectionHandlers(node, element, instancedTextRef, selectionRange, focus, disabled)
 
   return {
     focus,
@@ -246,10 +237,10 @@ export function computedSelectionHandlers(
   instancedTextRef: { current?: InstancedText },
   selectionRange: Signal<Vector2Tuple | undefined>,
   focus: () => void,
-  getDisabled: GetBatchedProperties<DisabledProperties>,
+  disabled: Signal<boolean>,
 ) {
   return computed<EventHandlers | undefined>(() => {
-    if (getDisabled('disabled') === true) {
+    if (disabled.value) {
       return undefined
     }
     let startCharIndex: number | undefined
@@ -301,7 +292,7 @@ export function createHtmlInputElement(
   selectionRange: Signal<Vector2Tuple | undefined>,
   onChange: (value: string) => void,
   multiline: boolean,
-  getDisabled: GetBatchedProperties<DisabledProperties>,
+  disabled: Signal<boolean>,
   subscriptions: Subscriptions,
 ): HTMLInputElement | HTMLTextAreaElement {
   const element = document.createElement(multiline ? 'textarea' : 'input')
@@ -332,7 +323,7 @@ export function createHtmlInputElement(
   document.body.appendChild(element)
   subscriptions.push(
     effect(() => (element.value = value.value)),
-    effect(() => (element.disabled = getDisabled('disabled') ?? false)),
+    effect(() => (element.disabled = disabled.value)),
     () => element.remove(),
   )
   return element

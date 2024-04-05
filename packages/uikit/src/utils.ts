@@ -2,7 +2,7 @@ import { computed, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { MergedProperties } from './properties/merged.js'
-import { createGetBatchedProperties } from './internals.js'
+import { computedProperty } from './internals.js'
 
 export type ColorRepresentation = Color | string | number | Vector3Tuple
 
@@ -78,6 +78,6 @@ export function computedBorderInset(
   propertiesSignal: Signal<MergedProperties>,
   keys: ReadonlyArray<string>,
 ): Signal<Inset> {
-  const getBorderSize = createGetBatchedProperties<Record<string, number | undefined>>(propertiesSignal, keys)
-  return computed(() => keys.map((key) => getBorderSize(key) ?? 0) as Inset)
+  const sizes = keys.map((key) => computedProperty(propertiesSignal, key, 0))
+  return computed(() => sizes.map((size) => size.value) as Inset)
 }

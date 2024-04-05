@@ -20,12 +20,7 @@ import {
 import { Subscriptions } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import {
-  ShadowProperties,
-  createGetBatchedProperties,
-  darkPropertyTransformers,
-  makeClippedRaycast,
-} from '../internals.js'
+import { ShadowProperties, darkPropertyTransformers, makeClippedRaycast } from '../internals.js'
 import { FrontSide, Material, Mesh } from 'three'
 
 export type InheritableCustomContainerProperties = WithClasses<
@@ -44,8 +39,6 @@ export type InheritableCustomContainerProperties = WithClasses<
 >
 
 export type CustomContainerProperties = InheritableCustomContainerProperties & Listeners
-
-const shadowPropertyKeys = ['castShadow', 'receiveShadow'] as const
 
 export function createCustomContainer(
   parentContext: ParentContext,
@@ -81,8 +74,6 @@ export function createCustomContainer(
   //instanced panel
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentContext.orderInfo)
 
-  const getShadowProperties = createGetBatchedProperties<ShadowProperties>(mergedProperties, shadowPropertyKeys)
-
   const setupMesh = (mesh: Mesh, subscriptions: Subscriptions) => {
     mesh.matrixAutoUpdate = false
     mesh.raycast = makeClippedRaycast(
@@ -94,10 +85,8 @@ export function createCustomContainer(
     )
     setupRenderOrder(mesh, parentContext.root, orderInfo)
     subscriptions.push(
-      effect(() => {
-        mesh.receiveShadow = getShadowProperties('receiveShadow') ?? false
-        mesh.castShadow = getShadowProperties('castShadow') ?? false
-      }),
+      effect(() => (mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false))),
+      effect(() => (mesh.castShadow = mergedProperties.value.read('castShadow', false))),
       effect(() => {
         const [width, height] = node.size.value
         const pixelSize = parentContext.root.pixelSize

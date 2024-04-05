@@ -1,9 +1,9 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray, WebGLRenderer } from 'three'
-import { createGetBatchedProperties } from '../properties/batched.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Subscriptions } from '../utils.js'
 import { loadCachedFont } from './cache.js'
+import { computedProperty } from '../internals.js'
 
 export type FontFamilyUrls = Partial<Record<FontWeight, string>>
 
@@ -24,8 +24,6 @@ const fontWeightNames = {
 
 export type FontWeight = keyof typeof fontWeightNames | number
 
-const fontKeys = ['fontFamily', 'fontWeight'] as const
-
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight }
 
 const defaultFontFamilyUrls: FontFamilies = {
@@ -45,19 +43,19 @@ export function computedFont(
   subscriptions: Subscriptions,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
-  const get = createGetBatchedProperties<FontFamilyProperties>(properties, fontKeys)
+  const fontFamily = computedProperty<string | undefined>(properties, 'fontFamily', undefined)
+  const fontWeight = computedProperty<FontWeight>(properties, 'fontWeight', 'normal')
   subscriptions.push(
     effect(() => {
       const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
-      let fontWeight = get('fontWeight') ?? 'normal'
-      if (typeof fontWeight === 'string') {
-        fontWeight = fontWeightNames[fontWeight]
+      let resolvedFontFamily = fontFamily.value
+      if (resolvedFontFamily == null) {
+        resolvedFontFamily = Object.keys(fontFamilies)[0]
       }
-      let fontFamily = get('fontFamily')
-      if (fontFamily == null) {
-        fontFamily = Object.keys(fontFamilies)[0]
-      }
-      const url = getMatchingFontUrl(fontFamilies[fontFamily], fontWeight)
+      const url = getMatchingFontUrl(
+        fontFamilies[resolvedFontFamily],
+        typeof fontWeight.value === 'string' ? fontWeightNames[fontWeight.value] : fontWeight.value,
+      )
       let canceled = false
       loadCachedFont(url, renderer, (font) => (canceled ? undefined : (result.value = font)))
       return () => (canceled = true)

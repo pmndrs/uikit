@@ -62,13 +62,13 @@ function applyProperties(
 ) {
   const onNew = (key: string) =>
     //subscribe and write property
-    (subscriptions[key] = effect(() => setProperty(key, currentProperties.read(key))))
+    (subscriptions[key] = effect(() => setProperty(key, currentProperties.read(key, undefined))))
   const onDelete = (key: string) => {
     //remove subscription
     subscriptions[key]?.()
     delete subscriptions[key]
     //read is fine since we execute the compare in "untracked"
-    if (oldProperties!.read(key) === undefined) {
+    if (oldProperties!.read(key, undefined) === undefined) {
       //no need to set to undefined if already was undefined
       return
     }

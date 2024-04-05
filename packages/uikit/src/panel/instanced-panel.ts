@@ -25,7 +25,7 @@ export type PanelProperties = {
 export function createInstancedPanel(
   propertiesSignal: Signal<MergedProperties>,
   orderInfo: Signal<OrderInfo>,
-  panelGroupDependencies: Signal<PanelGroupProperties> | undefined,
+  panelGroupDependencies: Signal<Required<PanelGroupProperties>> | undefined,
   panelGroupManager: PanelGroupManager,
   matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,

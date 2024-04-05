@@ -26,13 +26,11 @@ import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
 import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
-import { createGetBatchedProperties } from '../properties/batched.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { EventHandlers } from '../events.js'
-import { darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
+import { computedProperty, darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
 
 export type InheritableRootProperties = WithClasses<
   WithConditionals<
@@ -241,7 +239,8 @@ function createSizeTranslator(pixelSize: number, key: 'sizeX' | 'sizeY', to: str
 }
 const matrixHelper = new Matrix4()
 
-const keys = ['anchorX', 'anchorY']
+const defaultAnchorX: keyof typeof alignmentXMap = 'center'
+const defaultAnchorY: keyof typeof alignmentYMap = 'center'
 
 function computedRootMatrix(
   propertiesSignal: Signal<MergedProperties>,
@@ -249,15 +248,16 @@ function computedRootMatrix(
   size: Signal<Vector2Tuple>,
   pixelSize: number,
 ) {
-  const get = createGetBatchedProperties(propertiesSignal, keys)
+  const anchorX = computedProperty(propertiesSignal, 'anchorX', defaultAnchorX)
+  const anchorY = computedProperty(propertiesSignal, 'anchorY', defaultAnchorY)
   return computed(() => {
     const [width, height] = size.value
     return matrix.value
       ?.clone()
       .premultiply(
         matrixHelper.makeTranslation(
-          alignmentXMap[(get('anchorX') as keyof typeof alignmentXMap) ?? 'center'] * width * pixelSize,
-          alignmentYMap[(get('anchorY') as keyof typeof alignmentYMap) ?? 'center'] * height * pixelSize,
+          alignmentXMap[anchorX.value] * width * pixelSize,
+          alignmentYMap[anchorY.value] * height * pixelSize,
           0,
         ),
       )

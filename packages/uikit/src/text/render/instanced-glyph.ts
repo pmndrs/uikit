@@ -1,23 +1,15 @@
-import { Matrix4, Vector2Tuple, Vector3Tuple, WebGLRenderer } from 'three'
-import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { ColorRepresentation, Subscriptions } from '../../utils.js'
+import { Matrix4 } from 'three'
+import { InstancedGlyphGroup } from './instanced-glyph-group.js'
+import { ColorRepresentation } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { Font, FontFamilies, FontFamilyProperties, GlyphInfo, computedFont, glyphIntoToUV } from '../font.js'
-import { Signal, ReadonlySignal, signal, effect, computed } from '@preact/signals-core'
-import { FlexNode } from '../../flex/node.js'
-import { OrderInfo } from '../../order.js'
-import { createGetBatchedProperties } from '../../properties/batched.js'
-import { MergedProperties } from '../../properties/merged.js'
-import { GlyphLayoutProperties, GlyphLayout, buildGlyphLayout, computedMeasureFunc } from '../layout.js'
-import { TextAlignProperties, TextAppearanceProperties, InstancedText } from './instanced-text.js'
-import { SelectionBoxes } from '../../selection.js'
+import { Font, FontFamilyProperties, GlyphInfo, glyphIntoToUV } from '../font.js'
+import { Signal, computed } from '@preact/signals-core'
+import { GlyphLayoutProperties } from '../layout.js'
+import { TextAlignProperties, TextAppearanceProperties } from './instanced-text.js'
 import { writeColor } from '../../internals.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
-
-const alignPropertyKeys = ['horizontalAlign', 'verticalAlign'] as const
-const appearancePropertyKeys = ['color', 'opacity'] as const
 
 export type InstancedTextProperties = TextAlignProperties &
   TextAppearanceProperties &
@@ -26,74 +18,6 @@ export type InstancedTextProperties = TextAlignProperties &
 
 export function computedGylphGroupDependencies(fontSignal: Signal<Font | undefined>) {
   return computed(() => ({ font: fontSignal.value }))
-}
-
-export function createInstancedText(
-  properties: Signal<MergedProperties>,
-  textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
-  matrix: Signal<Matrix4 | undefined>,
-  node: FlexNode,
-  isHidden: Signal<boolean> | undefined,
-  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo>,
-  fontSignal: Signal<Font | undefined>,
-  glyphGroupManager: GlyphGroupManager,
-  selectionRange: Signal<Vector2Tuple | undefined> | undefined,
-  selectionBoxes: Signal<SelectionBoxes> | undefined,
-  caretPosition: Signal<Vector3Tuple | undefined> | undefined,
-  instancedTextRef: { current?: InstancedText } | undefined,
-  subscriptions: Subscriptions,
-) {
-  let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
-
-  const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
-
-  const getAlign = createGetBatchedProperties<TextAlignProperties>(properties, alignPropertyKeys)
-  const getAppearance = createGetBatchedProperties<TextAppearanceProperties>(properties, appearancePropertyKeys)
-
-  const layoutSignal = signal<GlyphLayout | undefined>(undefined)
-  subscriptions.push(
-    node.addLayoutChangeListener(() => {
-      const layoutProperties = layoutPropertiesRef.current
-      if (layoutProperties == null) {
-        return
-      }
-      const { size, paddingInset, borderInset } = node
-      const [width, height] = size.value
-      const [pTop, pRight, pBottom, pLeft] = paddingInset.value
-      const [bTop, bRight, bBottom, bLeft] = borderInset.value
-      const actualWidth = width - pRight - pLeft - bRight - bLeft
-      const actualheight = height - pTop - pBottom - bTop - bBottom
-      layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
-    }),
-  )
-
-  subscriptions.push(
-    effect(() => {
-      const font = fontSignal.value
-      if (font == null) {
-        return
-      }
-      const instancedText = new InstancedText(
-        glyphGroupManager.getGroup(orderInfo.value.majorIndex, font),
-        getAlign,
-        getAppearance,
-        layoutSignal,
-        matrix,
-        isHidden,
-        parentClippingRect,
-        selectionRange,
-        selectionBoxes,
-        caretPosition,
-      )
-      if (instancedTextRef != null) {
-        instancedTextRef.current = instancedText
-      }
-      return () => instancedText.destroy()
-    }),
-  )
-
-  return measureFunc
 }
 
 /**
