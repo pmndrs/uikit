@@ -9,17 +9,17 @@ import { InputProperties, createInput } from '../components/input.js'
 export class Input extends Object3D {
   public readonly internals: ReturnType<typeof createInput>
 
-  private readonly propertiesSignal: Signal<InputProperties>
+  private readonly styleSignal: Signal<InputProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<InputProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-
-  private valueSignal: Signal<Signal<string> | string>
+  private readonly valueSignal: Signal<Signal<string> | string>
 
   constructor(
     parent: Parent,
     value: string | Signal<string> = '',
     private readonly controlled: boolean = false,
     multiline: boolean = false,
-    properties: InputProperties = {},
+    properties?: InputProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -42,10 +42,12 @@ export class Input extends Object3D {
         if (!controlled) {
           this.valueSignal.value = newValue
         }
-        this.propertiesSignal.peek().onValueChange?.(newValue)
+        this.propertiesSignal.peek()?.onValueChange?.(newValue)
+        this.styleSignal.peek()?.onValueChange?.(newValue)
       },
       multiline,
       parent.fontFamiliesSignal,
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
@@ -68,11 +70,16 @@ export class Input extends Object3D {
     this.valueSignal.value = text
   }
 
-  setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: InputProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: InputProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

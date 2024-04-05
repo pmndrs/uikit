@@ -18,14 +18,21 @@ export const CustomContainer: (
     customDistanceMaterial?: Material
   } & CustomContainerProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<ComponentInternals<CustomContainerProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Mesh>(null)
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
-    () => createCustomContainer(parent, propertySignals.properties, propertySignals.default, outerRef),
+    () =>
+      createCustomContainer(
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+      ),
     [parent, propertySignals],
   )
   useEffect(() => {

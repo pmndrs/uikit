@@ -60,7 +60,8 @@ export type ContentProperties = InheritableContentProperties & Listeners
 
 export function createContent(
   parentContext: ParentContext,
-  properties: Signal<ContentProperties>,
+  style: Signal<ContentProperties | undefined>,
+  properties: Signal<ContentProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -75,6 +76,7 @@ export function createContent(
 
   //properties
   const mergedProperties = computedMergedProperties(
+    style,
     properties,
     defaultProperties,
     {
@@ -118,8 +120,8 @@ export function createContent(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Object, undefined, backgroundorderInfo)
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   return {
     setupContent: createSetupContent(
@@ -148,7 +150,7 @@ export function createContent(
       parentContext.clippingRect,
       subscriptions,
     ),
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     subscriptions,
   }
 }

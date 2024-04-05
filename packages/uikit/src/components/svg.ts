@@ -71,7 +71,8 @@ export type SvgProperties = InheritableSvgProperties & Listeners
 export function createSvg(
   parentContext: ParentContext,
   srcSignal: Signal<Signal<string> | string>,
-  properties: Signal<SvgProperties>,
+  style: Signal<SvgProperties | undefined>,
+  properties: Signal<SvgProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -84,6 +85,7 @@ export function createSvg(
   const aspectRatio = signal<number | undefined>(undefined)
 
   const mergedProperties = computedMergedProperties(
+    style,
     properties,
     defaultProperties,
     {
@@ -172,8 +174,8 @@ export function createSvg(
     subscriptions,
   )
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   return {
     clippingRect: computedClippingRect(
@@ -190,7 +192,7 @@ export function createSvg(
     root: parentContext.root,
     subscriptions,
     centerGroup,
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     interactionPanel: createInteractionPanel(
       node,
       orderInfo,

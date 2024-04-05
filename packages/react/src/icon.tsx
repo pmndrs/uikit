@@ -9,7 +9,12 @@ import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/cor
 export const Icon: (
   props: IconProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals> & { text: string; svgWidth: number; svgHeight: number; children?: ReactNode },
+    RefAttributes<ComponentInternals<IconProperties>> & {
+      text: string
+      svgWidth: number
+      svgHeight: number
+      children?: ReactNode
+    },
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
@@ -21,6 +26,7 @@ export const Icon: (
         properties.text,
         properties.svgWidth,
         properties.svgHeight,
+        propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
         outerRef,

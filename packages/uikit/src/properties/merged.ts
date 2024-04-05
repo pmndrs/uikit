@@ -117,11 +117,12 @@ export class MergedProperties {
   }
 
   addAll(
+    style: WithClasses<Properties> | undefined,
+    properties: WithClasses<Properties> | undefined,
     defaultProperties: AllOptionalProperties | undefined,
-    properties: WithClasses<Properties>,
     postTransformers: PropertyTransformers,
   ): void {
-    traverseProperties(defaultProperties, properties, (p) => {
+    traverseProperties(style, properties, defaultProperties, (p) => {
       for (const key in p) {
         this.add(key, p[key])
       }

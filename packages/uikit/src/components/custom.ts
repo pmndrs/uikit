@@ -42,7 +42,8 @@ export type CustomContainerProperties = InheritableCustomContainerProperties & L
 
 export function createCustomContainer(
   parentContext: ParentContext,
-  properties: Signal<CustomContainerProperties>,
+  style: Signal<CustomContainerProperties | undefined>,
+  properties: Signal<CustomContainerProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -53,7 +54,7 @@ export function createCustomContainer(
   setupCursorCleanup(hoveredSignal, subscriptions)
 
   //properties
-  const mergedProperties = computedMergedProperties(properties, defaultProperties, {
+  const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
@@ -104,15 +105,15 @@ export function createCustomContainer(
     material.shadowSide = FrontSide
   }
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   return {
     root: parentContext.root,
     setupMesh,
     setupMaterial,
     node,
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     subscriptions,
   }
 }

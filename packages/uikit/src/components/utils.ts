@@ -84,7 +84,8 @@ export const keepAspectRatioPropertyTransformer: PropertyTransformers = {
 }
 
 export function computedHandlers(
-  properties: Signal<Properties>,
+  style: Signal<Properties | undefined>,
+  properties: Signal<Properties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
@@ -94,8 +95,8 @@ export function computedHandlers(
   return computed(() => {
     const handlers: EventHandlers = {}
     addHandlers(handlers, dynamicHandlers?.value)
-    addHoverHandlers(handlers, properties.value, defaultProperties.value, hoveredSignal, defaultCursor)
-    addActiveHandlers(handlers, properties.value, defaultProperties.value, activeSignal)
+    addHoverHandlers(handlers, style.value, properties.value, defaultProperties.value, hoveredSignal, defaultCursor)
+    addActiveHandlers(handlers, style.value, properties.value, defaultProperties.value, activeSignal)
     return handlers
   })
 }
@@ -129,7 +130,8 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
 }
 
 export function computedMergedProperties(
-  properties: Signal<Properties>,
+  style: Signal<Properties | undefined>,
+  properties: Signal<Properties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   postTransformers: PropertyTransformers,
   preTransformers?: PropertyTransformers,
@@ -138,7 +140,7 @@ export function computedMergedProperties(
   return computed(() => {
     const merged = new MergedProperties(preTransformers)
     onInit?.(merged)
-    merged.addAll(defaultProperties.value, properties.value, postTransformers)
+    merged.addAll(style.value, properties.value, defaultProperties.value, postTransformers)
     return merged
   })
 }

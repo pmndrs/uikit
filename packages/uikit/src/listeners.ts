@@ -31,7 +31,8 @@ export type ViewportListeners = {
 }
 
 export function setupLayoutListeners(
-  listeners: Signal<LayoutListeners>,
+  l1: Signal<LayoutListeners | undefined>,
+  l2: Signal<LayoutListeners | undefined>,
   size: Signal<Vector2Tuple>,
   subscriptions: Subscriptions,
 ) {
@@ -43,13 +44,15 @@ export function setupLayoutListeners(
         first = false
         return
       }
-      listeners.peek().onSizeChange?.(...s)
+      l1.peek()?.onSizeChange?.(...s)
+      l2.peek()?.onSizeChange?.(...s)
     }),
   )
 }
 
 export function setupViewportListeners(
-  listeners: Signal<ViewportListeners>,
+  l1: Signal<ViewportListeners | undefined>,
+  l2: Signal<ViewportListeners | undefined>,
   isClipped: Signal<boolean>,
   subscriptions: Subscriptions,
 ) {
@@ -61,7 +64,8 @@ export function setupViewportListeners(
         first = false
         return
       }
-      listeners.peek().onIsInViewportChange?.(isInViewport)
+      l1.peek()?.onIsInViewportChange?.(isInViewport)
+      l2.peek()?.onIsInViewportChange?.(isInViewport)
     }),
   )
 }

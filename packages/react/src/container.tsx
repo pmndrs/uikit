@@ -11,14 +11,22 @@ export const Container: (
     children?: ReactNode
   } & ContainerProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<ComponentInternals<ContainerProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
-    () => createContainer(parent, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    () =>
+      createContainer(
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+      ),
     [parent, propertySignals],
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])

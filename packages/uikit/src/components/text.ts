@@ -54,7 +54,8 @@ export function createText(
   parentContext: ParentContext,
   textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
-  properties: Signal<TextProperties>,
+  style: Signal<TextProperties | undefined>,
+  properties: Signal<TextProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -63,7 +64,7 @@ export function createText(
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
 
-  const mergedProperties = computedMergedProperties(properties, defaultProperties, {
+  const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
@@ -122,8 +123,8 @@ export function createText(
   )
   subscriptions.push(node.setMeasureFunc(measureFunc))
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   return {
     root: parentContext.root,
@@ -135,7 +136,7 @@ export function createText(
       parentContext.clippingRect,
       subscriptions,
     ),
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     subscriptions,
   }
 }

@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Gltf, Box, PerspectiveCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
@@ -14,6 +14,8 @@ import {
   SuspendingImage,
   Input,
   FontFamilyProvider,
+  ComponentInternals,
+  ImageProperties,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/skeleton.js'
@@ -24,6 +26,7 @@ export default function App() {
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])
   const t = useMemo(() => signal('X X\nX X'), [])
+  const ref = useRef<ComponentInternals<ImageProperties>>(null)
   return (
     <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
@@ -118,9 +121,11 @@ export default function App() {
             <Suspense fallback={<Skeleton width={300} aspectRatio={2 / 3} />}>
               <SuspendingImage
                 flexShrink={0}
-                hover={{ padding: 30, border: 0, marginLeft: -30, opacity: 1 }}
+                hover={{ padding: 30, marginLeft: -30, opacity: 1 }}
                 fit="cover"
                 border={20}
+                ref={ref}
+                onHoverChange={(hovered) => ref.current?.setStyle({ borderOpacity: hovered ? 10 : 0.2 })}
                 borderOpacity={0.2}
                 borderRadius={10}
                 flexDirection="column"

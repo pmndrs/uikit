@@ -13,36 +13,39 @@ export type ActiveEventHandlers = Pick<EventHandlers, 'onPointerDown' | 'onPoint
 
 export function addActiveHandlers(
   target: EventHandlers,
-  properties: WithClasses<WithActive<Properties>> & EventHandlers,
+  style: (WithClasses<WithActive<Properties>> & EventHandlers) | undefined,
+  properties: (WithClasses<WithActive<Properties>> & EventHandlers) | undefined,
   defaultProperties: AllOptionalProperties | undefined,
   activeSignal: Signal<Array<number>>,
 ): void {
   let activePropertiesExist = false
 
-  traverseProperties(defaultProperties, properties, (p) => {
+  traverseProperties(style, defaultProperties, properties, (p) => {
     if ('active' in p) {
       activePropertiesExist = true
     }
   })
 
-  if (!activePropertiesExist && properties.onActiveChange == null) {
+  if (!activePropertiesExist && style?.onActiveChange == null && properties?.onActiveChange == null) {
     //no need to listen to hover
     activeSignal.value.length = 0
     return
   }
   const onLeave = ({ nativeEvent }: ThreeEvent<PointerEvent>) => {
     activeSignal.value = activeSignal.value.filter((id) => id != nativeEvent.pointerId)
-    if (properties.onActiveChange == null || activeSignal.value.length > 0) {
+    if (activeSignal.value.length > 0) {
       return
     }
-    properties.onActiveChange(false)
+    properties?.onActiveChange?.(false)
+    style?.onActiveChange?.(false)
   }
   addHandler('onPointerDown', target, ({ nativeEvent }) => {
     activeSignal.value = [nativeEvent.pointerId, ...activeSignal.value]
-    if (properties.onActiveChange == null || activeSignal.value.length != 1) {
+    if (activeSignal.value.length != 1) {
       return
     }
-    properties.onActiveChange(true)
+    properties?.onActiveChange?.(true)
+    style?.onActiveChange?.(true)
   })
   addHandler('onPointerUp', target, onLeave)
   addHandler('onPointerLeave', target, onLeave)

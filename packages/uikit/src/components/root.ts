@@ -62,7 +62,8 @@ const vectorHelper = new Vector3()
 const planeHelper = new Plane()
 
 export function createRoot(
-  properties: Signal<RootProperties>,
+  style: Signal<RootProperties | undefined>,
+  properties: Signal<RootProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -74,11 +75,12 @@ export function createRoot(
   const activeSignal = signal<Array<number>>([])
   const subscriptions = [] as Subscriptions
   setupCursorCleanup(hoveredSignal, subscriptions)
-  const pixelSize = untracked(() => properties.value.pixelSize ?? DEFAULT_PIXEL_SIZE)
+  const pixelSize = properties.peek()?.pixelSize ?? DEFAULT_PIXEL_SIZE
 
   const onFrameSet = new Set<(delta: number) => void>()
 
   const mergedProperties = computedMergedProperties(
+    style,
     properties,
     defaultProperties,
     {
@@ -165,7 +167,7 @@ export function createRoot(
     subscriptions,
   )
 
-  setupLayoutListeners(properties, node.size, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
 
   const gylphGroupManager = new GlyphGroupManager(pixelSize, ctx, object)
   onFrameSet.add(gylphGroupManager.onFrame)
@@ -188,7 +190,7 @@ export function createRoot(
   return Object.assign(rootCtx, {
     subscriptions,
     interactionPanel: createInteractionPanel(node, orderInfo, rootCtx, undefined, subscriptions),
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     root: rootCtx,
   })
 }

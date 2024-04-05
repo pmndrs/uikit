@@ -9,14 +9,15 @@ import { unsubscribeSubscriptions } from '../internals.js'
 export class Text extends Object3D {
   public readonly internals: ReturnType<typeof createText>
 
-  private readonly propertiesSignal: Signal<TextProperties>
+  private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<TextProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
 
   constructor(
     parent: Parent,
     text: string | Signal<string> | Array<string | Signal<string>> = '',
-    properties: TextProperties = {},
+    properties?: TextProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -32,6 +33,7 @@ export class Text extends Object3D {
       parent.internals,
       this.textSignal,
       parent.fontFamiliesSignal,
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
@@ -47,11 +49,16 @@ export class Text extends Object3D {
     this.textSignal.value = text
   }
 
-  setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: TextProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: TextProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

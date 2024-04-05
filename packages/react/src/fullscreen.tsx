@@ -12,7 +12,7 @@ export const Fullscreen: (
     children?: ReactNode
     attachCamera?: boolean
   } & EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<ComponentInternals<RootProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const store = useStore()
   const pixelSize = properties.pixelSize ?? 0.01

@@ -88,7 +88,8 @@ export type ImageProperties = InheritableImageProperties & Listeners
 export function createImage(
   parentContext: ParentContext,
   srcSignal: Signal<Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined>,
-  properties: Signal<ImageProperties>,
+  style: Signal<ImageProperties | undefined>,
+  properties: Signal<ImageProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -112,6 +113,7 @@ export function createImage(
   })
 
   const mergedProperties = computedMergedProperties(
+    style,
     properties,
     defaultProperties,
     {
@@ -160,8 +162,8 @@ export function createImage(
     subscriptions,
   )
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   const ctx: ParentContext = {
     clippingRect: computedClippingRect(
@@ -179,7 +181,7 @@ export function createImage(
   }
   return Object.assign(ctx, {
     subscriptions,
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, isHidden, subscriptions),
   })
 }
@@ -208,13 +210,13 @@ function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   texture: Signal<Texture | undefined>,
   parent: ParentContext,
-  { node, orderInfo, root, clippingRect }: ParentContext,
+  { node, orderInfo, root }: ParentContext,
   isHidden: Signal<boolean>,
   subscriptions: Subscriptions,
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
-  const clippingPlanes = createGlobalClippingPlanes(root, clippingRect, subscriptions)
+  const clippingPlanes = createGlobalClippingPlanes(root, parent.clippingRect, subscriptions)
   const isVisible = getImageMaterialConfig().computedIsVisibile(propertiesSignal, node.borderInset, node.size, isHidden)
   setupImageMaterials(propertiesSignal, mesh, node.size, node.borderInset, isVisible, clippingPlanes, subscriptions)
   mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parent.clippingRect, orderInfo)

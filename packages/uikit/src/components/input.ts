@@ -34,6 +34,7 @@ import {
   createInstancedText,
   darkPropertyTransformers,
   getDefaultPanelMaterialConfig,
+  traverseProperties,
 } from '../internals.js'
 import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
 import { CaretProperties, createCaret } from '../caret.js'
@@ -95,7 +96,8 @@ export function createInput(
   onChange: (newValue: string) => void,
   multiline: boolean,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
-  properties: Signal<InputProperties>,
+  style: Signal<InputProperties | undefined>,
+  properties: Signal<InputProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -106,6 +108,7 @@ export function createInput(
   setupCursorCleanup(hoveredSignal, subscriptions)
 
   const mergedProperties = computedMergedProperties(
+    style,
     properties,
     defaultProperties,
     {
@@ -117,9 +120,10 @@ export function createInput(
     },
     undefined,
     (m) => {
-      const { value } = properties
-      m.add('caretOpacity', value.opacity)
-      m.add('caretColor', value.color)
+      traverseProperties(style.value, properties.value, defaultProperties.value, (p) => {
+        m.add('caretOpacity', p.opacity)
+        m.add('caretColor', p.color)
+      })
     },
   )
 
@@ -199,8 +203,8 @@ export function createInput(
   )
   subscriptions.push(node.setMeasureFunc(measureFunc))
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   const disabled = computedProperty(mergedProperties, 'disabled', false)
 
@@ -226,7 +230,15 @@ export function createInput(
       parentContext.clippingRect,
       subscriptions,
     ),
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, selectionHandlers, 'text'),
+    handlers: computedHandlers(
+      style,
+      properties,
+      defaultProperties,
+      hoveredSignal,
+      activeSignal,
+      selectionHandlers,
+      'text',
+    ),
     subscriptions,
   }
 }

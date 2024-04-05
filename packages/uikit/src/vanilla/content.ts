@@ -7,15 +7,16 @@ import { Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { ContentProperties, createContent, FontFamilies } from '../internals.js'
 
 export class Content extends Object3D<EventMap> {
-  private contentContainer: Object3D
   public readonly internals: ReturnType<typeof createContent>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private readonly propertiesSignal: Signal<ContentProperties>
+  private readonly contentContainer: Object3D
+  private readonly styleSignal: Signal<ContentProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<ContentProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private contentSubscriptions: Subscriptions = []
+  private readonly contentSubscriptions: Subscriptions = []
 
-  constructor(parent: Parent, properties: ContentProperties = {}, defaultProperties?: AllOptionalProperties) {
+  constructor(parent: Parent, properties?: ContentProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.fontFamiliesSignal = parent.fontFamiliesSignal
     this.propertiesSignal = signal(properties)
@@ -28,9 +29,15 @@ export class Content extends Object3D<EventMap> {
     parent.add(this)
 
     //setting up the container
-    this.internals = createContent(parent.internals, this.propertiesSignal, this.defaultPropertiesSignal, {
-      current: this,
-    })
+    this.internals = createContent(
+      parent.internals,
+      this.styleSignal,
+      this.propertiesSignal,
+      this.defaultPropertiesSignal,
+      {
+        current: this,
+      },
+    )
 
     //setup events
     const { handlers, interactionPanel, subscriptions } = this.internals
@@ -45,11 +52,16 @@ export class Content extends Object3D<EventMap> {
     this.internals.setupContent(this.contentContainer, this.contentSubscriptions)
   }
 
-  setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: ContentProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: ContentProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

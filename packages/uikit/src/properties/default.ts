@@ -32,16 +32,23 @@ export type Properties = Record<string, unknown>
 export type WithClasses<T> = T & { classes?: T | Array<T> }
 
 export function traverseProperties<T>(
+  style: WithClasses<T> | undefined,
+  properties: WithClasses<T> | undefined,
   defaultProperties: AllOptionalProperties | undefined,
-  properties: WithClasses<T>,
   fn: (properties: T) => void,
 ): void {
   if (defaultProperties != null) {
     traverseClasses(defaultProperties.classes as any, fn)
     fn(defaultProperties as T)
   }
-  traverseClasses(properties.classes as any, fn)
-  fn(properties)
+  if (properties != null) {
+    traverseClasses(properties.classes as any, fn)
+    fn(properties)
+  }
+  if (style != null) {
+    traverseClasses(style.classes as any, fn)
+    fn(style)
+  }
 }
 
 function traverseClasses<T>(classes: WithClasses<T>['classes'], fn: (properties: T) => void) {

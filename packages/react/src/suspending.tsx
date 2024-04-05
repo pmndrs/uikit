@@ -1,14 +1,20 @@
-import { ComponentPropsWithoutRef } from 'react'
+import { ReactNode, RefAttributes, forwardRef } from 'react'
 import { Image } from './image.js'
 import { useLoader } from '@react-three/fiber'
 import { SRGBColorSpace, TextureLoader } from 'three'
+import { ComponentInternals } from './ref.js'
+import { EventHandlers, ImageProperties } from '@pmndrs/uikit/internals'
 
-export function SuspendingImage({
-  src,
-  ...props
-}: Omit<ComponentPropsWithoutRef<typeof Image>, 'src'> & { src: string }) {
+export const SuspendingImage: (
+  props: ImageProperties &
+    EventHandlers &
+    RefAttributes<ComponentInternals<ImageProperties>> & {
+      src: string
+      children?: ReactNode
+    },
+) => ReactNode = forwardRef(({ src, ...props }, ref) => {
   const texture = useLoader(TextureLoader, src)
   texture.colorSpace = SRGBColorSpace
   texture.matrixAutoUpdate = false
-  return <Image src={texture} {...props} />
-}
+  return <Image ref={ref} src={texture} {...props} />
+})

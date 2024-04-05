@@ -19,28 +19,30 @@ export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, subscri
 
 export function addHoverHandlers(
   target: EventHandlers,
-  properties: WithHover<{}>,
+  style: WithHover<{}> | undefined,
+  properties: WithHover<{}> | undefined,
   defaultProperties: AllOptionalProperties | undefined,
   hoveredSignal: Signal<Array<number>>,
   defaultCursor?: string,
 ): void {
   let hoverPropertiesExist = false
-  traverseProperties(defaultProperties, properties, (p) => {
+  traverseProperties(style, properties, defaultProperties, (p) => {
     if ('hover' in p) {
       hoverPropertiesExist = true
     }
   })
 
-  const cursor = properties.cursor ?? defaultCursor
-  if (!hoverPropertiesExist && properties.onHoverChange == null && cursor == null) {
+  const cursor = style?.cursor ?? properties?.cursor ?? defaultCursor
+  if (!hoverPropertiesExist && style?.onHoverChange == null && properties?.onHoverChange == null && cursor == null) {
     //no need to listen to hover
     hoveredSignal.value.length = 0
     return
   }
   addHandler('onPointerOver', target, ({ nativeEvent }) => {
     hoveredSignal.value = [nativeEvent.pointerId, ...hoveredSignal.value]
-    if (properties.onHoverChange != null && hoveredSignal.value.length === 1) {
-      properties.onHoverChange(true)
+    if (hoveredSignal.value.length === 1) {
+      properties?.onHoverChange?.(true)
+      style?.onHoverChange?.(true)
     }
     if (cursor != null) {
       setCursorType(hoveredSignal, cursor)
@@ -48,8 +50,9 @@ export function addHoverHandlers(
   })
   addHandler('onPointerOut', target, ({ nativeEvent }) => {
     hoveredSignal.value = hoveredSignal.value.filter((id) => id != nativeEvent.pointerId)
-    if (properties.onHoverChange != null && hoveredSignal.value.length === 0) {
-      properties.onHoverChange(false)
+    if (hoveredSignal.value.length === 0) {
+      properties?.onHoverChange?.(false)
+      style?.onHoverChange?.(false)
     }
     unsetCursorType(hoveredSignal)
   })

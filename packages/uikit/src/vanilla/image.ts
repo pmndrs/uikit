@@ -11,8 +11,9 @@ export class Image extends Object3D {
   public readonly internals: ReturnType<typeof createImage>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private childrenContainer: Object3D
-  private readonly propertiesSignal: Signal<ImageProperties>
+  private readonly childrenContainer: Object3D
+  private readonly styleSignal: Signal<ImageProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<ImageProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly srcSignal: Signal<
     Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined
@@ -21,7 +22,7 @@ export class Image extends Object3D {
   constructor(
     parent: Parent,
     src: string | Signal<string>,
-    properties: ImageProperties,
+    properties?: ImageProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -39,12 +40,12 @@ export class Image extends Object3D {
     this.internals = createImage(
       parent.internals,
       this.srcSignal,
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
       { current: this.childrenContainer },
     )
-    this.setProperties(properties, defaultProperties)
 
     //setting up events
     const { handlers, interactionPanel, subscriptions } = this.internals
@@ -56,11 +57,16 @@ export class Image extends Object3D {
     this.srcSignal.value = src
   }
 
-  setProperties(properties: ImageProperties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: ImageProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: ImageProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

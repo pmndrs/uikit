@@ -11,15 +11,16 @@ export class Svg extends Object3D {
   public readonly internals: ReturnType<typeof createSvg>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private childrenContainer: Object3D
-  private readonly propertiesSignal: Signal<SvgProperties>
+  private readonly childrenContainer: Object3D
+  private readonly styleSignal: Signal<SvgProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<SvgProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private srcSignal: Signal<string | Signal<string>>
+  private readonly srcSignal: Signal<string | Signal<string>>
 
   constructor(
     parent: Parent,
     src: string | Signal<string>,
-    properties: SvgProperties = {},
+    properties?: SvgProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -35,12 +36,12 @@ export class Svg extends Object3D {
     this.internals = createSvg(
       parent.internals,
       this.srcSignal,
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
       { current: this.childrenContainer },
     )
-    this.setProperties(properties, defaultProperties)
 
     const { handlers, centerGroup, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
@@ -52,11 +53,16 @@ export class Svg extends Object3D {
     this.srcSignal.value = src
   }
 
-  setProperties(properties: SvgProperties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: SvgProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: SvgProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

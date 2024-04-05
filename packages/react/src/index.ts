@@ -12,6 +12,15 @@ export {
   type ViewportListeners,
   type Listeners,
   type AllOptionalProperties,
+  type ImageProperties,
+  type ContainerProperties,
+  type ContentProperties,
+  type CustomContainerProperties,
+  type IconProperties,
+  type InputProperties,
+  type RootProperties,
+  type SvgProperties,
+  type TextProperties,
 } from '@pmndrs/uikit'
 export { DefaultProperties } from './default.js'
 export type { ComponentInternals } from './ref.js'

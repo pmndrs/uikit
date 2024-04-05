@@ -3,12 +3,7 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import {
-  RootProperties,
-  createRoot,
-  reversePainterSortStable,
-  unsubscribeSubscriptions,
-} from '@pmndrs/uikit/internals'
+import { RootProperties, createRoot, reversePainterSortStable, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -16,7 +11,7 @@ export const Root: (
   props: RootProperties & {
     children?: ReactNode
   } & EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<ComponentInternals<RootProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const renderer = useThree((state) => state.gl)
 
@@ -28,6 +23,7 @@ export const Root: (
   const internals = useMemo(
     () =>
       createRoot(
+        propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
         outerRef,

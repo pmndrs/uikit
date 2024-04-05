@@ -12,14 +12,14 @@ export const Content: (
     children?: ReactNode
   } & ContentProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<ComponentInternals<ContentProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
-    () => createContent(parent, propertySignals.properties, propertySignals.default, outerRef),
+    () => createContent(parent, propertySignals.style, propertySignals.properties, propertySignals.default, outerRef),
     [parent, propertySignals],
   )
   useEffect(() => {

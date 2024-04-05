@@ -12,10 +12,11 @@ export class Container extends Object3D<EventMap> {
   public readonly internals: ReturnType<typeof createContainer>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
-  private readonly propertiesSignal: Signal<ContainerProperties>
+  private readonly styleSignal: Signal<ContainerProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<ContainerProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
-  constructor(parent: Parent, properties: ContainerProperties = {}, defaultProperties?: AllOptionalProperties) {
+  constructor(parent: Parent, properties?: ContainerProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.fontFamiliesSignal = parent.fontFamiliesSignal
     this.propertiesSignal = signal(properties)
@@ -30,6 +31,7 @@ export class Container extends Object3D<EventMap> {
     //setting up the container
     this.internals = createContainer(
       parent.internals,
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
@@ -42,11 +44,16 @@ export class Container extends Object3D<EventMap> {
     bindHandlers(handlers, this, subscriptions)
   }
 
-  setProperties(properties: Properties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: ContainerProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: ContainerProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

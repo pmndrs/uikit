@@ -13,7 +13,7 @@ export const Text: (
     children: string | Array<string | Signal<string>> | Signal<string>
   } & TextProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals>,
+    RefAttributes<ComponentInternals<TextProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
@@ -26,7 +26,16 @@ export const Text: (
   const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
   fontFamilies.value = useFontFamilies()
   const internals = useMemo(
-    () => createText(parent, textSignal, fontFamilies, propertySignals.properties, propertySignals.default, outerRef),
+    () =>
+      createText(
+        parent,
+        textSignal,
+        fontFamilies,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+      ),
     [fontFamilies, parent, propertySignals, textSignal],
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])

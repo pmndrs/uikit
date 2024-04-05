@@ -57,7 +57,7 @@ export function usePropertySignals<T>(properties: T) {
   const propertySignals = useMemo(
     () => ({
       style: signal<T | undefined>(undefined),
-      properties: signal<T>(undefined as any),
+      properties: signal<T | undefined>(undefined as any),
       default: signal<AllOptionalProperties | undefined>(undefined),
     }),
     [],

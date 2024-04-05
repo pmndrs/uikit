@@ -9,16 +9,17 @@ import { FontFamilies } from '../internals.js'
 export class Root extends Object3D {
   public readonly internals: ReturnType<typeof createRoot>
   public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
-  private childrenContainer: Object3D
 
-  private readonly propertiesSignal: Signal<RootProperties>
+  private readonly childrenContainer: Object3D
+  private readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<RootProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
   constructor(
     camera: Camera | (() => Camera),
     renderer: WebGLRenderer,
     fontFamilies?: FontFamilies,
-    properties: RootProperties = {},
+    properties?: RootProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -31,6 +32,7 @@ export class Root extends Object3D {
     this.matrixAutoUpdate = false
 
     this.internals = createRoot(
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
@@ -55,11 +57,16 @@ export class Root extends Object3D {
     this.fontFamiliesSignal.value = fontFamilies
   }
 
-  setProperties(properties: RootProperties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: RootProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: RootProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

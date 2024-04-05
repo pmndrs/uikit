@@ -10,7 +10,7 @@ import { Signal, signal } from '@preact/signals-core'
 export const Image: (
   props: ImageProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals> & {
+    RefAttributes<ComponentInternals<ImageProperties>> & {
       src?: Signal<string | undefined> | string | Texture | Signal<Texture | undefined>
       children?: ReactNode
     },
@@ -25,7 +25,16 @@ export const Image: (
   )
   srcSignal.value = properties.src
   const internals = useMemo(
-    () => createImage(parent, srcSignal, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    () =>
+      createImage(
+        parent,
+        srcSignal,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+      ),
     [parent, propertySignals, srcSignal],
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])

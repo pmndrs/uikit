@@ -11,7 +11,7 @@ import {} from '@react-three/fiber'
 export const Svg: (
   props: SvgProperties &
     EventHandlers &
-    RefAttributes<ComponentInternals> & { src: string | Signal<string>; children?: ReactNode },
+    RefAttributes<ComponentInternals<SvgProperties>> & { src: string | Signal<string>; children?: ReactNode },
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
@@ -20,7 +20,16 @@ export const Svg: (
   const srcSignal = useMemo(() => signal<string | Signal<string>>(''), [])
   srcSignal.value = properties.src
   const internals = useMemo(
-    () => createSvg(parent, srcSignal, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    () =>
+      createSvg(
+        parent,
+        srcSignal,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+      ),
     [parent, propertySignals, srcSignal],
   )
   useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])

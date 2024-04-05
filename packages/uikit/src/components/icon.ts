@@ -18,7 +18,7 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
-import { ColorRepresentation, Subscriptions, fitNormalizedContentInside } from '../utils.js'
+import { Subscriptions, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
@@ -31,7 +31,6 @@ import {
   MergedProperties,
   PanelGroupProperties,
   computedPanelGroupDependencies,
-  computedProperty,
   darkPropertyTransformers,
   getDefaultPanelMaterialConfig,
 } from '../internals.js'
@@ -60,7 +59,8 @@ export function createIcon(
   text: string,
   svgWidth: number,
   svgHeight: number,
-  properties: Signal<IconProperties>,
+  style: Signal<IconProperties | undefined>,
+  properties: Signal<IconProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -70,6 +70,7 @@ export function createIcon(
   setupCursorCleanup(hoveredSignal, subscriptions)
 
   const mergedProperties = computedMergedProperties(
+    style,
     properties,
     defaultProperties,
     {
@@ -128,15 +129,15 @@ export function createIcon(
     subscriptions,
   )
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   return {
     root: parentContext.root,
     node,
     subscriptions,
     iconGroup,
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     interactionPanel: createInteractionPanel(
       node,
       orderInfo,

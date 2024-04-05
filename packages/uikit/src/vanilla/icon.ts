@@ -9,7 +9,8 @@ import { IconProperties, createIcon } from '../components/icon.js'
 export class Icon extends Object3D {
   public readonly internals: ReturnType<typeof createIcon>
 
-  private readonly propertiesSignal: Signal<IconProperties>
+  private readonly styleSignal: Signal<IconProperties | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<IconProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
 
   constructor(
@@ -17,7 +18,7 @@ export class Icon extends Object3D {
     text: string,
     svgWidth: number,
     svgHeight: number,
-    properties: IconProperties = {},
+    properties?: IconProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -30,11 +31,11 @@ export class Icon extends Object3D {
       text,
       svgWidth,
       svgHeight,
+      this.styleSignal,
       this.propertiesSignal,
       this.defaultPropertiesSignal,
       { current: this },
     )
-    this.setProperties(properties, defaultProperties)
 
     const { handlers, iconGroup, interactionPanel, subscriptions } = this.internals
     this.add(interactionPanel)
@@ -42,11 +43,16 @@ export class Icon extends Object3D {
     bindHandlers(handlers, this, subscriptions)
   }
 
-  setProperties(properties: IconProperties, defaultProperties?: AllOptionalProperties) {
-    batch(() => {
-      this.propertiesSignal.value = properties
-      this.defaultPropertiesSignal.value = defaultProperties
-    })
+  setStyle(style: IconProperties | undefined) {
+    this.styleSignal.value = style
+  }
+
+  setProperties(properties: IconProperties | undefined) {
+    this.propertiesSignal.value = properties
+  }
+
+  setDefaultProperties(properties: AllOptionalProperties) {
+    this.defaultPropertiesSignal.value = properties
   }
 
   destroy() {

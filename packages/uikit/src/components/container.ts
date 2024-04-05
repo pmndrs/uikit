@@ -50,7 +50,8 @@ export type ContainerProperties = InheritableContainerProperties & Listeners
 
 export function createContainer(
   parentContext: ParentContext,
-  properties: Signal<ContainerProperties>,
+  style: Signal<ContainerProperties | undefined>,
+  properties: Signal<ContainerProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -62,7 +63,7 @@ export function createContainer(
   setupCursorCleanup(hoveredSignal, subscriptions)
 
   //properties
-  const mergedProperties = computedMergedProperties(properties, defaultProperties, {
+  const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentContext.root.node.size),
     ...createHoverPropertyTransformers(hoveredSignal),
@@ -123,8 +124,8 @@ export function createContainer(
     subscriptions,
   )
 
-  setupLayoutListeners(properties, node.size, subscriptions)
-  setupViewportListeners(properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupViewportListeners(style, properties, isClipped, subscriptions)
 
   return {
     clippingRect: computedClippingRect(
@@ -147,7 +148,7 @@ export function createContainer(
       parentContext.clippingRect,
       subscriptions,
     ),
-    handlers: computedHandlers(properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     subscriptions,
   }
 }

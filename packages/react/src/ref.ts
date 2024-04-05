@@ -12,7 +12,7 @@ import {
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
 
-export type ComponentInternals = {
+export type ComponentInternals<T> = {
   pixelSize: number
   size: ReadonlySignal<Vector2Tuple>
   center: ReadonlySignal<Vector2Tuple>
@@ -21,11 +21,12 @@ export type ComponentInternals = {
   scrollPosition?: Signal<Vector2Tuple>
   maxScrollPosition?: Signal<Partial<Vector2Tuple>>
   interactionPanel: Mesh
+  setStyle(style: T | undefined): void
 }
 
 export function useComponentInternals<T, O = {}>(
-  ref: ForwardedRef<ComponentInternals & O>,
-  styleSignal: Signal<T>,
+  ref: ForwardedRef<ComponentInternals<T> & O>,
+  styleSignal: Signal<T | undefined>,
   internals: ReturnType<
     | typeof createContainer
     | typeof createImage
@@ -45,7 +46,7 @@ export function useComponentInternals<T, O = {}>(
     () => {
       const { scrollPosition, node, root } = internals
       return {
-        setStyle: (style: T) => (styleSignal.value = style),
+        setStyle: (style: T | undefined) => (styleSignal.value = style),
         pixelSize: root.pixelSize,
         borderInset: node.borderInset,
         paddingInset: node.paddingInset,

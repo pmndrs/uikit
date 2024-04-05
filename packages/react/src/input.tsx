@@ -14,7 +14,10 @@ import { ComponentInternals, useComponentInternals } from './ref.js'
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
 
-export type InputInternals = ComponentInternals & { current: ReadonlySignal<string>; focus: () => void }
+export type InputInternals = ComponentInternals<InputProperties> & {
+  current: ReadonlySignal<string>
+  focus: () => void
+}
 
 export const Input: (
   props: {
@@ -45,10 +48,12 @@ export const Input: (
           if (!controlled.current) {
             valueSignal.value = newValue
           }
-          propertySignals.properties.peek().onValueChange?.(newValue)
+          propertySignals.style.peek()?.onValueChange?.(newValue)
+          propertySignals.properties.peek()?.onValueChange?.(newValue)
         },
         properties.multiline ?? false,
         fontFamilies,
+        propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
         outerRef,

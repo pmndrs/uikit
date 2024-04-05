@@ -53,7 +53,7 @@ export function setupScrollHandler(
   node: FlexNode,
   scrollPosition: Signal<Vector2Tuple>,
   object: Object3DRef,
-  listeners: Signal<ScrollListeners>,
+  listeners: Signal<ScrollListeners | undefined>,
   pixelSize: number,
   onFrameSet: Set<(delta: number) => void>,
   subscriptions: Subscriptions,
@@ -95,7 +95,7 @@ export function setupScrollHandler(
         wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
       )
     }
-    const preventScroll = listeners.peek().onScroll?.(newX, newY, scrollPosition, event)
+    const preventScroll = listeners.peek()?.onScroll?.(newX, newY, scrollPosition, event)
     if (preventScroll === false || (x === newX && y === newY)) {
       return
     }
