@@ -1,6 +1,6 @@
 import { ThreeEvent } from '@react-three/fiber'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
-import { ComponentInternals, Container, DefaultProperties } from '@react-three/uikit'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ComponentPropsWithoutRef, ReactNode, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils.js'
@@ -41,7 +41,7 @@ export function Slider({
 }) {
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const value = providedValue ?? uncontrolled ?? 50
-  const ref = useRef<ComponentInternals>(null)
+  const ref = useRef<ComponentInternals<ContainerProperties>>(null)
   const onChange = useRef(onValueChange)
   onChange.current = onValueChange
   const hasProvidedValue = providedValue != null
