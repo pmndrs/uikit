@@ -1,5 +1,5 @@
 {
-  "name": "@vanilla-three/uikit",
+  "name": "@pmndrs/uikit",
   "type": "module",
   "description": "Build performant 3D user interfaces for Three.js using @react-three/fiber and yoga.",
   "version": "0.0.0",

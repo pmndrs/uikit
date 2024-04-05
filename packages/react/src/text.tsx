@@ -3,7 +3,7 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { createText, FontFamilies, TextProperties, unsubscribeSubscriptions } from '@vanilla-three/uikit/internals'
+import { createText, FontFamilies, TextProperties, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'

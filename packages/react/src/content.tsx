@@ -3,7 +3,7 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { createContent, unsubscribeSubscriptions } from '@vanilla-three/uikit/internals'
+import { createContent, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ContentProperties } from '../../uikit/dist/components/content.js'
 

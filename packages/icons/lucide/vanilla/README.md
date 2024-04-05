@@ -1,5 +1,5 @@
-# @vanilla-three/uikit-lucide
+# @pmndrs/uikit-lucide
 
 lucide icons for v3/uikit
 
-`npm i @vanilla-three/uikit-lucide`
+`npm i @pmndrs/uikit-lucide`

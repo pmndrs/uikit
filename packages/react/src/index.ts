@@ -12,7 +12,7 @@ export {
   type ViewportListeners,
   type Listeners,
   type AllOptionalProperties,
-} from '@vanilla-three/uikit'
+} from '@pmndrs/uikit'
 export { DefaultProperties } from './default.js'
 export type { ComponentInternals } from './ref.js'
 export * from './container.js'

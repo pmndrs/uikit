@@ -8,7 +8,7 @@ import {
   createText,
   createIcon,
   createCustomContainer,
-} from '@vanilla-three/uikit/internals'
+} from '@pmndrs/uikit/internals'
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
 

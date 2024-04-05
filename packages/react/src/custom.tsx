@@ -8,7 +8,7 @@ import {
   CustomContainerProperties,
   panelGeometry,
   unsubscribeSubscriptions,
-} from '@vanilla-three/uikit/internals'
+} from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export const CustomContainer: (

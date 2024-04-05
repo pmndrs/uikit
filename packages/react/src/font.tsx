@@ -1,4 +1,4 @@
-import { FontFamilies, FontFamilyUrls } from '@vanilla-three/uikit/internals'
+import { FontFamilies, FontFamilyUrls } from '@pmndrs/uikit/internals'
 import { useContext, createContext, ReactNode } from 'react'
 
 const FontFamiliesContext = createContext<FontFamilies>(null as any)

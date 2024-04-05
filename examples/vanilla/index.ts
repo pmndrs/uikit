@@ -1,6 +1,6 @@
 import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Root, Image, Text, Svg, Content } from '@vanilla-three/uikit'
-import { Delete } from '@vanilla-three/uikit-lucide'
+import { reversePainterSortStable, Container, Root, Image, Text, Svg, Content } from '@pmndrs/uikit'
+import { Delete } from '@pmndrs/uikit-lucide'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/Addons.js'
 

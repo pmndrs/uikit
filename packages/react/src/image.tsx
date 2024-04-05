@@ -1,4 +1,4 @@
-import { createImage, ImageProperties, unsubscribeSubscriptions } from '@vanilla-three/uikit/internals'
+import { createImage, ImageProperties, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D, Texture } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'

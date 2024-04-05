@@ -1,4 +1,4 @@
-import { unsubscribeSubscriptions, IconProperties, createIcon } from '@vanilla-three/uikit/internals'
+import { unsubscribeSubscriptions, IconProperties, createIcon } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'

@@ -3,7 +3,7 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
 import { Object3D } from 'three'
 import { useDefaultProperties } from './default.js'
-import { AllOptionalProperties, addHandler } from '@vanilla-three/uikit/internals'
+import { AllOptionalProperties, addHandler } from '@pmndrs/uikit/internals'
 
 const eventHandlerKeys: Array<keyof EventHandlers> = [
   'onClick',

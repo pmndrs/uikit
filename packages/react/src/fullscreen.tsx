@@ -4,7 +4,7 @@ import { batch, signal } from '@preact/signals-core'
 import { RootState, createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Group, PerspectiveCamera } from 'three'
-import { RootProperties } from '@vanilla-three/uikit/internals'
+import { RootProperties } from '@pmndrs/uikit/internals'
 import { ComponentInternals } from './ref.js'
 
 export const Fullscreen: (

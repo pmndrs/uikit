@@ -8,7 +8,7 @@ import {
   createRoot,
   reversePainterSortStable,
   unsubscribeSubscriptions,
-} from '@vanilla-three/uikit/internals'
+} from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 

@@ -9,7 +9,7 @@ import {
   InputProperties,
   createInput,
   readReactive,
-} from '@vanilla-three/uikit/internals'
+} from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'

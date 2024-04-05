@@ -1,5 +1,5 @@
 {
-  "name": "@vanilla-three/uikit-lucide",
+  "name": "@pmndrs/uikit-lucide",
   "version": "0.0.0",
   "description": "lucide icons for v3/uikit",
   "files": [
@@ -20,7 +20,7 @@
   "type": "module",
   "main": "dist/index.js",
   "dependencies": {
-    "@vanilla-three/uikit": "workspace:^"
+    "@pmndrs/uikit": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

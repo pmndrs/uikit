@@ -1,4 +1,4 @@
-import type { ParentContext } from '@vanilla-three/uikit/internals'
+import type { ParentContext } from '@pmndrs/uikit/internals'
 import { createContext, useContext } from 'react'
 
 //const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null as any)

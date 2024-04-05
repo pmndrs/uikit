@@ -1,4 +1,4 @@
-import { unsubscribeSubscriptions, SvgProperties, createSvg } from '@vanilla-three/uikit/internals'
+import { unsubscribeSubscriptions, SvgProperties, createSvg } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'

@@ -375,10 +375,10 @@ importers:
 
   examples/vanilla:
     dependencies:
-      '@vanilla-three/uikit':
+      '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
-      '@vanilla-three/uikit-lucide':
+      '@pmndrs/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/vanilla
       react-dom:
@@ -428,7 +428,7 @@ importers:
 
   packages/icons/lucide/vanilla:
     dependencies:
-      '@vanilla-three/uikit':
+      '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../../uikit
     devDependencies:
@@ -497,7 +497,7 @@ importers:
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
-      '@vanilla-three/uikit':
+      '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../uikit
       chalk:

@@ -13,8 +13,8 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { AllOptionalProperties, Icon, Parent } from '@vanilla-three/uikit'
-      import { IconProperties } from '@vanilla-three/uikit/internals'
+      import { AllOptionalProperties, Icon, Parent } from '@pmndrs/uikit'
+      import { IconProperties } from '@pmndrs/uikit/internals'
       const text = \`${svg}\`;
       export class ${name} extends Icon {
         constructor(parent: Parent, properties: IconProperties = {}, defaultProperties?: AllOptionalProperties,) {

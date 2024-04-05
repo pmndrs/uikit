@@ -1,4 +1,4 @@
-import { AllOptionalProperties } from '@vanilla-three/uikit'
+import { AllOptionalProperties } from '@pmndrs/uikit'
 import { ReactNode, createContext, useContext } from 'react'
 
 const DefaultPropertiesContext = createContext<AllOptionalProperties | undefined>(undefined)

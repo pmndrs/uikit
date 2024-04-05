@@ -14,7 +14,7 @@ import { HalfFloatType, LinearFilter, Scene, WebGLRenderTarget } from 'three'
 import { Image } from './image.js'
 import { InjectState, RootState, createPortal, useFrame, useStore } from '@react-three/fiber'
 import type { DomEvent, EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import type { ImageProperties } from '@vanilla-three/uikit/internals'
+import type { ImageProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
 
 export const Portal: (
