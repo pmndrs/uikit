@@ -1,11 +1,48 @@
-import { DynamicDrawUsage, Group, InstancedBufferAttribute, Material, TypedArray } from 'three'
+import { DynamicDrawUsage, InstancedBufferAttribute, Material, TypedArray } from 'three'
 import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
-import { CameraDistanceRef, OrderInfo, setupRenderOrder } from '../../order.js'
+import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../../order.js'
+import { Object3DRef } from '../../context.js'
 
-export class InstancedGlyphGroup extends Group {
+export class GlyphGroupManager {
+  private map = new Map<Font, Map<number, InstancedGlyphGroup>>()
+  constructor(
+    private pixelSize: number,
+    private rootCameraDistance: WithCameraDistance,
+    private object: Object3DRef,
+  ) {}
+
+  getGroup(majorIndex: number, font: Font) {
+    let groups = this.map.get(font)
+    if (groups == null) {
+      this.map.set(font, (groups = new Map()))
+    }
+    let glyphGroup = groups?.get(majorIndex)
+    if (glyphGroup == null) {
+      groups.set(
+        majorIndex,
+        (glyphGroup = new InstancedGlyphGroup(this.object, font, this.pixelSize, this.rootCameraDistance, {
+          majorIndex,
+          elementType: ElementType.Text,
+          minorIndex: 0,
+        })),
+      )
+    }
+    return glyphGroup
+  }
+
+  onFrame = (delta: number) => {
+    for (const groups of this.map.values()) {
+      for (const group of groups.values()) {
+        group.onFrame(delta)
+      }
+    }
+  }
+}
+
+export class InstancedGlyphGroup {
   public instanceMatrix!: InstancedBufferAttribute
   public instanceUV!: InstancedBufferAttribute
   public instanceRGBA!: InstancedBufferAttribute
@@ -21,12 +58,12 @@ export class InstancedGlyphGroup extends Group {
   private timeTillDecimate?: number
 
   constructor(
+    private object: Object3DRef,
     font: Font,
     public readonly pixelSize: number,
-    private readonly cameraDistance: CameraDistanceRef,
+    private readonly rootCameraDistance: WithCameraDistance,
     private orderInfo: OrderInfo,
   ) {
-    super()
     this.instanceMaterial = new InstancedGlyphMaterial(font)
   }
 
@@ -94,11 +131,13 @@ export class InstancedGlyphGroup extends Group {
   onFrame(delta: number): void {
     const requiredSize = this.glyphs.length - this.holeIndicies.length + this.requestedGlyphs.length
 
+    if (this.mesh != null) {
+      this.mesh.visible = requiredSize > 0
+    }
+
     if (requiredSize === 0) {
-      this.visible = false
       return
     }
-    this.visible = true
 
     const availableSize = this.instanceMatrix?.count ?? 0
 
@@ -125,6 +164,7 @@ export class InstancedGlyphGroup extends Group {
       this.glyphs[indexOffset + i] = glyph
     }
     this.mesh!.count += requestedGlyphsLength
+    this.mesh!.visible = true
     this.requestedGlyphs.length = 0
   }
 
@@ -174,14 +214,14 @@ export class InstancedGlyphGroup extends Group {
       this.holeIndicies.length = 0
 
       //destroying the old mesh
-      this.remove(oldMesh)
+      this.object.current?.remove(oldMesh)
       oldMesh.dispose()
     }
 
     //finalizing the new mesh
-    setupRenderOrder(this.mesh, this.cameraDistance, this.orderInfo)
+    setupRenderOrder(this.mesh, this.rootCameraDistance, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
-    this.add(this.mesh)
+    this.object.current?.add(this.mesh)
   }
 }
 

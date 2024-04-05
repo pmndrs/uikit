@@ -78,6 +78,7 @@ export default function App() {
               verticalAlign="bottom"
               horizontalAlign="block"
               cursor="pointer"
+              color="white"
             >
               {t}
               more
@@ -134,10 +135,11 @@ export default function App() {
                   verticalAlign="center"
                   horizontalAlign="center"
                   padding={10}
+                  color="white"
                 >
                   Hello World!
                 </Text>
-                <Text flexShrink={0} backgroundColor="black" padding={10}>
+                <Text color="white" flexShrink={0} backgroundColor="black" padding={10}>
                   Lorem voluptate aliqua est veniam pariatur enim reprehenderit nisi laboris. Tempor sit magna ea
                   occaecat velit veniam ipsum do deserunt adipisicing labore. Voluptate consectetur Lorem exercitation
                   laborum do nulla velit sit. Aliqua sit cupidatat excepteur fugiat. Labore proident ea in in ex ad aute
@@ -177,6 +179,15 @@ export default function App() {
               fontSize={100}
               color="red"
               wordBreak="keep-all"
+              caretWidth={10}
+              caretBorderRadius={5}
+              caretBorder={3}
+              caretOpacity={0}
+              caretBorderColor="orange"
+              selectionOpacity={0}
+              selectionBorderRadius={5}
+              selectionBorder={3}
+              selectionBorderColor="orange"
               focus={{ borderRadius: 20 }}
               verticalAlign="center"
               horizontalAlign="center"

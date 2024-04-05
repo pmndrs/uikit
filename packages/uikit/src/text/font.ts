@@ -1,4 +1,98 @@
-import { Texture, TypedArray } from 'three'
+import { Signal, effect, signal } from '@preact/signals-core'
+import { Texture, TypedArray, WebGLRenderer } from 'three'
+import { MergedProperties } from '../properties/merged.js'
+import { Subscriptions } from '../utils.js'
+import { loadCachedFont } from './cache.js'
+import { computedProperty } from '../internals.js'
+
+export type FontFamilyUrls = Partial<Record<FontWeight, string>>
+
+export type FontFamilies = Record<string, FontFamilyUrls>
+
+const fontWeightNames = {
+  thin: 100,
+  'extra-light': 200,
+  light: 300,
+  normal: 400,
+  medium: 500,
+  'semi-bold': 600,
+  bold: 700,
+  'extra-bold': 800,
+  black: 900,
+  'extra-black': 950,
+}
+
+export type FontWeight = keyof typeof fontWeightNames | number
+
+export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight }
+
+const defaultFontFamilyUrls: FontFamilies = {
+  inter: {
+    light: 'https://pmndrs.github.io/uikit/fonts/inter-light.json',
+    normal: 'https://pmndrs.github.io/uikit/fonts/inter-normal.json',
+    medium: 'https://pmndrs.github.io/uikit/fonts/inter-medium.json',
+    'semi-bold': 'https://pmndrs.github.io/uikit/fonts/inter-semi-bold.json',
+    bold: 'https://pmndrs.github.io/uikit/fonts/inter-bold.json',
+  },
+}
+
+export function computedFont(
+  properties: Signal<MergedProperties>,
+  fontFamiliesSignal: Signal<FontFamilies | undefined> | undefined,
+  renderer: WebGLRenderer,
+  subscriptions: Subscriptions,
+): Signal<Font | undefined> {
+  const result = signal<Font | undefined>(undefined)
+  const fontFamily = computedProperty<string | undefined>(properties, 'fontFamily', undefined)
+  const fontWeight = computedProperty<FontWeight>(properties, 'fontWeight', 'normal')
+  subscriptions.push(
+    effect(() => {
+      const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
+      let resolvedFontFamily = fontFamily.value
+      if (resolvedFontFamily == null) {
+        resolvedFontFamily = Object.keys(fontFamilies)[0]
+      }
+      const url = getMatchingFontUrl(
+        fontFamilies[resolvedFontFamily],
+        typeof fontWeight.value === 'string' ? fontWeightNames[fontWeight.value] : fontWeight.value,
+      )
+      let canceled = false
+      loadCachedFont(url, renderer, (font) => (canceled ? undefined : (result.value = font)))
+      return () => (canceled = true)
+    }),
+  )
+  return result
+}
+
+function getMatchingFontUrl(fontFamily: FontFamilyUrls, weight: number): string {
+  let distance = Infinity
+  let result: string | undefined
+  for (const fontWeight in fontFamily) {
+    const d = Math.abs(weight - getWeightNumber(fontWeight))
+    if (d === 0) {
+      return fontFamily[fontWeight]!
+    }
+    if (d < distance) {
+      distance = d
+      result = fontFamily[fontWeight]
+    }
+  }
+  if (result == null) {
+    throw new Error(`font family has no entries ${fontFamily}`)
+  }
+  return result
+}
+
+function getWeightNumber(value: string): number {
+  if (value in fontWeightNames) {
+    return fontWeightNames[value as keyof typeof fontWeightNames]
+  }
+  const number = parseFloat(value)
+  if (isNaN(number)) {
+    throw new Error(`invalid font weight "${value}"`)
+  }
+  return number
+}
 
 export type FontInfo = {
   pages: Array<string>

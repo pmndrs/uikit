@@ -1,12 +1,12 @@
-import { Group, Object3D, Vector2Tuple } from 'three'
+import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import Yoga, { Edge, Node, Overflow } from 'yoga-layout'
+import Yoga, { Edge, MeasureFunction, Node, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
-import { setMeasureFunc, yogaNodeEqual } from './utils.js'
-import { WithImmediateProperties } from '../properties/immediate.js'
-import { RefObject } from 'react'
-import { CameraDistanceRef } from '../order.js'
-import { defaultYogaConfig } from './config.js'
+import { Subscriptions } from '../utils.js'
+import { setupImmediateProperties } from '../properties/immediate.js'
+import { MergedProperties } from '../properties/merged.js'
+import { Object3DRef } from '../context.js'
+import { PointScaleFactor, defaultYogaConfig } from './config.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -14,8 +14,14 @@ export type YogaProperties = {
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
 
-export class FlexNode implements WithImmediateProperties {
-  public readonly size = signal<Vector2Tuple>([0, 0])
+function hasImmediateProperty(key: string): boolean {
+  if (key === 'measureFunc') {
+    return true
+  }
+  return key in setter
+}
+
+export class FlexNode {
   public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
   public readonly borderInset = signal<Inset>([0, 0, 0, 0])
   public readonly paddingInset = signal<Inset>([0, 0, 0, 0])
@@ -31,14 +37,16 @@ export class FlexNode implements WithImmediateProperties {
 
   public requestCalculateLayout: () => void
 
-  active = signal(false)
+  private active = signal(false)
 
   constructor(
-    private groupRef: RefObject<Group>,
-    public cameraDistance: CameraDistanceRef,
-    public readonly pixelSize: number,
+    propertiesSignal: Signal<MergedProperties>,
+    public readonly size = signal<Vector2Tuple>([0, 0]),
+    private object: Object3DRef,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
+    subscriptions: Subscriptions,
+    renameOutput?: Record<string, string>,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
@@ -47,22 +55,39 @@ export class FlexNode implements WithImmediateProperties {
       this.yogaNode = Yoga.Node.create(defaultYogaConfig)
       this.active.value = true
     })
+    setupImmediateProperties(
+      propertiesSignal,
+      this.active,
+      hasImmediateProperty,
+      (key: string, value: unknown) => {
+        setter[key as keyof typeof setter](this.yogaNode!, value as any)
+        this.requestCalculateLayout()
+      },
+      subscriptions,
+      renameOutput,
+    )
   }
 
-  setProperty(key: string, value: unknown): void {
-    if (key === 'measureFunc') {
-      setMeasureFunc(this.yogaNode!, value as any)
-    } else {
-      setter[key as keyof typeof setter](this.yogaNode!, value as any)
-    }
-    this.requestCalculateLayout()
-  }
-
-  hasImmediateProperty(key: string): boolean {
-    if (key === 'measureFunc') {
-      return true
-    }
-    return key in setter
+  setMeasureFunc(func: Signal<MeasureFunction | undefined>) {
+    return effect(() => {
+      if (!this.active.value) {
+        return
+      }
+      if (func.value == null) {
+        this.yogaNode!.setMeasureFunc(null)
+        return
+      }
+      const fn = func.value
+      this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
+        const result = fn(width, wMode, height, hMode)
+        return {
+          width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+          height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
+        }
+      })
+      this.yogaNode!.markDirty()
+      this.requestCalculateLayout()
+    })
   }
 
   destroy() {
@@ -82,17 +107,18 @@ export class FlexNode implements WithImmediateProperties {
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
-  createChild(groupRef: RefObject<Group>): FlexNode {
+  createChild(propertiesSignal: Signal<MergedProperties>, object: Object3DRef, subscriptions: Subscriptions): FlexNode {
     const child = new FlexNode(
-      groupRef,
-      this.cameraDistance,
-      this.pixelSize,
+      propertiesSignal,
+      undefined,
+      object,
       this.requestCalculateLayout,
       computed(() => {
         const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]
         const [x, y] = this.scrollable.value
         return [ancestorX || x, ancestorY || y]
       }),
+      subscriptions,
     )
     return child
   }
@@ -120,12 +146,12 @@ export class FlexNode implements WithImmediateProperties {
     //commiting the children
     let groupChildren: Array<Object3D> | undefined
     this.children.sort((child1, child2) => {
-      groupChildren ??= child1.groupRef.current?.parent?.children
+      groupChildren ??= child1.object.current?.parent?.children
       if (groupChildren == null) {
         return 0
       }
-      const group1 = child1.groupRef.current
-      const group2 = child2.groupRef.current
+      const group1 = child1.object.current
+      const group2 = child2.object.current
       if (group1 == null || group2 == null) {
         return 0
       }
@@ -170,10 +196,6 @@ export class FlexNode implements WithImmediateProperties {
 
       //the yoga node MUST be updated via getChild even for insert since the returned value is somehow bound to the index
       oldChildNode = this.yogaNode.getChild(i)
-    }
-
-    if (this.children.length != this.yogaNode.getChildCount()) {
-      throw new Error('alarm')
     }
 
     //recursively executing commit in children
@@ -291,4 +313,8 @@ function assertNodeNotNull<T>(val: T | undefined): T {
     throw new Error(`commit cannot be called with a children that miss a yoga node`)
   }
   return val
+}
+
+function yogaNodeEqual(n1: Node, n2: Node): boolean {
+  return (n1 as any)['M']['O'] === (n2 as any)['M']['O']
 }

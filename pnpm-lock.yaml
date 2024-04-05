@@ -109,10 +109,10 @@ importers:
         version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       '@splinetool/r3f-spline':
         specifier: ^1.0.2
         version: 1.0.2(@react-three/fiber@8.15.13)(@splinetool/loader@1.0.54)
@@ -151,10 +151,10 @@ importers:
         version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       '@types/three':
         specifier: ^0.161.0
         version: 0.161.2
@@ -190,10 +190,10 @@ importers:
         version: 1.3.0(@react-three/fiber@8.15.13)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       '@splinetool/r3f-spline':
         specifier: ^1.0.2
         version: 1.0.2(@react-three/fiber@8.15.13)(@splinetool/loader@1.0.54)
@@ -232,10 +232,10 @@ importers:
         version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       '@types/three':
         specifier: ^0.161.0
         version: 0.161.2
@@ -274,10 +274,10 @@ importers:
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       r3f-perf:
         specifier: ^7.1.2
         version: 7.1.2(@react-three/fiber@8.15.13)(@types/react@18.2.47)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
@@ -301,10 +301,10 @@ importers:
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -325,10 +325,10 @@ importers:
         version: 2.16.0(@react-three/fiber@8.15.13)(@types/three@0.161.2)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide
+        version: link:../../packages/icons/lucide/react
       '@types/three':
         specifier: ^0.161.0
         version: 0.161.2
@@ -358,10 +358,29 @@ importers:
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../packages/uikit
+        version: link:../../packages/react
       react:
         specifier: ^18.2.0
         version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      three:
+        specifier: ^0.161.0
+        version: 0.161.0
+    devDependencies:
+      '@types/three':
+        specifier: ^0.161.0
+        version: 0.161.2
+
+  examples/vanilla:
+    dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide/vanilla
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
@@ -383,17 +402,10 @@ importers:
         version: 4.2.0
 
   packages/icons/lucide:
-    dependencies:
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../uikit
     devDependencies:
       '@types/node':
         specifier: ^20.11.0
         version: 20.11.0
-      '@types/react':
-        specifier: ^18.2.47
-        version: 18.2.47
       lucide-static:
         specifier: ^0.331.0
         version: 0.331.0
@@ -401,14 +413,40 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
 
+  packages/icons/lucide/react:
+    dependencies:
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../../react
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      '@types/react':
+        specifier: ^18.2.47
+        version: 18.2.47
+
+  packages/icons/lucide/vanilla:
+    dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../../uikit
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      '@types/react':
+        specifier: ^18.2.47
+        version: 18.2.47
+
   packages/kits/apfel:
     dependencies:
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../uikit
+        version: link:../../react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../icons/lucide
+        version: link:../../icons/lucide/react
     devDependencies:
       '@preact/signals-core':
         specifier: ^1.5.1
@@ -430,10 +468,10 @@ importers:
     dependencies:
       '@react-three/uikit':
         specifier: workspace:^
-        version: link:../../uikit
+        version: link:../../react
       '@react-three/uikit-lucide':
         specifier: workspace:^
-        version: link:../../icons/lucide
+        version: link:../../icons/lucide/react
       tunnel-rat:
         specifier: ^0.1.2
         version: 0.1.2(@types/react@18.2.47)(react@18.2.0)
@@ -454,11 +492,14 @@ importers:
         specifier: ^0.161.0
         version: 0.161.0
 
-  packages/uikit:
+  packages/react:
     dependencies:
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../uikit
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -471,9 +512,6 @@ importers:
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
-      yoga-layout:
-        specifier: ^3.0.2
-        version: 3.0.2
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -484,9 +522,6 @@ importers:
       '@react-three/fiber':
         specifier: ^8.15.13
         version: 8.15.13(react-dom@18.2.0)(react@18.2.0)(three@0.161.0)
-      '@types/node':
-        specifier: ^20.11.0
-        version: 20.11.0
       '@types/prompts':
         specifier: ^2.4.9
         version: 2.4.9
@@ -508,6 +543,25 @@ importers:
       replace-in-files-cli:
         specifier: ^2.2.0
         version: 2.2.0
+      three:
+        specifier: ^0.161.0
+        version: 0.161.0
+
+  packages/uikit:
+    dependencies:
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.5.1
+      yoga-layout:
+        specifier: ^3.0.2
+        version: 3.0.2
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.11.0
+      '@types/three':
+        specifier: ^0.161.0
+        version: 0.161.2
       three:
         specifier: ^0.161.0
         version: 0.161.0

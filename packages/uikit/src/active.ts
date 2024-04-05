@@ -1,9 +1,8 @@
-import { signal } from '@preact/signals-core'
-import type { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { useMemo } from 'react'
-import { ManagerCollection, Properties } from './properties/utils.js'
-import { WithClasses, useTraverseProperties } from './properties/default.js'
+import { Signal } from '@preact/signals-core'
+import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
+import { EventHandlers, ThreeEvent } from './events.js'
+import { addHandler } from './internals.js'
 
 export type WithActive<T> = T & {
   active?: T
@@ -12,44 +11,44 @@ export type WithActive<T> = T & {
 
 export type ActiveEventHandlers = Pick<EventHandlers, 'onPointerDown' | 'onPointerUp' | 'onPointerLeave'>
 
-export function useApplyActiveProperties(
-  collection: ManagerCollection,
+export function addActiveHandlers(
+  target: EventHandlers,
   properties: WithClasses<WithActive<Properties>> & EventHandlers,
-): ActiveEventHandlers | undefined {
-  const activeSignal = useMemo(() => signal<Array<number>>([]), [])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const translate = useMemo(() => createConditionalPropertyTranslator(() => activeSignal.value.length > 0), [])
+  defaultProperties: AllOptionalProperties | undefined,
+  activeSignal: Signal<Array<number>>,
+): void {
   let activePropertiesExist = false
 
-  useTraverseProperties(properties, (p) => {
-    if (p.active == null) {
-      return
+  traverseProperties(defaultProperties, properties, (p) => {
+    if ('active' in p) {
+      activePropertiesExist = true
     }
-    activePropertiesExist = true
-    translate(collection, p.active)
   })
 
   if (!activePropertiesExist && properties.onActiveChange == null) {
     //no need to listen to hover
     activeSignal.value.length = 0
-    return undefined
+    return
   }
-  const onLeave = (e: ThreeEvent<PointerEvent>) => {
-    activeSignal.value = activeSignal.value.filter((id) => id != e.pointerId)
+  const onLeave = ({ nativeEvent }: ThreeEvent<PointerEvent>) => {
+    activeSignal.value = activeSignal.value.filter((id) => id != nativeEvent.pointerId)
     if (properties.onActiveChange == null || activeSignal.value.length > 0) {
       return
     }
     properties.onActiveChange(false)
   }
+  addHandler('onPointerDown', target, ({ nativeEvent }) => {
+    activeSignal.value = [nativeEvent.pointerId, ...activeSignal.value]
+    if (properties.onActiveChange == null || activeSignal.value.length != 1) {
+      return
+    }
+    properties.onActiveChange(true)
+  })
+  addHandler('onPointerUp', target, onLeave)
+  addHandler('onPointerLeave', target, onLeave)
+}
+export function createActivePropertyTransfomers(activeSignal: Signal<Array<number>>) {
   return {
-    onPointerDown: (e) => {
-      activeSignal.value = [e.pointerId, ...activeSignal.value]
-      if (properties.onActiveChange == null || activeSignal.value.length != 1) {
-        return
-      }
-      properties.onActiveChange(true)
-    },
-    onPointerUp: onLeave,
-    onPointerLeave: onLeave,
+    active: createConditionalPropertyTranslator(() => activeSignal.value.length > 0),
   }
 }

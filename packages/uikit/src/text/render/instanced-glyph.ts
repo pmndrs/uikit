@@ -1,12 +1,24 @@
 import { Matrix4 } from 'three'
 import { InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
-import { colorToBuffer } from '../../utils.js'
+import { ColorRepresentation } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { GlyphInfo, glyphIntoToUV } from '../font.js'
+import { Font, FontFamilyProperties, GlyphInfo, glyphIntoToUV } from '../font.js'
+import { Signal, computed } from '@preact/signals-core'
+import { GlyphLayoutProperties } from '../layout.js'
+import { TextAlignProperties, TextAppearanceProperties } from './instanced-text.js'
+import { writeColor } from '../../internals.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
+
+export type InstancedTextProperties = TextAlignProperties &
+  TextAppearanceProperties &
+  Omit<GlyphLayoutProperties, 'text'> &
+  FontFamilyProperties
+
+export function computedGylphGroupDependencies(fontSignal: Signal<Font | undefined>) {
+  return computed(() => ({ font: fontSignal.value }))
+}
 
 /**
  * renders an initially specified glyph
@@ -88,7 +100,11 @@ export class InstancedGlyph {
     if (this.index == null) {
       return
     }
-    colorToBuffer(this.group.instanceRGBA, this.index, color)
+    const { instanceRGBA } = this.group
+    const offset = instanceRGBA.itemSize * this.index
+    writeColor(instanceRGBA.array, offset, color, undefined)
+    instanceRGBA.addUpdateRange(offset, 3)
+    instanceRGBA.needsUpdate = true
   }
 
   updateOpacity(opacity: number): void {

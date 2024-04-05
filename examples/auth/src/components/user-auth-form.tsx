@@ -1,8 +1,8 @@
-import { Container, SvgIconFromText, Text } from '@react-three/uikit'
+import { Container, Icon, Text } from '@react-three/uikit'
 import {} from '@react-three/uikit-lucide'
-import { Input } from '@/input'
-import { Button } from '@/button'
-import { colors } from '@/theme'
+import { Input } from '@/input.js'
+import { Button } from '@/button.js'
+import { colors } from '@/theme.js'
 
 export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Container>) {
   return (
@@ -33,7 +33,7 @@ export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Contai
         </Container>
       </Container>
       <Button variant="outline">
-        <SvgIconFromText
+        <Icon
           marginRight={8}
           width={16}
           height={16}
