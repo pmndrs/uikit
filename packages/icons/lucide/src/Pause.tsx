@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PauseProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.695 3.057 C 5.466 3.129,5.256 3.299,5.128 3.516 L 5.020 3.700 5.010 11.914 C 5.003 17.333,5.013 20.180,5.040 20.278 C 5.099 20.498,5.291 20.739,5.508 20.867 L 5.700 20.980 8.000 20.980 L 10.300 20.980 10.492 20.867 C 10.709 20.739,10.901 20.498,10.960 20.278 C 10.987 20.180,10.997 17.333,10.990 11.914 L 10.980 3.700 10.872 3.516 C 10.740 3.293,10.533 3.128,10.290 3.055 C 10.033 2.978,5.943 2.979,5.695 3.057 M13.695 3.057 C 13.466 3.129,13.256 3.299,13.128 3.516 L 13.020 3.700 13.010 11.914 C 13.003 17.333,13.013 20.180,13.040 20.278 C 13.099 20.498,13.291 20.739,13.508 20.867 L 13.700 20.980 16.000 20.980 L 18.300 20.980 18.492 20.867 C 18.709 20.739,18.901 20.498,18.960 20.278 C 18.987 20.180,18.997 17.333,18.990 11.914 L 18.980 3.700 18.872 3.516 C 18.740 3.293,18.533 3.128,18.290 3.055 C 18.033 2.978,13.943 2.979,13.695 3.057 M9.000 12.000 L 9.000 19.000 8.000 19.000 L 7.000 19.000 7.000 12.000 L 7.000 5.000 8.000 5.000 L 9.000 5.000 9.000 12.000 M17.000 12.000 L 17.000 19.000 16.000 19.000 L 15.000 19.000 15.000 12.000 L 15.000 5.000 16.000 5.000 L 17.000 5.000 17.000 12.000 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const Pause = /*@__PURE__*/ forwardRef<ComponentInternals, PauseProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type SignpostProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-signpost" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.695 2.057 C 11.466 2.129,11.256 2.299,11.128 2.516 L 11.020 2.700 11.008 3.849 L 10.996 4.998 8.108 5.009 C 5.225 5.020,5.220 5.020,5.060 5.107 C 4.971 5.156,4.067 6.029,3.032 7.067 C 1.029 9.074,1.002 9.107,1.002 9.500 C 1.002 9.893,1.029 9.926,3.032 11.933 C 4.067 12.971,4.971 13.844,5.060 13.893 C 5.220 13.980,5.225 13.980,8.109 13.991 L 10.998 14.002 11.009 17.654 L 11.020 21.306 11.141 21.503 C 11.543 22.156,12.457 22.156,12.859 21.503 L 12.980 21.306 12.991 17.654 L 13.002 14.002 15.891 13.991 C 18.775 13.980,18.780 13.980,18.940 13.893 C 19.029 13.844,19.933 12.971,20.968 11.933 C 22.971 9.926,22.998 9.893,22.998 9.500 C 22.998 9.107,22.971 9.074,20.968 7.067 C 19.933 6.029,19.029 5.156,18.940 5.107 C 18.780 5.020,18.775 5.020,15.892 5.009 L 13.004 4.998 12.992 3.849 L 12.980 2.700 12.872 2.516 C 12.628 2.101,12.150 1.915,11.695 2.057 M19.330 8.230 C 20.006 8.906,20.560 9.478,20.560 9.500 C 20.560 9.522,20.007 10.093,19.330 10.770 L 18.100 12.000 12.000 12.000 L 5.900 12.000 4.670 10.770 C 3.994 10.094,3.440 9.522,3.440 9.500 C 3.440 9.478,3.993 8.907,4.670 8.230 L 5.900 7.000 12.000 7.000 L 18.100 7.000 19.330 8.230 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Signpost = /*@__PURE__*/ forwardRef<ComponentInternals, SignpostProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

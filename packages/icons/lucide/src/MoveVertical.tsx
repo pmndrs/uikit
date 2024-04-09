@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MoveVerticalProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-move-vertical" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.580 1.096 C 11.422 1.172,10.940 1.634,9.274 3.306 C 8.116 4.469,7.138 5.481,7.101 5.555 C 6.872 6.010,7.056 6.601,7.508 6.867 C 7.673 6.964,7.742 6.980,8.000 6.979 C 8.213 6.979,8.341 6.957,8.440 6.905 C 8.517 6.864,9.125 6.289,9.790 5.626 L 11.000 4.422 11.000 11.999 L 11.000 19.576 9.770 18.354 C 8.688 17.279,8.516 17.124,8.343 17.066 C 7.863 16.905,7.382 17.084,7.128 17.516 C 7.036 17.672,7.020 17.745,7.021 18.000 C 7.021 18.212,7.043 18.341,7.095 18.440 C 7.135 18.517,8.116 19.531,9.274 20.694 C 11.567 22.996,11.571 22.999,12.000 22.999 C 12.429 22.999,12.433 22.996,14.726 20.694 C 15.884 19.531,16.865 18.517,16.905 18.440 C 16.957 18.341,16.979 18.212,16.979 18.000 C 16.980 17.745,16.964 17.672,16.872 17.516 C 16.618 17.084,16.137 16.905,15.657 17.066 C 15.484 17.124,15.312 17.279,14.230 18.354 L 13.000 19.576 13.000 11.999 L 13.000 4.422 14.210 5.626 C 14.876 6.289,15.483 6.864,15.560 6.905 C 15.659 6.957,15.787 6.979,16.000 6.979 C 16.258 6.980,16.327 6.964,16.492 6.867 C 16.714 6.737,16.901 6.498,16.965 6.264 C 17.019 6.061,16.989 5.733,16.899 5.555 C 16.862 5.481,15.884 4.469,14.726 3.306 C 13.060 1.634,12.578 1.172,12.420 1.096 C 12.151 0.968,11.849 0.968,11.580 1.096 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const MoveVertical = /*@__PURE__*/ forwardRef<ComponentInternals, MoveVerticalProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

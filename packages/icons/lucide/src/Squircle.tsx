@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type SquircleProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-squircle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.349 2.044 C 7.535 2.178,5.738 2.713,4.406 3.814 C 3.787 4.326,3.247 5.075,2.885 5.924 C 2.566 6.671,2.342 7.527,2.205 8.520 C 2.051 9.633,2.021 10.208,2.021 12.000 C 2.021 13.792,2.051 14.367,2.205 15.480 C 2.744 19.396,4.610 21.251,8.560 21.800 C 9.623 21.948,10.220 21.979,12.000 21.979 C 13.780 21.979,14.377 21.948,15.440 21.800 C 16.241 21.689,16.753 21.574,17.401 21.361 C 20.018 20.502,21.344 18.717,21.800 15.440 C 21.948 14.377,21.979 13.780,21.979 12.000 C 21.979 10.220,21.948 9.623,21.800 8.560 C 21.494 6.357,20.759 4.778,19.594 3.814 C 18.657 3.040,17.469 2.539,15.960 2.283 C 14.520 2.039,12.378 1.947,10.349 2.044 M13.500 4.041 C 16.040 4.168,17.512 4.591,18.435 5.458 C 19.509 6.468,19.999 8.517,19.999 12.000 C 19.999 15.490,19.511 17.527,18.430 18.548 C 17.356 19.562,15.410 20.000,11.992 20.000 C 8.581 19.999,6.644 19.561,5.570 18.548 C 4.489 17.527,4.001 15.490,4.001 12.000 C 4.001 10.005,4.176 8.385,4.505 7.320 C 5.052 5.555,6.056 4.719,8.129 4.302 C 9.412 4.045,11.521 3.942,13.500 4.041 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Squircle = /*@__PURE__*/ forwardRef<ComponentInternals, SquircleProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

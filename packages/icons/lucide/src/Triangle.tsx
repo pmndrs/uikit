@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type TriangleProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-triangle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.566 2.041 C 10.762 2.152,9.928 2.688,9.482 3.380 C 9.213 3.799,1.474 17.366,1.315 17.700 C 1.085 18.180,1.021 18.465,1.021 19.000 C 1.021 19.552,1.087 19.831,1.337 20.340 C 1.635 20.944,2.056 21.365,2.660 21.663 C 3.367 22.011,2.466 21.980,12.000 21.980 C 21.534 21.980,20.633 22.011,21.340 21.663 C 21.944 21.365,22.365 20.944,22.663 20.340 C 22.913 19.831,22.979 19.552,22.979 19.000 C 22.979 18.465,22.915 18.180,22.685 17.700 C 22.526 17.366,14.787 3.799,14.518 3.380 C 14.137 2.790,13.435 2.282,12.754 2.105 C 12.457 2.028,11.883 1.997,11.566 2.041 M12.315 4.066 C 12.445 4.108,12.577 4.191,12.680 4.296 C 12.865 4.485,20.853 18.421,20.945 18.716 C 21.057 19.075,20.969 19.424,20.700 19.694 C 20.366 20.028,21.152 20.000,12.000 20.000 C 2.848 20.000,3.634 20.028,3.300 19.694 C 3.031 19.424,2.943 19.075,3.055 18.716 C 3.085 18.619,4.920 15.372,7.133 11.500 C 9.962 6.549,11.204 4.411,11.318 4.296 C 11.586 4.025,11.938 3.944,12.315 4.066 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Triangle = /*@__PURE__*/ forwardRef<ComponentInternals, TriangleProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

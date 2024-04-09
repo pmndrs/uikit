@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowLeftFromLineProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-left-from-line" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.695 4.057 C 20.466 4.129,20.256 4.299,20.128 4.516 L 20.020 4.700 20.020 12.003 L 20.020 19.306 20.141 19.503 C 20.543 20.156,21.457 20.156,21.859 19.503 L 21.980 19.306 21.980 12.003 L 21.980 4.700 21.872 4.516 C 21.628 4.101,21.150 3.915,20.695 4.057 M8.640 5.068 C 8.485 5.121,8.033 5.556,5.326 8.255 C 1.921 11.650,2.001 11.560,2.001 12.000 C 2.001 12.440,1.924 12.353,5.306 15.726 C 7.019 17.434,8.481 18.862,8.555 18.899 C 9.010 19.128,9.601 18.944,9.867 18.492 C 9.964 18.327,9.980 18.258,9.979 18.000 C 9.979 17.788,9.957 17.659,9.905 17.560 C 9.865 17.483,8.839 16.425,7.626 15.210 L 5.421 13.000 11.300 12.998 C 16.108 12.997,17.207 12.987,17.330 12.943 C 17.551 12.864,17.744 12.702,17.869 12.489 C 17.964 12.328,17.980 12.256,17.980 12.000 C 17.980 11.746,17.963 11.672,17.872 11.516 C 17.740 11.293,17.533 11.128,17.290 11.055 C 17.139 11.009,16.099 11.000,11.264 11.000 L 5.421 11.000 7.626 8.790 C 8.839 7.575,9.865 6.517,9.905 6.440 C 9.957 6.341,9.979 6.212,9.979 6.000 C 9.980 5.745,9.964 5.672,9.872 5.516 C 9.617 5.083,9.122 4.903,8.640 5.068 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowLeftFromLine = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowLeftFromLineProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

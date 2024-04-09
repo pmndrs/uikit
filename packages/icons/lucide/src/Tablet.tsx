@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type TabletProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-tablet" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.499 1.043 C 4.380 1.233,3.461 2.048,3.114 3.160 L 3.020 3.460 3.020 12.000 L 3.020 20.540 3.114 20.840 C 3.422 21.827,4.173 22.578,5.160 22.886 L 5.460 22.980 12.000 22.980 L 18.540 22.980 18.840 22.886 C 19.827 22.578,20.578 21.827,20.886 20.840 L 20.980 20.540 20.980 12.000 L 20.980 3.460 20.886 3.160 C 20.581 2.182,19.832 1.428,18.861 1.121 L 18.540 1.020 12.120 1.014 C 8.589 1.011,5.609 1.024,5.499 1.043 M18.310 3.061 C 18.589 3.144,18.856 3.411,18.939 3.690 C 18.993 3.870,19.000 4.860,19.000 12.001 C 19.000 18.754,18.991 20.138,18.945 20.290 C 18.872 20.533,18.707 20.740,18.484 20.872 L 18.300 20.980 12.000 20.980 L 5.700 20.980 5.516 20.872 C 5.415 20.813,5.284 20.700,5.225 20.623 C 4.985 20.308,5.000 20.888,5.000 12.022 C 5.000 2.888,4.974 3.632,5.304 3.303 C 5.623 2.983,5.120 3.006,11.983 3.003 C 17.353 3.000,18.131 3.007,18.310 3.061 M11.695 17.055 C 11.464 17.130,11.255 17.300,11.128 17.516 C 11.037 17.672,11.020 17.746,11.020 18.000 C 11.020 18.257,11.036 18.327,11.133 18.492 C 11.651 19.374,12.998 19.018,12.998 18.000 C 12.998 17.623,12.792 17.281,12.463 17.112 C 12.265 17.010,11.911 16.984,11.695 17.055 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const Tablet = /*@__PURE__*/ forwardRef<ComponentInternals, TabletProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

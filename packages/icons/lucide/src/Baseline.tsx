@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type BaselineProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-baseline" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.643 3.069 C 11.260 3.204,11.374 2.996,8.085 9.583 C 5.526 14.708,5.027 15.735,5.010 15.906 C 4.968 16.347,5.251 16.794,5.660 16.934 C 5.906 17.018,6.094 17.018,6.340 16.934 C 6.708 16.809,6.781 16.696,7.740 14.768 L 8.619 13.000 12.000 13.000 L 15.381 13.000 16.260 14.768 C 17.219 16.696,17.292 16.809,17.660 16.934 C 17.906 17.018,18.094 17.018,18.340 16.934 C 18.749 16.794,19.032 16.347,18.990 15.906 C 18.973 15.735,18.474 14.708,15.915 9.583 C 12.573 2.889,12.738 3.188,12.316 3.063 C 12.057 2.986,11.874 2.987,11.643 3.069 M13.190 8.620 C 13.834 9.907,14.360 10.969,14.360 10.980 C 14.360 10.991,13.298 11.000,12.000 11.000 C 10.702 11.000,9.640 10.991,9.640 10.980 C 9.640 10.941,11.980 6.280,12.000 6.280 C 12.011 6.280,12.547 7.333,13.190 8.620 M3.695 19.057 C 3.466 19.129,3.256 19.299,3.128 19.516 C 3.037 19.672,3.020 19.746,3.020 20.000 C 3.020 20.256,3.036 20.328,3.131 20.489 C 3.256 20.702,3.449 20.864,3.670 20.943 C 3.893 21.022,20.107 21.022,20.330 20.943 C 20.551 20.864,20.744 20.702,20.869 20.489 C 20.964 20.328,20.980 20.256,20.980 20.000 C 20.980 19.746,20.963 19.672,20.872 19.516 C 20.740 19.293,20.533 19.128,20.290 19.055 C 20.027 18.976,3.947 18.978,3.695 19.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Baseline = /*@__PURE__*/ forwardRef<ComponentInternals, BaselineProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

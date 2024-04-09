@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type TerminalProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-terminal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.670 4.061 C 3.448 4.142,3.250 4.309,3.128 4.516 C 3.036 4.672,3.020 4.745,3.021 5.000 C 3.021 5.212,3.043 5.341,3.095 5.440 C 3.135 5.517,4.386 6.800,5.874 8.290 L 8.579 11.000 5.874 13.710 C 4.386 15.200,3.135 16.483,3.095 16.560 C 3.043 16.659,3.021 16.788,3.021 17.000 C 3.020 17.258,3.036 17.327,3.133 17.492 C 3.263 17.714,3.502 17.901,3.736 17.965 C 3.938 18.019,4.266 17.989,4.445 17.899 C 4.630 17.807,10.737 11.707,10.873 11.480 C 10.964 11.328,10.980 11.254,10.980 11.000 C 10.980 10.746,10.964 10.672,10.873 10.520 C 10.812 10.417,9.431 9.008,7.653 7.235 C 4.817 4.407,4.522 4.125,4.343 4.065 C 4.107 3.987,3.874 3.986,3.670 4.061 M11.695 18.057 C 11.466 18.129,11.256 18.299,11.128 18.516 C 11.037 18.672,11.020 18.746,11.020 19.000 C 11.020 19.256,11.036 19.328,11.131 19.489 C 11.256 19.702,11.449 19.864,11.670 19.943 C 11.892 20.022,20.108 20.022,20.330 19.943 C 20.551 19.864,20.744 19.702,20.869 19.489 C 20.964 19.328,20.980 19.256,20.980 19.000 C 20.980 18.746,20.963 18.672,20.872 18.516 C 20.740 18.293,20.533 18.128,20.290 18.055 C 20.029 17.976,11.946 17.979,11.695 18.057 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const Terminal = /*@__PURE__*/ forwardRef<ComponentInternals, TerminalProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

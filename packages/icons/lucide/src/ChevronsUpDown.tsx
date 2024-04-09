@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ChevronsUpDownProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-chevrons-up-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.640 3.068 C 11.485 3.121,11.093 3.495,8.847 5.735 C 7.368 7.209,6.188 8.418,6.127 8.520 C 6.036 8.672,6.020 8.746,6.020 9.000 C 6.020 9.257,6.036 9.327,6.133 9.492 C 6.263 9.714,6.502 9.901,6.736 9.965 C 6.939 10.019,7.267 9.989,7.445 9.899 C 7.519 9.862,8.575 8.839,9.790 7.626 L 12.000 5.421 14.210 7.626 C 15.425 8.839,16.483 9.865,16.560 9.905 C 16.659 9.957,16.788 9.979,17.000 9.979 C 17.258 9.980,17.327 9.964,17.492 9.867 C 17.968 9.587,18.138 8.968,17.866 8.508 C 17.811 8.416,16.590 7.168,15.153 5.735 C 12.783 3.372,12.522 3.124,12.343 3.065 C 12.102 2.986,11.878 2.986,11.640 3.068 M6.670 14.061 C 6.448 14.142,6.250 14.309,6.128 14.516 C 6.037 14.672,6.020 14.746,6.020 15.000 C 6.020 15.254,6.036 15.328,6.127 15.480 C 6.262 15.706,11.368 20.805,11.560 20.905 C 11.660 20.957,11.787 20.978,12.000 20.978 C 12.213 20.978,12.340 20.957,12.440 20.905 C 12.632 20.805,17.738 15.706,17.873 15.480 C 17.964 15.328,17.980 15.254,17.980 15.000 C 17.980 14.746,17.963 14.672,17.872 14.516 C 17.618 14.084,17.138 13.906,16.657 14.065 C 16.479 14.124,16.244 14.346,14.230 16.354 L 12.000 18.578 9.770 16.354 C 7.756 14.346,7.521 14.124,7.343 14.065 C 7.107 13.987,6.874 13.986,6.670 14.061 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ChevronsUpDown = /*@__PURE__*/ forwardRef<ComponentInternals, ChevronsUpDownProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

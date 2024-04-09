@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type CornerLeftUpProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-corner-left-up" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.580 3.096 C 8.421 3.172,7.851 3.723,5.774 5.806 C 4.341 7.244,3.135 8.483,3.095 8.560 C 3.043 8.659,3.021 8.788,3.021 9.000 C 3.020 9.258,3.036 9.327,3.133 9.492 C 3.263 9.714,3.502 9.901,3.736 9.965 C 3.939 10.019,4.267 9.989,4.445 9.899 C 4.519 9.862,5.349 9.065,6.289 8.127 L 7.998 6.423 8.011 11.562 C 8.025 17.214,8.009 16.838,8.268 17.600 C 8.839 19.273,10.199 20.478,12.000 20.905 C 12.275 20.970,12.631 20.977,16.211 20.989 C 18.810 20.998,20.173 20.989,20.275 20.961 C 20.498 20.901,20.739 20.711,20.867 20.492 C 20.964 20.327,20.980 20.257,20.980 20.000 C 20.980 19.746,20.963 19.672,20.872 19.516 C 20.761 19.328,20.572 19.158,20.373 19.070 C 20.286 19.032,19.354 19.015,16.340 19.000 L 12.420 18.979 12.140 18.886 C 11.159 18.558,10.425 17.821,10.121 16.861 L 10.020 16.540 10.009 11.480 L 9.998 6.420 11.709 8.126 C 12.650 9.064,13.483 9.865,13.560 9.905 C 13.659 9.957,13.788 9.979,14.000 9.979 C 14.258 9.980,14.327 9.964,14.492 9.867 C 14.714 9.737,14.901 9.498,14.965 9.264 C 15.019 9.062,14.989 8.734,14.899 8.555 C 14.862 8.481,13.659 7.244,12.226 5.806 C 9.393 2.964,9.435 3.001,9.000 3.001 C 8.851 3.001,8.716 3.031,8.580 3.096 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const CornerLeftUp = /*@__PURE__*/ forwardRef<ComponentInternals, CornerLeftUpProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

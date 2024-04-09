@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowDownToLineProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-down-to-line" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.695 2.057 C 11.466 2.129,11.256 2.299,11.128 2.516 L 11.020 2.700 11.009 8.638 L 10.999 14.577 8.769 12.354 C 6.755 10.346,6.521 10.124,6.343 10.065 C 5.862 9.906,5.382 10.084,5.128 10.516 C 5.036 10.672,5.020 10.745,5.021 11.000 C 5.021 11.212,5.043 11.341,5.095 11.440 C 5.135 11.517,6.566 12.981,8.274 14.694 C 11.647 18.076,11.560 17.999,12.000 17.999 C 12.440 17.999,12.353 18.076,15.726 14.694 C 17.434 12.981,18.865 11.517,18.905 11.440 C 18.957 11.341,18.979 11.212,18.979 11.000 C 18.980 10.745,18.964 10.672,18.872 10.516 C 18.618 10.084,18.138 9.906,17.657 10.065 C 17.479 10.124,17.245 10.346,15.231 12.354 L 13.001 14.577 12.991 8.638 L 12.980 2.700 12.872 2.516 C 12.628 2.101,12.150 1.915,11.695 2.057 M4.695 20.057 C 4.466 20.129,4.256 20.299,4.128 20.516 C 4.037 20.672,4.020 20.746,4.020 21.000 C 4.020 21.256,4.036 21.328,4.131 21.489 C 4.256 21.702,4.449 21.864,4.670 21.943 C 4.893 22.022,19.107 22.022,19.330 21.943 C 19.551 21.864,19.744 21.702,19.869 21.489 C 19.964 21.328,19.980 21.256,19.980 21.000 C 19.980 20.746,19.963 20.672,19.872 20.516 C 19.740 20.293,19.533 20.128,19.290 20.055 C 19.027 19.976,4.947 19.978,4.695 20.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowDownToLine = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowDownToLineProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

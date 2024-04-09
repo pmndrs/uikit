@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PentagonProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-pentagon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.240 2.123 C 11.075 2.166,10.814 2.261,10.660 2.335 C 10.484 2.419,8.988 3.479,6.620 5.199 C 4.552 6.700,2.782 7.992,2.686 8.070 C 2.321 8.368,1.968 8.922,1.801 9.460 C 1.695 9.801,1.655 10.377,1.715 10.696 C 1.770 10.989,4.603 19.810,4.748 20.139 C 4.918 20.526,5.111 20.800,5.457 21.140 C 5.827 21.505,6.160 21.714,6.620 21.871 L 6.940 21.980 11.900 21.991 C 16.329 22.001,16.894 21.996,17.179 21.938 C 17.524 21.869,17.967 21.682,18.252 21.486 C 18.683 21.189,19.125 20.650,19.353 20.140 C 19.402 20.030,20.099 17.900,20.901 15.407 C 21.977 12.058,22.369 10.789,22.399 10.553 C 22.466 10.015,22.344 9.429,22.048 8.864 C 21.751 8.296,21.627 8.198,17.460 5.217 C 15.153 3.566,13.508 2.416,13.340 2.335 C 12.715 2.036,11.891 1.953,11.240 2.123 M12.420 4.115 C 12.599 4.196,19.902 9.412,20.116 9.611 C 20.292 9.775,20.398 10.013,20.399 10.246 C 20.400 10.383,20.037 11.561,19.039 14.666 C 18.291 16.995,17.631 19.035,17.572 19.200 C 17.443 19.561,17.163 19.872,16.895 19.951 C 16.686 20.013,7.458 20.022,7.244 19.961 C 7.034 19.901,6.851 19.759,6.701 19.540 C 6.498 19.243,3.701 10.565,3.703 10.240 C 3.705 9.962,3.820 9.734,4.049 9.549 C 4.489 9.194,11.437 4.179,11.579 4.115 C 11.794 4.017,12.206 4.017,12.420 4.115 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Pentagon = /*@__PURE__*/ forwardRef<ComponentInternals, PentagonProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

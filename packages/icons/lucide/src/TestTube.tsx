@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type TestTubeProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-test-tube" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.240 1.037 C 7.793 1.175,7.512 1.546,7.512 2.000 C 7.512 2.268,7.598 2.492,7.772 2.675 C 7.912 2.822,8.248 2.999,8.389 3.000 L 8.478 3.000 8.489 11.490 L 8.500 19.980 8.606 20.363 C 8.959 21.642,9.832 22.522,11.108 22.889 C 11.558 23.018,12.442 23.018,12.892 22.889 C 14.168 22.522,15.041 21.642,15.394 20.363 L 15.500 19.980 15.511 11.490 L 15.522 3.000 15.611 3.000 C 15.752 2.999,16.088 2.822,16.228 2.675 C 16.402 2.492,16.488 2.268,16.488 2.000 C 16.488 1.615,16.293 1.297,15.940 1.106 L 15.780 1.020 12.060 1.013 C 10.014 1.009,8.295 1.020,8.240 1.037 M13.480 9.000 L 13.480 15.000 12.000 15.000 L 10.520 15.000 10.520 9.000 L 10.520 3.000 12.000 3.000 L 13.480 3.000 13.480 9.000 M13.472 18.470 L 13.460 19.940 13.346 20.160 C 13.188 20.465,12.915 20.733,12.624 20.867 C 12.410 20.966,12.333 20.980,12.000 20.980 C 11.667 20.980,11.590 20.966,11.376 20.867 C 11.085 20.733,10.812 20.465,10.654 20.160 L 10.540 19.940 10.528 18.470 L 10.516 17.000 12.000 17.000 L 13.484 17.000 13.472 18.470 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const TestTube = /*@__PURE__*/ forwardRef<ComponentInternals, TestTubeProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

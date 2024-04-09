@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PillProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-pill" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.520 1.043 C 15.789 1.104,15.027 1.322,14.350 1.663 C 13.483 2.101,13.647 1.947,7.816 7.777 C 4.843 10.749,2.331 13.288,2.232 13.420 C 1.660 14.185,1.275 15.075,1.092 16.057 C 0.991 16.600,1.000 17.535,1.112 18.100 C 1.540 20.263,2.987 21.946,5.029 22.655 C 6.812 23.273,8.690 23.023,10.312 21.951 C 10.715 21.685,11.057 21.352,16.204 16.204 C 21.352 11.057,21.685 10.715,21.951 10.312 C 23.022 8.691,23.273 6.810,22.655 5.029 C 21.968 3.051,20.310 1.582,18.280 1.154 C 17.963 1.087,17.081 0.990,16.940 1.007 C 16.918 1.009,16.729 1.026,16.520 1.043 M17.813 3.106 C 18.592 3.256,19.245 3.606,19.819 4.181 C 21.164 5.525,21.353 7.600,20.277 9.208 C 20.171 9.367,19.257 10.314,17.805 11.771 L 15.501 14.081 12.711 11.291 L 9.920 8.500 12.150 6.268 C 13.377 5.040,14.497 3.946,14.640 3.836 C 15.528 3.156,16.689 2.889,17.813 3.106 M11.850 17.732 C 10.623 18.960,9.494 20.060,9.340 20.177 C 8.873 20.531,8.264 20.802,7.660 20.923 C 7.528 20.950,7.213 20.972,6.960 20.972 C 5.883 20.972,4.943 20.582,4.181 19.819 C 3.406 19.045,3.033 18.126,3.037 17.000 C 3.039 16.198,3.262 15.481,3.723 14.792 C 3.829 14.633,4.743 13.686,6.195 12.229 L 8.499 9.919 11.289 12.709 L 14.080 15.500 11.850 17.732 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Pill = /*@__PURE__*/ forwardRef<ComponentInternals, PillProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

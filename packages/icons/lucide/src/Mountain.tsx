@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MountainProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-mountain" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.699 2.056 C 7.476 2.126,7.327 2.231,7.197 2.411 C 7.115 2.523,6.262 5.035,4.038 11.708 C 1.083 20.573,0.991 20.858,1.011 21.085 C 1.047 21.482,1.300 21.811,1.670 21.943 C 1.794 21.987,3.597 21.997,11.983 21.998 C 21.340 22.000,22.161 21.995,22.340 21.934 C 22.716 21.806,23.000 21.396,23.000 20.984 C 23.000 20.816,18.086 5.986,17.893 5.572 C 17.784 5.337,17.573 5.149,17.319 5.060 C 17.100 4.982,16.902 4.984,16.657 5.065 C 16.479 5.124,16.254 5.336,14.371 7.213 C 13.222 8.358,12.275 9.287,12.266 9.278 C 12.256 9.268,11.474 7.710,10.526 5.815 C 8.990 2.741,8.787 2.356,8.646 2.244 C 8.355 2.014,8.035 1.951,7.699 2.056 M9.685 8.610 C 11.288 11.818,11.280 11.804,11.664 11.935 C 11.905 12.017,12.094 12.017,12.343 11.935 C 12.521 11.876,12.738 11.672,14.548 9.867 C 15.888 8.532,16.564 7.884,16.579 7.923 C 16.611 8.008,20.600 19.978,20.600 19.990 C 20.600 19.995,16.728 20.000,11.996 20.000 C 5.129 20.000,3.395 19.990,3.410 19.950 C 3.420 19.922,4.497 16.692,5.804 12.770 C 7.111 8.848,8.184 5.640,8.190 5.640 C 8.195 5.640,8.868 6.976,9.685 8.610 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Mountain = /*@__PURE__*/ forwardRef<ComponentInternals, MountainProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ZapProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-zap" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.735 1.044 C 12.666 1.064,12.526 1.138,12.424 1.210 C 12.299 1.298,10.608 3.300,7.197 7.397 C 4.424 10.729,2.127 13.507,2.094 13.572 C 1.919 13.911,2.009 14.411,2.298 14.700 C 2.615 15.017,2.352 15.000,6.860 15.000 L 10.865 15.000 10.425 18.522 C 10.027 21.706,9.989 22.063,10.034 22.232 C 10.217 22.936,11.015 23.221,11.589 22.788 C 11.765 22.654,21.800 10.633,21.906 10.428 C 22.081 10.089,21.991 9.589,21.702 9.300 C 21.385 8.983,21.648 9.000,17.141 9.000 L 13.135 9.000 13.577 5.465 L 14.018 1.931 13.945 1.701 C 13.785 1.193,13.240 0.897,12.735 1.044 M11.278 7.697 C 11.078 9.292,10.999 10.052,11.017 10.177 C 11.054 10.422,11.258 10.712,11.497 10.859 L 11.694 10.980 15.272 11.000 L 18.850 11.020 15.655 14.854 C 13.898 16.963,12.455 18.663,12.449 18.633 C 12.442 18.602,12.565 17.560,12.722 16.318 C 12.903 14.881,12.998 13.989,12.984 13.866 C 12.947 13.533,12.705 13.218,12.373 13.070 C 12.286 13.032,11.428 13.015,8.705 13.000 L 5.150 12.980 8.344 9.147 C 10.101 7.039,11.544 5.333,11.552 5.355 C 11.559 5.378,11.436 6.432,11.278 7.697 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const Zap = /*@__PURE__*/ forwardRef<ComponentInternals, ZapProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

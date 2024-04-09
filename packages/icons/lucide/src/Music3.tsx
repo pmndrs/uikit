@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type Music3Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-music-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.695 1.057 C 15.466 1.129,15.256 1.299,15.128 1.516 L 15.020 1.700 15.010 7.849 L 14.999 13.998 14.730 13.824 C 13.995 13.350,13.348 13.125,12.470 13.036 C 11.742 12.962,10.898 13.070,10.248 13.320 C 9.067 13.774,8.072 14.675,7.526 15.785 C 7.158 16.533,7.020 17.136,7.020 18.000 C 7.020 18.670,7.078 19.044,7.268 19.600 C 7.846 21.291,9.253 22.525,11.040 22.907 C 11.286 22.960,11.552 22.980,12.000 22.980 C 12.898 22.980,13.494 22.838,14.286 22.433 C 15.630 21.748,16.580 20.489,16.907 18.960 C 16.976 18.637,16.980 18.190,16.980 10.160 L 16.980 1.700 16.872 1.516 C 16.628 1.101,16.150 0.915,15.695 1.057 M12.861 15.129 C 13.804 15.405,14.584 16.183,14.875 17.139 C 14.958 17.412,14.973 17.542,14.973 18.000 C 14.973 18.458,14.958 18.588,14.875 18.861 C 14.582 19.822,13.819 20.581,12.840 20.886 C 12.588 20.964,12.453 20.979,12.000 20.979 C 11.547 20.979,11.412 20.964,11.160 20.886 C 10.181 20.581,9.418 19.822,9.125 18.861 C 9.042 18.588,9.027 18.458,9.027 18.000 C 9.027 17.542,9.042 17.412,9.125 17.139 C 9.456 16.054,10.371 15.245,11.499 15.040 C 11.832 14.980,12.500 15.023,12.861 15.129 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Music3 = /*@__PURE__*/ forwardRef<ComponentInternals, Music3Props>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

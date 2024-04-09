@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type BeakerProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-beaker" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.240 2.037 C 3.794 2.174,3.512 2.546,3.512 3.000 C 3.512 3.405,3.719 3.724,4.100 3.905 C 4.263 3.981,4.365 3.999,4.649 4.000 L 4.999 4.000 5.009 11.790 L 5.020 19.580 5.114 19.860 C 5.446 20.851,6.184 21.582,7.160 21.886 L 7.460 21.980 12.000 21.980 L 16.540 21.980 16.840 21.886 C 17.816 21.582,18.554 20.851,18.886 19.860 L 18.980 19.580 18.991 11.790 L 19.001 4.000 19.351 4.000 C 19.635 3.999,19.737 3.981,19.900 3.905 C 20.281 3.724,20.488 3.405,20.488 3.000 C 20.488 2.615,20.293 2.297,19.940 2.106 L 19.780 2.020 12.060 2.013 C 7.814 2.010,4.295 2.020,4.240 2.037 M17.000 8.500 L 17.000 13.000 12.000 13.000 L 7.000 13.000 7.000 8.500 L 7.000 4.000 12.000 4.000 L 17.000 4.000 17.000 8.500 M17.000 17.054 C 17.000 19.283,16.996 19.334,16.779 19.618 C 16.718 19.698,16.585 19.813,16.484 19.872 L 16.300 19.980 12.000 19.980 L 7.700 19.980 7.516 19.872 C 7.415 19.813,7.284 19.700,7.225 19.623 C 7.000 19.328,7.000 19.328,7.000 17.075 L 7.000 15.000 12.000 15.000 L 17.000 15.000 17.000 17.054 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Beaker = /*@__PURE__*/ forwardRef<ComponentInternals, BeakerProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

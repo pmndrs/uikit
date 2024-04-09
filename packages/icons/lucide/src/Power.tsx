@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PowerProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-power" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.695 1.057 C 11.466 1.129,11.256 1.299,11.128 1.516 L 11.020 1.700 11.020 7.003 L 11.020 12.306 11.141 12.503 C 11.543 13.156,12.457 13.156,12.859 12.503 L 12.980 12.306 12.980 7.003 L 12.980 1.700 12.872 1.516 C 12.628 1.101,12.150 0.915,11.695 1.057 M18.070 5.661 C 17.848 5.742,17.650 5.909,17.528 6.116 C 17.436 6.272,17.420 6.345,17.421 6.600 C 17.422 6.971,17.465 7.057,17.868 7.492 C 20.303 10.120,20.723 13.974,18.908 17.047 C 17.487 19.453,14.842 20.961,12.046 20.960 C 9.359 20.958,6.878 19.631,5.377 17.393 C 5.050 16.905,4.630 16.041,4.446 15.475 C 3.538 12.682,4.176 9.724,6.158 7.543 C 6.539 7.122,6.617 6.970,6.617 6.640 C 6.617 6.246,6.427 5.941,6.061 5.747 C 5.834 5.628,5.404 5.629,5.175 5.749 C 4.854 5.919,3.949 7.000,3.493 7.760 C 2.463 9.475,1.987 11.306,2.052 13.297 C 2.092 14.511,2.302 15.541,2.729 16.620 C 4.067 20.001,7.082 22.360,10.740 22.888 C 11.286 22.967,12.867 22.955,13.440 22.868 C 14.506 22.706,15.478 22.400,16.460 21.919 C 18.066 21.132,19.350 20.001,20.365 18.482 C 21.895 16.191,22.404 13.338,21.762 10.660 C 21.452 9.372,20.917 8.189,20.178 7.159 C 19.863 6.722,19.241 6.000,19.044 5.844 C 18.752 5.612,18.389 5.544,18.070 5.661 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Power = /*@__PURE__*/ forwardRef<ComponentInternals, PowerProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

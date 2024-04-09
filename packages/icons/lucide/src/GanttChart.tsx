@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type GanttChartProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-gantt-chart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.695 5.057 C 7.466 5.129,7.256 5.299,7.128 5.516 C 7.037 5.672,7.020 5.746,7.020 6.000 C 7.020 6.256,7.036 6.328,7.131 6.489 C 7.256 6.702,7.449 6.864,7.670 6.943 C 7.892 7.022,18.108 7.022,18.330 6.943 C 18.551 6.864,18.744 6.702,18.869 6.489 C 18.964 6.328,18.980 6.256,18.980 6.000 C 18.980 5.746,18.963 5.672,18.872 5.516 C 18.740 5.293,18.533 5.128,18.290 5.055 C 18.028 4.976,7.946 4.978,7.695 5.057 M5.695 11.057 C 5.466 11.129,5.256 11.299,5.128 11.516 C 5.037 11.672,5.020 11.746,5.020 12.000 C 5.020 12.256,5.036 12.328,5.131 12.489 C 5.256 12.702,5.449 12.864,5.670 12.943 C 5.892 13.022,15.108 13.022,15.330 12.943 C 15.551 12.864,15.744 12.702,15.869 12.489 C 15.964 12.328,15.980 12.256,15.980 12.000 C 15.980 11.746,15.963 11.672,15.872 11.516 C 15.740 11.293,15.533 11.128,15.290 11.055 C 15.029 10.976,5.946 10.978,5.695 11.057 M10.695 17.057 C 10.466 17.129,10.256 17.299,10.128 17.516 C 10.037 17.672,10.020 17.746,10.020 18.000 C 10.020 18.256,10.036 18.328,10.131 18.489 C 10.256 18.702,10.449 18.864,10.670 18.943 C 10.891 19.022,18.109 19.022,18.330 18.943 C 18.551 18.864,18.744 18.702,18.869 18.489 C 18.964 18.328,18.980 18.256,18.980 18.000 C 18.980 17.746,18.963 17.672,18.872 17.516 C 18.740 17.293,18.533 17.128,18.290 17.055 C 18.030 16.977,10.945 16.979,10.695 17.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const GanttChart = /*@__PURE__*/ forwardRef<ComponentInternals, GanttChartProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

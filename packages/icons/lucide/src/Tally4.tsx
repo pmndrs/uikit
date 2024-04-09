@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type Tally4Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-tally-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.695 3.057 C 3.466 3.129,3.256 3.299,3.128 3.516 L 3.020 3.700 3.020 12.003 L 3.020 20.306 3.141 20.503 C 3.543 21.156,4.457 21.156,4.859 20.503 L 4.980 20.306 4.980 12.003 L 4.980 3.700 4.872 3.516 C 4.628 3.101,4.150 2.915,3.695 3.057 M8.695 3.057 C 8.466 3.129,8.256 3.299,8.128 3.516 L 8.020 3.700 8.020 12.003 L 8.020 20.306 8.141 20.503 C 8.543 21.156,9.457 21.156,9.859 20.503 L 9.980 20.306 9.980 12.003 L 9.980 3.700 9.872 3.516 C 9.628 3.101,9.150 2.915,8.695 3.057 M13.695 3.057 C 13.466 3.129,13.256 3.299,13.128 3.516 L 13.020 3.700 13.020 12.003 L 13.020 20.306 13.141 20.503 C 13.543 21.156,14.457 21.156,14.859 20.503 L 14.980 20.306 14.980 12.003 L 14.980 3.700 14.872 3.516 C 14.628 3.101,14.150 2.915,13.695 3.057 M18.695 3.057 C 18.466 3.129,18.256 3.299,18.128 3.516 L 18.020 3.700 18.020 12.003 L 18.020 20.306 18.141 20.503 C 18.543 21.156,19.457 21.156,19.859 20.503 L 19.980 20.306 19.980 12.003 L 19.980 3.700 19.872 3.516 C 19.628 3.101,19.150 2.915,18.695 3.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Tally4 = /*@__PURE__*/ forwardRef<ComponentInternals, Tally4Props>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

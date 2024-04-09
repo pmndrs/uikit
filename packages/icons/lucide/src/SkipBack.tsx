@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type SkipBackProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-skip-back" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.670 3.055 C 18.587 3.086,18.497 3.128,18.470 3.150 C 18.442 3.171,16.125 5.024,13.320 7.267 C 9.120 10.626,8.202 11.377,8.120 11.523 C 8.038 11.668,8.020 11.754,8.020 12.000 C 8.020 12.246,8.038 12.332,8.120 12.477 C 8.202 12.623,9.122 13.375,13.316 16.732 C 16.118 18.974,18.476 20.848,18.556 20.895 C 18.668 20.961,18.766 20.980,19.000 20.980 C 19.256 20.980,19.328 20.964,19.489 20.869 C 19.702 20.744,19.864 20.551,19.943 20.330 C 19.987 20.207,19.997 18.733,19.998 12.020 C 19.999 6.517,19.986 3.811,19.958 3.711 C 19.897 3.493,19.685 3.238,19.473 3.129 C 19.243 3.010,18.879 2.977,18.670 3.055 M4.695 4.057 C 4.466 4.129,4.256 4.299,4.128 4.516 L 4.020 4.700 4.020 12.003 L 4.020 19.306 4.141 19.503 C 4.543 20.156,5.457 20.156,5.859 19.503 L 5.980 19.306 5.980 12.003 L 5.980 4.700 5.872 4.516 C 5.628 4.101,5.150 3.915,4.695 4.057 M18.000 12.000 L 18.000 17.920 14.318 14.975 C 12.294 13.355,10.643 12.011,10.650 11.989 C 10.660 11.959,17.946 6.096,17.990 6.083 C 17.995 6.081,18.000 8.744,18.000 12.000 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const SkipBack = /*@__PURE__*/ forwardRef<ComponentInternals, SkipBackProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

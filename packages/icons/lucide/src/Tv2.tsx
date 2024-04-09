@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type Tv2Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-tv-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.499 2.043 C 2.380 2.232,1.461 3.048,1.114 4.160 L 1.020 4.460 1.020 10.000 L 1.020 15.540 1.114 15.840 C 1.422 16.827,2.173 17.578,3.160 17.886 L 3.460 17.980 12.000 17.980 L 20.540 17.980 20.840 17.886 C 21.827 17.578,22.578 16.827,22.886 15.840 L 22.980 15.540 22.980 10.000 L 22.980 4.460 22.886 4.160 C 22.581 3.182,21.832 2.428,20.861 2.121 L 20.540 2.020 12.120 2.014 C 7.489 2.011,3.609 2.024,3.499 2.043 M20.310 4.061 C 20.589 4.144,20.856 4.411,20.939 4.690 C 20.992 4.868,21.000 5.546,21.000 10.001 C 21.000 14.212,20.990 15.139,20.945 15.290 C 20.872 15.533,20.707 15.740,20.484 15.872 L 20.300 15.980 12.000 15.980 L 3.700 15.980 3.516 15.872 C 3.303 15.747,3.141 15.550,3.058 15.316 C 2.969 15.061,2.971 4.993,3.061 4.690 C 3.140 4.421,3.412 4.143,3.673 4.063 C 3.833 4.014,5.030 4.005,11.983 4.003 C 19.144 4.000,20.130 4.007,20.310 4.061 M6.695 20.057 C 6.466 20.129,6.256 20.299,6.128 20.516 C 6.037 20.672,6.020 20.746,6.020 21.000 C 6.020 21.256,6.036 21.328,6.131 21.489 C 6.256 21.702,6.449 21.864,6.670 21.943 C 6.792 21.987,7.774 21.996,12.000 21.996 C 16.226 21.996,17.208 21.987,17.330 21.943 C 17.551 21.864,17.744 21.702,17.869 21.489 C 17.964 21.328,17.980 21.256,17.980 21.000 C 17.980 20.746,17.963 20.672,17.872 20.516 C 17.740 20.293,17.533 20.128,17.290 20.055 C 17.028 19.976,6.946 19.978,6.695 20.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Tv2 = /*@__PURE__*/ forwardRef<ComponentInternals, Tv2Props>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

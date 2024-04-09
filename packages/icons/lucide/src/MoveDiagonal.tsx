@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MoveDiagonalProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-move-diagonal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.695 4.057 C 12.466 4.129,12.256 4.299,12.128 4.516 C 12.037 4.672,12.020 4.746,12.020 5.000 C 12.020 5.256,12.036 5.328,12.131 5.489 C 12.256 5.702,12.449 5.864,12.670 5.943 C 12.787 5.985,13.234 5.997,14.700 5.998 L 16.580 6.000 11.300 11.280 L 6.020 16.560 6.000 14.630 L 5.980 12.700 5.871 12.514 C 5.479 11.848,4.521 11.848,4.129 12.514 L 4.020 12.700 4.009 15.940 C 3.999 18.874,4.004 19.196,4.064 19.354 C 4.155 19.595,4.343 19.796,4.580 19.906 L 4.780 19.999 7.980 19.998 C 10.549 19.997,11.210 19.986,11.330 19.943 C 11.551 19.864,11.744 19.702,11.869 19.489 C 11.964 19.328,11.980 19.256,11.980 19.000 C 11.980 18.746,11.963 18.672,11.872 18.516 C 11.813 18.415,11.698 18.282,11.618 18.221 C 11.337 18.007,11.265 18.000,9.264 18.000 L 7.420 18.000 12.700 12.720 L 17.980 7.440 18.000 9.373 L 18.020 11.306 18.141 11.503 C 18.543 12.156,19.457 12.156,19.859 11.503 L 19.980 11.306 19.991 8.063 C 20.001 5.126,19.996 4.804,19.936 4.646 C 19.845 4.405,19.657 4.204,19.420 4.094 L 19.220 4.001 16.040 4.003 C 13.557 4.005,12.824 4.017,12.695 4.057 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const MoveDiagonal = /*@__PURE__*/ forwardRef<ComponentInternals, MoveDiagonalProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

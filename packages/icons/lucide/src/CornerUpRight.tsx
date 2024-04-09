@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type CornerUpRightProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-corner-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.670 3.061 C 14.448 3.142,14.250 3.309,14.128 3.516 C 14.036 3.672,14.020 3.745,14.021 4.000 C 14.021 4.212,14.043 4.341,14.095 4.440 C 14.135 4.517,14.936 5.350,15.874 6.290 L 17.579 8.000 12.708 8.000 C 7.702 8.000,7.356 8.009,6.760 8.162 C 5.370 8.517,4.158 9.500,3.526 10.785 C 3.333 11.177,3.187 11.599,3.093 12.040 C 3.025 12.356,3.020 12.662,3.020 16.343 L 3.020 20.306 3.141 20.503 C 3.543 21.156,4.457 21.156,4.859 20.503 L 4.980 20.306 5.001 16.383 L 5.021 12.460 5.122 12.139 C 5.424 11.179,6.176 10.425,7.139 10.121 L 7.460 10.020 12.520 10.009 L 17.580 9.998 15.874 11.709 C 14.936 12.650,14.135 13.483,14.095 13.560 C 14.043 13.659,14.021 13.788,14.021 14.000 C 14.020 14.258,14.036 14.327,14.133 14.492 C 14.263 14.714,14.502 14.901,14.736 14.965 C 14.938 15.019,15.266 14.989,15.445 14.899 C 15.519 14.862,16.756 13.659,18.194 12.226 C 21.036 9.393,20.999 9.435,20.999 9.000 C 20.999 8.564,21.039 8.609,18.174 5.755 C 15.785 3.374,15.522 3.124,15.343 3.065 C 15.107 2.987,14.874 2.986,14.670 3.061 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const CornerUpRight = /*@__PURE__*/ forwardRef<ComponentInternals, CornerUpRightProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

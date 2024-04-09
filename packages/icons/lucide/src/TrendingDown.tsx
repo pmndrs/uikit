@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type TrendingDownProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-trending-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.695 6.057 C 1.466 6.129,1.256 6.299,1.128 6.516 C 1.036 6.672,1.020 6.745,1.021 7.000 C 1.021 7.212,1.043 7.341,1.095 7.440 C 1.178 7.600,7.694 14.146,7.943 14.320 C 8.235 14.525,8.740 14.540,9.017 14.352 C 9.085 14.306,10.121 13.290,11.320 12.094 L 13.500 9.920 16.540 12.960 L 19.580 16.000 17.736 16.000 C 15.735 16.000,15.663 16.007,15.382 16.221 C 15.302 16.282,15.187 16.415,15.128 16.516 C 15.037 16.672,15.020 16.746,15.020 17.000 C 15.020 17.256,15.036 17.328,15.131 17.489 C 15.256 17.702,15.449 17.864,15.670 17.943 C 15.790 17.986,16.451 17.997,19.020 17.998 L 22.220 17.999 22.420 17.906 C 22.657 17.796,22.845 17.595,22.936 17.354 C 22.996 17.196,23.001 16.874,22.991 13.940 L 22.980 10.700 22.871 10.514 C 22.479 9.848,21.521 9.848,21.129 10.514 L 21.020 10.700 21.009 12.638 L 20.997 14.576 17.549 11.130 C 14.878 8.461,14.059 7.665,13.920 7.603 C 13.659 7.486,13.311 7.492,13.058 7.619 C 12.908 7.694,12.330 8.248,10.681 9.899 L 8.501 12.079 5.521 9.103 C 2.631 6.217,2.533 6.125,2.323 6.064 C 2.066 5.988,1.919 5.987,1.695 6.057 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const TrendingDown = /*@__PURE__*/ forwardRef<ComponentInternals, TrendingDownProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

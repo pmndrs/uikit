@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowUpToLineProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-up-to-line" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.695 2.057 C 4.466 2.129,4.256 2.299,4.128 2.516 C 4.037 2.672,4.020 2.746,4.020 3.000 C 4.020 3.256,4.036 3.328,4.131 3.489 C 4.256 3.702,4.449 3.864,4.670 3.943 C 4.893 4.022,19.107 4.022,19.330 3.943 C 19.551 3.864,19.744 3.702,19.869 3.489 C 19.964 3.328,19.980 3.256,19.980 3.000 C 19.980 2.746,19.963 2.672,19.872 2.516 C 19.740 2.293,19.533 2.128,19.290 2.055 C 19.027 1.976,4.947 1.978,4.695 2.057 M11.580 6.096 C 11.420 6.173,10.762 6.812,8.274 9.306 C 6.566 11.019,5.135 12.483,5.095 12.560 C 5.043 12.659,5.021 12.788,5.021 13.000 C 5.020 13.258,5.036 13.327,5.133 13.492 C 5.263 13.714,5.502 13.901,5.736 13.965 C 5.939 14.019,6.267 13.989,6.445 13.899 C 6.519 13.862,7.574 12.840,8.789 11.627 L 10.999 9.422 11.009 15.364 L 11.020 21.306 11.141 21.503 C 11.543 22.156,12.457 22.156,12.859 21.503 L 12.980 21.306 12.991 15.364 L 13.001 9.422 15.211 11.627 C 16.426 12.840,17.481 13.862,17.555 13.899 C 18.010 14.128,18.601 13.944,18.867 13.492 C 18.964 13.327,18.980 13.258,18.979 13.000 C 18.979 12.788,18.957 12.659,18.905 12.560 C 18.865 12.483,17.434 11.019,15.726 9.306 C 13.238 6.812,12.580 6.173,12.420 6.096 C 12.151 5.968,11.849 5.968,11.580 6.096 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowUpToLine = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowUpToLineProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

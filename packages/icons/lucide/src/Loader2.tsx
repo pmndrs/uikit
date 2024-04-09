@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type Loader2Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-loader-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.360 2.024 C 7.077 2.327,3.512 5.231,2.366 9.347 C 2.103 10.291,2.021 10.924,2.021 12.000 C 2.021 13.076,2.103 13.709,2.366 14.653 C 3.313 18.057,5.943 20.687,9.347 21.634 C 10.287 21.896,10.918 21.978,12.000 21.979 C 13.075 21.980,13.706 21.898,14.653 21.634 C 18.057 20.687,20.687 18.057,21.634 14.653 C 21.872 13.800,21.972 13.103,21.977 12.280 C 21.980 11.717,21.977 11.694,21.871 11.514 C 21.482 10.853,20.520 10.847,20.135 11.505 C 20.041 11.665,20.026 11.751,19.976 12.431 C 19.920 13.190,19.860 13.577,19.714 14.120 C 19.455 15.087,18.941 16.089,18.227 17.020 C 18.030 17.276,17.365 17.948,17.060 18.199 C 15.902 19.150,14.434 19.762,12.829 19.962 C 12.336 20.023,11.229 19.992,10.740 19.903 C 8.486 19.495,6.755 18.408,5.462 16.589 C 5.082 16.054,4.588 15.094,4.404 14.531 C 4.089 13.567,3.953 12.410,4.035 11.390 C 4.139 10.103,4.475 9.024,5.111 7.935 C 5.525 7.226,6.355 6.266,7.002 5.747 C 7.602 5.265,8.587 4.722,9.320 4.468 C 10.985 3.892,12.518 3.847,14.237 4.324 C 14.741 4.464,14.918 4.468,15.180 4.346 C 15.611 4.145,15.850 3.696,15.760 3.259 C 15.709 3.012,15.533 2.753,15.322 2.610 C 15.085 2.450,14.131 2.207,13.324 2.100 C 12.862 2.038,11.761 1.996,11.360 2.024 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Loader2 = /*@__PURE__*/ forwardRef<ComponentInternals, Loader2Props>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type SigmaProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-sigma" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.695 3.057 C 5.190 3.215,4.899 3.756,5.042 4.269 C 5.085 4.421,5.674 5.231,7.908 8.210 C 9.455 10.273,10.720 11.978,10.720 12.000 C 10.720 12.022,9.455 13.727,7.908 15.790 C 5.674 18.769,5.085 19.579,5.042 19.731 C 4.937 20.107,5.078 20.553,5.374 20.778 C 5.682 21.013,5.293 21.000,12.015 20.998 C 17.061 20.997,18.207 20.987,18.330 20.943 C 18.551 20.864,18.744 20.702,18.869 20.489 L 18.980 20.300 18.980 18.500 L 18.980 16.700 18.871 16.514 C 18.479 15.848,17.521 15.848,17.129 16.514 L 17.020 16.700 17.008 17.850 L 16.995 19.000 12.498 19.000 L 8.000 19.000 10.457 15.723 C 12.096 13.538,12.929 12.396,12.957 12.293 C 13.011 12.098,13.011 11.902,12.957 11.707 C 12.929 11.604,12.096 10.462,10.457 8.277 L 8.000 5.000 12.498 5.000 L 16.995 5.000 17.008 6.153 L 17.020 7.307 17.141 7.503 C 17.543 8.156,18.457 8.156,18.859 7.503 L 18.980 7.306 18.980 5.503 L 18.980 3.700 18.872 3.516 C 18.740 3.293,18.533 3.128,18.290 3.055 C 18.028 2.976,5.947 2.978,5.695 3.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Sigma = /*@__PURE__*/ forwardRef<ComponentInternals, SigmaProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type Heading1Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-heading-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.695 5.057 C 3.466 5.129,3.256 5.299,3.128 5.516 L 3.020 5.700 3.020 12.003 L 3.020 18.306 3.141 18.503 C 3.543 19.156,4.457 19.156,4.859 18.503 L 4.980 18.306 4.991 15.653 L 5.002 13.000 8.000 13.000 L 10.998 13.000 11.009 15.653 L 11.020 18.306 11.141 18.503 C 11.543 19.156,12.457 19.156,12.859 18.503 L 12.980 18.306 12.980 12.003 L 12.980 5.700 12.871 5.514 C 12.479 4.848,11.521 4.848,11.129 5.514 L 11.020 5.700 11.009 8.350 L 10.998 11.000 8.000 11.000 L 5.002 11.000 4.991 8.350 L 4.980 5.700 4.872 5.516 C 4.628 5.101,4.150 4.915,3.695 5.057 M19.674 9.059 C 19.594 9.089,18.798 9.601,17.904 10.198 C 16.666 11.024,16.257 11.318,16.184 11.431 C 15.813 12.008,16.045 12.716,16.678 12.939 C 17.095 13.086,17.259 13.029,18.200 12.401 L 18.980 11.880 19.000 15.093 L 19.020 18.306 19.141 18.503 C 19.543 19.156,20.457 19.156,20.859 18.503 L 20.980 18.306 20.991 14.086 C 21.003 9.331,21.020 9.618,20.702 9.300 C 20.432 9.030,20.018 8.933,19.674 9.059 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Heading1 = /*@__PURE__*/ forwardRef<ComponentInternals, Heading1Props>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

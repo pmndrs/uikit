@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowUpFromLineProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-up-from-line" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.580 2.096 C 11.420 2.173,10.762 2.812,8.274 5.306 C 6.566 7.019,5.135 8.483,5.095 8.560 C 5.043 8.659,5.021 8.788,5.021 9.000 C 5.020 9.258,5.036 9.327,5.133 9.492 C 5.263 9.714,5.502 9.901,5.736 9.965 C 5.939 10.019,6.267 9.989,6.445 9.899 C 6.519 9.862,7.574 8.840,8.789 7.627 L 10.999 5.422 11.009 11.364 L 11.020 17.306 11.141 17.503 C 11.543 18.156,12.457 18.156,12.859 17.503 L 12.980 17.306 12.991 11.364 L 13.001 5.422 15.211 7.627 C 16.426 8.840,17.481 9.862,17.555 9.899 C 18.010 10.128,18.601 9.944,18.867 9.492 C 18.964 9.327,18.980 9.258,18.979 9.000 C 18.979 8.788,18.957 8.659,18.905 8.560 C 18.865 8.483,17.434 7.019,15.726 5.306 C 12.353 1.924,12.440 2.001,12.000 2.001 C 11.851 2.001,11.716 2.031,11.580 2.096 M4.695 20.057 C 4.466 20.129,4.256 20.299,4.128 20.516 C 4.037 20.672,4.020 20.746,4.020 21.000 C 4.020 21.256,4.036 21.328,4.131 21.489 C 4.256 21.702,4.449 21.864,4.670 21.943 C 4.893 22.022,19.107 22.022,19.330 21.943 C 19.551 21.864,19.744 21.702,19.869 21.489 C 19.964 21.328,19.980 21.256,19.980 21.000 C 19.980 20.746,19.963 20.672,19.872 20.516 C 19.740 20.293,19.533 20.128,19.290 20.055 C 19.027 19.976,4.947 19.978,4.695 20.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowUpFromLine = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowUpFromLineProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

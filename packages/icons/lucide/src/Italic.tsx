@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ItalicProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-italic" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.695 3.057 C 9.051 3.258,8.799 4.040,9.198 4.591 C 9.263 4.681,9.403 4.805,9.508 4.867 L 9.700 4.980 11.624 5.000 L 13.548 5.020 10.926 12.010 L 8.305 19.000 6.599 19.000 C 4.746 19.000,4.661 19.008,4.382 19.221 C 4.302 19.282,4.187 19.415,4.128 19.516 C 4.037 19.672,4.020 19.746,4.020 20.000 C 4.020 20.256,4.036 20.328,4.131 20.489 C 4.256 20.702,4.449 20.864,4.670 20.943 C 4.792 20.987,5.692 20.996,9.500 20.996 C 13.308 20.996,14.208 20.987,14.330 20.943 C 14.551 20.864,14.744 20.702,14.869 20.489 C 14.964 20.328,14.980 20.256,14.980 20.000 C 14.980 19.746,14.963 19.672,14.872 19.516 C 14.761 19.328,14.572 19.158,14.373 19.070 C 14.290 19.033,13.756 19.015,12.356 19.000 L 10.452 18.980 13.074 11.990 L 15.695 5.000 17.437 4.998 C 19.312 4.996,19.344 4.993,19.619 4.783 C 19.696 4.725,19.808 4.592,19.869 4.489 C 19.964 4.328,19.980 4.256,19.980 4.000 C 19.980 3.746,19.963 3.672,19.872 3.516 C 19.740 3.293,19.533 3.128,19.290 3.055 C 19.029 2.976,9.946 2.978,9.695 3.057 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const Italic = /*@__PURE__*/ forwardRef<ComponentInternals, ItalicProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

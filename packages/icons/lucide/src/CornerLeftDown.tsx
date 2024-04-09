@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type CornerLeftDownProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-corner-left-down" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.400 3.044 C 10.761 3.229,9.261 4.290,8.526 5.785 C 8.347 6.149,8.197 6.572,8.095 7.000 C 8.028 7.278,8.022 7.672,8.011 12.438 L 7.998 17.575 6.269 15.853 C 4.721 14.312,4.519 14.124,4.343 14.066 C 3.863 13.906,3.382 14.084,3.128 14.516 C 3.036 14.672,3.020 14.745,3.021 15.000 C 3.021 15.212,3.043 15.341,3.095 15.440 C 3.135 15.517,4.341 16.756,5.774 18.194 C 8.607 21.036,8.565 20.999,9.000 20.999 C 9.435 20.999,9.393 21.036,12.226 18.194 C 13.659 16.756,14.865 15.517,14.905 15.440 C 14.957 15.341,14.979 15.212,14.979 15.000 C 14.980 14.745,14.964 14.672,14.872 14.516 C 14.618 14.084,14.137 13.906,13.657 14.066 C 13.481 14.124,13.279 14.312,11.729 15.855 L 9.998 17.579 10.009 12.520 L 10.020 7.460 10.121 7.139 C 10.425 6.176,11.179 5.424,12.139 5.122 L 12.460 5.021 16.380 5.001 L 20.300 4.980 20.492 4.867 C 21.248 4.423,21.123 3.306,20.290 3.055 C 20.140 3.010,19.438 3.001,16.404 3.005 C 14.367 3.008,12.565 3.026,12.400 3.044 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const CornerLeftDown = /*@__PURE__*/ forwardRef<ComponentInternals, CornerLeftDownProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

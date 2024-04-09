@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ActivityProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-activity" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.659 2.070 C 8.436 2.167,8.318 2.256,8.192 2.424 C 8.116 2.526,7.679 3.784,6.679 6.784 L 5.273 11.000 3.583 11.000 C 1.747 11.000,1.661 11.009,1.382 11.221 C 1.302 11.282,1.187 11.415,1.128 11.516 C 1.037 11.672,1.020 11.746,1.020 12.000 C 1.020 12.257,1.036 12.327,1.133 12.492 C 1.261 12.711,1.502 12.901,1.725 12.961 C 1.824 12.988,2.663 12.999,4.089 12.991 L 6.300 12.980 6.492 12.867 C 6.597 12.805,6.735 12.683,6.798 12.596 C 6.882 12.481,7.200 11.578,7.947 9.338 C 8.515 7.634,8.989 6.240,9.000 6.240 C 9.011 6.240,10.116 9.530,11.456 13.550 C 12.795 17.570,13.944 21.009,14.010 21.191 C 14.100 21.443,14.170 21.564,14.304 21.698 C 14.621 22.015,15.065 22.082,15.469 21.874 C 15.840 21.682,15.787 21.818,17.319 17.223 L 18.727 13.000 20.454 12.998 C 22.311 12.996,22.344 12.993,22.619 12.783 C 22.696 12.725,22.808 12.592,22.869 12.489 C 22.964 12.328,22.980 12.256,22.980 12.000 C 22.980 11.745,22.964 11.672,22.871 11.514 C 22.731 11.276,22.484 11.095,22.224 11.039 C 22.085 11.009,21.335 10.999,19.879 11.007 L 17.738 11.020 17.539 11.122 C 17.164 11.315,17.183 11.269,16.054 14.658 C 15.486 16.364,15.011 17.760,15.000 17.760 C 14.989 17.760,13.840 14.339,12.446 10.157 C 10.366 3.919,9.889 2.525,9.786 2.392 C 9.536 2.068,9.009 1.917,8.659 2.070 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Activity = /*@__PURE__*/ forwardRef<ComponentInternals, ActivityProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

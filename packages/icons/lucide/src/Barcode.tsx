@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type BarcodeProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-barcode" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.695 4.057 C 2.466 4.129,2.256 4.299,2.128 4.516 L 2.020 4.700 2.020 12.003 L 2.020 19.306 2.141 19.503 C 2.543 20.156,3.457 20.156,3.859 19.503 L 3.980 19.306 3.980 12.003 L 3.980 4.700 3.872 4.516 C 3.628 4.101,3.150 3.915,2.695 4.057 M7.695 4.057 C 7.466 4.129,7.256 4.299,7.128 4.516 L 7.020 4.700 7.020 12.003 L 7.020 19.306 7.141 19.503 C 7.543 20.156,8.457 20.156,8.859 19.503 L 8.980 19.306 8.980 12.003 L 8.980 4.700 8.872 4.516 C 8.628 4.101,8.150 3.915,7.695 4.057 M11.695 4.057 C 11.466 4.129,11.256 4.299,11.128 4.516 L 11.020 4.700 11.020 12.003 L 11.020 19.306 11.141 19.503 C 11.543 20.156,12.457 20.156,12.859 19.503 L 12.980 19.306 12.980 12.003 L 12.980 4.700 12.872 4.516 C 12.628 4.101,12.150 3.915,11.695 4.057 M16.695 4.057 C 16.466 4.129,16.256 4.299,16.128 4.516 L 16.020 4.700 16.020 12.003 L 16.020 19.306 16.141 19.503 C 16.543 20.156,17.457 20.156,17.859 19.503 L 17.980 19.306 17.980 12.003 L 17.980 4.700 17.872 4.516 C 17.628 4.101,17.150 3.915,16.695 4.057 M20.695 4.057 C 20.466 4.129,20.256 4.299,20.128 4.516 L 20.020 4.700 20.020 12.003 L 20.020 19.306 20.141 19.503 C 20.543 20.156,21.457 20.156,21.859 19.503 L 21.980 19.306 21.980 12.003 L 21.980 4.700 21.872 4.516 C 21.628 4.101,21.150 3.915,20.695 4.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Barcode = /*@__PURE__*/ forwardRef<ComponentInternals, BarcodeProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

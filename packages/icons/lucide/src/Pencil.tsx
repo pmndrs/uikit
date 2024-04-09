@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PencilProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-pencil" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.400 1.077 C 18.213 1.117,17.916 1.207,17.740 1.277 C 16.994 1.575,17.413 1.179,9.767 8.816 C 5.460 13.117,2.683 15.921,2.633 16.016 C 2.527 16.221,1.000 21.816,1.000 22.002 C 1.000 22.526,1.474 23.000,1.998 23.000 C 2.184 23.000,7.779 21.473,7.984 21.367 C 8.079 21.317,10.889 18.534,15.187 14.233 C 20.879 8.535,22.269 7.124,22.419 6.889 C 23.084 5.849,23.206 4.545,22.748 3.380 C 22.486 2.715,21.913 2.029,21.268 1.608 C 20.463 1.082,19.351 0.877,18.400 1.077 M19.659 3.061 C 20.378 3.249,20.915 3.865,21.018 4.620 C 21.056 4.902,20.976 5.337,20.833 5.628 C 20.733 5.831,20.561 6.025,19.874 6.708 C 19.414 7.166,19.024 7.545,19.009 7.550 C 18.993 7.556,18.404 6.984,17.700 6.280 L 16.421 5.000 17.257 4.163 C 18.121 3.298,18.280 3.178,18.708 3.060 C 18.972 2.987,19.377 2.988,19.659 3.061 M16.300 7.720 L 17.580 9.000 12.275 14.305 L 6.971 19.609 5.221 20.087 C 4.259 20.350,3.464 20.557,3.455 20.548 C 3.446 20.539,3.654 19.742,3.917 18.778 L 4.396 17.024 9.688 11.732 C 12.598 8.821,14.989 6.440,15.000 6.440 C 15.011 6.440,15.596 7.016,16.300 7.720 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Pencil = /*@__PURE__*/ forwardRef<ComponentInternals, PencilProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type LineChartProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-line-chart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.695 2.057 C 2.466 2.129,2.256 2.299,2.128 2.516 L 2.020 2.700 2.020 12.000 L 2.020 21.300 2.131 21.489 C 2.256 21.702,2.449 21.864,2.670 21.943 C 2.893 22.023,21.107 22.023,21.330 21.943 C 21.551 21.864,21.744 21.702,21.869 21.489 C 21.964 21.328,21.980 21.256,21.980 21.000 C 21.980 20.746,21.963 20.672,21.872 20.516 C 21.740 20.293,21.533 20.128,21.290 20.055 C 21.138 20.009,19.686 20.000,12.554 20.000 L 4.001 20.000 3.990 11.350 L 3.980 2.700 3.872 2.516 C 3.628 2.101,3.150 1.915,2.695 2.057 M18.640 8.068 C 18.486 8.121,18.138 8.451,16.230 10.354 L 14.000 12.577 12.270 10.854 C 10.721 9.312,10.519 9.124,10.343 9.066 C 10.093 8.983,9.906 8.983,9.657 9.066 C 9.481 9.124,9.286 9.305,7.847 10.736 C 6.960 11.618,6.189 12.416,6.134 12.508 C 5.862 12.968,6.032 13.587,6.508 13.867 C 6.673 13.964,6.742 13.980,7.000 13.979 C 7.213 13.979,7.341 13.957,7.440 13.905 C 7.517 13.864,8.125 13.289,8.790 12.626 L 10.000 11.422 11.710 13.127 C 12.651 14.064,13.483 14.865,13.560 14.905 C 13.754 15.007,14.246 15.007,14.440 14.905 C 14.632 14.805,19.738 9.706,19.873 9.480 C 19.964 9.328,19.980 9.254,19.980 9.000 C 19.980 8.746,19.963 8.672,19.872 8.516 C 19.617 8.083,19.121 7.903,18.640 8.068 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const LineChart = /*@__PURE__*/ forwardRef<ComponentInternals, LineChartProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

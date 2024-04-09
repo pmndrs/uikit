@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PyramidProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-pyramid" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.528 1.062 C 11.172 1.158,10.873 1.328,10.620 1.580 C 10.448 1.751,9.076 3.705,5.834 8.400 C 3.335 12.019,1.252 15.056,1.205 15.149 C 0.782 15.986,1.052 17.078,1.814 17.615 C 1.949 17.710,3.995 18.893,6.360 20.243 C 11.340 23.087,11.118 22.979,12.000 22.978 C 12.880 22.977,12.627 23.100,17.607 20.259 C 19.990 18.900,22.048 17.712,22.180 17.619 C 22.567 17.346,22.809 16.984,22.937 16.491 C 23.059 16.022,23.007 15.548,22.788 15.131 C 22.718 14.996,20.626 11.946,18.141 8.353 C 14.929 3.710,13.552 1.751,13.380 1.580 C 12.892 1.095,12.163 0.891,11.528 1.062 M10.984 20.549 C 10.975 20.558,9.177 19.543,6.987 18.294 C 4.460 16.852,3.016 16.006,3.033 15.978 C 3.048 15.953,4.842 13.356,7.020 10.206 L 10.980 4.479 10.990 12.506 C 10.996 16.921,10.993 20.540,10.984 20.549 M17.019 10.260 C 19.208 13.425,20.995 16.018,20.990 16.023 C 20.961 16.049,13.037 20.560,13.020 20.560 C 13.009 20.560,13.000 16.939,13.000 12.513 C 13.000 8.088,13.009 4.475,13.019 4.486 C 13.030 4.496,14.830 7.095,17.019 10.260 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Pyramid = /*@__PURE__*/ forwardRef<ComponentInternals, PyramidProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

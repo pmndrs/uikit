@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type LaptopProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-laptop" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.499 4.043 C 4.390 4.231,3.488 5.024,3.114 6.140 L 3.020 6.420 3.000 11.120 L 2.980 15.820 2.365 17.040 C 1.604 18.550,1.550 18.716,1.638 19.285 C 1.734 19.904,2.125 20.462,2.664 20.749 C 3.172 21.018,2.486 21.000,12.000 21.000 C 19.614 21.000,20.651 20.993,20.858 20.939 C 21.970 20.649,22.618 19.528,22.302 18.440 C 22.274 18.341,21.973 17.711,21.635 17.040 L 21.020 15.820 21.000 11.120 L 20.980 6.420 20.886 6.140 C 20.557 5.158,19.821 4.425,18.861 4.121 L 18.540 4.020 12.120 4.014 C 8.589 4.011,5.609 4.024,5.499 4.043 M18.310 6.061 C 18.589 6.144,18.856 6.411,18.939 6.690 C 18.992 6.867,19.000 7.436,19.000 10.947 L 19.000 15.000 12.000 15.000 L 5.000 15.000 5.000 10.947 C 5.000 6.365,4.983 6.623,5.304 6.303 C 5.623 5.983,5.120 6.006,11.983 6.003 C 17.353 6.000,18.131 6.007,18.310 6.061 M19.870 17.980 C 20.140 18.519,20.360 18.969,20.360 18.980 C 20.360 18.991,16.598 19.000,12.000 19.000 C 7.402 19.000,3.640 18.991,3.640 18.980 C 3.640 18.969,3.860 18.519,4.130 17.980 L 4.619 17.000 12.000 17.000 L 19.381 17.000 19.870 17.980 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Laptop = /*@__PURE__*/ forwardRef<ComponentInternals, LaptopProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

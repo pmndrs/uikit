@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type GitlabProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-gitlab" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.420 2.038 C 5.062 2.127,4.668 2.430,4.513 2.734 C 4.469 2.820,3.652 5.221,2.697 8.071 C 0.783 13.781,0.871 13.467,1.035 13.995 C 1.136 14.317,1.273 14.541,1.507 14.765 C 1.680 14.930,11.191 21.679,11.551 21.892 C 11.669 21.962,11.762 21.980,12.004 21.980 C 12.273 21.980,12.329 21.966,12.504 21.857 C 13.079 21.496,22.445 14.810,22.584 14.661 C 22.884 14.339,23.077 13.776,23.028 13.361 C 23.002 13.145,19.653 3.020,19.526 2.773 C 19.416 2.562,19.101 2.266,18.854 2.142 C 18.458 1.945,17.948 1.975,17.562 2.219 C 17.356 2.349,17.096 2.654,17.022 2.853 C 16.988 2.945,16.512 4.343,15.965 5.960 L 14.970 8.900 12.008 8.910 L 9.047 8.921 8.019 5.838 C 7.250 3.531,6.959 2.708,6.863 2.568 C 6.568 2.136,5.945 1.907,5.420 2.038 M7.531 10.533 C 7.593 10.613,7.728 10.728,7.831 10.789 L 8.020 10.900 12.000 10.900 L 15.980 10.900 16.172 10.787 C 16.277 10.725,16.414 10.604,16.476 10.519 C 16.555 10.411,16.843 9.612,17.417 7.911 C 17.872 6.562,18.257 5.437,18.273 5.411 C 18.289 5.386,18.904 7.171,19.640 9.380 C 20.376 11.588,20.969 13.403,20.959 13.413 C 20.811 13.547,12.043 19.735,12.000 19.736 C 11.926 19.736,3.079 13.484,3.051 13.411 C 3.036 13.372,5.471 6.020,5.691 5.440 C 5.723 5.356,5.861 5.733,6.575 7.864 C 7.186 9.691,7.451 10.428,7.531 10.533 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Gitlab = /*@__PURE__*/ forwardRef<ComponentInternals, GitlabProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type CreditCardProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-credit-card" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.499 4.043 C 2.380 4.232,1.461 5.048,1.114 6.160 L 1.020 6.460 1.020 12.000 L 1.020 17.540 1.114 17.840 C 1.422 18.827,2.173 19.578,3.160 19.886 L 3.460 19.980 12.000 19.980 L 20.540 19.980 20.840 19.886 C 21.827 19.578,22.578 18.827,22.886 17.840 L 22.980 17.540 22.980 12.000 L 22.980 6.460 22.886 6.160 C 22.581 5.182,21.832 4.428,20.861 4.121 L 20.540 4.020 12.120 4.014 C 7.489 4.011,3.609 4.024,3.499 4.043 M20.310 6.061 C 20.452 6.103,20.571 6.178,20.697 6.303 C 20.978 6.584,21.000 6.703,21.000 7.947 L 21.000 9.000 12.000 9.000 L 3.000 9.000 3.000 7.947 C 3.000 6.702,3.022 6.585,3.304 6.303 C 3.421 6.185,3.552 6.100,3.673 6.063 C 3.833 6.014,5.030 6.005,11.983 6.003 C 19.144 6.000,20.130 6.007,20.310 6.061 M21.000 14.054 C 21.000 17.367,21.003 17.325,20.779 17.618 C 20.718 17.698,20.585 17.813,20.484 17.872 L 20.300 17.980 12.000 17.980 L 3.700 17.980 3.516 17.872 C 3.415 17.813,3.284 17.700,3.225 17.623 C 2.994 17.320,3.000 17.418,3.000 14.075 L 3.000 11.000 12.000 11.000 L 21.000 11.000 21.000 14.054 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const CreditCard = /*@__PURE__*/ forwardRef<ComponentInternals, CreditCardProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

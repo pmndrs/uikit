@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MessageSquareProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-message-square" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.499 2.043 C 3.390 2.230,2.488 3.024,2.114 4.140 L 2.020 4.420 2.009 12.779 C 1.998 21.900,1.983 21.306,2.224 21.621 C 2.283 21.700,2.415 21.813,2.516 21.872 C 2.672 21.964,2.745 21.980,3.000 21.979 C 3.212 21.979,3.341 21.957,3.440 21.905 C 3.517 21.865,4.444 20.970,5.500 19.917 L 7.420 18.002 13.500 17.991 L 19.580 17.980 19.860 17.886 C 20.851 17.554,21.582 16.816,21.886 15.840 L 21.980 15.540 21.980 10.000 L 21.980 4.460 21.886 4.160 C 21.581 3.182,20.832 2.428,19.861 2.121 L 19.540 2.020 12.120 2.014 C 8.039 2.011,4.609 2.024,4.499 2.043 M19.310 4.061 C 19.589 4.144,19.856 4.411,19.939 4.690 C 19.992 4.868,20.000 5.546,20.000 10.001 C 20.000 14.212,19.990 15.139,19.945 15.290 C 19.872 15.533,19.707 15.740,19.484 15.872 L 19.300 15.980 13.020 16.000 C 6.931 16.019,6.735 16.022,6.580 16.097 C 6.480 16.145,5.963 16.627,5.210 17.375 L 4.000 18.577 4.000 11.736 C 4.000 5.728,4.007 4.870,4.061 4.690 C 4.140 4.421,4.412 4.143,4.673 4.063 C 4.964 3.974,19.009 3.971,19.310 4.061 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const MessageSquare = /*@__PURE__*/ forwardRef<ComponentInternals, MessageSquareProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

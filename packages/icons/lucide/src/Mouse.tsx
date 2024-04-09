@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MouseProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-mouse" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.207 1.043 C 8.804 1.275,6.612 2.620,5.264 4.689 C 4.627 5.667,4.175 6.952,4.042 8.168 C 3.985 8.695,3.985 15.305,4.042 15.832 C 4.203 17.297,4.774 18.721,5.674 19.900 C 5.933 20.239,6.606 20.925,6.960 21.211 C 8.378 22.357,10.190 23.000,12.000 23.000 C 13.810 23.000,15.622 22.357,17.040 21.211 C 17.394 20.925,18.067 20.239,18.326 19.900 C 19.226 18.721,19.797 17.297,19.958 15.832 C 20.015 15.305,20.015 8.695,19.958 8.168 C 19.797 6.703,19.224 5.274,18.325 4.100 C 18.055 3.747,17.510 3.190,17.100 2.847 C 15.483 1.494,13.337 0.837,11.207 1.043 M12.564 3.039 C 14.009 3.180,15.260 3.776,16.269 4.805 C 17.263 5.819,17.823 7.021,17.961 8.436 C 18.009 8.936,18.009 15.064,17.961 15.564 C 17.702 18.217,15.808 20.317,13.160 20.885 C 12.554 21.015,11.446 21.015,10.840 20.885 C 8.190 20.317,6.298 18.219,6.039 15.564 C 5.991 15.064,5.991 8.936,6.039 8.436 C 6.177 7.021,6.737 5.819,7.731 4.805 C 9.008 3.503,10.757 2.864,12.564 3.039 M11.695 5.057 C 11.466 5.129,11.256 5.299,11.128 5.516 L 11.020 5.700 11.020 8.003 L 11.020 10.306 11.141 10.503 C 11.209 10.613,11.346 10.756,11.452 10.828 C 11.923 11.144,12.554 10.999,12.859 10.503 L 12.980 10.306 12.980 8.003 L 12.980 5.700 12.872 5.516 C 12.628 5.101,12.150 4.915,11.695 5.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Mouse = /*@__PURE__*/ forwardRef<ComponentInternals, MouseProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

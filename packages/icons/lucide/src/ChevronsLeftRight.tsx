@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ChevronsLeftRightProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-chevrons-left-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.660 6.066 C 8.474 6.122,8.279 6.307,5.847 8.733 C 4.371 10.206,3.188 11.418,3.127 11.520 C 3.036 11.673,3.020 11.745,3.021 12.000 C 3.021 12.212,3.043 12.341,3.095 12.440 C 3.192 12.625,8.292 17.737,8.508 17.865 C 8.967 18.139,9.587 17.968,9.867 17.492 C 9.964 17.327,9.980 17.258,9.979 17.000 C 9.979 16.788,9.957 16.659,9.905 16.560 C 9.865 16.483,8.839 15.425,7.626 14.210 L 5.421 12.000 7.626 9.790 C 8.839 8.574,9.865 7.517,9.905 7.440 C 9.957 7.341,9.979 7.212,9.979 7.000 C 9.980 6.745,9.964 6.672,9.872 6.516 C 9.740 6.293,9.533 6.128,9.290 6.055 C 9.062 5.986,8.915 5.989,8.660 6.066 M14.695 6.057 C 14.466 6.129,14.256 6.299,14.128 6.516 C 14.036 6.672,14.020 6.745,14.021 7.000 C 14.021 7.212,14.043 7.341,14.095 7.440 C 14.135 7.517,15.161 8.574,16.374 9.790 L 18.579 12.000 16.374 14.210 C 15.161 15.425,14.135 16.483,14.095 16.560 C 14.043 16.659,14.021 16.788,14.021 17.000 C 14.020 17.258,14.036 17.327,14.133 17.492 C 14.413 17.968,15.033 18.139,15.492 17.865 C 15.708 17.737,20.808 12.625,20.905 12.440 C 20.957 12.341,20.979 12.212,20.979 12.000 C 20.980 11.745,20.964 11.673,20.873 11.520 C 20.812 11.418,19.630 10.207,18.153 8.734 C 15.627 6.214,15.533 6.125,15.323 6.064 C 15.066 5.988,14.919 5.987,14.695 6.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ChevronsLeftRight = /*@__PURE__*/ forwardRef<ComponentInternals, ChevronsLeftRightProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

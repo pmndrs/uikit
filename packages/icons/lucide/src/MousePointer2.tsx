@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MousePointer2Props = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-mouse-pointer-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.643 3.067 C 3.285 3.197,3.000 3.615,3.000 4.009 C 3.000 4.094,3.061 4.320,3.135 4.512 C 3.357 5.081,10.115 21.313,10.197 21.473 C 10.287 21.647,10.447 21.803,10.640 21.904 C 10.831 22.004,11.287 22.006,11.484 21.908 C 11.659 21.821,11.865 21.626,11.945 21.470 C 11.978 21.406,12.535 19.795,13.183 17.889 C 13.830 15.983,14.374 14.412,14.390 14.399 C 14.407 14.385,15.968 13.846,17.860 13.201 C 19.752 12.556,21.384 11.984,21.486 11.930 C 21.820 11.753,22.028 11.359,21.988 10.979 C 21.954 10.645,21.757 10.341,21.485 10.203 C 21.405 10.162,17.497 8.531,12.800 6.577 C 3.540 2.726,4.046 2.919,3.643 3.067 M12.024 8.422 C 15.386 9.819,18.142 10.968,18.148 10.975 C 18.154 10.981,17.075 11.357,15.750 11.811 C 14.424 12.264,13.275 12.663,13.195 12.696 C 12.988 12.783,12.810 12.944,12.715 13.130 C 12.670 13.218,12.265 14.371,11.816 15.692 C 11.367 17.013,10.991 18.103,10.980 18.113 C 10.970 18.124,10.936 18.071,10.904 17.996 C 9.032 13.498,5.880 5.909,5.880 5.896 C 5.880 5.887,5.887 5.880,5.896 5.880 C 5.905 5.880,8.663 7.024,12.024 8.422 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const MousePointer2 = /*@__PURE__*/ forwardRef<ComponentInternals, MousePointer2Props>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type DoorClosedProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-door-closed" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.499 3.043 C 6.389 3.232,5.488 4.024,5.114 5.140 L 5.020 5.420 5.009 12.210 L 4.998 19.000 3.446 19.000 C 1.758 19.000,1.658 19.011,1.382 19.221 C 1.302 19.282,1.187 19.415,1.128 19.516 C 1.037 19.672,1.020 19.746,1.020 20.000 C 1.020 20.256,1.036 20.328,1.131 20.489 C 1.256 20.702,1.449 20.864,1.670 20.943 C 1.893 21.023,22.107 21.023,22.330 20.943 C 22.551 20.864,22.744 20.702,22.869 20.489 C 22.964 20.328,22.980 20.256,22.980 20.000 C 22.980 19.746,22.963 19.672,22.872 19.516 C 22.813 19.415,22.698 19.282,22.618 19.221 C 22.342 19.011,22.242 19.000,20.554 19.000 L 19.002 19.000 18.991 12.210 L 18.980 5.420 18.886 5.140 C 18.556 4.158,17.821 3.424,16.861 3.121 L 16.540 3.020 12.120 3.014 C 9.689 3.011,7.609 3.024,7.499 3.043 M16.310 5.061 C 16.589 5.144,16.856 5.411,16.939 5.690 C 16.993 5.869,17.000 6.697,17.000 12.447 L 17.000 19.000 12.000 19.000 L 7.000 19.000 7.000 12.427 C 7.000 5.036,6.974 5.632,7.307 5.299 C 7.617 4.989,7.352 5.006,11.983 5.003 C 15.563 5.000,16.132 5.008,16.310 5.061 M13.695 11.057 C 13.466 11.129,13.256 11.299,13.128 11.516 C 13.036 11.672,13.020 11.745,13.021 12.000 C 13.022 12.332,13.101 12.533,13.306 12.728 C 13.785 13.181,14.580 13.046,14.893 12.460 C 15.025 12.211,15.015 11.760,14.872 11.516 C 14.628 11.101,14.150 10.915,13.695 11.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const DoorClosed = /*@__PURE__*/ forwardRef<ComponentInternals, DoorClosedProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

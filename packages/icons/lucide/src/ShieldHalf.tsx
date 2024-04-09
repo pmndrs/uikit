@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ShieldHalfProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-shield-half" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.644 2.564 C 5.212 3.479,3.452 4.162,3.374 4.222 C 3.301 4.277,3.192 4.408,3.131 4.511 L 3.020 4.700 3.008 8.540 C 3.000 11.200,3.010 12.503,3.041 12.780 C 3.277 14.871,4.260 16.830,6.011 18.700 C 6.540 19.265,7.267 19.951,7.805 20.392 C 8.901 21.290,10.307 22.240,11.350 22.786 C 11.713 22.976,11.787 23.000,12.000 23.000 C 12.213 23.000,12.287 22.976,12.650 22.786 C 14.060 22.048,15.811 20.795,17.060 19.628 C 19.418 17.426,20.664 15.245,20.959 12.801 C 20.984 12.592,21.000 11.004,21.000 8.658 C 21.000 4.382,21.016 4.614,20.704 4.302 C 20.547 4.145,20.350 4.067,16.358 2.569 C 12.812 1.239,12.145 1.001,11.978 1.004 C 11.821 1.007,10.930 1.328,7.644 2.564 M10.990 16.042 L 10.980 20.244 10.500 19.917 C 7.877 18.127,6.013 15.971,5.339 13.946 C 5.014 12.973,5.028 13.168,5.011 9.218 L 4.996 5.696 7.988 4.574 L 10.980 3.453 10.990 7.646 C 10.996 9.953,10.996 13.731,10.990 16.042 M16.192 4.643 L 19.004 5.696 18.989 9.218 C 18.974 12.616,18.971 12.754,18.890 13.126 C 18.425 15.264,16.920 17.322,14.400 19.264 C 14.030 19.549,13.435 19.971,13.110 20.179 L 13.000 20.249 13.000 11.845 L 13.000 3.441 13.190 3.515 C 13.295 3.556,14.645 4.063,16.192 4.643 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ShieldHalf = /*@__PURE__*/ forwardRef<ComponentInternals, ShieldHalfProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

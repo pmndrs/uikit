@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type CheckCheckProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-check-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.640 5.068 C 17.483 5.121,16.793 5.795,12.230 10.354 L 7.001 15.578 4.770 13.353 C 2.622 11.209,2.532 11.125,2.323 11.064 C 2.057 10.986,1.945 10.984,1.710 11.055 C 1.467 11.128,1.260 11.293,1.128 11.516 C 1.037 11.672,1.020 11.746,1.020 12.000 C 1.020 12.254,1.036 12.328,1.127 12.480 C 1.262 12.706,6.368 17.805,6.560 17.905 C 6.659 17.957,6.788 17.979,7.000 17.979 C 7.255 17.980,7.327 17.964,7.480 17.873 C 7.708 17.737,18.805 6.633,18.905 6.440 C 18.957 6.341,18.979 6.212,18.979 6.000 C 18.980 5.745,18.964 5.672,18.872 5.516 C 18.617 5.083,18.122 4.903,17.640 5.068 M21.640 9.068 C 21.484 9.121,20.994 9.595,17.980 12.603 L 14.500 16.076 14.018 15.604 C 13.636 15.231,13.495 15.119,13.341 15.066 C 12.866 14.905,12.382 15.084,12.128 15.516 C 12.036 15.672,12.020 15.745,12.021 16.000 C 12.021 16.213,12.043 16.340,12.095 16.440 C 12.182 16.604,13.705 18.155,13.943 18.320 C 14.256 18.539,14.744 18.539,15.055 18.321 C 15.306 18.146,22.821 10.600,22.905 10.440 C 22.957 10.341,22.979 10.212,22.979 10.000 C 22.980 9.745,22.964 9.672,22.872 9.516 C 22.617 9.083,22.122 8.903,21.640 9.068 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const CheckCheck = /*@__PURE__*/ forwardRef<ComponentInternals, CheckCheckProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

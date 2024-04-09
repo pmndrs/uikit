@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MartiniProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-martini" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.650 2.066 C 4.138 2.248,3.858 2.918,4.086 3.418 C 4.116 3.483,5.684 5.301,7.570 7.457 L 11.000 11.378 11.000 16.189 L 11.000 21.000 9.446 21.000 C 7.758 21.000,7.658 21.011,7.382 21.221 C 7.302 21.282,7.187 21.415,7.128 21.516 C 7.037 21.672,7.020 21.746,7.020 22.000 C 7.020 22.256,7.036 22.328,7.131 22.489 C 7.256 22.702,7.449 22.864,7.670 22.943 C 7.892 23.022,16.108 23.022,16.330 22.943 C 16.551 22.864,16.744 22.702,16.869 22.489 C 16.964 22.328,16.980 22.256,16.980 22.000 C 16.980 21.746,16.963 21.672,16.872 21.516 C 16.813 21.415,16.698 21.282,16.618 21.221 C 16.342 21.011,16.242 21.000,14.554 21.000 L 13.000 21.000 13.000 16.189 L 13.000 11.378 16.437 7.450 C 19.426 4.033,19.882 3.494,19.942 3.315 C 20.119 2.780,19.828 2.217,19.290 2.055 C 19.138 2.009,17.908 2.001,11.964 2.003 C 5.718 2.006,4.799 2.014,4.650 2.066 M16.760 4.020 C 16.760 4.059,12.034 9.440,12.000 9.440 C 11.966 9.440,7.240 4.059,7.240 4.020 C 7.240 4.009,9.382 4.000,12.000 4.000 C 14.618 4.000,16.760 4.009,16.760 4.020 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Martini = /*@__PURE__*/ forwardRef<ComponentInternals, MartiniProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

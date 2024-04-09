@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type SmartphoneProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-smartphone" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.499 1.043 C 5.379 1.233,4.461 2.048,4.114 3.160 L 4.020 3.460 4.020 12.000 L 4.020 20.540 4.114 20.840 C 4.422 21.827,5.173 22.578,6.160 22.886 L 6.460 22.980 12.000 22.980 L 17.540 22.980 17.840 22.886 C 18.827 22.578,19.578 21.827,19.886 20.840 L 19.980 20.540 19.980 12.000 L 19.980 3.460 19.886 3.160 C 19.581 2.182,18.832 1.428,17.861 1.121 L 17.540 1.020 12.120 1.014 C 9.139 1.011,6.609 1.024,6.499 1.043 M17.310 3.061 C 17.589 3.144,17.856 3.411,17.939 3.690 C 17.993 3.870,18.000 4.860,18.000 12.001 C 18.000 18.754,17.991 20.138,17.945 20.290 C 17.872 20.533,17.707 20.740,17.484 20.872 L 17.300 20.980 12.000 20.980 L 6.700 20.980 6.516 20.872 C 6.415 20.813,6.284 20.700,6.225 20.623 C 5.985 20.308,6.000 20.888,6.000 12.022 C 6.000 2.888,5.974 3.632,6.304 3.303 C 6.621 2.985,6.234 3.006,11.983 3.003 C 16.458 3.000,17.131 3.008,17.310 3.061 M11.695 17.055 C 11.464 17.130,11.255 17.300,11.128 17.516 C 11.037 17.672,11.020 17.746,11.020 18.000 C 11.020 18.257,11.036 18.327,11.133 18.492 C 11.651 19.374,12.998 19.018,12.998 18.000 C 12.998 17.623,12.792 17.281,12.463 17.112 C 12.265 17.010,11.911 16.984,11.695 17.055 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Smartphone = /*@__PURE__*/ forwardRef<ComponentInternals, SmartphoneProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

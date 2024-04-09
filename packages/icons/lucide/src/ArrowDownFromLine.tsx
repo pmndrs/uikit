@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowDownFromLineProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-down-from-line" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.695 2.057 C 4.466 2.129,4.256 2.299,4.128 2.516 C 4.037 2.672,4.020 2.746,4.020 3.000 C 4.020 3.256,4.036 3.328,4.131 3.489 C 4.256 3.702,4.449 3.864,4.670 3.943 C 4.893 4.022,19.107 4.022,19.330 3.943 C 19.551 3.864,19.744 3.702,19.869 3.489 C 19.964 3.328,19.980 3.256,19.980 3.000 C 19.980 2.746,19.963 2.672,19.872 2.516 C 19.740 2.293,19.533 2.128,19.290 2.055 C 19.027 1.976,4.947 1.978,4.695 2.057 M11.695 6.057 C 11.466 6.129,11.256 6.299,11.128 6.516 L 11.020 6.700 11.009 12.638 L 10.999 18.577 8.769 16.354 C 6.755 14.346,6.521 14.124,6.343 14.065 C 5.862 13.906,5.382 14.084,5.128 14.516 C 5.036 14.672,5.020 14.745,5.021 15.000 C 5.021 15.212,5.043 15.341,5.095 15.440 C 5.135 15.517,6.566 16.981,8.274 18.694 C 11.647 22.076,11.560 21.999,12.000 21.999 C 12.440 21.999,12.353 22.076,15.726 18.694 C 17.434 16.981,18.865 15.517,18.905 15.440 C 18.957 15.341,18.979 15.212,18.979 15.000 C 18.980 14.745,18.964 14.672,18.872 14.516 C 18.618 14.084,18.138 13.906,17.657 14.065 C 17.479 14.124,17.245 14.346,15.231 16.354 L 13.001 18.577 12.991 12.638 L 12.980 6.700 12.872 6.516 C 12.628 6.101,12.150 5.915,11.695 6.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowDownFromLine = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowDownFromLineProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

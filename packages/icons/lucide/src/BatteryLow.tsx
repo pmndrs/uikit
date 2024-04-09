@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type BatteryLowProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-battery-low" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.499 6.043 C 2.380 6.233,1.461 7.048,1.114 8.160 L 1.020 8.460 1.020 12.000 L 1.020 15.540 1.114 15.840 C 1.422 16.827,2.173 17.578,3.160 17.886 L 3.460 17.980 10.000 17.980 L 16.540 17.980 16.840 17.886 C 17.827 17.578,18.578 16.827,18.886 15.840 L 18.980 15.540 18.980 12.000 L 18.980 8.460 18.886 8.160 C 18.581 7.182,17.832 6.428,16.861 6.121 L 16.540 6.020 10.120 6.014 C 6.589 6.011,3.609 6.024,3.499 6.043 M16.310 8.061 C 16.589 8.144,16.856 8.411,16.939 8.690 C 17.025 8.980,17.031 15.004,16.945 15.290 C 16.872 15.533,16.707 15.740,16.484 15.872 L 16.300 15.980 10.000 15.980 L 3.700 15.980 3.516 15.872 C 3.303 15.747,3.141 15.550,3.058 15.316 C 2.969 15.063,2.971 8.991,3.061 8.690 C 3.140 8.421,3.412 8.143,3.673 8.063 C 3.963 7.974,16.010 7.972,16.310 8.061 M5.695 10.057 C 5.466 10.129,5.256 10.299,5.128 10.516 L 5.020 10.700 5.020 12.003 L 5.020 13.306 5.141 13.503 C 5.543 14.156,6.457 14.156,6.859 13.503 L 6.980 13.306 6.980 12.003 L 6.980 10.700 6.872 10.516 C 6.628 10.101,6.150 9.915,5.695 10.057 M21.695 10.057 C 21.466 10.129,21.256 10.299,21.128 10.516 L 21.020 10.700 21.020 12.003 L 21.020 13.306 21.141 13.503 C 21.543 14.156,22.457 14.156,22.859 13.503 L 22.980 13.306 22.980 12.003 L 22.980 10.700 22.872 10.516 C 22.628 10.101,22.150 9.915,21.695 10.057 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const BatteryLow = /*@__PURE__*/ forwardRef<ComponentInternals, BatteryLowProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

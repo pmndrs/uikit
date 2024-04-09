@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowBigRightProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-big-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.695 4.055 C 11.464 4.130,11.255 4.300,11.128 4.516 L 11.020 4.700 11.008 6.350 L 10.997 8.000 8.445 8.000 C 5.676 8.000,5.672 8.000,5.382 8.221 C 5.302 8.282,5.187 8.415,5.128 8.516 L 5.020 8.700 5.020 12.000 L 5.020 15.300 5.131 15.489 C 5.256 15.702,5.449 15.864,5.670 15.943 C 5.789 15.986,6.351 15.997,8.410 15.998 L 11.000 16.000 11.000 17.575 C 11.000 19.283,11.006 19.336,11.225 19.623 C 11.284 19.700,11.415 19.813,11.516 19.872 C 11.672 19.964,11.745 19.980,12.000 19.979 C 12.212 19.979,12.341 19.957,12.440 19.905 C 12.632 19.805,19.737 12.707,19.873 12.480 C 19.964 12.328,19.980 12.254,19.980 12.000 C 19.980 11.746,19.964 11.672,19.873 11.520 C 19.717 11.259,12.623 4.192,12.427 4.103 C 12.222 4.010,11.897 3.989,11.695 4.055 M15.300 14.280 L 13.020 16.561 13.000 15.630 C 12.980 14.708,12.979 14.698,12.872 14.516 C 12.813 14.415,12.698 14.282,12.618 14.221 C 12.328 14.000,12.325 14.000,9.554 14.000 L 7.000 14.000 7.000 12.000 L 7.000 10.000 9.590 9.998 C 11.649 9.997,12.211 9.986,12.330 9.943 C 12.551 9.864,12.744 9.702,12.869 9.489 L 12.980 9.300 12.993 8.363 L 13.005 7.426 15.293 9.713 L 17.580 12.000 15.300 14.280 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowBigRight = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowBigRightProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

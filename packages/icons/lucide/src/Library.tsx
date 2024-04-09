@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type LibraryProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-library" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.695 3.057 C 3.466 3.129,3.256 3.299,3.128 3.516 L 3.020 3.700 3.020 12.003 L 3.020 20.306 3.141 20.503 C 3.543 21.156,4.457 21.156,4.859 20.503 L 4.980 20.306 4.980 12.003 L 4.980 3.700 4.872 3.516 C 4.628 3.101,4.150 2.915,3.695 3.057 M11.695 5.057 C 11.466 5.129,11.256 5.299,11.128 5.516 L 11.020 5.700 11.020 13.003 L 11.020 20.306 11.141 20.503 C 11.209 20.613,11.346 20.756,11.452 20.828 C 11.923 21.144,12.554 20.999,12.859 20.503 L 12.980 20.306 12.980 13.003 L 12.980 5.700 12.872 5.516 C 12.628 5.101,12.150 4.915,11.695 5.057 M15.664 5.063 C 15.291 5.200,15.045 5.519,15.014 5.910 C 14.997 6.121,15.162 6.725,17.035 13.272 C 18.202 17.349,19.113 20.463,19.162 20.543 C 19.323 20.804,19.682 21.000,19.998 21.000 C 20.526 21.000,21.000 20.528,21.000 20.002 C 21.000 19.802,16.945 5.630,16.838 5.457 C 16.611 5.090,16.078 4.911,15.664 5.063 M7.695 7.057 C 7.466 7.129,7.256 7.299,7.128 7.516 L 7.020 7.700 7.020 14.003 L 7.020 20.306 7.141 20.503 C 7.543 21.156,8.457 21.156,8.859 20.503 L 8.980 20.306 8.980 14.003 L 8.980 7.700 8.872 7.516 C 8.628 7.101,8.150 6.915,7.695 7.057 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Library = /*@__PURE__*/ forwardRef<ComponentInternals, LibraryProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

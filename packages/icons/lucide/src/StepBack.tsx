@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type StepBackProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-step-back" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.670 3.055 C 13.587 3.086,13.497 3.128,13.470 3.150 C 13.442 3.171,11.125 5.024,8.320 7.267 C 4.120 10.626,3.202 11.377,3.120 11.523 C 3.038 11.668,3.020 11.754,3.020 12.000 C 3.020 12.246,3.038 12.332,3.120 12.477 C 3.202 12.623,4.122 13.375,8.316 16.732 C 11.118 18.974,13.476 20.848,13.556 20.895 C 13.668 20.961,13.766 20.980,14.000 20.980 C 14.256 20.980,14.328 20.964,14.489 20.869 C 14.702 20.744,14.864 20.551,14.943 20.330 C 14.987 20.207,14.997 18.733,14.998 12.020 C 14.999 6.517,14.986 3.811,14.958 3.711 C 14.897 3.493,14.685 3.238,14.473 3.129 C 14.243 3.010,13.879 2.977,13.670 3.055 M17.695 3.057 C 17.466 3.129,17.256 3.299,17.128 3.516 L 17.020 3.700 17.020 12.003 L 17.020 20.306 17.141 20.503 C 17.543 21.156,18.457 21.156,18.859 20.503 L 18.980 20.306 18.980 12.003 L 18.980 3.700 18.872 3.516 C 18.628 3.101,18.150 2.915,17.695 3.057 M13.000 12.000 L 13.000 17.920 9.318 14.975 C 7.294 13.355,5.643 12.011,5.650 11.989 C 5.660 11.959,12.946 6.096,12.990 6.083 C 12.995 6.081,13.000 8.744,13.000 12.000 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const StepBack = /*@__PURE__*/ forwardRef<ComponentInternals, StepBackProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

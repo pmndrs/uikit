@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type LampFloorProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-lamp-floor" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.643 1.069 C 8.238 1.212,8.291 1.107,6.580 5.100 C 5.022 8.736,5.020 8.740,5.020 9.020 C 5.020 9.254,5.038 9.331,5.131 9.489 C 5.256 9.702,5.449 9.864,5.670 9.943 C 5.789 9.986,6.351 9.997,8.410 9.998 L 11.000 10.000 11.000 15.500 L 11.000 21.000 9.946 21.000 C 8.797 21.000,8.644 21.022,8.382 21.221 C 8.302 21.282,8.187 21.415,8.128 21.516 C 8.037 21.672,8.020 21.746,8.020 22.000 C 8.020 22.256,8.036 22.328,8.131 22.489 C 8.256 22.702,8.449 22.864,8.670 22.943 C 8.891 23.022,15.109 23.022,15.330 22.943 C 15.551 22.864,15.744 22.702,15.869 22.489 C 15.964 22.328,15.980 22.256,15.980 22.000 C 15.980 21.746,15.963 21.672,15.872 21.516 C 15.813 21.415,15.698 21.282,15.618 21.221 C 15.356 21.022,15.203 21.000,14.054 21.000 L 13.000 21.000 13.000 15.500 L 13.000 10.000 15.573 10.000 C 18.478 10.000,18.394 10.008,18.702 9.700 C 18.906 9.496,19.017 9.196,18.991 8.922 C 18.978 8.788,18.512 7.656,17.416 5.096 C 16.021 1.837,15.843 1.443,15.697 1.296 C 15.391 0.987,15.544 1.000,11.983 1.003 C 9.226 1.006,8.797 1.014,8.643 1.069 M15.407 5.490 L 16.474 7.980 14.237 7.990 C 13.007 7.996,10.993 7.996,9.763 7.990 L 7.526 7.980 8.593 5.490 L 9.659 3.000 12.000 3.000 L 14.341 3.000 15.407 5.490 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const LampFloor = /*@__PURE__*/ forwardRef<ComponentInternals, LampFloorProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

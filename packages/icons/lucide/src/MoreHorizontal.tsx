@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type MoreHorizontalProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-more-horizontal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.477 10.073 C 3.806 10.249,3.238 10.823,3.060 11.508 C 2.941 11.962,3.003 12.492,3.225 12.930 C 3.361 13.199,3.801 13.639,4.070 13.775 C 4.659 14.073,5.341 14.073,5.930 13.775 C 6.196 13.640,6.638 13.200,6.771 12.937 C 6.994 12.498,7.052 12.007,6.940 11.529 C 6.858 11.182,6.720 10.927,6.465 10.653 C 6.074 10.232,5.560 10.005,5.000 10.005 C 4.857 10.005,4.622 10.036,4.477 10.073 M11.477 10.073 C 10.806 10.249,10.238 10.823,10.060 11.508 C 9.941 11.962,10.003 12.492,10.225 12.930 C 10.361 13.199,10.801 13.639,11.070 13.775 C 11.659 14.073,12.341 14.073,12.930 13.775 C 13.196 13.640,13.638 13.200,13.771 12.937 C 13.994 12.498,14.052 12.007,13.940 11.529 C 13.858 11.182,13.720 10.927,13.465 10.653 C 13.074 10.232,12.560 10.005,12.000 10.005 C 11.857 10.005,11.622 10.036,11.477 10.073 M18.477 10.073 C 17.806 10.249,17.238 10.823,17.060 11.508 C 16.941 11.962,17.003 12.492,17.225 12.930 C 17.361 13.199,17.801 13.639,18.070 13.775 C 18.659 14.073,19.341 14.073,19.930 13.775 C 20.196 13.640,20.638 13.200,20.771 12.937 C 20.994 12.498,21.052 12.007,20.940 11.529 C 20.858 11.182,20.720 10.927,20.465 10.653 C 20.074 10.232,19.560 10.005,19.000 10.005 C 18.857 10.005,18.622 10.036,18.477 10.073 " stroke="none" fill="black" fill-rule="evenodd"></path></svg>`;
+      export const MoreHorizontal = /*@__PURE__*/ forwardRef<ComponentInternals, MoreHorizontalProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

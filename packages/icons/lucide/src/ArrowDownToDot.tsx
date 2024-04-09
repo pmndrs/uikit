@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type ArrowDownToDotProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-arrow-down-to-dot" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.695 1.057 C 11.466 1.129,11.256 1.299,11.128 1.516 L 11.020 1.700 11.009 7.639 L 10.999 13.577 8.269 10.854 C 5.790 8.380,5.522 8.125,5.343 8.065 C 4.862 7.906,4.382 8.084,4.128 8.516 C 4.036 8.672,4.020 8.745,4.021 9.000 C 4.021 9.212,4.043 9.341,4.095 9.440 C 4.135 9.517,5.791 11.206,7.774 13.194 C 11.688 17.117,11.557 16.999,12.000 16.999 C 12.443 16.999,12.312 17.117,16.226 13.194 C 18.209 11.206,19.865 9.517,19.905 9.440 C 19.957 9.341,19.979 9.212,19.979 9.000 C 19.980 8.745,19.964 8.672,19.872 8.516 C 19.618 8.084,19.138 7.906,18.657 8.065 C 18.478 8.125,18.210 8.380,15.731 10.854 L 13.001 13.577 12.991 7.639 L 12.980 1.700 12.872 1.516 C 12.628 1.101,12.150 0.915,11.695 1.057 M11.477 19.073 C 10.806 19.249,10.238 19.823,10.060 20.508 C 9.941 20.962,10.003 21.492,10.225 21.930 C 10.361 22.199,10.801 22.639,11.070 22.775 C 11.659 23.073,12.341 23.073,12.930 22.775 C 13.196 22.640,13.638 22.200,13.771 21.937 C 13.994 21.498,14.052 21.007,13.940 20.529 C 13.858 20.182,13.720 19.927,13.465 19.653 C 13.074 19.232,12.560 19.005,12.000 19.005 C 11.857 19.005,11.622 19.036,11.477 19.073 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const ArrowDownToDot = /*@__PURE__*/ forwardRef<ComponentInternals, ArrowDownToDotProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    

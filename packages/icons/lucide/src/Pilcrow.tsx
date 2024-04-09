@@ -1,0 +1,10 @@
+
+      /* eslint-disable no-shadow-restricted-names */
+      import { SvgIconFromText, ComponentInternals } from "@react-three/uikit";
+      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
+      export type PilcrowProps = Omit<ComponentPropsWithoutRef<typeof SvgIconFromText>, "text" | "svgWidth" | "svgHeight">;
+      const text = `<svg class="lucide lucide-pilcrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.860 3.047 C 7.632 3.185,6.479 3.751,5.579 4.659 C 3.483 6.771,3.480 10.201,5.573 12.333 C 6.443 13.220,7.496 13.756,8.729 13.941 C 9.017 13.985,9.498 14.000,10.559 14.000 L 11.998 14.000 12.009 17.153 L 12.020 20.306 12.141 20.503 C 12.543 21.156,13.457 21.156,13.859 20.503 L 13.980 20.306 13.990 12.653 L 14.001 5.000 15.000 5.000 L 15.999 5.000 16.010 12.653 L 16.020 20.306 16.141 20.503 C 16.543 21.156,17.457 21.156,17.859 20.503 L 17.980 20.306 17.990 12.653 L 18.001 5.000 18.590 4.998 C 18.977 4.997,19.232 4.978,19.330 4.943 C 19.551 4.864,19.744 4.702,19.869 4.489 C 19.964 4.328,19.980 4.256,19.980 4.000 C 19.980 3.746,19.963 3.672,19.872 3.516 C 19.813 3.415,19.698 3.282,19.618 3.221 C 19.316 2.991,19.535 3.000,14.144 3.005 C 11.414 3.008,9.036 3.027,8.860 3.047 M12.000 8.503 L 12.000 12.006 10.430 11.990 C 8.714 11.973,8.666 11.967,8.066 11.701 C 7.161 11.300,6.376 10.378,6.111 9.405 C 5.992 8.968,5.992 8.032,6.111 7.595 C 6.467 6.286,7.634 5.235,8.942 5.044 C 9.073 5.025,9.815 5.008,10.590 5.005 L 12.000 5.000 12.000 8.503 " stroke="none" fill-rule="evenodd" fill="black"></path></svg>`;
+      export const Pilcrow = /*@__PURE__*/ forwardRef<ComponentInternals, PilcrowProps>((props, ref) => {
+        return <SvgIconFromText {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
+      })
+    
