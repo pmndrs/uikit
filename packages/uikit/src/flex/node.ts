@@ -1,34 +1,31 @@
-import { Group, Vector2Tuple } from 'three'
+import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import {
-  EDGE_TOP,
-  EDGE_LEFT,
-  EDGE_RIGHT,
-  EDGE_BOTTOM,
-  Node,
-  Yoga,
-  OVERFLOW_VISIBLE,
-  Overflow,
-  OVERFLOW_SCROLL,
-} from 'yoga-wasm-web'
+import Yoga, { Edge, MeasureFunction, Node, Overflow } from 'yoga-layout'
 import { setter } from './setter.js'
-import { setMeasureFunc, yogaNodeEqual } from './utils.js'
-import { WithImmediateProperties } from '../properties/immediate.js'
-import { RefObject } from 'react'
-import { CameraDistanceRef } from '../order.js'
+import { Subscriptions } from '../utils.js'
+import { setupImmediateProperties } from '../properties/immediate.js'
+import { MergedProperties } from '../properties/merged.js'
+import { Object3DRef } from '../context.js'
+import { PointScaleFactor, defaultYogaConfig } from './config.js'
 
 export type YogaProperties = {
-  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
+  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
 
-export class FlexNode implements WithImmediateProperties {
-  public readonly size = signal<Vector2Tuple>([0, 0])
+function hasImmediateProperty(key: string): boolean {
+  if (key === 'measureFunc') {
+    return true
+  }
+  return key in setter
+}
+
+export class FlexNode {
   public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
   public readonly borderInset = signal<Inset>([0, 0, 0, 0])
   public readonly paddingInset = signal<Inset>([0, 0, 0, 0])
-  public readonly overflow = signal<Overflow>(OVERFLOW_VISIBLE)
+  public readonly overflow = signal<Overflow>(Overflow.Visible)
   public readonly maxScrollPosition = signal<Partial<Vector2Tuple>>([undefined, undefined])
   public readonly scrollable = signal<[boolean, boolean]>([false, false])
 
@@ -40,43 +37,57 @@ export class FlexNode implements WithImmediateProperties {
 
   public requestCalculateLayout: () => void
 
-  active = signal(false)
+  private active = signal(false)
 
   constructor(
-    private groupRef: RefObject<Group>,
-    public cameraDistance: CameraDistanceRef,
-    public readonly yoga: Signal<Yoga | undefined>,
-    private precision: number,
-    public readonly pixelSize: number,
+    propertiesSignal: Signal<MergedProperties>,
+    public readonly size = signal<Vector2Tuple>([0, 0]),
+    private object: Object3DRef,
     requestCalculateLayout: (node: FlexNode) => void,
     public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
+    subscriptions: Subscriptions,
+    renameOutput?: Record<string, string>,
   ) {
     this.requestCalculateLayout = () => requestCalculateLayout(this)
     this.unsubscribeYoga = effect(() => {
-      if (yoga.value == null) {
-        return
-      }
       this.unsubscribeYoga?.()
       this.unsubscribeYoga = undefined
-      this.yogaNode = yoga.value.Node.create()
+      this.yogaNode = Yoga.Node.create(defaultYogaConfig)
       this.active.value = true
     })
+    setupImmediateProperties(
+      propertiesSignal,
+      this.active,
+      hasImmediateProperty,
+      (key: string, value: unknown) => {
+        setter[key as keyof typeof setter](this.yogaNode!, value as any)
+        this.requestCalculateLayout()
+      },
+      subscriptions,
+      renameOutput,
+    )
   }
 
-  setProperty(key: string, value: unknown): void {
-    if (key === 'measureFunc') {
-      setMeasureFunc(this.yogaNode!, this.precision, value as any)
-    } else {
-      setter[key as keyof typeof setter](this.yogaNode!, this.precision, value as any)
-    }
-    this.requestCalculateLayout()
-  }
-
-  hasImmediateProperty(key: string): boolean {
-    if (key === 'measureFunc') {
-      return true
-    }
-    return key in setter
+  setMeasureFunc(func: Signal<MeasureFunction | undefined>) {
+    return effect(() => {
+      if (!this.active.value) {
+        return
+      }
+      if (func.value == null) {
+        this.yogaNode!.setMeasureFunc(null)
+        return
+      }
+      const fn = func.value
+      this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
+        const result = fn(width, wMode, height, hMode)
+        return {
+          width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+          height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
+        }
+      })
+      this.yogaNode!.markDirty()
+      this.requestCalculateLayout()
+    })
   }
 
   destroy() {
@@ -92,23 +103,22 @@ export class FlexNode implements WithImmediateProperties {
       return
     }
     this.commit()
-    this.yogaNode.calculateLayout()
+    this.yogaNode.calculateLayout(undefined, undefined)
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
-  createChild(groupRef: RefObject<Group>): FlexNode {
+  createChild(propertiesSignal: Signal<MergedProperties>, object: Object3DRef, subscriptions: Subscriptions): FlexNode {
     const child = new FlexNode(
-      groupRef,
-      this.cameraDistance,
-      this.yoga,
-      this.precision,
-      this.pixelSize,
+      propertiesSignal,
+      undefined,
+      object,
       this.requestCalculateLayout,
       computed(() => {
         const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]
         const [x, y] = this.scrollable.value
         return [ancestorX || x, ancestorY || y]
       }),
+      subscriptions,
     )
     return child
   }
@@ -123,6 +133,7 @@ export class FlexNode implements WithImmediateProperties {
     if (i === -1) {
       return
     }
+    node.yogaNode?.getParent()?.removeChild(node.yogaNode)
     this.children.splice(i, 1)
     this.requestCalculateLayout()
   }
@@ -133,19 +144,24 @@ export class FlexNode implements WithImmediateProperties {
     }
 
     //commiting the children
-    const children = this.children[0]?.groupRef.current?.parent?.children!
+    let groupChildren: Array<Object3D> | undefined
     this.children.sort((child1, child2) => {
-      const i1 = children.indexOf(child1.groupRef.current as any)
-      if (i1 === -1) {
-        throw new Error(
-          `${child1.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
-        )
+      groupChildren ??= child1.object.current?.parent?.children
+      if (groupChildren == null) {
+        return 0
       }
-      const i2 = children.indexOf(child2.groupRef.current as any)
+      const group1 = child1.object.current
+      const group2 = child2.object.current
+      if (group1 == null || group2 == null) {
+        return 0
+      }
+      const i1 = groupChildren.indexOf(group1)
+      if (i1 === -1) {
+        throw new Error(`parent mismatch`)
+      }
+      const i2 = groupChildren.indexOf(group2)
       if (i2 === -1) {
-        throw new Error(
-          `${child2.groupRef.current} doesnt have the same parent as ${this.children[0].groupRef.current}`,
-        )
+        throw new Error(`parent mismatch`)
       }
       return i1 - i2
     })
@@ -196,30 +212,30 @@ export class FlexNode implements WithImmediateProperties {
 
     this.overflow.value = this.yogaNode.getOverflow()
 
-    const width = this.yogaNode.getComputedWidth() * this.precision
-    const height = this.yogaNode.getComputedHeight() * this.precision
+    const width = this.yogaNode.getComputedWidth()
+    const height = this.yogaNode.getComputedHeight()
     updateVector2Signal(this.size, width, height)
 
     parentWidth ??= width
     parentHeight ??= height
 
-    const x = this.yogaNode.getComputedLeft() * this.precision
-    const y = this.yogaNode.getComputedTop() * this.precision
+    const x = this.yogaNode.getComputedLeft()
+    const y = this.yogaNode.getComputedTop()
 
     const relativeCenterX = x + width * 0.5 - parentWidth * 0.5
     const relativeCenterY = -(y + height * 0.5 - parentHeight * 0.5)
     updateVector2Signal(this.relativeCenter, relativeCenterX, relativeCenterY)
 
-    const paddingTop = this.yogaNode.getComputedPadding(EDGE_TOP) * this.precision
-    const paddingLeft = this.yogaNode.getComputedPadding(EDGE_LEFT) * this.precision
-    const paddingRight = this.yogaNode.getComputedPadding(EDGE_RIGHT) * this.precision
-    const paddingBottom = this.yogaNode.getComputedPadding(EDGE_BOTTOM) * this.precision
+    const paddingTop = this.yogaNode.getComputedPadding(Edge.Top)
+    const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left)
+    const paddingRight = this.yogaNode.getComputedPadding(Edge.Right)
+    const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom)
     updateInsetSignal(this.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
 
-    const borderTop = this.yogaNode.getComputedBorder(EDGE_TOP) * this.precision
-    const borderRight = this.yogaNode.getComputedBorder(EDGE_RIGHT) * this.precision
-    const borderBottom = this.yogaNode.getComputedBorder(EDGE_BOTTOM) * this.precision
-    const borderLeft = this.yogaNode.getComputedBorder(EDGE_LEFT) * this.precision
+    const borderTop = this.yogaNode.getComputedBorder(Edge.Top)
+    const borderRight = this.yogaNode.getComputedBorder(Edge.Right)
+    const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom)
+    const borderLeft = this.yogaNode.getComputedBorder(Edge.Left)
     updateInsetSignal(this.borderInset, borderTop, borderRight, borderBottom, borderLeft)
 
     for (const layoutChangeListener of this.layoutChangeListeners) {
@@ -238,7 +254,7 @@ export class FlexNode implements WithImmediateProperties {
     maxContentWidth -= borderLeft
     maxContentHeight -= borderTop
 
-    if (this.overflow.value === OVERFLOW_SCROLL) {
+    if (this.overflow.value === Overflow.Scroll) {
       maxContentWidth += paddingRight
       maxContentHeight += paddingLeft
 
@@ -248,18 +264,21 @@ export class FlexNode implements WithImmediateProperties {
       const maxScrollX = maxContentWidth - widthWithoutBorder
       const maxScrollY = maxContentHeight - heightWithoutBorder
 
+      const xScrollable = maxScrollX > 0.5
+      const yScrollable = maxScrollY > 0.5
+
       updateVector2Signal(
         this.maxScrollPosition,
-        maxScrollX <= 0 ? undefined : maxScrollX,
-        maxScrollY <= 0 ? undefined : maxScrollY,
+        xScrollable ? maxScrollX : undefined,
+        yScrollable ? maxScrollY : undefined,
       )
-      updateVector2Signal(this.scrollable, maxScrollX > 0, maxScrollY > 0)
+      updateVector2Signal(this.scrollable, xScrollable, yScrollable)
     } else {
       updateVector2Signal(this.maxScrollPosition, undefined, undefined)
       updateVector2Signal(this.scrollable, false, false)
     }
 
-    const overflowVisible = this.overflow.value === OVERFLOW_VISIBLE
+    const overflowVisible = this.overflow.value === Overflow.Visible
 
     return [
       x + Math.max(width, overflowVisible ? maxContentWidth : 0),
@@ -294,4 +313,8 @@ function assertNodeNotNull<T>(val: T | undefined): T {
     throw new Error(`commit cannot be called with a children that miss a yoga node`)
   }
   return val
+}
+
+function yogaNodeEqual(n1: Node, n2: Node): boolean {
+  return (n1 as any)['M']['O'] === (n2 as any)['M']['O']
 }

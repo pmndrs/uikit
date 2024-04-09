@@ -1,9 +1,11 @@
 {
+  "type": "module",
   "devDependencies": {
     "@react-three/eslint-plugin": "^0.1.1",
     "@types/chai": "^4.3.10",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
+    "@types/node": "^20.11.0",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^7.0.2",

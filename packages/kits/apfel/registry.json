@@ -1,0 +1,33 @@
+{
+  "button": {
+    "files": ["button.tsx"]
+  },
+  "card": {
+    "files": ["card.tsx"]
+  },
+  "checkbox": {
+    "files": ["checkbox.tsx"]
+  },
+  "list": {
+    "files": ["list.tsx"]
+  },
+  "loading": {
+    "files": ["loading.tsx"]
+  },
+  "progress": {
+    "files": ["progress.tsx"]
+  },
+  "slider": {
+    "files": ["slider.tsx"]
+  },
+  "tab-bar": {
+    "files": ["tab-bar.tsx"],
+    "registryDependencies": ["card"]
+  },
+  "tabs": {
+    "files": ["tabs.tsx"]
+  },
+  "input": {
+    "files": ["input.tsx"]
+  }
+}

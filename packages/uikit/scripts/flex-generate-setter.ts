@@ -1,213 +1,176 @@
-import { writeFileSync } from "fs";
-import {
-  EDGE_BOTTOM,
-  EDGE_LEFT,
-  EDGE_RIGHT,
-  EDGE_TOP,
-  Node,
-  UNIT_AUTO,
-  UNIT_PERCENT,
-  UNIT_POINT,
-  UNIT_UNDEFINED,
-} from "yoga-wasm-web";
-import { GUTTER_ROW, GUTTER_COLUMN } from "yoga-wasm-web";
-import { loadYogaBase64 } from "../src/flex/load-base64.js";
+import { writeFileSync } from 'fs'
+import Yoga, { Edge, Gutter, Unit, Node } from 'yoga-layout'
+import { defaultYogaConfig } from '../src/flex/config.js'
 
 async function main() {
-  const yoga = await loadYogaBase64();
-  const node = yoga.Node.create();
+  const node = Yoga.Node.create(defaultYogaConfig)
 
-  const propertiesWithEdge = new Set(["border", "padding", "margin", "position"]);
-  const propertiesWithGutter = new Set(["gap"]);
-  const propertiesWithoutPointUnit = new Set(["aspectRatio", "flexGrow", "flexShrink"]);
+  const propertiesWithEdge = new Set(['border', 'padding', 'margin', 'position'])
+  const propertiesWithGutter = new Set(['gap'])
+  const propertiesWithoutPointUnit = new Set(['aspectRatio', 'flexGrow', 'flexShrink'])
 
   const enumsToPrefix: { [key in string]: string } = {
-    alignContent: "ALIGN_",
-    alignItems: "ALIGN_",
-    alignSelf: "ALIGN_",
-    display: "DISPLAY_",
-    flexDirection: "FLEX_DIRECTION_",
-    flexWrap: "WRAP_",
-    justifyContent: "JUSTIFY_",
-    overflow: "OVERFLOW_",
-    positionType: "POSITION_TYPE_",
-  };
+    alignContent: 'ALIGN_',
+    alignItems: 'ALIGN_',
+    alignSelf: 'ALIGN_',
+    display: 'DISPLAY_',
+    flexDirection: 'FLEX_DIRECTION_',
+    flexWrap: 'WRAP_',
+    justifyContent: 'JUSTIFY_',
+    overflow: 'OVERFLOW_',
+    positionType: 'POSITION_TYPE_',
+  }
 
   const edgeMap = {
-    Top: EDGE_TOP,
-    Left: EDGE_LEFT,
-    Right: EDGE_RIGHT,
-    Bottom: EDGE_BOTTOM,
-  };
+    Top: Edge.Top,
+    Left: Edge.Left,
+    Right: Edge.Right,
+    Bottom: Edge.Bottom,
+  }
   const gutterMap = {
-    Row: GUTTER_ROW,
-    Column: GUTTER_COLUMN,
-  };
-  const yogaKeys = Object.entries(yoga);
+    Row: Gutter.Row,
+    Column: Gutter.Column,
+  }
+
+  const yogaKeys = Object.entries(Yoga)
 
   const kebabCaseFromSnakeCase = (str: string) =>
-    str.toLowerCase().replace(/_[a-z]/g, (letter) => `-${letter.slice(1)}`);
+    str.toLowerCase().replace(/_[a-z]/g, (letter) => `-${letter.slice(1)}`)
 
-  const nodeKeys = Object.keys(Object.getPrototypeOf(node));
+  const nodeKeys = Object.keys(Object.getPrototypeOf(node))
 
   const properties = nodeKeys
     .filter(
       (keyName) =>
-        keyName.startsWith("get") &&
-        !keyName.includes("Child") &&
-        !keyName.includes("Parent") &&
-        !keyName.startsWith("getComputed"),
+        keyName.startsWith('get') &&
+        !keyName.includes('Child') &&
+        !keyName.includes('Parent') &&
+        !keyName.startsWith('getComputed'),
     )
     .map<[string, string]>((fnName) => {
-      const baseFnName = fnName.slice("get".length);
-      const propertyName = `${baseFnName.charAt(0).toLowerCase()}${baseFnName.slice(1)}`;
-      return [propertyName, baseFnName];
-    });
-  const lookupTables = new Map<string, string>();
-  const importedTypesFromYoga = new Set<string>();
-  const setterFunctions: Array<[string, string]> = [];
+      const baseFnName = fnName.slice('get'.length)
+      const propertyName = `${baseFnName.charAt(0).toLowerCase()}${baseFnName.slice(1)}`
+      return [propertyName, baseFnName]
+    })
+  const lookupTables = new Map<string, string>()
+  const importedTypesFromYoga = new Set<string>()
+  const setterFunctions: Array<[string, string]> = []
   for (const [propertyName, functionName] of properties) {
-    const enumPrefix = enumsToPrefix[propertyName];
-    let convertFunction: (
-      defaultValue: string | number | null,
-      setter: (value?: string) => string,
-    ) => string;
-    let types: Array<string>;
+    const enumPrefix = enumsToPrefix[propertyName]
+    let convertFunction: (defaultValue: string | number | null, setter: (value?: string) => string) => string
+    let types: Array<string>
     if (enumPrefix != null) {
-      const enums = yogaKeys.filter(([key]) => key.startsWith(enumPrefix));
-      const lutName = `${enumPrefix}LUT`;
+      const enums = yogaKeys.filter(([key]) => key.startsWith(enumPrefix))
+      const lutName = `${enumPrefix}LUT`
       if (!lookupTables.has(lutName)) {
         lookupTables.set(
           lutName,
           createLookupTable(
             lutName,
-            enums.map(([name, value]) => [
-              kebabCaseFromSnakeCase(name.slice(enumPrefix.length)),
-              value as any,
-              name,
-            ]),
+            enums.map(([name, value]) => [kebabCaseFromSnakeCase(name.slice(enumPrefix.length)), value as any, name]),
             importedTypesFromYoga,
           ),
-        );
+        )
       }
       convertFunction = (defaultValue, setter) => {
         const enumType = enumPrefix
           .slice(0, -1)
-          .split("_")
+          .split('_')
           .map((split) => split[0] + split.slice(1).toLowerCase())
-          .join("");
-        importedTypesFromYoga.add(enumType);
+          .join('')
+        importedTypesFromYoga.add(enumType)
         return setter(
           `convertEnum(${lutName}, input, ${
-            defaultValue === null || isNaN(defaultValue as any)
-              ? "NaN"
-              : JSON.stringify(defaultValue)
+            defaultValue === null || isNaN(defaultValue as any) ? 'NaN' : JSON.stringify(defaultValue)
           } as ${enumType})`,
-        );
-      };
-      types = [
-        ...enums.map(([name]) => `"${kebabCaseFromSnakeCase(name.slice(enumPrefix.length))}"`),
-        "undefined",
-      ];
+        )
+      }
+      types = [...enums.map(([name]) => `"${kebabCaseFromSnakeCase(name.slice(enumPrefix.length))}"`), 'undefined']
     } else {
-      const percentUnit = node[`set${functionName}Percent` as keyof Node] != null;
-      const autoUnit = node[`set${functionName}Auto` as keyof Node] != null;
-      const pointUnit = !propertiesWithoutPointUnit.has(propertyName);
-      types = ["undefined", "number"];
+      const percentUnit = node[`set${functionName}Percent` as keyof Node] != null
+      const autoUnit = node[`set${functionName}Auto` as keyof Node] != null
+      const pointUnit = !propertiesWithoutPointUnit.has(propertyName)
+      types = ['undefined', 'number']
       if (percentUnit) {
-        types.push("`${number}%`");
+        types.push('`${number}%`')
       }
       if (autoUnit) {
-        types.push(`"auto"`);
+        types.push(`"auto"`)
       }
       convertFunction = (defaultValue, setter) => {
         const defaultValueString =
-          defaultValue === null || isNaN(defaultValue as any)
-            ? "NaN"
-            : JSON.stringify(defaultValue);
-        return setter(
-          pointUnit
-            ? `convertPoint(input, precision, ${defaultValueString})${
-                propertyName === "margin" ? " as number" : ""
-              }`
-            : `input ?? ${defaultValueString}`,
-        );
-      };
+          defaultValue === null || isNaN(defaultValue as any) ? 'NaN' : JSON.stringify(defaultValue)
+        return setter(`input ?? ${defaultValueString}${propertyName === 'margin' ? ' as number' : ''}`)
+      }
     }
     if (propertiesWithEdge.has(propertyName)) {
+      importedTypesFromYoga.add('Edge')
       for (const [edgeKey, edge] of Object.entries(edgeMap)) {
-        const defaultValue = fromYoga(
-          propertyName,
-          node[`get${functionName}` as "getBorder"](edge),
-        );
-        const edgePropertyName = `${propertyName}${edgeKey}`;
-        const edgeType = `EDGE_${edgeKey.toUpperCase()}`;
-        importedTypesFromYoga.add(edgeType);
+        const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getBorder'](edge))
+        const edgePropertyName = `${propertyName}${edgeKey}`
+        const edgeType = `Edge.${edgeKey}`
         setterFunctions.push([
           edgePropertyName,
-          `(node: Node, precision: number, input: ${types.join(" | ")}) =>
+          `(node: Node, input: ${types.join(' | ')}) =>
               ${convertFunction(
                 defaultValue,
                 (value) => `
                   node.set${functionName}(${edge} as ${edgeType}, ${value})`,
               )}`,
-        ]);
+        ])
       }
     } else if (propertiesWithGutter.has(propertyName)) {
+      importedTypesFromYoga.add('Gutter')
       for (const [gutterKey, gutter] of Object.entries(gutterMap)) {
-        const defaultValue = fromYoga(propertyName, node[`get${functionName}` as "getGap"](gutter));
-        const gutterPropertyName = `${propertyName}${gutterKey}`;
-        const gutterType = `GUTTER_${gutterKey.toUpperCase()}`;
-        importedTypesFromYoga.add(gutterType);
+        const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getGap'](gutter))
+        const gutterPropertyName = `${propertyName}${gutterKey}`
+        const gutterType = `Gutter.${gutterKey}`
         setterFunctions.push([
           gutterPropertyName,
-          `(node: Node, precision: number, input: ${types.join(" | ")}) =>
+          `(node: Node, input: ${types.join(' | ')}) =>
               ${convertFunction(
                 defaultValue,
                 (value) => `
                   node.set${functionName}(${gutter} as ${gutterType}, ${value})`,
               )}`,
-        ]);
+        ])
       }
     } else {
-      const defaultValue = fromYoga(propertyName, node[`get${functionName}` as "getWidth"]());
+      const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getWidth']())
       setterFunctions.push([
         propertyName,
-        `(node: Node, precision: number, input: ${types.join(" | ")}) =>
+        `(node: Node, input: ${types.join(' | ')}) =>
           ${convertFunction(
             defaultValue,
             (value) => `
               node.set${functionName}(${value})`,
           )}`,
-      ]);
+      ])
     }
   }
 
   writeFileSync(
-    "src/flex/setter.ts",
-    `import { Node } from "yoga-wasm-web"
-    import type { ${Array.from(importedTypesFromYoga).join(", ")} } from "yoga-wasm-web"
+    'src/flex/setter.ts',
+    `import { Node } from "yoga-layout"
+    import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout"
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
       }
       const resolvedValue = lut[input]
       if(resolvedValue == null) {
-        throw new Error(\`unexpected value ${"${input as string}"}, expected ${'${Object.keys(lut).join(", ")}'}\`)
+        throw new Error(\`unexpected value ${'${input as string}'}, expected ${'${Object.keys(lut).join(", ")}'}\`)
       }
       return resolvedValue
     }
-    function convertPoint<T>(input: T | undefined, precision: number, defaultValue: T): T | number {
-      if(typeof input === "number") {
-        return Math.round(input / precision)
-      }
+    function convertPoint<T>(input: T | undefined, defaultValue: T): T | number {
       return input ?? defaultValue
     }
-    ${Array.from(lookupTables.values()).join("\n")}
+    ${Array.from(lookupTables.values()).join('\n')}
     export const setter = { ${setterFunctions
       .map(([propertyName, functionCode]) => `${propertyName}: ${functionCode}`)
-      .join(",\n")} }`,
-  );
+      .join(',\n')} }`,
+  )
 }
 
 function createLookupTable(
@@ -218,30 +181,29 @@ function createLookupTable(
   return `const ${name} = {
     ${values
       .map(([key, value, type]) => {
-        importedTypesFromYoga.add(type);
-        return `"${key}": ${value} as ${type}`;
+        return `"${key}": ${value}`
       })
-      .join(",\n")}
-  } as const`;
+      .join(',\n')}
+  } as const`
 }
 
-function fromYoga(name: string, value: any): "auto" | `${number}%` | number | null {
-  if (typeof value === "object") {
+function fromYoga(name: string, value: any): 'auto' | `${number}%` | number | null {
+  if (typeof value === 'object') {
     switch (value.unit) {
-      case UNIT_AUTO:
-        return "auto";
-      case UNIT_PERCENT:
-        return `${value.value}%`;
-      case UNIT_POINT:
-        return value.value ?? null;
-      case UNIT_UNDEFINED:
-        return null;
+      case Unit.Auto:
+        return 'auto'
+      case Unit.Percent:
+        return `${value.value}%`
+      case Unit.Point:
+        return value.value ?? null
+      case Unit.Undefined:
+        return null
     }
   }
-  if (typeof value === "number") {
-    return value;
+  if (typeof value === 'number') {
+    return value
   }
-  throw `can't convert value "${JSON.stringify(value)}" for property "${name}" from yoga`;
+  throw `can't convert value "${JSON.stringify(value)}" for property "${name}" from yoga`
 }
 
-main().catch(console.error);
+main().catch(console.error)

@@ -1,0 +1,122 @@
+name: Deploy Static Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-static-files:
+    env:
+      GOOGLE_FONTS_API_KEY: ${{ secrets.GOOGLE_FONTS_API_KEY }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Install Font Forge
+        run: sudo apt-get install -y fontforge;
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
+
+# Fonts
+      - name: Make Dist Dir
+        working-directory: ./packages/fonts
+        run: mkdir dist
+
+# Inter
+      - name: Generate Inter Light
+        working-directory: ./packages/fonts
+        run: |
+          node download.js "Inter" 300
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-light.ttf
+          pnpm msdf-bmfont -f json inter-light.ttf -i charset.txt -m 256,512 -o dist/inter-light -s 48
+
+      - name: Generate Inter Normal
+        working-directory: ./packages/fonts
+        run: |
+          node download.js "Inter" 400
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-normal.ttf
+          pnpm msdf-bmfont -f json inter-normal.ttf -i charset.txt -m 256,512 -o dist/inter-normal -s 48
+
+      - name: Generate Inter Medium
+        working-directory: ./packages/fonts
+        run: |
+          node download.js "Inter" 500
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-medium.ttf
+          pnpm msdf-bmfont -f json inter-medium.ttf -i charset.txt -m 256,512 -o dist/inter-medium -s 48
+
+      - name: Generate Inter Semi Bold
+        working-directory: ./packages/fonts
+        run: |
+          node download.js "Inter" 600
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-semi-bold.ttf
+          pnpm msdf-bmfont -f json inter-semi-bold.ttf -i charset.txt -m 256,512 -o dist/inter-semi-bold -s 48
+
+      - name: Generate Inter Bold
+        working-directory: ./packages/fonts
+        run: |
+          node download.js "Inter" 700
+          fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-bold.ttf
+          pnpm msdf-bmfont -f json inter-bold.ttf -i charset.txt -m 256,512 -o dist/inter-bold -s 48
+      
+      - name: Convert to Webp
+        working-directory: ./packages/fonts
+        run: pnpm sharp --lossless -i dist/*.png -o dist/ -f webp
+
+      - name: Replace file png files
+        working-directory: ./packages/fonts
+        run: |
+          sed -i 's/png/webp/g' dist/*.json
+          rm dist/*.png
+
+      - name: Copy font files
+        run: |
+          mkdir -p public/fonts
+          cp ./packages/fonts/dist/* ./public/fonts
+          cp ./packages/fonts/LICENSE public/fonts/LICENSE
+
+# Examples
+      - name: Building Examples
+        run: |
+          pnpm -r convert
+          pnpm -r generate
+          pnpm -r build
+
+      - name: Copy Examples
+        run: |
+          mkdir -p public/examples/apfel
+          mkdir -p public/examples/card
+          mkdir -p public/examples/dashboard
+          mkdir -p public/examples/default
+          mkdir -p public/examples/lucide
+          mkdir -p public/examples/market
+          mkdir -p public/examples/auth
+          cp -r ./examples/apfel/dist/* ./public/examples/apfel
+          cp -r ./examples/card/dist/* ./public/examples/card
+          cp -r ./examples/dashboard/dist/* ./public/examples/dashboard
+          cp -r ./examples/default/dist/* ./public/examples/default
+          cp -r ./examples/lucide/dist/* ./public/examples/lucide
+          cp -r ./examples/market/dist/* ./public/examples/market
+          cp -r ./examples/auth/dist/* ./public/examples/auth
+
+# Deploy to GH Pages
+      - name: Add no jekyll
+        run: touch public/.nojekyll
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: public

@@ -1,5 +1,5 @@
 import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, ReactNode } from 'react'
+import React, { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { colors } from './theme'
 
 const alertVariants = {
@@ -14,7 +14,15 @@ const alertVariants = {
 export function Alert(props: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof alertVariants }) {
   return (
     <DefaultProperties {...alertVariants[props.variant ?? 'default']}>
-      <Container positionType="relative" width="100%" borderRadius={8} border={1} padding={16} {...props} />
+      <Container
+        flexDirection="column"
+        positionType="relative"
+        width="100%"
+        borderRadius={8}
+        border={1}
+        padding={16}
+        {...props}
+      />
     </DefaultProperties>
   )
 }

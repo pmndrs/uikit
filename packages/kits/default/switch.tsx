@@ -1,5 +1,5 @@
 import { Container } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, useState } from 'react'
 import { colors } from './theme'
 
 export function Switch({

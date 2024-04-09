@@ -1,32 +1,11 @@
 {
-  "name": "@react-three/uikit-lucide",
-  "version": "0.0.0",
-  "description": "lucide icons for r3/uikit",
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "lucide",
-    "uikit",
-    "icons",
-    "threejs",
-    "r3f"
-  ],
-  "author": "Bela Bohlender",
   "scripts": {
-    "convert": "node --loader ts-node/esm ./convert.ts",
-    "generate": "node --loader ts-node/esm ./generate.ts",
-    "build": "tsc -p ./tsconfig.build.json"
-  },
-  "type": "module",
-  "main": "dist/index.js",
-  "dependencies": {
-    "@react-three/uikit": "workspace:^"
+    "convert": "node --loader ts-node/esm ./convert.ts"
   },
   "devDependencies": {
     "oslllo-svg-fixer": "^3.0.0",
     "@types/node": "^20.11.0",
-    "@types/react": "^18.2.47",
     "lucide-static": "^0.331.0"
-  }
+  },
+  "type": "module"
 }

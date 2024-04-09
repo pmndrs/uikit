@@ -1,38 +1,47 @@
-import { GlyphLayoutLine } from '../layout.js'
 import { getOffsetToNextGlyph } from '../utils.js'
-import { GlyphWrapper } from './index.js'
+import { GlyphWrapper, skipWhitespace } from './index.js'
 
-export const BreakallWrapper: GlyphWrapper = ({ text, fontSize, font, letterSpacing }, availableWidth, start) => {
-  let result: GlyphLayoutLine = {
-    start,
-    end: start,
-    whitespaces: 0,
-    width: 0,
-  }
+export const BreakallWrapper: GlyphWrapper = (
+  { text, fontSize, font, letterSpacing },
+  availableWidth,
+  charIndex,
+  target,
+) => {
+  charIndex = skipWhitespace(text, charIndex)
+  const firstIndex = charIndex
+  target.charIndexOffset = firstIndex
+  target.nonWhitespaceCharLength = 0
+  target.charLength = 0
+  target.nonWhitespaceWidth = 0
+  target.whitespacesBetween = 0
 
-  let textIndex = start
   let position = 0
   let whitespaces = 0
-  while (textIndex < text.length) {
-    const char = text[textIndex]
+
+  for (; charIndex < text.length; charIndex++) {
+    const char = text[charIndex]
     if (char === '\n') {
-      break
-    }
-    const offset = getOffsetToNextGlyph(fontSize, font.getGlyphInfo(char), letterSpacing)
-    if (availableWidth != null && position + offset > availableWidth) {
-      break
+      target.charLength = charIndex - firstIndex + 1
+      return
     }
 
-    position += offset
-    ++textIndex
+    position += getOffsetToNextGlyph(fontSize, font.getGlyphInfo(char), letterSpacing)
 
     if (char === ' ') {
       whitespaces += 1
-    } else {
-      result.width = position
-      result.end = textIndex
-      result.whitespaces = whitespaces
+      continue
     }
+
+    //non whitespace
+    if (availableWidth != null && position > availableWidth) {
+      break
+    }
+
+    target.nonWhitespaceCharLength = charIndex - firstIndex + 1
+    target.nonWhitespaceWidth = position
+    target.whitespacesBetween = whitespaces
   }
-  return result
+
+  //not "+1" because we break when we want to remove the last one
+  target.charLength = charIndex - firstIndex
 }

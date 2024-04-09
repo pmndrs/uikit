@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, ReactNode, createContext, useContext, useState } from 'react'
+import React, { ComponentPropsWithoutRef, ReactNode, createContext, useContext, useState } from 'react'
 import { Container, DefaultProperties } from '@react-three/uikit'
 import { ChevronDown } from '@react-three/uikit-lucide'
 
@@ -12,7 +12,7 @@ export function Accordion({ children }: { children?: ReactNode }) {
     </Container>
   )
 }
-const AccordionItemContext = createContext<string>(null as any)
+const AccordionItemContext = createContext<string>('')
 
 export function AccordionItem({ children, ...props }: ComponentPropsWithoutRef<typeof Container> & { value: string }) {
   const [value, setValue] = useContext(AccordionContext)
@@ -20,6 +20,7 @@ export function AccordionItem({ children, ...props }: ComponentPropsWithoutRef<t
   return (
     <Container
       cursor="pointer"
+      flexDirection="column"
       onClick={() => setValue(isSelected ? undefined : props.value)}
       borderBottom={1}
       {...props}

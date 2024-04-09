@@ -9,6 +9,7 @@
     "react-dom": "^18.2.0"
   },
   "scripts": {
-    "dev": "vite --host"
+    "dev": "vite --host",
+    "build": "vite build"
   }
 }

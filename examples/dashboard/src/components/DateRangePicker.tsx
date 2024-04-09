@@ -1,6 +1,6 @@
 import { Text } from '@react-three/uikit'
 import { Calendar } from '@react-three/uikit-lucide'
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 
 export function CalendarDateRangePicker() {
   return (

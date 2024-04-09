@@ -1,12 +1,24 @@
 import { Matrix4 } from 'three'
 import { InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
-import { colorToBuffer } from '../../utils.js'
+import { ColorRepresentation } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { GlyphInfo, glyphIntoToUV } from '../font.js'
+import { Font, FontFamilyProperties, GlyphInfo, glyphIntoToUV } from '../font.js'
+import { Signal, computed } from '@preact/signals-core'
+import { GlyphLayoutProperties } from '../layout.js'
+import { TextAlignProperties, TextAppearanceProperties } from './instanced-text.js'
+import { writeColor } from '../../internals.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
+
+export type InstancedTextProperties = TextAlignProperties &
+  TextAppearanceProperties &
+  Omit<GlyphLayoutProperties, 'text'> &
+  FontFamilyProperties
+
+export function computedGylphGroupDependencies(fontSignal: Signal<Font | undefined>) {
+  return computed(() => ({ font: fontSignal.value }))
+}
 
 /**
  * renders an initially specified glyph
@@ -20,15 +32,23 @@ export class InstancedGlyph {
   private x: number = 0
   private y: number = 0
   private fontSize: number = 0
+  private pixelSize: number = 0
 
   constructor(
     private readonly group: InstancedGlyphGroup,
     //modifiable using update...
-    private baseMatrix: Matrix4,
+    private baseMatrix: Matrix4 | undefined,
     private color: ColorRepresentation,
     private opacity: number,
     private clippingRect: ClippingRect | undefined,
   ) {}
+
+  getX(widthMultiplier: number): number {
+    if (this.glyphInfo == null) {
+      return this.x
+    }
+    return this.x + widthMultiplier * this.glyphInfo.width * this.fontSize
+  }
 
   show(): void {
     if (!this.hidden) {
@@ -80,7 +100,11 @@ export class InstancedGlyph {
     if (this.index == null) {
       return
     }
-    colorToBuffer(this.group.instanceRGBA, this.index, color)
+    const { instanceRGBA } = this.group
+    const offset = instanceRGBA.itemSize * this.index
+    writeColor(instanceRGBA.array, offset, color, undefined)
+    instanceRGBA.addUpdateRange(offset, 3)
+    instanceRGBA.needsUpdate = true
   }
 
   updateOpacity(opacity: number): void {
@@ -95,8 +119,14 @@ export class InstancedGlyph {
     instanceRGBA.needsUpdate = true
   }
 
-  updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number): void {
-    if (this.glyphInfo === this.glyphInfo && this.x === x && this.y === y && this.fontSize === fontSize) {
+  updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number, pixelSize: number): void {
+    if (
+      this.glyphInfo === glyphInfo &&
+      this.x === x &&
+      this.y === y &&
+      this.fontSize === fontSize &&
+      this.pixelSize === pixelSize
+    ) {
       return
     }
     if (this.glyphInfo != glyphInfo) {
@@ -106,6 +136,7 @@ export class InstancedGlyph {
     this.x = x
     this.y = y
     this.fontSize = fontSize
+    this.pixelSize = pixelSize
     this.writeUpdatedMatrix()
   }
 
@@ -129,15 +160,21 @@ export class InstancedGlyph {
   }
 
   private writeUpdatedMatrix(): void {
-    if (this.index == null || this.glyphInfo == null) {
+    if (this.index == null || this.glyphInfo == null || this.baseMatrix == null) {
       return
     }
     const offset = this.index * 16
     const { instanceMatrix } = this.group
     instanceMatrix.addUpdateRange(offset, 16)
     helperMatrix1
-      .makeTranslation(this.x, this.y, 0)
-      .multiply(helperMatrix2.makeScale(this.fontSize * this.glyphInfo.width, this.fontSize * this.glyphInfo.height, 1))
+      .makeTranslation(this.x * this.pixelSize, this.y * this.pixelSize, 0)
+      .multiply(
+        helperMatrix2.makeScale(
+          this.fontSize * this.glyphInfo.width * this.pixelSize,
+          this.fontSize * this.glyphInfo.height * this.pixelSize,
+          1,
+        ),
+      )
       .premultiply(this.baseMatrix)
     helperMatrix1.toArray(instanceMatrix.array, offset)
     instanceMatrix.needsUpdate = true

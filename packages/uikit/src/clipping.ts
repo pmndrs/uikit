@@ -1,10 +1,10 @@
 import { Signal, computed } from '@preact/signals-core'
-import { useFrame } from '@react-three/fiber'
-import { RefObject, createContext, useContext, useMemo } from 'react'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
 import { Inset } from './flex/node.js'
-import { OVERFLOW_VISIBLE, Overflow } from 'yoga-wasm-web'
+import { Overflow } from 'yoga-layout'
+import { Object3DRef, RootContext } from './context.js'
+import { Subscriptions } from './utils.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -87,14 +87,6 @@ export class ClippingRect {
   }
 }
 
-const ClippingRectContext = createContext<Signal<ClippingRect | undefined>>(null as any)
-
-export const ClippingRectProvider = ClippingRectContext.Provider
-
-export function useParentClippingRect(): Signal<ClippingRect | undefined> | undefined {
-  return useContext(ClippingRectContext)
-}
-
 const helperPoints = [new Vector3(), new Vector3(), new Vector3(), new Vector3()]
 const multiplier = [
   [-0.5, -0.5],
@@ -103,79 +95,71 @@ const multiplier = [
   [-0.5, 0.5],
 ]
 
-export function useIsClipped(
+export function computedIsClipped(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  globalMatrix: Signal<Matrix4>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
-  psRef: { pixelSize: number },
+  pixelSize: number,
 ): Signal<boolean> {
-  return useMemo(
-    () =>
-      computed(() => {
-        const rect = parentClippingRect?.value
-        if (rect == null) {
-          return false
-        }
-        const [width, height] = size.value
-        for (let i = 0; i < 4; i++) {
-          const [mx, my] = multiplier[i]
-          helperPoints[i]
-            .set(mx * psRef.pixelSize * width, my * psRef.pixelSize * height, 0)
-            .applyMatrix4(globalMatrix.value)
-        }
+  return computed(() => {
+    const global = globalMatrix.value
+    const rect = parentClippingRect?.value
+    if (rect == null || global == null) {
+      return false
+    }
+    const [width, height] = size.value
+    for (let i = 0; i < 4; i++) {
+      const [mx, my] = multiplier[i]
+      helperPoints[i].set(mx * pixelSize * width, my * pixelSize * height, 0).applyMatrix4(global)
+    }
 
-        const { planes } = rect
-        let allOutside: boolean
-        for (let planeIndex = 0; planeIndex < 4; planeIndex++) {
-          const clippingPlane = planes[planeIndex]
-          allOutside = true
-          for (let pointIndex = 0; pointIndex < 4; pointIndex++) {
-            const point = helperPoints[pointIndex]
-            if (clippingPlane.distanceToPoint(point) >= 0) {
-              //inside
-              allOutside = false
-            }
-          }
-          if (allOutside) {
-            return true
-          }
+    const { planes } = rect
+    let allOutside: boolean
+    for (let planeIndex = 0; planeIndex < 4; planeIndex++) {
+      const clippingPlane = planes[planeIndex]
+      allOutside = true
+      for (let pointIndex = 0; pointIndex < 4; pointIndex++) {
+        const point = helperPoints[pointIndex]
+        if (clippingPlane.distanceToPoint(point) >= 0) {
+          //inside
+          allOutside = false
         }
-        return false
-      }),
-    [globalMatrix, parentClippingRect, psRef, size],
-  )
+      }
+      if (allOutside) {
+        return true
+      }
+    }
+    return false
+  })
 }
 
-export function useClippingRect(
-  globalMatrix: Signal<Matrix4>,
+export function computedClippingRect(
+  globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple>,
   borderInset: Signal<Inset>,
   overflow: Signal<Overflow>,
-  psRef: { pixelSize: number },
+  pixelSize: number,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Signal<ClippingRect | undefined> {
-  return useMemo(
-    () =>
-      computed(() => {
-        if (overflow.value === OVERFLOW_VISIBLE) {
-          return parentClippingRect?.value
-        }
-        const [width, height] = size.value
-        const [top, right, bottom, left] = borderInset.value
-        const rect = new ClippingRect(
-          globalMatrix.value,
-          ((right - left) * psRef.pixelSize) / 2,
-          ((top - bottom) * psRef.pixelSize) / 2,
-          (width - left - right) * psRef.pixelSize,
-          (height - top - bottom) * psRef.pixelSize,
-        )
-        if (parentClippingRect?.value != null) {
-          rect.min(parentClippingRect.value)
-        }
-        return rect
-      }),
-    [globalMatrix, size, borderInset, psRef, overflow, parentClippingRect],
-  )
+  return computed(() => {
+    const global = globalMatrix.value
+    if (global == null || overflow.value === Overflow.Visible) {
+      return parentClippingRect?.value
+    }
+    const [width, height] = size.value
+    const [top, right, bottom, left] = borderInset.value
+    const rect = new ClippingRect(
+      global,
+      ((right - left) * pixelSize) / 2,
+      ((top - bottom) * pixelSize) / 2,
+      (width - left - right) * pixelSize,
+      (height - top - bottom) * pixelSize,
+    )
+    if (parentClippingRect?.value != null) {
+      rect.min(parentClippingRect.value)
+    }
+    return rect
+  })
 }
 
 export const NoClippingPlane = new Plane(new Vector3(-1, 0, 0), Number.MAX_SAFE_INTEGER)
@@ -185,26 +169,28 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
-export function useGlobalClippingPlanes(
-  clippingRect: Signal<ClippingRect | undefined> | undefined,
-  rootGroupRef: RefObject<Group>,
-): Array<Plane> {
-  const clippingPlanes = useMemo<Array<Plane>>(() => [new Plane(), new Plane(), new Plane(), new Plane()], [])
-  useFrame(() => {
-    const rootGroup = rootGroupRef.current
-    if (rootGroup == null) {
+export function createGlobalClippingPlanes(
+  root: RootContext,
+  clippingRect: Signal<ClippingRect | undefined>,
+  subscriptions: Subscriptions,
+) {
+  const planes = [new Plane(), new Plane(), new Plane(), new Plane()]
+  const updateClippingPlanes = () => {
+    if (root.object.current == null) {
       return
     }
     const localPlanes = clippingRect?.value?.planes
     if (localPlanes == null) {
       for (let i = 0; i < 4; i++) {
-        clippingPlanes[i].copy(NoClippingPlane)
+        planes[i].copy(NoClippingPlane)
       }
       return
     }
     for (let i = 0; i < 4; i++) {
-      clippingPlanes[i].copy(localPlanes[i]).applyMatrix4(rootGroup.matrixWorld)
+      planes[i].copy(localPlanes[i]).applyMatrix4(root.object.current.matrixWorld)
     }
-  })
-  return clippingPlanes
+  }
+  root.onFrameSet.add(updateClippingPlanes)
+  subscriptions.push(() => root.onFrameSet.delete(updateClippingPlanes))
+  return planes
 }
