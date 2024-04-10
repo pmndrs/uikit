@@ -36,7 +36,7 @@ createRoot(document.getElementById('root')).render(
 )
 ```
 
-## Pre-Styled Component Kits
+## Pre-styled component kits
 
 We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
 
@@ -48,7 +48,7 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 | [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
 | `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
 
-## How to get started?
+## How to get started
 
 > Some familiarity with
 > react, threejs, and @react-three/fiber, is recommended.
@@ -66,7 +66,7 @@ Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getti
 - [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
 - [Theming components](https://docs.pmnd.rs/uikit/kits/theming)
 
-## Migration Guides
+## Migration guides
 
 - from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
 - from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)
