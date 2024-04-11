@@ -101,7 +101,6 @@ export class FlexNode {
     if (this.yogaNode == null) {
       return
     }
-    console.log('calculate layout')
     this.commit()
     this.yogaNode.calculateLayout(undefined, undefined)
     batch(() => this.updateMeasurements(undefined, undefined))
@@ -113,10 +112,8 @@ export class FlexNode {
   }
 
   removeChild(node: FlexNode): void {
-    console.log('remove child')
     const i = this.children.indexOf(node)
     if (i === -1) {
-      console.log('not found')
       return
     }
     this.children.splice(i, 1)
@@ -315,6 +312,5 @@ function assertNodeNotNull<T>(val: T | undefined): T {
 }
 
 function yogaNodeEqual(n1: Node, n2: Node): boolean {
-  console.log(n1, n2)
   return (n1 as any)['M']['O'] === (n2 as any)['M']['O']
 }
