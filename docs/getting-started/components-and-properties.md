@@ -107,9 +107,6 @@ In addition to the flexbox properties, the container has properties for styling 
 | borderTopRightRadius             | number              |
 | borderBottomRightRadius          | number              |
 | borderBottomLeftRadius           | number              |
-| border                           | number              |
-| borderX                          | number              |
-| borderY                          | number              |
 | borderBend                       | number              |
 | scrollbarPanelMaterialClass      | Material class      |
 | scrollbarBackgroundOpacity       | number              |
@@ -267,14 +264,57 @@ The `Input` component extends the `Text` component and allows the user to change
 <details>
 <summary>View all properties specific to the `Input` component</summary>
 
-| Property      | Type                    |
-| ------------- | ----------------------- |
-| multiline     | boolean                 |
-| value         | string                  |
-| defaultValue  | string                  |
-| onValueChange | (value: string) => void |
-| tabIndex      | number                  |
-| disabled      | boolean                 |
+| Property                         | Type                    |
+| -------------------------------- | ----------------------- |
+| multiline                        | boolean                 |
+| value                            | string                  |
+| defaultValue                     | string                  |
+| onValueChange                    | (value: string) => void |
+| tabIndex                         | number                  |
+| disabled                         | boolean                 |
+| caretColor                       | ColorRepresentation     |
+| caretOpacity                     | opacity                 |
+| caretWidth                       | number                  |
+| caretBorderOpacity               | number                  |
+| caretBorderColor                 | ColorRepresentation     |
+| caretBorderRadius                | number                  |
+| caretBorderLeftRadius            | number                  |
+| caretBorderRightRadius           | number                  |
+| caretBorderTopRadius             | number                  |
+| caretBorderBottomRadius          | number                  |
+| caretBorderTopLeftRadius         | number                  |
+| caretBorderTopRightRadius        | number                  |
+| caretBorderBottomRightRadius     | number                  |
+| caretBorderBottomLeftRadius      | number                  |
+| caretBorderBend                  | number                  |
+| caretBorder                      | number                  |
+| caretBorderX                     | number                  |
+| caretBorderY                     | number                  |
+| caretBorderTop                   | number                  |
+| caretBorderLeft                  | number                  |
+| caretBorderRight                 | number                  |
+| caretBorderBottom                | number                  |
+| selectionColor                   | ColorRepresentation     |
+| selectionOpacity                 | opacity                 |
+| selectionBorderOpacity           | number                  |
+| selectionBorderColor             | ColorRepresentation     |
+| selectionBorderRadius            | number                  |
+| selectionBorderLeftRadius        | number                  |
+| selectionBorderRightRadius       | number                  |
+| selectionBorderTopRadius         | number                  |
+| selectionBorderBottomRadius      | number                  |
+| selectionBorderTopLeftRadius     | number                  |
+| selectionBorderTopRightRadius    | number                  |
+| selectionBorderBottomRightRadius | number                  |
+| selectionBorderBottomLeftRadius  | number                  |
+| selectionBorderBend              | number                  |
+| selectionBorder                  | number                  |
+| selectionBorderX                 | number                  |
+| selectionBorderY                 | number                  |
+| selectionBorderTop               | number                  |
+| selectionBorderLeft              | number                  |
+| selectionBorderRight             | number                  |
+| selectionBorderBottom            | number                  |
 
 </details>
 
@@ -343,6 +383,31 @@ The `Content` component allows you to include any R3F/Three.js element into the 
 | --------------- | ------------------------- |
 | depthAlign      | "back", "center", "front" |
 | keepAspectRatio | boolean                   |
+
+</details>
+
+## VideoContainer
+
+The `VideoContainer` component allows to display a video based on the `Image` component. The component as all the properties of the `Image` component in addition to properties such as `volume` that allow controlling the video playback.
+
+```jsx
+<Root>
+  <VideoContainer src="example.mp4" autoplay />
+</Root>
+```
+
+<details>
+<summary>View all properties specific to the `VideoContainer` component</summary>
+
+| Property       | Type                |
+| -------------- | ------------------- |
+| src            | string, MediaStream |
+| volume         | number              |
+| preservesPitch | boolean             |
+| playbackRate   | number              |
+| muted          | boolean             |
+| loop           | boolean             |
+| autoplay       | boolean             |
 
 </details>
 
