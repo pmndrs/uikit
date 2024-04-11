@@ -58,9 +58,21 @@ export function applyScrollPosition(
   )
 }
 
+export function computedAnyAncestorScrollable(
+  scrollable: Signal<[boolean, boolean]>,
+  anyAncestorScrollable: Signal<readonly [boolean, boolean]> | undefined,
+) {
+  return computed(() => {
+    const [ancestorX, ancestorY] = anyAncestorScrollable?.value ?? [false, false]
+    const [x, y] = scrollable.value
+    return [ancestorX || x, ancestorY || y] as const
+  })
+}
+
 export function computedScrollHandlers(
   scrollPosition: Signal<Vector2Tuple | undefined>,
-  { scrollable, maxScrollPosition, anyAncestorScrollable }: FlexNodeState,
+  anyAncestorScrollable: Signal<readonly [boolean, boolean]> | undefined,
+  { scrollable, maxScrollPosition }: FlexNodeState,
   object: Object3DRef,
   listeners: Signal<ScrollListeners | undefined>,
   pixelSize: Signal<number>,
@@ -146,10 +158,15 @@ export function computedScrollHandlers(
     scroll(undefined, deltaX, deltaY, undefined, true)
   }
 
-  initializers.push(() => {
-    onFrameSet.add(onFrame)
-    return () => onFrameSet.delete(onFrame)
-  })
+  initializers.push(() =>
+    effect(() => {
+      if (!isScrollable.value) {
+        return
+      }
+      onFrameSet.add(onFrame)
+      return () => onFrameSet.delete(onFrame)
+    }),
+  )
 
   return computed<ScrollEventHandlers | undefined>(() => {
     if (!isScrollable.value) {

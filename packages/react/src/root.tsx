@@ -4,20 +4,25 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { ParentProvider } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
+  DEFAULT_PIXEL_SIZE,
   RootProperties,
   Subscriptions,
+  WithReactive,
   createRoot,
   initialize,
+  readReactive,
   reversePainterSortStable,
   unsubscribeSubscriptions,
 } from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
+import { Signal, computed, signal } from '@preact/signals-core'
 
 export const Root: (
-  props: RootProperties & {
-    children?: ReactNode
-  } & EventHandlers &
+  props: RootProperties &
+    WithReactive<{ pixelSize?: number }> & {
+      children?: ReactNode
+    } & EventHandlers &
     RefAttributes<ComponentInternals<RootProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const renderer = useThree((state) => state.gl)
@@ -25,11 +30,14 @@ export const Root: (
   const store = useStore()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
+  const pixelSizeSignal = useMemo(() => signal<Signal<number | undefined> | number | undefined>(undefined), [])
+  pixelSizeSignal.value = properties.pixelSize
   const propertySignals = usePropertySignals(properties)
   const onFrameSet = useMemo(() => new Set<(delta: number) => void>(), [])
   const internals = useMemo(
     () =>
       createRoot(
+        computed(() => readReactive(pixelSizeSignal.value) ?? DEFAULT_PIXEL_SIZE),
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,

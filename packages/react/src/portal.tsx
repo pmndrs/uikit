@@ -84,7 +84,7 @@ export const Portal: (
           vScene,
           injectState,
         )}
-        <Image {...props} src={fbo.texture} fit="fill" keepAspectRatio={false} ref={imageRef} />
+        <Image src={fbo.texture} fit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
       </>
     )
   },

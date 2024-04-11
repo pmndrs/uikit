@@ -24,6 +24,8 @@ export type RootContext = WithCameraDistance &
     gylphGroupManager: GlyphGroupManager
     panelGroupManager: PanelGroupManager
     pixelSize: Signal<number>
+    renderOrder: Signal<number>
+    depthTest: Signal<boolean>
     onFrameSet: Set<(delta: number) => void>
     renderer: WebGLRenderer
     size: Signal<Vector2Tuple | undefined>

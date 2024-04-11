@@ -63,7 +63,7 @@ export function createCustomContainer(
   })
 
   //create node
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   createNode(undefined, flexState, parentContext, mergedProperties, object, initializers)
 
   //transform
@@ -90,9 +90,11 @@ export function createCustomContainer(
     }
     mesh.matrixAutoUpdate = false
     if (mesh.material instanceof Material) {
-      mesh.material.clippingPlanes = clippingPlanes
-      mesh.material.needsUpdate = true
-      mesh.material.shadowSide = FrontSide
+      const material = mesh.material
+      material.clippingPlanes = clippingPlanes
+      material.needsUpdate = true
+      material.shadowSide = FrontSide
+      subscriptions.push(() => effect(() => (material.depthTest = parentContext.root.depthTest.value)))
     }
     mesh.raycast = makeClippedRaycast(
       mesh,
@@ -103,6 +105,7 @@ export function createCustomContainer(
     )
     setupRenderOrder(mesh, parentContext.root, orderInfo)
     subscriptions.push(
+      effect(() => (mesh.renderOrder = parentContext.root.renderOrder.value)),
       effect(() => (mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false))),
       effect(() => (mesh.castShadow = mergedProperties.value.read('castShadow', false))),
       effect(() => {

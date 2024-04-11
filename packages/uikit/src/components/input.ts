@@ -127,7 +127,7 @@ export function createInput(
     },
   )
 
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   const nodeSignal = signal<FlexNode | undefined>(undefined)
   createNode(nodeSignal, flexState, parentContext, mergedProperties, object, initializers)
 

@@ -14,6 +14,7 @@ import {
   createScrollPosition,
   createScrollbars,
   computedScrollHandlers,
+  computedAnyAncestorScrollable,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
@@ -98,7 +99,7 @@ export function createSvg(
   )
 
   const node = signal<FlexNode | undefined>(undefined)
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   createNode(node, flexState, parentContext, mergedProperties, object, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
@@ -148,7 +149,7 @@ export function createSvg(
     orderInfo,
     aspectRatio,
   )
-  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers)
+  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers, parentContext.root)
   const centerGroup = createCenterGroup(
     flexState,
     parentContext.root.pixelSize,
@@ -174,6 +175,7 @@ export function createSvg(
   )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    parentContext.anyAncestorScrollable,
     flexState,
     object,
     properties,
@@ -186,6 +188,7 @@ export function createSvg(
   setupViewportListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(
       globalMatrix,
       flexState,

@@ -32,7 +32,7 @@ import {
   getDefaultPanelMaterialConfig,
   makeClippedRaycast,
 } from '../internals.js'
-import { Box3, Mesh, Object3D, Vector3 } from 'three'
+import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
 
 export type InheritableContentProperties = WithClasses<
   WithConditionals<
@@ -63,12 +63,12 @@ export function createContent(
   properties: Signal<ContentProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
-  contentRef: Object3DRef,
+  contentContainerRef: Object3DRef,
 ) {
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const initializers: Initializers = []
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
 
   setupCursorCleanup(hoveredSignal, initializers)
 
@@ -139,7 +139,7 @@ export function createContent(
       parentContext.clippingRect,
       orderInfo,
       sizeSignal,
-      contentRef,
+      contentContainerRef,
       initializers,
     ),
     interactionPanel: createInteractionPanel(
@@ -170,7 +170,7 @@ function createMeasureContent(
   parentClippingRect: Signal<ClippingRect | undefined>,
   orderInfo: Signal<OrderInfo | undefined>,
   sizeSignal: Signal<Vector3>,
-  contentRef: Object3DRef,
+  contentContainerRef: Object3DRef,
   initializers: Initializers,
 ) {
   const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect, initializers)
@@ -178,8 +178,19 @@ function createMeasureContent(
   const keepAspectRatio = computedProperty(propertiesSignal, 'keepAspectRatio', true)
   const measuredSize = new Vector3()
   const measuredCenter = new Vector3()
+  const updateRenderProperties = (content: Object3D | null, renderOrder: number, depthTest: boolean) =>
+    content?.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return
+      }
+      object.renderOrder = renderOrder
+      if (!(object.material instanceof Material)) {
+        return
+      }
+      object.material.depthTest = depthTest
+    })
   const measureContent = () => {
-    const content = contentRef.current
+    const content = contentContainerRef.current
     if (content == null) {
       measuredSize.copy(smallValue)
       measuredCenter.set(0, 0, 0)
@@ -204,53 +215,60 @@ function createMeasureContent(
     }
     box3Helper.getCenter(measuredCenter)
   }
-  initializers.push((subscriptions) => {
-    const content = contentRef.current
-    if (content == null) {
-      return subscriptions
-    }
-    measureContent()
-    subscriptions.push(
-      effect(() => {
-        const {
-          size: { value: size },
-          paddingInset: { value: paddingInset },
-          borderInset: { value: borderInset },
-        } = flexState
-        if (size == null || paddingInset == null || borderInset == null) {
-          return
-        }
-        const [width, height] = size
-        const [pTop, pRight, pBottom, pLeft] = paddingInset
-        const [bTop, bRight, bBottom, bLeft] = borderInset
-        const topInset = pTop + bTop
-        const rightInset = pRight + bRight
-        const bottomInset = pBottom + bBottom
-        const leftInset = pLeft + bLeft
+  initializers.push(
+    () =>
+      effect(() => updateRenderProperties(contentContainerRef.current, root.renderOrder.value, root.depthTest.value)),
+    (subscriptions) => {
+      const content = contentContainerRef.current
+      if (content == null) {
+        return subscriptions
+      }
+      measureContent()
+      subscriptions.push(
+        effect(() => {
+          const {
+            size: { value: size },
+            paddingInset: { value: paddingInset },
+            borderInset: { value: borderInset },
+          } = flexState
+          if (size == null || paddingInset == null || borderInset == null) {
+            return
+          }
+          const [width, height] = size
+          const [pTop, pRight, pBottom, pLeft] = paddingInset
+          const [bTop, bRight, bBottom, bLeft] = borderInset
+          const topInset = pTop + bTop
+          const rightInset = pRight + bRight
+          const bottomInset = pBottom + bBottom
+          const leftInset = pLeft + bLeft
 
-        const innerWidth = width - leftInset - rightInset
-        const innerHeight = height - topInset - bottomInset
+          const innerWidth = width - leftInset - rightInset
+          const innerHeight = height - topInset - bottomInset
 
-        const pixelSize = root.pixelSize.value
-        content.scale
-          .set(
-            innerWidth * pixelSize,
-            innerHeight * pixelSize,
-            keepAspectRatio.value ? (innerHeight * pixelSize * measuredSize.z) / measuredSize.y : measuredSize.z,
+          const pixelSize = root.pixelSize.value
+          content.scale
+            .set(
+              innerWidth * pixelSize,
+              innerHeight * pixelSize,
+              keepAspectRatio.value ? (innerHeight * pixelSize * measuredSize.z) / measuredSize.y : measuredSize.z,
+            )
+            .divide(measuredSize)
+
+          content.position.copy(measuredCenter).negate()
+
+          content.position.z -= alignmentZMap[depthAlign.value] * measuredSize.z
+          content.position.multiply(content.scale)
+          content.position.add(
+            vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
           )
-          .divide(measuredSize)
-
-        content.position.copy(measuredCenter).negate()
-
-        content.position.z -= alignmentZMap[depthAlign.value] * measuredSize.z
-        content.position.multiply(content.scale)
-        content.position.add(
-          vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
-        )
-        content.updateMatrix()
-      }),
-    )
-    return subscriptions
-  })
-  return measureContent
+          content.updateMatrix()
+        }),
+      )
+      return subscriptions
+    },
+  )
+  return () => {
+    updateRenderProperties(contentContainerRef.current, root.renderOrder.peek(), root.depthTest.peek())
+    measureContent()
+  }
 }

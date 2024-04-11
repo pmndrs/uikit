@@ -82,8 +82,4 @@ export class Fullscreen extends Root {
       transformTranslateZ: this.transformTranslateZ,
     })
   }
-
-  setDistanceToCamera(distanceToCamera?: number) {
-    this.distanceToCamera = distanceToCamera
-  }
 }

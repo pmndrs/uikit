@@ -24,6 +24,7 @@ import {
   createScrollPosition,
   createScrollbars,
   computedScrollHandlers,
+  computedAnyAncestorScrollable,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
@@ -127,7 +128,7 @@ export function createImage(
   )
 
   const node = signal<FlexNode | undefined>(undefined)
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   createNode(node, flexState, parentContext, mergedProperties, object, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
@@ -161,6 +162,7 @@ export function createImage(
   )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    parentContext.anyAncestorScrollable,
     flexState,
     object,
     properties,
@@ -173,6 +175,7 @@ export function createImage(
   setupViewportListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     initializers,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     interactionPanel: createImageMesh(
@@ -244,6 +247,7 @@ function createImageMesh(
     flexState.borderInset,
     isVisible,
     clippingPlanes,
+    root,
     initializers,
   )
   mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parent.clippingRect, orderInfo)
@@ -366,6 +370,7 @@ function setupImageMaterials(
   borderInset: Signal<Inset | undefined>,
   isVisible: Signal<boolean>,
   clippingPlanes: Array<Plane>,
+  root: RootContext,
   initializers: Initializers,
 ) {
   const data = new Float32Array(16)
@@ -376,15 +381,20 @@ function setupImageMaterials(
   target.customDistanceMaterial.clippingPlanes = clippingPlanes
 
   const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
-  initializers.push(
-    () =>
+  initializers.push((subscriptions) => {
+    subscriptions.push(
       effect(() => {
-        target.material = createPanelMaterial(panelMaterialClass.value, info)
-        target.material.clippingPlanes = clippingPlanes
+        const material = createPanelMaterial(panelMaterialClass.value, info)
+        material.clippingPlanes = clippingPlanes
+        target.material = material
+        return effect(() => (material.depthTest = root.depthTest.value))
       }),
-    () => effect(() => (target.castShadow = propertiesSignal.value.read('castShadow', false))),
-    () => effect(() => (target.receiveShadow = propertiesSignal.value.read('receiveShadow', false))),
-  )
+      effect(() => (target.renderOrder = root.renderOrder.value)),
+      effect(() => (target.castShadow = propertiesSignal.value.read('castShadow', false))),
+      effect(() => (target.receiveShadow = propertiesSignal.value.read('receiveShadow', false))),
+    )
+    return subscriptions
+  })
 
   const imageMaterialConfig = getImageMaterialConfig()
   const internalSubscriptions: Array<() => void> = []

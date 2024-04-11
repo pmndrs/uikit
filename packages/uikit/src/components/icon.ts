@@ -87,7 +87,7 @@ export function createIcon(
     },
   )
 
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   createNode(undefined, flexState, parentContext, mergedProperties, object, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
@@ -219,6 +219,6 @@ function createIconGroup(
       }),
     () => effect(() => void (group.visible = !isClipped.value)),
   )
-  applyAppearancePropertiesToGroup(propertiesSignal, group, initializers)
+  applyAppearancePropertiesToGroup(propertiesSignal, group, initializers, parentContext.root)
   return group
 }

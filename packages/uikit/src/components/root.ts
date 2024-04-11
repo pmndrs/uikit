@@ -1,4 +1,4 @@
-import { Signal, computed, signal, untracked } from '@preact/signals-core'
+import { Signal, computed, signal } from '@preact/signals-core'
 import { Object3DRef, RootContext } from '../context.js'
 import { FlexNode, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { LayoutListeners, ScrollListeners, setupLayoutListeners } from '../listeners.js'
@@ -20,11 +20,11 @@ import {
   computedScrollHandlers,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
-import { Initializers, Subscriptions, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
+import { Initializers, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
 import { WithConditionals, computedHandlers, computedMergedProperties } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
-import { Camera, Matrix4, Mesh, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
+import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
@@ -41,6 +41,8 @@ export type InheritableRootProperties = WithClasses<
           PanelProperties &
           ScrollbarProperties &
           PanelGroupProperties & {
+            renderOrder?: number
+            depthTest?: boolean
             sizeX?: number
             sizeY?: number
             anchorX?: keyof typeof alignmentXMap
@@ -51,14 +53,9 @@ export type InheritableRootProperties = WithClasses<
   >
 >
 
-export type RootProperties = InheritableRootProperties &
-  WithReactive<{
-    pixelSize?: number
-  }> &
-  LayoutListeners &
-  ScrollListeners
+export type RootProperties = InheritableRootProperties & LayoutListeners & ScrollListeners
 
-const DEFAULT_PIXEL_SIZE = 0.01
+export const DEFAULT_PIXEL_SIZE = 0.01
 
 const vectorHelper = new Vector3()
 const planeHelper = new Plane()
@@ -66,6 +63,7 @@ const planeHelper = new Plane()
 const identityMatrix = signal(new Matrix4())
 
 export function createRoot(
+  pixelSize: Signal<number>,
   style: Signal<RootProperties | undefined>,
   properties: Signal<RootProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -80,8 +78,6 @@ export function createRoot(
   const activeSignal = signal<Array<number>>([])
   const initializers: Initializers = []
   setupCursorCleanup(hoveredSignal, initializers)
-  const pixelSize = computed(() => readReactive(properties.value?.pixelSize) ?? DEFAULT_PIXEL_SIZE)
-
   const mergedProperties = computedMergedProperties(
     style,
     properties,
@@ -98,9 +94,12 @@ export function createRoot(
     },
   )
 
+  const renderOrder = computedProperty(mergedProperties, 'renderOrder', 0)
+  const depthTest = computedProperty(mergedProperties, 'depthTest', true)
+
   const node = signal<FlexNode | undefined>(undefined)
   const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, node, initializers)
-  const flexState = createFlexNodeState(undefined)
+  const flexState = createFlexNodeState()
   initializers.push((subscriptions) => {
     const newNode = new FlexNode(flexState, mergedProperties, requestCalculateLayout, object, subscriptions)
     node.value = newNode
@@ -116,13 +115,9 @@ export function createRoot(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
 
-  const ctx: WithCameraDistance = { cameraDistance: 0 }
+  const ctx: WithCameraDistance & Pick<RootContext, 'onFrameSet'> = { cameraDistance: 0, onFrameSet }
 
-  const panelGroupManager = new PanelGroupManager(pixelSize, ctx, object)
-  initializers.push(() => {
-    onFrameSet.add(panelGroupManager.onFrame)
-    return () => onFrameSet.delete(panelGroupManager.onFrame)
-  })
+  const panelGroupManager = new PanelGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const onCameraDistanceFrame = () => {
     if (object.current == null) {
@@ -173,6 +168,7 @@ export function createRoot(
 
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    undefined,
     flexState,
     object,
     properties,
@@ -183,25 +179,23 @@ export function createRoot(
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
 
-  const gylphGroupManager = new GlyphGroupManager(pixelSize, ctx, object)
-  initializers.push(() => {
-    onFrameSet.add(gylphGroupManager.onFrame)
-    return () => onFrameSet.delete(gylphGroupManager.onFrame)
-  })
+  const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
     requestCalculateLayout,
-    onFrameSet,
     cameraDistance: 0,
     gylphGroupManager,
     object,
     panelGroupManager,
     pixelSize,
+    renderOrder,
+    depthTest,
     renderer,
     size: flexState.size,
   })
 
   return Object.assign(flexState, {
+    anyAncestorScrollable: flexState.scrollable,
     clippingRect: computedClippingRect(identityMatrix, flexState, pixelSize, undefined),
     childrenMatrix,
     node,

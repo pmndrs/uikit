@@ -1,10 +1,10 @@
 import { Camera, WebGLRenderer } from 'three'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createRoot, RootProperties } from '../components/root.js'
+import { createRoot, DEFAULT_PIXEL_SIZE, RootProperties } from '../components/root.js'
 import { Parent, bindHandlers } from './utils.js'
 import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
-import { FontFamilies } from '../internals.js'
+import { FontFamilies, WithReactive } from '../internals.js'
 
 export class Root extends Parent {
   private readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
@@ -13,15 +13,17 @@ export class Root extends Parent {
   private readonly unsubscribe: () => void
   private readonly onFrameSet = new Set<(delta: number) => void>()
   private readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
+  private readonly pixelSizeSignal: Signal<ReadonlySignal<number | undefined> | number | undefined>
 
   constructor(
     camera: Signal<Camera | undefined> | (() => Camera) | Camera,
     renderer: WebGLRenderer,
-    properties?: RootProperties,
+    properties?: RootProperties & WithReactive<{ pixelSize?: number }>,
     defaultProperties?: AllOptionalProperties,
     fontFamilies?: FontFamilies,
   ) {
     super()
+    this.pixelSizeSignal = signal(properties?.pixelSize ?? DEFAULT_PIXEL_SIZE)
     this.matrixAutoUpdate = false
     this.fontFamiliesSignal = signal<FontFamilies | undefined>(fontFamilies)
     this.propertiesSignal = signal(properties)
@@ -39,6 +41,7 @@ export class Root extends Parent {
         getCamera = () => cam
       }
       const internals = createRoot(
+        computed(() => readReactive(this.pixelSizeSignal.value) ?? DEFAULT_PIXEL_SIZE),
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
@@ -75,7 +78,8 @@ export class Root extends Parent {
     this.styleSignal.value = style
   }
 
-  setProperties(properties: RootProperties | undefined) {
+  setProperties(properties: (RootProperties & WithReactive<{ pixelSize?: number }>) | undefined) {
+    this.pixelSizeSignal.value = properties?.pixelSize ?? DEFAULT_PIXEL_SIZE
     this.propertiesSignal.value = properties
   }
 

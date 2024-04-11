@@ -10,10 +10,10 @@ import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../order.js'
-import { Signal, computed } from '@preact/signals-core'
+import { Signal, computed, effect } from '@preact/signals-core'
 import { MergedProperties } from '../properties/merged.js'
-import { Object3DRef } from '../context.js'
-import { computedProperty } from '../internals.js'
+import { Object3DRef, RootContext } from '../context.js'
+import { Initializers, Subscriptions, computedProperty } from '../internals.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -45,10 +45,39 @@ export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<number, InstancedPanelGroup>>()
 
   constructor(
+    private renderOrder: Signal<number>,
+    private depthTest: Signal<boolean>,
     private pixelSize: Signal<number>,
-    private root: WithCameraDistance,
+    private root: WithCameraDistance & Pick<RootContext, 'onFrameSet'>,
     private object: Object3DRef,
-  ) {}
+    initializers: Initializers,
+  ) {
+    initializers.push(
+      () => {
+        const onFrame = (delta: number) => this.traverse((group) => group.onFrame(delta))
+        root.onFrameSet.add(onFrame)
+        return () => root.onFrameSet.delete(onFrame)
+      },
+      () =>
+        effect(() => {
+          const ro = renderOrder.value
+          this.traverse((group) => group.setRenderOrder(ro))
+        }),
+      () =>
+        effect(() => {
+          const dt = depthTest.value
+          this.traverse((group) => group.setDepthTest(dt))
+        }),
+    )
+  }
+
+  private traverse(fn: (group: InstancedPanelGroup) => void) {
+    for (const groups of this.map.values()) {
+      for (const group of groups.values()) {
+        fn(group)
+      }
+    }
+  }
 
   getGroup(
     majorIndex: number,
@@ -61,12 +90,13 @@ export class PanelGroupManager {
     const key = (majorIndex << 2) + ((receiveShadow ? 1 : 0) << 1) + (castShadow ? 1 : 0)
     let panelGroup = groups.get(key)
     if (panelGroup == null) {
-      const material = createPanelMaterial(panelMaterialClass, { type: 'instanced' })
       groups.set(
         key,
         (panelGroup = new InstancedPanelGroup(
+          this.renderOrder.peek(),
+          this.depthTest.peek(),
           this.object,
-          material,
+          panelMaterialClass,
           this.pixelSize,
           this.root,
           {
@@ -81,14 +111,6 @@ export class PanelGroupManager {
     }
     return panelGroup
   }
-
-  onFrame = (delta: number) => {
-    for (const groups of this.map.values()) {
-      for (const group of groups.values()) {
-        group.onFrame(delta)
-      }
-    }
-  }
 }
 
 export class InstancedPanelGroup {
@@ -96,6 +118,7 @@ export class InstancedPanelGroup {
   public instanceMatrix!: InstancedBufferAttribute
   public instanceData!: InstancedBufferAttribute
   public instanceClipping!: InstancedBufferAttribute
+  private readonly instanceMaterial: Material
 
   private buckets: Array<Bucket<InstancedPanel>> = []
   private elementCount: number = 0
@@ -131,14 +154,19 @@ export class InstancedPanelGroup {
   }
 
   constructor(
+    private renderOrder: number,
+    depthTest: boolean,
     private readonly object: Object3DRef,
-    private readonly instanceMaterial: Material,
+    materialClass: MaterialClass,
     public readonly pixelSize: Signal<number>,
     private readonly root: WithCameraDistance,
     private readonly orderInfo: OrderInfo,
     private readonly meshReceiveShadow: boolean,
     private readonly meshCastShadow: boolean,
-  ) {}
+  ) {
+    this.instanceMaterial = createPanelMaterial(materialClass, { type: 'instanced' })
+    this.instanceMaterial.depthTest = depthTest
+  }
 
   private updateCount(): void {
     const lastBucket = this.buckets[this.buckets.length - 1]
@@ -148,6 +176,18 @@ export class InstancedPanelGroup {
     }
     this.mesh.count = count
     this.mesh.visible = count > 0
+  }
+
+  setDepthTest(depthTest: boolean) {
+    this.instanceMaterial.depthTest = depthTest
+  }
+
+  setRenderOrder(renderOrder: number) {
+    this.renderOrder = renderOrder
+    if (this.mesh == null) {
+      return
+    }
+    this.mesh.renderOrder = renderOrder
   }
 
   insert(bucketIndex: number, panel: InstancedPanel): void {
@@ -246,14 +286,13 @@ export class InstancedPanelGroup {
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
+    this.mesh.renderOrder = this.renderOrder
     setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.meshReceiveShadow
     this.mesh.castShadow = this.meshCastShadow
     this.object.current?.add(this.mesh)
   }
-
-  destroy(): void {}
 }
 
 function copyWithinAttribute(
