@@ -15,7 +15,11 @@ export class Image extends Parent {
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  constructor(src: string | Signal<string>, properties?: ImageProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(
+    src: Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined,
+    properties?: ImageProperties,
+    defaultProperties?: AllOptionalProperties,
+  ) {
     super()
     setupParentContextSignal(this.parentContextSignal, this)
     this.matrixAutoUpdate = false
