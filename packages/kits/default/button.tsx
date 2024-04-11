@@ -1,14 +1,8 @@
 import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef } from 'react'
+import React, { ComponentPropsWithoutRef } from 'react'
 import { colors } from './theme'
 
-const buttonVariants: {
-  [Key in string]: {
-    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
-    containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
-    defaultProps?: AllOptionalProperties
-  }
-} = {
+const buttonVariants = {
   default: {
     containerHoverProps: {
       backgroundOpacity: 0.9,
@@ -85,7 +79,13 @@ export function Button({
   size?: keyof typeof buttonSizes
   disabled?: boolean
 }) {
-  const { containerProps, defaultProps, containerHoverProps } = buttonVariants[variant]
+  const { containerProps, defaultProps, containerHoverProps } = buttonVariants[variant] as {
+    [Key in string]: {
+      containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+      containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
+      defaultProps?: AllOptionalProperties
+    }
+  }
   const sizeProps = buttonSizes[size]
 
   return (

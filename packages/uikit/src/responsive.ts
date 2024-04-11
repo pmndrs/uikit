@@ -1,10 +1,7 @@
 import { Signal } from '@preact/signals-core'
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { createContext, useContext, useMemo } from 'react'
-import { ManagerCollection, Properties } from './properties/utils.js'
-import { WithClasses, useTraverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
 import { Vector2Tuple } from 'three'
+import { PropertyTransformers } from './properties/merged.js'
 
 const breakPoints = {
   sm: 640,
@@ -13,47 +10,20 @@ const breakPoints = {
   xl: 1280,
   '2xl': 1536,
 }
-const breakPointKeys = Object.keys(breakPoints)
+const breakPointKeys = Object.keys(breakPoints) as Array<keyof typeof breakPoints>
 const breakPointKeysLength = breakPointKeys.length
 
 export type WithResponsive<T> = T & {
   [Key in keyof typeof breakPoints]?: T
 }
 
-export function useRootSize() {
-  return useContext(RootSizeContext)
-}
+export function createResponsivePropertyTransformers(rootSize: Signal<Vector2Tuple | undefined>): PropertyTransformers {
+  const transformers: PropertyTransformers = {}
 
-const RootSizeContext = createContext<Signal<Vector2Tuple>>(null as any)
+  for (let i = 0; i < breakPointKeysLength; i++) {
+    const key = breakPointKeys[i]
+    transformers[key] = createConditionalPropertyTranslator(() => (rootSize.value?.[0] ?? 0) > breakPoints[key])
+  }
 
-export const RootSizeProvider = RootSizeContext.Provider
-
-export function useApplyResponsiveProperties(
-  collection: ManagerCollection,
-  properties: WithClasses<WithResponsive<Properties>> & EventHandlers,
-  providedSize?: Signal<Vector2Tuple>,
-): void {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const size = providedSize ?? useContext(RootSizeContext)
-  const translator = useMemo(
-    () => ({
-      sm: createConditionalPropertyTranslator(() => size.value[0] > breakPoints.sm),
-      md: createConditionalPropertyTranslator(() => size.value[0] > breakPoints.md),
-      lg: createConditionalPropertyTranslator(() => size.value[0] > breakPoints.lg),
-      xl: createConditionalPropertyTranslator(() => size.value[0] > breakPoints.xl),
-      '2xl': createConditionalPropertyTranslator(() => size.value[0] > breakPoints['2xl']),
-    }),
-    [size],
-  )
-
-  useTraverseProperties(properties, (p) => {
-    for (let i = 0; i < breakPointKeysLength; i++) {
-      const key = breakPointKeys[i] as keyof typeof breakPoints
-      const properties = p[key]
-      if (properties == null) {
-        continue
-      }
-      translator[key](collection, properties)
-    }
-  })
+  return transformers
 }

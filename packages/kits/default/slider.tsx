@@ -1,6 +1,6 @@
-import { Container, ComponentInternals } from '@react-three/uikit'
+import { Container, ComponentInternals, ContainerProperties } from '@react-three/uikit'
 import { colors } from './theme'
-import { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Vector3 } from 'three'
 
@@ -26,8 +26,9 @@ export function Slider({
 } & Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const value = providedValue ?? uncontrolled ?? 50
-  const percentage = `${value}%` as const
-  const ref = useRef<ComponentInternals>(null)
+  const range = max - min
+  const percentage = `${(100 * value) / range}%` as const
+  const ref = useRef<ComponentInternals<ContainerProperties>>(null)
   const onChange = useRef(onValueChange)
   onChange.current = onValueChange
   const hasProvidedValue = providedValue != null
@@ -75,6 +76,7 @@ export function Slider({
       ref={ref}
       {...(disabled ? {} : handler)}
       positionType="relative"
+      flexDirection="column"
       height={8}
       width="100%"
       alignItems="center"
@@ -92,7 +94,7 @@ export function Slider({
         <Container height="100%" width={percentage} borderRadius={1000} backgroundColor={colors.primary} />
       </Container>
       <Container
-        zIndexOffset={{ minor: 2 }}
+        zIndexOffset={{ minor: 100 }}
         positionType="absolute"
         positionLeft={percentage}
         transformTranslateX={-10}

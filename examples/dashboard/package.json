@@ -1,22 +1,22 @@
 {
   "type": "module",
   "dependencies": {
-    "@coconut-xr/koestlich": "^0.3.12",
-    "@coconut-xr/natuerlich": "^0.0.49",
+    "@coconut-xr/xinteraction": "^0.1.12",
     "@react-three/drei": "^9.96.1",
     "@react-three/fiber": "^8.15.13",
     "@react-three/postprocessing": "^2.16.0",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
-    "@types/three": "^0.160.0",
+    "@types/three": "^0.161.0",
     "r3f-perf": "^7.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three": "^0.160.0",
+    "three": "^0.161.0",
     "vite-plugin-mkcert": "^1.17.4",
     "zustand": "4"
   },
   "scripts": {
-    "dev": "vite --host"
+    "dev": "vite --host",
+    "build": "vite build"
   }
 }

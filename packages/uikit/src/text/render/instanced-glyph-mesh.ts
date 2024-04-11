@@ -5,6 +5,7 @@ export class InstancedGlyphMesh extends Mesh {
 
   protected readonly isInstancedMesh = true
   public readonly instanceColor = null
+  public readonly morphTexture = null
   public readonly boundingBox = new Box3()
   public readonly boundingSphere = new Sphere()
 

@@ -42,13 +42,14 @@ jobs:
       
       - name: Prepare Build
         run: |
-          pnpm -r inline-wasm
-          pnpm -r fix:inline-wasm
           pnpm -r convert
           pnpm -r generate
 
       - name: Build
-        run: pnpm -r build
+        run: pnpm -F "./packages/**/*" build
+
+      - name: Copy README
+        run: cp ./README.md packages/react
 
       - name: Gitversion
         id: gitversion
@@ -60,11 +61,27 @@ jobs:
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
 
-      - name: Deploy Uikit Package
+      - name: Deploy Uikit Vanilla Package
         working-directory: ./packages/uikit
         run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
       
-      - name: Deploy Uikit-Lucide Package
-        working-directory: ./packages/icons/lucide
+      - name: Deploy Uikit-Lucide Vanilla Package
+        working-directory: ./packages/icons/lucide/vanilla
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}   
+
+      - name: Deploy Uikit React Package
+        working-directory: ./packages/react
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+      
+      - name: Deploy Uikit-Lucide React Package
+        working-directory: ./packages/icons/lucide/react
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+          
+      - name: Deploy Uikit-Default React Package
+        working-directory: ./packages/kits/default
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+          
+      - name: Deploy Uikit-Apfel React Package
+        working-directory: ./packages/kits/apfel
         run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
           

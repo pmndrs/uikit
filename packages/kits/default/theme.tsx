@@ -1,5 +1,5 @@
 import { basedOnPreferredColorScheme, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef } from 'react'
+import React, { ComponentPropsWithoutRef } from 'react'
 import { Color } from 'three'
 
 function hsl(h: number, s: number, l: number) {
@@ -51,7 +51,7 @@ export const colors = basedOnPreferredColorScheme({
   },
 })
 
-export function DefaultColors(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
+export function Defaults(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
   return (
     <DefaultProperties
       scrollbarColor={colors.foreground}

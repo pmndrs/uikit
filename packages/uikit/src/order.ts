@@ -1,32 +1,30 @@
-import { createContext, useContext, useMemo } from 'react'
-import { RenderItem, WebGLRenderer } from 'three'
+import { Signal, computed } from '@preact/signals-core'
+import { RenderItem } from 'three'
+import { MergedProperties } from './properties/merged.js'
+import { computedProperty, readReactive } from './internals.js'
 
-export type CameraDistanceRef = { current: number }
+export type WithCameraDistance = { cameraDistance: number }
 
 export const cameraDistanceKey = Symbol('camera-distance-key')
 export const orderInfoKey = Symbol('order-info-key')
 
-function reversePainterSortStable(a: RenderItem, b: RenderItem) {
+export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.groupOrder !== b.groupOrder) {
     return a.groupOrder - b.groupOrder
   }
   if (a.renderOrder !== b.renderOrder) {
     return a.renderOrder - b.renderOrder
   }
-  const aDistanceRef = (a.object as any)[cameraDistanceKey] as CameraDistanceRef
-  const bDistanceRef = (b.object as any)[cameraDistanceKey] as CameraDistanceRef
+  const aDistanceRef = (a.object as any)[cameraDistanceKey] as WithCameraDistance
+  const bDistanceRef = (b.object as any)[cameraDistanceKey] as WithCameraDistance
   if (aDistanceRef == null || bDistanceRef == null) {
     //default z comparison
     return a.z !== b.z ? b.z - a.z : a.id - b.id
   }
   if (aDistanceRef === bDistanceRef) {
-    return compareOrderInfo((a.object as any)[orderInfoKey], (b.object as any)[orderInfoKey])
+    return compareOrderInfo((a.object as any)[orderInfoKey].value, (b.object as any)[orderInfoKey].value)
   }
-  return bDistanceRef.current - aDistanceRef.current
-}
-
-export function patchRenderOrder(renderer: WebGLRenderer): void {
-  renderer.setTransparentSort(reversePainterSortStable)
+  return bDistanceRef.cameraDistance - aDistanceRef.cameraDistance
 }
 
 //the following order tries to represent the most common element order of the respective element types (e.g. panels are most likely the background element)
@@ -45,10 +43,13 @@ export type OrderInfo = {
   majorIndex: number
   elementType: ElementType
   minorIndex: number
-  instancedGroupDependencies?: Record<string, any> | undefined
+  instancedGroupDependencies?: Signal<Record<string, any>> | Record<string, any>
 }
 
-function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
+function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | undefined): number {
+  if (o1 == null || o2 == null) {
+    return 0
+  }
   let dif = o1.majorIndex - o2.majorIndex
   if (dif != 0) {
     return dif
@@ -60,23 +61,37 @@ function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
   return o1.minorIndex - o2.minorIndex
 }
 
-export const OrderInfoContext = createContext<OrderInfo>(null as any)
-
-export const OrderInfoProvider = OrderInfoContext.Provider
+export type ZIndexProperties = {
+  zIndexOffset?: ZIndexOffset
+}
 
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
-export function useOrderInfo(
+export function computedOrderInfo(
+  propertiesSignal: Signal<MergedProperties> | undefined,
   type: ElementType,
-  offset: ZIndexOffset | undefined,
-  instancedGroupDependencies: Record<string, any> | undefined,
-  providedParentOrderInfo?: OrderInfo,
-): OrderInfo {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const parentOrderInfo = providedParentOrderInfo ?? (useContext(OrderInfoContext) as OrderInfo | undefined)
-  const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
-  const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
-  return useMemo(() => {
+  instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
+  parentOrderInfoSignal: Signal<OrderInfo | undefined> | undefined,
+): Signal<OrderInfo | undefined> {
+  const zIndexOffset =
+    propertiesSignal == null
+      ? undefined
+      : computedProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
+  return computed(() => {
+    let parentOrderInfo: OrderInfo | undefined
+    if (parentOrderInfoSignal == null) {
+      parentOrderInfo = undefined
+    } else if (parentOrderInfoSignal.value == null) {
+      return undefined
+    } else {
+      parentOrderInfo = parentOrderInfoSignal.value
+    }
+
+    const offset = zIndexOffset?.value
+
+    const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
+    const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
+
     let majorIndex: number
     let minorIndex: number
 
@@ -88,7 +103,10 @@ export function useOrderInfo(
       minorIndex = 0
     } else if (
       type != parentOrderInfo.elementType ||
-      !shallowEqualRecord(instancedGroupDependencies, parentOrderInfo.instancedGroupDependencies)
+      !shallowEqualRecord(
+        readReactive(instancedGroupDependencies),
+        readReactive(parentOrderInfo.instancedGroupDependencies),
+      )
     ) {
       majorIndex = parentOrderInfo.majorIndex + 1
       minorIndex = 0
@@ -105,11 +123,12 @@ export function useOrderInfo(
     minorIndex += minorOffset
 
     return {
+      instancedGroupDependencies,
       elementType: type,
       majorIndex,
       minorIndex,
     }
-  }, [majorOffset, minorOffset, parentOrderInfo, type, instancedGroupDependencies])
+  })
 }
 
 function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<string, any> | undefined): boolean {
@@ -130,7 +149,11 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
   return i === Object.keys(r2).length
 }
 
-export function setupRenderOrder<T>(result: T, rootCameraDistance: CameraDistanceRef, orderInfo: OrderInfo): T {
+export function setupRenderOrder<T>(
+  result: T,
+  rootCameraDistance: WithCameraDistance,
+  orderInfo: { value: OrderInfo | undefined },
+): T {
   ;(result as any)[cameraDistanceKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo
   return result

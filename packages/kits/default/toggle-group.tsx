@@ -1,14 +1,12 @@
 import { Container, DefaultProperties } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, createContext, useContext, useState } from 'react'
+import React, { ComponentPropsWithoutRef, createContext, useContext, useState } from 'react'
 import { colors } from './theme'
 
-const toggleVariants: {
-  [Key in string]: {
-    containerProps?: ComponentPropsWithoutRef<typeof Container>
-    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
-  }
-} = {
-  default: {},
+const toggleVariants = {
+  default: {
+    containerHoverProps: undefined,
+    containerProps: undefined,
+  },
   outline: {
     containerProps: {
       border: 1,
@@ -19,6 +17,11 @@ const toggleVariants: {
     },
   },
   //TODO: hover:text-accent-foreground
+} satisfies {
+  [Key in string]: {
+    containerProps?: ComponentPropsWithoutRef<typeof Container>
+    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+  }
 }
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
@@ -29,7 +32,7 @@ const toggleSizes = {
 const ToggleGroupContext = createContext<{
   size: keyof typeof toggleSizes
   variant: keyof typeof toggleVariants
-}>(null as any)
+}>({ size: 'default', variant: 'default' })
 
 export function ToggleGroup({
   children,

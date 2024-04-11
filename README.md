@@ -1,50 +1,73 @@
-<h1>@react-three/uikit</h1>
+<h1>uikit</h1>
 
-Build performant 3D user interfaces for Three.js using @react-three/fiber and yoga
+[![Version](https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@react-three/uikit)
+[![Downloads](https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@react-three/uikit)
+[![Twitter](https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000)](https://twitter.com/pmndrs)
+[![Discord](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000)](https://discord.gg/ZZjjNvJ)
 
-# Changes over Koestlich
+![uikit banner](./docs/getting-started/banner.jpg)
 
-- higher performance (GPU + CPU)
-- no suspense (similarly to html/css images and texts don't suspend)
-- objects are nested for correct event propagation
-- no default animations
-- complete freedom to use R3F inside of UI => <Content>...</Content>
-- better scroll experiences (scrollbar + overscroll)
-- overall DX improvements (hover, responsive, ...)
+Build performant 3D user interfaces for **Three.js** using **@react-three/fiber** and **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
 
-TODO Release
+> Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
-- fix: zoom with ortho camera
-- fix: changing font weight with hot reload (test if its the same for normal react state change)
-- feat: ref.current.setStyle({ ... })
-- feat: nesting inside non root/container components (e.g. image)
-- fix: scrollbar border radius to high (happens with very long panels)
-- feat: drag/click threshold
-- feat: add apfel components
-- feat: input
-- fix: decrease clipping rect when scrollbar present
+```bash
+npm install three @react-three/fiber @react-three/uikit
+```
 
-Roadmap
+### What does it look like?
 
-- on demand rendering to save battery for UI only apps / rendering to render targets
-- upgrade to yoga2.0
-- virtual lists (support thousands of elements in a list by using fixed sizes and not using yoga)
-- option to render to seperate render targets depending on element type (e.g. render text to high quality quad layer for WebXR)
-- scrollIntoView
-- Instancing for icons
-- Support more characters for different languages
-- Support for visibility="hidden" & display="none"
+| A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./docs/getting-started/basic-example.gif) |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 
-Limitations
+```jsx
+import { createRoot } from 'react-dom/client'
+import React from 'react'
+import { Canvas } from '@react-three/fiber'
+import { Fullscreen, Container } from '@react-three/uikit'
 
-- nested clipping with rotation in z-axis (the clipping area can become more complex than a rectangle)
+createRoot(document.getElementById('root')).render(
+  <Canvas>
+    <Fullscreen flexDirection="row" padding={100} gap={100}>
+      <Container flexGrow={1} backgroundOpacity={0.5} hover={{ backgroundOpacity: 1 }} backgroundColor="red" />
+      <Container flexGrow={1} backgroundOpacity={0.5} hover={{ backgroundOpacity: 1 }} backgroundColor="blue" />
+    </Fullscreen>
+  </Canvas>,
+)
+```
 
-## Development
+## Pre-styled component kits
 
-`pnpm install`  
-`pnpm -r inline-wasm`  
-`pnpm -r convert`  
-`pnpm -r generate`  
-`pnpm -r build`  
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
 
-go to `examples/market` and run `pnpm dev` to view the example dashboard
+> For example, to add the button from the default kit, run: `npx uikit component add default Button`
+
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
+| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
+| `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
+
+## How to get started
+
+> Some familiarity with
+> react, threejs, and @react-three/fiber, is recommended.
+
+Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples)** to see uikit in action, or learn more about:
+
+- [All components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
+- [Interactivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
+- [Custom materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)
+- [Custom fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)
+- [Responsive user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
+- [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)
+- [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
+- [Common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls)
+- [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
+- [Theming components](https://docs.pmnd.rs/uikit/kits/theming)
+
+## Migration guides
+
+- from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
+- from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)
+- from [Tailwind](https://docs.pmnd.rs/uikit/migration/from-tailwind)

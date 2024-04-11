@@ -1,4 +1,4 @@
-import { Group, InstancedBufferAttribute, Material, Usage, DynamicDrawUsage } from 'three'
+import { InstancedBufferAttribute, Material, DynamicDrawUsage, MeshBasicMaterial } from 'three'
 import {
   Bucket,
   addToSortedBuckets,
@@ -6,12 +6,92 @@ import {
   updateSortedBucketsAllocation,
   resizeSortedBucketsSpace,
 } from '../allocation/sorted-buckets.js'
-import { panelMaterialDefaultData } from './panel-material.js'
+import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
-import { CameraDistanceRef, OrderInfo, setupRenderOrder } from '../order.js'
+import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../order.js'
+import { Signal, computed } from '@preact/signals-core'
+import { MergedProperties } from '../properties/merged.js'
+import { Object3DRef } from '../context.js'
+import { computedProperty } from '../internals.js'
 
-export class InstancedPanelGroup extends Group {
+export type ShadowProperties = {
+  receiveShadow?: boolean
+  castShadow?: boolean
+}
+
+export type PanelGroupProperties = {
+  panelMaterialClass?: MaterialClass
+} & ShadowProperties
+
+export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
+  const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
+  const castShadow = computedProperty(propertiesSignal, 'castShadow', false)
+  const receiveShadow = computedProperty(propertiesSignal, 'receiveShadow', false)
+  return computed<Required<PanelGroupProperties>>(() => ({
+    panelMaterialClass: panelMaterialClass.value,
+    castShadow: castShadow.value,
+    receiveShadow: receiveShadow.value,
+  }))
+}
+
+export const defaultPanelDependencies: Required<PanelGroupProperties> = {
+  panelMaterialClass: MeshBasicMaterial,
+  castShadow: false,
+  receiveShadow: false,
+}
+
+export class PanelGroupManager {
+  private map = new Map<MaterialClass, Map<number, InstancedPanelGroup>>()
+
+  constructor(
+    private pixelSize: Signal<number>,
+    private root: WithCameraDistance,
+    private object: Object3DRef,
+  ) {}
+
+  getGroup(
+    majorIndex: number,
+    { panelMaterialClass, receiveShadow, castShadow }: Required<PanelGroupProperties> = defaultPanelDependencies,
+  ) {
+    let groups = this.map.get(panelMaterialClass)
+    if (groups == null) {
+      this.map.set(panelMaterialClass, (groups = new Map()))
+    }
+    const key = (majorIndex << 2) + ((receiveShadow ? 1 : 0) << 1) + (castShadow ? 1 : 0)
+    let panelGroup = groups.get(key)
+    if (panelGroup == null) {
+      const material = createPanelMaterial(panelMaterialClass, { type: 'instanced' })
+      groups.set(
+        key,
+        (panelGroup = new InstancedPanelGroup(
+          this.object,
+          material,
+          this.pixelSize,
+          this.root,
+          {
+            elementType: ElementType.Panel,
+            majorIndex,
+            minorIndex: 0,
+          },
+          receiveShadow,
+          castShadow,
+        )),
+      )
+    }
+    return panelGroup
+  }
+
+  onFrame = (delta: number) => {
+    for (const groups of this.map.values()) {
+      for (const group of groups.values()) {
+        group.onFrame(delta)
+      }
+    }
+  }
+}
+
+export class InstancedPanelGroup {
   private mesh?: InstancedPanelMesh
   public instanceMatrix!: InstancedBufferAttribute
   public instanceData!: InstancedBufferAttribute
@@ -22,9 +102,11 @@ export class InstancedPanelGroup extends Group {
   private bufferElementSize: number = 0
   private timeToNextUpdate: number | undefined
 
+  public instanceDataOnUpdate!: InstancedBufferAttribute['addUpdateRange']
+
   private activateElement = (element: InstancedPanel, bucket: Bucket<InstancedPanel>, indexInBucket: number) => {
     const index = bucket.offset + indexInBucket
-    this.instanceData.set(panelMaterialDefaultData, 16 * index)
+    this.instanceData.set(element.materialConfig.defaultData, 16 * index)
     this.instanceData.addUpdateRange(16 * index, 16)
     this.instanceData.needsUpdate = true
     element.activate(bucket, indexInBucket)
@@ -49,23 +131,23 @@ export class InstancedPanelGroup extends Group {
   }
 
   constructor(
-    private readonly material: Material,
-    public readonly pixelSize: number,
-    private readonly cameraDistance: CameraDistanceRef,
+    private readonly object: Object3DRef,
+    private readonly instanceMaterial: Material,
+    public readonly pixelSize: Signal<number>,
+    private readonly root: WithCameraDistance,
     private readonly orderInfo: OrderInfo,
     private readonly meshReceiveShadow: boolean,
     private readonly meshCastShadow: boolean,
-  ) {
-    super()
-  }
+  ) {}
 
   private updateCount(): void {
     const lastBucket = this.buckets[this.buckets.length - 1]
     const count = lastBucket.offset + lastBucket.elements.length
-    if (this.mesh != null) {
-      this.mesh.count = count
+    if (this.mesh == null) {
+      return
     }
-    this.visible = count > 0
+    this.mesh.count = count
+    this.mesh.visible = count > 0
   }
 
   insert(bucketIndex: number, panel: InstancedPanel): void {
@@ -115,7 +197,9 @@ export class InstancedPanelGroup extends Group {
 
   private update(): void {
     if (this.elementCount === 0) {
-      this.visible = false
+      if (this.mesh != null) {
+        this.mesh.visible = false
+      }
       return
     }
     //buffer is resized to have space for 150% of the actually needed elements
@@ -128,7 +212,7 @@ export class InstancedPanelGroup extends Group {
     }
     updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
     this.mesh!.count = this.elementCount
-    this.visible = true
+    this.mesh!.visible = true
   }
 
   private resize(): void {
@@ -136,7 +220,7 @@ export class InstancedPanelGroup extends Group {
     this.bufferElementSize = Math.ceil(this.elementCount * 1.5)
     if (this.mesh != null) {
       this.mesh.dispose()
-      this.remove(this.mesh)
+      this.object.current?.remove(this.mesh)
     }
     resizeSortedBucketsSpace(this.buckets, oldBufferSize, this.bufferElementSize)
     const matrixArray = new Float32Array(this.bufferElementSize * 16)
@@ -150,6 +234,10 @@ export class InstancedPanelGroup extends Group {
       dataArray.set(this.instanceData.array.subarray(0, dataArray.length))
     }
     this.instanceData = new InstancedBufferAttribute(dataArray, 16, false)
+    this.instanceDataOnUpdate = (start, count) => {
+      this.instanceData.addUpdateRange(start, count)
+      this.instanceData.needsUpdate = true
+    }
     this.instanceData.setUsage(DynamicDrawUsage)
     const clippingArray = new Float32Array(this.bufferElementSize * 16)
     if (this.instanceClipping != null) {
@@ -158,11 +246,11 @@ export class InstancedPanelGroup extends Group {
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
-    setupRenderOrder(this.mesh, this.cameraDistance, this.orderInfo)
-    this.mesh.material = this.material
+    setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
+    this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.meshReceiveShadow
     this.mesh.castShadow = this.meshCastShadow
-    this.add(this.mesh)
+    this.object.current?.add(this.mesh)
   }
 
   destroy(): void {}

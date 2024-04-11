@@ -1,5 +1,5 @@
 import { Container } from '@react-three/uikit'
-import { ComponentPropsWithoutRef, useMemo } from 'react'
+import React, { ComponentPropsWithoutRef, useMemo } from 'react'
 import { colors } from './theme'
 import { Signal, computed } from '@preact/signals-core'
 

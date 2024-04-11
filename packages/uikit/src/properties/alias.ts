@@ -1,35 +1,8 @@
-import { PropertyTransformation } from './utils.js'
-
 type Aliases = Readonly<Record<string, ReadonlyArray<string> | undefined>>
 
 export type WithAliases<T, A extends Record<string, ReadonlyArray<unknown>>> = T & {
-  [K in keyof A]?: A[K][number] extends keyof T ? T[A[K][number]] : never
+  [K in keyof A as A[K][number] extends keyof T ? K : never]?: A[K][number] extends keyof T ? T[A[K][number]] : never
 }
-
-function createAliasPropertyTransformation(aliases: Aliases): PropertyTransformation {
-  return (key, value, hasProperty, setProperty) => {
-    if (hasProperty(key)) {
-      setProperty(key, value)
-      return
-    }
-    const aliasList = aliases[key]
-    if (aliasList == null) {
-      return
-    }
-    const aliasListLength = aliasList.length
-    if (!hasProperty(aliasList[0])) {
-      //if one alias doesnt exist on the object, all aliases dont exist
-      return
-    }
-    //and also, if one alias exists on the object, all aliases exist
-    for (let i = 0; i < aliasListLength; i++) {
-      const alias = aliasList[i]
-      setProperty(alias, value)
-    }
-  }
-}
-
-export type AllAliases = typeof flexAliases & typeof panelAliases & typeof scrollbarAliases & typeof transformAliases
 
 export type WithAllAliases<T> = WithAliases<T, AllAliases>
 
@@ -38,8 +11,6 @@ const borderAliases = {
   borderX: ['borderLeft', 'borderRight'],
   borderY: ['borderTop', 'borderBottom'],
 } as const satisfies Aliases
-
-export const borderAliasPropertyTransformation = createAliasPropertyTransformation(borderAliases)
 
 const flexAliases = {
   ...borderAliases,
@@ -53,35 +24,79 @@ const flexAliases = {
   gap: ['gapRow', 'gapColumn'],
 } as const satisfies Aliases
 
-export const flexAliasPropertyTransformation = createAliasPropertyTransformation(flexAliases)
-
 const panelAliases = {
   borderRadius: ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomLeftRadius', 'borderBottomRightRadius'],
-  borderRadiusTop: ['borderTopLeftRadius', 'borderTopRightRadius'],
-  borderRadiusLeft: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
-  borderRadiusRight: ['borderTopRightRadius', 'borderBottomRightRadius'],
-  borderRadiusBottom: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
+  borderTopRadius: ['borderTopLeftRadius', 'borderTopRightRadius'],
+  borderLeftRadius: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
+  borderRightRadius: ['borderTopRightRadius', 'borderBottomRightRadius'],
+  borderBottomRadius: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
 } as const satisfies Aliases
-
-export const panelAliasPropertyTransformation = createAliasPropertyTransformation(panelAliases)
 
 const scrollbarAliases = {
   scrollbarBorderRadius: [
-    'borderTopLeftRadius',
-    'borderTopRightRadius',
-    'borderBottomLeftRadius',
-    'borderBottomRightRadius',
+    'scrollbarBorderTopLeftRadius',
+    'scrollbarBorderTopRightRadius',
+    'scrollbarBorderBottomLeftRadius',
+    'scrollbarBorderBottomRightRadius',
   ],
-  scrollbarBorderRadiusTop: ['borderTopLeftRadius', 'borderTopRightRadius'],
-  scrollbarBorderRadiusLeft: ['borderTopLeftRadius', 'borderBottomLeftRadius'],
-  scrollbarBorderRadiusRight: ['borderTopRightRadius', 'borderBottomRightRadius'],
-  scrollbarBorderRadiusBottom: ['borderBottomLeftRadius', 'borderBottomRightRadius'],
+  scrollbarBorderTopRadius: ['scrollbarBorderTopLeftRadius', 'scrollbarBorderTopRightRadius'],
+  scrollbarBorderLeftRadius: ['scrollbarBorderTopLeftRadius', 'scrollbarBorderBottomLeftRadius'],
+  scrollbarBorderRightRadius: ['scrollbarBorderTopRightRadius', 'scrollbarBorderBottomRightRadius'],
+  scrollbarBorderBottomRadius: ['scrollbarBorderBottomLeftRadius', 'scrollbarBorderBottomRightRadius'],
+  scrollbarBorder: ['scrollbarBorderBottom', 'scrollbarBorderTop', 'scrollbarBorderLeft', 'scrollbarBorderRight'],
+  scrollbarBorderX: ['scrollbarBorderLeft', 'scrollbarBorderRight'],
+  scrollbarBorderY: ['scrollbarBorderTop', 'scrollbarBorderBottom'],
 } as const satisfies Aliases
 
-export const scrollbarAliasPropertyTransformation = createAliasPropertyTransformation(scrollbarAliases)
+const caretAliases = {
+  caretBorderRadius: [
+    'caretBorderTopLeftRadius',
+    'caretBorderTopRightRadius',
+    'caretBorderBottomLeftRadius',
+    'caretBorderBottomRightRadius',
+  ],
+  caretBorderTopRadius: ['caretBorderTopLeftRadius', 'caretBorderTopRightRadius'],
+  caretBorderLeftRadius: ['caretBorderTopLeftRadius', 'caretBorderBottomLeftRadius'],
+  caretBorderRightRadius: ['caretBorderTopRightRadius', 'caretBorderBottomRightRadius'],
+  caretBorderBottomRadius: ['caretBorderBottomLeftRadius', 'caretBorderBottomRightRadius'],
+  caretBorder: ['caretBorderBottom', 'caretBorderTop', 'caretBorderLeft', 'caretBorderRight'],
+  caretBorderX: ['caretBorderLeft', 'caretBorderRight'],
+  caretBorderY: ['caretBorderTop', 'caretBorderBottom'],
+} as const satisfies Aliases
+
+const selectionAliases = {
+  selectionBorderRadius: [
+    'selectionBorderTopLeftRadius',
+    'selectionBorderTopRightRadius',
+    'selectionBorderBottomLeftRadius',
+    'selectionBorderBottomRightRadius',
+  ],
+  selectionBorderTopRadius: ['selectionBorderTopLeftRadius', 'selectionBorderTopRightRadius'],
+  selectionBorderLeftRadius: ['selectionBorderTopLeftRadius', 'selectionBorderBottomLeftRadius'],
+  selectionBorderRightRadius: ['selectionBorderTopRightRadius', 'selectionBorderBottomRightRadius'],
+  selectionBorderBottomRadius: ['selectionBorderBottomLeftRadius', 'selectionBorderBottomRightRadius'],
+  selectionBorder: ['selectionBorderBottom', 'selectionBorderTop', 'selectionBorderLeft', 'selectionBorderRight'],
+  selectionBorderX: ['selectionBorderLeft', 'selectionBorderRight'],
+  selectionBorderY: ['selectionBorderTop', 'selectionBorderBottom'],
+} as const satisfies Aliases
 
 const transformAliases = {
   transformScale: ['transformScaleX', 'transformScaleY', 'transformScaleZ'],
 } as const satisfies Aliases
 
-export const transformAliasPropertyTransformation = createAliasPropertyTransformation(transformAliases)
+export type AllAliases = typeof flexAliases &
+  typeof panelAliases &
+  typeof scrollbarAliases &
+  typeof transformAliases &
+  typeof caretAliases &
+  typeof selectionAliases
+
+export const allAliases: AllAliases = Object.assign(
+  {},
+  flexAliases,
+  panelAliases,
+  scrollbarAliases,
+  transformAliases,
+  caretAliases,
+  selectionAliases,
+)
