@@ -1,4 +1,10 @@
-import { unsubscribeSubscriptions, IconProperties, createIcon } from '@pmndrs/uikit/internals'
+import {
+  IconProperties,
+  Subscriptions,
+  createIcon,
+  initialize,
+  unsubscribeSubscriptions,
+} from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'
@@ -31,11 +37,16 @@ export const Icon: (
         propertySignals.default,
         outerRef,
       ),
-    [parent, properties.svgHeight, properties.svgWidth, properties.text, propertySignals],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
-  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>

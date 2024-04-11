@@ -46,7 +46,10 @@ export type OrderInfo = {
   instancedGroupDependencies?: Signal<Record<string, any>> | Record<string, any>
 }
 
-function compareOrderInfo(o1: OrderInfo, o2: OrderInfo): number {
+function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | undefined): number {
+  if (o1 == null || o2 == null) {
+    return 0
+  }
   let dif = o1.majorIndex - o2.majorIndex
   if (dif != 0) {
     return dif
@@ -68,14 +71,21 @@ export function computedOrderInfo(
   propertiesSignal: Signal<MergedProperties> | undefined,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
-  parentOrderInfoSignal: Signal<OrderInfo> | undefined,
-): Signal<OrderInfo> {
+  parentOrderInfoSignal: Signal<OrderInfo | undefined> | undefined,
+): Signal<OrderInfo | undefined> {
   const zIndexOffset =
     propertiesSignal == null
       ? undefined
       : computedProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
   return computed(() => {
-    const parentOrderInfo = parentOrderInfoSignal?.value
+    let parentOrderInfo: OrderInfo | undefined
+    if (parentOrderInfoSignal == null) {
+      parentOrderInfo = undefined
+    } else if (parentOrderInfoSignal.value == null) {
+      return undefined
+    } else {
+      parentOrderInfo = parentOrderInfoSignal.value
+    }
 
     const offset = zIndexOffset?.value
 
@@ -142,7 +152,7 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
 export function setupRenderOrder<T>(
   result: T,
   rootCameraDistance: WithCameraDistance,
-  orderInfo: { value: OrderInfo },
+  orderInfo: { value: OrderInfo | undefined },
 ): T {
   ;(result as any)[cameraDistanceKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo

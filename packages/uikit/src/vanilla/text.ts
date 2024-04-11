@@ -1,48 +1,54 @@
 import { Object3D } from 'three'
-import { AllOptionalProperties, Properties } from '../properties/default.js'
-import { Parent } from './index.js'
-import { bindHandlers } from './utils.js'
-import { Signal, batch, signal } from '@preact/signals-core'
+import { AllOptionalProperties } from '../properties/default.js'
+import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
+import { Signal, effect, signal } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
-import { unsubscribeSubscriptions } from '../internals.js'
+import { Subscriptions, initialize, unsubscribeSubscriptions } from '../internals.js'
 
 export class Text extends Object3D {
-  public readonly internals: ReturnType<typeof createText>
-
   private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<TextProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
+  private readonly parentContextSignal = createParentContextSignal()
+  private readonly unsubscribe: () => void
 
   constructor(
-    parent: Parent,
     text: string | Signal<string> | Array<string | Signal<string>> = '',
     properties?: TextProperties,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
+    this.matrixAutoUpdate = false
+    setupParentContextSignal(this.parentContextSignal, this)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
     this.textSignal = signal(text)
-    //setting up the threejs elements
-    this.matrixAutoUpdate = false
-    parent.add(this)
 
-    //setting up the text
-    this.internals = createText(
-      parent.internals,
-      this.textSignal,
-      parent.fontFamiliesSignal,
-      this.styleSignal,
-      this.propertiesSignal,
-      this.defaultPropertiesSignal,
-      { current: this },
-    )
+    this.unsubscribe = effect(() => {
+      const parentContext = this.parentContextSignal.value?.value
+      if (parentContext == null) {
+        return
+      }
+      const internals = createText(
+        parentContext,
+        this.textSignal,
+        parentContext.fontFamiliesSignal,
+        this.styleSignal,
+        this.propertiesSignal,
+        this.defaultPropertiesSignal,
+        { current: this },
+      )
 
-    //setup events
-    const { handlers, interactionPanel, subscriptions } = this.internals
-    this.add(interactionPanel)
-    bindHandlers(handlers, this, subscriptions)
+      super.add(internals.interactionPanel)
+      const subscriptions: Subscriptions = []
+      initialize(internals.initializers, subscriptions)
+      bindHandlers(internals.handlers, this, subscriptions)
+      return () => {
+        this.remove(internals.interactionPanel)
+        unsubscribeSubscriptions(subscriptions)
+      }
+    })
   }
 
   setText(text: string | Signal<string> | Array<string | Signal<string>>) {
@@ -63,6 +69,6 @@ export class Text extends Object3D {
 
   destroy() {
     this.parent?.remove(this)
-    unsubscribeSubscriptions(this.internals.subscriptions)
+    this.unsubscribe()
   }
 }

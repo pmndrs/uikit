@@ -1,7 +1,7 @@
 import { Signal, computed, effect } from '@preact/signals-core'
-import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
-import { FlexNode } from './flex/node.js'
-import { Subscriptions, alignmentXMap, alignmentYMap } from './utils.js'
+import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
+import { FlexNode, FlexNodeState } from './flex/node.js'
+import { Initializers, Subscriptions, alignmentXMap, alignmentYMap } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
 import { Object3DRef } from './context.js'
 import { computedProperty } from './internals.js'
@@ -40,8 +40,8 @@ const defaultTransformOriginY: keyof typeof alignmentYMap = 'center'
 
 export function computedTransformMatrix(
   propertiesSignal: Signal<MergedProperties>,
-  node: FlexNode,
-  pixelSize: number,
+  { relativeCenter, size }: FlexNodeState,
+  pixelSizeSignal: Signal<number>,
 ): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
   //B = bound transformation matrix
@@ -61,14 +61,20 @@ export function computedTransformMatrix(
   const tOY = computedProperty(propertiesSignal, 'transformOriginY', defaultTransformOriginY)
 
   return computed(() => {
-    const { relativeCenter } = node
+    if (relativeCenter.value == null) {
+      return undefined
+    }
     const [x, y] = relativeCenter.value
+    const pixelSize = pixelSizeSignal.value
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
     let originCenter = true
 
     if (tOX.value != 'center' || tOY.value != 'center') {
-      const [width, height] = node.size.value
+      if (size.value == null) {
+        return undefined
+      }
+      const [width, height] = size.value
       originCenter = false
       originVector.set(-alignmentXMap[tOX.value] * width * pixelSize, -alignmentYMap[tOY.value] * height * pixelSize, 0)
       result.multiply(matrixHelper.makeTranslation(originVector))
@@ -95,9 +101,9 @@ export function computedTransformMatrix(
 export function applyTransform(
   object: Object3DRef,
   transformMatrix: Signal<Matrix4 | undefined>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       if (transformMatrix.value == null) {
         object.current?.matrix.elements.fill(0)

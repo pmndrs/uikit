@@ -62,7 +62,7 @@ export function createPanelMaterialConfig(
       data: TypedArray,
       offset: number,
       value: unknown,
-      size: Signal<Vector2Tuple>,
+      size: Signal<Vector2Tuple | undefined>,
       onUpdate: ((start: number, count: number) => void) | undefined,
     ) => void
   } = {}
@@ -85,11 +85,14 @@ export function createPanelMaterialConfig(
     setters,
     computedIsVisibile: (
       propertiesSignal: Signal<MergedProperties>,
-      borderInset: Signal<Inset>,
-      size: Signal<Vector2Tuple>,
+      borderInset: Signal<Inset | undefined>,
+      size: Signal<Vector2Tuple | undefined>,
       isHidden: Signal<boolean> | undefined,
     ) => {
       return computed(() => {
+        if (borderInset.value == null || size.value == null) {
+          return true
+        }
         const borderOpacity =
           keys.borderOpacity == null
             ? defaults.borderOpacity
@@ -128,10 +131,11 @@ const materialSetters = {
   backgroundColor: (d, o, p: ColorRepresentation, _, u) => writeColor(d, o + 4, p, u),
 
   //7 = border radiuses
-  borderBottomLeftRadius: (d, o, p: number, { value: [, h] }, u) => writeBorderRadius(d, o + 7, 0, p, h, u),
-  borderBottomRightRadius: (d, o, p: number, { value: [, h] }, u) => writeBorderRadius(d, o + 7, 1, p, h, u),
-  borderTopRightRadius: (d, o, p: number, { value: [, h] }, u) => writeBorderRadius(d, o + 7, 2, p, h, u),
-  borderTopLeftRadius: (d, o, p: number, { value: [, h] }, u) => writeBorderRadius(d, o + 7, 3, p, h, u),
+  borderBottomLeftRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 0, p, s[1], u),
+  borderBottomRightRadius: (d, o, p: number, { value: s }, u) =>
+    s != null && writeBorderRadius(d, o + 7, 1, p, s[1], u),
+  borderTopRightRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 2, p, s[1], u),
+  borderTopLeftRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 3, p, s[1], u),
 
   //8 - 10 = border color
   borderColor: (d, o, p: number, _, u) => writeColor(d, o + 8, p, u),
@@ -150,7 +154,7 @@ const materialSetters = {
     data: TypedArray,
     offset: number,
     value: any,
-    size: Signal<Vector2Tuple>,
+    size: Signal<Vector2Tuple | undefined>,
     onUpdate: ((start: number, count: number) => void) | undefined,
   ) => void
 }

@@ -1,10 +1,10 @@
 import { Signal, computed } from '@preact/signals-core'
 import { Group, Matrix4, Plane, Vector3 } from 'three'
 import type { Vector2Tuple } from 'three'
-import { Inset } from './flex/node.js'
+import { FlexNodeState, Inset } from './flex/node.js'
 import { Overflow } from 'yoga-layout'
 import { Object3DRef, RootContext } from './context.js'
-import { Subscriptions } from './utils.js'
+import { Initializers, Subscriptions } from './utils.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -98,16 +98,20 @@ const multiplier = [
 export function computedIsClipped(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   globalMatrix: Signal<Matrix4 | undefined>,
-  size: Signal<Vector2Tuple>,
-  pixelSize: number,
+  size: Signal<Vector2Tuple | undefined>,
+  pixelSizeSignal: Signal<number>,
 ): Signal<boolean> {
   return computed(() => {
+    if (size.value == null) {
+      return true
+    }
     const global = globalMatrix.value
     const rect = parentClippingRect?.value
     if (rect == null || global == null) {
       return false
     }
     const [width, height] = size.value
+    const pixelSize = pixelSizeSignal.value
     for (let i = 0; i < 4; i++) {
       const [mx, my] = multiplier[i]
       helperPoints[i].set(mx * pixelSize * width, my * pixelSize * height, 0).applyMatrix4(global)
@@ -135,10 +139,8 @@ export function computedIsClipped(
 
 export function computedClippingRect(
   globalMatrix: Signal<Matrix4 | undefined>,
-  size: Signal<Vector2Tuple>,
-  borderInset: Signal<Inset>,
-  overflow: Signal<Overflow>,
-  pixelSize: number,
+  { overflow, borderInset, size }: FlexNodeState,
+  pixelSizeSignal: Signal<number>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Signal<ClippingRect | undefined> {
   return computed(() => {
@@ -146,8 +148,12 @@ export function computedClippingRect(
     if (global == null || overflow.value === Overflow.Visible) {
       return parentClippingRect?.value
     }
+    if (size.value == null || borderInset.value == null) {
+      return undefined
+    }
     const [width, height] = size.value
     const [top, right, bottom, left] = borderInset.value
+    const pixelSize = pixelSizeSignal.value
     const rect = new ClippingRect(
       global,
       ((right - left) * pixelSize) / 2,
@@ -169,10 +175,14 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
+export function createClippingPlanes() {
+  return
+}
+
 export function createGlobalClippingPlanes(
   root: RootContext,
   clippingRect: Signal<ClippingRect | undefined>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   const planes = [new Plane(), new Plane(), new Plane(), new Plane()]
   const updateClippingPlanes = () => {
@@ -190,7 +200,9 @@ export function createGlobalClippingPlanes(
       planes[i].copy(localPlanes[i]).applyMatrix4(root.object.current.matrixWorld)
     }
   }
-  root.onFrameSet.add(updateClippingPlanes)
-  subscriptions.push(() => root.onFrameSet.delete(updateClippingPlanes))
+  initializers.push(() => {
+    root.onFrameSet.add(updateClippingPlanes)
+    return () => root.onFrameSet.delete(updateClippingPlanes)
+  })
   return planes
 }

@@ -1,4 +1,4 @@
-import { YogaProperties } from '../flex/node.js'
+import { YogaProperties, createFlexNodeState } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
@@ -17,7 +17,7 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Subscriptions } from '../utils.js'
+import { Initializers, Subscriptions } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { ShadowProperties, darkPropertyTransformers, makeClippedRaycast } from '../internals.js'
@@ -46,37 +46,54 @@ export function createCustomContainer(
   properties: Signal<CustomContainerProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
+  meshRef: { current?: Mesh | null },
 ) {
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const subscriptions = [] as Subscriptions
+  const initializers: Initializers = []
 
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  setupCursorCleanup(hoveredSignal, initializers)
 
   //properties
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.node.size),
+    ...createResponsivePropertyTransformers(parentContext.root.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   })
 
   //create node
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  createNode(undefined, flexState, parentContext, mergedProperties, object, initializers)
 
   //transform
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
 
   //instanced panel
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentContext.orderInfo)
+  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
 
-  const setupMesh = (mesh: Mesh, subscriptions: Subscriptions) => {
+  initializers.push((subscriptions) => {
+    const mesh = meshRef.current
+    if (mesh == null) {
+      return subscriptions
+    }
     mesh.matrixAutoUpdate = false
+    if (mesh.material instanceof Material) {
+      mesh.material.clippingPlanes = clippingPlanes
+      mesh.material.needsUpdate = true
+      mesh.material.shadowSide = FrontSide
+    }
     mesh.raycast = makeClippedRaycast(
       mesh,
       mesh.raycast,
@@ -89,31 +106,25 @@ export function createCustomContainer(
       effect(() => (mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false))),
       effect(() => (mesh.castShadow = mergedProperties.value.read('castShadow', false))),
       effect(() => {
-        const [width, height] = node.size.value
-        const pixelSize = parentContext.root.pixelSize
+        if (flexState.size.value == null) {
+          return
+        }
+        const [width, height] = flexState.size.value
+        const pixelSize = parentContext.root.pixelSize.value
         mesh.scale.set(width * pixelSize, height * pixelSize, 1)
         mesh.updateMatrix()
       }),
       effect(() => void (mesh.visible = !isClipped.value)),
     )
-  }
+    return subscriptions
+  })
 
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, subscriptions)
-  const setupMaterial = (material: Material) => {
-    material.clippingPlanes = clippingPlanes
-    material.needsUpdate = true
-    material.shadowSide = FrontSide
-  }
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
-
-  return {
+  return Object.assign(flexState, {
     root: parentContext.root,
-    setupMesh,
-    setupMaterial,
-    node,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
-    subscriptions,
-  }
+    initializers,
+  })
 }

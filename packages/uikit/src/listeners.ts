@@ -1,6 +1,6 @@
 import { Signal, effect } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
-import { Subscriptions } from './utils.js'
+import { Initializers, Subscriptions } from './utils.js'
 import { ThreeEvent } from './events.js'
 
 export type Listeners = ScrollListeners & LayoutListeners & ViewportListeners
@@ -17,7 +17,7 @@ export type ScrollListeners = {
   onScroll?: (
     scrollX: number,
     scrollY: number,
-    scrollPosition: Signal<Vector2Tuple>,
+    scrollPosition: Signal<Vector2Tuple | undefined>,
     event?: ThreeEvent<WheelEvent | PointerEvent>,
   ) => boolean | void
 }
@@ -33,13 +33,16 @@ export type ViewportListeners = {
 export function setupLayoutListeners(
   l1: Signal<LayoutListeners | undefined>,
   l2: Signal<LayoutListeners | undefined>,
-  size: Signal<Vector2Tuple>,
-  subscriptions: Subscriptions,
+  size: Signal<Vector2Tuple | undefined>,
+  initializers: Initializers,
 ) {
   let first = true
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       const s = size.value
+      if (s == null) {
+        return
+      }
       if (first) {
         first = false
         return
@@ -54,10 +57,10 @@ export function setupViewportListeners(
   l1: Signal<ViewportListeners | undefined>,
   l2: Signal<ViewportListeners | undefined>,
   isClipped: Signal<boolean>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   let first = true
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       const isInViewport = !isClipped.value
       if (first) {

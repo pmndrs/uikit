@@ -61,11 +61,11 @@ export function makeClippedRaycast(
   fn: Mesh['raycast'],
   rootObject: Object3DRef,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo>,
+  orderInfo: Signal<OrderInfo | undefined>,
 ): Mesh['raycast'] {
   return (raycaster: Raycaster, intersects: Intersection<Object3D<Object3DEventMap>>[]) => {
     const obj = rootObject instanceof Object3D ? rootObject : rootObject.current
-    if (obj == null) {
+    if (obj == null || orderInfo.value == null) {
       return
     }
     const { majorIndex, minorIndex, elementType } = orderInfo.value

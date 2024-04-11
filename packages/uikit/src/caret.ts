@@ -5,6 +5,7 @@ import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import {
   ColorRepresentation,
+  Initializers,
   MergedProperties,
   PanelGroupManager,
   PanelMaterialConfig,
@@ -66,14 +67,14 @@ export function createCaret(
   matrix: Signal<Matrix4 | undefined>,
   caretPosition: Signal<Vector3Tuple | undefined>,
   isHidden: Signal<boolean> | undefined,
-  parentOrderInfo: Signal<OrderInfo>,
+  parentOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, parentOrderInfo)
   const blinkingCaretPosition = signal<Vector3Tuple | undefined>(undefined)
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       const pos = caretPosition.value
       if (pos == null) {
@@ -89,30 +90,32 @@ export function createCaret(
   )
   const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
   const caretWidth = computedProperty(propertiesSignal, 'caretWidth', 1.5)
-  createInstancedPanel(
-    propertiesSignal,
-    orderInfo,
-    undefined,
-    panelGroupManager,
-    matrix,
-    computed(() => {
-      const size = blinkingCaretPosition.value
-      if (size == null) {
-        return [0, 0]
-      }
-      return [caretWidth.value, size[2]]
-    }),
-    computed(() => {
-      const position = blinkingCaretPosition.value
-      if (position == null) {
-        return [0, 0]
-      }
-      return [position[0] - caretWidth.value / 2, position[1]]
-    }),
-    borderInset,
-    parentClippingRect,
-    isHidden,
-    getCaretMaterialConfig(),
-    subscriptions,
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      propertiesSignal,
+      orderInfo,
+      undefined,
+      panelGroupManager,
+      matrix,
+      computed(() => {
+        const size = blinkingCaretPosition.value
+        if (size == null) {
+          return [0, 0]
+        }
+        return [caretWidth.value, size[2]]
+      }),
+      computed(() => {
+        const position = blinkingCaretPosition.value
+        if (position == null) {
+          return [0, 0]
+        }
+        return [position[0] - caretWidth.value / 2, position[1]]
+      }),
+      borderInset,
+      parentClippingRect,
+      isHidden,
+      getCaretMaterialConfig(),
+      subscriptions,
+    ),
   )
 }

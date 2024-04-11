@@ -1,47 +1,48 @@
-import { Object3D } from 'three'
 import { ContainerProperties, createContainer } from '../components/container.js'
-import { AllOptionalProperties, Properties } from '../properties/default.js'
-import { Parent } from './index.js'
-import { Signal, batch, signal } from '@preact/signals-core'
-import { unsubscribeSubscriptions } from '../utils.js'
-import { FontFamilies } from '../internals.js'
-import { EventMap, bindHandlers } from './utils.js'
+import { AllOptionalProperties } from '../properties/default.js'
+import { Signal, effect, signal } from '@preact/signals-core'
+import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
+import { Parent, createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
 
-export class Container extends Object3D<EventMap> {
-  private childrenContainer: Object3D
-  public readonly internals: ReturnType<typeof createContainer>
-  public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
-
+export class Container extends Parent {
   private readonly styleSignal: Signal<ContainerProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ContainerProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
+  private readonly parentContextSignal = createParentContextSignal()
+  private readonly unsubscribe: () => void
 
-  constructor(parent: Parent, properties?: ContainerProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(properties?: ContainerProperties, defaultProperties?: AllOptionalProperties) {
     super()
-    this.fontFamiliesSignal = parent.fontFamiliesSignal
+    this.matrixAutoUpdate = false
+    setupParentContextSignal(this.parentContextSignal, this)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    //setting up the threejs elements
-    this.childrenContainer = new Object3D()
-    this.childrenContainer.matrixAutoUpdate = false
-    this.add(this.childrenContainer)
-    this.matrixAutoUpdate = false
-    parent.add(this)
+    this.unsubscribe = effect(() => {
+      const parentContext = this.parentContextSignal.value?.value
+      if (parentContext == null) {
+        this.contextSignal.value = undefined
+        return
+      }
+      const internals = createContainer(
+        parentContext,
+        this.styleSignal,
+        this.propertiesSignal,
+        this.defaultPropertiesSignal,
+        { current: this },
+        { current: this.childrenContainer },
+      )
+      this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
 
-    //setting up the container
-    this.internals = createContainer(
-      parent.internals,
-      this.styleSignal,
-      this.propertiesSignal,
-      this.defaultPropertiesSignal,
-      { current: this },
-      { current: this.childrenContainer },
-    )
-
-    //setup events
-    const { handlers, interactionPanel, subscriptions } = this.internals
-    this.add(interactionPanel)
-    bindHandlers(handlers, this, subscriptions)
+      //setup events
+      const subscriptions: Subscriptions = []
+      super.add(internals.interactionPanel)
+      initialize(internals.initializers, subscriptions)
+      bindHandlers(internals.handlers, this, subscriptions)
+      return () => {
+        this.remove(internals.interactionPanel)
+        unsubscribeSubscriptions(subscriptions)
+      }
+    })
   }
 
   setStyle(style: ContainerProperties | undefined) {
@@ -58,6 +59,6 @@ export class Container extends Object3D<EventMap> {
 
   destroy() {
     this.parent?.remove(this)
-    unsubscribeSubscriptions(this.internals.subscriptions)
+    this.unsubscribe()
   }
 }

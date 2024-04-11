@@ -10,9 +10,9 @@ import {
   Vector2Tuple,
 } from 'three'
 import { Listeners } from '../index.js'
-import { Object3DRef, ParentContext } from '../context.js'
-import { Inset, YogaProperties } from '../flex/index.js'
-import { ElementType, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
+import { Object3DRef, ParentContext, RootContext } from '../context.js'
+import { FlexNode, FlexNodeState, Inset, YogaProperties, createFlexNodeState } from '../flex/index.js'
+import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from '../panel/panel-material.js'
 import { WithAllAliases } from '../properties/alias.js'
@@ -23,7 +23,7 @@ import {
   computedGlobalScrollMatrix,
   createScrollPosition,
   createScrollbars,
-  setupScrollHandler,
+  computedScrollHandlers,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
@@ -36,7 +36,7 @@ import {
   loadResourceWithParams,
 } from './utils.js'
 import { MergedProperties } from '../properties/merged.js'
-import { Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils.js'
+import { Initializers, Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { panelGeometry } from '../panel/utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
@@ -94,14 +94,14 @@ export function createImage(
   object: Object3DRef,
   childrenContainer: Object3DRef,
 ) {
-  const subscriptions: Subscriptions = []
+  const initializers: Initializers = []
   const texture = signal<Texture | undefined>(undefined)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  setupCursorCleanup(hoveredSignal, initializers)
 
   const src = computed(() => readReactive(srcSignal.value))
-  loadResourceWithParams(texture, loadTextureImpl, subscriptions, src)
+  loadResourceWithParams(texture, loadTextureImpl, initializers, src)
 
   const textureAspectRatio = computed(() => {
     const tex = texture.value
@@ -118,7 +118,7 @@ export function createImage(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createResponsivePropertyTransformers(parentContext.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -126,51 +126,68 @@ export function createImage(
     (m) => m.add('aspectRatio', textureAspectRatio),
   )
 
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  const node = signal<FlexNode | undefined>(undefined)
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  createNode(node, flexState, parentContext, mergedProperties, object, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
   const isHidden = computed(() => isClipped.value || texture.value == null)
 
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
   const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
-    node,
+    flexState,
     globalMatrix,
     isClipped,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
-    subscriptions,
+    initializers,
   )
-  const scrollHandlers = setupScrollHandler(
-    node,
+  const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    flexState,
     object,
     properties,
     parentContext.root.pixelSize,
     parentContext.root.onFrameSet,
-    subscriptions,
+    initializers,
   )
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
-  const ctx: ParentContext = {
+  return Object.assign(flexState, {
+    initializers,
+    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    interactionPanel: createImageMesh(
+      mergedProperties,
+      texture,
+      parentContext,
+      flexState,
+      orderInfo,
+      parentContext.root,
+      isHidden,
+      initializers,
+    ),
     clippingRect: computedClippingRect(
       globalMatrix,
-      node.size,
-      node.borderInset,
-      node.overflow,
+      flexState,
       parentContext.root.pixelSize,
       parentContext.clippingRect,
     ),
@@ -178,11 +195,6 @@ export function createImage(
     node,
     orderInfo,
     root: parentContext.root,
-  }
-  return Object.assign(ctx, {
-    subscriptions,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
-    interactionPanel: createImageMesh(mergedProperties, texture, parentContext, ctx, isHidden, subscriptions),
   })
 }
 
@@ -210,40 +222,57 @@ function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   texture: Signal<Texture | undefined>,
   parent: ParentContext,
-  { node, orderInfo, root }: ParentContext,
+  flexState: FlexNodeState,
+  orderInfo: Signal<OrderInfo | undefined>,
+  root: RootContext,
   isHidden: Signal<boolean>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
-  const clippingPlanes = createGlobalClippingPlanes(root, parent.clippingRect, subscriptions)
-  const isVisible = getImageMaterialConfig().computedIsVisibile(propertiesSignal, node.borderInset, node.size, isHidden)
-  setupImageMaterials(propertiesSignal, mesh, node.size, node.borderInset, isVisible, clippingPlanes, subscriptions)
+  const clippingPlanes = createGlobalClippingPlanes(root, parent.clippingRect, initializers)
+  const isVisible = getImageMaterialConfig().computedIsVisibile(
+    propertiesSignal,
+    flexState.borderInset,
+    flexState.size,
+    isHidden,
+  )
+  setupImageMaterials(
+    propertiesSignal,
+    mesh,
+    flexState.size,
+    flexState.borderInset,
+    isVisible,
+    clippingPlanes,
+    initializers,
+  )
   mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parent.clippingRect, orderInfo)
   setupRenderOrder(mesh, root, orderInfo)
 
-  setupTextureFit(propertiesSignal, texture, node.borderInset, node.size, subscriptions)
+  setupTextureFit(propertiesSignal, texture, flexState.borderInset, flexState.size, initializers)
 
-  subscriptions.push(() => effect(() => (mesh.visible = isVisible.value)))
+  initializers.push(() => effect(() => (mesh.visible = isVisible.value)))
 
-  subscriptions.push(
-    effect(() => {
-      const map = texture.value ?? null
-      if (mesh.material.map === map) {
-        return
-      }
-      mesh.material.map = map
-      mesh.material.needsUpdate = true
-    }),
-  )
-
-  subscriptions.push(
-    effect(() => {
-      const [width, height] = node.size.value
-      const pixelSize = parent.root.pixelSize
-      mesh.scale.set(width * pixelSize, height * pixelSize, 1)
-      mesh.updateMatrix()
-    }),
+  initializers.push(
+    () =>
+      effect(() => {
+        const map = texture.value ?? null
+        if (mesh.material.map === map) {
+          return
+        }
+        mesh.material.map = map
+        mesh.material.needsUpdate = true
+      }),
+    () =>
+      effect(() => {
+        if (flexState.size.value == null) {
+          return
+        }
+        const [width, height] = flexState.size.value
+        const pixelSize = parent.root.pixelSize.value
+        mesh.scale.set(width * pixelSize, height * pixelSize, 1)
+        mesh.updateMatrix()
+      }),
   )
   return mesh
 }
@@ -251,15 +280,15 @@ function createImageMesh(
 function setupTextureFit(
   propertiesSignal: Signal<MergedProperties>,
   textureSignal: Signal<Texture | undefined>,
-  borderInset: Signal<Inset>,
-  size: Signal<Vector2Tuple>,
-  subscriptions: Subscriptions,
+  borderInset: Signal<Inset | undefined>,
+  size: Signal<Vector2Tuple | undefined>,
+  initializers: Initializers,
 ): void {
   const fit = computedProperty(propertiesSignal, 'fit', defaultImageFit)
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       const texture = textureSignal.value
-      if (texture == null) {
+      if (texture == null || size.value == null || borderInset.value == null) {
         return
       }
       texture.matrix.identity()
@@ -290,7 +319,15 @@ function setupTextureFit(
   )
 }
 
-function transformInsideBorder(borderInset: Signal<Inset>, size: Signal<Vector2Tuple>, texture: Texture): void {
+function transformInsideBorder(
+  borderInset: Signal<Inset | undefined>,
+  size: Signal<Vector2Tuple | undefined>,
+  texture: Texture,
+): void {
+  if (size.value == null || borderInset.value == null) {
+    return
+  }
+
   const [outerWidth, outerHeight] = size.value
   const [top, right, bottom, left] = borderInset.value
 
@@ -325,11 +362,11 @@ async function loadTextureImpl(src?: string | Texture) {
 function setupImageMaterials(
   propertiesSignal: Signal<MergedProperties>,
   target: Mesh,
-  size: Signal<Vector2Tuple>,
-  borderInset: Signal<Inset>,
+  size: Signal<Vector2Tuple | undefined>,
+  borderInset: Signal<Inset | undefined>,
   isVisible: Signal<boolean>,
   clippingPlanes: Array<Plane>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   const data = new Float32Array(16)
   const info = { data: data, type: 'normal' } as const
@@ -339,18 +376,19 @@ function setupImageMaterials(
   target.customDistanceMaterial.clippingPlanes = clippingPlanes
 
   const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
-  subscriptions.push(
-    effect(() => {
-      target.material = createPanelMaterial(panelMaterialClass.value, info)
-      target.material.clippingPlanes = clippingPlanes
-    }),
-    effect(() => (target.castShadow = propertiesSignal.value.read('castShadow', false))),
-    effect(() => (target.receiveShadow = propertiesSignal.value.read('receiveShadow', false))),
+  initializers.push(
+    () =>
+      effect(() => {
+        target.material = createPanelMaterial(panelMaterialClass.value, info)
+        target.material.clippingPlanes = clippingPlanes
+      }),
+    () => effect(() => (target.castShadow = propertiesSignal.value.read('castShadow', false))),
+    () => effect(() => (target.receiveShadow = propertiesSignal.value.read('receiveShadow', false))),
   )
 
   const imageMaterialConfig = getImageMaterialConfig()
   const internalSubscriptions: Array<() => void> = []
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       if (!isVisible.value) {
         return
@@ -359,18 +397,21 @@ function setupImageMaterials(
       data.set(imageMaterialConfig.defaultData)
 
       internalSubscriptions.push(
-        effect(() => data.set(size.value, 13)),
-        effect(() => data.set(borderInset.value, 0)),
+        effect(() => size.value != null && data.set(size.value, 13)),
+        effect(() => borderInset.value != null && data.set(borderInset.value, 0)),
       )
       return () => unsubscribeSubscriptions(internalSubscriptions)
     }),
   )
   const setters = imageMaterialConfig.setters
-  setupImmediateProperties(
-    propertiesSignal,
-    isVisible,
-    imageMaterialConfig.hasProperty,
-    (key, value) => setters[key](data, 0, value as any, size, undefined),
-    subscriptions,
-  )
+  initializers.push((subscriptions) => {
+    setupImmediateProperties(
+      propertiesSignal,
+      isVisible,
+      imageMaterialConfig.hasProperty,
+      (key, value) => setters[key](data, 0, value as any, size, undefined),
+      subscriptions,
+    )
+    return subscriptions
+  })
 }

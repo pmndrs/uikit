@@ -1,8 +1,8 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Box3, Color, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
+import { Box3, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
 import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import { FlexNode, YogaProperties } from '../flex/index.js'
+import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import { WithAllAliases } from '../properties/alias.js'
@@ -13,7 +13,7 @@ import {
   computedGlobalScrollMatrix,
   createScrollPosition,
   createScrollbars,
-  setupScrollHandler,
+  computedScrollHandlers,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
@@ -26,8 +26,7 @@ import {
   keepAspectRatioPropertyTransformer,
   loadResourceWithParams,
 } from './utils.js'
-import { MergedProperties } from '../properties/merged.js'
-import { ColorRepresentation, Subscriptions, fitNormalizedContentInside, readReactive } from '../utils.js'
+import { ColorRepresentation, Initializers, fitNormalizedContentInside, readReactive } from '../utils.js'
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
@@ -77,10 +76,10 @@ export function createSvg(
   object: Object3DRef,
   childrenContainer: Object3DRef,
 ) {
-  const subscriptions: Subscriptions = []
+  const initializers: Initializers = []
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  setupCursorCleanup(hoveredSignal, initializers)
 
   const aspectRatio = signal<number | undefined>(undefined)
 
@@ -90,7 +89,7 @@ export function createSvg(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createResponsivePropertyTransformers(parentContext.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -98,41 +97,50 @@ export function createSvg(
     (m) => m.add('aspectRatio', aspectRatio),
   )
 
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  const node = signal<FlexNode | undefined>(undefined)
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  createNode(node, flexState, parentContext, mergedProperties, object, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
-  createInstancedPanel(
-    mergedProperties,
-    backgroundOrderInfo,
-    groupDeps,
-    parentContext.root.panelGroupManager,
-    globalMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    parentContext.clippingRect,
-    isClipped,
-    getDefaultPanelMaterialConfig(),
-    subscriptions,
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      mergedProperties,
+      backgroundOrderInfo,
+      groupDeps,
+      parentContext.root.panelGroupManager,
+      globalMatrix,
+      flexState.size,
+      undefined,
+      flexState.borderInset,
+      parentContext.clippingRect,
+      isClipped,
+      getDefaultPanelMaterialConfig(),
+      subscriptions,
+    ),
   )
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
   const src = computed(() => readReactive(srcSignal.value))
   const svgObject = signal<Object3D | undefined>(undefined)
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, subscriptions)
+  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
   loadResourceWithParams(
     svgObject,
     loadSvg,
-    subscriptions,
+    initializers,
     src,
     parentContext.root,
     clippingPlanes,
@@ -140,49 +148,47 @@ export function createSvg(
     orderInfo,
     aspectRatio,
   )
-  applyAppearancePropertiesToGroup(mergedProperties, svgObject, subscriptions)
+  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers)
   const centerGroup = createCenterGroup(
-    node,
+    flexState,
     parentContext.root.pixelSize,
     svgObject,
     aspectRatio,
     isClipped,
-    subscriptions,
+    initializers,
   )
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
   const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
-    node,
+    flexState,
     globalMatrix,
     isClipped,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
-    subscriptions,
+    initializers,
   )
-  const scrollHandlers = setupScrollHandler(
-    node,
+  const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    flexState,
     object,
     properties,
     parentContext.root.pixelSize,
     parentContext.root.onFrameSet,
-    subscriptions,
+    initializers,
   )
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
-  return {
+  return Object.assign(flexState, {
     clippingRect: computedClippingRect(
       globalMatrix,
-      node.size,
-      node.borderInset,
-      node.overflow,
+      flexState,
       parentContext.root.pixelSize,
       parentContext.clippingRect,
     ),
@@ -190,51 +196,53 @@ export function createSvg(
     node,
     orderInfo,
     root: parentContext.root,
-    subscriptions,
+    initializers,
     centerGroup,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     interactionPanel: createInteractionPanel(
-      node,
       orderInfo,
       parentContext.root,
       parentContext.clippingRect,
-      subscriptions,
+      flexState.size,
+      initializers,
     ),
-  }
+  })
 }
 
 function createCenterGroup(
-  node: FlexNode,
-  pixelSize: number,
+  flexState: FlexNodeState,
+  pixelSize: Signal<number>,
   svgObject: Signal<Object3D | undefined>,
   aspectRatio: Signal<number | undefined>,
   isClipped: Signal<boolean>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ): Group {
   const centerGroup = new Group()
   centerGroup.matrixAutoUpdate = false
-  subscriptions.push(
-    effect(() => {
-      const [offsetX, offsetY, scale] = fitNormalizedContentInside(
-        node.size,
-        node.paddingInset,
-        node.borderInset,
-        pixelSize,
-        aspectRatio.value ?? 1,
-      )
-      centerGroup.position.set(offsetX, offsetY, 0)
-      centerGroup.scale.setScalar(scale)
-      centerGroup.updateMatrix()
-    }),
-    effect(() => {
-      const object = svgObject.value
-      if (object == null) {
-        return
-      }
-      centerGroup.add(object)
-      return () => centerGroup.remove(object)
-    }),
-    effect(() => void (centerGroup.visible = svgObject.value != null && !isClipped.value)),
+  initializers.push(
+    () =>
+      effect(() => {
+        fitNormalizedContentInside(
+          centerGroup.position,
+          centerGroup.scale,
+          flexState.size,
+          flexState.paddingInset,
+          flexState.borderInset,
+          pixelSize.value,
+          aspectRatio.value ?? 1,
+        )
+        centerGroup.updateMatrix()
+      }),
+    () =>
+      effect(() => {
+        const object = svgObject.value
+        if (object == null) {
+          return
+        }
+        centerGroup.add(object)
+        return () => centerGroup.remove(object)
+      }),
+    () => effect(() => void (centerGroup.visible = svgObject.value != null && !isClipped.value)),
   )
   return centerGroup
 }
@@ -249,7 +257,7 @@ async function loadSvg(
   root: RootContext,
   clippingPlanes: Array<Plane>,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo>,
+  orderInfo: Signal<OrderInfo | undefined>,
   aspectRatio: Signal<number | undefined>,
 ) {
   const object = new Group()

@@ -1,7 +1,7 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray, WebGLRenderer } from 'three'
 import { MergedProperties } from '../properties/merged.js'
-import { Subscriptions } from '../utils.js'
+import { Initializers, Subscriptions } from '../utils.js'
 import { loadCachedFont } from './cache.js'
 import { computedProperty } from '../internals.js'
 
@@ -40,12 +40,12 @@ export function computedFont(
   properties: Signal<MergedProperties>,
   fontFamiliesSignal: Signal<FontFamilies | undefined> | undefined,
   renderer: WebGLRenderer,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
   const fontFamily = computedProperty<string | undefined>(properties, 'fontFamily', undefined)
   const fontWeight = computedProperty<FontWeight>(properties, 'fontWeight', 'normal')
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
       let resolvedFontFamily = fontFamily.value

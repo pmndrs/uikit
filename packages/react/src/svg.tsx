@@ -1,4 +1,4 @@
-import { unsubscribeSubscriptions, SvgProperties, createSvg } from '@pmndrs/uikit/internals'
+import { Subscriptions, SvgProperties, createSvg, initialize, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'
@@ -30,11 +30,16 @@ export const Svg: (
         outerRef,
         innerRef,
       ),
-    [parent, propertySignals, srcSignal],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
-  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>

@@ -21,39 +21,46 @@ function hasImmediateProperty(key: string): boolean {
   return key in setter
 }
 
-export class FlexNode {
-  public readonly relativeCenter = signal<Vector2Tuple>([0, 0])
-  public readonly borderInset = signal<Inset>([0, 0, 0, 0])
-  public readonly paddingInset = signal<Inset>([0, 0, 0, 0])
-  public readonly overflow = signal<Overflow>(Overflow.Visible)
-  public readonly maxScrollPosition = signal<Partial<Vector2Tuple>>([undefined, undefined])
-  public readonly scrollable = signal<[boolean, boolean]>([false, false])
+export type FlexNodeState = ReturnType<typeof createFlexNodeState>
 
+export function createFlexNodeState(anyAncestorScrollable: Signal<readonly [boolean, boolean]> | undefined) {
+  const scrollable = signal<[boolean, boolean]>([false, false])
+  return {
+    size: signal<Vector2Tuple | undefined>(undefined),
+    relativeCenter: signal<Vector2Tuple | undefined>(undefined),
+    borderInset: signal<Inset | undefined>(undefined),
+    overflow: signal<Overflow>(Overflow.Visible),
+    scrollable,
+    paddingInset: signal<Inset | undefined>(undefined),
+    maxScrollPosition: signal<Partial<Vector2Tuple>>([undefined, undefined]),
+    anyAncestorScrollable: computed(() => {
+      const [ancestorX, ancestorY] = anyAncestorScrollable?.value ?? [false, false]
+      const [x, y] = scrollable.value
+      return [ancestorX || x, ancestorY || y] as const
+    }),
+  }
+}
+
+export class FlexNode {
   private children: Array<FlexNode> = []
   private yogaNode: Node | undefined
-  private unsubscribeYoga?: () => void
 
   private layoutChangeListeners = new Set<() => void>()
-
-  public requestCalculateLayout: () => void
 
   private active = signal(false)
 
   constructor(
+    private state: FlexNodeState,
     propertiesSignal: Signal<MergedProperties>,
-    public readonly size = signal<Vector2Tuple>([0, 0]),
+    private readonly requestCalculateLayout: () => void,
     private object: Object3DRef,
-    requestCalculateLayout: (node: FlexNode) => void,
-    public readonly anyAncestorScrollable: Signal<[boolean, boolean]> | undefined,
     subscriptions: Subscriptions,
-    renameOutput?: Record<string, string>,
   ) {
-    this.requestCalculateLayout = () => requestCalculateLayout(this)
-    this.unsubscribeYoga = effect(() => {
-      this.unsubscribeYoga?.()
-      this.unsubscribeYoga = undefined
-      this.yogaNode = Yoga.Node.create(defaultYogaConfig)
-      this.active.value = true
+    this.yogaNode = Yoga.Node.create(defaultYogaConfig)
+    this.active.value = true
+    subscriptions.push(() => {
+      this.yogaNode?.getParent()?.removeChild(this.yogaNode)
+      this.yogaNode?.free()
     })
     setupImmediateProperties(
       propertiesSignal,
@@ -64,35 +71,27 @@ export class FlexNode {
         this.requestCalculateLayout()
       },
       subscriptions,
-      renameOutput,
     )
   }
 
   setMeasureFunc(func: Signal<MeasureFunction | undefined>) {
-    return effect(() => {
-      if (!this.active.value) {
-        return
+    if (!this.active.value) {
+      return
+    }
+    if (func.value == null) {
+      this.yogaNode!.setMeasureFunc(null)
+      return
+    }
+    const fn = func.value
+    this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
+      const result = fn(width, wMode, height, hMode)
+      return {
+        width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+        height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
       }
-      if (func.value == null) {
-        this.yogaNode!.setMeasureFunc(null)
-        return
-      }
-      const fn = func.value
-      this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
-        const result = fn(width, wMode, height, hMode)
-        return {
-          width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
-          height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
-        }
-      })
-      this.yogaNode!.markDirty()
-      this.requestCalculateLayout()
     })
-  }
-
-  destroy() {
-    this.unsubscribeYoga?.()
-    this.yogaNode?.free()
+    this.yogaNode!.markDirty()
+    this.requestCalculateLayout()
   }
 
   /**
@@ -102,38 +101,24 @@ export class FlexNode {
     if (this.yogaNode == null) {
       return
     }
+    console.log('calculate layout')
     this.commit()
     this.yogaNode.calculateLayout(undefined, undefined)
     batch(() => this.updateMeasurements(undefined, undefined))
   }
 
-  createChild(propertiesSignal: Signal<MergedProperties>, object: Object3DRef, subscriptions: Subscriptions): FlexNode {
-    const child = new FlexNode(
-      propertiesSignal,
-      undefined,
-      object,
-      this.requestCalculateLayout,
-      computed(() => {
-        const [ancestorX, ancestorY] = this.anyAncestorScrollable?.value ?? [false, false]
-        const [x, y] = this.scrollable.value
-        return [ancestorX || x, ancestorY || y]
-      }),
-      subscriptions,
-    )
-    return child
-  }
-
   addChild(node: FlexNode): void {
-    this.requestCalculateLayout()
     this.children.push(node)
+    this.requestCalculateLayout()
   }
 
   removeChild(node: FlexNode): void {
+    console.log('remove child')
     const i = this.children.indexOf(node)
     if (i === -1) {
+      console.log('not found')
       return
     }
-    node.yogaNode?.getParent()?.removeChild(node.yogaNode)
     this.children.splice(i, 1)
     this.requestCalculateLayout()
   }
@@ -210,11 +195,11 @@ export class FlexNode {
       throw new Error(`update measurements cannot be called without a yoga node`)
     }
 
-    this.overflow.value = this.yogaNode.getOverflow()
+    this.state.overflow.value = this.yogaNode.getOverflow()
 
     const width = this.yogaNode.getComputedWidth()
     const height = this.yogaNode.getComputedHeight()
-    updateVector2Signal(this.size, width, height)
+    updateVector2Signal(this.state.size, width, height)
 
     parentWidth ??= width
     parentHeight ??= height
@@ -224,19 +209,19 @@ export class FlexNode {
 
     const relativeCenterX = x + width * 0.5 - parentWidth * 0.5
     const relativeCenterY = -(y + height * 0.5 - parentHeight * 0.5)
-    updateVector2Signal(this.relativeCenter, relativeCenterX, relativeCenterY)
+    updateVector2Signal(this.state.relativeCenter, relativeCenterX, relativeCenterY)
 
     const paddingTop = this.yogaNode.getComputedPadding(Edge.Top)
     const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left)
     const paddingRight = this.yogaNode.getComputedPadding(Edge.Right)
     const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom)
-    updateInsetSignal(this.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
+    updateInsetSignal(this.state.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
 
     const borderTop = this.yogaNode.getComputedBorder(Edge.Top)
     const borderRight = this.yogaNode.getComputedBorder(Edge.Right)
     const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom)
     const borderLeft = this.yogaNode.getComputedBorder(Edge.Left)
-    updateInsetSignal(this.borderInset, borderTop, borderRight, borderBottom, borderLeft)
+    updateInsetSignal(this.state.borderInset, borderTop, borderRight, borderBottom, borderLeft)
 
     for (const layoutChangeListener of this.layoutChangeListeners) {
       layoutChangeListener()
@@ -254,7 +239,7 @@ export class FlexNode {
     maxContentWidth -= borderLeft
     maxContentHeight -= borderTop
 
-    if (this.overflow.value === Overflow.Scroll) {
+    if (this.state.overflow.value === Overflow.Scroll) {
       maxContentWidth += paddingRight
       maxContentHeight += paddingLeft
 
@@ -268,17 +253,17 @@ export class FlexNode {
       const yScrollable = maxScrollY > 0.5
 
       updateVector2Signal(
-        this.maxScrollPosition,
+        this.state.maxScrollPosition,
         xScrollable ? maxScrollX : undefined,
         yScrollable ? maxScrollY : undefined,
       )
-      updateVector2Signal(this.scrollable, xScrollable, yScrollable)
+      updateVector2Signal(this.state.scrollable, xScrollable, yScrollable)
     } else {
-      updateVector2Signal(this.maxScrollPosition, undefined, undefined)
-      updateVector2Signal(this.scrollable, false, false)
+      updateVector2Signal(this.state.maxScrollPosition, undefined, undefined)
+      updateVector2Signal(this.state.scrollable, false, false)
     }
 
-    const overflowVisible = this.overflow.value === Overflow.Visible
+    const overflowVisible = this.state.overflow.value === Overflow.Visible
 
     return [
       x + Math.max(width, overflowVisible ? maxContentWidth : 0),
@@ -292,18 +277,32 @@ export class FlexNode {
   }
 }
 
-function updateVector2Signal<T extends Partial<[unknown, unknown]>>(signal: Signal<T>, x: T[0], y: T[1]): void {
-  const [oldX, oldY] = signal.value
-  if (oldX === x && oldY === y) {
-    return
+function updateVector2Signal<T extends Partial<readonly [unknown, unknown]>>(
+  signal: Signal<T | undefined>,
+  x: T[0],
+  y: T[1],
+): void {
+  if (signal.value != null) {
+    const [oldX, oldY] = signal.value
+    if (oldX === x && oldY === y) {
+      return
+    }
   }
   signal.value = [x, y] as any
 }
 
-function updateInsetSignal(signal: Signal<Inset>, top: number, right: number, bottom: number, left: number): void {
-  const [oldTop, oldRight, oldBottom, oldLeft] = signal.value
-  if (oldTop == top && oldRight == right && oldBottom == bottom && oldLeft == left) {
-    return
+function updateInsetSignal(
+  signal: Signal<Inset | undefined>,
+  top: number,
+  right: number,
+  bottom: number,
+  left: number,
+): void {
+  if (signal.value != null) {
+    const [oldTop, oldRight, oldBottom, oldLeft] = signal.value
+    if (oldTop == top && oldRight == right && oldBottom == bottom && oldLeft == left) {
+      return
+    }
   }
   signal.value = [top, right, bottom, left]
 }
@@ -316,5 +315,6 @@ function assertNodeNotNull<T>(val: T | undefined): T {
 }
 
 function yogaNodeEqual(n1: Node, n2: Node): boolean {
+  console.log(n1, n2)
   return (n1 as any)['M']['O'] === (n2 as any)['M']['O']
 }

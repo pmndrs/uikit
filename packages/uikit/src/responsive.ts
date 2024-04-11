@@ -17,12 +17,12 @@ export type WithResponsive<T> = T & {
   [Key in keyof typeof breakPoints]?: T
 }
 
-export function createResponsivePropertyTransformers(rootSize: Signal<Vector2Tuple>): PropertyTransformers {
+export function createResponsivePropertyTransformers(rootSize: Signal<Vector2Tuple | undefined>): PropertyTransformers {
   const transformers: PropertyTransformers = {}
 
   for (let i = 0; i < breakPointKeysLength; i++) {
     const key = breakPointKeys[i]
-    transformers[key] = createConditionalPropertyTranslator(() => rootSize.value[0] > breakPoints[key])
+    transformers[key] = createConditionalPropertyTranslator(() => (rootSize.value?.[0] ?? 0) > breakPoints[key])
   }
 
   return transformers

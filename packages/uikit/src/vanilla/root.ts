@@ -1,54 +1,68 @@
-import { Camera, Object3D, WebGLRenderer } from 'three'
-import { Signal, batch, signal } from '@preact/signals-core'
+import { Camera, WebGLRenderer } from 'three'
+import { Signal, effect, signal } from '@preact/signals-core'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createRoot, RootProperties } from '../components/root.js'
-import { bindHandlers } from './utils.js'
-import { unsubscribeSubscriptions } from '../utils.js'
+import { Parent, bindHandlers } from './utils.js'
+import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { FontFamilies } from '../internals.js'
 
-export class Root extends Object3D {
-  public readonly internals: ReturnType<typeof createRoot>
-  public readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
-
-  private readonly childrenContainer: Object3D
+export class Root extends Parent {
   private readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<RootProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
+  private readonly unsubscribe: () => void
+  private readonly onFrameSet = new Set<(delta: number) => void>()
+  private readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
 
   constructor(
-    camera: Camera | (() => Camera),
+    camera: Signal<Camera | undefined> | (() => Camera) | Camera,
     renderer: WebGLRenderer,
-    fontFamilies?: FontFamilies,
     properties?: RootProperties,
     defaultProperties?: AllOptionalProperties,
+    fontFamilies?: FontFamilies,
   ) {
     super()
-    this.fontFamiliesSignal = signal(fontFamilies)
+    this.matrixAutoUpdate = false
+    this.fontFamiliesSignal = signal<FontFamilies | undefined>(fontFamilies)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
-    this.childrenContainer = new Object3D()
-    this.childrenContainer.matrixAutoUpdate = false
-    this.add(this.childrenContainer)
-    this.matrixAutoUpdate = false
-
-    this.internals = createRoot(
-      this.styleSignal,
-      this.propertiesSignal,
-      this.defaultPropertiesSignal,
-      { current: this },
-      { current: this.childrenContainer },
-      typeof camera === 'function' ? camera : () => camera,
-      renderer,
-    )
-
-    //setup scrolling & events
-    const { handlers, interactionPanel, subscriptions } = this.internals
-    this.add(interactionPanel)
-    bindHandlers(handlers, this, subscriptions)
+    this.unsubscribe = effect(() => {
+      let getCamera: () => Camera
+      if (typeof camera === 'function') {
+        getCamera = camera
+      } else {
+        const cam = readReactive(camera)
+        if (cam == null) {
+          this.contextSignal.value = undefined
+          return
+        }
+        getCamera = () => cam
+      }
+      const internals = createRoot(
+        this.styleSignal,
+        this.propertiesSignal,
+        this.defaultPropertiesSignal,
+        { current: this },
+        { current: this.childrenContainer },
+        getCamera,
+        renderer,
+        this.onFrameSet,
+      )
+      this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: this.fontFamiliesSignal })
+      super.add(internals.interactionPanel)
+      const subscriptions: Subscriptions = []
+      initialize(internals.initializers, subscriptions)
+      bindHandlers(internals.handlers, this, subscriptions)
+      return () => {
+        this.onFrameSet.clear()
+        this.remove(internals.interactionPanel)
+        unsubscribeSubscriptions(subscriptions)
+      }
+    })
   }
 
   update(delta: number) {
-    for (const onFrame of this.internals.onFrameSet) {
+    for (const onFrame of this.onFrameSet) {
       onFrame(delta)
     }
   }
@@ -71,6 +85,6 @@ export class Root extends Object3D {
 
   destroy() {
     this.parent?.remove(this)
-    unsubscribeSubscriptions(this.internals.subscriptions)
+    this.unsubscribe()
   }
 }

@@ -57,6 +57,9 @@ export const Portal: (
       }
       const { size } = imageRef.current
       const unsubscribeSetSize = effect(() => {
+        if (size.value == null) {
+          return
+        }
         const [width, height] = size.value
         fbo.setSize(width, height)
         injectState.size!.width = width
@@ -64,6 +67,7 @@ export const Portal: (
       })
       return () => {
         unsubscribeSetSize()
+        //TODO: portal wont work in strict mode
         fbo.dispose()
       }
     }, [fbo, injectState])
@@ -126,6 +130,9 @@ function ChildrenToFBO({
     }
     const { size } = imageRef.current
     return effect(() => {
+      if (size.value == null) {
+        return
+      }
       const [width, height] = size.value
       store.setState({ size: { width, height, top: 0, left: 0 } })
     })

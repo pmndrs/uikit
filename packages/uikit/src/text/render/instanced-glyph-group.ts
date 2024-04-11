@@ -5,11 +5,12 @@ import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../../order.js'
 import { Object3DRef } from '../../context.js'
+import { Signal } from '@preact/signals-core'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<number, InstancedGlyphGroup>>()
   constructor(
-    private pixelSize: number,
+    private pixelSize: Signal<number>,
     private rootCameraDistance: WithCameraDistance,
     private object: Object3DRef,
   ) {}
@@ -60,7 +61,7 @@ export class InstancedGlyphGroup {
   constructor(
     private object: Object3DRef,
     font: Font,
-    public readonly pixelSize: number,
+    public readonly pixelSize: Signal<number>,
     private readonly rootCameraDistance: WithCameraDistance,
     private orderInfo: OrderInfo,
   ) {

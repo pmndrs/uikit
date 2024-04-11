@@ -1,4 +1,4 @@
-import { YogaProperties } from '../flex/node.js'
+import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
@@ -17,7 +17,7 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Subscriptions } from '../utils.js'
+import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
@@ -95,7 +95,7 @@ export function createInput(
   valueSignal: Signal<string>,
   onChange: (newValue: string) => void,
   multiline: boolean,
-  fontFamilies: Signal<FontFamilies | undefined> | undefined,
+  fontFamilies: Signal<FontFamilies | undefined>,
   style: Signal<InputProperties | undefined>,
   properties: Signal<InputProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -104,8 +104,8 @@ export function createInput(
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const hasFocusSignal = signal<boolean>(false)
-  const subscriptions = [] as Subscriptions
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  const initializers: Initializers = []
+  setupCursorCleanup(hoveredSignal, initializers)
 
   const mergedProperties = computedMergedProperties(
     style,
@@ -113,7 +113,7 @@ export function createInput(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createResponsivePropertyTransformers(parentContext.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
       ...createFocusPropertyTransformers(hasFocusSignal),
@@ -127,30 +127,39 @@ export function createInput(
     },
   )
 
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const nodeSignal = signal<FlexNode | undefined>(undefined)
+  createNode(nodeSignal, flexState, parentContext, mergedProperties, object, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
-  createInstancedPanel(
-    mergedProperties,
-    backgroundOrderInfo,
-    groupDeps,
-    parentContext.root.panelGroupManager,
-    globalMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    parentContext.clippingRect,
-    isClipped,
-    getDefaultPanelMaterialConfig(),
-    subscriptions,
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      mergedProperties,
+      backgroundOrderInfo,
+      groupDeps,
+      parentContext.root.panelGroupManager,
+      globalMatrix,
+      flexState.size,
+      undefined,
+      flexState.borderInset,
+      parentContext.clippingRect,
+      isClipped,
+      getDefaultPanelMaterialConfig(),
+      subscriptions,
+    ),
   )
 
   const instancedTextRef: { current?: InstancedText } = {}
@@ -165,7 +174,7 @@ export function createInput(
     backgroundOrderInfo,
     parentContext.clippingRect,
     parentContext.root.panelGroupManager,
-    subscriptions,
+    initializers,
   )
   const selectionOrderInfo = createSelection(
     mergedProperties,
@@ -175,10 +184,10 @@ export function createInput(
     backgroundOrderInfo,
     parentContext.clippingRect,
     parentContext.root.panelGroupManager,
-    subscriptions,
+    initializers,
   )
 
-  const fontSignal = computedFont(mergedProperties, fontFamilies, parentContext.root.renderer, subscriptions)
+  const fontSignal = computedFont(mergedProperties, fontFamilies, parentContext.root.renderer, initializers)
   const orderInfo = computedOrderInfo(
     undefined,
     ElementType.Text,
@@ -189,7 +198,8 @@ export function createInput(
     mergedProperties,
     valueSignal,
     globalMatrix,
-    node,
+    nodeSignal,
+    flexState,
     isClipped,
     parentContext.clippingRect,
     orderInfo,
@@ -199,36 +209,43 @@ export function createInput(
     selectionBoxes,
     caretPosition,
     instancedTextRef,
-    subscriptions,
+    initializers,
   )
-  subscriptions.push(node.setMeasureFunc(measureFunc))
+  initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
   const disabled = computedProperty(mergedProperties, 'disabled', false)
 
-  const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, disabled, subscriptions)
+  const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, disabled, initializers)
   const focus = () => {
     if (hasFocusSignal.peek()) {
       return
     }
-    element.focus()
+    element.peek()?.focus()
   }
-  updateHasFocus(element, hasFocusSignal, subscriptions)
-  const selectionHandlers = computedSelectionHandlers(node, element, instancedTextRef, selectionRange, focus, disabled)
+  updateHasFocus(element, hasFocusSignal, initializers)
+  const selectionHandlers = computedSelectionHandlers(
+    flexState,
+    element,
+    instancedTextRef,
+    selectionRange,
+    focus,
+    disabled,
+  )
 
-  return {
+  return Object.assign(flexState, {
     focus,
     root: parentContext.root,
     element,
-    node,
+    node: nodeSignal,
     interactionPanel: createInteractionPanel(
-      node,
       backgroundOrderInfo,
       parentContext.root,
       parentContext.clippingRect,
-      subscriptions,
+      flexState.size,
+      initializers,
     ),
     handlers: computedHandlers(
       style,
@@ -239,13 +256,13 @@ export function createInput(
       selectionHandlers,
       'text',
     ),
-    subscriptions,
-  }
+    initializers,
+  })
 }
 
 export function computedSelectionHandlers(
-  node: FlexNode,
-  element: HTMLInputElement | HTMLTextAreaElement,
+  flexState: FlexNodeState,
+  element: Signal<HTMLInputElement | HTMLTextAreaElement | undefined>,
   instancedTextRef: { current?: InstancedText },
   selectionRange: Signal<Vector2Tuple | undefined>,
   focus: () => void,
@@ -263,13 +280,13 @@ export function computedSelectionHandlers(
         }
         cancelBlur(e.nativeEvent)
         e.stopPropagation?.()
-        const charIndex = uvToCharIndex(node, e.uv, instancedTextRef.current)
+        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
         startCharIndex = charIndex
 
         setTimeout(() => {
           focus()
           selectionRange.value = [charIndex, charIndex]
-          element.setSelectionRange(charIndex, charIndex)
+          element.peek()?.setSelectionRange(charIndex, charIndex)
         })
       },
       onPointerUp: (e) => {
@@ -283,7 +300,7 @@ export function computedSelectionHandlers(
           return
         }
         e.stopPropagation?.()
-        const charIndex = uvToCharIndex(node, e.uv, instancedTextRef.current)
+        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
 
         const start = Math.min(startCharIndex, charIndex)
         const end = Math.max(startCharIndex, charIndex)
@@ -292,7 +309,7 @@ export function computedSelectionHandlers(
         setTimeout(() => {
           focus()
           selectionRange.value = [start, end]
-          element.setSelectionRange(start, end, direction)
+          element.peek()?.setSelectionRange(start, end, direction)
         })
       },
     }
@@ -305,45 +322,62 @@ export function createHtmlInputElement(
   onChange: (value: string) => void,
   multiline: boolean,
   disabled: Signal<boolean>,
-  subscriptions: Subscriptions,
-): HTMLInputElement | HTMLTextAreaElement {
-  const element = document.createElement(multiline ? 'textarea' : 'input')
-  const style = element.style
-  style.setProperty('position', 'absolute')
-  style.setProperty('left', '-1000vw')
-  style.setProperty('pointerEvents', 'none')
-  style.setProperty('opacity', '0')
-  element.addEventListener('input', () => {
-    onChange?.(element.value)
-    updateSelection()
+  initializers: Initializers,
+) {
+  const elementSignal = signal<HTMLInputElement | HTMLTextAreaElement | undefined>(undefined)
+  initializers.push((subscriptions) => {
+    const element = document.createElement(multiline ? 'textarea' : 'input')
+    const style = element.style
+    style.setProperty('position', 'absolute')
+    style.setProperty('left', '-1000vw')
+    style.setProperty('pointerEvents', 'none')
+    style.setProperty('opacity', '0')
+    element.addEventListener('input', () => {
+      onChange?.(element.value)
+      updateSelection()
+    })
+    const updateSelection = () => {
+      const { selectionStart, selectionEnd } = element
+      if (selectionStart == null || selectionEnd == null) {
+        selectionRange.value = undefined
+        return
+      }
+      const current = selectionRange.peek()
+      if (current != null && current[0] === selectionStart && current[1] === selectionEnd) {
+        return
+      }
+      selectionRange.value = [selectionStart, selectionEnd]
+    }
+    element.addEventListener('keydown', updateSelection)
+    element.addEventListener('keyup', updateSelection)
+    element.addEventListener('blur', () => (selectionRange.value = undefined))
+    document.body.appendChild(element)
+    elementSignal.value = element
+    subscriptions.push(
+      () => {
+        elementSignal.value = undefined
+        element.remove()
+      },
+      effect(() => (element.value = value.value)),
+      effect(() => (element.disabled = disabled.value)),
+    )
+    return subscriptions
   })
-  const updateSelection = () => {
-    const { selectionStart, selectionEnd } = element
-    if (selectionStart == null || selectionEnd == null) {
-      selectionRange.value = undefined
-      return
-    }
-    const current = selectionRange.peek()
-    if (current != null && current[0] === selectionStart && current[1] === selectionEnd) {
-      return
-    }
-    selectionRange.value = [selectionStart, selectionEnd]
-  }
-  element.addEventListener('keydown', updateSelection)
-  element.addEventListener('keyup', updateSelection)
-  element.addEventListener('blur', () => (selectionRange.value = undefined))
-  document.body.appendChild(element)
-  subscriptions.push(
-    effect(() => (element.value = value.value)),
-    effect(() => (element.disabled = disabled.value)),
-    () => element.remove(),
-  )
-  return element
+
+  return elementSignal
 }
 
-function updateHasFocus(element: HTMLElement, hasFocusSignal: Signal<boolean>, subscriptions: Subscriptions) {
-  subscriptions.push(
+function updateHasFocus(
+  elementSignal: Signal<HTMLElement | undefined>,
+  hasFocusSignal: Signal<boolean>,
+  initializers: Initializers,
+) {
+  initializers.push(() =>
     effect(() => {
+      const element = elementSignal.value
+      if (element == null) {
+        return
+      }
       const updateFocus = () => (hasFocusSignal.value = document.activeElement === element)
       updateFocus()
       element.addEventListener('focus', updateFocus)
@@ -357,13 +391,19 @@ function updateHasFocus(element: HTMLElement, hasFocusSignal: Signal<boolean>, s
 }
 
 function uvToCharIndex(
-  { size, borderInset, paddingInset }: FlexNode,
+  { size: s, borderInset: b, paddingInset: p }: FlexNodeState,
   uv: Vector2,
   instancedText: InstancedText,
 ): number {
-  const [width, height] = size.peek()
-  const [bTop, , , bLeft] = borderInset.peek()
-  const [pTop, , , pLeft] = paddingInset.peek()
+  const size = s.peek()
+  const borderInset = b.peek()
+  const paddingInset = p.peek()
+  if (size == null || borderInset == null || paddingInset == null) {
+    return 0
+  }
+  const [width, height] = size
+  const [bTop, , , bLeft] = borderInset
+  const [pTop, , , pLeft] = paddingInset
   const x = uv.x * width - bLeft - pLeft
   const y = -uv.y * height + bTop + pTop
   return instancedText.getCharIndex(x, y)

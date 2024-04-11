@@ -4,7 +4,7 @@ import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
 import { InstancedPanelGroup, PanelGroupManager, PanelGroupProperties } from './instanced-panel-group.js'
-import { ColorRepresentation, Subscriptions, unsubscribeSubscriptions } from '../utils.js'
+import { ColorRepresentation, Initializers, Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { OrderInfo } from '../order.js'
@@ -24,13 +24,13 @@ export type PanelProperties = {
 
 export function createInstancedPanel(
   propertiesSignal: Signal<MergedProperties>,
-  orderInfo: Signal<OrderInfo>,
+  orderInfo: Signal<OrderInfo | undefined>,
   panelGroupDependencies: Signal<Required<PanelGroupProperties>> | undefined,
   panelGroupManager: PanelGroupManager,
   matrix: Signal<Matrix4 | undefined>,
-  size: Signal<Vector2Tuple>,
+  size: Signal<Vector2Tuple | undefined>,
   offset: Signal<Vector2Tuple> | undefined,
-  borderInset: Signal<Inset>,
+  borderInset: Signal<Inset | undefined>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   isHidden: Signal<boolean> | undefined,
   materialConfig: PanelMaterialConfig,
@@ -38,6 +38,9 @@ export function createInstancedPanel(
 ) {
   subscriptions.push(
     effect(() => {
+      if (orderInfo.value == null) {
+        return
+      }
       const innerSubscriptions: Subscriptions = []
       const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies?.value)
       new InstancedPanel(
@@ -56,6 +59,7 @@ export function createInstancedPanel(
       return () => unsubscribeSubscriptions(innerSubscriptions)
     }),
   )
+  return subscriptions
 }
 
 const matrixHelper1 = new Matrix4()
@@ -76,9 +80,9 @@ export class InstancedPanel {
     private group: InstancedPanelGroup,
     private readonly minorIndex: number,
     private readonly matrix: Signal<Matrix4 | undefined>,
-    private readonly size: Signal<Vector2Tuple>,
+    private readonly size: Signal<Vector2Tuple | undefined>,
     private readonly offset: Signal<Vector2Tuple> | undefined,
-    private readonly borderInset: Signal<Inset>,
+    private readonly borderInset: Signal<Inset | undefined>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isHidden: Signal<boolean> | undefined,
     public readonly materialConfig: PanelMaterialConfig,
@@ -129,35 +133,35 @@ export class InstancedPanel {
     this.active.value = true
     this.unsubscribeList.push(
       effect(() => {
-        const matrix = this.matrix.value
-        if (matrix == null) {
+        if (this.matrix.value == null || this.size.value == null) {
           return
         }
-        const { instanceMatrix, pixelSize } = this.group
         const index = this.getIndexInBuffer()
         if (index == null) {
           return
         }
         const arrayIndex = index * 16
         const [width, height] = this.size.value
+        const pixelSize = this.group.pixelSize.value
         matrixHelper1.makeScale(width * pixelSize, height * pixelSize, 1)
         if (this.offset != null) {
           const [x, y] = this.offset.value
           matrixHelper1.premultiply(matrixHelper2.makeTranslation(x * pixelSize, y * pixelSize, 0))
         }
-        matrixHelper1.premultiply(matrix)
+        matrixHelper1.premultiply(this.matrix.value)
+        const { instanceMatrix } = this.group
         matrixHelper1.toArray(instanceMatrix.array, arrayIndex)
         instanceMatrix.addUpdateRange(arrayIndex, 16)
         instanceMatrix.needsUpdate = true
       }),
       effect(() => {
+        const index = this.getIndexInBuffer()
+        if (index == null || this.size.value == null) {
+          return
+        }
         const [width, height] = this.size.value
         const { instanceData } = this.group
         const { array } = instanceData
-        const index = this.getIndexInBuffer()
-        if (index == null) {
-          return
-        }
         const bufferIndex = index * 16 + 13
         array[bufferIndex] = width
         array[bufferIndex + 1] = height
@@ -165,11 +169,11 @@ export class InstancedPanel {
         instanceData.needsUpdate = true
       }),
       effect(() => {
-        const { instanceData } = this.group
         const index = this.getIndexInBuffer()
-        if (index == null) {
+        if (index == null || this.borderInset.value == null) {
           return
         }
+        const { instanceData } = this.group
         const offset = index * 16 + 0
         instanceData.array.set(this.borderInset.value, offset)
         instanceData.addUpdateRange(offset, 4)

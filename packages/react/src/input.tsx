@@ -5,13 +5,15 @@ import { useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
   FontFamilies,
-  unsubscribeSubscriptions,
   InputProperties,
+  Subscriptions,
   createInput,
+  initialize,
   readReactive,
+  unsubscribeSubscriptions,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
-import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
+import { computed, effect, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
 
 export type InputInternals = ComponentInternals<InputProperties> & {
@@ -58,13 +60,30 @@ export const Input: (
         propertySignals.default,
         outerRef,
       ),
-    [parent, current, properties.multiline, fontFamilies, propertySignals, valueSignal],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
-  internals.element.tabIndex = properties.tabIndex ?? 0
-  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
+
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
+
+  useEffect(
+    () =>
+      effect(() => {
+        if (internals.element.value == null) {
+          return
+        }
+        internals.element.value.tabIndex = properties.tabIndex ?? 0
+      }),
+    [internals, properties.tabIndex],
+  )
 
   useComponentInternals(
     ref,
+    parent.root.pixelSize,
     propertySignals.style,
     internals,
     internals.interactionPanel,

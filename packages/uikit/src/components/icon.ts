@@ -2,7 +2,7 @@ import { Signal, effect, signal } from '@preact/signals-core'
 import { Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
 import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import { FlexNode, YogaProperties } from '../flex/index.js'
+import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import { WithAllAliases } from '../properties/alias.js'
@@ -18,7 +18,7 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
-import { Subscriptions, fitNormalizedContentInside } from '../utils.js'
+import { Initializers, Subscriptions, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
@@ -64,10 +64,10 @@ export function createIcon(
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
-  const subscriptions: Subscriptions = []
+  const initializers: Initializers = []
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  setupCursorCleanup(hoveredSignal, initializers)
 
   const mergedProperties = computedMergedProperties(
     style,
@@ -75,7 +75,7 @@ export function createIcon(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createResponsivePropertyTransformers(parentContext.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -87,35 +87,43 @@ export function createIcon(
     },
   )
 
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  createNode(undefined, flexState, parentContext, mergedProperties, object, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
-  createInstancedPanel(
-    mergedProperties,
-    backgroundOrderInfo,
-    groupDeps,
-    parentContext.root.panelGroupManager,
-    globalMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    parentContext.clippingRect,
-    isClipped,
-    getDefaultPanelMaterialConfig(),
-    subscriptions,
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      mergedProperties,
+      backgroundOrderInfo,
+      groupDeps,
+      parentContext.root.panelGroupManager,
+      globalMatrix,
+      flexState.size,
+      undefined,
+      flexState.borderInset,
+      parentContext.clippingRect,
+      isClipped,
+      getDefaultPanelMaterialConfig(),
+      subscriptions,
+    ),
   )
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, subscriptions)
+  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
   const iconGroup = createIconGroup(
     mergedProperties,
     text,
@@ -123,33 +131,30 @@ export function createIcon(
     svgHeight,
     parentContext,
     orderInfo,
-    node,
+    flexState,
     isClipped,
     clippingPlanes,
-    subscriptions,
+    initializers,
   )
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
-  return {
-    root: parentContext.root,
-    node,
-    subscriptions,
+  return Object.assign(flexState, {
+    initializers,
     iconGroup,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     interactionPanel: createInteractionPanel(
-      node,
       orderInfo,
       parentContext.root,
       parentContext.clippingRect,
-      subscriptions,
+      flexState.size,
+      initializers,
     ),
-  }
+  })
 }
 
 const loader = new SVGLoader()
-const colorHelper = new Color()
 
 function createIconGroup(
   propertiesSignal: Signal<MergedProperties>,
@@ -157,11 +162,11 @@ function createIconGroup(
   svgWidth: number,
   svgHeight: number,
   parentContext: ParentContext,
-  orderInfo: Signal<OrderInfo>,
-  node: FlexNode,
+  orderInfo: Signal<OrderInfo | undefined>,
+  flexState: FlexNodeState,
   isClipped: Signal<boolean>,
   clippingPlanes: Array<Plane>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ): Group {
   const group = new Group()
   group.matrixAutoUpdate = false
@@ -195,21 +200,25 @@ function createIconGroup(
     }
   }
   const aspectRatio = svgWidth / svgHeight
-  subscriptions.push(
-    effect(() => {
-      const [offsetX, offsetY, scale] = fitNormalizedContentInside(
-        node.size,
-        node.paddingInset,
-        node.borderInset,
-        parentContext.root.pixelSize,
-        aspectRatio,
-      )
-      group.position.set(offsetX - (scale * aspectRatio) / 2, offsetY + scale / 2, 0)
-      group.scale.setScalar(scale / svgHeight)
-      group.updateMatrix()
-    }),
-    effect(() => void (group.visible = !isClipped.value)),
+  initializers.push(
+    () =>
+      effect(() => {
+        fitNormalizedContentInside(
+          group.position,
+          group.scale,
+          flexState.size,
+          flexState.paddingInset,
+          flexState.borderInset,
+          parentContext.root.pixelSize.value,
+          aspectRatio,
+        )
+        group.position.x -= (group.scale.x * aspectRatio) / 2
+        group.position.y += group.scale.x / 2
+        group.scale.divideScalar(svgHeight)
+        group.updateMatrix()
+      }),
+    () => effect(() => void (group.visible = !isClipped.value)),
   )
-  applyAppearancePropertiesToGroup(propertiesSignal, group, subscriptions)
+  applyAppearancePropertiesToGroup(propertiesSignal, group, initializers)
   return group
 }

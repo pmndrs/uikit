@@ -1,9 +1,9 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
-import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
+import { ReactNode, forwardRef, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Object3D } from 'three'
 import { useDefaultProperties } from './default.js'
-import { AllOptionalProperties, addHandler } from '@pmndrs/uikit/internals'
+import { AllOptionalProperties, Subscriptions, addHandler, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 
 const eventHandlerKeys: Array<keyof EventHandlers> = [
   'onClick',
@@ -26,11 +26,15 @@ export const AddHandlers = forwardRef<
   { userHandlers: EventHandlers; handlers: Signal<EventHandlers>; children?: ReactNode }
 >(({ handlers: handlersSignal, userHandlers, children }, ref) => {
   const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.value)
-  useSignalEffect(() => {
-    const handlers = handlersSignal.value
-    const ref = void setTimeout(() => setSystemHandlers(handlers), 0)
-    return () => clearTimeout(ref)
-  }, [handlersSignal])
+  useEffect(
+    () =>
+      effect(() => {
+        const handlers = handlersSignal.value
+        const ref = void setTimeout(() => setSystemHandlers(handlers), 0)
+        return () => clearTimeout(ref)
+      }),
+    [handlersSignal],
+  )
   const handlers = useMemo(() => {
     const result: EventHandlers = { ...systemHandlers }
     const keysLength = eventHandlerKeys.length
@@ -46,12 +50,6 @@ export const AddHandlers = forwardRef<
     </object3D>
   )
 })
-
-function useSignalEffect(fn: () => (() => void) | void, deps: Array<any>) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const unsubscribe = useMemo(() => effect(fn), deps)
-  useEffect(() => unsubscribe, [unsubscribe])
-}
 
 export function usePropertySignals<T>(properties: T) {
   const propertySignals = useMemo(

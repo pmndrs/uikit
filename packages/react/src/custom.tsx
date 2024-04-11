@@ -6,7 +6,9 @@ import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
   createCustomContainer,
   CustomContainerProperties,
+  initialize,
   panelGeometry,
+  Subscriptions,
   unsubscribeSubscriptions,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
@@ -32,20 +34,18 @@ export const CustomContainer: (
         propertySignals.properties,
         propertySignals.default,
         outerRef,
+        innerRef,
       ),
-    [parent, propertySignals],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
   useEffect(() => {
-    if (innerRef.current != null) {
-      internals.setupMesh(innerRef.current, internals.subscriptions)
-      if (innerRef.current.material instanceof Material) {
-        internals.setupMaterial(innerRef.current.material)
-      }
-    }
-    return () => unsubscribeSubscriptions(internals.subscriptions)
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
   }, [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals, innerRef)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, innerRef)
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

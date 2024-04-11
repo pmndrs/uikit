@@ -2,7 +2,7 @@ import { Signal, effect, signal, untracked } from '@preact/signals-core'
 import { InstancedGlyph } from './instanced-glyph.js'
 import { Matrix4, Vector2Tuple, Vector3Tuple } from 'three'
 import { ClippingRect } from '../../clipping.js'
-import { ColorRepresentation, Subscriptions, alignmentXMap, alignmentYMap } from '../../utils.js'
+import { ColorRepresentation, Initializers, Subscriptions, alignmentXMap, alignmentYMap } from '../../utils.js'
 import {
   getGlyphLayoutHeight,
   getGlyphOffsetX,
@@ -13,7 +13,7 @@ import {
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedMeasureFunc } from '../layout.js'
 import { SelectionBoxes } from '../../selection.js'
-import { MergedProperties, FlexNode, computedProperty } from '../../internals.js'
+import { MergedProperties, FlexNode, computedProperty, FlexNodeState } from '../../internals.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
 
@@ -34,17 +34,18 @@ export function createInstancedText(
   properties: Signal<MergedProperties>,
   textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
   matrix: Signal<Matrix4 | undefined>,
-  node: FlexNode,
+  nodeSignal: Signal<FlexNode | undefined>,
+  flexState: FlexNodeState,
   isHidden: Signal<boolean> | undefined,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo>,
+  orderInfo: Signal<OrderInfo | undefined>,
   fontSignal: Signal<Font | undefined>,
   glyphGroupManager: GlyphGroupManager,
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
   selectionBoxes: Signal<SelectionBoxes> | undefined,
   caretPosition: Signal<Vector3Tuple | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
@@ -55,44 +56,52 @@ export function createInstancedText(
   const opacity = computedProperty(properties, 'opacity', 1)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
-  subscriptions.push(
-    node.addLayoutChangeListener(() => {
-      const layoutProperties = layoutPropertiesRef.current
-      if (layoutProperties == null) {
-        return
-      }
-      const { size, paddingInset, borderInset } = node
-      const [width, height] = size.value
-      const [pTop, pRight, pBottom, pLeft] = paddingInset.value
-      const [bTop, bRight, bBottom, bLeft] = borderInset.value
-      const actualWidth = width - pRight - pLeft - bRight - bLeft
-      const actualheight = height - pTop - pBottom - bTop - bBottom
-      layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
-    }),
-    effect(() => {
-      const font = fontSignal.value
-      if (font == null) {
-        return
-      }
-      const instancedText = new InstancedText(
-        glyphGroupManager.getGroup(orderInfo.value.majorIndex, font),
-        horizontalAlign,
-        verticalAlign,
-        color,
-        opacity,
-        layoutSignal,
-        matrix,
-        isHidden,
-        parentClippingRect,
-        selectionRange,
-        selectionBoxes,
-        caretPosition,
-      )
-      if (instancedTextRef != null) {
-        instancedTextRef.current = instancedText
-      }
-      return () => instancedText.destroy()
-    }),
+  initializers.push(
+    () =>
+      effect(() =>
+        nodeSignal.value?.addLayoutChangeListener(() => {
+          const layoutProperties = layoutPropertiesRef.current
+          const {
+            size: { value: size },
+            paddingInset: { value: paddingInset },
+            borderInset: { value: borderInset },
+          } = flexState
+          if (layoutProperties == null || size == null || paddingInset == null || borderInset == null) {
+            return
+          }
+          const [width, height] = size
+          const [pTop, pRight, pBottom, pLeft] = paddingInset
+          const [bTop, bRight, bBottom, bLeft] = borderInset
+          const actualWidth = width - pRight - pLeft - bRight - bLeft
+          const actualheight = height - pTop - pBottom - bTop - bBottom
+          layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
+        }),
+      ),
+    () =>
+      effect(() => {
+        const font = fontSignal.value
+        if (font == null || orderInfo.value == null) {
+          return
+        }
+        const instancedText = new InstancedText(
+          glyphGroupManager.getGroup(orderInfo.value.majorIndex, font),
+          horizontalAlign,
+          verticalAlign,
+          color,
+          opacity,
+          layoutSignal,
+          matrix,
+          isHidden,
+          parentClippingRect,
+          selectionRange,
+          selectionBoxes,
+          caretPosition,
+        )
+        if (instancedTextRef != null) {
+          instancedTextRef.current = instancedText
+        }
+        return () => instancedText.destroy()
+      }),
   )
 
   return measureFunc
@@ -310,7 +319,7 @@ export class InstancedText {
         let y = getYOffset(layout, this.verticalAlign.value) - layout.availableHeight / 2
 
         const linesLength = lines.length
-        const pixelSize = this.group.pixelSize
+        const pixelSize = this.group.pixelSize.value
         for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
           if (lineIndex === this.glyphLines.length) {
             this.glyphLines.push([])

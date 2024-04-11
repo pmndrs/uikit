@@ -1,6 +1,6 @@
 import { Signal } from '@preact/signals-core'
 import { AllOptionalProperties, traverseProperties } from './properties/default.js'
-import { Subscriptions, createConditionalPropertyTranslator } from './utils.js'
+import { Initializers, createConditionalPropertyTranslator } from './utils.js'
 import { PropertyTransformers } from './properties/merged.js'
 import { EventHandlers } from './events.js'
 import { addHandler } from './internals.js'
@@ -12,9 +12,9 @@ export type WithHover<T> = T & {
 }
 export type HoverEventHandlers = Pick<EventHandlers, 'onPointerOver' | 'onPointerOut'>
 
-export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, subscriptions: Subscriptions) {
+export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, initializers: Initializers) {
   //cleanup cursor effect
-  subscriptions.push(() => unsetCursorType(hoveredSignal))
+  initializers.push(() => () => unsetCursorType(hoveredSignal))
 }
 
 export function addHoverHandlers(

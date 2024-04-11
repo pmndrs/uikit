@@ -1,4 +1,4 @@
-import { YogaProperties } from '../flex/node.js'
+import { FlexNode, YogaProperties, createFlexNodeState } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
@@ -9,7 +9,7 @@ import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
-import { Signal, signal } from '@preact/signals-core'
+import { Signal, effect, signal } from '@preact/signals-core'
 import {
   WithConditionals,
   computedGlobalMatrix,
@@ -17,7 +17,7 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Subscriptions } from '../utils.js'
+import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
@@ -61,43 +61,52 @@ export function createText(
 ) {
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const subscriptions = [] as Subscriptions
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  const initializers: Initializers = []
+  setupCursorCleanup(hoveredSignal, initializers)
 
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.node.size),
+    ...createResponsivePropertyTransformers(parentContext.root.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   })
 
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  const nodeSignal = signal<FlexNode | undefined>(undefined)
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  createNode(nodeSignal, flexState, parentContext, mergedProperties, object, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
-  createInstancedPanel(
-    mergedProperties,
-    backgroundOrderInfo,
-    groupDeps,
-    parentContext.root.panelGroupManager,
-    globalMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    parentContext.clippingRect,
-    isClipped,
-    getDefaultPanelMaterialConfig(),
-    subscriptions,
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      mergedProperties,
+      backgroundOrderInfo,
+      groupDeps,
+      parentContext.root.panelGroupManager,
+      globalMatrix,
+      flexState.size,
+      undefined,
+      flexState.borderInset,
+      parentContext.clippingRect,
+      isClipped,
+      getDefaultPanelMaterialConfig(),
+      subscriptions,
+    ),
   )
 
-  const fontSignal = computedFont(mergedProperties, fontFamilies, parentContext.root.renderer, subscriptions)
+  const fontSignal = computedFont(mergedProperties, fontFamilies, parentContext.root.renderer, initializers)
   const orderInfo = computedOrderInfo(
     undefined,
     ElementType.Text,
@@ -109,7 +118,8 @@ export function createText(
     mergedProperties,
     textSignal,
     globalMatrix,
-    node,
+    nodeSignal,
+    flexState,
     isClipped,
     parentContext.clippingRect,
     orderInfo,
@@ -119,24 +129,22 @@ export function createText(
     undefined,
     undefined,
     undefined,
-    subscriptions,
+    initializers,
   )
-  subscriptions.push(node.setMeasureFunc(measureFunc))
+  initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
-  return {
-    root: parentContext.root,
-    node,
+  return Object.assign(flexState, {
     interactionPanel: createInteractionPanel(
-      node,
       backgroundOrderInfo,
       parentContext.root,
       parentContext.clippingRect,
-      subscriptions,
+      flexState.size,
+      initializers,
     ),
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
-    subscriptions,
-  }
+    initializers,
+  })
 }

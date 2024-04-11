@@ -14,11 +14,11 @@ import { Vector2Tuple, Mesh } from 'three'
 
 export type ComponentInternals<T> = {
   pixelSize: number
-  size: ReadonlySignal<Vector2Tuple>
-  center: ReadonlySignal<Vector2Tuple>
-  borderInset: ReadonlySignal<Inset>
-  paddingInset: ReadonlySignal<Inset>
-  scrollPosition?: Signal<Vector2Tuple>
+  size: ReadonlySignal<Vector2Tuple | undefined>
+  center: ReadonlySignal<Vector2Tuple | undefined>
+  borderInset: ReadonlySignal<Inset | undefined>
+  paddingInset: ReadonlySignal<Inset | undefined>
+  scrollPosition?: Signal<Vector2Tuple | undefined>
   maxScrollPosition?: Signal<Partial<Vector2Tuple>>
   interactionPanel: Mesh
   setStyle(style: T | undefined): void
@@ -26,6 +26,7 @@ export type ComponentInternals<T> = {
 
 export function useComponentInternals<T, O = {}>(
   ref: ForwardedRef<ComponentInternals<T> & O>,
+  pixelSize: Signal<number>,
   styleSignal: Signal<T | undefined>,
   internals: ReturnType<
     | typeof createContainer
@@ -44,20 +45,20 @@ export function useComponentInternals<T, O = {}>(
   useImperativeHandle(
     ref,
     () => {
-      const { scrollPosition, node, root } = internals
+      const { scrollPosition, paddingInset, borderInset, relativeCenter, size, maxScrollPosition } = internals
       return {
         setStyle: (style: T | undefined) => (styleSignal.value = style),
-        pixelSize: root.pixelSize,
-        borderInset: node.borderInset,
-        paddingInset: node.paddingInset,
-        center: node.relativeCenter,
-        maxScrollPosition: node.maxScrollPosition,
-        size: node.size,
+        pixelSize,
+        borderInset,
+        paddingInset,
+        center: relativeCenter,
+        maxScrollPosition,
+        size,
         interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
         scrollPosition,
         ...(additional as any),
       }
     },
-    [internals, interactionPanel, styleSignal, additional],
+    [internals, pixelSize, interactionPanel, additional, styleSignal],
   )
 }

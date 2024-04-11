@@ -3,7 +3,7 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { createContent, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
+import { createContent, initialize, Subscriptions, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ContentProperties } from '../../uikit/dist/components/content.js'
 
@@ -19,17 +19,25 @@ export const Content: (
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
-    () => createContent(parent, propertySignals.style, propertySignals.properties, propertySignals.default, outerRef),
-    [parent, propertySignals],
+    () =>
+      createContent(
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
   useEffect(() => {
-    if (innerRef.current != null) {
-      internals.setupContent(innerRef.current, internals.subscriptions)
-    }
-    return () => unsubscribeSubscriptions(internals.subscriptions)
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
   }, [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

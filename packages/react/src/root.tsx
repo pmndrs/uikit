@@ -3,7 +3,14 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { RootProperties, createRoot, reversePainterSortStable, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
+import {
+  RootProperties,
+  Subscriptions,
+  createRoot,
+  initialize,
+  reversePainterSortStable,
+  unsubscribeSubscriptions,
+} from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -14,12 +21,12 @@ export const Root: (
     RefAttributes<ComponentInternals<RootProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const renderer = useThree((state) => state.gl)
-
-  useEffect(() => renderer.setTransparentSort(reversePainterSortStable), [renderer])
+  renderer.setTransparentSort(reversePainterSortStable)
   const store = useStore()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
+  const onFrameSet = useMemo(() => new Set<(delta: number) => void>(), [])
   const internals = useMemo(
     () =>
       createRoot(
@@ -30,18 +37,24 @@ export const Root: (
         innerRef,
         () => store.getState().camera,
         renderer,
+        onFrameSet,
       ),
-    [store, propertySignals, renderer],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
-  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
   useFrame((_, delta) => {
-    for (const onFrame of internals.onFrameSet) {
+    for (const onFrame of onFrameSet) {
       onFrame(delta)
     }
   })
 
-  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

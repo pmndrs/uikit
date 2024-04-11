@@ -1,8 +1,6 @@
 import type { ParentContext } from '@pmndrs/uikit/internals'
 import { createContext, useContext } from 'react'
 
-//const FontFamiliesContext = createContext<Record<string, FontFamilyUrls>>(null as any)
-
 const ParentContext = createContext<ParentContext | undefined>(undefined)
 
 export function useParent(): ParentContext {

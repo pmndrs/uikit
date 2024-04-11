@@ -1,4 +1,4 @@
-import { YogaProperties } from '../flex/node.js'
+import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes, ClippingRect } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
@@ -18,13 +18,12 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
-import { Subscriptions, alignmentZMap } from '../utils.js'
+import { Initializers, Subscriptions, alignmentZMap } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import {
-  FlexNode,
   KeepAspectRatioProperties,
   MergedProperties,
   RootContext,
@@ -64,12 +63,14 @@ export function createContent(
   properties: Signal<ContentProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
+  contentRef: Object3DRef,
 ) {
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const subscriptions = [] as Subscriptions
+  const initializers: Initializers = []
+  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
 
-  setupCursorCleanup(hoveredSignal, subscriptions)
+  setupCursorCleanup(hoveredSignal, initializers)
 
   const sizeSignal = signal(new Vector3(1, 1, 1))
   const aspectRatio = computed(() => sizeSignal.value.x / sizeSignal.value.y)
@@ -81,7 +82,7 @@ export function createContent(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.node.size),
+      ...createResponsivePropertyTransformers(parentContext.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -90,69 +91,67 @@ export function createContent(
   )
 
   //create node
-  const node = createNode(parentContext, mergedProperties, object, subscriptions)
+  createNode(undefined, flexState, parentContext, mergedProperties, object, initializers)
 
   //transform
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, subscriptions)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
+  applyTransform(object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentContext.clippingRect, globalMatrix, node.size, parentContext.root.pixelSize)
+  const isClipped = computedIsClipped(
+    parentContext.clippingRect,
+    globalMatrix,
+    flexState.size,
+    parentContext.root.pixelSize,
+  )
 
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundorderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
-  createInstancedPanel(
-    mergedProperties,
-    backgroundorderInfo,
-    groupDeps,
-    parentContext.root.panelGroupManager,
-    globalMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    parentContext.clippingRect,
-    isClipped,
-    getDefaultPanelMaterialConfig(),
-    subscriptions,
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      mergedProperties,
+      backgroundorderInfo,
+      groupDeps,
+      parentContext.root.panelGroupManager,
+      globalMatrix,
+      flexState.size,
+      undefined,
+      flexState.borderInset,
+      parentContext.clippingRect,
+      isClipped,
+      getDefaultPanelMaterialConfig(),
+      subscriptions,
+    ),
   )
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Object, undefined, backgroundorderInfo)
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
-  setupViewportListeners(style, properties, isClipped, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
+  setupViewportListeners(style, properties, isClipped, initializers)
 
-  return {
-    setupContent: createSetupContent(
+  return Object.assign(flexState, {
+    remeasureContent: createMeasureContent(
       mergedProperties,
       parentContext.root,
-      node,
+      flexState,
       parentContext.clippingRect,
       orderInfo,
       sizeSignal,
-      subscriptions,
+      contentRef,
+      initializers,
     ),
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      node.size,
-      node.borderInset,
-      node.overflow,
-      parentContext.root.pixelSize,
-      parentContext.clippingRect,
-    ),
-    root: parentContext.root,
-    node,
     interactionPanel: createInteractionPanel(
-      node,
       backgroundorderInfo,
       parentContext.root,
       parentContext.clippingRect,
-      subscriptions,
+      flexState.size,
+      initializers,
     ),
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
-    subscriptions,
-  }
+    initializers,
+  })
 }
 
 const box3Helper = new Box3()
@@ -164,19 +163,28 @@ const defaultDepthAlign: keyof typeof alignmentZMap = 'back'
 /**
  * normalizes the content so it has a height of 1
  */
-function createSetupContent(
+function createMeasureContent(
   propertiesSignal: Signal<MergedProperties>,
   root: RootContext,
-  node: FlexNode,
+  flexState: FlexNodeState,
   parentClippingRect: Signal<ClippingRect | undefined>,
-  orderInfo: Signal<OrderInfo>,
+  orderInfo: Signal<OrderInfo | undefined>,
   sizeSignal: Signal<Vector3>,
-  subscriptions: Subscriptions,
+  contentRef: Object3DRef,
+  initializers: Initializers,
 ) {
-  const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect, subscriptions)
+  const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect, initializers)
   const depthAlign = computedProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
   const keepAspectRatio = computedProperty(propertiesSignal, 'keepAspectRatio', true)
-  return (content: Object3D, subscriptions: Subscriptions) => {
+  const measuredSize = new Vector3()
+  const measuredCenter = new Vector3()
+  const measureContent = () => {
+    const content = contentRef.current
+    if (content == null) {
+      measuredSize.copy(smallValue)
+      measuredCenter.set(0, 0, 0)
+      return
+    }
     content.traverse((object) => {
       if (object instanceof Mesh) {
         setupRenderOrder(object, root, orderInfo)
@@ -188,20 +196,33 @@ function createSetupContent(
     const parent = content.parent
     content.parent = null
     box3Helper.setFromObject(content)
-    const size = new Vector3()
-    const center = new Vector3()
-    box3Helper.getSize(size).max(smallValue)
-    sizeSignal.value = size
+    box3Helper.getSize(measuredSize).max(smallValue)
+    sizeSignal.value = measuredSize
 
     if (parent != null) {
       content.parent = parent
     }
-    box3Helper.getCenter(center)
+    box3Helper.getCenter(measuredCenter)
+  }
+  initializers.push((subscriptions) => {
+    const content = contentRef.current
+    if (content == null) {
+      return subscriptions
+    }
+    measureContent()
     subscriptions.push(
       effect(() => {
-        const [width, height] = node.size.value
-        const [pTop, pRight, pBottom, pLeft] = node.paddingInset.value
-        const [bTop, bRight, bBottom, bLeft] = node.borderInset.value
+        const {
+          size: { value: size },
+          paddingInset: { value: paddingInset },
+          borderInset: { value: borderInset },
+        } = flexState
+        if (size == null || paddingInset == null || borderInset == null) {
+          return
+        }
+        const [width, height] = size
+        const [pTop, pRight, pBottom, pLeft] = paddingInset
+        const [bTop, bRight, bBottom, bLeft] = borderInset
         const topInset = pTop + bTop
         const rightInset = pRight + bRight
         const bottomInset = pBottom + bBottom
@@ -210,18 +231,18 @@ function createSetupContent(
         const innerWidth = width - leftInset - rightInset
         const innerHeight = height - topInset - bottomInset
 
-        const pixelSize = root.pixelSize
+        const pixelSize = root.pixelSize.value
         content.scale
           .set(
             innerWidth * pixelSize,
             innerHeight * pixelSize,
-            keepAspectRatio.value ? (innerHeight * pixelSize * size.z) / size.y : size.z,
+            keepAspectRatio.value ? (innerHeight * pixelSize * measuredSize.z) / measuredSize.y : measuredSize.z,
           )
-          .divide(size)
+          .divide(measuredSize)
 
-        content.position.copy(center).negate()
+        content.position.copy(measuredCenter).negate()
 
-        content.position.z -= alignmentZMap[depthAlign.value] * size.z
+        content.position.z -= alignmentZMap[depthAlign.value] * measuredSize.z
         content.position.multiply(content.scale)
         content.position.add(
           vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
@@ -229,5 +250,7 @@ function createSetupContent(
         content.updateMatrix()
       }),
     )
-  }
+    return subscriptions
+  })
+  return measureContent
 }

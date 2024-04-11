@@ -6,6 +6,7 @@ import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { Inset } from './flex/index.js'
 import {
   ColorRepresentation,
+  Initializers,
   MergedProperties,
   PanelGroupManager,
   PanelMaterialConfig,
@@ -69,11 +70,11 @@ export function createSelection(
   matrix: Signal<Matrix4 | undefined>,
   selectionBoxes: Signal<SelectionBoxes>,
   isHidden: Signal<boolean> | undefined,
-  prevOrderInfo: Signal<OrderInfo>,
+  prevOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
-  subscriptions: Subscriptions,
-): Signal<OrderInfo> {
+  initializers: Initializers,
+) {
   const panels: Array<{
     size: Signal<Vector2Tuple>
     offset: Signal<Vector2Tuple>
@@ -82,47 +83,48 @@ export function createSelection(
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, prevOrderInfo)
   const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
 
-  subscriptions.push(
-    effect(() => {
-      const selections = selectionBoxes.value
-      const selectionsLength = selections.length
-      for (let i = 0; i < selectionsLength; i++) {
-        let panelData = panels[i]
-        if (panelData == null) {
-          const size = signal<Vector2Tuple>([0, 0])
-          const offset = signal<Vector2Tuple>([0, 0])
-          const panelSubscriptions: Subscriptions = []
-          createInstancedPanel(
-            propertiesSignal,
-            orderInfo,
-            undefined,
-            panelGroupManager,
-            matrix,
-            size,
-            offset,
-            borderInset,
-            parentClippingRect,
-            isHidden,
-            getSelectionMaterialConfig(),
-            panelSubscriptions,
-          )
-          panels[i] = panelData = {
-            panelSubscriptions,
-            offset,
-            size,
+  initializers.push(
+    () =>
+      effect(() => {
+        const selections = selectionBoxes.value
+        const selectionsLength = selections.length
+        for (let i = 0; i < selectionsLength; i++) {
+          let panelData = panels[i]
+          if (panelData == null) {
+            const size = signal<Vector2Tuple>([0, 0])
+            const offset = signal<Vector2Tuple>([0, 0])
+            const panelSubscriptions: Subscriptions = []
+            createInstancedPanel(
+              propertiesSignal,
+              orderInfo,
+              undefined,
+              panelGroupManager,
+              matrix,
+              size,
+              offset,
+              borderInset,
+              parentClippingRect,
+              isHidden,
+              getSelectionMaterialConfig(),
+              panelSubscriptions,
+            )
+            panels[i] = panelData = {
+              panelSubscriptions,
+              offset,
+              size,
+            }
           }
+          const selection = selections[i]
+          panelData.size.value = selection.size
+          panelData.offset.value = selection.position
         }
-        const selection = selections[i]
-        panelData.size.value = selection.size
-        panelData.offset.value = selection.position
-      }
-      const panelsLength = panels.length
-      for (let i = selectionsLength; i < panelsLength; i++) {
-        unsubscribeSubscriptions(panels[i].panelSubscriptions)
-      }
-      panels.length = selectionsLength
-    }),
-    () => {
+        const panelsLength = panels.length
+        for (let i = selectionsLength; i < panelsLength; i++) {
+          unsubscribeSubscriptions(panels[i].panelSubscriptions)
+        }
+        panels.length = selectionsLength
+      }),
+    () => () => {
       const panelsLength = panels.length
       for (let i = 0; i < panelsLength; i++) {
         unsubscribeSubscriptions(panels[i].panelSubscriptions)

@@ -45,7 +45,7 @@ export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<number, InstancedPanelGroup>>()
 
   constructor(
-    private pixelSize: number,
+    private pixelSize: Signal<number>,
     private root: WithCameraDistance,
     private object: Object3DRef,
   ) {}
@@ -133,7 +133,7 @@ export class InstancedPanelGroup {
   constructor(
     private readonly object: Object3DRef,
     private readonly instanceMaterial: Material,
-    public readonly pixelSize: number,
+    public readonly pixelSize: Signal<number>,
     private readonly root: WithCameraDistance,
     private readonly orderInfo: OrderInfo,
     private readonly meshReceiveShadow: boolean,

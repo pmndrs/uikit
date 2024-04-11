@@ -3,7 +3,14 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { createText, FontFamilies, TextProperties, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
+import {
+  createText,
+  FontFamilies,
+  initialize,
+  Subscriptions,
+  TextProperties,
+  unsubscribeSubscriptions,
+} from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
@@ -36,11 +43,16 @@ export const Text: (
         propertySignals.default,
         outerRef,
       ),
-    [fontFamilies, parent, propertySignals, textSignal],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
-  useEffect(() => () => unsubscribeSubscriptions(internals.subscriptions), [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-  useComponentInternals(ref, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

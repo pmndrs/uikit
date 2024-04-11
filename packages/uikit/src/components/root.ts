@@ -1,6 +1,6 @@
 import { Signal, computed, signal, untracked } from '@preact/signals-core'
 import { Object3DRef, RootContext } from '../context.js'
-import { FlexNode, YogaProperties } from '../flex/index.js'
+import { FlexNode, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { LayoutListeners, ScrollListeners, setupLayoutListeners } from '../listeners.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import {
@@ -17,14 +17,14 @@ import {
   computedGlobalScrollMatrix,
   createScrollPosition,
   createScrollbars,
-  setupScrollHandler,
+  computedScrollHandlers,
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
-import { Subscriptions, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
+import { Initializers, Subscriptions, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
 import { WithConditionals, computedHandlers, computedMergedProperties } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
-import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
+import { Camera, Matrix4, Mesh, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
@@ -51,15 +51,19 @@ export type InheritableRootProperties = WithClasses<
   >
 >
 
-export type RootProperties = InheritableRootProperties & {
-  pixelSize?: number
-} & LayoutListeners &
+export type RootProperties = InheritableRootProperties &
+  WithReactive<{
+    pixelSize?: number
+  }> &
+  LayoutListeners &
   ScrollListeners
 
 const DEFAULT_PIXEL_SIZE = 0.01
 
 const vectorHelper = new Vector3()
 const planeHelper = new Plane()
+
+const identityMatrix = signal(new Matrix4())
 
 export function createRoot(
   style: Signal<RootProperties | undefined>,
@@ -69,15 +73,14 @@ export function createRoot(
   childrenContainer: Object3DRef,
   getCamera: () => Camera,
   renderer: WebGLRenderer,
+  onFrameSet: Set<(delta: number) => void>,
 ) {
   const rootSize = signal<Vector2Tuple>([0, 0])
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const subscriptions = [] as Subscriptions
-  setupCursorCleanup(hoveredSignal, subscriptions)
-  const pixelSize = properties.peek()?.pixelSize ?? DEFAULT_PIXEL_SIZE
-
-  const onFrameSet = new Set<(delta: number) => void>()
+  const initializers: Initializers = []
+  setupCursorCleanup(hoveredSignal, initializers)
+  const pixelSize = computed(() => readReactive(properties.value?.pixelSize) ?? DEFAULT_PIXEL_SIZE)
 
   const mergedProperties = computedMergedProperties(
     style,
@@ -95,14 +98,20 @@ export function createRoot(
     },
   )
 
-  const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, subscriptions)
-  const node = new FlexNode(mergedProperties, rootSize, object, requestCalculateLayout, undefined, subscriptions)
-  subscriptions.push(() => node.destroy())
+  const node = signal<FlexNode | undefined>(undefined)
+  const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, node, initializers)
+  const flexState = createFlexNodeState(undefined)
+  initializers.push((subscriptions) => {
+    const newNode = new FlexNode(flexState, mergedProperties, requestCalculateLayout, object, subscriptions)
+    node.value = newNode
+    return subscriptions
+  })
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, node, pixelSize)
-  const rootMatrix = computedRootMatrix(mergedProperties, transformMatrix, node.size, pixelSize)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, pixelSize)
+  const rootMatrix = computedRootMatrix(mergedProperties, transformMatrix, flexState.size, pixelSize)
 
-  applyTransform(object, transformMatrix, subscriptions)
+  //rootMatrix is automatically applied to everything, even the instanced things because everything is part of object
+  applyTransform(object, rootMatrix, initializers)
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
@@ -110,8 +119,10 @@ export function createRoot(
   const ctx: WithCameraDistance = { cameraDistance: 0 }
 
   const panelGroupManager = new PanelGroupManager(pixelSize, ctx, object)
-  onFrameSet.add(panelGroupManager.onFrame)
-  subscriptions.push(() => onFrameSet.delete(panelGroupManager.onFrame))
+  initializers.push(() => {
+    onFrameSet.add(panelGroupManager.onFrame)
+    return () => onFrameSet.delete(panelGroupManager.onFrame)
+  })
 
   const onCameraDistanceFrame = () => {
     if (object.current == null) {
@@ -124,72 +135,79 @@ export function createRoot(
     vectorHelper.setFromMatrixPosition(getCamera().matrixWorld)
     ctx.cameraDistance = planeHelper.distanceToPoint(vectorHelper)
   }
-  onFrameSet.add(onCameraDistanceFrame)
-  subscriptions.push(() => onFrameSet.delete(onCameraDistanceFrame))
-
-  createInstancedPanel(
-    mergedProperties,
-    orderInfo,
-    groupDeps,
-    panelGroupManager,
-    rootMatrix,
-    node.size,
-    undefined,
-    node.borderInset,
-    undefined,
-    undefined,
-    getDefaultPanelMaterialConfig(),
-    subscriptions,
+  initializers.push(() => {
+    onFrameSet.add(onCameraDistanceFrame)
+    return () => onFrameSet.delete(onCameraDistanceFrame)
+  })
+  initializers.push((subscriptions) =>
+    createInstancedPanel(
+      mergedProperties,
+      orderInfo,
+      groupDeps,
+      panelGroupManager,
+      identityMatrix,
+      flexState.size,
+      undefined,
+      flexState.borderInset,
+      undefined,
+      undefined,
+      getDefaultPanelMaterialConfig(),
+      subscriptions,
+    ),
   )
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, pixelSize)
-  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, rootMatrix, pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, pixelSize, initializers)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, identityMatrix, pixelSize)
   createScrollbars(
     mergedProperties,
     scrollPosition,
-    node,
-    rootMatrix,
+    flexState,
+    identityMatrix,
     undefined,
     undefined,
     orderInfo,
     panelGroupManager,
-    subscriptions,
+    initializers,
   )
 
-  const scrollHandlers = setupScrollHandler(
-    node,
+  const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    flexState,
     object,
     properties,
     pixelSize,
     onFrameSet,
-    subscriptions,
+    initializers,
   )
 
-  setupLayoutListeners(style, properties, node.size, subscriptions)
+  setupLayoutListeners(style, properties, flexState.size, initializers)
 
   const gylphGroupManager = new GlyphGroupManager(pixelSize, ctx, object)
-  onFrameSet.add(gylphGroupManager.onFrame)
-  subscriptions.push(() => onFrameSet.delete(gylphGroupManager.onFrame))
+  initializers.push(() => {
+    onFrameSet.add(gylphGroupManager.onFrame)
+    return () => onFrameSet.delete(gylphGroupManager.onFrame)
+  })
 
   const rootCtx: RootContext = Object.assign(ctx, {
+    requestCalculateLayout,
     onFrameSet,
     cameraDistance: 0,
-    clippingRect: computedClippingRect(rootMatrix, node.size, node.borderInset, node.overflow, pixelSize, undefined),
     gylphGroupManager,
-    childrenMatrix,
-    node,
     object,
-    orderInfo,
     panelGroupManager,
     pixelSize,
     renderer,
+    size: flexState.size,
   })
 
-  return Object.assign(rootCtx, {
-    subscriptions,
-    interactionPanel: createInteractionPanel(node, orderInfo, rootCtx, undefined, subscriptions),
+  return Object.assign(flexState, {
+    clippingRect: computedClippingRect(identityMatrix, flexState, pixelSize, undefined),
+    childrenMatrix,
+    node,
+    orderInfo,
+    initializers,
+    interactionPanel: createInteractionPanel(orderInfo, rootCtx, undefined, flexState.size, initializers),
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     root: rootCtx,
   })
@@ -197,28 +215,26 @@ export function createRoot(
 
 function createDeferredRequestLayoutCalculation(
   onFrameSet: Set<(delta: number) => void>,
-  subscriptions: Subscriptions,
+  nodeSignal: Signal<FlexNode | undefined>,
+  initializers: Initializers,
 ) {
-  let requestedNode: FlexNode | undefined
+  let requested: boolean = false
   const onFrame = () => {
-    if (requestedNode == null) {
+    const node = nodeSignal.peek()
+    if (!requested || node == null) {
       return
     }
-    const node = requestedNode
-    requestedNode = undefined
+    requested = false
     node.calculateLayout()
   }
-  onFrameSet.add(onFrame)
-  subscriptions.push(() => onFrameSet.delete(onFrame))
-  return (node: FlexNode) => {
-    if (requestedNode != null || node['yogaNode'] == null) {
-      return
-    }
-    requestedNode = node
-  }
+  initializers.push(() => {
+    onFrameSet.add(onFrame)
+    return () => onFrameSet.delete(onFrame)
+  })
+  return () => (requested = true)
 }
 
-function createSizeTranslator(pixelSize: number, key: 'sizeX' | 'sizeY', to: string): PropertyTransformers {
+function createSizeTranslator(pixelSize: Signal<number>, key: 'sizeX' | 'sizeY', to: string): PropertyTransformers {
   const map = new Map<unknown, Signal<number | undefined>>()
   return {
     [key]: (value: unknown, target: MergedProperties) => {
@@ -231,7 +247,7 @@ function createSizeTranslator(pixelSize: number, key: 'sizeX' | 'sizeY', to: str
             if (s == null) {
               return undefined
             }
-            return s / pixelSize
+            return s / pixelSize.value
           })),
         )
       }
@@ -247,19 +263,22 @@ const defaultAnchorY: keyof typeof alignmentYMap = 'center'
 function computedRootMatrix(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
-  size: Signal<Vector2Tuple>,
-  pixelSize: number,
+  size: Signal<Vector2Tuple | undefined>,
+  pixelSize: Signal<number>,
 ) {
   const anchorX = computedProperty(propertiesSignal, 'anchorX', defaultAnchorX)
   const anchorY = computedProperty(propertiesSignal, 'anchorY', defaultAnchorY)
   return computed(() => {
+    if (size.value == null) {
+      return undefined
+    }
     const [width, height] = size.value
     return matrix.value
       ?.clone()
       .premultiply(
         matrixHelper.makeTranslation(
-          alignmentXMap[anchorX.value] * width * pixelSize,
-          alignmentYMap[anchorY.value] * height * pixelSize,
+          alignmentXMap[anchorX.value] * width * pixelSize.value,
+          alignmentYMap[anchorY.value] * height * pixelSize.value,
           0,
         ),
       )

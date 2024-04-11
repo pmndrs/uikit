@@ -4,7 +4,7 @@ import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
 import { WithHover, addHoverHandlers } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
-import { ColorRepresentation, Subscriptions, readReactive } from '../utils.js'
+import { ColorRepresentation, Initializers, Subscriptions, readReactive } from '../utils.js'
 import {
   AllOptionalProperties,
   EventHandlers,
@@ -14,6 +14,8 @@ import {
   PropertyTransformers,
   ParentContext,
   computedProperty,
+  FlexNode,
+  FlexNodeState,
 } from '../internals.js'
 
 export function computedGlobalMatrix(
@@ -35,40 +37,55 @@ export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferr
 export function loadResourceWithParams<P, R, A extends Array<unknown>>(
   target: Signal<R | undefined>,
   fn: (param: P, ...additional: A) => Promise<R>,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
   param: Signal<P> | P,
   ...additionals: A
 ): void {
-  if (!(param instanceof Signal)) {
-    let canceled = false
-    fn(param, ...additionals).then((value) => (canceled ? undefined : (target.value = value)))
-    subscriptions.push(() => (canceled = true))
-    return
-  }
-  subscriptions.push(
-    effect(() => {
+  initializers.push((subscriptions) => {
+    if (!(param instanceof Signal)) {
       let canceled = false
-      fn(param.value, ...additionals)
-        .then((value) => (canceled ? undefined : (target.value = value)))
-        .catch(console.error)
-      return () => (canceled = true)
-    }),
-  )
+      fn(param, ...additionals).then((value) => (canceled ? undefined : (target.value = value)))
+      subscriptions.push(() => (canceled = true))
+      return subscriptions
+    }
+    subscriptions.push(
+      effect(() => {
+        let canceled = false
+        fn(param.value, ...additionals)
+          .then((value) => (canceled ? undefined : (target.value = value)))
+          .catch(console.error)
+        return () => (canceled = true)
+      }),
+    )
+    return subscriptions
+  })
 }
 
 export function createNode(
+  target: Signal<FlexNode | undefined> | undefined,
+  state: FlexNodeState,
   parentContext: ParentContext,
   mergedProperties: Signal<MergedProperties>,
   object: Object3DRef,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
-  const node = parentContext.node.createChild(mergedProperties, object, subscriptions)
-  parentContext.node.addChild(node)
-  subscriptions.push(() => {
-    parentContext.node.removeChild(node)
-    node.destroy()
+  initializers.push((subscriptions) => {
+    const node = new FlexNode(state, mergedProperties, parentContext.root.requestCalculateLayout, object, subscriptions)
+    if (target != null) {
+      target.value = node
+    }
+    subscriptions.push(
+      effect(() => {
+        const parentNode = parentContext.node.value
+        if (parentNode == null) {
+          return
+        }
+        parentNode.addChild(node)
+        return () => parentNode.removeChild(node)
+      }),
+    )
+    return subscriptions
   })
-  return node
 }
 
 const signalMap = new Map<unknown, Signal<undefined | null>>()
@@ -153,11 +170,11 @@ const colorHelper = new Color()
 export function applyAppearancePropertiesToGroup(
   propertiesSignal: Signal<MergedProperties>,
   group: Signal<Object3D | undefined> | Object3D,
-  subscriptions: Subscriptions,
+  initializers: Initializers,
 ) {
   const color = computedProperty<ColorRepresentation | undefined>(propertiesSignal, 'color', undefined)
   const opacity = computedProperty(propertiesSignal, 'opacity', 1)
-  subscriptions.push(
+  initializers.push(() =>
     effect(() => {
       let c: Color | undefined
       if (Array.isArray(color.value)) {

@@ -49,15 +49,13 @@ export function computedMeasureFunc(
     if (font == null) {
       return undefined
     }
-    const textSignalValue = textSignal.value
+    const text = textSignal.value
     const layoutProperties: GlyphLayoutProperties = {
       font,
       fontSize: fontSize.value,
       letterSpacing: letterSpacing.value,
       lineHeight: lineHeight.value,
-      text: Array.isArray(textSignalValue)
-        ? textSignalValue.map((t) => readReactive(t)).join('')
-        : readReactive(textSignalValue),
+      text: Array.isArray(text) ? text.map((t) => readReactive(t)).join('') : readReactive(text),
       wordBreak: wordBreak.value,
     }
     propertiesRef.current = layoutProperties

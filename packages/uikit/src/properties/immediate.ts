@@ -7,31 +7,21 @@ type PropertySubscriptions = Record<string, () => void>
 export function setupImmediateProperties(
   propertiesSignal: Signal<MergedProperties>,
   activeSignal: Signal<boolean>,
-  objectHasProperty: (key: string) => boolean,
-  objectSetProperty: (key: string, value: unknown) => void,
+  hasProperty: (key: string) => boolean,
+  setProperty: (key: string, value: unknown) => void,
   subscriptions: Subscriptions,
-  renameOutput?: Record<string, string>,
 ): void {
   let active = false
   let currentProperties: MergedProperties | undefined
   let propertySubscriptions: PropertySubscriptions = {}
 
-  const setProperty =
-    renameOutput == null
-      ? objectSetProperty
-      : (key: string, value: unknown) => {
-          if (key in renameOutput) {
-            key = renameOutput[key]
-          }
-          objectSetProperty(key, value)
-        }
   //the following 2 effects are seperated so that the cleanup call only happens when active changes from true to false
   //or everything is cleaned up because the component is destroyed
   subscriptions.push(
     effect(() => {
       const newProperties = propertiesSignal.value
       if (active) {
-        applyProperties(objectHasProperty, newProperties, currentProperties, propertySubscriptions, setProperty)
+        applyProperties(hasProperty, newProperties, currentProperties, propertySubscriptions, setProperty)
       }
       currentProperties = newProperties
     }),
@@ -44,7 +34,7 @@ export function setupImmediateProperties(
         return
       }
       //(re-)write all current properties since the object is (re-)activiated it might not have its values set
-      applyProperties(objectHasProperty, currentProperties, undefined, propertySubscriptions, setProperty)
+      applyProperties(hasProperty, currentProperties, undefined, propertySubscriptions, setProperty)
       return () => {
         unsubscribeProperties(propertySubscriptions)
         propertySubscriptions = {}
