@@ -56,7 +56,7 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
           </Container>
           <Switch />
         </Container>
-        <Container>
+        <Container flexDirection="column">
           {notifications.map((notification, index) => (
             <Container
               key={index}

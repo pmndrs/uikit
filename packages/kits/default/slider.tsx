@@ -1,4 +1,4 @@
-import { Container, ComponentInternals } from '@react-three/uikit'
+import { Container, ComponentInternals, ContainerProperties } from '@react-three/uikit'
 import { colors } from './theme'
 import React, { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
@@ -28,7 +28,7 @@ export function Slider({
   const value = providedValue ?? uncontrolled ?? 50
   const range = max - min
   const percentage = `${(100 * value) / range}%` as const
-  const ref = useRef<ComponentInternals>(null)
+  const ref = useRef<ComponentInternals<ContainerProperties>>(null)
   const onChange = useRef(onValueChange)
   onChange.current = onValueChange
   const hasProvidedValue = providedValue != null

@@ -1,9 +1,6 @@
 import { ReadonlySignal, computed, signal } from '@preact/signals-core'
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { ManagerCollection, Properties } from './properties/utils.js'
-import { WithClasses, useTraverseProperties } from './properties/default.js'
-import { createConditionalPropertyTranslator } from './utils.js'
-import { Color as ColorRepresentation } from '@react-three/fiber'
+import { ColorRepresentation, createConditionalPropertyTranslator } from './utils.js'
+import { PropertyTransformers } from './properties/merged.js'
 
 export type WithPreferredColorScheme<T> = { dark?: T } & T
 
@@ -36,19 +33,8 @@ export function getPreferredColorScheme() {
   return preferredColorScheme.peek()
 }
 
-const translator = createConditionalPropertyTranslator(() => isDarkMode.value)
-
-export function useApplyPreferredColorSchemeProperties(
-  collection: ManagerCollection,
-  properties: WithClasses<WithPreferredColorScheme<Properties>> & EventHandlers,
-): void {
-  useTraverseProperties(properties, (p) => {
-    const properties = p.dark
-    if (properties == null) {
-      return
-    }
-    translator(collection, properties)
-  })
+export const darkPropertyTransformers: PropertyTransformers = {
+  dark: createConditionalPropertyTranslator(() => isDarkMode.value),
 }
 
 export function basedOnPreferredColorScheme<const T extends { [Key in string]: ColorRepresentation }>({

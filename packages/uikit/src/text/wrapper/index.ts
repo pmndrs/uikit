@@ -1,4 +1,4 @@
-import { GlyphLayoutLine, GlyphLayoutProperties } from '../layout.js'
+import type { GlyphLayoutLine, GlyphLayoutProperties } from '../layout.js'
 
 export type GlyphWrapper = (
   layout: GlyphLayoutProperties,

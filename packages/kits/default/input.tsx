@@ -1,7 +1,7 @@
 import { Container, DefaultProperties, Input as InputImpl, Text, InputInternals } from '@react-three/uikit'
 import React, { ComponentPropsWithoutRef, useMemo, useState } from 'react'
 import { colors } from './theme'
-import { Signal, computed } from '@preact/signals-core'
+import { computed } from '@preact/signals-core'
 
 export function Input({
   panelMaterialClass,
@@ -19,11 +19,7 @@ export function Input({
     if (internal == null) {
       return undefined
     }
-    if (internal.value instanceof Signal) {
-      const signal = internal.value
-      return computed(() => (signal.value.length > 0 ? 0 : undefined))
-    }
-    return internal.value.length > 0 ? 0 : undefined
+    return computed(() => (internal.current.value.length > 0 ? 0 : undefined))
   }, [internal])
   return (
     <Container height={40} positionType="relative" overflow="hidden" {...props}>

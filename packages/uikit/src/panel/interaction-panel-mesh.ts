@@ -1,8 +1,8 @@
-import { Group, Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Vector2, Vector3 } from 'three'
+import { Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Vector2, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
-import { RefObject } from 'react'
 import { OrderInfo } from '../order.js'
+import { Object3DRef } from '../context.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -59,25 +59,26 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
 export function makeClippedRaycast(
   mesh: Mesh,
   fn: Mesh['raycast'],
-  rootGroupRef: RefObject<Group>,
+  rootObject: Object3DRef,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: OrderInfo,
+  orderInfo: Signal<OrderInfo | undefined>,
 ): Mesh['raycast'] {
   return (raycaster: Raycaster, intersects: Intersection<Object3D<Object3DEventMap>>[]) => {
-    const rootGroup = rootGroupRef.current
-    if (rootGroup == null) {
+    const obj = rootObject instanceof Object3D ? rootObject : rootObject.current
+    if (obj == null || orderInfo.value == null) {
       return
     }
+    const { majorIndex, minorIndex, elementType } = orderInfo.value
     const oldLength = intersects.length
     fn.call(mesh, raycaster, intersects)
     const clippingPlanes = clippingRect?.value?.planes
-    const outerMatrixWorld = rootGroup.matrixWorld
+    const outerMatrixWorld = obj.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]
       intersection.distance -=
-        orderInfo.majorIndex * 0.01 +
-        orderInfo.elementType * 0.001 + //1-10
-        orderInfo.minorIndex * 0.00001 //1-100
+        majorIndex * 0.01 +
+        elementType * 0.001 + //1-10
+        minorIndex * 0.00001 //1-100
       if (clippingPlanes == null) {
         continue
       }

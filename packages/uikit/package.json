@@ -1,17 +1,15 @@
 {
-  "name": "@react-three/uikit",
+  "name": "@pmndrs/uikit",
   "type": "module",
-  "description": "Build performant 3D user interfaces for Three.js using @react-three/fiber and yoga.",
+  "description": "Build performant 3D user interfaces for Three.js yoga.",
   "version": "0.0.0",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",
   "keywords": [
-    "r3f",
     "uikit",
     "three.js",
     "userinterface",
-    "react",
     "flexbox",
     "yoga",
     "typescript"
@@ -24,11 +22,12 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "bin": {
-    "uikit": "./dist/cli/index.js"
+  "exports": {
+    ".": "./dist/index.js",
+    "./internals": "./dist/internals.js"
   },
   "scripts": {
-    "test": "mocha ./tests/flex.spec.ts",
+    "test": "mocha ./tests/precedence.spec.ts",
     "build": "tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
@@ -37,30 +36,15 @@
     "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {
-    "@react-three/fiber": ">=8",
-    "react": ">=18",
     "three": ">=0.160"
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
-    "chalk": "^5.3.0",
-    "commander": "^12.0.0",
-    "ora": "^8.0.1",
-    "prompts": "^2.4.2",
-    "yoga-layout": "^3.0.2",
-    "zod": "^3.22.4"
+    "yoga-layout": "^3.0.3"
   },
   "devDependencies": {
-    "@react-three/drei": "^9.96.1",
-    "@react-three/fiber": "^8.15.13",
     "@types/node": "^20.11.0",
-    "@types/prompts": "^2.4.9",
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
     "@types/three": "^0.161.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "replace-in-files-cli": "^2.2.0",
     "three": "^0.161.0"
   }
 }

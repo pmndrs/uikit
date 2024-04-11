@@ -5,75 +5,203 @@ import {
   MeshDepthMaterial,
   MeshDistanceMaterial,
   RGBADepthPacking,
+  TypedArray,
   Vector2Tuple,
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
-import { Signal } from '@preact/signals-core'
-import { PanelProperties } from './instanced-panel.js'
+import { Signal, computed } from '@preact/signals-core'
+import { ColorRepresentation, Inset, MergedProperties } from '../internals.js'
+
+export type MaterialClass = { new (...args: Array<any>): Material }
 
 type InstanceOf<T> = T extends { new (): infer K } ? K : never
 
-const colorHelper = new Color()
+const noColor = new Color(-1, -1, -1)
 
-export const panelDefaultColor = new Color(-1, -1, -1)
+const defaultDefaults = {
+  backgroundColor: noColor as ColorRepresentation,
+  backgroundOpacity: -1,
+  borderColor: 0xffffff as ColorRepresentation,
+  borderBottomLeftRadius: 0,
+  borderTopLeftRadius: 0,
+  borderBottomRightRadius: 0,
+  borderTopRightRadius: 0,
+  borderBend: 0,
+  borderOpacity: 1,
+} satisfies { [Key in keyof typeof materialSetters]: unknown }
 
-export const panelMaterialSetters: {
-  [Key in keyof PanelProperties]-?: (
-    data: Float32Array,
-    value: PanelProperties[Key],
-    size: Signal<Vector2Tuple>,
-  ) => void
-} = {
+export type PanelMaterialConfig = ReturnType<typeof createPanelMaterialConfig>
+
+let defaultPanelMaterialConfig: PanelMaterialConfig | undefined
+export function getDefaultPanelMaterialConfig() {
+  if (defaultPanelMaterialConfig == null) {
+    const defaultPanelMaterialKeys = {} as { [Key in keyof typeof defaultDefaults]: string }
+    for (const key in defaultDefaults) {
+      defaultPanelMaterialKeys[key as keyof typeof defaultDefaults] = key
+    }
+    defaultPanelMaterialConfig = createPanelMaterialConfig(defaultPanelMaterialKeys)
+  }
+  return defaultPanelMaterialConfig
+}
+
+export function createPanelMaterialConfig(
+  keys: { [Key in keyof typeof materialSetters]?: string },
+  overrideDefaults?: {
+    [Key in Exclude<
+      keyof typeof defaultDefaults,
+      'borderBottomLeftRadius' | 'borderTopLeftRadius' | 'borderBottomRightRadius' | 'borderTopRightRadius'
+    >]?: (typeof defaultDefaults)[Key]
+  },
+) {
+  const defaults = { ...defaultDefaults, ...overrideDefaults }
+
+  const setters: {
+    [Key in string]: (
+      data: TypedArray,
+      offset: number,
+      value: unknown,
+      size: Signal<Vector2Tuple | undefined>,
+      onUpdate: ((start: number, count: number) => void) | undefined,
+    ) => void
+  } = {}
+  for (const key in keys) {
+    const fn = materialSetters[key as keyof typeof materialSetters]
+    const defaultValue = defaults[key as keyof typeof materialSetters]
+    setters[keys[key as keyof typeof materialSetters]!] = (data, offset, value, size, onUpdate) =>
+      fn(data, offset, (value ?? defaultValue) as any, size, onUpdate)
+  }
+
+  const defaultData = new Float32Array(16) //filled with 0s by default
+  writeColor(defaultData, 4, defaults.backgroundColor, undefined)
+  writeColor(defaultData, 8, defaults.borderColor, undefined)
+  defaultData[11] = defaults.borderBend
+  defaultData[12] = defaults.borderOpacity
+  defaultData[15] = defaults.backgroundOpacity
+  return {
+    hasProperty: (key: string) => key in setters,
+    defaultData,
+    setters,
+    computedIsVisibile: (
+      propertiesSignal: Signal<MergedProperties>,
+      borderInset: Signal<Inset | undefined>,
+      size: Signal<Vector2Tuple | undefined>,
+      isHidden: Signal<boolean> | undefined,
+    ) => {
+      return computed(() => {
+        if (borderInset.value == null || size.value == null) {
+          return true
+        }
+        const borderOpacity =
+          keys.borderOpacity == null
+            ? defaults.borderOpacity
+            : propertiesSignal.value.read(keys.borderOpacity, defaults.borderOpacity)
+        const backgroundOpacity =
+          keys.backgroundOpacity == null
+            ? defaults.backgroundOpacity
+            : propertiesSignal.value.read(keys.backgroundOpacity, defaults.backgroundOpacity)
+        const backgroundColor =
+          keys.backgroundColor == null
+            ? defaults.backgroundColor
+            : propertiesSignal.value.read(keys.backgroundColor, defaults.backgroundColor)
+        const borderVisible = borderInset.value.some((s) => s > 0) && borderOpacity > 0
+        const [width, height] = size.value
+        const backgroundVisible =
+          width > 0 && height > 0 && (backgroundOpacity === -1 || backgroundOpacity > 0) && backgroundColor != noColor
+
+        if (!backgroundVisible && !borderVisible) {
+          return false
+        }
+
+        if (isHidden == null) {
+          return true
+        }
+
+        return !isHidden.value
+      })
+    },
+  }
+}
+
+const materialSetters = {
   //0-3 = borderSizes
 
   //4-6 = background color
-  backgroundColor: (d, p) =>
-    (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? panelDefaultColor)).toArray(d, 4),
+  backgroundColor: (d, o, p: ColorRepresentation, _, u) => writeColor(d, o + 4, p, u),
 
   //7 = border radiuses
-  borderBottomLeftRadius: (d, p, size) => setBorderRadius(d, 7, 0, p, size.value[1]),
-  borderBottomRightRadius: (d, p, size) => setBorderRadius(d, 7, 1, p, size.value[1]),
-  borderTopRightRadius: (d, p, size) => setBorderRadius(d, 7, 2, p, size.value[1]),
-  borderTopLeftRadius: (d, p, size) => setBorderRadius(d, 7, 3, p, size.value[1]),
+  borderBottomLeftRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 0, p, s[1], u),
+  borderBottomRightRadius: (d, o, p: number, { value: s }, u) =>
+    s != null && writeBorderRadius(d, o + 7, 1, p, s[1], u),
+  borderTopRightRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 2, p, s[1], u),
+  borderTopLeftRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 3, p, s[1], u),
 
   //8 - 10 = border color
-  borderColor: (d, p) => (Array.isArray(p) ? colorHelper.setRGB(...p) : colorHelper.set(p ?? 0xffffff)).toArray(d, 8),
+  borderColor: (d, o, p: number, _, u) => writeColor(d, o + 8, p, u),
   //11
-  borderBend: (d, p) => (d[11] = p ?? 0),
+  borderBend: (d, o, p: number, _, u) => writeComponent(d, o + 11, p, u),
   //12
-  borderOpacity: (d, p) => (d[12] = p ?? 1),
+  borderOpacity: (d, o, p: number, _, u) => writeComponent(d, o + 12, p, u),
 
   //13 = width
   //14 = height
 
   //15
-  backgroundOpacity: (d, p) => (d[15] = p ?? -1),
+  backgroundOpacity: (d, o, p: number, _, u) => writeComponent(d, o + 15, p, u),
+} as const satisfies {
+  [Key in string]: (
+    data: TypedArray,
+    offset: number,
+    value: any,
+    size: Signal<Vector2Tuple | undefined>,
+    onUpdate: ((start: number, count: number) => void) | undefined,
+  ) => void
 }
 
-export type PanelSetter = (typeof panelMaterialSetters)[keyof typeof panelMaterialSetters]
+function filterNull<T>(value: T | undefined | null): value is T {
+  return value != null
+}
+
+function writeBorderRadius(
+  data: TypedArray,
+  offset: number,
+  indexInFloat: number,
+  value: any,
+  height: number,
+  onUpdate: ((start: number, count: number) => void) | undefined,
+): void {
+  setBorderRadius(data, offset, indexInFloat, value, height)
+  onUpdate?.(offset, 1)
+}
+
+function writeComponent(
+  data: TypedArray,
+  offset: number,
+  value: any,
+  onUpdate: ((start: number, count: number) => void) | undefined,
+): void {
+  data[offset] = value
+  onUpdate?.(offset, 1)
+}
+
+const colorHelper = new Color()
+
+export function writeColor(
+  target: TypedArray,
+  offset: number,
+  color: ColorRepresentation,
+  onUpdate: ((start: number, count: number) => void) | undefined,
+) {
+  if (Array.isArray(color)) {
+    target.set(color, offset)
+  } else {
+    colorHelper.set(color).toArray(target, offset)
+  }
+  onUpdate?.(offset, 3)
+}
 
 export type PanelMaterial = InstanceOf<ReturnType<typeof createPanelMaterial>>
-
-export const panelMaterialDefaultData = [
-  0,
-  0,
-  0,
-  0, //border sizes
-  -1,
-  -1,
-  -1, //background color
-  0, //border radiuses
-  1,
-  1,
-  1, //border color
-  0, //border bend
-  1, //border opacity
-  1, //width
-  1, //height
-  -1, //background opacity
-]
 
 export type PanelMaterialInfo = { type: 'instanced' } | { type: 'normal'; data: Float32Array }
 

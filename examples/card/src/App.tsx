@@ -25,9 +25,7 @@ export default function App() {
       <Defaults>
         <ambientLight intensity={Math.PI} />
         <spotLight decay={0} position={[0, 5, 10]} angle={0.25} penumbra={1} intensity={2} castShadow />
-        <Root pixelSize={0.01}>
-          <CardPage />
-        </Root>
+        <CardPage />
         <Fullscreen flexDirection="column" justifyContent="flex-end" alignItems="center" paddingBottom={32}>
           <Button onClick={() => window.open('https://github.com/pmndrs/uikit/tree/main/examples/card', '_blank')}>
             <Text>Source Code</Text>

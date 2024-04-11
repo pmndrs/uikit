@@ -1,6 +1,36 @@
-import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
-import { createPanelGeometry } from './utils.js'
+import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
+import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
+import { Signal, effect } from '@preact/signals-core'
+import { Initializers, Subscriptions } from '../utils.js'
+import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
+import { OrderInfo } from '../order.js'
+import { ClippingRect, FlexNode, RootContext } from '../internals.js'
+
+export function createInteractionPanel(
+  orderInfo: Signal<OrderInfo | undefined>,
+  rootContext: RootContext,
+  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  size: Signal<Vector2Tuple | undefined>,
+  initializers: Initializers,
+): Mesh {
+  const panel = new Mesh(panelGeometry)
+  panel.matrixAutoUpdate = false
+  panel.raycast = makeClippedRaycast(panel, makePanelRaycast(panel), rootContext.object, parentClippingRect, orderInfo)
+  panel.visible = false
+  initializers.push(() =>
+    effect(() => {
+      if (size.value == null) {
+        return
+      }
+      const [width, height] = size.value
+      const pixelSize = rootContext.pixelSize.value
+      panel.scale.set(width * pixelSize, height * pixelSize, 1)
+      panel.updateMatrix()
+    }),
+  )
+  return panel
+}
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0

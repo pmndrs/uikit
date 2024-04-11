@@ -15,7 +15,7 @@ Build performant 3D user interfaces for **Three.js** using **@react-three/fiber*
 npm install three @react-three/fiber @react-three/uikit
 ```
 
-### What does it look like ?
+### What does it look like?
 
 | A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./docs/getting-started/basic-example.gif) |
 | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
@@ -36,7 +36,7 @@ createRoot(document.getElementById('root')).render(
 )
 ```
 
-## Pre-Styled Component Kits
+## Pre-styled component kits
 
 We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
 
@@ -48,7 +48,7 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 | [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
 | `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
 
-## How to get started?
+## How to get started
 
 > Some familiarity with
 > react, threejs, and @react-three/fiber, is recommended.
@@ -56,17 +56,17 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples)** to see uikit in action, or learn more about:
 
 - [All components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
-- [Interacitivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
+- [Interactivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
 - [Custom materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)
 - [Custom fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)
-- [Responsivene user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
+- [Responsive user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
 - [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)
 - [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
 - [Common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls)
 - [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
 - [Theming components](https://docs.pmnd.rs/uikit/kits/theming)
 
-## Migration Guides
+## Migration guides
 
 - from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
 - from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)

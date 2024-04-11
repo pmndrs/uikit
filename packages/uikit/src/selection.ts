@@ -1,32 +1,89 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { GetInstancedPanelGroup, useGetInstancedPanelGroup, usePanelGroupDependencies } from './panel/react.js'
-import { useEffect, useMemo } from 'react'
-import { InstancedPanel } from './panel/instanced-panel.js'
+import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
-import { ElementType, OrderInfo, useOrderInfo } from './order.js'
+import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { Inset } from './flex/index.js'
-
-const noBorder = signal<Inset>([0, 0, 0, 0])
+import {
+  ColorRepresentation,
+  Initializers,
+  MergedProperties,
+  PanelGroupManager,
+  PanelMaterialConfig,
+  Subscriptions,
+  computedBorderInset,
+  createPanelMaterialConfig,
+  defaultPanelDependencies,
+  unsubscribeSubscriptions,
+} from './internals.js'
 
 export type SelectionBoxes = Array<{ size: Vector2Tuple; position: Vector2Tuple }>
 
-export function useSelection(
+export type SelectionBorderSizeProperties = {
+  selectionBorderRight?: number
+  selectionBorderTop?: number
+  selectionBorderLeft?: number
+  selectionBorderBottom?: number
+}
+
+const selectionBorderKeys = [
+  'selectionBorderRight',
+  'selectionBorderTop',
+  'selectionBorderLeft',
+  'selectionBorderBottom',
+]
+
+export type SelectionProperties = {
+  selectionOpacity?: number
+  selectionColor?: ColorRepresentation
+} & SelectionBorderSizeProperties & {
+    [Key in Exclude<
+      keyof PanelProperties,
+      'backgroundColor' | 'backgroundOpacity'
+    > as `selection${Capitalize<Key>}`]: PanelProperties[Key]
+  }
+
+let selectionMaterialConfig: PanelMaterialConfig | undefined
+function getSelectionMaterialConfig() {
+  selectionMaterialConfig ??= createPanelMaterialConfig(
+    {
+      backgroundColor: 'selectionColor',
+      backgroundOpacity: 'selectionOpacity',
+      borderBend: 'selectionBorderBend',
+      borderBottomLeftRadius: 'selectionBorderBottomLeftRadius',
+      borderBottomRightRadius: 'selectionBorderBottomRightRadius',
+      borderColor: 'selectionBorderColor',
+      borderOpacity: 'selectionBorderOpacity',
+      borderTopLeftRadius: 'selectionBorderTopLeftRadius',
+      borderTopRightRadius: 'selectionBorderTopRightRadius',
+    },
+    {
+      backgroundColor: 0xb4d7ff,
+      backgroundOpacity: 1,
+    },
+  )
+  return selectionMaterialConfig
+}
+
+export function createSelection(
+  propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   selectionBoxes: Signal<SelectionBoxes>,
   isHidden: Signal<boolean> | undefined,
-  parentOrderInfo: OrderInfo,
+  prevOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  providedGetGroup?: GetInstancedPanelGroup,
-): OrderInfo {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const getGroup = providedGetGroup ?? useGetInstancedPanelGroup()
-  const panels = useMemo<
-    Array<{ panel: InstancedPanel; size: Signal<Vector2Tuple>; offset: Signal<Vector2Tuple>; unsubscribe: () => void }>
-  >(() => [], [])
-  const groupDeps = usePanelGroupDependencies(undefined, { castShadow: false, receiveShadow: false })
-  const orderInfo = useOrderInfo(ElementType.Panel, undefined, groupDeps, parentOrderInfo)
-  const unsubscribe = useMemo(
+  panelGroupManager: PanelGroupManager,
+  initializers: Initializers,
+) {
+  const panels: Array<{
+    size: Signal<Vector2Tuple>
+    offset: Signal<Vector2Tuple>
+    panelSubscriptions: Subscriptions
+  }> = []
+  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, prevOrderInfo)
+  const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
+
+  initializers.push(
     () =>
       effect(() => {
         const selections = selectionBoxes.value
@@ -36,34 +93,23 @@ export function useSelection(
           if (panelData == null) {
             const size = signal<Vector2Tuple>([0, 0])
             const offset = signal<Vector2Tuple>([0, 0])
-            const panel = new InstancedPanel(
-              getGroup(orderInfo.majorIndex, groupDeps),
+            const panelSubscriptions: Subscriptions = []
+            createInstancedPanel(
+              propertiesSignal,
+              orderInfo,
+              undefined,
+              panelGroupManager,
               matrix,
               size,
               offset,
-              noBorder,
+              borderInset,
               parentClippingRect,
               isHidden,
-              orderInfo.minorIndex,
+              getSelectionMaterialConfig(),
+              panelSubscriptions,
             )
-            panel.getProperty.value = (key) => {
-              if (key === 'backgroundColor') {
-                return 0xb4d7ff as any
-              }
-              if (key === 'backgroundOpacity') {
-                return 1
-              }
-              return undefined
-            }
-            const unsubscribe = effect(() => {
-              if (panel.active.value) {
-                panel.setProperty('backgroundColor', 0xb4d7ff)
-                panel.setProperty('backgroundOpacity', 1)
-              }
-            })
             panels[i] = panelData = {
-              unsubscribe,
-              panel,
+              panelSubscriptions,
               offset,
               size,
             }
@@ -74,23 +120,16 @@ export function useSelection(
         }
         const panelsLength = panels.length
         for (let i = selectionsLength; i < panelsLength; i++) {
-          panels[i].unsubscribe()
-          panels[i].panel.destroy()
+          unsubscribeSubscriptions(panels[i].panelSubscriptions)
         }
         panels.length = selectionsLength
       }),
-    [selectionBoxes, panels, getGroup, orderInfo, groupDeps, matrix, parentClippingRect, isHidden],
-  )
-  useEffect(
     () => () => {
-      unsubscribe()
       const panelsLength = panels.length
       for (let i = 0; i < panelsLength; i++) {
-        panels[i].unsubscribe()
-        panels[i].panel.destroy()
+        unsubscribeSubscriptions(panels[i].panelSubscriptions)
       }
     },
-    [unsubscribe, panels],
   )
   return orderInfo
 }
