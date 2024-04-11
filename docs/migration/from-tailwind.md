@@ -1,7 +1,7 @@
 ---
 title: Migration from Tailwind
 description: How to migrate a user interface from tailwind to uikit.
-nav: 16
+nav: 17
 ---
 
 uikit is inspired by tailwind. Therefore, many properties are similar with minor syntactical difference. The major differences are **sizing** and **defaults**.

@@ -1,7 +1,7 @@
 ---
 title: Theming
 description: How to customize the theme of the components from the kits.
-nav: 6
+nav: 7
 ---
 
 When installing components from any kit, the `uikit cli` always adds a `theme.tsx` file. The values inside this file can be freely adapted to create a custom theme.

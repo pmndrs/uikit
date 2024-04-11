@@ -3,11 +3,11 @@ import { Root } from './root.js'
 import { batch, signal } from '@preact/signals-core'
 import { RootState, createPortal, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { RootProperties, WithReactive, updateSizeFullscreen } from '@pmndrs/uikit/internals'
+import { FullscreenProperties, RootProperties, updateSizeFullscreen } from '@pmndrs/uikit/internals'
 import { ComponentInternals } from './ref.js'
 
 export const Fullscreen: (
-  props: Omit<RootProperties & WithReactive<{ pixelSize?: number }>, 'sizeX' | 'sizeY' | 'pixelSize'> & {
+  props: FullscreenProperties & {
     children?: ReactNode
     attachCamera?: boolean
     distanceToCamera?: number

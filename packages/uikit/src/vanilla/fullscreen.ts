@@ -1,6 +1,12 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { Root } from './root.js'
-import { FontFamilies, RootProperties, AllOptionalProperties, updateSizeFullscreen } from '../internals.js'
+import {
+  FontFamilies,
+  RootProperties,
+  AllOptionalProperties,
+  updateSizeFullscreen,
+  FullscreenProperties,
+} from '../internals.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 
 const vectorHelper = new Vector2()
@@ -15,7 +21,7 @@ export class Fullscreen extends Root {
   constructor(
     private renderer: WebGLRenderer,
     private distanceToCamera?: number,
-    properties?: Omit<RootProperties, 'sizeX' | 'sizeY' | 'pixelSize'>,
+    properties?: FullscreenProperties,
     defaultProperties?: AllOptionalProperties,
     fontFamilies?: FontFamilies,
   ) {

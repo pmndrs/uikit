@@ -129,7 +129,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 ## Root
 
-Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
+Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units. The `Root` component also allows to control the `renderOrder` and `depthTest` of the whole user interface.
 
 ```jsx
 <Root sizeX={2} sizeY={1} flexDirection="row">
@@ -141,18 +141,20 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 <details>
 <summary>View all properties specific to the `Root` component</summary>
 
-| Property  | Type                      |
-| --------- | ------------------------- |
-| anchorX   | "left", "center", "right" |
-| anchorY   | "top", "center", "bottom" |
-| sizeX     | number                    |
-| sizeY     | number                    |
+| Property    | Type                      |
+| ----------- | ------------------------- |
+| anchorX     | "left", "center", "right" |
+| anchorY     | "top", "center", "bottom" |
+| sizeX       | number                    |
+| sizeY       | number                    |
+| renderOrder | number                    |
+| depthTest   | boolean                   |
 
 </details>
 
 ## Fullscreen
 
-The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport. The `Fullscreen` component automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
+The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport based on the provided `distanceToCamera`. The `Fullscreen` component automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
 
 ```jsx
 <Fullscreen flexDirection="row">
@@ -164,9 +166,12 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 <details>
 <summary>View all properties specific to the `Fullscreen` component</summary>
 
-| Property     | Type    |
-| ------------ | ------- |
-| attachCamera | boolean |
+| Property         | Type    |
+| ---------------- | ------- |
+| attachCamera     | boolean |
+| distanceToCamera | number  |
+| renderOrder      | number  |
+| depthTest        | boolean |
 
 </details>
 
