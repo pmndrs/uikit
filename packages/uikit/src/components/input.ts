@@ -219,24 +219,24 @@ export function createInput(
   const disabled = computedProperty(mergedProperties, 'disabled', false)
 
   const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, disabled, initializers)
-  const focus = () => {
-    if (hasFocusSignal.peek()) {
+  const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
+    const inputElement = element.peek()
+    if (inputElement == null) {
       return
     }
-    element.peek()?.focus()
+    if (!hasFocusSignal.peek()) {
+      inputElement.focus()
+    }
+    if (start != null && end != null) {
+      inputElement.setSelectionRange(start, end, direction)
+    }
+    selectionRange.value = [inputElement.selectionStart ?? 0, inputElement.selectionEnd ?? 0]
   }
   updateHasFocus(element, hasFocusSignal, initializers)
-  const selectionHandlers = computedSelectionHandlers(
-    flexState,
-    element,
-    instancedTextRef,
-    selectionRange,
-    focus,
-    disabled,
-  )
+  const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
-    focus,
+    focus: () => focus(),
     root: parentContext.root,
     element,
     node: nodeSignal,
@@ -262,10 +262,8 @@ export function createInput(
 
 export function computedSelectionHandlers(
   flexState: FlexNodeState,
-  element: Signal<HTMLInputElement | HTMLTextAreaElement | undefined>,
   instancedTextRef: { current?: InstancedText },
-  selectionRange: Signal<Vector2Tuple | undefined>,
-  focus: () => void,
+  focus: (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => void,
   disabled: Signal<boolean>,
 ) {
   return computed<EventHandlers | undefined>(() => {
@@ -283,11 +281,7 @@ export function computedSelectionHandlers(
         const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
         startCharIndex = charIndex
 
-        setTimeout(() => {
-          focus()
-          selectionRange.value = [charIndex, charIndex]
-          element.peek()?.setSelectionRange(charIndex, charIndex)
-        })
+        setTimeout(() => focus(charIndex, charIndex))
       },
       onPointerUp: (e) => {
         startCharIndex = undefined
@@ -306,11 +300,7 @@ export function computedSelectionHandlers(
         const end = Math.max(startCharIndex, charIndex)
         const direction = startCharIndex < charIndex ? 'forward' : 'backward'
 
-        setTimeout(() => {
-          focus()
-          selectionRange.value = [start, end]
-          element.peek()?.setSelectionRange(start, end, direction)
-        })
+        setTimeout(() => focus(start, end, direction))
       },
     }
   })

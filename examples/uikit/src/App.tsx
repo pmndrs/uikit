@@ -1,4 +1,4 @@
-import { StrictMode, Suspense, useMemo, useRef, useState } from 'react'
+import { ComponentRef, StrictMode, Suspense, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Gltf, Box, PerspectiveCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
@@ -27,6 +27,7 @@ export default function App() {
   const x = useMemo(() => signal<string | undefined>('red'), [])
   const t = useMemo(() => signal('X X\nX X'), [])
   const ref = useRef<ComponentInternals<ImageProperties>>(null)
+  const inputRef = useRef<ComponentRef<typeof Input>>(null)
   return (
     <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <StrictMode>
@@ -179,6 +180,7 @@ export default function App() {
               <Container
                 width={100}
                 height={100}
+                onClick={() => inputRef.current?.focus()}
                 positionType="absolute"
                 positionBottom="100%"
                 positionRight="100%"
@@ -187,6 +189,7 @@ export default function App() {
                 backgroundColor="red"
               ></Container>
               <Input
+                ref={inputRef}
                 backgroundColor="white"
                 width="100%"
                 height="100%"
