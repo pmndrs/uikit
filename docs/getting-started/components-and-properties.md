@@ -107,9 +107,6 @@ In addition to the flexbox properties, the container has properties for styling 
 | borderTopRightRadius             | number              |
 | borderBottomRightRadius          | number              |
 | borderBottomLeftRadius           | number              |
-| border                           | number              |
-| borderX                          | number              |
-| borderY                          | number              |
 | borderBend                       | number              |
 | scrollbarPanelMaterialClass      | Material class      |
 | scrollbarBackgroundOpacity       | number              |
@@ -129,7 +126,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 ## Root
 
-Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
+Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units. The `Root` component also allows to control the `renderOrder` and `depthTest` of the whole user interface.
 
 ```jsx
 <Root sizeX={2} sizeY={1} flexDirection="row">
@@ -141,18 +138,20 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 <details>
 <summary>View all properties specific to the `Root` component</summary>
 
-| Property  | Type                      |
-| --------- | ------------------------- |
-| anchorX   | "left", "center", "right" |
-| anchorY   | "top", "center", "bottom" |
-| sizeX     | number                    |
-| sizeY     | number                    |
+| Property    | Type                      |
+| ----------- | ------------------------- |
+| anchorX     | "left", "center", "right" |
+| anchorY     | "top", "center", "bottom" |
+| sizeX       | number                    |
+| sizeY       | number                    |
+| renderOrder | number                    |
+| depthTest   | boolean                   |
 
 </details>
 
 ## Fullscreen
 
-The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport. The `Fullscreen` component automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
+The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport based on the provided `distanceToCamera`. The `Fullscreen` component automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
 
 ```jsx
 <Fullscreen flexDirection="row">
@@ -164,9 +163,12 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 <details>
 <summary>View all properties specific to the `Fullscreen` component</summary>
 
-| Property     | Type    |
-| ------------ | ------- |
-| attachCamera | boolean |
+| Property         | Type    |
+| ---------------- | ------- |
+| attachCamera     | boolean |
+| distanceToCamera | number  |
+| renderOrder      | number  |
+| depthTest        | boolean |
 
 </details>
 
@@ -262,14 +264,57 @@ The `Input` component extends the `Text` component and allows the user to change
 <details>
 <summary>View all properties specific to the `Input` component</summary>
 
-| Property      | Type                    |
-| ------------- | ----------------------- |
-| multiline     | boolean                 |
-| value         | string                  |
-| defaultValue  | string                  |
-| onValueChange | (value: string) => void |
-| tabIndex      | number                  |
-| disabled      | boolean                 |
+| Property                         | Type                    |
+| -------------------------------- | ----------------------- |
+| multiline                        | boolean                 |
+| value                            | string                  |
+| defaultValue                     | string                  |
+| onValueChange                    | (value: string) => void |
+| tabIndex                         | number                  |
+| disabled                         | boolean                 |
+| caretColor                       | ColorRepresentation     |
+| caretOpacity                     | opacity                 |
+| caretWidth                       | number                  |
+| caretBorderOpacity               | number                  |
+| caretBorderColor                 | ColorRepresentation     |
+| caretBorderRadius                | number                  |
+| caretBorderLeftRadius            | number                  |
+| caretBorderRightRadius           | number                  |
+| caretBorderTopRadius             | number                  |
+| caretBorderBottomRadius          | number                  |
+| caretBorderTopLeftRadius         | number                  |
+| caretBorderTopRightRadius        | number                  |
+| caretBorderBottomRightRadius     | number                  |
+| caretBorderBottomLeftRadius      | number                  |
+| caretBorderBend                  | number                  |
+| caretBorder                      | number                  |
+| caretBorderX                     | number                  |
+| caretBorderY                     | number                  |
+| caretBorderTop                   | number                  |
+| caretBorderLeft                  | number                  |
+| caretBorderRight                 | number                  |
+| caretBorderBottom                | number                  |
+| selectionColor                   | ColorRepresentation     |
+| selectionOpacity                 | opacity                 |
+| selectionBorderOpacity           | number                  |
+| selectionBorderColor             | ColorRepresentation     |
+| selectionBorderRadius            | number                  |
+| selectionBorderLeftRadius        | number                  |
+| selectionBorderRightRadius       | number                  |
+| selectionBorderTopRadius         | number                  |
+| selectionBorderBottomRadius      | number                  |
+| selectionBorderTopLeftRadius     | number                  |
+| selectionBorderTopRightRadius    | number                  |
+| selectionBorderBottomRightRadius | number                  |
+| selectionBorderBottomLeftRadius  | number                  |
+| selectionBorderBend              | number                  |
+| selectionBorder                  | number                  |
+| selectionBorderX                 | number                  |
+| selectionBorderY                 | number                  |
+| selectionBorderTop               | number                  |
+| selectionBorderLeft              | number                  |
+| selectionBorderRight             | number                  |
+| selectionBorderBottom            | number                  |
 
 </details>
 
@@ -338,6 +383,31 @@ The `Content` component allows you to include any R3F/Three.js element into the 
 | --------------- | ------------------------- |
 | depthAlign      | "back", "center", "front" |
 | keepAspectRatio | boolean                   |
+
+</details>
+
+## VideoContainer
+
+The `VideoContainer` component allows to display a video based on the `Image` component. The component as all the properties of the `Image` component in addition to properties such as `volume` that allow controlling the video playback.
+
+```jsx
+<Root>
+  <VideoContainer src="example.mp4" autoplay />
+</Root>
+```
+
+<details>
+<summary>View all properties specific to the `VideoContainer` component</summary>
+
+| Property       | Type                |
+| -------------- | ------------------- |
+| src            | string, MediaStream |
+| volume         | number              |
+| preservesPitch | boolean             |
+| playbackRate   | number              |
+| muted          | boolean             |
+| loop           | boolean             |
+| autoplay       | boolean             |
 
 </details>
 

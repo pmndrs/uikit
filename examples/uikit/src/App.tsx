@@ -35,10 +35,15 @@ export default function App() {
           <ambientLight intensity={0.5} />
           <directionalLight intensity={10} position={[5, 1, 10]} />
           <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
+          <Gltf position={[0, 0, 4]} scale={10} src="example.glb" />
           <RenderTexture ref={(t) => (texture.value = t ?? undefined)}>
             <Box />
           </RenderTexture>
+          <Box renderOrder={1} position={[0, 0, 4]} scale={0.2}>
+            <meshBasicMaterial depthWrite={false} transparent color="red" />
+          </Box>
           <Fullscreen
+            renderOrder={10}
             distanceToCamera={1}
             gap={10}
             overflow="scroll"
@@ -117,7 +122,9 @@ export default function App() {
                 </mesh>
               </Content>
               <Content flexShrink={0} width={100}>
-                <Gltf src="example.glb" />
+                <Box>
+                  <meshBasicMaterial transparent color="black" />
+                </Box>
               </Content>
               <Svg flexShrink={0} marginLeft={-100} color={x} backgroundColor="red" src="example.svg" width={200} />
               <Suspense fallback={<Skeleton width={300} aspectRatio={2 / 3} />}>
@@ -127,8 +134,8 @@ export default function App() {
                   fit="cover"
                   border={20}
                   ref={ref}
-                  onHoverChange={(hovered) => ref.current?.setStyle({ borderOpacity: hovered ? 10 : 0.2 })}
-                  borderOpacity={0.2}
+                  onHoverChange={(hovered) => ref.current?.setStyle({ borderOpacity: hovered ? 1 : 0.5 })}
+                  borderOpacity={0.5}
                   borderRadius={10}
                   flexDirection="column"
                   src="https://picsum.photos/2000/3000"

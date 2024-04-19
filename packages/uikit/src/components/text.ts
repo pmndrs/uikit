@@ -72,7 +72,7 @@ export function createText(
   })
 
   const nodeSignal = signal<FlexNode | undefined>(undefined)
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   createNode(nodeSignal, flexState, parentContext, mergedProperties, object, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)

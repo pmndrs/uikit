@@ -23,7 +23,7 @@ function hasImmediateProperty(key: string): boolean {
 
 export type FlexNodeState = ReturnType<typeof createFlexNodeState>
 
-export function createFlexNodeState(anyAncestorScrollable: Signal<readonly [boolean, boolean]> | undefined) {
+export function createFlexNodeState() {
   const scrollable = signal<[boolean, boolean]>([false, false])
   return {
     size: signal<Vector2Tuple | undefined>(undefined),
@@ -33,11 +33,6 @@ export function createFlexNodeState(anyAncestorScrollable: Signal<readonly [bool
     scrollable,
     paddingInset: signal<Inset | undefined>(undefined),
     maxScrollPosition: signal<Partial<Vector2Tuple>>([undefined, undefined]),
-    anyAncestorScrollable: computed(() => {
-      const [ancestorX, ancestorY] = anyAncestorScrollable?.value ?? [false, false]
-      const [x, y] = scrollable.value
-      return [ancestorX || x, ancestorY || y] as const
-    }),
   }
 }
 

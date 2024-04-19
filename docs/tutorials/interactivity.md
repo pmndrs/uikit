@@ -1,7 +1,7 @@
 ---
 title: Interactivity
 description: How to make the UI elements interactive.
-nav: 7
+nav: 8
 ---
 
 Every UI component can receive the same events as [any other R3F element](https://docs.pmnd.rs/react-three-fiber/api/events). In addition to these event listeners, uikit provides properties such as `hover` and `active` for all components. These properties allow the element to overwrite other properties if it is hovered or clicked.

@@ -1,5 +1,8 @@
-import { Signal } from '@preact/signals-core'
+import type { Signal } from '@preact/signals-core'
 import { Camera, OrthographicCamera, PerspectiveCamera } from 'three'
+import type { RootProperties } from './root.js'
+
+export type FullscreenProperties = Omit<RootProperties, 'sizeX' | 'sizeY' | 'pixelSize' | 'anchorX' | 'anchorY'>
 
 export function updateSizeFullscreen(
   sizeX: Signal<number>,

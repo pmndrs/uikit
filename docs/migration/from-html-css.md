@@ -1,7 +1,7 @@
 ---
 title: Migration from HTML/CSS
 description: How to migrate a user interface from HTML/CSS to uikit.
-nav: 17
+nav: 18
 ---
 
 uikit is inspired by HTML/CSS. Therefore, many properties are similar with minor syntactical difference.

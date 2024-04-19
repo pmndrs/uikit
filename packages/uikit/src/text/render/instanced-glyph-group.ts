@@ -4,16 +4,46 @@ import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../../order.js'
-import { Object3DRef } from '../../context.js'
-import { Signal } from '@preact/signals-core'
+import { Object3DRef, RootContext } from '../../context.js'
+import { Signal, effect } from '@preact/signals-core'
+import { Initializers } from '../../utils.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<number, InstancedGlyphGroup>>()
   constructor(
+    private renderOrder: Signal<number>,
+    private depthTest: Signal<boolean>,
     private pixelSize: Signal<number>,
-    private rootCameraDistance: WithCameraDistance,
+    private root: WithCameraDistance & Pick<RootContext, 'onFrameSet'>,
     private object: Object3DRef,
-  ) {}
+    initializers: Initializers,
+  ) {
+    initializers.push(
+      () => {
+        const onFrame = (delta: number) => this.traverse((group) => group.onFrame(delta))
+        root.onFrameSet.add(onFrame)
+        return () => root.onFrameSet.delete(onFrame)
+      },
+      () =>
+        effect(() => {
+          const ro = renderOrder.value
+          this.traverse((group) => group.setRenderOrder(ro))
+        }),
+      () =>
+        effect(() => {
+          const dt = depthTest.value
+          this.traverse((group) => group.setDepthTest(dt))
+        }),
+    )
+  }
+
+  private traverse(fn: (group: InstancedGlyphGroup) => void) {
+    for (const groups of this.map.values()) {
+      for (const group of groups.values()) {
+        fn(group)
+      }
+    }
+  }
 
   getGroup(majorIndex: number, font: Font) {
     let groups = this.map.get(font)
@@ -24,22 +54,22 @@ export class GlyphGroupManager {
     if (glyphGroup == null) {
       groups.set(
         majorIndex,
-        (glyphGroup = new InstancedGlyphGroup(this.object, font, this.pixelSize, this.rootCameraDistance, {
-          majorIndex,
-          elementType: ElementType.Text,
-          minorIndex: 0,
-        })),
+        (glyphGroup = new InstancedGlyphGroup(
+          this.renderOrder.peek(),
+          this.depthTest.peek(),
+          this.object,
+          font,
+          this.pixelSize,
+          this.root,
+          {
+            majorIndex,
+            elementType: ElementType.Text,
+            minorIndex: 0,
+          },
+        )),
       )
     }
     return glyphGroup
-  }
-
-  onFrame = (delta: number) => {
-    for (const groups of this.map.values()) {
-      for (const group of groups.values()) {
-        group.onFrame(delta)
-      }
-    }
   }
 }
 
@@ -59,6 +89,8 @@ export class InstancedGlyphGroup {
   private timeTillDecimate?: number
 
   constructor(
+    private renderOrder: number,
+    depthTest: boolean,
     private object: Object3DRef,
     font: Font,
     public readonly pixelSize: Signal<number>,
@@ -66,6 +98,19 @@ export class InstancedGlyphGroup {
     private orderInfo: OrderInfo,
   ) {
     this.instanceMaterial = new InstancedGlyphMaterial(font)
+    this.instanceMaterial.depthTest = depthTest
+  }
+
+  setDepthTest(depthTest: boolean) {
+    this.instanceMaterial.depthTest = depthTest
+  }
+
+  setRenderOrder(renderOrder: number) {
+    this.renderOrder = renderOrder
+    if (this.mesh == null) {
+      return
+    }
+    this.mesh.renderOrder = renderOrder
   }
 
   requestActivate(glyph: InstancedGlyph): void {
@@ -191,6 +236,7 @@ export class InstancedGlyphGroup {
       this.instanceClipping,
       this.instanceMaterial,
     )
+    this.mesh.renderOrder = this.renderOrder
 
     //copy over old arrays and merging the holes
     if (oldMesh != null) {

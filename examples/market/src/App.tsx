@@ -1,7 +1,7 @@
 import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
-import { Root, Container, Image, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
+import { Root, Container, Image, Text, Fullscreen, DefaultProperties, VideoContainer } from '@react-three/uikit'
 import { PlusCircle } from '@react-three/uikit-lucide'
 import { Defaults, colors } from '@/theme.js'
 import { DialogAnchor } from '@/dialog.js'
@@ -108,6 +108,7 @@ export function MarketPage() {
               </Container>
               <Separator marginY={16} />
               <Container flexShrink={1} flexDirection="row" overflow="scroll" gap={16} paddingBottom={16}>
+                <VideoContainer autoplay muted borderRadius={6} flexShrink={0} src="example.mp4" />
                 {madeForYouAlbums.map((album) => (
                   <AlbumArtwork key={album.name} album={album} aspectRatio="square" width={150} height={150} />
                 ))}

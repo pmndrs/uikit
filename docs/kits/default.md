@@ -1,7 +1,7 @@
 ---
 title: Default
 description: All the Default components.
-nav: 5
+nav: 6
 ---
   
 ## Accordion

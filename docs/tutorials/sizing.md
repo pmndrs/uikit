@@ -1,7 +1,7 @@
 ---
 title: Sizing
 description: How to size elements and use pixelSize, sizeX, and sizeY.
-nav: 10
+nav: 11
 ---
 
 **TLDR**: The size of the Root element is defined in three.js units through the optional `sizeX` and `sizeY` parameters. The `pixelSize` parameter allows you to define how big one pixel in the UI is in relation to one three.js unit.

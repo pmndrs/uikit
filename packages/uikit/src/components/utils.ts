@@ -16,6 +16,7 @@ import {
   computedProperty,
   FlexNode,
   FlexNodeState,
+  RootContext,
 } from '../internals.js'
 
 export function computedGlobalMatrix(
@@ -171,6 +172,7 @@ export function applyAppearancePropertiesToGroup(
   propertiesSignal: Signal<MergedProperties>,
   group: Signal<Object3D | undefined> | Object3D,
   initializers: Initializers,
+  root: RootContext,
 ) {
   const color = computedProperty<ColorRepresentation | undefined>(propertiesSignal, 'color', undefined)
   const opacity = computedProperty(propertiesSignal, 'opacity', 1)
@@ -182,13 +184,15 @@ export function applyAppearancePropertiesToGroup(
       } else if (color.value != null) {
         c = colorHelper.set(color.value)
       }
-      readReactive(group)?.traverse((object) => {
-        if (!(object instanceof Mesh)) {
+      readReactive(group)?.traverse((mesh) => {
+        if (!(mesh instanceof Mesh)) {
           return
         }
-        const material: MeshBasicMaterial = object.material
-        material.color.copy(c ?? object.userData.color)
+        mesh.renderOrder = root.renderOrder.value
+        const material: MeshBasicMaterial = mesh.material
+        material.color.copy(c ?? mesh.userData.color)
         material.opacity = opacity.value
+        material.depthTest = root.depthTest.value
       })
     }),
   )

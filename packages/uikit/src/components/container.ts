@@ -4,6 +4,7 @@ import { computedIsClipped, computedClippingRect } from '../clipping.js'
 import {
   ScrollbarProperties,
   applyScrollPosition,
+  computedAnyAncestorScrollable,
   computedGlobalScrollMatrix,
   computedScrollHandlers,
   createScrollPosition,
@@ -56,7 +57,7 @@ export function createContainer(
   childrenContainer: Object3DRef,
 ) {
   const node = signal<FlexNode | undefined>(undefined)
-  const flexState = createFlexNodeState(parentContext.anyAncestorScrollable)
+  const flexState = createFlexNodeState()
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const initializers: Initializers = []
@@ -124,6 +125,7 @@ export function createContainer(
   )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
+    parentContext.anyAncestorScrollable,
     flexState,
     object,
     properties,
@@ -136,6 +138,7 @@ export function createContainer(
   setupViewportListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(
       globalMatrix,
       flexState,
