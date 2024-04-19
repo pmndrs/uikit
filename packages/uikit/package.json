@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
-    "yoga-layout": "^3.0.3"
+    "yoga-layout": "^3.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

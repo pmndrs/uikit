@@ -553,8 +553,8 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
       yoga-layout:
-        specifier: ^3.0.3
-        version: 3.0.3
+        specifier: ^3.0.4
+        version: 3.0.4
     devDependencies:
       '@types/node':
         specifier: ^20.11.0
@@ -7185,8 +7185,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yoga-layout@3.0.3:
-    resolution: {integrity: sha512-7Y9/DP9BaEDKwrL2+rQPq5HFYSOdwED0hPceuXd1NIdnxQf6hnrYGMZBnUqG1CLXXL6njh/dEjsli574OmAcVw==}
+  /yoga-layout@3.0.4:
+    resolution: {integrity: sha512-mNmdkofwKGSXUYvo4sDTNI9BXTLAXw/LsBsftEmelPtS/PeePzs4yWe2Q0Y+p5NqadPSAMhAGuIiXs1QiZ+lBg==}
     dev: false
 
   /zod@3.22.4:
