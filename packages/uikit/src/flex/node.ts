@@ -1,12 +1,12 @@
 import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import Yoga, { Edge, MeasureFunction, Node, Overflow } from 'yoga-layout'
+import { Edge, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
 import { setter } from './setter.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef } from '../context.js'
-import { PointScaleFactor, defaultYogaConfig } from './config.js'
+import { PointScaleFactor, createYogaNode } from './yoga.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -51,12 +51,20 @@ export class FlexNode {
     private object: Object3DRef,
     subscriptions: Subscriptions,
   ) {
-    this.yogaNode = Yoga.Node.create(defaultYogaConfig)
-    this.active.value = true
-    subscriptions.push(() => {
-      this.yogaNode?.getParent()?.removeChild(this.yogaNode)
-      this.yogaNode?.free()
-    })
+    subscriptions.push(
+      effect(() => {
+        const yogaNode = createYogaNode()
+        if (yogaNode == null) {
+          return
+        }
+        this.yogaNode = yogaNode
+        this.active.value = true
+        return () => {
+          this.yogaNode?.getParent()?.removeChild(this.yogaNode)
+          this.yogaNode?.free()
+        }
+      }),
+    )
     setupImmediateProperties(
       propertiesSignal,
       this.active,

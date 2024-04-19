@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import Yoga, {
+import {
   Align,
   Overflow,
   Node,
@@ -10,8 +10,12 @@ import Yoga, {
   Justify,
   PositionType,
   Unit,
-} from 'yoga-layout'
-import { YogaProperties, defaultYogaConfig, setMeasureFunc, setter } from '../src/flex/index.js'
+  loadYoga,
+  Yoga,
+  Config,
+} from 'yoga-layout/load'
+import { YogaProperties, setMeasureFunc, setter } from '../src/flex/index.js'
+import { createDefaultConfig } from '../src/flex/yoga.js'
 
 const testValues: YogaProperties = {
   alignContent: 'center',
@@ -121,15 +125,19 @@ describe('set & get properties', () => {
   let node: Node
 
   const rawValues: any = {}
+  let yoga: Yoga
+  let defaultYogaConfig: Config
 
   before(async () => {
-    node = Yoga.Node.create(defaultYogaConfig)
+    yoga = await loadYoga()
+    defaultYogaConfig = createDefaultConfig(yoga.Config)
+    node = yoga.Node.create(defaultYogaConfig)
   })
 
   it('it re-arrange children', () => {
-    const parent = Yoga.Node.create(defaultYogaConfig)
-    const child1 = Yoga.Node.create(defaultYogaConfig)
-    const child2 = Yoga.Node.create(defaultYogaConfig)
+    const parent = yoga.Node.create(defaultYogaConfig)
+    const child1 = yoga.Node.create(defaultYogaConfig)
+    const child2 = yoga.Node.create(defaultYogaConfig)
 
     parent.insertChild(child1, 0)
     parent.insertChild(child2, 1)
@@ -142,9 +150,9 @@ describe('set & get properties', () => {
   })
 
   it('it change parents', () => {
-    const child = Yoga.Node.create(defaultYogaConfig)
-    const parent1 = Yoga.Node.create(defaultYogaConfig)
-    const parent2 = Yoga.Node.create(defaultYogaConfig)
+    const child = yoga.Node.create(defaultYogaConfig)
+    const parent1 = yoga.Node.create(defaultYogaConfig)
+    const parent2 = yoga.Node.create(defaultYogaConfig)
 
     parent1.insertChild(child, 0)
 

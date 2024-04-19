@@ -494,12 +494,12 @@ importers:
 
   packages/react:
     dependencies:
-      '@preact/signals-core':
-        specifier: ^1.5.1
-        version: 1.5.1
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../uikit
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.5.1
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -553,8 +553,8 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
       yoga-layout:
-        specifier: ^3.0.2
-        version: 3.0.2
+        specifier: ^3.0.4
+        version: 3.0.4
     devDependencies:
       '@types/node':
         specifier: ^20.11.0
@@ -7185,8 +7185,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /yoga-layout@3.0.2:
-    resolution: {integrity: sha512-/QSkaNPadLnnBbKoN2Pk36bihWO9b8herZ4nkry/h51KGnKb1CliASdeTmio9wVXmzecqnrfaf9aPIb+GTwLCg==}
+  /yoga-layout@3.0.4:
+    resolution: {integrity: sha512-mNmdkofwKGSXUYvo4sDTNI9BXTLAXw/LsBsftEmelPtS/PeePzs4yWe2Q0Y+p5NqadPSAMhAGuIiXs1QiZ+lBg==}
     dev: false
 
   /zod@3.22.4:
