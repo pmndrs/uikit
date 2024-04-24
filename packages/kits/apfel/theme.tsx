@@ -1,5 +1,5 @@
-import { DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
+import { DefaultProperties, DefaultPropertiesProperties } from '@react-three/uikit'
+import React from 'react'
 import { Color, MeshPhongMaterial } from 'three'
 
 export class GlassMaterial extends MeshPhongMaterial {
@@ -24,7 +24,7 @@ export const colors = {
   accentForeground: hsl(0, 0, 100),
 }
 
-export function Defaults(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
+export function Defaults(props: DefaultPropertiesProperties) {
   return (
     <DefaultProperties
       scrollbarColor={colors.background}

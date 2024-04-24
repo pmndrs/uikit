@@ -1,10 +1,10 @@
 import { Camera, WebGLRenderer } from 'three'
 import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
-import { AllOptionalProperties } from '../properties/default.js'
+import { AllOptionalProperties, WithReactive } from '../properties/index.js'
 import { createRoot, DEFAULT_PIXEL_SIZE, RootProperties } from '../components/root.js'
 import { Parent, bindHandlers } from './utils.js'
 import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
-import { FontFamilies, WithReactive } from '../internals.js'
+import { FontFamilies } from '../text/index.js'
 
 export class Root extends Parent {
   private readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)

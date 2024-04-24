@@ -1,7 +1,6 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { borderRadius, colors } from './theme.js'
 import React, {
-  ComponentPropsWithoutRef,
   ReactNode,
   createContext,
   memo,
@@ -18,7 +17,9 @@ type DialogAnchorSetElement = (prevElement: ReactNode | undefined, element: Reac
 
 const DialogAnchorContext = createContext<DialogAnchorSetElement | undefined>(undefined)
 
-export function DialogAnchor({ children }: { children?: ReactNode }) {
+export type DialogAnchorProperties = { children?: ReactNode }
+
+export function DialogAnchor({ children }: DialogAnchorProperties) {
   const [element, setElement] = useState<ReactNode | undefined>(undefined)
   const set = useCallback<DialogAnchorSetElement>(
     (prevElement, element) => setElement((e) => (e === prevElement ? element : e)),
@@ -52,17 +53,14 @@ export function useDialogContext() {
   return ctx
 }
 
-export function Dialog({
-  children,
-  open: providedOpen,
-  onOpenChange,
-  defaultOpen,
-}: {
+export type DialogProperties = {
   children?: ReactNode
   open?: boolean
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-}) {
+}
+
+export function Dialog({ children, open: providedOpen, onOpenChange, defaultOpen }: DialogProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultOpen ?? false)
   const open = providedOpen ?? uncontrolled
   const setElement = useContext(DialogAnchorContext)
@@ -107,12 +105,24 @@ export function Dialog({
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>
 }
 
-export function DialogTrigger({ children }: { children?: ReactNode }) {
+export type DialogTriggerProperties = ContainerProperties
+
+export function DialogTrigger({ onClick, ...props }: DialogTriggerProperties) {
   const { setOpen } = useDialogContext()
-  return <Container onClick={() => setOpen(true)}>{children}</Container>
+  return (
+    <Container
+      onClick={(e) => {
+        setOpen(true)
+        onClick?.(e)
+      }}
+      {...props}
+    />
+  )
 }
 
-export function DialogOverlay(props: ComponentPropsWithoutRef<typeof Container>) {
+export type DialogOverlayProperties = ContainerProperties
+
+export function DialogOverlay(props: DialogOverlayProperties) {
   return (
     <Container
       onPointerMove={(e) => e.stopPropagation()}
@@ -134,15 +144,20 @@ export function useCloseDialog() {
   return useCallback(() => setOpen(false), [setOpen])
 }
 
-export function DialogContentPrimitive({ children }: { children?: ReactNode }) {
+export type DialogContentPrimitiveProperties = { children?: ReactNode }
+
+export function DialogContentPrimitive({ children }: DialogContentPrimitiveProperties) {
   const dialogContext = useDialogContext()
-  useEffect(() =>
-    dialogContext.setContent(<DialogContext.Provider value={dialogContext}>{children}</DialogContext.Provider>),
+  useEffect(
+    () => dialogContext.setContent(<DialogContext.Provider value={dialogContext}>{children}</DialogContext.Provider>),
+    [children, dialogContext],
   )
   return null
 }
 
-export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type DialogContentProperties = ContainerProperties
+
+export function DialogContent({ children, sm, ...props }: DialogContentProperties) {
   const close = useCloseDialog()
   return (
     <DialogContentPrimitive>
@@ -160,10 +175,10 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
           flexDirection="column"
           width="100%"
           gap={16}
-          border={1}
+          borderWidth={1}
           backgroundColor={colors.background}
           padding={24}
-          sm={{ borderRadius: 8, ...sm }}
+          sm={{ borderRadius: borderRadius.lg, ...sm }}
           {...props}
         >
           {children}
@@ -188,7 +203,9 @@ export function DialogContent({ children, sm, ...props }: ComponentPropsWithoutR
   )
 }
 
-export function DialogHeader({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type DialogHeaderProperties = ContainerProperties
+
+export function DialogHeader({ children, ...props }: DialogHeaderProperties) {
   return (
     <Container flexDirection="column" gap={6} {...props}>
       <DefaultProperties horizontalAlign="center" sm={{ horizontalAlign: 'left' }}>
@@ -198,29 +215,27 @@ export function DialogHeader({ children, ...props }: ComponentPropsWithoutRef<ty
   )
 }
 
-export function DialogFooter(props: ComponentPropsWithoutRef<typeof Container>) {
+export type DialogFooterProperties = ContainerProperties
+
+export function DialogFooter({ sm, ...props }: DialogFooterProperties) {
   return (
     <Container
       flexDirection="column-reverse"
-      sm={{ flexDirection: 'row', justifyContent: 'flex-end' }}
+      sm={{ flexDirection: 'row', justifyContent: 'flex-end', ...sm }}
       gap={8}
       {...props}
     />
   )
 }
 
-export function DialogTitle({ children }: { children?: ReactNode }) {
-  return (
-    <DefaultProperties fontSize={18} lineHeight={1} letterSpacing={-0.4} fontWeight="semi-bold">
-      {children}
-    </DefaultProperties>
-  )
+export type DialogTitleProperties = { children?: ReactNode }
+
+export function DialogTitle(props: DialogTitleProperties) {
+  return <DefaultProperties fontSize={18} lineHeight="100%" letterSpacing={-0.4} fontWeight="semi-bold" {...props} />
 }
 
-export function DialogDescription({ children }: { children?: ReactNode }) {
-  return (
-    <DefaultProperties fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
-      {children}
-    </DefaultProperties>
-  )
+export type DialogDescriptionProperties = { children?: ReactNode }
+
+export function DialogDescription(props: DialogDescriptionProperties) {
+  return <DefaultProperties fontSize={14} lineHeight={20} color={colors.mutedForeground} {...props} />
 }

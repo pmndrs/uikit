@@ -3,7 +3,7 @@ import { Subscriptions } from '../utils.js'
 import { EventHandlers } from '../events.js'
 import { Object3D, Object3DEventMap } from 'three'
 import { ParentContext } from '../context.js'
-import { FontFamilies } from '../internals.js'
+import { FontFamilies } from '../text/index.js'
 
 const _addedEvent = { type: 'added' as const }
 const _childaddedEvent = { type: 'childadded' as const, child: null as null | Object3D }

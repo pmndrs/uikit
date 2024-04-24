@@ -17,7 +17,7 @@ export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Contai
       </Container>
       <Container flexDirection="column" positionType="relative">
         <Container positionType="absolute" inset={0} alignItems="center" flexDirection="row">
-          <Container width="100%" borderTop={1} />
+          <Container width="100%" borderTopWidth={1} />
         </Container>
         <Container positionType="relative" flexDirection="row" justifyContent="center">
           <Text
@@ -26,7 +26,7 @@ export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Contai
             paddingX={8}
             color={colors.mutedForeground}
             fontSize={14}
-            lineHeight={1.43}
+            lineHeight="143%"
           >
             OR CONTINUE WITH
           </Text>

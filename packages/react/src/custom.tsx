@@ -5,7 +5,7 @@ import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
   createCustomContainer,
-  CustomContainerProperties,
+  CustomContainerProperties as BaseCustomContainerProperties,
   initialize,
   panelGeometry,
   Subscriptions,
@@ -13,14 +13,15 @@ import {
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
+export type CustomContainerProperties = {
+  children?: ReactNode
+  customDepthMaterial?: Material
+  customDistanceMaterial?: Material
+} & BaseCustomContainerProperties &
+  EventHandlers
+
 export const CustomContainer: (
-  props: {
-    children?: ReactNode
-    customDepthMaterial?: Material
-    customDistanceMaterial?: Material
-  } & CustomContainerProperties &
-    EventHandlers &
-    RefAttributes<ComponentInternals<CustomContainerProperties>>,
+  props: CustomContainerProperties & RefAttributes<ComponentInternals<CustomContainerProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
@@ -36,8 +37,7 @@ export const CustomContainer: (
         outerRef,
         innerRef,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [parent, propertySignals],
   )
   useEffect(() => {
     const subscriptions: Subscriptions = []

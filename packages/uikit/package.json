@@ -27,7 +27,7 @@
     "./internals": "./dist/internals.js"
   },
   "scripts": {
-    "test": "mocha ./tests/precedence.spec.ts",
+    "test": "mocha ./tests/convert.spec.ts",
     "build": "tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
@@ -40,6 +40,9 @@
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
+    "inline-style-parser": "^0.2.3",
+    "node-html-parser": "^6.1.13",
+    "tw-to-css": "^0.0.12",
     "yoga-layout": "^3.0.4"
   },
   "devDependencies": {

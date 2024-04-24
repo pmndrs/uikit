@@ -1,53 +1,53 @@
-import { Subscriptions, SvgProperties, createSvg, initialize, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
+import {
+  Subscriptions,
+  SvgProperties as BaseSvgProperties,
+  createSvg,
+  initialize,
+  unsubscribeSubscriptions,
+} from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import { Signal, signal } from '@preact/signals-core'
-import {} from '@react-three/fiber'
 
-export const Svg: (
-  props: SvgProperties &
-    EventHandlers &
-    RefAttributes<ComponentInternals<SvgProperties>> & { src: string | Signal<string>; children?: ReactNode },
-) => ReactNode = forwardRef((properties, ref) => {
-  const parent = useParent()
-  const outerRef = useRef<Object3D>(null)
-  const innerRef = useRef<Object3D>(null)
-  const propertySignals = usePropertySignals(properties)
-  const srcSignal = useMemo(() => signal<string | Signal<string>>(''), [])
-  srcSignal.value = properties.src
-  const internals = useMemo(
-    () =>
-      createSvg(
-        parent,
-        srcSignal,
-        propertySignals.style,
-        propertySignals.properties,
-        propertySignals.default,
-        outerRef,
-        innerRef,
-      ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  )
-  useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+export type SvgProperties = BaseSvgProperties & EventHandlers & { children?: ReactNode }
 
-  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+export const Svg: (props: SvgProperties & RefAttributes<ComponentInternals<SvgProperties>>) => ReactNode = forwardRef(
+  (properties, ref) => {
+    const parent = useParent()
+    const outerRef = useRef<Object3D>(null)
+    const innerRef = useRef<Object3D>(null)
+    const propertySignals = usePropertySignals(properties)
+    const internals = useMemo(
+      () =>
+        createSvg(
+          parent,
+          propertySignals.style,
+          propertySignals.properties,
+          propertySignals.default,
+          outerRef,
+          innerRef,
+        ),
+      [parent, propertySignals],
+    )
+    useEffect(() => {
+      const subscriptions: Subscriptions = []
+      initialize(internals.initializers, subscriptions)
+      return () => unsubscribeSubscriptions(subscriptions)
+    }, [internals])
 
-  return (
-    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
-      <primitive object={internals.interactionPanel} />
-      <primitive object={internals.centerGroup} />
-      <object3D ref={innerRef}>
-        <ParentProvider value={internals}>{properties.children}</ParentProvider>
-      </object3D>
-    </AddHandlers>
-  )
-})
+    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+    return (
+      <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
+        <primitive object={internals.interactionPanel} />
+        <primitive object={internals.centerGroup} />
+        <object3D ref={innerRef}>
+          <ParentProvider value={internals}>{properties.children}</ParentProvider>
+        </object3D>
+      </AddHandlers>
+    )
+  },
+)

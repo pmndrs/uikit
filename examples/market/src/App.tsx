@@ -49,7 +49,7 @@ export function MarketPage() {
   return (
     <Container height="100%" flexDirection="column">
       <Menu />
-      <Container flexBasis={0} flexGrow={1} borderTop={1} backgroundColor={colors.background} flexDirection="row">
+      <Container flexBasis={0} flexGrow={1} borderTopWidth={1} backgroundColor={colors.background} flexDirection="row">
         <Sidebar marginTop={16} playlists={playlists} />
         <Separator orientation="vertical" />
         <Container
@@ -81,13 +81,13 @@ export function MarketPage() {
                 <Text>Request Model</Text>
               </Button>
             </Container>
-            <TabsContent flexShrink={0} flexDirection="column" value="music" border={0} padding={0}>
+            <TabsContent flexShrink={0} flexDirection="column" value="music" borderWidth={0} padding={0}>
               <Container flexDirection="row" alignItems="center" justifyContent="space-between">
                 <Container flexDirection="column" gap={4}>
-                  <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={1.55555}>
+                  <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={28}>
                     Trending
                   </Text>
-                  <Text color={colors.mutedForeground} fontSize={14} lineHeight={1.43333}>
+                  <Text color={colors.mutedForeground} fontSize={14} lineHeight={20}>
                     Top picks for you. Updated daily.
                   </Text>
                 </Container>
@@ -99,10 +99,10 @@ export function MarketPage() {
                 ))}
               </Container>
               <Container flexDirection="column" marginTop={24} gap={4}>
-                <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={1.55555}>
+                <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={28}>
                   Made By You
                 </Text>
-                <Text color={colors.mutedForeground} fontSize={14} lineHeight={1.43333}>
+                <Text color={colors.mutedForeground} fontSize={14} lineHeight={20}>
                   Your personal models.
                 </Text>
               </Container>

@@ -6,14 +6,14 @@ import { Font, FontFamilyProperties, GlyphInfo, glyphIntoToUV } from '../font.js
 import { Signal, computed } from '@preact/signals-core'
 import { GlyphLayoutProperties } from '../layout.js'
 import { TextAlignProperties, TextAppearanceProperties } from './instanced-text.js'
-import { writeColor } from '../../internals.js'
+import { writeColor } from '../../panel/index.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
 
 export type InstancedTextProperties = TextAlignProperties &
   TextAppearanceProperties &
-  Omit<GlyphLayoutProperties, 'text'> &
+  Omit<GlyphLayoutProperties, 'text' | 'font'> &
   FontFamilyProperties
 
 export function computedGylphGroupDependencies(fontSignal: Signal<Font | undefined>) {

@@ -17,11 +17,12 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Initializers, Subscriptions } from '../utils.js'
+import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import { ShadowProperties, darkPropertyTransformers, makeClippedRaycast } from '../internals.js'
 import { FrontSide, Material, Mesh } from 'three'
+import { darkPropertyTransformers } from '../dark.js'
+import { ShadowProperties, makeClippedRaycast } from '../panel/index.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<

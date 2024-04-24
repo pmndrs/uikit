@@ -19,7 +19,7 @@ export function Sidebar({
             paddingX={16}
             fontWeight="semi-bold"
             fontSize={18}
-            lineHeight={1.5555}
+            lineHeight={28}
             letterSpacing={-0.4}
           >
             Discover
@@ -45,7 +45,7 @@ export function Sidebar({
             paddingX={16}
             fontWeight="semi-bold"
             fontSize={18}
-            lineHeight={1.5555}
+            lineHeight={28}
             letterSpacing={-0.4}
           >
             Collections
@@ -74,7 +74,7 @@ export function Sidebar({
           </Container>
         </Container>
         <Container flexDirection="column" paddingY={8}>
-          <Text paddingX={28} fontSize={18} lineHeight={1.5555} fontWeight="semi-bold" letterSpacing={-0.4}>
+          <Text paddingX={28} fontSize={18} lineHeight={28} fontWeight="semi-bold" letterSpacing={-0.4}>
             Favorits
           </Text>
           <Container paddingX={4} flexDirection="column" gap={4} padding={8}>

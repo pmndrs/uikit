@@ -1,15 +1,12 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, createContext, useContext, useState } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { createContext, useContext, useState } from 'react'
+import { borderRadius, colors } from './theme.js'
 
 const toggleVariants = {
-  default: {
-    containerHoverProps: undefined,
-    containerProps: undefined,
-  },
+  default: {},
   outline: {
     containerProps: {
-      border: 1,
+      borderWidth: 1,
       borderColor: colors.input,
     },
     containerHoverProps: {
@@ -17,37 +14,37 @@ const toggleVariants = {
     },
   },
   //TODO: hover:text-accent-foreground
-} satisfies {
-  [Key in string]: {
-    containerProps?: ComponentPropsWithoutRef<typeof Container>
-    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
-  }
 }
+
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
   sm: { height: 36, paddingX: 10 },
   lg: { height: 44, paddingX: 20 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
+} satisfies { [Key in string]: ContainerProperties }
 
 const ToggleGroupContext = createContext<{
   size: keyof typeof toggleSizes
   variant: keyof typeof toggleVariants
 }>({ size: 'default', variant: 'default' })
 
-export function ToggleGroup({
-  children,
-  size = 'default',
-  variant = 'default',
-  ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+export type ToggleGroupProperties = ContainerProperties & {
   variant?: keyof typeof toggleVariants
   size?: keyof typeof toggleSizes
-}) {
+}
+
+export function ToggleGroup({ children, size = 'default', variant = 'default', ...props }: ToggleGroupProperties) {
   return (
     <Container flexDirection="row" alignItems="center" justifyContent="center" gap={4} {...props}>
       <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
     </Container>
   )
+}
+
+export type ToggleGroupItemProperties = ContainerProperties & {
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
 }
 
 export function ToggleGroupItem({
@@ -58,15 +55,17 @@ export function ToggleGroupItem({
   onCheckedChange,
   hover,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
-  defaultChecked?: boolean
-  checked?: boolean
-  disabled?: boolean
-  onCheckedChange?(checked: boolean): void
-}) {
+}: ToggleGroupItemProperties) {
   const { size, variant } = useContext(ToggleGroupContext)
   const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
   const checked = providedChecked ?? uncontrolled
+  const {
+    containerHoverProps,
+    containerProps,
+  }: {
+    containerProps?: ContainerProperties
+    containerHoverProps?: ContainerProperties['hover']
+  } = toggleVariants[variant]
   return (
     <Container
       onClick={
@@ -81,15 +80,13 @@ export function ToggleGroupItem({
       }
       alignItems="center"
       justifyContent="center"
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       cursor={disabled ? undefined : 'pointer'}
       backgroundOpacity={disabled ? 0.5 : undefined}
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundColor={checked ? colors.accent : undefined}
-      hover={
-        disabled ? hover : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps, ...hover }
-      }
-      {...toggleVariants[variant].containerProps}
+      hover={disabled ? hover : { backgroundColor: colors.muted, ...containerHoverProps, ...hover }}
+      {...containerProps}
       {...toggleSizes[size]}
       {...props}
     >
@@ -97,7 +94,7 @@ export function ToggleGroupItem({
         color={checked ? colors.accentForeground : undefined}
         opacity={disabled ? 0.5 : undefined}
         fontSize={14}
-        lineHeight={1.43}
+        lineHeight={20}
       >
         {children}
       </DefaultProperties>

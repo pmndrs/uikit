@@ -8,14 +8,12 @@ export class Svg extends Parent {
   private readonly styleSignal: Signal<SvgProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<SvgProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly srcSignal: Signal<string | Signal<string>>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  constructor(src: string | Signal<string>, properties?: SvgProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(properties?: SvgProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.matrixAutoUpdate = false
-    this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
 
@@ -27,7 +25,6 @@ export class Svg extends Parent {
       }
       const internals = createSvg(
         parentContext,
-        this.srcSignal,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
@@ -47,10 +44,6 @@ export class Svg extends Parent {
         unsubscribeSubscriptions(subscriptions)
       }
     })
-  }
-
-  setSrc(src: string | Signal<string>) {
-    this.srcSignal.value = src
   }
 
   setStyle(style: SvgProperties | undefined) {

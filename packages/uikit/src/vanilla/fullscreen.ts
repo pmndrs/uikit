@@ -1,13 +1,9 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { Root } from './root.js'
-import {
-  FontFamilies,
-  RootProperties,
-  AllOptionalProperties,
-  updateSizeFullscreen,
-  FullscreenProperties,
-} from '../internals.js'
 import { Signal, batch, signal } from '@preact/signals-core'
+import { FullscreenProperties, RootProperties, updateSizeFullscreen } from '../components/index.js'
+import { AllOptionalProperties } from '../properties/index.js'
+import { FontFamilies } from '../text/index.js'
 
 const vectorHelper = new Vector2()
 

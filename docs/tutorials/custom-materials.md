@@ -48,7 +48,7 @@ export default function App() {
           fontSize={32}
           borderColor="black"
           borderBend={0.3}
-          border={8}
+          borderWidth={8}
           panelMaterialClass={FancyMaterial}
         >
           I look fancy

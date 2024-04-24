@@ -1,17 +1,12 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { useState } from 'react'
+import { borderRadius, colors } from './theme.js'
 
-const toggleVariants: {
-  [Key in string]: {
-    containerProps?: ComponentPropsWithoutRef<typeof Container>
-    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
-  }
-} = {
+const toggleVariants = {
   default: {},
   outline: {
     containerProps: {
-      border: 1,
+      borderWidth: 1,
       borderColor: colors.input,
     },
     containerHoverProps: {
@@ -24,7 +19,16 @@ const toggleSizes = {
   default: { height: 40, paddingX: 12 },
   sm: { height: 36, paddingX: 10 },
   lg: { height: 44, paddingX: 20 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
+} satisfies { [Key in string]: ContainerProperties }
+
+export type ToggleProperties = ContainerProperties & {
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
+  variant?: keyof typeof toggleVariants
+  size?: keyof typeof toggleSizes
+}
 
 export function Toggle({
   children,
@@ -36,16 +40,16 @@ export function Toggle({
   onCheckedChange,
   hover,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
-  defaultChecked?: boolean
-  checked?: boolean
-  disabled?: boolean
-  onCheckedChange?(checked: boolean): void
-  variant?: keyof typeof toggleVariants
-  size?: keyof typeof toggleSizes
-}) {
+}: ToggleProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
   const checked = providedChecked ?? uncontrolled
+  const {
+    containerHoverProps,
+    containerProps,
+  }: {
+    containerProps?: ContainerProperties
+    containerHoverProps?: ContainerProperties['hover']
+  } = toggleVariants[variant]
   return (
     <Container
       onClick={
@@ -60,15 +64,13 @@ export function Toggle({
       }
       alignItems="center"
       justifyContent="center"
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       cursor={disabled ? undefined : 'pointer'}
       backgroundOpacity={disabled ? 0.5 : undefined}
       borderOpacity={disabled ? 0.5 : undefined}
       backgroundColor={checked ? colors.accent : undefined}
-      hover={
-        disabled ? hover : { backgroundColor: colors.muted, ...toggleVariants[variant].containerHoverProps, ...hover }
-      }
-      {...toggleVariants[variant].containerProps}
+      hover={disabled ? hover : { backgroundColor: colors.muted, ...containerHoverProps, ...hover }}
+      {...containerProps}
       {...toggleSizes[size]}
       {...props}
     >
@@ -76,7 +78,7 @@ export function Toggle({
         color={checked ? colors.accentForeground : undefined}
         opacity={disabled ? 0.5 : undefined}
         fontSize={14}
-        lineHeight={1.43}
+        lineHeight={20}
         fontWeight="medium"
       >
         {children}

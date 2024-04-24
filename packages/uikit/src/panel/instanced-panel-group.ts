@@ -13,7 +13,8 @@ import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '..
 import { Signal, computed, effect } from '@preact/signals-core'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef, RootContext } from '../context.js'
-import { Initializers, Subscriptions, computedProperty } from '../internals.js'
+import { Initializers } from '../utils.js'
+import { computedProperty } from '../properties/index.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean

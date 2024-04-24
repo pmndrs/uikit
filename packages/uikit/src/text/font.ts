@@ -1,9 +1,9 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray, WebGLRenderer } from 'three'
 import { MergedProperties } from '../properties/merged.js'
-import { Initializers, Subscriptions } from '../utils.js'
+import { Initializers } from '../utils.js'
 import { loadCachedFont } from './cache.js'
-import { computedProperty } from '../internals.js'
+import { computedProperty } from '../properties/index.js'
 
 export type FontFamilyUrls = Partial<Record<FontWeight, string>>
 

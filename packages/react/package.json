@@ -28,6 +28,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "mocha ./tests/convert.spec.ts",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
     "fix:prettier": "prettier --write src",
@@ -38,11 +39,12 @@
     "react": ">=18"
   },
   "dependencies": {
-    "@preact/signals-core": "^1.5.1",
     "@pmndrs/uikit": "workspace:^",
+    "@preact/signals-core": "^1.5.1",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
     "ora": "^8.0.1",
+    "prettier": "^3.2.5",
     "prompts": "^2.4.2",
     "zod": "^3.22.4"
   },

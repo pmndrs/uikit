@@ -1,7 +1,14 @@
-import { Container } from '@react-three/uikit'
+import { Container, ContainerProperties } from '@react-three/uikit'
 import { Check } from '@react-three/uikit-lucide'
-import React, { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './theme'
+import React, { useState } from 'react'
+import { borderRadius, colors } from './theme.js'
+
+export type CheckboxProperties = Omit<ContainerProperties, 'children'> & {
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
+}
 
 export function Checkbox({
   defaultChecked,
@@ -9,12 +16,7 @@ export function Checkbox({
   disabled = false,
   onCheckedChange,
   ...props
-}: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'> & {
-  defaultChecked?: boolean
-  checked?: boolean
-  disabled?: boolean
-  onCheckedChange?(checked: boolean): void
-}) {
+}: CheckboxProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
   const checked = providedChecked ?? uncontrolled
   return (
@@ -32,10 +34,10 @@ export function Checkbox({
               onCheckedChange?.(!checked)
             }
       }
-      borderRadius={4}
+      borderRadius={borderRadius.sm}
       width={16}
       height={16}
-      border={1}
+      borderWidth={1}
       borderColor={colors.primary}
       backgroundColor={checked ? colors.primary : undefined}
       backgroundOpacity={disabled ? 0.5 : undefined}

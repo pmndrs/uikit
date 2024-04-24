@@ -1,7 +1,8 @@
 import { Signal, computed } from '@preact/signals-core'
 import { RenderItem } from 'three'
 import { MergedProperties } from './properties/merged.js'
-import { computedProperty, readReactive } from './internals.js'
+import { computedProperty } from './properties/index.js'
+import { readReactive } from './utils.js'
 
 export type WithCameraDistance = { cameraDistance: number }
 

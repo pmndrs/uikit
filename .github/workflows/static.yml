@@ -92,6 +92,7 @@ jobs:
         run: |
           pnpm -r convert
           pnpm -r generate
+          pnpm -w generate
           pnpm -r build
 
       - name: Copy Examples

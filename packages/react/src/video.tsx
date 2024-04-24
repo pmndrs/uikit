@@ -1,5 +1,4 @@
 import {
-  ComponentPropsWithoutRef,
   ReactNode,
   RefAttributes,
   createContext,
@@ -12,6 +11,9 @@ import {
 import { Image } from './image.js'
 import { Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
+import { VideoContainerProperties as BaseVideoContainerProperties } from '@pmndrs/uikit'
+import { updateVideoElement } from '@pmndrs/uikit/internals'
+import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 
 const VideoContainerContext = createContext<HTMLVideoElement | undefined>(undefined)
 
@@ -23,29 +25,13 @@ export function useVideoElement(): HTMLVideoElement {
   return element
 }
 
-export const VideoContainer: (
-  props: Omit<ComponentPropsWithoutRef<typeof Image>, 'src'> & {
-    src: string | MediaStream
-    volume?: number
-    preservesPitch?: boolean
-    playbackRate?: number
-    muted?: boolean
-    loop?: boolean
-    autoplay?: boolean
-  } & RefAttributes<HTMLVideoElement>,
-) => ReactNode = forwardRef(
-  (
-    props: Omit<ComponentPropsWithoutRef<typeof Image>, 'src'> & {
-      src: string | MediaStream
-      volume?: number
-      preservesPitch?: boolean
-      playbackRate?: number
-      muted?: boolean
-      loop?: boolean
-      autoplay?: boolean
-    },
-    ref,
-  ) => {
+export type VideoContainerProperties = BaseVideoContainerProperties &
+  EventHandlers & {
+    children?: ReactNode
+  }
+
+export const VideoContainer: (props: VideoContainerProperties & RefAttributes<HTMLVideoElement>) => ReactNode =
+  forwardRef(({ children, ...props }: VideoContainerProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
     const video = useMemo(() => document.createElement('video'), [])
@@ -53,32 +39,17 @@ export const VideoContainer: (
       if (!props.autoplay) {
         return
       }
-      video.style.position = 'absolute'
-      video.style.width = '1px'
-      video.style.zIndex = '-1000'
-      video.style.top = '0px'
-      video.style.left = '0px'
       document.body.append(video)
       return () => video.remove()
     }, [props.autoplay, video])
-    video.playsInline = true
-    video.volume = props.volume ?? 1
-    video.preservesPitch = props.preservesPitch ?? true
-    video.playbackRate = props.playbackRate ?? 1
-    video.muted = props.muted ?? false
-    video.loop = props.loop ?? false
-    video.autoplay = props.autoplay ?? false
+    const { src, autoplay, volume, preservesPitch, playbackRate, muted, loop } = props
+    updateVideoElement(video, src, autoplay, volume, preservesPitch, playbackRate, muted, loop)
     useEffect(() => {
-      if (typeof props.src === 'string') {
-        video.src = props.src
-      } else {
-        video.srcObject = props.src
-      }
       const updateAspectRatio = () => (aspectRatio.value = video.videoWidth / video.videoHeight)
       updateAspectRatio()
       video.addEventListener('resize', updateAspectRatio)
       return () => video.removeEventListener('resize', updateAspectRatio)
-    }, [aspectRatio, props.src, video])
+    }, [aspectRatio, video])
     useEffect(() => {
       const videoTexture = new VideoTexture(video)
       texture.value = videoTexture
@@ -86,6 +57,9 @@ export const VideoContainer: (
     }, [texture, video])
 
     useImperativeHandle(ref, () => video, [video])
-    return <Image aspectRatio={aspectRatio} {...props} src={texture} />
-  },
-)
+    return (
+      <Image aspectRatio={aspectRatio} {...props} src={texture}>
+        <VideoContainerContext.Provider value={video}>{children}</VideoContainerContext.Provider>
+      </Image>
+    )
+  })

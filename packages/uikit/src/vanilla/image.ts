@@ -9,21 +9,13 @@ export class Image extends Parent {
   private readonly styleSignal: Signal<ImageProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ImageProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly srcSignal: Signal<
-    Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined
-  >
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  constructor(
-    src: Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined,
-    properties?: ImageProperties,
-    defaultProperties?: AllOptionalProperties,
-  ) {
+  constructor(properties?: ImageProperties, defaultProperties?: AllOptionalProperties) {
     super()
     setupParentContextSignal(this.parentContextSignal, this)
     this.matrixAutoUpdate = false
-    this.srcSignal = signal(src)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
 
@@ -34,7 +26,6 @@ export class Image extends Parent {
       }
       const internals = createImage(
         parentContext,
-        this.srcSignal,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
@@ -51,10 +42,6 @@ export class Image extends Parent {
         unsubscribeSubscriptions(subscriptions)
       }
     })
-  }
-
-  setSrc(src: string | Signal<string> | Texture | Signal<Texture>) {
-    this.srcSignal.value = src
   }
 
   setStyle(style: ImageProperties | undefined) {

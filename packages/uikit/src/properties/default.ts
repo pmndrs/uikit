@@ -9,7 +9,7 @@ import type {
   InheritableIconProperties,
   InheritableInputProperties,
   InheritableSvgProperties,
-} from '../internals.js'
+} from '../components/index.js'
 
 export type AllOptionalProperties =
   | InheritableContainerProperties

@@ -13,9 +13,10 @@ import {
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedMeasureFunc } from '../layout.js'
 import { SelectionBoxes } from '../../selection.js'
-import { MergedProperties, FlexNode, computedProperty, FlexNodeState } from '../../internals.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
+import { MergedProperties, computedProperty } from '../../properties/index.js'
+import { FlexNode, FlexNodeState } from '../../flex/index.js'
 
 export type TextAlignProperties = {
   horizontalAlign?: keyof typeof alignmentXMap | 'block'
@@ -238,14 +239,14 @@ export class InstancedText {
     if (endX == null) {
       endX = this.getGlyphX(lineGlyphs[lineGlyphs.length - 1], 1, whitespaceWidth)
     }
+    const height = getOffsetToNextLine(layout.lineHeight, layout.fontSize)
     const y = -(
       getYOffset(layout, verticalAlign) -
       layout.availableHeight / 2 +
-      lineIndex * getOffsetToNextLine(layout.lineHeight, layout.fontSize) +
+      lineIndex * height +
       getGlyphOffsetY(layout.fontSize, layout.lineHeight)
     )
     const width = endX - startX
-    const height = layout.fontSize + layout.lineHeight
     return { position: [startX + width / 2, y - height / 2], size: [width, height] }
   }
 

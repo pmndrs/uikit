@@ -21,16 +21,15 @@ import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { createInteractionPanel, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import {
   FontFamilies,
   InstancedTextProperties,
   computedFont,
   computedGylphGroupDependencies,
   createInstancedText,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-} from '../internals.js'
+} from '../text/index.js'
+import { darkPropertyTransformers } from '../dark.js'
 
 export type InheritableTextProperties = WithClasses<
   WithConditionals<

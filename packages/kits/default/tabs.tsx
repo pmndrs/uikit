@@ -1,30 +1,26 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, ReactNode, createContext, useContext, useMemo, useState } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, createContext, useContext, useMemo, useState } from 'react'
+import { borderRadius, colors } from './theme.js'
 
 const TabsContext = createContext<{
   value?: string
   setValue?: (value: string) => void
 }>({})
 
-export function Tabs({
-  value: providedValue,
-  onValueChange,
-  defaultValue,
-  children,
-  ...props
-}: {
+export type TabsProperties = {
   value?: string
   onValueChange?(value: string): void
   defaultValue?: string
   children?: ReactNode
-} & ComponentPropsWithoutRef<typeof Container>) {
+} & ContainerProperties
+
+export function Tabs({ value: providedValue, onValueChange, defaultValue, children, ...props }: TabsProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const contextValue = useMemo(() => {
     if (providedValue == null) {
       return {
         value: uncontrolled,
-        setValue: (value: string) => {
+        setValue: (value: string): void => {
           setUncontrolled(value)
           onValueChange?.(value)
         },
@@ -42,13 +38,15 @@ export function Tabs({
   )
 }
 
-export function TabsList({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type TabsListProperties = ContainerProperties
+
+export function TabsList({ children, ...props }: TabsListProperties) {
   return (
     <Container
       height={40}
       flexDirection="row"
       alignItems="center"
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       backgroundColor={colors.muted}
       padding={4}
       flexShrink={0}
@@ -59,12 +57,9 @@ export function TabsList({ children, ...props }: ComponentPropsWithoutRef<typeof
   )
 }
 
-export function TabsTrigger({
-  children,
-  value,
-  disabled = false,
-  ...props
-}: ComponentPropsWithoutRef<typeof Container> & { disabled?: boolean; value: string }) {
+export type TabsTriggerProperties = ContainerProperties & { disabled?: boolean; value: string }
+
+export function TabsTrigger({ children, value, disabled = false, ...props }: TabsTriggerProperties) {
   const { setValue, value: current } = useContext(TabsContext)
   const active = value === current
   return (
@@ -73,7 +68,7 @@ export function TabsTrigger({
       cursor={disabled ? undefined : 'pointer'}
       flexDirection="row"
       alignItems="center"
-      borderRadius={2}
+      borderRadius={borderRadius.sm}
       paddingX={12}
       backgroundOpacity={disabled ? 0.5 : undefined}
       backgroundColor={active ? colors.background : undefined}
@@ -86,7 +81,7 @@ export function TabsTrigger({
         color={active ? colors.foreground : undefined}
         fontSize={14}
         fontWeight="medium"
-        lineHeight={1.43}
+        lineHeight={20}
         wordBreak="keep-all"
       >
         {children}
@@ -95,7 +90,9 @@ export function TabsTrigger({
   )
 }
 
-export function TabsContent({ value, ...props }: ComponentPropsWithoutRef<typeof Container> & { value: string }) {
+export type TabsContentProperties = ContainerProperties & { value: string }
+
+export function TabsContent({ value, ...props }: TabsContentProperties) {
   const { value: current } = useContext(TabsContext)
   if (value != current) {
     return null

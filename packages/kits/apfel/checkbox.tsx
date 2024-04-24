@@ -1,9 +1,9 @@
-import { Container } from '@react-three/uikit'
+import { Container, ContainerProperties } from '@react-three/uikit'
 import { Check } from '@react-three/uikit-lucide'
-import React, { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './theme'
+import React, { useState } from 'react'
+import { colors } from './theme.js'
 
-type CheckboxProps = ComponentPropsWithoutRef<typeof Container> & {
+type CheckboxProps = ContainerProperties & {
   selected?: boolean
   defaultSelected?: boolean
   disabled?: boolean
@@ -18,7 +18,7 @@ export function Checkbox({ selected, disabled = false, defaultSelected, onSelect
     <Container
       width={28}
       height={28}
-      border={2}
+      borderWidth={2}
       borderRadius={15}
       backgroundColor={!disabled && value ? colors.accent : colors.foreground}
       backgroundOpacity={!disabled && value ? 0.9 : 0.1}

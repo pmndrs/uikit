@@ -270,10 +270,10 @@ export type ScrollbarWidthProperties = {
 }
 
 export type ScrollbarBorderSizeProperties = {
-  scrollbarBorderRight?: number
-  scrollbarBorderTop?: number
-  scrollbarBorderLeft?: number
-  scrollbarBorderBottom?: number
+  scrollbarBorderRightWidth?: number
+  scrollbarBorderTopWidth?: number
+  scrollbarBorderLeftWidth?: number
+  scrollbarBorderBottomWidth?: number
 }
 
 export type ScrollbarProperties = {
@@ -288,10 +288,10 @@ export type ScrollbarProperties = {
   }
 
 const scrollbarBorderPropertyKeys = [
-  'scrollbarBorderLeft',
-  'scrollbarBorderRight',
-  'scrollbarBorderTop',
-  'scrollbarBorderBottom',
+  'scrollbarBorderLeftWidth',
+  'scrollbarBorderRightWidth',
+  'scrollbarBorderTopWidth',
+  'scrollbarBorderBottomWidth',
 ] as const
 
 export function createScrollbars(

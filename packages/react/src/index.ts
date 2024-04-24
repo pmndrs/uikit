@@ -4,6 +4,7 @@ export {
   basedOnPreferredColorScheme,
   setPreferredColorScheme,
   getPreferredColorScheme,
+  isDarkMode,
   canvasInputProps,
   type PreferredColorScheme,
   type MaterialClass,
@@ -12,17 +13,9 @@ export {
   type ViewportListeners,
   type Listeners,
   type AllOptionalProperties,
-  type ImageProperties,
-  type ContainerProperties,
-  type ContentProperties,
-  type CustomContainerProperties,
-  type IconProperties,
-  type InputProperties,
-  type RootProperties,
-  type SvgProperties,
-  type TextProperties,
+  type ColorRepresentation,
 } from '@pmndrs/uikit'
-export { DefaultProperties } from './default.js'
+export { type DefaultPropertiesProperties, DefaultProperties } from './default.js'
 export type { ComponentInternals } from './ref.js'
 export * from './container.js'
 export * from './root.js'
@@ -37,3 +30,4 @@ export * from './fullscreen.js'
 export * from './suspending.js'
 export * from './portal.js'
 export * from './video.js'
+export * from './convert/html/index.js'

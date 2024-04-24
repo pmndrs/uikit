@@ -30,7 +30,9 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { computedProperty, darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { computedProperty } from '../properties/index.js'
+import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 
 export type InheritableRootProperties = WithClasses<
   WithConditionals<

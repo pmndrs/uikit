@@ -1,6 +1,13 @@
-import { Container } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, useState } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties } from '@react-three/uikit'
+import React, { useState } from 'react'
+import { colors } from './theme.js'
+
+export type SwitchProperties = Omit<ContainerProperties, 'children'> & {
+  defaultChecked?: boolean
+  checked?: boolean
+  disabled?: boolean
+  onCheckedChange?(checked: boolean): void
+}
 
 export function Switch({
   defaultChecked,
@@ -8,12 +15,7 @@ export function Switch({
   disabled = false,
   onCheckedChange,
   ...props
-}: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'> & {
-  defaultChecked?: boolean
-  checked?: boolean
-  disabled?: boolean
-  onCheckedChange?(checked: boolean): void
-}) {
+}: SwitchProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
   const checked = providedChecked ?? uncontrolled
   return (

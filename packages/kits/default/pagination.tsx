@@ -1,27 +1,33 @@
-import { Container, Text } from '@react-three/uikit'
+import { Container, ContainerProperties, Text } from '@react-three/uikit'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from '@react-three/uikit-lucide'
-import React, { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme'
+import React from 'react'
+import { borderRadius, colors } from './theme.js'
 
-export function Pagination(props: ComponentPropsWithoutRef<typeof Container>) {
+export type PaginationProperties = ContainerProperties
+
+export function Pagination(props: PaginationProperties) {
   return <Container marginX="auto" flexDirection="row" width="100%" justifyContent="center" {...props} />
 }
 
-export function PaginationContent(props: ComponentPropsWithoutRef<typeof Container>) {
+export type PaginationContentProperties = ContainerProperties
+
+export function PaginationContent(props: PaginationContentProperties) {
   return <Container flexDirection="row" alignItems="center" gap={4} {...props} />
 }
 
-export const PaginationItem: typeof Container = Container
+export type PaginationItemProperties = ContainerProperties
+
+export const PaginationItem = Container
 
 const paginationVariants: {
   [Key in string]: {
-    containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
-    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
+    containerProps?: Omit<ContainerProperties, 'hover'>
+    containerHoverProps?: ContainerProperties['hover']
   }
 } = {
   outline: {
     containerProps: {
-      border: 1,
+      borderWidth: 1,
       borderColor: colors.input,
       backgroundColor: colors.background,
     },
@@ -41,23 +47,20 @@ const paginationSizes = {
   sm: { height: 36, paddingX: 12 },
   lg: { height: 42, paddingX: 32 },
   icon: { height: 40, width: 40 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
+} satisfies { [Key in string]: ContainerProperties }
 
-export function PaginationLink({
-  isActive = false,
-  size = 'icon',
-  hover,
-  ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+export type PaginationLinkProperties = ContainerProperties & {
   size?: keyof typeof paginationSizes
   isActive?: boolean
-}) {
+}
+
+export function PaginationLink({ isActive = false, size = 'icon', hover, ...props }: PaginationLinkProperties) {
   const { containerProps, containerHoverProps } = paginationVariants[isActive ? 'outline' : 'ghost']
   const sizeProps = paginationSizes[size]
   return (
     <Container
       cursor="pointer"
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       alignItems="center"
       justifyContent="center"
       hover={{ ...containerHoverProps, ...hover }}
@@ -68,7 +71,9 @@ export function PaginationLink({
   )
 }
 
-export function PaginationPrevious(props: Omit<ComponentPropsWithoutRef<typeof PaginationLink>, 'children'>) {
+export type PaginationPreviousProperties = Omit<PaginationLinkProperties, 'children'>
+
+export function PaginationPrevious(props: PaginationPreviousProperties) {
   return (
     <PaginationLink flexDirection="row" size="default" gap={4} paddingLeft={10} {...props}>
       <ChevronLeft width={16} height={16} />
@@ -77,7 +82,9 @@ export function PaginationPrevious(props: Omit<ComponentPropsWithoutRef<typeof P
   )
 }
 
-export function PaginationNext(props: Omit<ComponentPropsWithoutRef<typeof PaginationLink>, 'children'>) {
+export type PaginationNextProperties = Omit<PaginationLinkProperties, 'children'>
+
+export function PaginationNext(props: PaginationNextProperties) {
   return (
     <PaginationLink flexDirection="row" size="default" gap={4} paddingRight={10} {...props}>
       <Text>Next</Text>
@@ -86,7 +93,9 @@ export function PaginationNext(props: Omit<ComponentPropsWithoutRef<typeof Pagin
   )
 }
 
-export function PaginationEllipsis(props: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
+export type PaginationEllipsisProperties = Omit<PaginationLinkProperties, 'children'>
+
+export function PaginationEllipsis(props: PaginationEllipsisProperties) {
   return (
     <Container flexDirection="row" height={36} width={36} alignItems="center" justifyContent="center" {...props}>
       <MoreHorizontal width={16} height={16} />

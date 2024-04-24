@@ -5,7 +5,8 @@ import { Signal, effect } from '@preact/signals-core'
 import { Initializers, Subscriptions } from '../utils.js'
 import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
 import { OrderInfo } from '../order.js'
-import { ClippingRect, FlexNode, RootContext } from '../internals.js'
+import { ClippingRect } from '../clipping.js'
+import { RootContext } from '../context.js'
 
 export function createInteractionPanel(
   orderInfo: Signal<OrderInfo | undefined>,

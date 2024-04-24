@@ -1,10 +1,12 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, createContext, useContext, useEffect, useRef, useState } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { borderRadius, colors } from './theme.js'
 
 const TooltipContext = createContext<boolean>(null as any)
 
-export function Tooltip({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type TooltipProperties = ContainerProperties
+
+export function Tooltip({ children, ...props }: TooltipProperties) {
   const [open, setOpen] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   useEffect(
@@ -45,15 +47,15 @@ export function Tooltip({ children, ...props }: ComponentPropsWithoutRef<typeof 
   )
 }
 
-export function TooltipTrigger(props: ComponentPropsWithoutRef<typeof Container>) {
+export type TooltipTriggerProperties = ContainerProperties
+
+export function TooltipTrigger(props: TooltipTriggerProperties) {
   return <Container alignSelf="stretch" {...props} />
 }
 
-export function TooltipContent({
-  children,
-  sideOffset = 4,
-  ...props
-}: ComponentPropsWithoutRef<typeof Container> & { sideOffset?: number }) {
+export type TooltipContentProperties = ContainerProperties & { sideOffset?: number }
+
+export function TooltipContent({ children, sideOffset = 4, ...props }: TooltipContentProperties) {
   const open = useContext(TooltipContext)
   if (!open) {
     return null
@@ -65,14 +67,14 @@ export function TooltipContent({
       marginBottom={sideOffset}
       zIndexOffset={50}
       overflow="hidden"
-      borderRadius={6}
-      border={1}
+      borderRadius={borderRadius.md}
+      borderWidth={1}
       backgroundColor={colors.popover}
       paddingX={12}
       paddingY={6}
       {...props}
     >
-      <DefaultProperties wordBreak="keep-all" fontSize={14} lineHeight={1.4333} color={colors.popoverForeground}>
+      <DefaultProperties wordBreak="keep-all" fontSize={14} lineHeight={20} color={colors.popoverForeground}>
         {children}
       </DefaultProperties>
     </Container>

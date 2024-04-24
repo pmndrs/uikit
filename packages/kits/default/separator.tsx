@@ -1,11 +1,10 @@
-import { Container } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties } from '@react-three/uikit'
+import React from 'react'
+import { colors } from './theme.js'
 
-export function Separator({
-  orientation = 'horizontal',
-  ...props
-}: { orientation?: 'horizontal' | 'vertical' } & Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
+export type SeparatorProperties = Omit<ContainerProperties, 'children'> & { orientation?: 'horizontal' | 'vertical' }
+
+export function Separator({ orientation = 'horizontal', ...props }: SeparatorProperties) {
   return (
     <Container
       flexShrink={0}

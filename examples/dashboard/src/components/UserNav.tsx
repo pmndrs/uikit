@@ -44,13 +44,13 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
             <Text>Make changes to your profile here. Click save when you're done.</Text>
           </DialogDescription>
         </DialogHeader>
-        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
+        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} borderWidth={1} padding={16}>
           <BellRing />
           <Container gap={4}>
-            <Text fontWeight="medium" fontSize={14} lineHeight={1}>
+            <Text fontWeight="medium" fontSize={14} lineHeight="100%">
               Push Notifications
             </Text>
-            <Text fontWeight="medium" fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+            <Text fontWeight="medium" fontSize={14} lineHeight={20} color={colors.mutedForeground}>
               Send notifications to device.
             </Text>
           </Container>
@@ -68,10 +68,10 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
             >
               <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
               <Container flexDirection="column" gap={4}>
-                <Text fontSize={14} lineHeight={1}>
+                <Text fontSize={14} lineHeight="100%">
                   {notification.title}
                 </Text>
-                <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+                <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                   {notification.description}
                 </Text>
               </Container>

@@ -4,7 +4,7 @@ import { ClippingRect } from './clipping.js'
 import { OrderInfo, WithCameraDistance } from './order.js'
 import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
 import { PanelGroupManager } from './panel/instanced-panel-group.js'
-import { FlexNode } from './internals.js'
+import { FlexNode } from './flex/index.js'
 
 export type ParentContext = Readonly<{
   node: Signal<FlexNode | undefined>

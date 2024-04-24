@@ -1,7 +1,7 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Box3, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
 import { Listeners } from '../index.js'
-import { Object3DRef, ParentContext } from '../context.js'
+import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
@@ -35,15 +35,10 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import {
-  KeepAspectRatioProperties,
-  PanelGroupProperties,
-  RootContext,
-  computedPanelGroupDependencies,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-} from '../internals.js'
 import { SVGLoader } from 'three/examples/jsm/Addons.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { KeepAspectRatioProperties } from './image.js'
 
 export type InheritableSvgProperties = WithClasses<
   WithConditionals<
@@ -66,11 +61,14 @@ export type AppearanceProperties = {
   color?: ColorRepresentation
 }
 
-export type SvgProperties = InheritableSvgProperties & Listeners
+export type SvgProperties = InheritableSvgProperties &
+  Listeners & {
+    src?: Signal<string> | string
+    keepAspectRatio?: boolean
+  }
 
 export function createSvg(
   parentContext: ParentContext,
-  srcSignal: Signal<Signal<string> | string>,
   style: Signal<SvgProperties | undefined>,
   properties: Signal<SvgProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -135,7 +133,7 @@ export function createSvg(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
-  const src = computed(() => readReactive(srcSignal.value))
+  const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
   const svgObject = signal<Object3D | undefined>(undefined)
   const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
   loadResourceWithParams(
@@ -256,13 +254,16 @@ const box3Helper = new Box3()
 const vectorHelper = new Vector3()
 
 async function loadSvg(
-  url: string,
+  url: string | undefined,
   root: RootContext,
   clippingPlanes: Array<Plane>,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   aspectRatio: Signal<number | undefined>,
 ) {
+  if (url == null) {
+    return undefined
+  }
   const object = new Group()
   object.matrixAutoUpdate = false
   const result = await loader.loadAsync(url)

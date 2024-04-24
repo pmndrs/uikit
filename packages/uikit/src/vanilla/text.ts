@@ -3,7 +3,7 @@ import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
-import { Subscriptions, initialize, unsubscribeSubscriptions } from '../internals.js'
+import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 
 export class Text extends Object3D {
   private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)

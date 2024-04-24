@@ -8,11 +8,12 @@ import {
   createText,
   createIcon,
   createCustomContainer,
+  ContainerProperties,
 } from '@pmndrs/uikit/internals'
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
 
-export type ComponentInternals<T> = {
+export type ComponentInternals<T = ContainerProperties> = {
   pixelSize: Signal<number>
   size: ReadonlySignal<Vector2Tuple | undefined>
   center: ReadonlySignal<Vector2Tuple | undefined>

@@ -1,9 +1,9 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
-import { ReactNode, forwardRef, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
 import { Object3D } from 'three'
 import { useDefaultProperties } from './default.js'
-import { AllOptionalProperties, Subscriptions, addHandler, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
+import { AllOptionalProperties, addHandler } from '@pmndrs/uikit/internals'
 
 const eventHandlerKeys: Array<keyof EventHandlers> = [
   'onClick',

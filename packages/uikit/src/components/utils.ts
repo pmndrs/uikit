@@ -4,20 +4,17 @@ import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
 import { WithHover, addHoverHandlers } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
-import { ColorRepresentation, Initializers, Subscriptions, readReactive } from '../utils.js'
+import { ColorRepresentation, Initializers, readReactive } from '../utils.js'
+import { FlexNode, FlexNodeState } from '../flex/index.js'
+import { ParentContext, Object3DRef, RootContext } from '../context.js'
+import { EventHandlers } from '../events.js'
 import {
   AllOptionalProperties,
-  EventHandlers,
   MergedProperties,
-  Object3DRef,
   Properties,
   PropertyTransformers,
-  ParentContext,
   computedProperty,
-  FlexNode,
-  FlexNodeState,
-  RootContext,
-} from '../internals.js'
+} from '../properties/index.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,

@@ -14,7 +14,7 @@ export type PreferredColorScheme = 'dark' | 'light' | 'system'
 
 const preferredColorScheme = signal<PreferredColorScheme>('system')
 
-const isDarkMode = computed(() => {
+export const isDarkMode = computed(() => {
   switch (preferredColorScheme.value) {
     case 'system':
       return symstemIsDarkMode.value

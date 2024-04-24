@@ -12,7 +12,9 @@ import {
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
-import { ColorRepresentation, Inset, MergedProperties } from '../internals.js'
+import { ColorRepresentation } from '../utils.js'
+import { MergedProperties } from '../properties/index.js'
+import { Inset } from '../flex/index.js'
 
 export type MaterialClass = { new (...args: Array<any>): Material }
 

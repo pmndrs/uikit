@@ -1,14 +1,8 @@
-import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties, DefaultPropertiesProperties } from '@react-three/uikit'
+import React from 'react'
+import { colors } from './theme.js'
 
-const badgeVariants: {
-  [Key in string]: {
-    defaultProps?: AllOptionalProperties
-    containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
-    containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
-  }
-} = {
+const badgeVariants = {
   default: {
     defaultProps: {
       color: colors.primaryForeground,
@@ -45,24 +39,29 @@ const badgeVariants: {
   outline: {},
 }
 
-export function Badge({
-  children,
-  variant = 'default',
-  hover,
-  ...props
-}: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof badgeVariants }) {
-  const { containerProps, defaultProps, containerHoverProps } = badgeVariants[variant]
+export type BadgeProperties = ContainerProperties & { variant?: keyof typeof badgeVariants }
+
+export function Badge({ children, variant = 'default', hover, ...props }: BadgeProperties) {
+  const {
+    containerProps,
+    defaultProps,
+    containerHoverProps,
+  }: {
+    defaultProps?: DefaultPropertiesProperties
+    containerProps?: Omit<ContainerProperties, 'hover'>
+    containerHoverProps?: ContainerProperties['hover']
+  } = badgeVariants[variant]
   return (
     <Container
       borderRadius={1000}
-      border={1}
+      borderWidth={1}
       paddingX={10}
       paddingY={2}
       hover={{ ...containerHoverProps, ...hover }}
       {...containerProps}
       {...props}
     >
-      <DefaultProperties fontSize={12} lineHeight={1.3333} fontWeight="semi-bold" {...defaultProps}>
+      <DefaultProperties fontSize={12} lineHeight={16} fontWeight="semi-bold" {...defaultProps}>
         {children}
       </DefaultProperties>
     </Container>

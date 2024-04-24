@@ -1,9 +1,16 @@
-import { basedOnPreferredColorScheme, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
+import { basedOnPreferredColorScheme, DefaultProperties, DefaultPropertiesProperties } from '@react-three/uikit'
+import React from 'react'
 import { Color } from 'three'
 
 function hsl(h: number, s: number, l: number) {
   return new Color().setHSL(h / 360, s / 100, l / 100, 'srgb')
+}
+
+const baseBorderRadius = 8
+export const borderRadius = {
+  lg: baseBorderRadius,
+  md: baseBorderRadius - 2,
+  sm: baseBorderRadius - 4,
 }
 
 export const colors = basedOnPreferredColorScheme({
@@ -51,7 +58,7 @@ export const colors = basedOnPreferredColorScheme({
   },
 })
 
-export function Defaults(props: ComponentPropsWithoutRef<typeof DefaultProperties>) {
+export function Defaults(props: DefaultPropertiesProperties) {
   return (
     <DefaultProperties
       scrollbarColor={colors.foreground}

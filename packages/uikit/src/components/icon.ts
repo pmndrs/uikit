@@ -26,15 +26,11 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import {
-  AppearanceProperties,
-  MergedProperties,
-  PanelGroupProperties,
-  computedPanelGroupDependencies,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-} from '../internals.js'
 import { SVGLoader } from 'three/examples/jsm/Addons.js'
+import { AppearanceProperties } from './svg.js'
+import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { MergedProperties } from '../properties/index.js'
 
 export type InheritableIconProperties = WithClasses<
   WithConditionals<

@@ -1,6 +1,6 @@
 import { Signal, effect } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
-import { Initializers, Subscriptions } from './utils.js'
+import { Initializers } from './utils.js'
 import { ThreeEvent } from './events.js'
 
 export type Listeners = ScrollListeners & LayoutListeners & ViewportListeners

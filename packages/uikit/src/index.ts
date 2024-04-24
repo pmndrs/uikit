@@ -5,6 +5,7 @@ export {
   basedOnPreferredColorScheme,
   setPreferredColorScheme,
   getPreferredColorScheme,
+  isDarkMode,
   type PreferredColorScheme,
 } from './dark.js'
 export type { MaterialClass } from './panel/panel-material.js'
@@ -20,5 +21,8 @@ export type {
   RootProperties,
   SvgProperties,
   TextProperties,
+  VideoContainerProperties,
 } from './components/index.js'
 export * from './vanilla/index.js'
+export { htmlToCode } from './convert/html/index.js'
+export { ColorRepresentation } from './utils.js'

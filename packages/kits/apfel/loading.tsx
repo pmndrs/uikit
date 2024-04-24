@@ -1,8 +1,8 @@
-import { Container } from '@react-three/uikit'
+import { Container, ContainerProperties } from '@react-three/uikit'
 import { useFrame } from '@react-three/fiber'
-import React, { ComponentPropsWithoutRef, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { signal } from '@preact/signals-core'
-import { colors } from './theme'
+import { colors } from './theme.js'
 
 const sizes = {
   sm: { diameter: 20, pillWidth: 3, pillHeight: 6 },
@@ -17,7 +17,7 @@ const PILL_AMOUNT = 8
 export function Loading({
   size = 'md',
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+}: ContainerProperties & {
   size?: Size
 }) {
   const pillOpacities = useMemo(() => new Array(PILL_AMOUNT).fill(undefined).map(() => signal(0)), [])

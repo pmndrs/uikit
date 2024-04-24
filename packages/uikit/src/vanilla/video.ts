@@ -1,7 +1,8 @@
 import { Image } from './image.js'
 import { VideoTexture } from 'three'
-import { ImageProperties } from '../index.js'
+import { AllOptionalProperties, ImageProperties, VideoContainerProperties } from '../index.js'
 import { Signal, signal } from '@preact/signals-core'
+import { updateVideoElement } from '../components/index.js'
 
 export class VideoContainer extends Image {
   public readonly element: HTMLVideoElement
@@ -10,52 +11,44 @@ export class VideoContainer extends Image {
   private readonly updateAspectRatio: () => void
 
   constructor(
-    src: string | MediaStream,
-    volume?: number,
-    preservesPitch?: boolean,
-    playbackRate?: number,
-    muted?: boolean,
-    loop?: boolean,
-    autoplay?: boolean,
-    properties?: ImageProperties,
-    defaultProperties?: ImageProperties,
+    { src, autoplay, volume, preservesPitch, playbackRate, muted, loop, ...rest }: VideoContainerProperties = {},
+    defaultProperties?: AllOptionalProperties,
   ) {
     const element = document.createElement('video')
+    if (autoplay) {
+      document.body.append(element)
+    }
+    updateVideoElement(element, src, autoplay, volume, preservesPitch, playbackRate, muted, loop)
     const texture = new VideoTexture(element)
     const aspectRatio = signal<number>(1)
-    super(texture, { aspectRatio, ...properties }, defaultProperties)
+    super({ aspectRatio, src: texture, ...rest }, defaultProperties)
     this.element = element
     this.texture = texture
     this.aspectRatio = aspectRatio
-    if (autoplay) {
-      this.element.style.position = 'absolute'
-      this.element.style.width = '1px'
-      this.element.style.zIndex = '-1000'
-      this.element.style.top = '0px'
-      this.element.style.left = '0px'
-      document.body.append(this.element)
-    }
-    this.element.playsInline = true
-    this.element.volume = volume ?? 1
-    this.element.preservesPitch = preservesPitch ?? true
-    this.element.playbackRate = playbackRate ?? 1
-    this.element.muted = muted ?? false
-    this.element.loop = loop ?? false
-    this.element.autoplay = autoplay ?? false
-    if (typeof src === 'string') {
-      this.element.src = src
-    } else {
-      this.element.srcObject = src
-    }
     this.updateAspectRatio = () => (aspectRatio.value = this.element.videoWidth / this.element.videoHeight)
     this.updateAspectRatio()
     this.element.addEventListener('resize', this.updateAspectRatio)
   }
 
-  setProperties(properties?: ImageProperties): void {
+  setProperties({
+    src,
+    autoplay,
+    volume,
+    preservesPitch,
+    playbackRate,
+    muted,
+    loop,
+    ...rest
+  }: VideoContainerProperties & ImageProperties): void {
+    if (autoplay) {
+      this.element.remove()
+      document.body.append(this.element)
+    }
+    updateVideoElement(this.element, src, autoplay, volume, preservesPitch, playbackRate, muted, loop)
     super.setProperties({
       aspectRatio: this.aspectRatio,
-      ...properties,
+      src: this.texture,
+      ...rest,
     })
   }
 

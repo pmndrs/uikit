@@ -14,8 +14,8 @@ async function main() {
     const code = `
       /* eslint-disable no-shadow-restricted-names */
       import { Icon, ComponentInternals, IconProperties } from "@react-three/uikit";
-      import { ComponentPropsWithoutRef, forwardRef } from "react"; 
-      export type ${name}Props = Omit<ComponentPropsWithoutRef<typeof Icon>, "text" | "svgWidth" | "svgHeight">;
+      import { forwardRef } from "react"; 
+      export type ${name}Props = Omit<IconProperties, "text" | "svgWidth" | "svgHeight">;
       const text = \`${svg}\`;
       export const ${name} = /*@__PURE__*/ forwardRef<ComponentInternals<IconProperties>, ${name}Props>((props, ref) => {
         return <Icon {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />

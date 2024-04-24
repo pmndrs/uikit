@@ -1,10 +1,10 @@
 import { Signal, computed, effect } from '@preact/signals-core'
-import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
-import { FlexNode, FlexNodeState } from './flex/node.js'
-import { Initializers, Subscriptions, alignmentXMap, alignmentYMap } from './utils.js'
+import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { FlexNodeState } from './flex/node.js'
+import { Initializers, alignmentXMap, alignmentYMap } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
 import { Object3DRef } from './context.js'
-import { computedProperty } from './internals.js'
+import { computedProperty } from './properties/index.js'
 
 export type TransformProperties = {
   transformTranslateX?: number
