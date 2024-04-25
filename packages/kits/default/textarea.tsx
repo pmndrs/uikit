@@ -10,9 +10,9 @@ import React, { useMemo, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
 import { computed } from '@preact/signals-core'
 
-export type InputProperties = Omit<BaseInputProperties, 'multiline'> & { placeholder?: string }
+export type TextareaProperties = Omit<BaseInputProperties, 'multiline'> & { placeholder?: string }
 
-export function Input({
+export function Textarea({
   panelMaterialClass,
   value,
   defaultValue,
@@ -21,7 +21,7 @@ export function Input({
   disabled = false,
   placeholder,
   ...props
-}: InputProperties) {
+}: TextareaProperties) {
   const [internal, setInternal] = useState<InputInternals | null>(null)
   const placeholderOpacity = useMemo(() => {
     if (internal == null) {
@@ -30,7 +30,7 @@ export function Input({
     return computed(() => (internal.current.value.length > 0 ? 0 : undefined))
   }, [internal])
   return (
-    <Container height={40} positionType="relative" overflow="hidden" {...props}>
+    <Container minHeight={80} positionType="relative" overflow="hidden" {...props}>
       <DefaultProperties
         fontSize={14}
         height="100%"
@@ -51,7 +51,7 @@ export function Input({
             borderColor: colors.ring,
           }}
           panelMaterialClass={panelMaterialClass}
-          multiline={false}
+          multiline={true}
           value={value}
           defaultValue={defaultValue}
           onValueChange={onValueChange}

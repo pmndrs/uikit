@@ -17,6 +17,7 @@ export function htmlToCode(html: string, colorMap?: ConversionColorMap, componen
 
 function elementToCode(
   typeName: string,
+  custom: boolean,
   props: Record<string, unknown>,
   index: number,
   children?: Array<string> | undefined,

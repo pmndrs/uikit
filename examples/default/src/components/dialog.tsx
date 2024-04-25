@@ -31,13 +31,13 @@ export function DialogDemo() {
         <Container flexDirection="column" alignItems="center" gap={16} paddingY={16}>
           <Container alignItems="center" gap={16}>
             <Label>
-              <Text horizontalAlign="right">Name</Text>
+              <Text textAlign="right">Name</Text>
             </Label>
             {/*<Input defaultValue="Pedro Duarte" className="col-span-3" />*/}
           </Container>
           <Container alignItems="center" gap={16}>
             <Label>
-              <Text horizontalAlign="right">Username</Text>
+              <Text textAlign="right">Username</Text>
             </Label>
             {/*<Input id="username" defaultValue="@peduarte" className="col-span-3" />*/}
           </Container>

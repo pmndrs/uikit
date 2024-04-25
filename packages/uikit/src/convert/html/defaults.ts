@@ -55,12 +55,15 @@ export const htmlDefaults: Record<
   },
   a: {
     //TODO: custom property converter href => onClick ...
-    defaultProperties: { color: 'blue', pointer: 'cursor' },
+    defaultProperties: {
+      //color: 'blue',
+      cursor: 'pointer',
+    },
   },
   img: {
     renderAs: 'Image',
   },
-  button: { defaultProperties: { pointer: 'cursor' } },
+  button: { defaultProperties: { cursor: 'pointer' } },
   input: {
     renderAs: 'Input',
     children: 'none',

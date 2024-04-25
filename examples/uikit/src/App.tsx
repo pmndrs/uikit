@@ -87,7 +87,7 @@ export default function App() {
                 backgroundColor="black"
                 fontSize={30}
                 verticalAlign="bottom"
-                horizontalAlign="block"
+                textAlign="block"
                 cursor="pointer"
                 color="white"
               >
@@ -148,7 +148,7 @@ export default function App() {
                     minHeight={100}
                     backgroundColor="black"
                     verticalAlign="center"
-                    horizontalAlign="center"
+                    textAlign="center"
                     padding={10}
                     color="white"
                   >
@@ -207,7 +207,7 @@ export default function App() {
                 selectionBorderColor="orange"
                 focus={{ borderRadius: 20 }}
                 verticalAlign="center"
-                horizontalAlign="center"
+                textAlign="center"
                 multiline
                 defaultValue="Hello world"
               />

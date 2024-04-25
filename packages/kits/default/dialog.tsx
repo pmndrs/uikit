@@ -208,7 +208,7 @@ export type DialogHeaderProperties = ContainerProperties
 export function DialogHeader({ children, ...props }: DialogHeaderProperties) {
   return (
     <Container flexDirection="column" gap={6} {...props}>
-      <DefaultProperties horizontalAlign="center" sm={{ horizontalAlign: 'left' }}>
+      <DefaultProperties textAlign="center" sm={{ textAlign: 'left' }}>
         {children}
       </DefaultProperties>
     </Container>

@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip.js'
 import { useEditorStore } from '@/state.js'
 import { themes } from '@/themes.js'
 import { Label } from '../ui/label.js'
+import { startTransition } from 'react'
 
 const themeNames = Object.keys(themes) as Array<keyof typeof themes>
 const themeColors = [

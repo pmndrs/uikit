@@ -18,10 +18,12 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
+  VisibilityProperties,
   WithConditionals,
   applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
@@ -51,7 +53,8 @@ export type InheritableSvgProperties = WithClasses<
           KeepAspectRatioProperties &
           TransformProperties &
           PanelGroupProperties &
-          ScrollbarProperties
+          ScrollbarProperties &
+          VisibilityProperties
       >
     >
   >
@@ -111,6 +114,7 @@ export function createSvg(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -125,7 +129,7 @@ export function createSvg(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -153,7 +157,7 @@ export function createSvg(
     parentContext.root.pixelSize,
     svgObject,
     aspectRatio,
-    isClipped,
+    isVisible,
     initializers,
   )
 
@@ -165,7 +169,7 @@ export function createSvg(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
@@ -183,7 +187,7 @@ export function createSvg(
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
@@ -215,7 +219,7 @@ function createCenterGroup(
   pixelSize: Signal<number>,
   svgObject: Signal<Object3D | undefined>,
   aspectRatio: Signal<number | undefined>,
-  isClipped: Signal<boolean>,
+  isVisible: Signal<boolean>,
   initializers: Initializers,
 ): Group {
   const centerGroup = new Group()
@@ -243,7 +247,7 @@ function createCenterGroup(
         centerGroup.add(object)
         return () => centerGroup.remove(object)
       }),
-    () => effect(() => void (centerGroup.visible = svgObject.value != null && !isClipped.value)),
+    () => effect(() => void (centerGroup.visible = svgObject.value != null && isVisible.value)),
   )
   return centerGroup
 }

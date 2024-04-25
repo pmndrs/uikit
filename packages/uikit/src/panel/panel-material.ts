@@ -89,7 +89,7 @@ export function createPanelMaterialConfig(
       propertiesSignal: Signal<MergedProperties>,
       borderInset: Signal<Inset | undefined>,
       size: Signal<Vector2Tuple | undefined>,
-      isHidden: Signal<boolean> | undefined,
+      isVisible: Signal<boolean>,
     ) => {
       return computed(() => {
         if (borderInset.value == null || size.value == null) {
@@ -116,11 +116,7 @@ export function createPanelMaterialConfig(
           return false
         }
 
-        if (isHidden == null) {
-          return true
-        }
-
-        return !isHidden.value
+        return isVisible.value
       })
     },
   }

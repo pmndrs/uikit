@@ -32,7 +32,7 @@ export function createInstancedPanel(
   offset: Signal<Vector2Tuple> | undefined,
   borderInset: Signal<Inset | undefined>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   materialConfig: PanelMaterialConfig,
   subscriptions: Subscriptions,
 ) {
@@ -52,7 +52,7 @@ export function createInstancedPanel(
         offset,
         borderInset,
         clippingRect,
-        isHidden,
+        isVisible,
         materialConfig,
         innerSubscriptions,
       )
@@ -84,7 +84,7 @@ export class InstancedPanel {
     private readonly offset: Signal<Vector2Tuple> | undefined,
     private readonly borderInset: Signal<Inset | undefined>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
-    isHidden: Signal<boolean> | undefined,
+    isVisible: Signal<boolean>,
     public readonly materialConfig: PanelMaterialConfig,
     subscriptions: Subscriptions,
   ) {
@@ -103,10 +103,10 @@ export class InstancedPanel {
       },
       subscriptions,
     )
-    const isVisible = materialConfig.computedIsVisibile(propertiesSignal, borderInset, size, isHidden)
+    const isPanelVisible = materialConfig.computedIsVisibile(propertiesSignal, borderInset, size, isVisible)
     subscriptions.push(
       effect(() => {
-        if (isVisible.value) {
+        if (isPanelVisible.value) {
           this.requestShow()
           return
         }

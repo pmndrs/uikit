@@ -15,6 +15,7 @@ import {
   PropertyTransformers,
   computedProperty,
 } from '../properties/index.js'
+import { Display } from 'yoga-layout/load'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -28,6 +29,23 @@ export function computedGlobalMatrix(
     }
     return parent.clone().multiply(local)
   })
+}
+
+export type VisibilityProperties = {
+  visibility?: 'visible' | 'hidden'
+}
+
+export function computedIsVisible(
+  flexState: FlexNodeState,
+  isClipped: Signal<boolean> | undefined,
+  mergedProperties: Signal<MergedProperties>,
+) {
+  return computed(
+    () =>
+      flexState.displayed.value &&
+      (isClipped == null || !isClipped?.value) &&
+      mergedProperties.value.read<VisibilityProperties['visibility']>('visibility', 'visible') === 'visible',
+  )
 }
 
 export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T> & WithActive<T>

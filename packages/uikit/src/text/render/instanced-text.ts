@@ -19,7 +19,7 @@ import { MergedProperties, computedProperty } from '../../properties/index.js'
 import { FlexNode, FlexNodeState } from '../../flex/index.js'
 
 export type TextAlignProperties = {
-  horizontalAlign?: keyof typeof alignmentXMap | 'block'
+  textAlign?: keyof typeof alignmentXMap | 'block'
   verticalAlign?: keyof typeof alignmentYMap
 }
 
@@ -29,7 +29,7 @@ export type TextAppearanceProperties = {
 }
 
 const defaultVerticalAlign: keyof typeof alignmentYMap = 'top'
-const defaultHorizontalAlign: keyof typeof alignmentXMap | 'block' = 'left'
+const defaulttextAlign: keyof typeof alignmentXMap | 'block' = 'left'
 
 export function createInstancedText(
   properties: Signal<MergedProperties>,
@@ -37,7 +37,7 @@ export function createInstancedText(
   matrix: Signal<Matrix4 | undefined>,
   nodeSignal: Signal<FlexNode | undefined>,
   flexState: FlexNodeState,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   fontSignal: Signal<Font | undefined>,
@@ -52,7 +52,7 @@ export function createInstancedText(
 
   const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
   const verticalAlign = computedProperty(properties, 'verticalAlign', defaultVerticalAlign)
-  const horizontalAlign = computedProperty(properties, 'horizontalAlign', defaultHorizontalAlign)
+  const textAlign = computedProperty(properties, 'textAlign', defaulttextAlign)
   const color = computedProperty(properties, 'color', 0x0)
   const opacity = computedProperty(properties, 'opacity', 1)
 
@@ -86,13 +86,13 @@ export function createInstancedText(
         }
         const instancedText = new InstancedText(
           glyphGroupManager.getGroup(orderInfo.value.majorIndex, font),
-          horizontalAlign,
+          textAlign,
           verticalAlign,
           color,
           opacity,
           layoutSignal,
           matrix,
-          isHidden,
+          isVisible,
           parentClippingRect,
           selectionRange,
           selectionBoxes,
@@ -120,13 +120,13 @@ export class InstancedText {
 
   constructor(
     private group: InstancedGlyphGroup,
-    private horizontalAlign: Signal<keyof typeof alignmentXMap | 'block'>,
+    private textAlign: Signal<keyof typeof alignmentXMap | 'block'>,
     private verticalAlign: Signal<keyof typeof alignmentYMap>,
     private color: Signal<ColorRepresentation>,
     private opacity: Signal<number>,
     private layoutSignal: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
-    isHidden: Signal<boolean> | undefined,
+    isVisible: Signal<boolean>,
     private parentClippingRect: Signal<ClippingRect | undefined> | undefined,
     private selectionRange: Signal<Vector2Tuple | undefined> | undefined,
     private selectionBoxes: Signal<SelectionBoxes> | undefined,
@@ -134,14 +134,14 @@ export class InstancedText {
   ) {
     this.unsubscribeInitialList = [
       effect(() => {
-        if (isHidden?.value === true || opacity.value < 0.01) {
+        if (!isVisible.value || opacity.value < 0.01) {
           this.hide()
           return
         }
         this.show()
       }),
       effect(() =>
-        this.updateSelectionBoxes(this.lastLayout, selectionRange?.value, verticalAlign.peek(), horizontalAlign.peek()),
+        this.updateSelectionBoxes(this.lastLayout, selectionRange?.value, verticalAlign.peek(), textAlign.peek()),
       ),
     ]
   }
@@ -179,7 +179,7 @@ export class InstancedText {
     layout: GlyphLayout | undefined,
     range: Vector2Tuple | undefined,
     verticalAlign: keyof typeof alignmentYMap,
-    horizontalAlign: keyof typeof alignmentXMap | 'block',
+    textAlign: keyof typeof alignmentXMap | 'block',
   ): void {
     if (this.caretPosition == null || this.selectionBoxes == null) {
       return
@@ -192,7 +192,7 @@ export class InstancedText {
     const whitespaceWidth = layout.font.getGlyphInfo(' ').xadvance * layout.fontSize
     const [startCharIndexIncl, endCharIndexExcl] = range
     if (endCharIndexExcl <= startCharIndexIncl) {
-      const { lineIndex, x } = this.getGlyphLineAndX(layout, endCharIndexExcl, true, whitespaceWidth, horizontalAlign)
+      const { lineIndex, x } = this.getGlyphLineAndX(layout, endCharIndexExcl, true, whitespaceWidth, textAlign)
       const y = -(
         getYOffset(layout, verticalAlign) -
         layout.availableHeight / 2 +
@@ -204,8 +204,8 @@ export class InstancedText {
       return
     }
     this.caretPosition.value = undefined
-    const start = this.getGlyphLineAndX(layout, startCharIndexIncl, true, whitespaceWidth, horizontalAlign)
-    const end = this.getGlyphLineAndX(layout, endCharIndexExcl - 1, false, whitespaceWidth, horizontalAlign)
+    const start = this.getGlyphLineAndX(layout, startCharIndexIncl, true, whitespaceWidth, textAlign)
+    const end = this.getGlyphLineAndX(layout, endCharIndexExcl - 1, false, whitespaceWidth, textAlign)
     if (start.lineIndex === end.lineIndex) {
       this.selectionBoxes.value = [
         this.computeSelectionBox(start.lineIndex, start.x, end.x, layout, verticalAlign, whitespaceWidth),
@@ -255,7 +255,7 @@ export class InstancedText {
     charIndex: number,
     start: boolean,
     whitespaceWidth: number,
-    horizontalAlign: keyof typeof alignmentXMap | 'block',
+    textAlign: keyof typeof alignmentXMap | 'block',
   ): { lineIndex: number; x: number } {
     const linesLength = lines.length
     for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
@@ -271,7 +271,7 @@ export class InstancedText {
     if (lastLine.charLength === 0) {
       return {
         lineIndex: linesLength - 1,
-        x: getXOffset(availableWidth, lastLine.nonWhitespaceWidth, horizontalAlign) - availableWidth / 2,
+        x: getXOffset(availableWidth, lastLine.nonWhitespaceWidth, textAlign) - availableWidth / 2,
       }
     }
     const lastGlyphEntry = this.glyphLines[linesLength - 1][lastLine.charLength - 1]
@@ -335,8 +335,8 @@ export class InstancedText {
           } = lines[lineIndex]
 
           let offsetPerWhitespace =
-            this.horizontalAlign.value === 'block' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
-          let x = getXOffset(availableWidth, nonWhitespaceWidth, this.horizontalAlign.value) - availableWidth / 2
+            this.textAlign.value === 'block' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
+          let x = getXOffset(availableWidth, nonWhitespaceWidth, this.textAlign.value) - availableWidth / 2
 
           let prevGlyphId: number | undefined
           const glyphs = this.glyphLines[lineIndex]
@@ -409,12 +409,7 @@ export class InstancedText {
         traverseGlyphs(this.glyphLines, (glyph) => glyph.hide(), linesLength)
         this.glyphLines.length = linesLength
         this.lastLayout = layout
-        this.updateSelectionBoxes(
-          layout,
-          this.selectionRange?.peek(),
-          this.verticalAlign.value,
-          this.horizontalAlign.value,
-        )
+        this.updateSelectionBoxes(layout, this.selectionRange?.peek(), this.verticalAlign.value, this.textAlign.value)
       }),
     )
   }
@@ -444,9 +439,9 @@ export class InstancedText {
 function getXOffset(
   availableWidth: number,
   nonWhitespaceWidth: number,
-  horizontalAlign: keyof typeof alignmentXMap | 'block',
+  textAlign: keyof typeof alignmentXMap | 'block',
 ) {
-  switch (horizontalAlign) {
+  switch (textAlign) {
     case 'right':
       return availableWidth - nonWhitespaceWidth
     case 'center':

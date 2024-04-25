@@ -6,7 +6,8 @@ import { Preview, canvasInputProps, Root, Fullscreen } from '@react-three/uikit'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { EffectComposer, ChromaticAberration, TiltShift2, Bloom, Vignette } from '@react-three/postprocessing'
 import { Vector2 } from 'three'
-import { DialogAnchor, componentMap } from '@react-three/uikit-default'
+import { DialogAnchor } from '@react-three/uikit-default'
+import { componentMap } from '@/App.js'
 
 export function Scene() {
   return (

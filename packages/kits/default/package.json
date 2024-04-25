@@ -26,7 +26,6 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "generate": "node --loader ts-node/esm ./scripts/generate-component-list.ts",
     "check:prettier": "prettier --check .",
     "check:eslint": "eslint '**/*.{tsx,ts}'",
     "fix:prettier": "prettier --write .",

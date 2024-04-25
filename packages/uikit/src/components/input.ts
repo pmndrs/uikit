@@ -17,9 +17,11 @@ import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
 } from './utils.js'
@@ -58,7 +60,8 @@ export type InheritableInputProperties = WithClasses<
             SelectionProperties &
             PanelGroupProperties &
             InstancedTextProperties &
-            DisabledProperties
+            DisabledProperties &
+            VisibilityProperties
         >
       >
     >
@@ -149,6 +152,7 @@ export function createInput(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -163,7 +167,7 @@ export function createInput(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -177,7 +181,7 @@ export function createInput(
     mergedProperties,
     globalMatrix,
     caretPosition,
-    isClipped,
+    isVisible,
     backgroundOrderInfo,
     parentContext.clippingRect,
     parentContext.root.panelGroupManager,
@@ -187,7 +191,7 @@ export function createInput(
     mergedProperties,
     globalMatrix,
     selectionBoxes,
-    isClipped,
+    isVisible,
     backgroundOrderInfo,
     parentContext.clippingRect,
     parentContext.root.panelGroupManager,
@@ -212,7 +216,7 @@ export function createInput(
     globalMatrix,
     nodeSignal,
     flexState,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     fontSignal,
@@ -226,7 +230,7 @@ export function createInput(
   initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   const disabled = computedProperty(mergedProperties, 'disabled', false)
 

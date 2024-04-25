@@ -67,7 +67,7 @@ export function createCaret(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   caretPosition: Signal<Vector3Tuple | undefined>,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
@@ -91,6 +91,7 @@ export function createCaret(
   )
   const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
   const caretWidth = computedProperty(propertiesSignal, 'caretWidth', 1.5)
+
   initializers.push((subscriptions) =>
     createInstancedPanel(
       propertiesSignal,
@@ -114,7 +115,7 @@ export function createCaret(
       }),
       borderInset,
       parentClippingRect,
-      isHidden,
+      isVisible,
       getCaretMaterialConfig(),
       subscriptions,
     ),

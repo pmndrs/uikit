@@ -11,9 +11,11 @@ import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRende
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
@@ -40,7 +42,8 @@ export type InheritableContentProperties = WithClasses<
           ScrollbarProperties &
           PanelGroupProperties &
           DepthAlignProperties &
-          KeepAspectRatioProperties
+          KeepAspectRatioProperties &
+          VisibilityProperties
       >
     >
   >
@@ -100,6 +103,7 @@ export function createContent(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
@@ -115,7 +119,7 @@ export function createContent(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -124,7 +128,7 @@ export function createContent(
   const orderInfo = computedOrderInfo(undefined, ElementType.Object, undefined, backgroundorderInfo)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     remeasureContent: createMeasureContent(

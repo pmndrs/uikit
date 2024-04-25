@@ -56,13 +56,13 @@ export function setupLayoutListeners(
 export function setupViewportListeners(
   l1: Signal<ViewportListeners | undefined>,
   l2: Signal<ViewportListeners | undefined>,
-  isClipped: Signal<boolean>,
+  isVisible: Signal<boolean>,
   initializers: Initializers,
 ) {
   let first = true
   initializers.push(() =>
     effect(() => {
-      const isInViewport = !isClipped.value
+      const isInViewport = isVisible.value
       if (first) {
         first = false
         return

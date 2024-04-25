@@ -3,6 +3,7 @@ import { Rotate3D } from 'lucide-react'
 import { Button } from '../ui/button.js'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip.js'
 import { useEditorStore } from '@/state.js'
+import { startTransition } from 'react'
 
 export function ViewPopover() {
   const view = useEditorStore((state) => state.view)
@@ -10,7 +11,9 @@ export function ViewPopover() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          onClick={() => useEditorStore.getState().setView(view === 'floating' ? 'hud' : 'floating')}
+          onClick={() =>
+            startTransition(() => useEditorStore.getState().setView(view === 'floating' ? 'hud' : 'floating'))
+          }
           size="icon"
           variant="ghost"
         >

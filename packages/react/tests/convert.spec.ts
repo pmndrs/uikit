@@ -5,10 +5,10 @@ const pureHtml = `
 export default function Index() {
   return (
     <Container>
-      <Text fontSize={32} fontWeight="bold" marginY={10.67}>
+      <Text fontSize={32} fontWeight="bold">
         Hello
       </Text>
-      <Text fontSize={24} fontWeight="bold" marginY={13.28}>
+      <Text fontSize={24} fontWeight="bold">
         World
       </Text>
     </Container>
@@ -70,6 +70,48 @@ export default function Index() {
 }
 `.trimStart()
 
+const htmlWithCustomComponent = `
+export default function Index() {
+  return (
+    <Button>
+      <Text>Hello World!</Text>
+    </Button>
+  )
+}
+`.trimStart()
+
+const htmlWithSpaceXY = `
+export default function Index() {
+  return (
+    <Text flexDirection="column" gapRow={16}>
+      Hello World!
+    </Text>
+  )
+}
+`.trimStart()
+
+const htmlFlexShorthand = `
+export default function Index() {
+  return (
+    <Text flexGrow={1} flexShrink={1} flexBasis="0%">
+      Hello World!
+    </Text>
+  )
+}
+`.trimStart()
+
+const htmlOnlyDiv = `
+export default function Index() {
+  return (
+    <Container
+      height="100%"
+      width="100%"
+      backgroundColor="rgb(0,0,0)"
+    ></Container>
+  )
+}
+`.trimStart()
+
 describe('html to react converter', () => {
   it('should convert pure html', async () => {
     expect(await htmlToCode(`<div><h1>Hello</h1><h2>World</h2></div>`)).to.equal(pureHtml)
@@ -97,10 +139,31 @@ describe('html to react converter', () => {
     expect(
       await htmlToCode(`
         <div></div>
-        <div></div>
-`),
+        <div></div>`),
     ).to.equal(htmlWith2Divs)
   })
 
-  //TODO: test support for custom html components e.g. "Button" which is different from "button"
+  it('should convert space-x/y to flex direction and gap', async () => {
+    expect(await htmlToCode(`<div class="space-y-4">Hello World!</div>`)).to.equal(htmlWithSpaceXY)
+  })
+
+  it('should convert shorthand css property flex property to flex grow, shrink, basis', async () => {
+    expect(await htmlToCode(`<div class="flex-1">Hello World!</div>`)).to.equal(htmlFlexShorthand)
+  })
+
+  it('support for custom components', async () => {
+    expect(
+      await htmlToCode(`<Button>Hello World!</Button>`, undefined, {
+        Button: {
+          renderAs: 'Button',
+          propertyTypes: {},
+          renderAsImpl: null as any,
+        },
+      }),
+    ).to.equal(htmlWithCustomComponent)
+  })
+
+  it('a root div with white space should convert to only a container', async () => {
+    expect(await htmlToCode(`<div class="w-full h-full bg-black"> </div>`)).to.equal(htmlOnlyDiv)
+  })
 })

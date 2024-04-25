@@ -121,7 +121,7 @@ function AuthenticationPage() {
           sm={{ width: 350 }}
         >
           <Container alignItems="center" flexDirection="column" gap={8}>
-            <DefaultProperties horizontalAlign="center">
+            <DefaultProperties textAlign="center">
               <Text fontSize={24} lineHeight={32}3} fontWeight="semi-bold" letterSpacing={-0.4}>
                 Create an account
               </Text>
@@ -131,7 +131,7 @@ function AuthenticationPage() {
             </DefaultProperties>
           </Container>
           <UserAuthForm />
-          <Text paddingX={32} horizontalAlign="center" fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text paddingX={32} textAlign="center" fontSize={14} lineHeight={20} color={colors.mutedForeground}>
             By clicking continue, you agree to our Terms of Service and Privacy Policy.
           </Text>
         </Container>

@@ -4,17 +4,7 @@ import { htmlToCode } from '@react-three/uikit'
 
 import { suspend } from 'suspend-react'
 import 'prismjs/themes/prism.css'
-import {
-  AlertCircle,
-  HeartHandshake,
-  Link,
-  Maximize,
-  Minimize,
-  Rotate3D,
-  Send,
-  HardDriveDownload,
-  Palette,
-} from 'lucide-react'
+import { AlertCircle, HeartHandshake, Link, Maximize, Minimize, Send, HardDriveDownload } from 'lucide-react'
 import { Alert, AlertTitle, AlertDescription } from './components/ui/alert.js'
 import { Highlight } from 'prism-react-renderer'
 import { Button } from './components/ui/button.js'
@@ -24,7 +14,6 @@ import { cn } from './lib/utils.js'
 import { Toaster } from './components/ui/toaster.js'
 import { useToast } from './components/ui/use-toast.js'
 import { colors } from './theme.js'
-import { themes } from './themes.js'
 import { Scene } from './components/scene.js'
 import { useEditorStore } from './state.js'
 import { Editor } from './components/editor.js'
@@ -32,7 +21,10 @@ import { BackgroundPopover } from './components/popover/background.js'
 import { EffectsPopover } from './components/popover/effects.js'
 import { ViewPopover } from './components/popover/view.js'
 import { ThemePopover } from './components/popover/theme.js'
-import { componentMap } from '@react-three/uikit-default'
+import { componentMap as defaultComponentMap } from '@react-three/uikit-default'
+import { componentMap as lucideComponentMap } from '@react-three/uikit-lucide'
+
+export const componentMap = { ...defaultComponentMap, ...lucideComponentMap }
 
 const sessionConfig: XRSessionInit = {
   requiredFeatures: ['local-floor'],

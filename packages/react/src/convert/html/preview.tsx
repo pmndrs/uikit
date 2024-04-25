@@ -36,12 +36,16 @@ export function Preview({
 function createRenderElement(componentMap?: ConversionComponentMap) {
   return (
     typeName: string,
+    custom: boolean,
     props: Record<string, unknown>,
     index: number,
     children?: Array<ReactNode> | undefined,
   ): ReactNode => {
-    if (componentMap != null && typeName in componentMap) {
+    if (custom && componentMap != null) {
       const Component = componentMap[typeName].renderAsImpl
+      if (Component == null) {
+        throw new Error(`unknown custom component "${typeName}"`)
+      }
       return (
         <Component key={index} {...props}>
           {children}

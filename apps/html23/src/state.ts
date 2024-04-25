@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { combine } from 'zustand/middleware'
+import { combine, persist } from 'zustand/middleware'
 import { themes } from './themes.js'
 import { CheckedState } from '@radix-ui/react-checkbox'
 
@@ -30,48 +30,53 @@ const initialState: EditorState = {
 }
 
 export const useEditorStore = create(
-  combine(initialState, (set, get) => ({
-    setTheme(theme: keyof typeof themes) {
-      set({ theme })
+  persist(
+    combine(initialState, (set, get) => ({
+      setTheme(theme: keyof typeof themes) {
+        set({ theme })
+      },
+      setBorderRadius(borderRadius: number) {
+        set({ borderRadius })
+      },
+      setLightMode(lightMode: boolean) {
+        set({ lightMode })
+      },
+      setBackground(background: string | number) {
+        set({ background })
+      },
+      setVignetteEffect(vignetteEffect: CheckedState) {
+        if (typeof vignetteEffect === 'string') {
+          return
+        }
+        set({ vignetteEffect })
+      },
+      setBloomEffect(bloomEffect: CheckedState) {
+        if (typeof bloomEffect === 'string') {
+          return
+        }
+        set({ bloomEffect })
+      },
+      setChromaticAberrationEffect(chromaticAberrationEffect: CheckedState) {
+        if (typeof chromaticAberrationEffect === 'string') {
+          return
+        }
+        set({ chromaticAberrationEffect })
+      },
+      setTiltshiftEffect(tiltShiftEffect: CheckedState) {
+        if (typeof tiltShiftEffect === 'string') {
+          return
+        }
+        set({ tiltShiftEffect })
+      },
+      setCode(code: string) {
+        set({ code })
+      },
+      setView(view: EditorState['view']) {
+        set({ view })
+      },
+    })),
+    {
+      name: 'html23-state',
     },
-    setBorderRadius(borderRadius: number) {
-      set({ borderRadius })
-    },
-    setLightMode(lightMode: boolean) {
-      set({ lightMode })
-    },
-    setBackground(background: string | number) {
-      set({ background })
-    },
-    setVignetteEffect(vignetteEffect: CheckedState) {
-      if (typeof vignetteEffect === 'string') {
-        return
-      }
-      set({ vignetteEffect })
-    },
-    setBloomEffect(bloomEffect: CheckedState) {
-      if (typeof bloomEffect === 'string') {
-        return
-      }
-      set({ bloomEffect })
-    },
-    setChromaticAberrationEffect(chromaticAberrationEffect: CheckedState) {
-      if (typeof chromaticAberrationEffect === 'string') {
-        return
-      }
-      set({ chromaticAberrationEffect })
-    },
-    setTiltshiftEffect(tiltShiftEffect: CheckedState) {
-      if (typeof tiltShiftEffect === 'string') {
-        return
-      }
-      set({ tiltShiftEffect })
-    },
-    setCode(code: string) {
-      set({ code })
-    },
-    setView(view: EditorState['view']) {
-      set({ view })
-    },
-  })),
+  ),
 )

@@ -10,10 +10,12 @@ import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/
 import { ScrollbarProperties } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
+  VisibilityProperties,
   WithConditionals,
   applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
@@ -42,7 +44,8 @@ export type InheritableIconProperties = WithClasses<
           AppearanceProperties &
           TransformProperties &
           PanelGroupProperties &
-          ScrollbarProperties
+          ScrollbarProperties &
+          VisibilityProperties
       >
     >
   >
@@ -97,6 +100,7 @@ export function createIcon(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -111,7 +115,7 @@ export function createIcon(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -128,13 +132,13 @@ export function createIcon(
     parentContext,
     orderInfo,
     flexState,
-    isClipped,
+    isVisible,
     clippingPlanes,
     initializers,
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     initializers,
@@ -160,7 +164,7 @@ function createIconGroup(
   parentContext: ParentContext,
   orderInfo: Signal<OrderInfo | undefined>,
   flexState: FlexNodeState,
-  isClipped: Signal<boolean>,
+  isVisible: Signal<boolean>,
   clippingPlanes: Array<Plane>,
   initializers: Initializers,
 ): Group {
@@ -213,7 +217,7 @@ function createIconGroup(
         group.scale.divideScalar(svgHeight)
         group.updateMatrix()
       }),
-    () => effect(() => void (group.visible = !isClipped.value)),
+    () => effect(() => void (group.visible = isVisible.value)),
   )
   applyAppearancePropertiesToGroup(propertiesSignal, group, initializers, parentContext.root)
   return group

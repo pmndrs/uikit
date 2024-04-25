@@ -1,7 +1,7 @@
 import { parse as parseHTML, Node, TextNode, HTMLElement } from 'node-html-parser'
 import { htmlDefaults } from './defaults.js'
 import parseInlineCSS from 'inline-style-parser'
-import { tailwindToCSS, type twj } from 'tw-to-css'
+import { tailwindToCSS, twi, type twj } from 'tw-to-css'
 import generatedPropertyTypes from './properties.json' assert { type: 'json' }
 import {
   ConversionColorMap,
@@ -14,6 +14,7 @@ import {
 
 export type ConversionGenerateComponent<T> = (
   renderAs: string,
+  custom: boolean,
   properties: Record<string, unknown>,
   index: number,
   children?: Array<T | string>,
@@ -27,6 +28,8 @@ export type ConversionComponentData = {
   children?: 'none' | 'text'
 }
 
+const styleTagRegex = /\<style\>(?:.|\s)*?\<\/style\>/gm
+
 export type ConversionComponentMap = Record<string, ConversionComponentData>
 
 export function convertHtml<T>(
@@ -35,6 +38,7 @@ export function convertHtml<T>(
   colorMap?: ConversionColorMap,
   componentMap?: ConversionComponentMap,
 ): T | string | undefined {
+  text = text.replaceAll(styleTagRegex, '')
   return convertHtmlRecursive(parseHTML(text), 0, generate, createTailwindToJson(colorMap), colorMap, componentMap)
 }
 
@@ -70,14 +74,6 @@ function createTailwindToJson(customColors?: ConversionColorMap): typeof tailwin
   return tailwindToJson
 }
 
-/*
-TODO
-export function convertHtmlToThree() {
-}
-function generateThreeElementCode() {
-}
-*/
-
 function convertHtmlRecursive<T>(
   element: Node,
   index: number,
@@ -86,7 +82,7 @@ function convertHtmlRecursive<T>(
   colorMap?: ConversionColorMap,
   componentMap?: ConversionComponentMap,
 ): T | string | undefined {
-  const { skipIfEmpty, defaultProperties, children, propertyTypes, renderAs } = nodeToConversionData(
+  const [{ skipIfEmpty, defaultProperties, children, propertyTypes, renderAs }, custom] = nodeToConversionData(
     element,
     componentMap,
   )
@@ -98,28 +94,41 @@ function convertHtmlRecursive<T>(
     return convertHtmlRecursive(element.childNodes[0], index, generate, tailwindToJson, colorMap, componentMap)
   }
 
-  const { inheritingProperties, properties } =
+  const { inheritingProperties, properties, srOnly } =
     element instanceof HTMLElement
       ? convertMergeSortProperties(propertyTypes, defaultProperties, element.attributes, tailwindToJson, colorMap)
-      : { inheritingProperties: undefined, properties: undefined }
+      : { inheritingProperties: undefined, properties: undefined, srOnly: false }
+
+  if (srOnly) {
+    return undefined
+  }
 
   switch (children) {
     case 'none':
-      return generate(renderAs, { ...inheritingProperties, ...properties }, index)
+      return generate(renderAs, custom, { ...inheritingProperties, ...properties }, index)
     case 'text':
-      const texts = (
-        element instanceof TextNode
-          ? [element.rawText.trim()]
-          : element.childNodes.filter(filterTextNode).map((e) => e.rawText.trim())
-      ).filter((text) => text.length > 0)
-      if (texts.length === 0) {
+      if (!(element instanceof TextNode)) {
+        return generate(
+          renderAs,
+          custom,
+          { ...inheritingProperties, ...properties },
+          index,
+          element.childNodes
+            .filter(filterTextNode)
+            .map((e) => e.text.trim())
+            .filter((text) => text.length > 0),
+        )
+      }
+      const text = element.text.trim()
+      if (text.length === 0) {
         return undefined
       }
-      return generate(renderAs, { ...inheritingProperties, ...properties }, index, texts)
+      return generate(renderAs, custom, { ...inheritingProperties, ...properties }, index, [text])
   }
 
   let result = generate(
     renderAs,
+    custom,
     properties ?? {},
     index,
     element.childNodes
@@ -128,7 +137,7 @@ function convertHtmlRecursive<T>(
   )
 
   if (inheritingProperties == null || Object.keys(inheritingProperties).length > 0) {
-    result = generate('DefaultProperties', inheritingProperties ?? {}, index, [result])
+    result = generate('DefaultProperties', false, inheritingProperties ?? {}, index, [result])
   }
 
   return result
@@ -138,42 +147,58 @@ function filterTextNode(val: any): val is TextNode {
   return val instanceof TextNode
 }
 
-function nodeToConversionData(element: Node, customComponents?: ConversionComponentMap): ConversionComponentData {
+function nodeToConversionData(
+  element: Node,
+  customComponents?: ConversionComponentMap,
+): [ConversionComponentData, boolean] {
   if (element instanceof TextNode) {
-    return {
-      propertyTypes: conversionPropertyTypes.Text,
-      renderAs: 'Text',
-      children: 'text',
-    }
+    return [
+      {
+        propertyTypes: conversionPropertyTypes.Text,
+        renderAs: 'Text',
+        children: 'text',
+      },
+      false,
+    ]
   }
   if (element.rawTagName == null) {
-    return {
-      skipIfEmpty: true,
-      propertyTypes: {},
-      renderAs: 'Fragment',
-    }
+    return [
+      {
+        skipIfEmpty: true,
+        propertyTypes: {},
+        renderAs: 'Fragment',
+      },
+      false,
+    ]
   }
 
   if (customComponents != null && element.rawTagName in customComponents) {
-    return customComponents[element.rawTagName]
+    return [customComponents[element.rawTagName], true]
   }
 
   let { children, defaultProperties, renderAs, skipIfEmpty } = htmlDefaults[element.rawTagName.toLowerCase()] ?? {}
 
-  if (element.childNodes.length > 0 && element.childNodes.every((e) => e instanceof TextNode)) {
+  if (
+    element.childNodes.length > 0 &&
+    element.childNodes.every((e) => e instanceof TextNode) &&
+    element.childNodes.some((e) => e instanceof TextNode && e.text.trim().length > 0)
+  ) {
     renderAs ??= 'Text'
     children ??= 'text'
   }
 
   renderAs ??= 'Container'
 
-  return {
-    propertyTypes: conversionPropertyTypes[renderAs],
-    renderAs,
-    children,
-    defaultProperties,
-    skipIfEmpty,
-  }
+  return [
+    {
+      propertyTypes: conversionPropertyTypes[renderAs],
+      renderAs,
+      children,
+      defaultProperties,
+      skipIfEmpty,
+    },
+    false,
+  ]
 }
 
 function filterNull<T>(val: T | undefined): val is T {
@@ -189,10 +214,12 @@ function convertMergeSortProperties(
 ): {
   properties: Record<string, unknown>
   inheritingProperties: Record<string, unknown>
+  srOnly: boolean
 } {
+  const [properties, srOnly] = convertHtmlAttributes(propertyTypes, attributes, tailwindToJson, customColors)
   const result = {
     ...defaultProperties,
-    ...convertHtmlAttributes(propertyTypes, attributes, tailwindToJson, customColors),
+    ...properties,
   }
   const inheritingProperties: Record<string, unknown> = {}
   for (const key in result) {
@@ -205,6 +232,7 @@ function convertMergeSortProperties(
   return {
     inheritingProperties,
     properties: result,
+    srOnly,
   }
 }
 
@@ -220,13 +248,20 @@ function convertHtmlAttributes(
   tailwindToJson: typeof twj,
   colorMap: ConversionColorMap | undefined,
 ) {
+  let srOnly: boolean = false
   const result = convertProperties(propertyTypes, rest, colorMap, kebabToCamelCase) ?? {}
 
   if (_class != null) {
+    if (_class.includes('sr-only')) {
+      srOnly = true
+    }
     Object.assign(result, convertTailwind(propertyTypes, _class, tailwindToJson, colorMap))
   }
 
   if (className != null) {
+    if (className.includes('sr-only')) {
+      srOnly = true
+    }
     Object.assign(result, convertTailwind(propertyTypes, className, tailwindToJson, colorMap))
   }
 
@@ -243,7 +278,7 @@ function convertHtmlAttributes(
     result[key] = value
   }
 
-  return result
+  return [result, srOnly] as const
 }
 
 const conditionals = ['sm', 'md', 'lg', 'xl', '2xl', 'focus', 'hover', 'active', 'dark']
@@ -269,17 +304,32 @@ function convertTailwind(
     return ''
   })
 
+  console.log(twi('bg-white bg-black', { merge: false }))
+
   const result: Record<string, unknown> =
-    convertCssProperties(propertyTypes, tailwindToJson(withoutConditionals), colorMap) ?? {}
+    convertCssProperties(propertyTypes, tailwindToJson(replaceSpaceXY(withoutConditionals)), colorMap) ?? {}
 
   for (const [key, values] of conditionalMap) {
-    const properties = convertCssProperties(propertyTypes, tailwindToJson(values.join(' ')), colorMap)
+    const properties = convertCssProperties(propertyTypes, tailwindToJson(replaceSpaceXY(values.join(' '))), colorMap)
     if (properties == null) {
       continue
     }
     result[key] = properties
   }
   return result
+}
+
+const spaceXYRegex = /space-(x|y)-(\d+)/g
+
+function replaceSpaceXY(content: string): string {
+  return content.replaceAll(spaceXYRegex, (_, dir: 'x' | 'y', value: string) => {
+    switch (dir) {
+      case 'x':
+        return `flex-row gap-x-${value}`
+      case 'y':
+        return `flex-col gap-y-${value}`
+    }
+  })
 }
 
 export * from './properties.js'

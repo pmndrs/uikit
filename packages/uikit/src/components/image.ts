@@ -37,9 +37,11 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
@@ -73,7 +75,8 @@ export type InheritableImageProperties = WithClasses<
           PanelGroupProperties &
           ScrollbarProperties &
           KeepAspectRatioProperties &
-          ImageFitProperties
+          ImageFitProperties &
+          VisibilityProperties
       >
     >
   >
@@ -146,6 +149,8 @@ export function createImage(
   )
   const isHidden = computed(() => isClipped.value || texture.value == null)
 
+  const isVisible = computedIsVisible(flexState, isHidden, mergedProperties)
+
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
 
   const scrollPosition = createScrollPosition()
@@ -156,7 +161,7 @@ export function createImage(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
@@ -230,24 +235,24 @@ function createImageMesh(
   flexState: FlexNodeState,
   orderInfo: Signal<OrderInfo | undefined>,
   root: RootContext,
-  isHidden: Signal<boolean>,
+  isVisible: Signal<boolean>,
   initializers: Initializers,
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
   const clippingPlanes = createGlobalClippingPlanes(root, parent.clippingRect, initializers)
-  const isVisible = getImageMaterialConfig().computedIsVisibile(
+  const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
     propertiesSignal,
     flexState.borderInset,
     flexState.size,
-    isHidden,
+    isVisible,
   )
   setupImageMaterials(
     propertiesSignal,
     mesh,
     flexState.size,
     flexState.borderInset,
-    isVisible,
+    isMeshVisible,
     clippingPlanes,
     root,
     initializers,
@@ -257,7 +262,7 @@ function createImageMesh(
 
   setupTextureFit(propertiesSignal, texture, flexState.borderInset, flexState.size, initializers)
 
-  initializers.push(() => effect(() => (mesh.visible = isVisible.value)))
+  initializers.push(() => effect(() => (mesh.visible = isMeshVisible.value)))
 
   initializers.push(
     () =>

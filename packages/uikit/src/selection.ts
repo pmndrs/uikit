@@ -70,7 +70,7 @@ export function createSelection(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   selectionBoxes: Signal<SelectionBoxes>,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
@@ -105,7 +105,7 @@ export function createSelection(
               offset,
               borderInset,
               parentClippingRect,
-              isHidden,
+              isVisible,
               getSelectionMaterialConfig(),
               panelSubscriptions,
             )

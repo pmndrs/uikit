@@ -240,7 +240,7 @@ The `Text` component allows you to render of text and is highly intertwined with
 | --------------- | --------------------------------------------------------------------------------------------------------------------- |
 | color           | ColorRepresentation                                                                                                   |
 | opacity         | number                                                                                                                |
-| horizontalAlign | "left", "center", "right"                                                                                             |
+| textAlign | "left", "center", "right"                                                                                             |
 | verticalAlign   | "top", "center", "bottom"                                                                                             |
 | letterSpacing   | number                                                                                                                |
 | lineHeight      | number                                                                                                                |

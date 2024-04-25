@@ -24,7 +24,7 @@ export const colors = {} as {
 }
 for (const anyKey in themes['slate']['light']) {
   const key = anyKey as keyof (typeof themes)['slate']['light']
-  colors[key] = computed<Color>(() => themes[theme.value][isDarkMode.value ? 'light' : 'dark'][key])
+  colors[key] = computed<Color>(() => themes[theme.value][isDarkMode.value ? 'dark' : 'light'][key])
 }
 
 export function Defaults(props: DefaultPropertiesProperties) {
