@@ -47,10 +47,11 @@ export function createInstancedText(
   caretPosition: Signal<Vector3Tuple | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
   initializers: Initializers,
+  defaultWordBreak: GlyphLayoutProperties['wordBreak'],
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
-  const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef)
+  const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef, defaultWordBreak)
   const verticalAlign = computedProperty(properties, 'verticalAlign', defaultVerticalAlign)
   const textAlign = computedProperty(properties, 'textAlign', defaulttextAlign)
   const color = computedProperty(properties, 'color', 0x0)

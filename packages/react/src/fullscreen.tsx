@@ -22,7 +22,7 @@ export const Fullscreen: (
   const store = useStore()
   const [sizeX, sizeY, pixelSize] = useMemo(() => [signal<number>(1), signal<number>(1), signal<number>(1)], [])
   const camera = useThree((s) => s.camera)
-  const distanceToCamera = properties.distanceToCamera ?? camera.near + 0.01
+  const distanceToCamera = properties.distanceToCamera ?? camera.near + 0.1
   useEffect(() => {
     const fn = ({ camera, size: { height } }: RootState) =>
       batch(() => updateSizeFullscreen(sizeX, sizeY, pixelSize, distanceToCamera, camera, height))

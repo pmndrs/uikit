@@ -8,10 +8,7 @@ export type ConversionPropertyTypes =
   | Array<Record<string, ConversionPropertyType>>
   | Record<string, ConversionPropertyType>
 
-export type ConversionColorMap = Record<
-  string,
-  ReadonlySignal<ColorRepresentation> | ColorRepresentation | (() => ColorRepresentation)
->
+export type ConversionColorMap = Record<string, ColorRepresentation | (() => ColorRepresentation)>
 
 const yogaPropertyRenamings = {
   rowGap: 'gapRow',
@@ -21,7 +18,7 @@ const yogaPropertyRenamings = {
 
 const cssShorthandPropertyTranslation: Record<
   string,
-  (set: (key: string, value: unknown) => void, property: unknown) => void
+  (set: (key: string, value: string) => void, property: unknown) => void
 > = {
   flex: (set, property) => {
     //TODO: simplify
@@ -29,22 +26,22 @@ const cssShorthandPropertyTranslation: Record<
       return
     }
     if (property === 'auto') {
-      set('flexGrow', 1)
-      set('flexShrink', 1)
+      set('flexGrow', '1')
+      set('flexShrink', '1')
       set('flexBasis', 'auto')
       return
     }
     if (property === 'none') {
-      set('flexGrow', 0)
-      set('flexShrink', 0)
+      set('flexGrow', '0')
+      set('flexShrink', '0')
       set('flexBasis', 'auto')
     }
     if (property === 'initial') {
-      set('flexGrow', 0)
-      set('flexShrink', 1)
+      set('flexGrow', '0')
+      set('flexShrink', '1')
       set('flexBasis', 'auto')
     }
-    let flexGrowShink: Array<number> = []
+    let flexGrowShink: Array<string> = []
     let flexBasis: string | undefined
     const parts = property.split(/\s+/)
     for (const part of parts) {
@@ -58,7 +55,7 @@ const cssShorthandPropertyTranslation: Record<
       }
       const [, float, unit] = result
       if (unit === '') {
-        flexGrowShink.push(Number.parseFloat(float))
+        flexGrowShink.push(float)
         continue
       }
       flexBasis = `${float}${unit}`
@@ -95,16 +92,16 @@ export function isInheritingProperty(key: string): boolean {
   }
 }
 
-const percentageRegex = /^(\d+|\d*\.\d+)\%$/
+const percentageRegex = /^(-?\d+|\d*\.\d+)\%$/
 
 export function convertProperties(
   propertyTypes: ConversionPropertyTypes,
-  properties: Record<string, unknown> | CSSProperties,
+  properties: Record<string, string>,
   colorMap: ConversionColorMap | undefined,
   convertKey?: (key: string) => string,
 ) {
   let result: Record<string, unknown> | undefined
-  const set = (key: string, value: unknown) => {
+  const set = (key: string, value: string) => {
     const converted: unknown = convertProperty(propertyTypes, key, value, colorMap)
     if (converted == null) {
       return
@@ -134,14 +131,20 @@ export function convertProperties(
   return result
 }
 
+const nonDigitRegex = /[^\d\.-]/
+
 export function convertProperty(
   propertyTypes: ConversionPropertyTypes,
   key: string,
-  value: unknown,
-  colorMap?: ConversionColorMap,
+  value: string,
+  colorMap: ConversionColorMap | undefined,
 ): boolean | string | number | ColorRepresentation | undefined {
+  if (key === 'panelMaterialClass') {
+    return value
+  }
+
   if (Array.isArray(propertyTypes)) {
-    return firstNotNull(propertyTypes, (type) => convertProperty(type, key, value))
+    return firstNotNull(propertyTypes, (type) => convertProperty(type, key, value, colorMap))
   }
   const types = propertyTypes[key]
   if (types == null) {
@@ -162,17 +165,11 @@ export function convertProperty(
       return typeof value === 'string' && percentageRegex.test(value) ? value : undefined
     }
     //type === "number"
-    switch (typeof value) {
-      case 'number':
-        if (key === 'lineHeight') {
-          return `${value * 100}%` as any
-        }
-        return value
-      case 'string':
-        return toNumber(value)
-      default:
-        return undefined
+    let result = toNumber(value)
+    if (result != null && key === 'lineHeight' && !nonDigitRegex.test(value)) {
+      return `${result * 100}%`
     }
+    return result
   })
 }
 
@@ -187,7 +184,8 @@ function firstNotNull<T, K>(array: Array<T>, fn: (val: T) => K | undefined): K |
   return undefined
 }
 
-const digitsWithUnitRegex = /^(\d+|\d*\.\d+)([^\s\d]*)$/
+const divisionExpression = /(\d+)\s*\/\s*(\d+)/
+const digitsWithUnitRegex = /^(-?\d+|\d*\.\d+)([^\s\d]*)$/
 
 const unitMultiplierMap: Record<string, number> = {
   rem: 16,
@@ -196,18 +194,22 @@ const unitMultiplierMap: Record<string, number> = {
   '': 1,
 }
 
-function toNumber(value: string): number | undefined {
+export function toNumber(value: string): number | undefined {
   let result: RegExpExecArray | null
+
   result = digitsWithUnitRegex.exec(value)
-  if (result == null) {
-    return undefined
+  if (result != null) {
+    const [, float, unit] = result
+    const multiplier = unitMultiplierMap[unit]
+    if (multiplier != null) {
+      return Number.parseFloat(float) * multiplier
+    }
   }
-  const [, float, unit] = result
-  const multiplier = unitMultiplierMap[unit]
-  if (multiplier == null) {
-    return undefined
+  result = divisionExpression.exec(value)
+  if (result != null) {
+    const [, a, b] = result
+    return Number.parseFloat(a) / Number.parseFloat(b)
   }
-  return Number.parseFloat(float) * multiplier
 }
 
 const variableRegex = /^\$(.+)$/
@@ -229,9 +231,6 @@ function applyCustomColor(
   }
   if (typeof entry === 'function') {
     return entry()
-  }
-  if (entry instanceof Signal) {
-    return entry.value
   }
   return entry
 }

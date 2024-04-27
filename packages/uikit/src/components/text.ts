@@ -133,6 +133,7 @@ export function createText(
     undefined,
     undefined,
     initializers,
+    'break-word',
   )
   initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 

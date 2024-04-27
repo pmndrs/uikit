@@ -1,7 +1,7 @@
-import { parse as parseHTML, Node, TextNode, HTMLElement } from 'node-html-parser'
+import { parse as parseHTML, Node as ConversionNode, TextNode, HTMLElement } from 'node-html-parser'
 import { htmlDefaults } from './defaults.js'
 import parseInlineCSS from 'inline-style-parser'
-import { tailwindToCSS, twi, type twj } from 'tw-to-css'
+import { tailwindToCSS } from 'tw-to-css'
 import generatedPropertyTypes from './properties.json' assert { type: 'json' }
 import {
   ConversionColorMap,
@@ -10,7 +10,9 @@ import {
   convertProperties,
   convertProperty,
   isInheritingProperty,
+  toNumber,
 } from './properties.js'
+import { MeshPhongMaterial, MeshPhysicalMaterial } from 'three'
 
 export type ConversionGenerateComponent<T> = (
   renderAs: string,
@@ -28,6 +30,8 @@ export type ConversionComponentData = {
   children?: 'none' | 'text'
 }
 
+export { Node as ConversionNode } from 'node-html-parser'
+
 const styleTagRegex = /\<style\>(?:.|\s)*?\<\/style\>/gm
 
 export type ConversionComponentMap = Record<string, ConversionComponentData>
@@ -38,8 +42,149 @@ export function convertHtml<T>(
   colorMap?: ConversionColorMap,
   componentMap?: ConversionComponentMap,
 ): T | string | undefined {
+  const { classes, element } = parseHtml(text, colorMap)
+  return convertParsedHtml(element, classes, generate, colorMap, componentMap)
+}
+
+const cssClassRegex = /\s*\.([^\{]+)\s*\{([^}]*)\}/g
+
+const cssPropsRegex = /([^:\s]+)\s*\:\s*([^;\s]+(?:[ \t]+[^;\s]+)*)\s*\;?\s*/g
+
+const spaceXYRegex = /(-?)space-(x|y)-(\d+)/g
+
+export class PlasticMaterial extends MeshPhongMaterial {
+  constructor() {
+    super({
+      specular: '#111',
+      shininess: 100,
+    })
+  }
+}
+
+export class GlassMaterial extends MeshPhysicalMaterial {
+  constructor() {
+    super({
+      transmission: 0.5,
+      roughness: 0.1,
+      reflectivity: 0.5,
+      iridescence: 0.4,
+      thickness: 0.05,
+      specularIntensity: 1,
+      metalness: 0.3,
+      ior: 2,
+      envMapIntensity: 1,
+    })
+  }
+}
+
+export class MetalMaterial extends MeshPhysicalMaterial {
+  constructor() {
+    super({
+      metalness: 0.8,
+      roughness: 0.1,
+    })
+  }
+}
+
+export function parseHtml(
+  text: string,
+  colorMap?: ConversionColorMap,
+): { element: HTMLElement; classes: Map<string, any> } {
   text = text.replaceAll(styleTagRegex, '')
-  return convertHtmlRecursive(parseHTML(text), 0, generate, createTailwindToJson(colorMap), colorMap, componentMap)
+  const element = parseHTML(text)
+  const themeColors: Record<string, string> = {}
+  for (const key in colorMap) {
+    themeColors[key.replaceAll(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`)] = `$${key}`
+  }
+  const classes = new Map<string, any>([
+    [
+      'material-plastic',
+      {
+        panelMaterialClass: PlasticMaterial,
+      },
+    ],
+    [
+      'material-metal',
+      {
+        panelMaterialClass: MetalMaterial,
+      },
+    ],
+    [
+      'material-glass',
+      {
+        panelMaterialClass: GlassMaterial,
+      },
+    ],
+    [
+      'border-bend',
+      {
+        borderBend: 0.5,
+      },
+    ],
+  ])
+  const css = tailwindToCSS({
+    config: {
+      theme: {
+        extend: {
+          colors: themeColors,
+        },
+      },
+    },
+  })
+    .twi(
+      collectClasses(element)
+        .replaceAll(conditionalRegex, (_, _selector, className) => className)
+        .replaceAll(spaceXYRegex, (className, negative: '' | '-', dir: 'x' | 'y', value: string) => {
+          const multiplier = negative === '-' ? -1 : 1
+          switch (dir) {
+            case 'x':
+              classes.set(className, { flexDirection: 'row', columnGap: parseFloat(value) * 4 * multiplier })
+              break
+            case 'y':
+              classes.set(className, { flexDirection: 'column', rowGap: parseFloat(value) * 4 * multiplier })
+              break
+          }
+          return ''
+        }),
+      { merge: false, ignoreMediaQueries: false },
+    )
+    .replaceAll(/\\(.)/g, (_, result) => result)
+  let classesResult: RegExpExecArray | null
+  let contentResult: RegExpExecArray | null
+
+  while ((classesResult = cssClassRegex.exec(css)) != null) {
+    const [, className, classContent] = classesResult
+    const properties: any = {}
+    while ((contentResult = cssPropsRegex.exec(classContent)) != null) {
+      const [, name, value] = contentResult
+      properties[kebabToCamelCase(name)] = value
+    }
+    classes.set(className, properties)
+  }
+  return { classes, element }
+}
+
+function collectClasses(element: ConversionNode): string {
+  let result: string = ''
+  if (element instanceof HTMLElement) {
+    result += ' ' + (element.classNames ?? '')
+    result += ' ' + (element.attributes.className ?? '')
+  }
+  const childrenLength = element.childNodes.length
+  for (let i = 0; i < childrenLength; i++) {
+    result += collectClasses(element.childNodes[i])
+  }
+  return result
+}
+
+export function convertParsedHtml<T>(
+  element: ConversionNode,
+  classes: Map<string, any>,
+  generate: ConversionGenerateComponent<T>,
+  colorMap?: ConversionColorMap,
+  componentMap?: ConversionComponentMap,
+) {
+  return convertParsedHtmlRecursive(element, classes, 0, generate, colorMap, componentMap)
 }
 
 export const conversionPropertyTypes = {
@@ -57,31 +202,29 @@ export const conversionPropertyTypes = {
   ],
 } satisfies Record<string, ConversionPropertyTypes>
 
-function createTailwindToJson(customColors?: ConversionColorMap): typeof tailwindToJson {
-  const themeColors: Record<string, string> = {}
-  for (const key in customColors) {
-    themeColors[key.replaceAll(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`)] = `$${key}`
-  }
-  const { twj: tailwindToJson } = tailwindToCSS({
-    config: {
-      theme: {
-        extend: {
-          colors: themeColors,
-        },
-      },
-    },
-  })
-  return tailwindToJson
-}
-
-function convertHtmlRecursive<T>(
-  element: Node,
+function convertParsedHtmlRecursive<T>(
+  element: ConversionNode,
+  classes: Map<string, any>,
   index: number,
   generate: ConversionGenerateComponent<T>,
-  tailwindToJson: typeof twj,
-  colorMap?: ConversionColorMap,
-  componentMap?: ConversionComponentMap,
+  colorMap: ConversionColorMap | undefined,
+  componentMap: ConversionComponentMap | undefined,
 ): T | string | undefined {
+  if (element instanceof HTMLElement && element.tagName?.toLowerCase() === 'svg') {
+    const { width, height, ...restAttributes } = element.attributes
+    const { inheritingProperties, properties, srOnly } = convertMergeSortProperties(
+      [...conversionPropertyTypes.Icon, { svgWidth: ['number'], svgHeight: ['number'] }],
+      classes,
+      { svgWidth: toNumber(width) ?? 24, svgHeight: toNumber(height) ?? 24, text: element.toString() },
+      restAttributes,
+      colorMap,
+    )
+    if (srOnly) {
+      return undefined
+    }
+    return generate('Icon', false, { ...inheritingProperties, ...properties }, index)
+  }
+
   const [{ skipIfEmpty, defaultProperties, children, propertyTypes, renderAs }, custom] = nodeToConversionData(
     element,
     componentMap,
@@ -91,12 +234,12 @@ function convertHtmlRecursive<T>(
   }
 
   if (skipIfEmpty && element.childNodes.length === 1) {
-    return convertHtmlRecursive(element.childNodes[0], index, generate, tailwindToJson, colorMap, componentMap)
+    return convertParsedHtmlRecursive(element.childNodes[0], classes, index, generate, colorMap, componentMap)
   }
 
   const { inheritingProperties, properties, srOnly } =
     element instanceof HTMLElement
-      ? convertMergeSortProperties(propertyTypes, defaultProperties, element.attributes, tailwindToJson, colorMap)
+      ? convertMergeSortProperties(propertyTypes, classes, defaultProperties, element.attributes, colorMap)
       : { inheritingProperties: undefined, properties: undefined, srOnly: false }
 
   if (srOnly) {
@@ -132,7 +275,7 @@ function convertHtmlRecursive<T>(
     properties ?? {},
     index,
     element.childNodes
-      .map((node, i) => convertHtmlRecursive(node, i, generate, tailwindToJson, colorMap, componentMap))
+      .map((node, i) => convertParsedHtmlRecursive(node, classes, i, generate, colorMap, componentMap))
       .filter(filterNull),
   )
 
@@ -148,7 +291,7 @@ function filterTextNode(val: any): val is TextNode {
 }
 
 function nodeToConversionData(
-  element: Node,
+  element: ConversionNode,
   customComponents?: ConversionComponentMap,
 ): [ConversionComponentData, boolean] {
   if (element instanceof TextNode) {
@@ -207,16 +350,16 @@ function filterNull<T>(val: T | undefined): val is T {
 
 function convertMergeSortProperties(
   propertyTypes: ConversionPropertyTypes,
+  classes: Map<string, any>,
   defaultProperties: Record<string, unknown> | undefined,
   attributes: HTMLElement['attributes'],
-  tailwindToJson: typeof twj,
-  customColors: ConversionColorMap | undefined,
+  colorMap: ConversionColorMap | undefined,
 ): {
   properties: Record<string, unknown>
   inheritingProperties: Record<string, unknown>
   srOnly: boolean
 } {
-  const [properties, srOnly] = convertHtmlAttributes(propertyTypes, attributes, tailwindToJson, customColors)
+  const [properties, srOnly] = convertHtmlAttributes(propertyTypes, classes, attributes, colorMap)
   const result = {
     ...defaultProperties,
     ...properties,
@@ -244,8 +387,8 @@ export function kebabToCamelCase(name: string): string {
 
 function convertHtmlAttributes(
   propertyTypes: ConversionPropertyTypes,
+  classes: Map<string, any>,
   { class: _class, className, style, ...rest }: HTMLElement['attributes'],
-  tailwindToJson: typeof twj,
   colorMap: ConversionColorMap | undefined,
 ) {
   let srOnly: boolean = false
@@ -255,14 +398,14 @@ function convertHtmlAttributes(
     if (_class.includes('sr-only')) {
       srOnly = true
     }
-    Object.assign(result, convertTailwind(propertyTypes, _class, tailwindToJson, colorMap))
+    Object.assign(result, convertTailwind(propertyTypes, classes, _class, colorMap))
   }
 
   if (className != null) {
     if (className.includes('sr-only')) {
       srOnly = true
     }
-    Object.assign(result, convertTailwind(propertyTypes, className, tailwindToJson, colorMap))
+    Object.assign(result, convertTailwind(propertyTypes, classes, className, colorMap))
   }
 
   const styles = style == null ? [] : parseInlineCSS(style)
@@ -283,12 +426,28 @@ function convertHtmlAttributes(
 
 const conditionals = ['sm', 'md', 'lg', 'xl', '2xl', 'focus', 'hover', 'active', 'dark']
 
+const nonWhitespaceRegex = /\S+/g
+
+function tailwindToJson(classNames: string, classes: Map<string, any>): any {
+  const result: any = {}
+  let classNameResult: RegExpExecArray | null
+  while ((classNameResult = nonWhitespaceRegex.exec(classNames)) != null) {
+    const [className] = classNameResult
+    const classesEntry = classes.get(className)
+    if (classesEntry == null) {
+      continue
+    }
+    Object.assign(result, classesEntry)
+  }
+  return result
+}
+
 const conditionalRegex = /(\S+)\:(\S+)/g
 
 function convertTailwind(
   propertyTypes: ConversionPropertyTypes,
+  classes: Map<string, any>,
   className: string,
-  tailwindToJson: typeof twj,
   colorMap: ConversionColorMap | undefined,
 ) {
   const conditionalMap = new Map<string, Array<string>>()
@@ -304,32 +463,17 @@ function convertTailwind(
     return ''
   })
 
-  console.log(twi('bg-white bg-black', { merge: false }))
-
   const result: Record<string, unknown> =
-    convertCssProperties(propertyTypes, tailwindToJson(replaceSpaceXY(withoutConditionals)), colorMap) ?? {}
+    convertCssProperties(propertyTypes, tailwindToJson(withoutConditionals, classes), colorMap) ?? {}
 
   for (const [key, values] of conditionalMap) {
-    const properties = convertCssProperties(propertyTypes, tailwindToJson(replaceSpaceXY(values.join(' '))), colorMap)
+    const properties = convertCssProperties(propertyTypes, tailwindToJson(values.join(' '), classes), colorMap)
     if (properties == null) {
       continue
     }
     result[key] = properties
   }
   return result
-}
-
-const spaceXYRegex = /space-(x|y)-(\d+)/g
-
-function replaceSpaceXY(content: string): string {
-  return content.replaceAll(spaceXYRegex, (_, dir: 'x' | 'y', value: string) => {
-    switch (dir) {
-      case 'x':
-        return `flex-row gap-x-${value}`
-      case 'y':
-        return `flex-col gap-y-${value}`
-    }
-  })
 }
 
 export * from './properties.js'

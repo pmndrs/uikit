@@ -1,7 +1,9 @@
 import {
   ConversionColorMap,
   ConversionComponentMap as ConversionComponentMapWihoutRenderAsComponent,
-  convertHtml,
+  convertParsedHtml,
+  ConversionNode,
+  parseHtml,
 } from '@pmndrs/uikit/internals'
 import { ComponentType, Fragment, ReactNode, useMemo } from 'react'
 import { DefaultProperties } from '../../default.js'
@@ -11,11 +13,12 @@ import { Text } from '../../text.js'
 import { Svg } from '../../svg.js'
 import { Image } from '../../image.js'
 import { VideoContainer } from '../../video.js'
+import { Icon } from '../../icon.js'
 
 export type ConversionComponentMap = ConversionComponentMapWihoutRenderAsComponent &
   Record<string, { renderAsImpl: ComponentType<any> }>
 
-export function Preview({
+export function PreviewHtml({
   children,
   colorMap,
   componentMap,
@@ -24,13 +27,29 @@ export function Preview({
   colorMap?: ConversionColorMap
   componentMap?: ConversionComponentMap
 }) {
+  const { classes, element } = useMemo(() => parseHtml(children, colorMap), [children, colorMap])
+  return <PreviewParsedHtml classes={classes} element={element} colorMap={colorMap} componentMap={componentMap} />
+}
+
+export function PreviewParsedHtml({
+  classes,
+  element,
+  colorMap,
+  componentMap,
+}: {
+  element: ConversionNode
+  classes: Map<string, any>
+  colorMap?: ConversionColorMap
+  componentMap?: ConversionComponentMap
+}) {
   return useMemo(() => {
     try {
-      return convertHtml<ReactNode>(children, createRenderElement(componentMap), colorMap, componentMap)
+      return convertParsedHtml<ReactNode>(element, classes, createRenderElement(componentMap), colorMap, componentMap)
     } catch (e) {
+      console.error(e)
       return null
     }
-  }, [children, componentMap, colorMap])
+  }, [element, classes, componentMap, colorMap])
 }
 
 function createRenderElement(componentMap?: ConversionComponentMap) {
@@ -68,7 +87,7 @@ function createRenderElement(componentMap?: ConversionComponentMap) {
           </Svg>
         )
       case 'Icon':
-        throw new Error(`not implemented`)
+        return <Icon key={index} {...(props as any)} />
       case 'Input':
         return <Input key={index} {...props} />
       case 'Text':

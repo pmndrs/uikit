@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+    include: ['@react-three/uikit-lucide', '@react-three/uikit-default', '@react-three/uikit'],
     esbuildOptions: {
       target: 'esnext',
     },

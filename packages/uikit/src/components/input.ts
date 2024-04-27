@@ -210,6 +210,7 @@ export function createInput(
   const valueSignal = computed(
     () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
   )
+  const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
   const measureFunc = createInstancedText(
     mergedProperties,
     valueSignal,
@@ -226,6 +227,7 @@ export function createInput(
     caretPosition,
     instancedTextRef,
     initializers,
+    multiline ? 'break-word' : 'keep-all',
   )
   initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 
@@ -244,7 +246,7 @@ export function createInput(
       style.peek()?.onValueChange?.(newValue)
       properties.peek()?.onValueChange?.(newValue)
     },
-    style.peek()?.multiline ?? properties.peek()?.multiline ?? false,
+    multiline,
     disabled,
     computedProperty(mergedProperties, 'tabIndex', 0),
     initializers,

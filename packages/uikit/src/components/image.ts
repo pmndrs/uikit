@@ -83,7 +83,7 @@ export type InheritableImageProperties = WithClasses<
 >
 
 export type ImageFitProperties = {
-  fit?: ImageFit
+  objectFit?: ImageFit
 }
 
 export type KeepAspectRatioProperties = {
@@ -192,7 +192,7 @@ export function createImage(
       flexState,
       orderInfo,
       parentContext.root,
-      isHidden,
+      isVisible,
       initializers,
     ),
     clippingRect: computedClippingRect(
@@ -295,7 +295,7 @@ function setupTextureFit(
   size: Signal<Vector2Tuple | undefined>,
   initializers: Initializers,
 ): void {
-  const fit = computedProperty(propertiesSignal, 'fit', defaultImageFit)
+  const objectFit = computedProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(() =>
     effect(() => {
       const texture = textureSignal.value
@@ -304,7 +304,7 @@ function setupTextureFit(
       }
       texture.matrix.identity()
 
-      if (fit.value === 'fill' || texture == null) {
+      if (objectFit.value === 'fill' || texture == null) {
         transformInsideBorder(borderInset, size, texture)
         return
       }

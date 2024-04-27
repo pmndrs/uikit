@@ -82,19 +82,7 @@ export class FlexNode {
     if (!this.active.value) {
       return
     }
-    if (func.value == null) {
-      this.yogaNode!.setMeasureFunc(null)
-      return
-    }
-    const fn = func.value
-    this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
-      const result = fn(width, wMode, height, hMode)
-      return {
-        width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
-        height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
-      }
-    })
-    this.yogaNode!.markDirty()
+    setMeasureFunc(this.yogaNode!, func.value)
     this.requestCalculateLayout()
   }
 
@@ -282,6 +270,21 @@ export class FlexNode {
     this.layoutChangeListeners.add(listener)
     return () => void this.layoutChangeListeners.delete(listener)
   }
+}
+
+export function setMeasureFunc(node: Node, func: MeasureFunction | undefined) {
+  if (func == null) {
+    node.setMeasureFunc(null)
+    return
+  }
+  node.setMeasureFunc((width, wMode, height, hMode) => {
+    const result = func(width, wMode, height, hMode)
+    return {
+      width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+      height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
+    }
+  })
+  node.markDirty()
 }
 
 function updateVector2Signal<T extends Partial<readonly [unknown, unknown]>>(

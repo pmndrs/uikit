@@ -13,7 +13,7 @@ export type PortalProperties = {
   eventPriority?: number
   resolution?: number
   children?: ReactNode
-} & Omit<ImageProperties, 'src' | 'fit'> &
+} & Omit<ImageProperties, 'src' | 'objectFit'> &
   EventHandlers & {
     children?: ReactNode
   }
@@ -72,7 +72,7 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
             vScene,
             injectState,
           )}
-          <Image src={fbo.texture} fit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
+          <Image src={fbo.texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
         </>
       )
     },

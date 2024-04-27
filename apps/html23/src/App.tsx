@@ -1,6 +1,6 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable.js'
-import { Suspense, useEffect, useState } from 'react'
-import { htmlToCode } from '@react-three/uikit'
+import { Suspense, forwardRef, useEffect, useState } from 'react'
+import { ConversionNode, htmlToCode, parsedHtmlToCode } from '@react-three/uikit'
 
 import { suspend } from 'suspend-react'
 import 'prismjs/themes/prism.css'
@@ -15,7 +15,7 @@ import { Toaster } from './components/ui/toaster.js'
 import { useToast } from './components/ui/use-toast.js'
 import { colors } from './theme.js'
 import { Scene } from './components/scene.js'
-import { useEditorStore } from './state.js'
+import { useEditorStore, useParsedHtmlStore } from './state.js'
 import { Editor } from './components/editor.js'
 import { BackgroundPopover } from './components/popover/background.js'
 import { EffectsPopover } from './components/popover/effects.js'
@@ -23,6 +23,20 @@ import { ViewPopover } from './components/popover/view.js'
 import { ThemePopover } from './components/popover/theme.js'
 import { componentMap as defaultComponentMap } from '@react-three/uikit-default'
 import { componentMap as lucideComponentMap } from '@react-three/uikit-lucide'
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from './components/ui/navigation-menu.js'
+import card from './examples/card.json'
+import cookies from './examples/cookies.json'
+import musicPlayer from './examples/music-player.json'
+import pricing from './examples/pricing.json'
+import profile from './examples/profile.json'
+import weather from './examples/weather.json'
 
 export const componentMap = { ...defaultComponentMap, ...lucideComponentMap }
 
@@ -52,20 +66,72 @@ export default function App() {
     <div className="h-screen w-screen flex flex-col bg-background">
       <Toaster />
       <TooltipProvider>
-        <div
-          className={cn(
-            'flex p-2 border-b justify-between flex-row items-center overflow-hidden',
-            fullscreen && 'hidden',
-          )}
-        >
+        <div className={cn('flex p-2 border-b justify-between flex-row items-center', fullscreen && 'hidden')}>
           <div className="flex flex-row gap-4 px-2 items-center">
             <div className="flex flex-row gap-2 items-center">
               <img height={20} width={20} src="./icon.svg" />
               <h1 className="font-bold">HTML23</h1>
             </div>
-            <h2 className="font-medium text-gray-300">Examples</h2>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Examples</NavigationMenuTrigger>
+                  <NavigationMenuContent className="bg-background border-white">
+                    <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                      <ListItem
+                        className="cursor-pointer"
+                        onClick={() => useEditorStore.getState().setExample(card)}
+                        title="Card"
+                      >
+                        A basic card layout for displaying content.
+                      </ListItem>
+                      <ListItem
+                        className="cursor-pointer"
+                        onClick={() => useEditorStore.getState().setExample(cookies)}
+                        title="Cookies"
+                      >
+                        A feature for managing website cookies.
+                      </ListItem>
+                      <ListItem
+                        className="cursor-pointer"
+                        onClick={() => useEditorStore.getState().setExample(musicPlayer)}
+                        title="MusicPlayer"
+                      >
+                        An application for playing and managing music.
+                      </ListItem>
+                      <ListItem
+                        className="cursor-pointer"
+                        onClick={() => useEditorStore.getState().setExample(pricing)}
+                        title="Pricing"
+                      >
+                        A section displaying product or service pricing information.
+                      </ListItem>
+                      <ListItem
+                        className="cursor-pointer"
+                        onClick={() => useEditorStore.getState().setExample(profile)}
+                        title="Profile"
+                      >
+                        A user's personal information and activity overview.
+                      </ListItem>
+                      <ListItem
+                        className="cursor-pointer"
+                        onClick={() => useEditorStore.getState().setExample(weather)}
+                        title="Weather"
+                      >
+                        A widget showing current and forecasted weather conditions.
+                      </ListItem>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           <div className="flex flex-row items-center">
+            {import.meta.env.DEV && (
+              <Button onClick={() => useEditorStore.getState().downloadJson()} variant="ghost">
+                JSON
+              </Button>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <a href="https://github.com/sponsors/bbohlender" target="_blank">
@@ -79,8 +145,8 @@ export default function App() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(generateLink())
+                  onClick={async () => {
+                    navigator.clipboard.writeText(await useEditorStore.getState().generateLink())
                     toast({ title: 'Link successfully copied', className: 'bg-green-500 p-4' })
                   }}
                   size="icon"
@@ -172,7 +238,12 @@ export default function App() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          onClick={() => window.open(`https://hmd.link/${generateLink()}`, '_blank')}
+                          onClick={async () =>
+                            window.open(
+                              `https://www.oculus.com/open_url/?url=${await useEditorStore.getState().generateLink()}`,
+                              '_blank',
+                            )
+                          }
                           size="icon"
                           variant="ghost"
                         >
@@ -204,9 +275,27 @@ export default function App() {
   )
 }
 
-function generateLink() {
-  return '#'
-}
+const ListItem = forwardRef<React.ElementRef<'a'>, React.ComponentPropsWithoutRef<'a'>>(
+  ({ className, title, children, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              className,
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    )
+  },
+)
 
 const cacheSymbol = Symbol('htmlToCode')
 
@@ -232,38 +321,41 @@ const customColorsForText = {
   ring: colors.ring.value.getStyle(),
 }
 
-export async function htmlToCodeOrError(
-  code: string,
-): Promise<[result: string | undefined, error: string | undefined]> {
+export async function tryparsedHtmlToCode(element: ConversionNode, classes: Map<string, any>): Promise<string> {
   try {
-    const result = await htmlToCode(code, customColorsForText, componentMap)
-    return [result, undefined]
+    return parsedHtmlToCode(element, classes, customColorsForText, componentMap).catch(() => '')
   } catch (e: any) {
     console.error(e)
-    return [undefined, e.message]
+    return ''
   }
 }
 
 export function ConvertToReact() {
-  const code = useEditorStore((state) => state.code)
-  const [result, error] = suspend(htmlToCodeOrError, [code, cacheSymbol])
+  const parsed = useParsedHtmlStore((state) => state.parsed)
+  if (parsed == null) {
+    return null
+  }
+  const result = suspend(tryparsedHtmlToCode, [parsed.element, parsed.classes, cacheSymbol])
   return (
     <div className="relative h-full w-full justify-stretch items-stretch p-4 overflow-auto">
-      {result != null && (
-        <Highlight code={result} language="jsx">
-          {({ className, style, tokens, getLineProps, getTokenProps }) => (
-            <pre style={style}>
-              {tokens.map((line, i) => (
-                <div key={i} {...getLineProps({ line })}>
-                  {line.map((token, key) => (
-                    <span key={key} {...getTokenProps({ token })} />
-                  ))}
-                </div>
-              ))}
-            </pre>
-          )}
-        </Highlight>
-      )}
+      <Highlight code={result} language="jsx">
+        {({ className, style, tokens, getLineProps, getTokenProps }) => (
+          <pre style={style}>
+            {tokens.map((line, i) => (
+              <div key={i} {...getLineProps({ line })}>
+                {line.map((token, key) => (
+                  <span key={key} {...getTokenProps({ token })} />
+                ))}
+              </div>
+            ))}
+          </pre>
+        )}
+      </Highlight>
+    </div>
+  )
+}
+/**
+ * 
       {error != null && (
         <Alert variant="destructive" className="absolute bottom-4 w-auto left-4 right-4">
           <AlertCircle className="h-4 w-4" />
@@ -271,9 +363,7 @@ export function ConvertToReact() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-    </div>
-  )
-}
+ */
 
 declare global {
   interface BeforeInstallPromptEvent extends Event {

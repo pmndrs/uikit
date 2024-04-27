@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip.js'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useEditorStore } from '@/state.js'
 
-const backgroundPresets = ['apartment', 'city', 'dawn', 'forest', 'lobby', 'night', 'park', 'studio', 'sunset']
+const backgroundPresets = ['apartment', 'city', 'dawn', 'forest', 'lobby', 'night', 'park', 'studio', 'sunset'] as const
 const backgroundColors = [0xffffff, 0x0, 0xadd8e6, 0x90ee90, 0xd3d3d3, 0xffffe0, 0xffb6c1, 0xe6e6fa, 0xffdab9]
 
 export function BackgroundPopover() {

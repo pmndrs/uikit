@@ -76,9 +76,5 @@ export const htmlDefaults: Record<
   video: {
     renderAs: 'VideoContainer',
   },
-  svg: {
-    //TODO: custom convert function for innerHtml
-    renderAs: 'Icon',
-  },
 }
 //TBD select option

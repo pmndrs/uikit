@@ -1,12 +1,24 @@
-import { convertHtml, ConversionColorMap } from '@pmndrs/uikit/internals'
+import { ConversionNode, ConversionColorMap, convertParsedHtml, parseHtml } from '@pmndrs/uikit/internals'
 import { format } from 'prettier/standalone'
 import babel, * as starBabel from 'prettier/plugins/babel.js'
 import estree, * as starEstree from 'prettier/plugins/estree.js'
 import { ConversionComponentMap } from './preview.js'
 
+export { ConversionNode } from '@pmndrs/uikit/internals'
+
 export function htmlToCode(html: string, colorMap?: ConversionColorMap, componentMap?: ConversionComponentMap) {
+  const { classes, element } = parseHtml(html, colorMap)
+  return parsedHtmlToCode(element, classes, colorMap, componentMap)
+}
+
+export function parsedHtmlToCode(
+  element: ConversionNode,
+  classes: Map<string, any>,
+  colorMap?: ConversionColorMap,
+  componentMap?: ConversionComponentMap,
+) {
   return format(
-    `export default function Index() { return ${convertHtml(html, elementToCode, colorMap, componentMap) ?? `null`} }`,
+    `export default function Index() { return ${convertParsedHtml(element, classes, elementToCode, colorMap, componentMap) ?? `null`} }`,
     {
       parser: 'babel',
       plugins: [babel ?? starBabel, estree ?? starEstree],
@@ -25,11 +37,17 @@ function elementToCode(
   const propsText = Object.entries(props)
     .filter(([, value]) => typeof value != 'undefined')
     .map(([name, value]) => {
+      if (name === 'panelMaterialClass' && typeof value === 'function') {
+        return `${name}={${value.name}}`
+      }
       switch (typeof value) {
         case 'number':
           return `${name}={${value}}`
         case 'string':
-          return `${name}="${value}"`
+          if (value.includes('\n')) {
+            return `${name}={\`${value.replaceAll('`', '\\`')}\`}`
+          }
+          return `${name}="${value.replaceAll('"', "'")}"`
         case 'boolean':
           return `${name}={${value ? 'true' : 'false'}}`
         case 'object':

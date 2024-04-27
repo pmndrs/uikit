@@ -132,7 +132,7 @@ export default function App() {
                 <SuspendingImage
                   flexShrink={0}
                   hover={{ padding: 30, marginLeft: -30, opacity: 1 }}
-                  fit="cover"
+                  objectFit="cover"
                   borderWidth={20}
                   ref={ref}
                   onHoverChange={(hovered) => ref.current?.setStyle({ borderOpacity: hovered ? 1 : 0.5 })}

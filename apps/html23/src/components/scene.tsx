@@ -1,8 +1,8 @@
-import { useEditorStore } from '@/state.js'
+import { useEditorStore, useParsedHtmlStore } from '@/state.js'
 import { Defaults, colors } from '@/theme.js'
 import { XRCanvas } from '@coconut-xr/natuerlich/defaults'
-import { useIsInSessionMode } from '@coconut-xr/natuerlich/react'
-import { Preview, canvasInputProps, Root, Fullscreen } from '@react-three/uikit'
+import { NonImmersiveCamera, useIsInSessionMode } from '@coconut-xr/natuerlich/react'
+import { PreviewParsedHtml, canvasInputProps, Root, Fullscreen } from '@react-three/uikit'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { EffectComposer, ChromaticAberration, TiltShift2, Bloom, Vignette } from '@react-three/postprocessing'
 import { Vector2 } from 'three'
@@ -11,10 +11,13 @@ import { componentMap } from '@/App.js'
 
 export function Scene() {
   return (
-    <XRCanvas className="flex-grow" camera={{ position: [0, 0, 3] }} {...canvasInputProps}>
+    <XRCanvas className="flex-grow" {...canvasInputProps}>
       <Background />
       <Effects />
       <Content />
+      <NonImmersiveCamera position={[0, 0, 5]} />
+      <directionalLight position={[1, 10, 10]} intensity={1} />
+      <directionalLight position={[-10, 10, 5]} intensity={1} />
     </XRCanvas>
   )
 }
@@ -23,15 +26,21 @@ const immersiveModes = ['immersive-ar', 'immersive-vr'] as const
 
 function Content() {
   const view = useEditorStore((state) => state.view)
-  const code = useEditorStore((state) => state.code)
+  const parsed = useParsedHtmlStore((state) => state.parsed)
+  if (parsed == null) {
+    return
+  }
   if (view === 'hud') {
     return (
-      <Fullscreen>
+      <Fullscreen attachCamera={false}>
         <Defaults>
           <DialogAnchor>
-            <Preview componentMap={componentMap} colorMap={customColorsForConversion}>
-              {code}
-            </Preview>
+            <PreviewParsedHtml
+              classes={parsed.classes}
+              element={parsed.element}
+              componentMap={componentMap}
+              colorMap={customColorsForConversion as any}
+            />
           </DialogAnchor>
         </Defaults>
       </Fullscreen>
@@ -43,9 +52,12 @@ function Content() {
       <Root>
         <Defaults>
           <DialogAnchor>
-            <Preview componentMap={componentMap} colorMap={customColorsForConversion}>
-              {code}
-            </Preview>
+            <PreviewParsedHtml
+              classes={parsed.classes}
+              element={parsed.element}
+              componentMap={componentMap}
+              colorMap={customColorsForConversion as any}
+            />
           </DialogAnchor>
         </Defaults>
       </Root>
@@ -79,9 +91,14 @@ function Effects() {
 function Background() {
   const background = useEditorStore((state) => state.background)
   if (typeof background === 'string') {
-    return <Environment background preset={background as any} blur={0.3} />
+    return <Environment background preset={background as any} />
   }
-  return <color attach="background" args={[background]} />
+  return (
+    <>
+      <Environment preset="apartment" />
+      <color attach="background" args={[background]} />
+    </>
+  )
 }
 
 const customColorsForConversion = {

@@ -32,13 +32,12 @@ export type GlyphLayoutProperties = {
   wordBreak: keyof typeof wrappers
 }
 
-const defaultWordBreak: keyof typeof wrappers = 'break-word'
-
 export function computedMeasureFunc(
   properties: Signal<MergedProperties>,
   fontSignal: Signal<Font | undefined>,
   textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
+  defaultWordBreak: GlyphLayoutProperties['wordBreak'],
 ) {
   const fontSize = computedProperty(properties, 'fontSize', 16)
   const letterSpacing = computedProperty(properties, 'letterSpacing', 0)

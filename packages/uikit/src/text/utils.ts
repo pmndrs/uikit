@@ -11,7 +11,7 @@ export function getGlyphOffsetX(
   return (kerning + glyphInfo.xoffset) * fontSize
 }
 
-const percentageRegex = /^(\d+(?:\.\d+)?)%$/
+const percentageRegex = /^(-?\d+(?:\.\d+)?)%$/
 
 function lineHeightToAbsolute(lineHeight: GlyphLayoutProperties['lineHeight'], fontSize: number): number {
   if (typeof lineHeight === 'number') {

@@ -20,12 +20,12 @@ const htmlTailwind = `
 export default function Index() {
   return (
     <Text
+      backgroundColor="rgb(255,255,255)"
       marginLeft={16}
       marginRight={16}
       marginTop={8}
-      borderWidth={1}
-      backgroundColor="rgb(255,255,255)"
       padding={4}
+      borderWidth={1}
     >
       What up?
     </Text>
@@ -104,10 +104,45 @@ const htmlOnlyDiv = `
 export default function Index() {
   return (
     <Container
-      height="100%"
       width="100%"
+      height="100%"
       backgroundColor="rgb(0,0,0)"
     ></Container>
+  )
+}
+`.trimStart()
+
+const htmlOnlyDivWithAspectRatio = `
+export default function Index() {
+  return <Container aspectRatio={1.3333333333333333}></Container>
+}
+`.trimStart()
+
+const htmlWithSvg = `
+export default function Index() {
+  return (
+    <>
+      <Icon
+        color="rgb(209,213,219)"
+        svgWidth={24}
+        svgHeight={24}
+        text={\`<svg         className=" h-10 w-10 text-gray-300"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" ></path>
+      </svg>\`}
+        height={40}
+        width={40}
+      />
+    </>
   )
 }
 `.trimStart()
@@ -163,7 +198,31 @@ describe('html to react converter', () => {
     ).to.equal(htmlWithCustomComponent)
   })
 
-  it('a root div with white space should convert to only a container', async () => {
+  it('should convert a root div with white space should convert to only a container', async () => {
     expect(await htmlToCode(`<div class="w-full h-full bg-black"> </div>`)).to.equal(htmlOnlyDiv)
+  })
+
+  it('should convert a div with a aspect ratio', async () => {
+    expect(await htmlToCode(`<div class="aspect-[4/3]"> </div>`)).to.equal(htmlOnlyDivWithAspectRatio)
+  })
+
+  it('should convert a svg element with its content', async () => {
+    expect(
+      await htmlToCode(`
+      <svg
+        className=" h-10 w-10 text-gray-300"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+      </svg>`),
+    ).to.equal(htmlWithSvg)
   })
 })

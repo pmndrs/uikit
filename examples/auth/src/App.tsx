@@ -68,7 +68,7 @@ function AuthenticationPage() {
         overflow="hidden"
         height="100%"
         flexDirection="column"
-        dark={{ borderRight: 1 }}
+        dark={{ borderRightWidth: 1 }}
         padding={0}
         lg={{ padding: 40, maxWidth: 10000 }}
         backgroundColor={0x18181b}
@@ -122,7 +122,7 @@ function AuthenticationPage() {
         >
           <Container alignItems="center" flexDirection="column" gap={8}>
             <DefaultProperties textAlign="center">
-              <Text fontSize={24} lineHeight={32}3} fontWeight="semi-bold" letterSpacing={-0.4}>
+              <Text fontSize={24} lineHeight={32} fontWeight="semi-bold" letterSpacing={-0.4}>
                 Create an account
               </Text>
               <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>

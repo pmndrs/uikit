@@ -44,7 +44,7 @@ export class Fullscreen extends Root {
         throw new Error(`fullscreen can only be added to a camera`)
       }
       this.parentCameraSignal.value = this.parent
-      this.distanceToCamera ??= this.parent.near + 0.01
+      this.distanceToCamera ??= this.parent.near + 0.1
       this.updateSize()
     })
     this.addEventListener('removed', () => (this.parentCameraSignal.value = undefined))
