@@ -23,6 +23,7 @@ export type ComponentInternals<T = ContainerProperties> = {
   maxScrollPosition?: Signal<Partial<Vector2Tuple>>
   interactionPanel: Mesh
   setStyle(style: T | undefined): void
+  getStyle(): Readonly<T> | undefined
 }
 
 export function useComponentInternals<T, O = {}>(
@@ -49,6 +50,7 @@ export function useComponentInternals<T, O = {}>(
       const { scrollPosition, paddingInset, borderInset, relativeCenter, size, maxScrollPosition } = internals
       return {
         setStyle: (style: T | undefined) => (styleSignal.value = style),
+        getStyle: () => styleSignal.peek(),
         pixelSize,
         borderInset,
         paddingInset,
