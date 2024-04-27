@@ -241,12 +241,7 @@ export class InstancedText {
       endX = this.getGlyphX(lineGlyphs[lineGlyphs.length - 1], 1, whitespaceWidth)
     }
     const height = getOffsetToNextLine(layout.lineHeight, layout.fontSize)
-    const y = -(
-      getYOffset(layout, verticalAlign) -
-      layout.availableHeight / 2 +
-      lineIndex * height +
-      getGlyphOffsetY(layout.fontSize, layout.lineHeight)
-    )
+    const y = -(getYOffset(layout, verticalAlign) - layout.availableHeight / 2 + lineIndex * height)
     const width = endX - startX
     return { position: [startX + width / 2, y - height / 2], size: [width, height] }
   }

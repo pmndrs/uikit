@@ -206,7 +206,8 @@ export function createInput(
     selectionOrderInfo,
   )
   const defaultValue = style.peek()?.defaultValue ?? properties.peek()?.defaultValue
-  const writeValue = defaultValue != null ? signal(defaultValue) : undefined
+  const writeValue =
+    style.value?.value == null && properties.value?.value == null ? signal(defaultValue ?? '') : undefined
   const valueSignal = computed(
     () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
   )
