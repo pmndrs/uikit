@@ -8,7 +8,7 @@ async function main() {
     if (icon === '.gitkeep') {
       continue
     }
-    const name = `${getName(icon)}Icon`
+    const name = `${getName(icon)}`
     const raw = await readFile(`${baseDir}${icon}`)
     const svg = raw.toString()
     const code = `
@@ -16,11 +16,12 @@ async function main() {
       import { AllOptionalProperties, Icon } from '@pmndrs/uikit'
       import { IconProperties } from '@pmndrs/uikit/internals'
       const text = \`${svg}\`;
-      export class ${name} extends Icon {
+      export class ${name}Icon extends Icon {
         constructor(properties?: IconProperties, defaultProperties?: AllOptionalProperties,) {
           super(text, 24, 24, properties, defaultProperties)
         }
       }
+      export const ${name} = ${name}Icon
     `
     writeFile(`src/${name}.ts`, code)
   }
@@ -28,7 +29,7 @@ async function main() {
     'src/index.ts',
     icons
       .filter((icon) => icon != '.gitkeep')
-      .map((icon) => `export * from "./${getName(icon)}Icon.js";`)
+      .map((icon) => `export * from "./${getName(icon)}.js";`)
       .join('\n'),
   )
 }

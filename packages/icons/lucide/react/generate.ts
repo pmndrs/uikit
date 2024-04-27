@@ -10,24 +10,24 @@ async function main() {
     if (icon === '.gitkeep') {
       continue
     }
-    const name = `${getName(icon)}Icon`
+    const name = `${getName(icon)}`
     const raw = await readFile(`${baseDir}${icon}`)
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
       import { Icon, ComponentInternals, IconProperties } from "@react-three/uikit";
       import { forwardRef } from "react"; 
-      export type ${name}Props = Omit<IconProperties, "text" | "svgWidth" | "svgHeight">;
       const text = \`${svg}\`;
-      export const ${name} = /*@__PURE__*/ forwardRef<ComponentInternals<IconProperties>, ${name}Props>((props, ref) => {
+      export const ${name}Icon = /*@__PURE__*/ forwardRef<ComponentInternals<IconProperties>, Omit<IconProperties, "text" | "svgWidth" | "svgHeight">>((props, ref) => {
         return <Icon {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
       })
+      export const ${name} = ${name}Icon
     `
-    convertImports.push(`import { ${name} } from './${name}.js'`)
-    convertEntries.push(`${name}: {
+    convertImports.push(`import { ${name}Icon } from './${name}.js'`)
+    convertEntries.push(`${name}Icon: {
       propertyTypes: conversionPropertyTypes.Svg,
-      renderAs: '${name}',
-      renderAsImpl: ${name},
+      renderAs: '${name}Icon',
+      renderAsImpl: ${name}Icon,
       children: 'none',
     }`)
     writeFile(`src/${name}.tsx`, code)

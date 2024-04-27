@@ -18,7 +18,7 @@ import {
   ImageProperties,
 } from '@react-three/uikit'
 import { Texture } from 'three'
-import { Skeleton } from '../../../packages/kits/default/skeleton.js'
+import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
