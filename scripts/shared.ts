@@ -21,7 +21,7 @@ export class Converter {
   private generator: JsonSchemaGenerator
 
   constructor(filePath: string) {
-    const { compilerOptions } = JSON.parse(readFileSync(resolve(__dirname, '../../tsconfig.json')).toString())
+    const { compilerOptions } = JSON.parse(readFileSync(resolve(__dirname, '../tsconfig.json')).toString())
     this.program = getProgramFromFiles([filePath], compilerOptions)
     this.generator = buildGenerator(this.program)!
   }

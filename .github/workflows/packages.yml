@@ -44,10 +44,7 @@ jobs:
         run: |
           pnpm -r convert
           pnpm -r generate
-          pnpm -w generate-base
-          pnpm -F "@pmndrs/uikit" build
-          pnpm -w generate-default
-          pnpm -F "!@pmndrs/uikit" build
+          pnpm -r build
 
       - name: Copy README
         run: cp ./README.md packages/react

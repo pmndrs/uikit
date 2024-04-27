@@ -1,16 +1,16 @@
 import { writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { Converter, mapIncludesAllKeys, mapToRecord } from './src/index.js'
+import { Converter, mapIncludesAllKeys, mapToRecord } from '../../../../scripts/shared.js'
 
-import * as DefaultKit from '../packages/kits/default/components.js'
+import * as DefaultKit from '../src/components.js'
 
 const components = Object.keys(DefaultKit)
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const converter = new Converter(resolve(__dirname, '../packages/kits/default/components.ts'))
+const converter = new Converter(resolve(__dirname, '../src/components.ts'))
 
 const conversionComponentMapEntries: Array<string> = []
 const imports: Array<string> = []
@@ -43,7 +43,7 @@ for (const component of components) {
 }
 
 writeFileSync(
-  resolve(__dirname, '../packages/kits/default/convert.ts'),
+  resolve(__dirname, '../src/convert.ts'),
   `
 import { ConversionComponentMap, conversionPropertyTypes } from '@react-three/uikit'
 import { ${imports.join(',\n')} } from "./index.js"

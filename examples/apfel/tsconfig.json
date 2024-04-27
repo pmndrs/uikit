@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["../../packages/kits/apfel/*"]
+      "@/*": ["../../packages/kits/apfel/src/*"]
     }
   }
 }

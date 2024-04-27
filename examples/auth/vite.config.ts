@@ -11,7 +11,7 @@ export default defineConfig({
   base: '/uikit/examples/auth/',
   resolve: {
     alias: [
-      { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default') },
+      { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default/src') },
       { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') },
     ],
   },

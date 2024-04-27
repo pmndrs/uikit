@@ -10,9 +10,6 @@ export default defineConfig({
   },
   base: '/uikit/examples/lucide/',
   resolve: {
-    alias: [
-      { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default') },
-      { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') },
-    ],
+    alias: [{ find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') }],
   },
 })

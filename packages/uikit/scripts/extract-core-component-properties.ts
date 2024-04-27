@@ -1,12 +1,12 @@
 import { writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
-import { Converter, filterMapByKeys, mapToRecord, mergeMaps } from './src/index.js'
+import { Converter, filterMapByKeys, mapToRecord, mergeMaps } from '../../../scripts/shared.js'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const converter = new Converter(resolve(__dirname, '../packages/uikit/src/components/index.ts'))
+const converter = new Converter(resolve(__dirname, '../src/components/index.ts'))
 
 const allOptionalProperties = converter.extractPropertyTypes(converter.getSchema('AllOptionalProperties'))
 
@@ -85,4 +85,4 @@ const result = {
     ),
   ),
 }
-writeFileSync(resolve(__dirname, '../packages/uikit/src/convert/html/properties.json'), JSON.stringify(result))
+writeFileSync(resolve(__dirname, '../src/convert/html/properties.json'), JSON.stringify(result))

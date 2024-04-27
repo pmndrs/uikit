@@ -25,7 +25,7 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p ./tsconfig.build.json",
     "check:prettier": "prettier --check .",
     "check:eslint": "eslint '**/*.{tsx,ts}'",
     "fix:prettier": "prettier --write .",

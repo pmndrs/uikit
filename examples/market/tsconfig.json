@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["../../packages/kits/default/*"]
+      "@/*": ["../../packages/kits/default/src/*"]
     }
   }
 }
