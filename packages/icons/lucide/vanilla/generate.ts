@@ -28,7 +28,7 @@ async function main() {
     'src/index.ts',
     icons
       .filter((icon) => icon != '.gitkeep')
-      .map((icon) => `export * from "./${getName(icon)}.js";`)
+      .map((icon) => `export * from "./${getName(icon)}Icon.js";`)
       .join('\n'),
   )
 }
