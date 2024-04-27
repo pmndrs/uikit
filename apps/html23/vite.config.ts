@@ -10,6 +10,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  base: '/uikit/apps/html23/',
   optimizeDeps: {
     include: ['@react-three/uikit-lucide', '@react-three/uikit-default', '@react-three/uikit'],
     esbuildOptions: {

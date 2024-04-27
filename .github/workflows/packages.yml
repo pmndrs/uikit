@@ -40,14 +40,14 @@ jobs:
           pnpm -r check:prettier
           pnpm -r check:eslint
       
-      - name: Prepare Build
+      - name: Build
         run: |
           pnpm -r convert
           pnpm -r generate
-          pnpm -w generate
-
-      - name: Build
-        run: pnpm -F "./packages/**/*" build
+          pnpm -w generate-base
+          pnpm -F "@pmndrs/uikit" build
+          pnpm -w generate-default
+          pnpm -F "!@pmndrs/uikit" build
 
       - name: Copy README
         run: cp ./README.md packages/react

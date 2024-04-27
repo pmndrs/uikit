@@ -30,6 +30,7 @@
     "typescript-json-schema": "^0.63.0"
   },
   "scripts": {
-    "generate": "node --loader ts-node/esm scripts/extract-core-component-properties.ts && node --loader ts-node/esm scripts/extract-default-kit-component-properties.ts"
+    "generate-base": "node --loader ts-node/esm scripts/extract-core-component-properties.ts",
+    "generate-default": "node --loader ts-node/esm scripts/extract-default-kit-component-properties.ts"
   }
 }

@@ -8,8 +8,10 @@ To get started, make sure you have [Node](https://nodejs.org) and [PNPM](https:/
 pnpm i
 pnpm -r convert
 pnpm -r generate
-pnpm -w generate
-pnpm -F "./packages/**/*" build
+pnpm -w generate-base
+pnpm -F "@pmndrs/uikit" build
+pnpm -w generate-default
+pnpm -F "\!@pmndrs/uikit" build
 ```
 
 ### Development
