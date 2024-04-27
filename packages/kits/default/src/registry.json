@@ -1,0 +1,71 @@
+{
+  "accordion": {
+    "files": ["accordion.tsx"]
+  },
+  "alert": {
+    "files": ["alert.tsx"]
+  },
+  "alert-dialog": {
+    "registryDependencies": ["button"],
+    "files": ["alert-dialog.tsx"]
+  },
+  "avatar": {
+    "files": ["avatar.tsx"]
+  },
+  "badge": {
+    "files": ["badge.tsx"]
+  },
+  "button": {
+    "files": ["button.tsx"]
+  },
+  "card": {
+    "files": ["card.tsx"]
+  },
+  "checkbox": {
+    "files": ["checkbox.tsx"]
+  },
+  "dialog": {
+    "files": ["dialog.tsx"]
+  },
+  "label": {
+    "files": ["label.tsx"]
+  },
+  "pagination": {
+    "registryDependencies": ["button"],
+    "files": ["pagination.tsx"]
+  },
+  "progress": {
+    "files": ["progress.tsx"]
+  },
+  "radio-group": {
+    "files": ["radio-group.tsx"]
+  },
+  "separator": {
+    "files": ["separator.tsx"]
+  },
+  "skeleton": {
+    "files": ["skeleton.tsx"]
+  },
+  "slider": {
+    "files": ["slider.tsx"]
+  },
+  "switch": {
+    "files": ["switch.tsx"]
+  },
+  "tabs": {
+    "files": ["tabs.tsx"]
+  },
+  "toggle": {
+    "files": ["toggle.tsx"]
+  },
+  "toggle-group": {
+    "registryDependencies": ["toggle"],
+    "files": ["toggle-group.tsx"]
+  },
+  "tooltip": {
+    "files": ["tooltip.tsx"]
+  },
+  "input": {
+    "files": ["input.tsx"]
+  }
+}

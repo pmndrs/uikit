@@ -17,9 +17,11 @@ export default function App() {
         gap={10}
         padding={10}
       >
-        {Object.values(Icons).map((Icon, i) => (
-          <Icon key={i} />
-        ))}
+        {Object.values(Icons)
+          .filter((Icon, i) => 'render' in Icon && i % 2 === 0)
+          .map((Icon: any, i) => (
+            <Icon key={i} />
+          ))}
       </Fullscreen>
     </Canvas>
   )

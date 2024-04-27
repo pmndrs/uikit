@@ -162,6 +162,6 @@ const registrySchema = z.record(
 )
 
 async function getRegistry(kit: string) {
-  const data = await (await fetch(`${BASE_URL}${kit}/registry.json`)).json()
+  const data = await (await fetch(`${BASE_URL}${kit}/src/registry.json`)).json()
   return registrySchema.parse(data)
 }
