@@ -4,20 +4,18 @@ import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
 import { WithHover, addHoverHandlers } from '../hover.js'
 import { WithResponsive } from '../responsive.js'
-import { ColorRepresentation, Initializers, Subscriptions, readReactive } from '../utils.js'
+import { ColorRepresentation, Initializers, readReactive } from '../utils.js'
+import { FlexNode, FlexNodeState } from '../flex/index.js'
+import { ParentContext, Object3DRef, RootContext } from '../context.js'
+import { EventHandlers } from '../events.js'
 import {
   AllOptionalProperties,
-  EventHandlers,
   MergedProperties,
-  Object3DRef,
   Properties,
   PropertyTransformers,
-  ParentContext,
   computedProperty,
-  FlexNode,
-  FlexNodeState,
-  RootContext,
-} from '../internals.js'
+} from '../properties/index.js'
+import { Display } from 'yoga-layout/load'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -31,6 +29,23 @@ export function computedGlobalMatrix(
     }
     return parent.clone().multiply(local)
   })
+}
+
+export type VisibilityProperties = {
+  visibility?: 'visible' | 'hidden'
+}
+
+export function computedIsVisible(
+  flexState: FlexNodeState,
+  isClipped: Signal<boolean> | undefined,
+  mergedProperties: Signal<MergedProperties>,
+) {
+  return computed(
+    () =>
+      flexState.displayed.value &&
+      (isClipped == null || !isClipped?.value) &&
+      mergedProperties.value.read<VisibilityProperties['visibility']>('visibility', 'visible') === 'visible',
+  )
 }
 
 export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T> & WithActive<T>

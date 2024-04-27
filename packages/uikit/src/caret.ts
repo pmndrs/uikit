@@ -3,31 +3,32 @@ import { Matrix4, Vector3Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
+import { ColorRepresentation, Initializers, computedBorderInset } from './utils.js'
 import {
-  ColorRepresentation,
-  Initializers,
-  MergedProperties,
   PanelGroupManager,
   PanelMaterialConfig,
-  Subscriptions,
-  computedBorderInset,
-  computedProperty,
   createPanelMaterialConfig,
   defaultPanelDependencies,
-} from './internals.js'
+} from './panel/index.js'
+import { MergedProperties, computedProperty } from './properties/index.js'
 
 export type CaretWidthProperties = {
   caretWidth?: number
 }
 
 export type CaretBorderSizeProperties = {
-  caretBorderRight?: number
-  caretBorderTop?: number
-  caretBorderLeft?: number
-  caretBorderBottom?: number
+  caretBorderRightWidth?: number
+  caretBorderTopWidth?: number
+  caretBorderLeftWidth?: number
+  caretBorderBottomWidth?: number
 }
 
-const caretBorderKeys = ['caretBorderRight', 'caretBorderTop', 'caretBorderLeft', 'caretBorderBottom']
+const caretBorderKeys = [
+  'caretBorderRightWidth',
+  'caretBorderTopWidth',
+  'caretBorderLeftWidth',
+  'caretBorderBottomWidth',
+]
 
 export type CaretProperties = {
   caretOpacity?: number
@@ -66,7 +67,7 @@ export function createCaret(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   caretPosition: Signal<Vector3Tuple | undefined>,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
@@ -90,6 +91,7 @@ export function createCaret(
   )
   const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
   const caretWidth = computedProperty(propertiesSignal, 'caretWidth', 1.5)
+
   initializers.push((subscriptions) =>
     createInstancedPanel(
       propertiesSignal,
@@ -113,7 +115,7 @@ export function createCaret(
       }),
       borderInset,
       parentClippingRect,
-      isHidden,
+      isVisible,
       getCaretMaterialConfig(),
       subscriptions,
     ),

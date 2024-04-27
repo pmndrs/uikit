@@ -45,7 +45,7 @@ export default function App() {
 export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   return (
     <Container flexShrink={0} flexDirection="column">
-      <Container flexShrink={0} flexDirection="column" borderBottom={1}>
+      <Container flexShrink={0} flexDirection="column" borderBottomWidth={1}>
         <Container height={64} alignItems="center" flexDirection="row" paddingX={16}>
           <TeamSwitcher />
           <MainNav marginX={24} />
@@ -63,7 +63,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
       </Container>
       <Container flexDirection="column" flexGrow={1} gap={16} padding={32} paddingTop={24}>
         <Container flexShrink={0} flexDirection="row" justifyContent="space-between" gap={8}>
-          <Text fontSize={30} lineHeight={1}>
+          <Text fontSize={30} lineHeight="100%">
             Dashboard
           </Text>
           <Container flexDirection="row" gap={8} alignItems="center">
@@ -100,17 +100,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     paddingBottom={8}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={1.43}>
+                      <Text fontSize={14} lineHeight={20}>
                         Total Revenue
                       </Text>
                     </CardTitle>
                     <DollarSign width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={1.3333}>
+                    <Text fontSize={24} lineHeight={32}>
                       $45,231.89
                     </Text>
-                    <Text fontSize={12} lineHeight={1.3333} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
                       +20.1% from last month
                     </Text>
                   </CardContent>
@@ -125,17 +125,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     gap={0}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={1.43}>
+                      <Text fontSize={14} lineHeight={20}>
                         Subscriptions
                       </Text>
                     </CardTitle>
                     <Users height={16} width={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={1.3333}>
+                    <Text fontSize={24} lineHeight={32}>
                       +2350
                     </Text>
-                    <Text fontSize={12} lineHeight={1.3333} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
                       +180.1% from last month
                     </Text>
                   </CardContent>
@@ -152,17 +152,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     flexShrink={0}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={1.43}>
+                      <Text fontSize={14} lineHeight={20}>
                         Sales
                       </Text>
                     </CardTitle>
                     <CreditCard width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={1.3333}>
+                    <Text fontSize={24} lineHeight={32}>
                       +12,234
                     </Text>
-                    <Text fontSize={12} lineHeight={1.3333} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
                       +19% from last month
                     </Text>
                   </CardContent>
@@ -177,17 +177,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     flexShrink={0}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={1.43}>
+                      <Text fontSize={14} lineHeight={20}>
                         Active Now
                       </Text>
                     </CardTitle>
                     <Activity width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={1.3333}>
+                    <Text fontSize={24} lineHeight={32}>
                       +573
                     </Text>
-                    <Text fontSize={12} lineHeight={1.3333} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
                       +201 since last hour
                     </Text>
                   </CardContent>

@@ -22,10 +22,10 @@ const testValues: YogaProperties = {
   alignItems: 'flex-end',
   alignSelf: 'space-around',
   aspectRatio: 2,
-  borderBottom: 3,
-  borderLeft: 4,
-  borderRight: 5,
-  borderTop: 6,
+  borderBottomWidth: 3,
+  borderLeftWidth: 4,
+  borderRightWidth: 5,
+  borderTopWidth: 6,
   display: 'none',
   flexBasis: 7,
   flexDirection: 'row-reverse',
@@ -120,6 +120,35 @@ function getRawValue(property: string, node: Node): any {
   }
   return flatten(node[`get${capitalize(property)}` as 'getWidth']())
 }
+
+/*describe('test yoga', () => {
+  it('test weird case with 3 children', async () => {
+    const yoga = await loadYoga()
+    const config = yoga.Config.create()
+    config.setUseWebDefaults(true)
+    config.setPointScaleFactor(100)
+    const node = yoga.Node.create(config)
+    const child1 = yoga.Node.create(config)
+    const child2 = yoga.Node.create(config)
+    const child3 = yoga.Node.create(config)
+    node.setHeight(99)
+    node.insertChild(child1, 0)
+    node.setFlexDirection(FlexDirection.Column)
+    child1.setMargin(Edge.Bottom, 100)
+    child1.setMeasureFunc(() => ({ width: 1, height: 10.01 }))
+    child1.markDirty()
+    node.insertChild(child2, 1)
+    child2.setMeasureFunc(() => ({ width: 1, height: 10.01 }))
+    child2.markDirty()
+    node.insertChild(child3, 2)
+    child3.setMeasureFunc(() => ({ width: 1, height: 12.01 }))
+    child3.markDirty()
+    node.calculateLayout(undefined, undefined)
+    console.log(child1.getComputedHeight(), child1.getComputedTop())
+    console.log(child2.getComputedHeight(), child2.getComputedTop())
+    console.log(child3.getComputedHeight(), child3.getComputedTop())
+  })
+})*/
 
 describe('set & get properties', () => {
   let node: Node

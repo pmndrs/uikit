@@ -19,9 +19,11 @@ import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
 } from './utils.js'
@@ -29,7 +31,9 @@ import { Listeners, setupLayoutListeners, setupViewportListeners } from '../list
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { Initializers, darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
+import { Initializers } from '../utils.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 
 export type InheritableContainerProperties = WithClasses<
   WithConditionals<
@@ -40,7 +44,8 @@ export type InheritableContainerProperties = WithClasses<
           ZIndexProperties &
           TransformProperties &
           ScrollbarProperties &
-          PanelGroupProperties
+          PanelGroupProperties &
+          VisibilityProperties
       >
     >
   >
@@ -88,6 +93,8 @@ export function createContainer(
     parentContext.root.pixelSize,
   )
 
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
+
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -102,7 +109,7 @@ export function createContainer(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -117,7 +124,7 @@ export function createContainer(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
@@ -135,7 +142,7 @@ export function createContainer(
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),

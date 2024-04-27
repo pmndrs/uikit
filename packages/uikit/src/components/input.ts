@@ -1,45 +1,50 @@
-import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/node.js'
+import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
-import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
+import {
+  AllOptionalProperties,
+  WithClasses,
+  WithReactive,
+  computedProperty,
+  traverseProperties,
+} from '../properties/index.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Initializers } from '../utils.js'
+import { Initializers, readReactive } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers } from '../events.js'
+import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
+import { CaretProperties, createCaret } from '../caret.js'
+import { SelectionBoxes, SelectionProperties, createSelection } from '../selection.js'
+import { WithFocus, createFocusPropertyTransformers } from '../focus.js'
 import {
-  FlexNode,
   FontFamilies,
   InstancedText,
   InstancedTextProperties,
   computedFont,
   computedGylphGroupDependencies,
-  computedProperty,
   createInstancedText,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-  traverseProperties,
-} from '../internals.js'
-import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
-import { CaretProperties, createCaret } from '../caret.js'
-import { SelectionBoxes, SelectionProperties, createSelection } from '../selection.js'
-import { WithFocus, createFocusPropertyTransformers } from '../focus.js'
+} from '../text/index.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 
 export type InheritableInputProperties = WithClasses<
   WithFocus<
@@ -55,7 +60,8 @@ export type InheritableInputProperties = WithClasses<
             SelectionProperties &
             PanelGroupProperties &
             InstancedTextProperties &
-            DisabledProperties
+            DisabledProperties &
+            VisibilityProperties
         >
       >
     >
@@ -88,13 +94,17 @@ export const canvasInputProps = {
 export type InputProperties = InheritableInputProperties &
   Listeners & {
     onValueChange?: (value: string) => void
+  } & WithReactive<{
+    value?: string
+    tabIndex?: number
+    disabled?: boolean
+  }> & {
+    multiline?: boolean
+    defaultValue?: string
   }
 
 export function createInput(
   parentContext: ParentContext,
-  valueSignal: Signal<string>,
-  onChange: (newValue: string) => void,
-  multiline: boolean,
   fontFamilies: Signal<FontFamilies | undefined>,
   style: Signal<InputProperties | undefined>,
   properties: Signal<InputProperties | undefined>,
@@ -142,6 +152,7 @@ export function createInput(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -156,7 +167,7 @@ export function createInput(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -170,7 +181,7 @@ export function createInput(
     mergedProperties,
     globalMatrix,
     caretPosition,
-    isClipped,
+    isVisible,
     backgroundOrderInfo,
     parentContext.clippingRect,
     parentContext.root.panelGroupManager,
@@ -180,7 +191,7 @@ export function createInput(
     mergedProperties,
     globalMatrix,
     selectionBoxes,
-    isClipped,
+    isVisible,
     backgroundOrderInfo,
     parentContext.clippingRect,
     parentContext.root.panelGroupManager,
@@ -194,13 +205,20 @@ export function createInput(
     computedGylphGroupDependencies(fontSignal),
     selectionOrderInfo,
   )
+  const defaultValue = style.peek()?.defaultValue ?? properties.peek()?.defaultValue
+  const writeValue =
+    style.value?.value == null && properties.value?.value == null ? signal(defaultValue ?? '') : undefined
+  const valueSignal = computed(
+    () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
+  )
+  const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
   const measureFunc = createInstancedText(
     mergedProperties,
     valueSignal,
     globalMatrix,
     nodeSignal,
     flexState,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     fontSignal,
@@ -210,15 +228,30 @@ export function createInput(
     caretPosition,
     instancedTextRef,
     initializers,
+    multiline ? 'break-word' : 'keep-all',
   )
   initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   const disabled = computedProperty(mergedProperties, 'disabled', false)
 
-  const element = createHtmlInputElement(valueSignal, selectionRange, onChange, multiline, disabled, initializers)
+  const element = createHtmlInputElement(
+    valueSignal,
+    selectionRange,
+    (newValue) => {
+      if (writeValue != null) {
+        writeValue.value = newValue
+      }
+      style.peek()?.onValueChange?.(newValue)
+      properties.peek()?.onValueChange?.(newValue)
+    },
+    multiline,
+    disabled,
+    computedProperty(mergedProperties, 'tabIndex', 0),
+    initializers,
+  )
   const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
     const inputElement = element.peek()
     if (inputElement == null) {
@@ -236,6 +269,7 @@ export function createInput(
   const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
+    valueSignal,
     focus: () => focus(),
     root: parentContext.root,
     element,
@@ -312,6 +346,7 @@ export function createHtmlInputElement(
   onChange: (value: string) => void,
   multiline: boolean,
   disabled: Signal<boolean>,
+  tabIndex: Signal<number>,
   initializers: Initializers,
 ) {
   const elementSignal = signal<HTMLInputElement | HTMLTextAreaElement | undefined>(undefined)
@@ -350,6 +385,7 @@ export function createHtmlInputElement(
       },
       effect(() => (element.value = value.value)),
       effect(() => (element.disabled = disabled.value)),
+      effect(() => (element.tabIndex = tabIndex.value)),
     )
     return subscriptions
   })

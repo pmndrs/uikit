@@ -5,7 +5,7 @@ import { Signal, computed } from '@preact/signals-core'
 import { MeasureFunction, MeasureMode } from 'yoga-layout/load'
 import { MergedProperties } from '../properties/merged.js'
 import { readReactive } from '../utils.js'
-import { computedProperty } from '../internals.js'
+import { computedProperty } from '../properties/index.js'
 
 export type GlyphLayoutLine = {
   charIndexOffset: number
@@ -27,22 +27,21 @@ export type GlyphLayoutProperties = {
   text: string
   font: Font
   letterSpacing: number
-  lineHeight: number
+  lineHeight: number | `${number}%`
   fontSize: number
   wordBreak: keyof typeof wrappers
 }
-
-const defaultWordBreak: keyof typeof wrappers = 'break-word'
 
 export function computedMeasureFunc(
   properties: Signal<MergedProperties>,
   fontSignal: Signal<Font | undefined>,
   textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
+  defaultWordBreak: GlyphLayoutProperties['wordBreak'],
 ) {
   const fontSize = computedProperty(properties, 'fontSize', 16)
   const letterSpacing = computedProperty(properties, 'letterSpacing', 0)
-  const lineHeight = computedProperty(properties, 'lineHeight', 1.2)
+  const lineHeight = computedProperty<number | `${number}%`>(properties, 'lineHeight', '120%')
   const wordBreak = computedProperty(properties, 'wordBreak', defaultWordBreak)
   return computed<MeasureFunction | undefined>(() => {
     const font = fontSignal.value

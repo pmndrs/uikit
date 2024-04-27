@@ -1,16 +1,16 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, ReactNode, createContext, useContext } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, createContext, useContext } from 'react'
+import { colors } from './theme.js'
 
 type Type = 'plain' | 'inset'
 
-type ListProps = ComponentPropsWithoutRef<typeof Container> & {
+type ListProperties = ContainerProperties & {
   type?: Type
 }
 
 const ListContext = createContext<Type>('plain')
 
-export function List({ type = 'plain', ...props }: ListProps) {
+export function List({ type = 'plain', ...props }: ListProperties) {
   return (
     <ListContext.Provider value={type}>
       <Container flexDirection="column" alignItems="stretch" gapRow={type === 'plain' ? 8 : 1} {...props} />
@@ -18,7 +18,7 @@ export function List({ type = 'plain', ...props }: ListProps) {
   )
 }
 
-type ListItemProps = ComponentPropsWithoutRef<typeof Container> & {
+type ListItemProperties = ContainerProperties & {
   subtitle?: ReactNode
   selected?: boolean
   leadingAccessory?: ReactNode
@@ -36,7 +36,7 @@ export function ListItem({
   isFirst,
   isLast,
   ...props
-}: ListItemProps) {
+}: ListItemProperties) {
   const type = useContext(ListContext)
 
   return (

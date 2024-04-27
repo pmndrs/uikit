@@ -26,6 +26,10 @@
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
-    "vite": "^5.0.12"
+    "vite": "^5.0.12",
+    "typescript-json-schema": "^0.63.0"
+  },
+  "scripts": {
+    "generate": "node --loader ts-node/esm scripts/extract-core-component-properties.ts && node --loader ts-node/esm scripts/extract-default-kit-component-properties.ts"
   }
 }

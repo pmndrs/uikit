@@ -1,6 +1,6 @@
 import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
-import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes, ClippingRect } from '../clipping.js'
+import { computedIsClipped, createGlobalClippingPlanes, ClippingRect } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
@@ -11,28 +11,25 @@ import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRende
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
-import { Initializers, Subscriptions, alignmentZMap } from '../utils.js'
+import { Initializers, alignmentZMap } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
-import { Object3DRef, ParentContext } from '../context.js'
+import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import {
-  KeepAspectRatioProperties,
-  MergedProperties,
-  RootContext,
-  computedProperty,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-  makeClippedRaycast,
-} from '../internals.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
+import { darkPropertyTransformers } from '../dark.js'
+import { getDefaultPanelMaterialConfig, makeClippedRaycast } from '../panel/index.js'
+import { MergedProperties, computedProperty } from '../properties/index.js'
+import { KeepAspectRatioProperties } from './image.js'
 
 export type InheritableContentProperties = WithClasses<
   WithConditionals<
@@ -45,7 +42,8 @@ export type InheritableContentProperties = WithClasses<
           ScrollbarProperties &
           PanelGroupProperties &
           DepthAlignProperties &
-          KeepAspectRatioProperties
+          KeepAspectRatioProperties &
+          VisibilityProperties
       >
     >
   >
@@ -105,6 +103,7 @@ export function createContent(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
@@ -120,7 +119,7 @@ export function createContent(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -129,7 +128,7 @@ export function createContent(
   const orderInfo = computedOrderInfo(undefined, ElementType.Object, undefined, backgroundorderInfo)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     remeasureContent: createMeasureContent(

@@ -3,34 +3,35 @@ import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.j
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
-import { Inset } from './flex/index.js'
 import {
   ColorRepresentation,
   Initializers,
-  MergedProperties,
-  PanelGroupManager,
-  PanelMaterialConfig,
   Subscriptions,
   computedBorderInset,
+  unsubscribeSubscriptions,
+} from './utils.js'
+import {
+  PanelGroupManager,
+  PanelMaterialConfig,
   createPanelMaterialConfig,
   defaultPanelDependencies,
-  unsubscribeSubscriptions,
-} from './internals.js'
+} from './panel/index.js'
+import { MergedProperties } from './properties/index.js'
 
 export type SelectionBoxes = Array<{ size: Vector2Tuple; position: Vector2Tuple }>
 
 export type SelectionBorderSizeProperties = {
-  selectionBorderRight?: number
-  selectionBorderTop?: number
-  selectionBorderLeft?: number
-  selectionBorderBottom?: number
+  selectionBorderRightWidth?: number
+  selectionBorderTopWidth?: number
+  selectionBorderLeftWidth?: number
+  selectionBorderBottomWidth?: number
 }
 
 const selectionBorderKeys = [
-  'selectionBorderRight',
-  'selectionBorderTop',
-  'selectionBorderLeft',
-  'selectionBorderBottom',
+  'selectionBorderRightWidth',
+  'selectionBorderTopWidth',
+  'selectionBorderLeftWidth',
+  'selectionBorderBottomWidth',
 ]
 
 export type SelectionProperties = {
@@ -69,7 +70,7 @@ export function createSelection(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
   selectionBoxes: Signal<SelectionBoxes>,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
@@ -104,7 +105,7 @@ export function createSelection(
               offset,
               borderInset,
               parentClippingRect,
-              isHidden,
+              isVisible,
               getSelectionMaterialConfig(),
               panelSubscriptions,
             )

@@ -20,14 +20,14 @@ export function AlbumArtwork({
         src={album.cover}
         width={width}
         height={height}
-        fit="cover"
+        objectFit="cover"
         aspectRatio={aspectRatio === 'portrait' ? 3 / 4 : 1}
       />
       <Container flexDirection="column" gap={4}>
-        <Text fontWeight="medium" fontSize={14} lineHeight={1}>
+        <Text fontWeight="medium" fontSize={14} lineHeight="100%">
           {album.name}
         </Text>
-        <Text fontSize={12} lineHeight={1.3333} color={colors.mutedForeground}>
+        <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
           {album.artist}
         </Text>
       </Container>

@@ -1,6 +1,6 @@
 import { Signal, effect } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
-import { Initializers, Subscriptions } from './utils.js'
+import { Initializers } from './utils.js'
 import { ThreeEvent } from './events.js'
 
 export type Listeners = ScrollListeners & LayoutListeners & ViewportListeners
@@ -56,13 +56,13 @@ export function setupLayoutListeners(
 export function setupViewportListeners(
   l1: Signal<ViewportListeners | undefined>,
   l2: Signal<ViewportListeners | undefined>,
-  isClipped: Signal<boolean>,
+  isVisible: Signal<boolean>,
   initializers: Initializers,
 ) {
   let first = true
   initializers.push(() =>
     effect(() => {
-      const isInViewport = !isClipped.value
+      const isInViewport = isVisible.value
       if (first) {
         first = false
         return

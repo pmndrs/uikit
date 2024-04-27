@@ -1,11 +1,11 @@
-import { Container } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties } from '@react-three/uikit'
+import React from 'react'
+import { colors } from './theme.js'
 
 export function Progress({
   value = 0,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+}: ContainerProperties & {
   value?: number
 }) {
   return (

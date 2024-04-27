@@ -1,10 +1,20 @@
 import { Container, ComponentInternals, ContainerProperties } from '@react-three/uikit'
-import { colors } from './theme'
-import React, { ComponentPropsWithoutRef, useMemo, useRef, useState } from 'react'
+import { colors } from './theme.js'
+import React, { useMemo, useRef, useState } from 'react'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Vector3 } from 'three'
 
 const vectorHelper = new Vector3()
+
+export type SliderProperties = {
+  disabled?: boolean
+  value?: number
+  defaultValue?: number
+  onValueChange?(value: number): void
+  min?: number
+  max?: number
+  step?: number
+} & Omit<ContainerProperties, 'children'>
 
 export function Slider({
   disabled = false,
@@ -15,15 +25,7 @@ export function Slider({
   max = 100,
   step = 1,
   ...props
-}: {
-  disabled?: boolean
-  value?: number
-  defaultValue?: number
-  onValueChange?(value: number): void
-  min?: number
-  max?: number
-  step?: number
-} & Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
+}: SliderProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const value = providedValue ?? uncontrolled ?? 50
   const range = max - min
@@ -104,7 +106,7 @@ export function Slider({
         backgroundOpacity={disabled ? 0.5 : undefined}
         height={20}
         width={20}
-        border={2}
+        borderWidth={2}
         borderRadius={1000}
         borderColor={colors.primary}
         backgroundColor={colors.background}

@@ -2,6 +2,13 @@ import { writeFileSync } from 'fs'
 import { Edge, Gutter, Unit, Node, loadYoga } from 'yoga-layout/load'
 import { createDefaultConfig } from '../src/flex/yoga.js'
 
+const propertyRenameMap = {
+  borderTop: 'borderTopWidth',
+  borderRight: 'borderRightWidth',
+  borderLeft: 'borderLeftWidth',
+  borderBottom: 'borderBottomWidth',
+}
+
 async function main() {
   const Yoga = await loadYoga()
   const node = Yoga.Node.create(createDefaultConfig(Yoga.Config))
@@ -90,7 +97,6 @@ async function main() {
     } else {
       const percentUnit = node[`set${functionName}Percent` as keyof Node] != null
       const autoUnit = node[`set${functionName}Auto` as keyof Node] != null
-      const pointUnit = !propertiesWithoutPointUnit.has(propertyName)
       types = ['undefined', 'number']
       if (percentUnit) {
         types.push('`${number}%`')
@@ -169,9 +175,16 @@ async function main() {
     }
     ${Array.from(lookupTables.values()).join('\n')}
     export const setter = { ${setterFunctions
-      .map(([propertyName, functionCode]) => `${propertyName}: ${functionCode}`)
+      .map(([propertyName, functionCode]) => `${applyRenames(propertyName)}: ${functionCode}`)
       .join(',\n')} }`,
   )
+}
+
+function applyRenames(key: string): string {
+  if (!(key in propertyRenameMap)) {
+    return key
+  }
+  return propertyRenameMap[key as keyof typeof propertyRenameMap]
 }
 
 function createLookupTable(

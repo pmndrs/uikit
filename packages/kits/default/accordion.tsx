@@ -1,20 +1,24 @@
-import React, { ComponentPropsWithoutRef, ReactNode, createContext, useContext, useState } from 'react'
-import { Container, DefaultProperties } from '@react-three/uikit'
+import React, { createContext, useContext, useState } from 'react'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import { ChevronDown } from '@react-three/uikit-lucide'
 
 const AccordionContext = createContext<[string | undefined, (value: string | undefined) => void]>(null as any)
 
-export function Accordion({ children }: { children?: ReactNode }) {
+export type AccordionProperties = ContainerProperties
+
+export function Accordion({ children, ...props }: AccordionProperties) {
   const stateHandler = useState<string | undefined>(undefined)
   return (
-    <Container flexDirection="column">
+    <Container flexDirection="column" {...props}>
       <AccordionContext.Provider value={stateHandler}>{children}</AccordionContext.Provider>
     </Container>
   )
 }
 const AccordionItemContext = createContext<string>('')
 
-export function AccordionItem({ children, ...props }: ComponentPropsWithoutRef<typeof Container> & { value: string }) {
+export type AccordionItemProperties = ContainerProperties & { value: string }
+
+export function AccordionItem({ children, ...props }: AccordionItemProperties) {
   const [value, setValue] = useContext(AccordionContext)
   const isSelected = props.value === value
   return (
@@ -22,7 +26,7 @@ export function AccordionItem({ children, ...props }: ComponentPropsWithoutRef<t
       cursor="pointer"
       flexDirection="column"
       onClick={() => setValue(isSelected ? undefined : props.value)}
-      borderBottom={1}
+      borderBottomWidth={1}
       {...props}
     >
       <AccordionItemContext.Provider value={props.value}>{children}</AccordionItemContext.Provider>
@@ -30,7 +34,9 @@ export function AccordionItem({ children, ...props }: ComponentPropsWithoutRef<t
   )
 }
 
-export function AccordionTrigger({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type AccordionTriggerProperties = ContainerProperties
+
+export function AccordionTrigger({ children, ...props }: AccordionTriggerProperties) {
   const itemValue = useContext(AccordionItemContext)
   const [value] = useContext(AccordionContext)
   const isSelected = itemValue === value
@@ -50,7 +56,9 @@ export function AccordionTrigger({ children, ...props }: ComponentPropsWithoutRe
   )
 }
 
-export function AccordionContent({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type AccordionContentProperties = ContainerProperties
+
+export function AccordionContent({ children, ...props }: AccordionContentProperties) {
   const itemValue = useContext(AccordionItemContext)
   const [value] = useContext(AccordionContext)
   if (value != itemValue) {

@@ -1,9 +1,9 @@
 import { Signal } from '@preact/signals-core'
-import { AllOptionalProperties, traverseProperties } from './properties/default.js'
 import { Initializers, createConditionalPropertyTranslator } from './utils.js'
 import { PropertyTransformers } from './properties/merged.js'
 import { EventHandlers } from './events.js'
-import { addHandler } from './internals.js'
+import { addHandler } from './components/index.js'
+import { AllOptionalProperties, traverseProperties } from './properties/index.js'
 
 export type WithHover<T> = T & {
   cursor?: string

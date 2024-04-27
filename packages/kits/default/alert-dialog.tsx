@@ -1,24 +1,37 @@
-import React, { ComponentPropsWithoutRef, ReactNode } from 'react'
+import React, { ReactNode } from 'react'
 import {
   Dialog,
   DialogContentPrimitive,
   DialogDescription,
+  DialogDescriptionProperties,
   DialogFooter,
+  DialogFooterProperties,
   DialogHeader,
+  DialogHeaderProperties,
   DialogOverlay,
+  DialogOverlayProperties,
+  DialogProperties,
   DialogTrigger,
+  DialogTriggerProperties,
   useCloseDialog,
 } from './dialog.js'
-import { Container, DefaultProperties } from '@react-three/uikit'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { borderRadius, colors } from './theme.js'
+export type AlertDialogOverlayProperties = DialogOverlayProperties
 
 export const AlertDialogOverlay = DialogOverlay
 
+export type AlertDialogProperties = DialogProperties
+
 export const AlertDialog = Dialog
+
+export type AlertDialogTriggerProperties = DialogTriggerProperties
 
 export const AlertDialogTrigger = DialogTrigger
 
-export function AlertDialogContent(props: ComponentPropsWithoutRef<typeof Dialog>) {
+export type AlertDialogContentProperties = ContainerProperties
+
+export function AlertDialogContent({ onClick, sm, ...props }: AlertDialogContentProperties) {
   const close = useCloseDialog()
   return (
     <DialogContentPrimitive>
@@ -31,16 +44,19 @@ export function AlertDialogContent(props: ComponentPropsWithoutRef<typeof Dialog
         justifyContent="center"
       >
         <Container
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClick?.(e)
+          }}
           positionType="relative"
           flexDirection="column"
           maxWidth={512}
           width="100%"
           gap={16}
-          border={1}
+          borderWidth={1}
           backgroundColor={colors.background}
           padding={24}
-          sm={{ borderRadius: 8 }}
+          sm={{ borderRadius: borderRadius.lg, ...sm }}
           {...props}
         ></Container>
       </DialogOverlay>
@@ -48,24 +64,31 @@ export function AlertDialogContent(props: ComponentPropsWithoutRef<typeof Dialog
   )
 }
 
+export type AlertDialogHeaderProperties = DialogHeaderProperties
+
 export const AlertDialogHeader = DialogHeader
+
+export type AlertDialogFooterProperties = DialogFooterProperties
 
 export const AlertDialogFooter = DialogFooter
 
-export function AlertDialogTitle({ children }: { children?: ReactNode }) {
-  return (
-    <DefaultProperties fontSize={18} lineHeight={1.5555} fontWeight="semi-bold">
-      {children}
-    </DefaultProperties>
-  )
+export type AlertDialogTitleProperties = { children?: ReactNode }
+
+export function AlertDialogTitle(props: AlertDialogTitleProperties) {
+  return <DefaultProperties fontSize={18} lineHeight={28} fontWeight="semi-bold" {...props} />
 }
+
+export type AlertDialogDescriptionProperties = DialogDescriptionProperties
+
 export const AlertDialogDescription = DialogDescription
 
-export function AlertDialogAction({ children, onClick, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type AlertDialogActionProperties = ContainerProperties
+
+export function AlertDialogAction({ children, onClick, ...props }: AlertDialogActionProperties) {
   const close = useCloseDialog()
   return (
     <Container
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       height={40}
       paddingX={16}
       paddingY={8}
@@ -87,7 +110,7 @@ export function AlertDialogAction({ children, onClick, ...props }: ComponentProp
       <DefaultProperties>
         <DefaultProperties
           fontSize={14}
-          lineHeight={1.43}
+          lineHeight={20}
           fontWeight="medium"
           wordBreak="keep-all"
           color={colors.primaryForeground}
@@ -99,11 +122,13 @@ export function AlertDialogAction({ children, onClick, ...props }: ComponentProp
   )
 }
 
-export function AlertDialogCancel({ children, onClick, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type AlertDialogCancelProperties = ContainerProperties
+
+export function AlertDialogCancel({ children, onClick, ...props }: AlertDialogCancelProperties) {
   const close = useCloseDialog()
   return (
     <Container
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       height={40}
       paddingX={16}
       paddingY={8}
@@ -111,7 +136,7 @@ export function AlertDialogCancel({ children, onClick, ...props }: ComponentProp
       justifyContent="center"
       cursor="pointer"
       flexDirection="row"
-      border={1}
+      borderWidth={1}
       borderColor={colors.input}
       backgroundColor={colors.background}
       onClick={(e) => {
@@ -124,7 +149,7 @@ export function AlertDialogCancel({ children, onClick, ...props }: ComponentProp
       }}
       {...props}
     >
-      <DefaultProperties fontSize={14} lineHeight={1.43} fontWeight="medium" wordBreak="keep-all">
+      <DefaultProperties fontSize={14} lineHeight={20} fontWeight="medium" wordBreak="keep-all">
         {children}
       </DefaultProperties>
     </Container>

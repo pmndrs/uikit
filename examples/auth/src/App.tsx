@@ -68,7 +68,7 @@ function AuthenticationPage() {
         overflow="hidden"
         height="100%"
         flexDirection="column"
-        dark={{ borderRight: 1 }}
+        dark={{ borderRightWidth: 1 }}
         padding={0}
         lg={{ padding: 40, maxWidth: 10000 }}
         backgroundColor={0x18181b}
@@ -95,16 +95,16 @@ function AuthenticationPage() {
               marginRight={8}
             />
 
-            <Text fontSize={18} lineHeight={1.5555} fontWeight="medium">
+            <Text fontSize={18} lineHeight={28} fontWeight="medium">
               Acme Inc
             </Text>
           </Container>
           <Container flexDirection="column" marginTop="auto">
             <Container flexDirection="column" gap={8}>
-              <Text fontSize={18} lineHeight={1.555}>
+              <Text fontSize={18} lineHeight={28}>
                 "Culpa eiusmod ut ipsum sunt velit labore minim eu. Occaecat magna mollit aliqua cupidatat."
               </Text>
-              <Text fontSize={14} lineHeight={1.43}>
+              <Text fontSize={14} lineHeight={20}>
                 Max Mustermann
               </Text>
             </Container>
@@ -121,17 +121,17 @@ function AuthenticationPage() {
           sm={{ width: 350 }}
         >
           <Container alignItems="center" flexDirection="column" gap={8}>
-            <DefaultProperties horizontalAlign="center">
-              <Text fontSize={24} lineHeight={1.3333} fontWeight="semi-bold" letterSpacing={-0.4}>
+            <DefaultProperties textAlign="center">
+              <Text fontSize={24} lineHeight={32} fontWeight="semi-bold" letterSpacing={-0.4}>
                 Create an account
               </Text>
-              <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+              <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                 Enter your email below to create your account
               </Text>
             </DefaultProperties>
           </Container>
           <UserAuthForm />
-          <Text paddingX={32} horizontalAlign="center" fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+          <Text paddingX={32} textAlign="center" fontSize={14} lineHeight={20} color={colors.mutedForeground}>
             By clicking continue, you agree to our Terms of Service and Privacy Policy.
           </Text>
         </Container>

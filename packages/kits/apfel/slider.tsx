@@ -1,10 +1,10 @@
 import { ThreeEvent } from '@react-three/fiber'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, ReactNode, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { GlassMaterial, colors } from './theme'
+import { GlassMaterial, colors } from './theme.js'
 
 const vectorHelper = new Vector3()
 
@@ -28,7 +28,7 @@ export function Slider({
   icon,
   disabled,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+}: ContainerProperties & {
   disabled?: boolean
   value?: number
   defaultValue?: number
@@ -104,7 +104,7 @@ export function Slider({
       positionType="relative"
       borderOpacity={0.4}
       cursor={disabled ? undefined : 'pointer'}
-      border={2}
+      borderWidth={2}
       borderBend={-0.3}
       panelMaterialClass={GlassMaterial}
       {...(disabled ? {} : handler)}

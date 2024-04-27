@@ -1,6 +1,6 @@
-import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, ReactNode } from 'react'
-import { colors } from './theme'
+import { AllOptionalProperties, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React from 'react'
+import { borderRadius, colors } from './theme.js'
 
 const alertVariants = {
   default: {},
@@ -11,15 +11,17 @@ const alertVariants = {
   },
 } satisfies { [Key in string]: AllOptionalProperties }
 
-export function Alert(props: ComponentPropsWithoutRef<typeof Container> & { variant?: keyof typeof alertVariants }) {
+export type AlertProperties = ContainerProperties & { variant?: keyof typeof alertVariants }
+
+export function Alert(props: AlertProperties) {
   return (
     <DefaultProperties {...alertVariants[props.variant ?? 'default']}>
       <Container
         flexDirection="column"
         positionType="relative"
         width="100%"
-        borderRadius={8}
-        border={1}
+        borderRadius={borderRadius.lg}
+        borderWidth={1}
         padding={16}
         {...props}
       />
@@ -27,24 +29,30 @@ export function Alert(props: ComponentPropsWithoutRef<typeof Container> & { vari
   )
 }
 
-export function AlertIcon(props: ComponentPropsWithoutRef<typeof Container>) {
+export type AlertIconProperties = ContainerProperties
+
+export function AlertIcon(props: AlertIconProperties) {
   return <Container positionLeft={16} positionTop={16} positionType="absolute" {...props} />
 }
 
-export function AlertTitle({ children, ...props }: ComponentPropsWithoutRef<typeof Container>) {
+export type AlertTitleProperties = ContainerProperties
+
+export function AlertTitle({ children, ...props }: AlertTitleProperties) {
   return (
     <Container marginBottom={4} padding={0} paddingLeft={28} {...props}>
-      <DefaultProperties fontWeight="medium" letterSpacing={-0.4} lineHeight={1}>
+      <DefaultProperties fontWeight="medium" letterSpacing={-0.4} lineHeight="100%">
         {children}
       </DefaultProperties>
     </Container>
   )
 }
 
-export function AlertDescription({ children }: { children?: ReactNode }) {
+export type AlertDescriptionProperties = ContainerProperties
+
+export function AlertDescription({ children, ...props }: AlertDescriptionProperties) {
   return (
-    <Container paddingLeft={28}>
-      <DefaultProperties lineHeight={1.625} fontSize={14}>
+    <Container paddingLeft={28} {...props}>
+      <DefaultProperties lineHeight="162.5%" fontSize={14}>
         {children}
       </DefaultProperties>
     </Container>

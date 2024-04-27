@@ -4,7 +4,7 @@ import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
-  ContainerProperties,
+  ContainerProperties as BaseContainerProperties,
   createContainer,
   unsubscribeSubscriptions,
   Subscriptions,
@@ -12,12 +12,13 @@ import {
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
+export type ContainerProperties = {
+  children?: ReactNode
+} & BaseContainerProperties &
+  EventHandlers
+
 export const Container: (
-  props: {
-    children?: ReactNode
-  } & ContainerProperties &
-    EventHandlers &
-    RefAttributes<ComponentInternals<ContainerProperties>>,
+  props: ContainerProperties & RefAttributes<ComponentInternals<ContainerProperties>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)

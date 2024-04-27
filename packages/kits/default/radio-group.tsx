@@ -1,11 +1,17 @@
-import { Container } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, createContext, useContext, useMemo, useState } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties } from '@react-three/uikit'
+import React, { createContext, useContext, useMemo, useState } from 'react'
+import { colors } from './theme.js'
 
 const RadioGroupContext = createContext<{
   value?: string
   setValue?: (value: string) => void
 }>({})
+
+export type RadioGroupProperties = {
+  value?: string
+  onValueChange?(value: string): void
+  defaultValue?: string
+} & ContainerProperties
 
 export function RadioGroup({
   defaultValue,
@@ -13,11 +19,7 @@ export function RadioGroup({
   onValueChange,
   children,
   ...props
-}: {
-  value?: string
-  onValueChange?(value: string): void
-  defaultValue?: string
-} & ComponentPropsWithoutRef<typeof Container>) {
+}: RadioGroupProperties) {
   const [uncontrolled, setUncontrolled] = useState(defaultValue)
   const contextValue = useMemo(() => {
     if (providedValue == null) {
@@ -41,12 +43,9 @@ export function RadioGroup({
   )
 }
 
-export function RadioGroupItem({
-  disabled = false,
-  value,
-  children,
-  ...props
-}: { disabled?: boolean; value: string } & ComponentPropsWithoutRef<typeof Container>) {
+export type RadioGroupItemProperties = ContainerProperties & { disabled?: boolean; value: string }
+
+export function RadioGroupItem({ disabled = false, value, children, ...props }: RadioGroupItemProperties) {
   const { value: current, setValue } = useContext(RadioGroupContext)
   return (
     <Container
@@ -61,7 +60,7 @@ export function RadioGroupItem({
         height={16}
         width={16}
         borderRadius={1000}
-        border={1}
+        borderWidth={1}
         borderOpacity={disabled ? 0.5 : undefined}
         borderColor={colors.primary}
         alignItems="center"

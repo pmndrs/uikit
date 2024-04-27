@@ -3,7 +3,7 @@ import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, EventMap, bindHandlers } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
-import { ContentProperties, createContent } from '../internals.js'
+import { ContentProperties, createContent } from '../components/index.js'
 
 export class Content extends Object3D<EventMap & { childadded: {}; childremoved: {} }> {
   private readonly contentContainer: Object3D

@@ -4,7 +4,7 @@ import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
 import { InstancedPanelGroup, PanelGroupManager, PanelGroupProperties } from './instanced-panel-group.js'
-import { ColorRepresentation, Initializers, Subscriptions, unsubscribeSubscriptions } from '../utils.js'
+import { ColorRepresentation, Subscriptions, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { OrderInfo } from '../order.js'
@@ -32,7 +32,7 @@ export function createInstancedPanel(
   offset: Signal<Vector2Tuple> | undefined,
   borderInset: Signal<Inset | undefined>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  isHidden: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   materialConfig: PanelMaterialConfig,
   subscriptions: Subscriptions,
 ) {
@@ -52,7 +52,7 @@ export function createInstancedPanel(
         offset,
         borderInset,
         clippingRect,
-        isHidden,
+        isVisible,
         materialConfig,
         innerSubscriptions,
       )
@@ -84,7 +84,7 @@ export class InstancedPanel {
     private readonly offset: Signal<Vector2Tuple> | undefined,
     private readonly borderInset: Signal<Inset | undefined>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
-    isHidden: Signal<boolean> | undefined,
+    isVisible: Signal<boolean>,
     public readonly materialConfig: PanelMaterialConfig,
     subscriptions: Subscriptions,
   ) {
@@ -103,10 +103,10 @@ export class InstancedPanel {
       },
       subscriptions,
     )
-    const isVisible = materialConfig.computedIsVisibile(propertiesSignal, borderInset, size, isHidden)
+    const isPanelVisible = materialConfig.computedIsVisibile(propertiesSignal, borderInset, size, isVisible)
     subscriptions.push(
       effect(() => {
-        if (isVisible.value) {
+        if (isPanelVisible.value) {
           this.requestShow()
           return
         }

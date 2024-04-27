@@ -7,7 +7,9 @@ export function useDefaultProperties(): AllOptionalProperties | undefined {
   return useContext(DefaultPropertiesContext)
 }
 
-export function DefaultProperties(properties: { children?: ReactNode } & AllOptionalProperties) {
+export type DefaultPropertiesProperties = { children?: ReactNode } & AllOptionalProperties
+
+export function DefaultProperties(properties: DefaultPropertiesProperties) {
   const existingDefaultProperties = useContext(DefaultPropertiesContext)
   const result: any = { ...existingDefaultProperties }
   for (const key in properties) {

@@ -281,10 +281,10 @@ export function CardDemo() {
         <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
           <BellRing />
           <Container gap={4}>
-            <Text fontSize={14} lineHeight={1}>
+            <Text fontSize={14} lineHeight="100%">
               Push Notifications
             </Text>
-            <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+            <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
               Send notifications to device.
             </Text>
           </Container>
@@ -302,10 +302,10 @@ export function CardDemo() {
             >
               <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
               <Container gap={4}>
-                <Text fontSize={14} lineHeight={1}>
+                <Text fontSize={14} lineHeight="100%">
                   {notification.title}
                 </Text>
-                <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+                <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                   {notification.description}
                 </Text>
               </Container>
@@ -403,13 +403,13 @@ export function DialogDemo() {
         <Container gap={16} paddingY={16}>
           <Container alignItems="center" gap={16}>
             <Label>
-              <Text horizontalAlign="right">Name</Text>
+              <Text textAlign="right">Name</Text>
             </Label>
             {/*<Input defaultValue="Pedro Duarte" className="col-span-3" />*/}
           </Container>
           <Container alignItems="center" gap={16}>
             <Label>
-              <Text horizontalAlign="right">Username</Text>
+              <Text textAlign="right">Username</Text>
             </Label>
             {/*<Input id="username" defaultValue="@peduarte" className="col-span-3" />*/}
           </Container>
@@ -611,16 +611,16 @@ export function SeparatorDemo() {
   return (
     <Container>
       <Container gap={4}>
-        <Text fontSize={14} lineHeight={1}>
+        <Text fontSize={14} lineHeight="100%">
           Radix Primitives
         </Text>
-        <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+        <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
           An open-source UI component library.
         </Text>
       </Container>
       <Separator marginY={16} />
       <Container flexDirection="row" height={20} alignItems="center" gap={16}>
-        <DefaultProperties fontSize={14} lineHeight={1.43}>
+        <DefaultProperties fontSize={14} lineHeight={20}>
           <Text>Blog</Text>
           <Separator orientation="vertical" />
           <Text>Docs</Text>

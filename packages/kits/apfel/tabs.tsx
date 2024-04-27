@@ -1,6 +1,6 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, createContext, useContext, useMemo, useRef, useState } from 'react'
-import { GlassMaterial, colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { createContext, useContext, useMemo, useRef, useState } from 'react'
+import { GlassMaterial, colors } from './theme.js'
 
 type TabsContext = {
   value?: string
@@ -16,7 +16,7 @@ export function Tabs({
   onValueChange,
   disabled,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+}: ContainerProperties & {
   value?: string
   defaultValue?: string
   onValueChange?(value: string): void
@@ -46,7 +46,7 @@ export function Tabs({
     <TabsContext.Provider value={context}>
       <Container
         height={36}
-        border={2}
+        borderWidth={2}
         backgroundOpacity={opacity}
         borderOpacity={opacity}
         backgroundColor={colors.background}
@@ -61,12 +61,12 @@ export function Tabs({
   )
 }
 
-type SegmentedControlButtonProps = ComponentPropsWithoutRef<typeof Container> & {
+type TabsButtonProperties = ContainerProperties & {
   value: string
   disabled?: boolean
 }
 
-export function TabsButton({ children, value, disabled, ...props }: SegmentedControlButtonProps) {
+export function TabsButton({ children, value, disabled, ...props }: TabsButtonProperties) {
   const { value: currentValue, onValueChange, disabled: tabsDisabled } = useContext(TabsContext) as TabsContext
 
   const selected = currentValue === value && !tabsDisabled
@@ -87,7 +87,7 @@ export function TabsButton({ children, value, disabled, ...props }: SegmentedCon
       borderColor={colors.foreground}
       backgroundOpacity={selected ? 0.3 : 0}
       borderOpacity={selected ? 0.3 : 0}
-      border={2}
+      borderWidth={2}
       borderRadius={16}
       borderBend={0.3}
       panelMaterialClass={GlassMaterial}

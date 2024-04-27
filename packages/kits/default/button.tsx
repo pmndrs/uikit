@@ -1,6 +1,6 @@
-import { AllOptionalProperties, Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme'
+import { AllOptionalProperties, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React from 'react'
+import { borderRadius, colors } from './theme.js'
 
 const buttonVariants = {
   default: {
@@ -30,7 +30,7 @@ const buttonVariants = {
       backgroundColor: colors.accent,
     },
     containerProps: {
-      border: 1,
+      borderWidth: 1,
       borderColor: colors.input,
       backgroundColor: colors.background,
     },
@@ -65,7 +65,13 @@ const buttonSizes = {
   sm: { height: 36, paddingX: 12 },
   lg: { height: 42, paddingX: 32 },
   icon: { height: 40, width: 40 },
-} satisfies { [Key in string]: ComponentPropsWithoutRef<typeof Container> }
+} satisfies { [Key in string]: ContainerProperties }
+
+export type ButtonProperties = ContainerProperties & {
+  variant?: keyof typeof buttonVariants
+  size?: keyof typeof buttonSizes
+  disabled?: boolean
+}
 
 export function Button({
   children,
@@ -74,23 +80,21 @@ export function Button({
   disabled = false,
   hover,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
-  variant?: keyof typeof buttonVariants
-  size?: keyof typeof buttonSizes
-  disabled?: boolean
-}) {
-  const { containerProps, defaultProps, containerHoverProps } = buttonVariants[variant] as {
-    [Key in string]: {
-      containerHoverProps?: ComponentPropsWithoutRef<typeof Container>['hover']
-      containerProps?: Omit<ComponentPropsWithoutRef<typeof Container>, 'hover'>
-      defaultProps?: AllOptionalProperties
-    }
-  }
+}: ButtonProperties) {
+  const {
+    containerProps,
+    defaultProps,
+    containerHoverProps,
+  }: {
+    containerHoverProps?: ContainerProperties['hover']
+    containerProps?: Omit<ContainerProperties, 'hover'>
+    defaultProps?: AllOptionalProperties
+  } = buttonVariants[variant]
   const sizeProps = buttonSizes[size]
 
   return (
     <Container
-      borderRadius={6}
+      borderRadius={borderRadius.md}
       alignItems="center"
       justifyContent="center"
       {...containerProps}
@@ -107,7 +111,7 @@ export function Button({
     >
       <DefaultProperties
         fontSize={14}
-        lineHeight={1.43}
+        lineHeight={20}
         fontWeight="medium"
         wordBreak="keep-all"
         {...defaultProps}

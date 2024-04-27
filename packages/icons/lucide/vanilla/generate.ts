@@ -8,7 +8,7 @@ async function main() {
     if (icon === '.gitkeep') {
       continue
     }
-    const name = getName(icon)
+    const name = `${getName(icon)}Icon`
     const raw = await readFile(`${baseDir}${icon}`)
     const svg = raw.toString()
     const code = `

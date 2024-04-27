@@ -93,7 +93,7 @@ export function CardPage() {
             castShadow
           >
             <Container flexDirection="column" gap={8}>
-              <Text fontWeight="normal" fontSize={24} lineHeight={1}>
+              <Text fontWeight="normal" fontSize={24} lineHeight="100%">
                 VanArsdel Marketing
               </Text>
               <Text fontSize={20} fontWeight="medium" letterSpacing={-0.4} color={colors.primary}>
@@ -124,13 +124,13 @@ export function CardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent flexDirection="column" gap={16}>
-              <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
+              <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} borderWidth={1} padding={16}>
                 <BellRing />
                 <Container flexDirection="column" gap={4}>
-                  <Text fontSize={14} lineHeight={1}>
+                  <Text fontSize={14} lineHeight="100%">
                     Push Notifications
                   </Text>
-                  <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+                  <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                     Send notifications to device.
                   </Text>
                 </Container>
@@ -155,10 +155,10 @@ export function CardPage() {
                       backgroundColor={colors.primary}
                     />
                     <Container gap={4} flexDirection="column">
-                      <Text fontSize={14} lineHeight={1}>
+                      <Text fontSize={14} lineHeight="100%">
                         {notification.title}
                       </Text>
-                      <Text fontSize={14} lineHeight={1.43} color={colors.mutedForeground}>
+                      <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                         {notification.description}
                       </Text>
                     </Container>

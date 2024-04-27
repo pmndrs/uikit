@@ -270,10 +270,10 @@ export type ScrollbarWidthProperties = {
 }
 
 export type ScrollbarBorderSizeProperties = {
-  scrollbarBorderRight?: number
-  scrollbarBorderTop?: number
-  scrollbarBorderLeft?: number
-  scrollbarBorderBottom?: number
+  scrollbarBorderRightWidth?: number
+  scrollbarBorderTopWidth?: number
+  scrollbarBorderLeftWidth?: number
+  scrollbarBorderBottomWidth?: number
 }
 
 export type ScrollbarProperties = {
@@ -288,10 +288,10 @@ export type ScrollbarProperties = {
   }
 
 const scrollbarBorderPropertyKeys = [
-  'scrollbarBorderLeft',
-  'scrollbarBorderRight',
-  'scrollbarBorderTop',
-  'scrollbarBorderBottom',
+  'scrollbarBorderLeftWidth',
+  'scrollbarBorderRightWidth',
+  'scrollbarBorderTopWidth',
+  'scrollbarBorderBottomWidth',
 ] as const
 
 export function createScrollbars(
@@ -299,7 +299,7 @@ export function createScrollbars(
   scrollPosition: Signal<Vector2Tuple>,
   flexState: FlexNodeState,
   globalMatrix: Signal<Matrix4 | undefined>,
-  isClipped: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   panelGroupManager: PanelGroupManager,
@@ -316,7 +316,7 @@ export function createScrollbars(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentClippingRect,
     scrollbarOrderInfo,
     panelGroupManager,
@@ -330,7 +330,7 @@ export function createScrollbars(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentClippingRect,
     scrollbarOrderInfo,
     panelGroupManager,
@@ -368,7 +368,7 @@ function createScrollbar(
   scrollPosition: Signal<Vector2Tuple>,
   flexState: FlexNodeState,
   globalMatrix: Signal<Matrix4 | undefined>,
-  isClipped: Signal<boolean> | undefined,
+  isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   panelGroupManager: PanelGroupManager,
@@ -400,7 +400,7 @@ function createScrollbar(
       scrollbarPosition,
       borderSize,
       parentClippingRect,
-      isClipped,
+      isVisible,
       getScrollbarMaterialConfig(),
       subscriptions,
     ),

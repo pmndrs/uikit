@@ -11,9 +11,11 @@ import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
 } from './utils.js'
@@ -21,16 +23,15 @@ import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
+import { createInteractionPanel, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import {
   FontFamilies,
   InstancedTextProperties,
   computedFont,
   computedGylphGroupDependencies,
   createInstancedText,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-} from '../internals.js'
+} from '../text/index.js'
+import { darkPropertyTransformers } from '../dark.js'
 
 export type InheritableTextProperties = WithClasses<
   WithConditionals<
@@ -42,7 +43,8 @@ export type InheritableTextProperties = WithClasses<
           TransformProperties &
           ScrollbarProperties &
           PanelGroupProperties &
-          InstancedTextProperties
+          InstancedTextProperties &
+          VisibilityProperties
       >
     >
   >
@@ -86,6 +88,7 @@ export function createText(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -100,7 +103,7 @@ export function createText(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -120,7 +123,7 @@ export function createText(
     globalMatrix,
     nodeSignal,
     flexState,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     fontSignal,
@@ -130,11 +133,12 @@ export function createText(
     undefined,
     undefined,
     initializers,
+    'break-word',
   )
   initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     interactionPanel: createInteractionPanel(

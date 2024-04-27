@@ -1,7 +1,14 @@
 import { computed } from '@preact/signals-core'
-import { GlassMaterial, colors } from './theme'
-import { Input as InputImpl, Container, DefaultProperties, Text, InputInternals } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, ReactNode, useMemo, useState } from 'react'
+import { GlassMaterial, colors } from './theme.js'
+import {
+  Input as InputImpl,
+  Container,
+  DefaultProperties,
+  Text,
+  InputInternals,
+  InputProperties,
+} from '@react-three/uikit'
+import React, { ReactNode, useMemo, useState } from 'react'
 
 type Variant = 'pill' | 'rect'
 
@@ -19,7 +26,7 @@ export function Input({
   tabIndex,
   disabled = false,
   ...props
-}: ComponentPropsWithoutRef<typeof InputImpl> & { placeholder?: string; variant?: Variant; prefix?: ReactNode }) {
+}: InputProperties & { placeholder?: string; variant?: Variant; prefix?: ReactNode }) {
   const [internal, setInternal] = useState<InputInternals | null>(null)
   const placeholderOpacity = useMemo(() => {
     if (internal == null) {
@@ -41,7 +48,7 @@ export function Input({
       backgroundOpacity={disabled ? 0.3 : 0.4}
       borderOpacity={disabled ? 0.3 : 0.4}
       hover={disabled ? undefined : { backgroundOpacity: 0.2, borderOpacity: 0.2 }}
-      border={2}
+      borderWidth={2}
       borderColor="#444"
       borderBend={disabled ? 0 : -0.3}
       panelMaterialClass={GlassMaterial}

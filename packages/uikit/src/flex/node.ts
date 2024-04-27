@@ -1,6 +1,6 @@
 import { Object3D, Vector2Tuple } from 'three'
 import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import { Edge, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
+import { Display, Edge, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
 import { setter } from './setter.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
@@ -30,6 +30,7 @@ export function createFlexNodeState() {
     relativeCenter: signal<Vector2Tuple | undefined>(undefined),
     borderInset: signal<Inset | undefined>(undefined),
     overflow: signal<Overflow>(Overflow.Visible),
+    displayed: signal<boolean>(false),
     scrollable,
     paddingInset: signal<Inset | undefined>(undefined),
     maxScrollPosition: signal<Partial<Vector2Tuple>>([undefined, undefined]),
@@ -81,19 +82,7 @@ export class FlexNode {
     if (!this.active.value) {
       return
     }
-    if (func.value == null) {
-      this.yogaNode!.setMeasureFunc(null)
-      return
-    }
-    const fn = func.value
-    this.yogaNode!.setMeasureFunc((width, wMode, height, hMode) => {
-      const result = fn(width, wMode, height, hMode)
-      return {
-        width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
-        height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
-      }
-    })
-    this.yogaNode!.markDirty()
+    setMeasureFunc(this.yogaNode!, func.value)
     this.requestCalculateLayout()
   }
 
@@ -106,7 +95,7 @@ export class FlexNode {
     }
     this.commit()
     this.yogaNode.calculateLayout(undefined, undefined)
-    batch(() => this.updateMeasurements(undefined, undefined))
+    batch(() => this.updateMeasurements(true, undefined, undefined))
   }
 
   addChild(node: FlexNode): void {
@@ -190,12 +179,18 @@ export class FlexNode {
     }
   }
 
-  updateMeasurements(parentWidth: number | undefined, parentHeight: number | undefined): Vector2Tuple {
+  updateMeasurements(
+    displayed: boolean,
+    parentWidth: number | undefined,
+    parentHeight: number | undefined,
+  ): Vector2Tuple {
     if (this.yogaNode == null) {
       throw new Error(`update measurements cannot be called without a yoga node`)
     }
 
     this.state.overflow.value = this.yogaNode.getOverflow()
+    displayed &&= this.yogaNode.getDisplay() === Display.Flex
+    this.state.displayed.value = displayed
 
     const width = this.yogaNode.getComputedWidth()
     const height = this.yogaNode.getComputedHeight()
@@ -231,7 +226,7 @@ export class FlexNode {
     let maxContentWidth = 0
     let maxContentHeight = 0
     for (let i = 0; i < childrenLength; i++) {
-      const [contentWidth, contentHeight] = this.children[i].updateMeasurements(width, height)
+      const [contentWidth, contentHeight] = this.children[i].updateMeasurements(displayed, width, height)
       maxContentWidth = Math.max(maxContentWidth, contentWidth)
       maxContentHeight = Math.max(maxContentHeight, contentHeight)
     }
@@ -275,6 +270,21 @@ export class FlexNode {
     this.layoutChangeListeners.add(listener)
     return () => void this.layoutChangeListeners.delete(listener)
   }
+}
+
+export function setMeasureFunc(node: Node, func: MeasureFunction | undefined) {
+  if (func == null) {
+    node.setMeasureFunc(null)
+    return
+  }
+  node.setMeasureFunc((width, wMode, height, hMode) => {
+    const result = func(width, wMode, height, hMode)
+    return {
+      width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
+      height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
+    }
+  })
+  node.markDirty()
 }
 
 function updateVector2Signal<T extends Partial<readonly [unknown, unknown]>>(

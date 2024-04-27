@@ -21,7 +21,13 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import { Initializers, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
-import { WithConditionals, computedHandlers, computedMergedProperties } from './utils.js'
+import {
+  VisibilityProperties,
+  WithConditionals,
+  computedHandlers,
+  computedIsVisible,
+  computedMergedProperties,
+} from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
 import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
@@ -30,7 +36,9 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { computedProperty, darkPropertyTransformers, getDefaultPanelMaterialConfig } from '../internals.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { computedProperty } from '../properties/index.js'
+import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 
 export type InheritableRootProperties = WithClasses<
   WithConditionals<
@@ -47,7 +55,7 @@ export type InheritableRootProperties = WithClasses<
             sizeY?: number
             anchorX?: keyof typeof alignmentXMap
             anchorY?: keyof typeof alignmentYMap
-          }
+          } & VisibilityProperties
       >
     >
   >
@@ -134,6 +142,9 @@ export function createRoot(
     onFrameSet.add(onCameraDistanceFrame)
     return () => onFrameSet.delete(onCameraDistanceFrame)
   })
+
+  const isVisible = computedIsVisible(flexState, undefined, mergedProperties)
+
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
@@ -145,7 +156,7 @@ export function createRoot(
       undefined,
       flexState.borderInset,
       undefined,
-      undefined,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -159,7 +170,7 @@ export function createRoot(
     scrollPosition,
     flexState,
     identityMatrix,
-    undefined,
+    isVisible,
     undefined,
     orderInfo,
     panelGroupManager,

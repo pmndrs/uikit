@@ -13,8 +13,17 @@ import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { FlexNode, FlexNodeState, Inset, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { PanelProperties } from '../panel/instanced-panel.js'
-import { PanelDepthMaterial, PanelDistanceMaterial, createPanelMaterial } from '../panel/panel-material.js'
+import {} from '../panel/instanced-panel.js'
+import {
+  PanelDepthMaterial,
+  PanelDistanceMaterial,
+  createPanelMaterial,
+  createPanelMaterialConfig,
+  PanelGroupProperties,
+  panelGeometry,
+  PanelProperties,
+  PanelMaterialConfig,
+} from '../panel/index.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import {
@@ -28,17 +37,18 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
   loadResourceWithParams,
 } from './utils.js'
 import { MergedProperties } from '../properties/merged.js'
-import { Initializers, Subscriptions, readReactive, unsubscribeSubscriptions } from '../utils.js'
-import { panelGeometry } from '../panel/utils.js'
+import { Initializers, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
@@ -47,13 +57,8 @@ import { computedProperty } from '../properties/batched.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import {
-  AppearanceProperties,
-  PanelGroupProperties,
-  PanelMaterialConfig,
-  createPanelMaterialConfig,
-  darkPropertyTransformers,
-} from '../internals.js'
+import { AppearanceProperties } from './svg.js'
+import { darkPropertyTransformers } from '../dark.js'
 
 export type ImageFit = 'cover' | 'fill'
 const defaultImageFit: ImageFit = 'fill'
@@ -70,25 +75,25 @@ export type InheritableImageProperties = WithClasses<
           PanelGroupProperties &
           ScrollbarProperties &
           KeepAspectRatioProperties &
-          ImageFitProperties
+          ImageFitProperties &
+          VisibilityProperties
       >
     >
   >
 >
 
 export type ImageFitProperties = {
-  fit?: ImageFit
+  objectFit?: ImageFit
 }
 
 export type KeepAspectRatioProperties = {
   keepAspectRatio?: boolean
 }
 
-export type ImageProperties = InheritableImageProperties & Listeners
+export type ImageProperties = InheritableImageProperties & Listeners & WithReactive<{ src?: string | Texture }>
 
 export function createImage(
   parentContext: ParentContext,
-  srcSignal: Signal<Signal<string | undefined> | string | Texture | Signal<Texture | undefined> | undefined>,
   style: Signal<ImageProperties | undefined>,
   properties: Signal<ImageProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -101,7 +106,7 @@ export function createImage(
   const activeSignal = signal<Array<number>>([])
   setupCursorCleanup(hoveredSignal, initializers)
 
-  const src = computed(() => readReactive(srcSignal.value))
+  const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
   loadResourceWithParams(texture, loadTextureImpl, initializers, src)
 
   const textureAspectRatio = computed(() => {
@@ -144,6 +149,8 @@ export function createImage(
   )
   const isHidden = computed(() => isClipped.value || texture.value == null)
 
+  const isVisible = computedIsVisible(flexState, isHidden, mergedProperties)
+
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
 
   const scrollPosition = createScrollPosition()
@@ -154,7 +161,7 @@ export function createImage(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
@@ -185,7 +192,7 @@ export function createImage(
       flexState,
       orderInfo,
       parentContext.root,
-      isHidden,
+      isVisible,
       initializers,
     ),
     clippingRect: computedClippingRect(
@@ -228,24 +235,24 @@ function createImageMesh(
   flexState: FlexNodeState,
   orderInfo: Signal<OrderInfo | undefined>,
   root: RootContext,
-  isHidden: Signal<boolean>,
+  isVisible: Signal<boolean>,
   initializers: Initializers,
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
   const clippingPlanes = createGlobalClippingPlanes(root, parent.clippingRect, initializers)
-  const isVisible = getImageMaterialConfig().computedIsVisibile(
+  const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
     propertiesSignal,
     flexState.borderInset,
     flexState.size,
-    isHidden,
+    isVisible,
   )
   setupImageMaterials(
     propertiesSignal,
     mesh,
     flexState.size,
     flexState.borderInset,
-    isVisible,
+    isMeshVisible,
     clippingPlanes,
     root,
     initializers,
@@ -255,7 +262,7 @@ function createImageMesh(
 
   setupTextureFit(propertiesSignal, texture, flexState.borderInset, flexState.size, initializers)
 
-  initializers.push(() => effect(() => (mesh.visible = isVisible.value)))
+  initializers.push(() => effect(() => (mesh.visible = isMeshVisible.value)))
 
   initializers.push(
     () =>
@@ -288,7 +295,7 @@ function setupTextureFit(
   size: Signal<Vector2Tuple | undefined>,
   initializers: Initializers,
 ): void {
-  const fit = computedProperty(propertiesSignal, 'fit', defaultImageFit)
+  const objectFit = computedProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(() =>
     effect(() => {
       const texture = textureSignal.value
@@ -297,7 +304,7 @@ function setupTextureFit(
       }
       texture.matrix.identity()
 
-      if (fit.value === 'fill' || texture == null) {
+      if (objectFit.value === 'fill' || texture == null) {
         transformInsideBorder(borderInset, size, texture)
         return
       }

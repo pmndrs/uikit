@@ -1,6 +1,6 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef } from 'react'
-import { colors } from './theme'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React from 'react'
+import { colors } from './theme.js'
 
 function getAribtrarySize(size: number) {
   const multiplier = size / 44
@@ -61,7 +61,7 @@ export function Button({
   selected,
   disabled,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+}: ContainerProperties & {
   size?: keyof typeof sizes | number
   variant?: Variant
   platter?: boolean

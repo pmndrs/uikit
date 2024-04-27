@@ -70,7 +70,7 @@ In most cases explicitly specifying the flexDirection is enough.
 
 - Remove the index property from your UI elements. The order will be automatically managed.
 - Remove any ID and animation properties related to layout animations.
-- Update the material property to panelMaterialClass or materialClass as applicable.
+- Update the material property to panelMaterialClass as applicable.
 - Replace Object components with Content components. Use
     ```jsx
     <Content>

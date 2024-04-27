@@ -11,17 +11,20 @@ import { ElementType, ZIndexProperties, computedOrderInfo, setupRenderOrder } fr
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import {
+  VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Initializers, Subscriptions } from '../utils.js'
+import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import { ShadowProperties, darkPropertyTransformers, makeClippedRaycast } from '../internals.js'
 import { FrontSide, Material, Mesh } from 'three'
+import { darkPropertyTransformers } from '../dark.js'
+import { ShadowProperties, makeClippedRaycast } from '../panel/index.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -32,7 +35,8 @@ export type InheritableCustomContainerProperties = WithClasses<
           ZIndexProperties &
           TransformProperties &
           ScrollbarProperties &
-          ShadowProperties
+          ShadowProperties &
+          VisibilityProperties
       >
     >
   >
@@ -78,6 +82,7 @@ export function createCustomContainer(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentContext.orderInfo)
@@ -117,13 +122,13 @@ export function createCustomContainer(
         mesh.scale.set(width * pixelSize, height * pixelSize, 1)
         mesh.updateMatrix()
       }),
-      effect(() => void (mesh.visible = !isClipped.value)),
+      effect(() => void (mesh.visible = isVisible.value)),
     )
     return subscriptions
   })
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     root: parentContext.root,

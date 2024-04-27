@@ -3,7 +3,8 @@ import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
-import { CustomContainerProperties, createCustomContainer, panelGeometry } from '../internals.js'
+import { CustomContainerProperties, createCustomContainer } from '../components/index.js'
+import { panelGeometry } from '../panel/index.js'
 
 export class CustomContainer extends Object3D {
   private readonly styleSignal: Signal<CustomContainerProperties | undefined> = signal(undefined)

@@ -1,11 +1,19 @@
-import { Container, DefaultProperties, Input as InputImpl, Text, InputInternals } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, useMemo, useState } from 'react'
-import { colors } from './theme'
+import {
+  Container,
+  DefaultProperties,
+  Input as InputImpl,
+  Text,
+  InputInternals,
+  InputProperties as BaseInputProperties,
+} from '@react-three/uikit'
+import React, { useMemo, useState } from 'react'
+import { borderRadius, colors } from './theme.js'
 import { computed } from '@preact/signals-core'
+
+export type InputProperties = Omit<BaseInputProperties, 'multiline'> & { placeholder?: string }
 
 export function Input({
   panelMaterialClass,
-  multiline,
   value,
   defaultValue,
   onValueChange,
@@ -13,7 +21,7 @@ export function Input({
   disabled = false,
   placeholder,
   ...props
-}: ComponentPropsWithoutRef<typeof InputImpl> & { placeholder?: string }) {
+}: InputProperties) {
   const [internal, setInternal] = useState<InputInternals | null>(null)
   const placeholderOpacity = useMemo(() => {
     if (internal == null) {
@@ -27,23 +35,23 @@ export function Input({
         fontSize={14}
         height="100%"
         width="100%"
-        border={1}
+        borderWidth={1}
         paddingX={12}
         paddingY={8}
-        lineHeight={1.43}
+        lineHeight={20}
         opacity={disabled ? 0.5 : undefined}
         backgroundOpacity={disabled ? 0.5 : undefined}
       >
         <InputImpl
           ref={setInternal}
-          borderRadius={6}
+          borderRadius={borderRadius.md}
           backgroundColor={colors.background}
           borderColor={colors.input}
           focus={{
             borderColor: colors.ring,
           }}
           panelMaterialClass={panelMaterialClass}
-          multiline={multiline}
+          multiline={false}
           value={value}
           defaultValue={defaultValue}
           onValueChange={onValueChange}

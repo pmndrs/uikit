@@ -7,9 +7,9 @@ export type WithAliases<T, A extends Record<string, ReadonlyArray<unknown>>> = T
 export type WithAllAliases<T> = WithAliases<T, AllAliases>
 
 const borderAliases = {
-  border: ['borderBottom', 'borderTop', 'borderLeft', 'borderRight'],
-  borderX: ['borderLeft', 'borderRight'],
-  borderY: ['borderTop', 'borderBottom'],
+  borderWidth: ['borderBottomWidth', 'borderTopWidth', 'borderLeftWidth', 'borderRightWidth'],
+  borderXWidth: ['borderLeftWidth', 'borderRightWidth'],
+  borderYWidth: ['borderTopWidth', 'borderBottomWidth'],
 } as const satisfies Aliases
 
 const flexAliases = {
@@ -43,9 +43,14 @@ const scrollbarAliases = {
   scrollbarBorderLeftRadius: ['scrollbarBorderTopLeftRadius', 'scrollbarBorderBottomLeftRadius'],
   scrollbarBorderRightRadius: ['scrollbarBorderTopRightRadius', 'scrollbarBorderBottomRightRadius'],
   scrollbarBorderBottomRadius: ['scrollbarBorderBottomLeftRadius', 'scrollbarBorderBottomRightRadius'],
-  scrollbarBorder: ['scrollbarBorderBottom', 'scrollbarBorderTop', 'scrollbarBorderLeft', 'scrollbarBorderRight'],
-  scrollbarBorderX: ['scrollbarBorderLeft', 'scrollbarBorderRight'],
-  scrollbarBorderY: ['scrollbarBorderTop', 'scrollbarBorderBottom'],
+  scrollbarBorderWidth: [
+    'scrollbarBorderBottomWidth',
+    'scrollbarBorderTopWidth',
+    'scrollbarBorderLeftWidth',
+    'scrollbarBorderRightWidth',
+  ],
+  scrollbarBorderXWidth: ['scrollbarBorderLeftWidth', 'scrollbarBorderRightWidth'],
+  scrollbarBorderYWidth: ['scrollbarBorderTopWidth', 'scrollbarBorderBottomWidth'],
 } as const satisfies Aliases
 
 const caretAliases = {
@@ -59,9 +64,9 @@ const caretAliases = {
   caretBorderLeftRadius: ['caretBorderTopLeftRadius', 'caretBorderBottomLeftRadius'],
   caretBorderRightRadius: ['caretBorderTopRightRadius', 'caretBorderBottomRightRadius'],
   caretBorderBottomRadius: ['caretBorderBottomLeftRadius', 'caretBorderBottomRightRadius'],
-  caretBorder: ['caretBorderBottom', 'caretBorderTop', 'caretBorderLeft', 'caretBorderRight'],
-  caretBorderX: ['caretBorderLeft', 'caretBorderRight'],
-  caretBorderY: ['caretBorderTop', 'caretBorderBottom'],
+  caretBorderWidth: ['caretBorderBottomWidth', 'caretBorderTopWidth', 'caretBorderLeftWidth', 'caretBorderRightWidth'],
+  caretBorderXWidth: ['caretBorderLeftWidth', 'caretBorderRightWidth'],
+  caretBorderYWidth: ['caretBorderTopWidth', 'caretBorderBottomWidth'],
 } as const satisfies Aliases
 
 const selectionAliases = {
@@ -75,9 +80,14 @@ const selectionAliases = {
   selectionBorderLeftRadius: ['selectionBorderTopLeftRadius', 'selectionBorderBottomLeftRadius'],
   selectionBorderRightRadius: ['selectionBorderTopRightRadius', 'selectionBorderBottomRightRadius'],
   selectionBorderBottomRadius: ['selectionBorderBottomLeftRadius', 'selectionBorderBottomRightRadius'],
-  selectionBorder: ['selectionBorderBottom', 'selectionBorderTop', 'selectionBorderLeft', 'selectionBorderRight'],
-  selectionBorderX: ['selectionBorderLeft', 'selectionBorderRight'],
-  selectionBorderY: ['selectionBorderTop', 'selectionBorderBottom'],
+  selectionBorderWidth: [
+    'selectionBorderBottomWidth',
+    'selectionBorderTopWidth',
+    'selectionBorderLeftWidth',
+    'selectionBorderRightWidth',
+  ],
+  selectionBorderXWidth: ['selectionBorderLeftWidth', 'selectionBorderRightWidth'],
+  selectionBorderYWidth: ['selectionBorderTopWidth', 'selectionBorderBottomWidth'],
 } as const satisfies Aliases
 
 const transformAliases = {

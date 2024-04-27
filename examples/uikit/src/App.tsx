@@ -51,8 +51,8 @@ export default function App() {
             padding={10}
             alignItems="center"
             flexDirection="column"
-            border={10}
-            borderRight={0}
+            borderWidth={10}
+            borderRightWidth={0}
             borderColor="red"
           >
             <Portal flexShrink={0} borderRadius={30} width={200} aspectRatio={2}>
@@ -74,7 +74,7 @@ export default function App() {
                 <Text>Escribe algo...</Text>
               </Container>
             </Container>
-            <DefaultProperties opacity={0.5} border={s}>
+            <DefaultProperties opacity={0.5} borderWidth={s}>
               <Image flexShrink={0} width={300} height={300} src={texture ?? undefined} />
               <Text
                 onClick={() => {
@@ -87,7 +87,7 @@ export default function App() {
                 backgroundColor="black"
                 fontSize={30}
                 verticalAlign="bottom"
-                horizontalAlign="block"
+                textAlign="block"
                 cursor="pointer"
                 color="white"
               >
@@ -101,7 +101,7 @@ export default function App() {
                 borderColor="white"
                 flexDirection="column"
                 borderBend={1}
-                border={20}
+                borderWidth={20}
                 borderRadius={30}
                 width={300}
                 height={100}
@@ -115,7 +115,7 @@ export default function App() {
                 depthAlign="back"
                 onSizeChange={(w, h) => console.log(w, h)}
                 keepAspectRatio={false}
-                borderRight={100}
+                borderRightWidth={100}
               >
                 <mesh>
                   <planeGeometry />
@@ -132,8 +132,8 @@ export default function App() {
                 <SuspendingImage
                   flexShrink={0}
                   hover={{ padding: 30, marginLeft: -30, opacity: 1 }}
-                  fit="cover"
-                  border={20}
+                  objectFit="cover"
+                  borderWidth={20}
                   ref={ref}
                   onHoverChange={(hovered) => ref.current?.setStyle({ borderOpacity: hovered ? 1 : 0.5 })}
                   borderOpacity={0.5}
@@ -148,7 +148,7 @@ export default function App() {
                     minHeight={100}
                     backgroundColor="black"
                     verticalAlign="center"
-                    horizontalAlign="center"
+                    textAlign="center"
                     padding={10}
                     color="white"
                   >
@@ -198,16 +198,16 @@ export default function App() {
                 wordBreak="keep-all"
                 caretWidth={10}
                 caretBorderRadius={5}
-                caretBorder={3}
+                caretBorderWidth={3}
                 caretOpacity={0}
                 caretBorderColor="orange"
                 selectionOpacity={0}
                 selectionBorderRadius={5}
-                selectionBorder={3}
+                selectionBorderWidth={3}
                 selectionBorderColor="orange"
                 focus={{ borderRadius: 20 }}
                 verticalAlign="center"
-                horizontalAlign="center"
+                textAlign="center"
                 multiline
                 defaultValue="Hello world"
               />

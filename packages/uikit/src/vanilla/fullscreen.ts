@@ -1,13 +1,9 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { Root } from './root.js'
-import {
-  FontFamilies,
-  RootProperties,
-  AllOptionalProperties,
-  updateSizeFullscreen,
-  FullscreenProperties,
-} from '../internals.js'
 import { Signal, batch, signal } from '@preact/signals-core'
+import { FullscreenProperties, RootProperties, updateSizeFullscreen } from '../components/index.js'
+import { AllOptionalProperties } from '../properties/index.js'
+import { FontFamilies } from '../text/index.js'
 
 const vectorHelper = new Vector2()
 
@@ -48,7 +44,7 @@ export class Fullscreen extends Root {
         throw new Error(`fullscreen can only be added to a camera`)
       }
       this.parentCameraSignal.value = this.parent
-      this.distanceToCamera ??= this.parent.near + 0.01
+      this.distanceToCamera ??= this.parent.near + 0.1
       this.updateSize()
     })
     this.addEventListener('removed', () => (this.parentCameraSignal.value = undefined))

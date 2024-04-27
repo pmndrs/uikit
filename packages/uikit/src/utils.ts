@@ -1,8 +1,8 @@
 import { computed, Signal } from '@preact/signals-core'
-import { Vector2Tuple, Color, Vector3Tuple, Vector2, Vector3 } from 'three'
+import { Vector2Tuple, Color, Vector3Tuple, Vector3 } from 'three'
 import { Inset } from './flex/node.js'
 import { MergedProperties } from './properties/merged.js'
-import { computedProperty } from './internals.js'
+import { computedProperty } from './properties/index.js'
 
 export type ColorRepresentation = Color | string | number | Vector3Tuple
 
@@ -29,9 +29,9 @@ export function initialize(inits: Initializers, subscriptions: Subscriptions) {
   }
 }
 
-export const alignmentXMap = { left: 0.5, center: 0, right: -0.5 }
-export const alignmentYMap = { top: -0.5, center: 0, bottom: 0.5 }
-export const alignmentZMap = { back: -0.5, center: 0, front: 0.5 }
+export const alignmentXMap = { left: 0.5, center: 0, middle: 0, right: -0.5 }
+export const alignmentYMap = { top: -0.5, center: 0, middle: 0, bottom: 0.5 }
+export const alignmentZMap = { back: -0.5, center: 0, middle: 0, front: 0.5 }
 
 /**
  * calculates the offsetX, offsetY, and scale to fit content with size [aspectRatio, 1] inside

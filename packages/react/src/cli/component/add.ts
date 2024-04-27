@@ -66,7 +66,7 @@ export const add = new Command('add')
         await mkdir(absPath, { recursive: true })
       }
 
-      const absThemePath = resolve(path, 'theme.tsx')
+      const absThemePath = resolve(path, 'base-theme.tsx')
       if (!existsSync(absThemePath)) {
         await download(kit, 'theme.tsx', absThemePath)
       }

@@ -1,17 +1,7 @@
-import { Container, DefaultProperties } from '@react-three/uikit'
-import React, {
-  ComponentPropsWithoutRef,
-  ReactNode,
-  SetStateAction,
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, SetStateAction, createContext, useContext, useMemo, useRef, useState } from 'react'
 import { Card } from './card'
-import { colors } from './theme'
+import { colors } from './theme.js'
 
 type TabBarContext = {
   value: unknown
@@ -27,7 +17,7 @@ export function TabBar({
   defaultValue,
   onValueChange,
   ...props
-}: ComponentPropsWithoutRef<typeof Card> & {
+}: ContainerProperties & {
   value?: string
   defaultValue?: string
   onValueChange?(value: string): void
@@ -60,7 +50,7 @@ export function TabBar({
         borderRadius={34}
         minWidth={68}
         padding={8}
-        border={4}
+        borderWidth={4}
         flexDirection="column"
         gapRow={8}
         onHoverChange={(hovered) => {
@@ -82,7 +72,7 @@ export function TabBarItem({
   children,
   icon,
   ...props
-}: ComponentPropsWithoutRef<typeof Container> & {
+}: ContainerProperties & {
   value: string
   icon: ReactNode
 }) {

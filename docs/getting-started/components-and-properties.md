@@ -174,7 +174,7 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 
 ## Image
 
-The `Image` component has the same properties and functionalities as a `Container` component but allows you to render an image inside it. The `Image` component corresponds to the HTML `img` element. The `Image` component has the `src` property, which can take an URL or a three.js texture. The `Image` component automatically sets the `aspectRatio` property based on the `src` property. This behavior can be turned off through `keepAspectRatio={false}`. The `fit` property can also be used to `cover` or `fill` the image in case the aspect ratio cannot be preserved by the layout engine or was overwritten by the user.
+The `Image` component has the same properties and functionalities as a `Container` component but allows you to render an image inside it. The `Image` component corresponds to the HTML `img` element. The `Image` component has the `src` property, which can take an URL or a three.js texture. The `Image` component automatically sets the `aspectRatio` property based on the `src` property. This behavior can be turned off through `keepAspectRatio={false}`. The `objectFit` property can also be used to `cover` or `fill` the image in case the aspect ratio cannot be preserved by the layout engine or was overwritten by the user.
 
 ```jsx
 <Root>
@@ -188,7 +188,7 @@ The `Image` component has the same properties and functionalities as a `Containe
 | Property        | Type            |
 | --------------- | --------------- |
 | src             | string, Texture |
-| fit             | "fill", "cover" |
+| objectFit       | "fill", "cover" |
 | keepAspectRatio | boolean         |
 
 </details>
@@ -236,18 +236,18 @@ The `Text` component allows you to render of text and is highly intertwined with
 <details>
 <summary>View all properties specific to the `Text` component</summary>
 
-| Property        | Type                                                                                                                  |
-| --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| color           | ColorRepresentation                                                                                                   |
-| opacity         | number                                                                                                                |
-| horizontalAlign | "left", "center", "right"                                                                                             |
-| verticalAlign   | "top", "center", "bottom"                                                                                             |
-| letterSpacing   | number                                                                                                                |
-| lineHeight      | number                                                                                                                |
-| fontSize        | number                                                                                                                |
-| wordBreak       | "keep-all", "break-all", "break-word"                                                                                 |
-| fontFamily      | string                                                                                                                |
-| fontWeight      | number, "bold", "thin", "extra-light", "light", "normal", "medium", "semi-bold", "extra-bold", "black", "extra-black" |
+| Property      | Type                                                                                                                  |
+| ------------- | --------------------------------------------------------------------------------------------------------------------- |
+| color         | ColorRepresentation                                                                                                   |
+| opacity       | number                                                                                                                |
+| textAlign     | "left", "center", "right"                                                                                             |
+| verticalAlign | "top", "center", "bottom"                                                                                             |
+| letterSpacing | number                                                                                                                |
+| lineHeight    | number                                                                                                                |
+| fontSize      | number                                                                                                                |
+| wordBreak     | "keep-all", "break-all", "break-word"                                                                                 |
+| fontFamily    | string                                                                                                                |
+| fontWeight    | number, "bold", "thin", "extra-light", "light", "normal", "medium", "semi-bold", "extra-bold", "black", "extra-black" |
 
 </details>
 
@@ -320,7 +320,7 @@ The `Input` component extends the `Text` component and allows the user to change
 
 ## SVG
 
-The `SVG` component allows rendering an SVG file. The URL of the file is provided in the `src` property. Additionally, the `opacity`, `color`, and `materialClass` properties can be used to transform the appearance of the SVG, and all the `Container` properties are available for styling the background panel.
+The `SVG` component allows rendering an SVG file. The URL of the file is provided in the `src` property. Additionally, the `opacity`, `color`, and `panelMaterialClass` properties can be used to transform the appearance of the SVG, and all the `Container` properties are available for styling the background panel.
 
 ```jsx
 <Root>
@@ -336,7 +336,7 @@ The `SVG` component allows rendering an SVG file. The URL of the file is provide
 | src           | string              |
 | color         | ColorRepresentation |
 | opacity       | number              |
-| materialClass | MaterialClass       |
+| panelMaterialClass | MaterialClass       |
 
 </details>
 
@@ -360,7 +360,7 @@ The `SVGIconFromText` component only differs from the `SVG` component in how the
 | svgWidth      | number              |
 | color         | ColorRepresentation |
 | opacity       | number              |
-| materialClass | MaterialClass       |
+| panelMaterialClass | MaterialClass       |
 
 </details>
 

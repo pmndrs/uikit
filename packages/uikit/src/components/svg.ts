@@ -1,7 +1,7 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Box3, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
 import { Listeners } from '../index.js'
-import { Object3DRef, ParentContext } from '../context.js'
+import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
@@ -18,10 +18,12 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
+  VisibilityProperties,
   WithConditionals,
   applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
+  computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
@@ -35,15 +37,10 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import {
-  KeepAspectRatioProperties,
-  PanelGroupProperties,
-  RootContext,
-  computedPanelGroupDependencies,
-  darkPropertyTransformers,
-  getDefaultPanelMaterialConfig,
-} from '../internals.js'
 import { SVGLoader } from 'three/examples/jsm/Addons.js'
+import { darkPropertyTransformers } from '../dark.js'
+import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { KeepAspectRatioProperties } from './image.js'
 
 export type InheritableSvgProperties = WithClasses<
   WithConditionals<
@@ -56,7 +53,8 @@ export type InheritableSvgProperties = WithClasses<
           KeepAspectRatioProperties &
           TransformProperties &
           PanelGroupProperties &
-          ScrollbarProperties
+          ScrollbarProperties &
+          VisibilityProperties
       >
     >
   >
@@ -66,11 +64,14 @@ export type AppearanceProperties = {
   color?: ColorRepresentation
 }
 
-export type SvgProperties = InheritableSvgProperties & Listeners
+export type SvgProperties = InheritableSvgProperties &
+  Listeners & {
+    src?: Signal<string> | string
+    keepAspectRatio?: boolean
+  }
 
 export function createSvg(
   parentContext: ParentContext,
-  srcSignal: Signal<Signal<string> | string>,
   style: Signal<SvgProperties | undefined>,
   properties: Signal<SvgProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -113,6 +114,7 @@ export function createSvg(
     flexState.size,
     parentContext.root.pixelSize,
   )
+  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
@@ -127,7 +129,7 @@ export function createSvg(
       undefined,
       flexState.borderInset,
       parentContext.clippingRect,
-      isClipped,
+      isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
@@ -135,7 +137,7 @@ export function createSvg(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
-  const src = computed(() => readReactive(srcSignal.value))
+  const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
   const svgObject = signal<Object3D | undefined>(undefined)
   const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
   loadResourceWithParams(
@@ -155,7 +157,7 @@ export function createSvg(
     parentContext.root.pixelSize,
     svgObject,
     aspectRatio,
-    isClipped,
+    isVisible,
     initializers,
   )
 
@@ -167,7 +169,7 @@ export function createSvg(
     scrollPosition,
     flexState,
     globalMatrix,
-    isClipped,
+    isVisible,
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
@@ -185,7 +187,7 @@ export function createSvg(
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
@@ -217,7 +219,7 @@ function createCenterGroup(
   pixelSize: Signal<number>,
   svgObject: Signal<Object3D | undefined>,
   aspectRatio: Signal<number | undefined>,
-  isClipped: Signal<boolean>,
+  isVisible: Signal<boolean>,
   initializers: Initializers,
 ): Group {
   const centerGroup = new Group()
@@ -245,7 +247,7 @@ function createCenterGroup(
         centerGroup.add(object)
         return () => centerGroup.remove(object)
       }),
-    () => effect(() => void (centerGroup.visible = svgObject.value != null && !isClipped.value)),
+    () => effect(() => void (centerGroup.visible = svgObject.value != null && isVisible.value)),
   )
   return centerGroup
 }
@@ -256,13 +258,16 @@ const box3Helper = new Box3()
 const vectorHelper = new Vector3()
 
 async function loadSvg(
-  url: string,
+  url: string | undefined,
   root: RootContext,
   clippingPlanes: Array<Plane>,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   aspectRatio: Signal<number | undefined>,
 ) {
+  if (url == null) {
+    return undefined
+  }
   const object = new Group()
   object.matrixAutoUpdate = false
   const result = await loader.loadAsync(url)
