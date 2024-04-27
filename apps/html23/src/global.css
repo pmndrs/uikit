@@ -27,7 +27,6 @@
   }
   * {
     @apply border-border;
-    scrollbar-color: tranparent gray;
   }
   body {
     @apply bg-background text-foreground;

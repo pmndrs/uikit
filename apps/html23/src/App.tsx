@@ -4,7 +4,7 @@ import { ConversionNode, htmlToCode, parsedHtmlToCode } from '@react-three/uikit
 
 import { suspend } from 'suspend-react'
 import 'prismjs/themes/prism.css'
-import { AlertCircle, HeartHandshake, Link, Maximize, Minimize, Send, HardDriveDownload } from 'lucide-react'
+import { AlertCircle, HeartHandshake, Link, Maximize, Minimize, Send, HardDriveDownload, Rocket } from 'lucide-react'
 import { Alert, AlertTitle, AlertDescription } from './components/ui/alert.js'
 import { Highlight } from 'prism-react-renderer'
 import { Button } from './components/ui/button.js'
@@ -37,6 +37,7 @@ import musicPlayer from './examples/music-player.json'
 import pricing from './examples/pricing.json'
 import profile from './examples/profile.json'
 import weather from './examples/weather.json'
+import { DeployDialog } from './components/deploy.js'
 
 export const componentMap = { ...defaultComponentMap, ...lucideComponentMap }
 
@@ -132,6 +133,7 @@ export default function App() {
                 JSON
               </Button>
             )}
+            <DeployDialog />
             <Tooltip>
               <TooltipTrigger asChild>
                 <a href="https://github.com/sponsors/bbohlender" target="_blank">

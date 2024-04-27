@@ -8,6 +8,7 @@
     "@coconut-xr/xinteraction": "^0.1.12",
     "@preact/signals-core": "^1.5.1",
     "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-navigation-menu": "^1.1.4",
     "@radix-ui/react-popover": "^1.0.7",

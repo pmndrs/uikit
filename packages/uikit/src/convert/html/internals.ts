@@ -1,6 +1,6 @@
 import { parse as parseHTML, Node as ConversionNode, TextNode, HTMLElement } from 'node-html-parser'
 import { htmlDefaults } from './defaults.js'
-import parseInlineCSS from 'inline-style-parser'
+import parseInlineCSS, { Declaration, Comment } from 'inline-style-parser'
 import { tailwindToCSS } from 'tw-to-css'
 import generatedPropertyTypes from './properties.json' assert { type: 'json' }
 import {
@@ -408,7 +408,12 @@ function convertHtmlAttributes(
     Object.assign(result, convertTailwind(propertyTypes, classes, className, colorMap))
   }
 
-  const styles = style == null ? [] : parseInlineCSS(style)
+  let styles: Array<Declaration | Comment> = []
+  try {
+    if (style != null) {
+      styles = parseInlineCSS(style)
+    }
+  } catch {}
   for (const style of styles) {
     if (style.type === 'comment') {
       continue

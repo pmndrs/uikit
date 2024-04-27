@@ -14,6 +14,10 @@ const yogaPropertyRenamings = {
   rowGap: 'gapRow',
   columnGap: 'gapColumn',
   position: 'positionType',
+  top: 'positionTop',
+  left: 'positionLeft',
+  right: 'positionRight',
+  bottom: 'positionBottom',
 }
 
 const cssShorthandPropertyTranslation: Record<
