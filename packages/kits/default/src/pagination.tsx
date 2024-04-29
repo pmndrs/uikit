@@ -1,6 +1,6 @@
-import { Container, ContainerProperties, Text } from '@react-three/uikit'
+import { ComponentInternals, Container, ContainerProperties, Text } from '@react-three/uikit'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from '@react-three/uikit-lucide'
-import React from 'react'
+import React, { ReactNode, RefAttributes } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 export type PaginationProperties = ContainerProperties
@@ -17,7 +17,9 @@ export function PaginationContent(props: PaginationContentProperties) {
 
 export type PaginationItemProperties = ContainerProperties
 
-export const PaginationItem = Container
+export const PaginationItem: (
+  props: ContainerProperties & RefAttributes<ComponentInternals<ContainerProperties>>,
+) => ReactNode = Container
 
 const paginationVariants: {
   [Key in string]: {
