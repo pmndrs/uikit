@@ -6,7 +6,7 @@ import { ParentContext } from '../context.js'
 import { FontFamilies } from '../text/index.js'
 
 const _addedEvent = { type: 'added' as const }
-const _childaddedEvent = { type: 'childadded' as const, child: null as null | Object3D }
+const _childaddedEvent = { type: 'childadded' as const, child: null as any }
 
 export function createParentContextSignal() {
   return signal<

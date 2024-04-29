@@ -3,13 +3,9 @@
   "dependencies": {
     "@pmndrs/uikit": "workspace:^",
     "@pmndrs/uikit-lucide": "workspace:^",
-    "react-dom": "^18.2.0",
-    "three": "^0.161.0"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "dev": "vite --host"
-  },
-  "devDependencies": {
-    "@types/three": "^0.161.0"
   }
 }

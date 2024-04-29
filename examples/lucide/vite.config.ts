@@ -11,5 +11,6 @@ export default defineConfig({
   base: '/uikit/examples/lucide/',
   resolve: {
     alias: [{ find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') }],
+    dedupe: ['@react-three/fiber'],
   },
 })

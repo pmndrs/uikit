@@ -23,7 +23,6 @@
     "@pmndrs/uikit": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@types/react": "^18.2.47"
+    "@types/node": "^20.11.0"
   }
 }

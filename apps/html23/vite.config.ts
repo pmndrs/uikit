@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    dedupe: ['@react-three/fiber'],
   },
   base: '/uikit/apps/html23/',
   optimizeDeps: {

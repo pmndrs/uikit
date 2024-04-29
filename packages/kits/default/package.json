@@ -32,12 +32,7 @@
     "fix:eslint": "eslint '**/*.{tsx,ts}' --fix"
   },
   "devDependencies": {
-    "@preact/signals-core": "^1.5.1",
-    "@react-three/fiber": "^8.15.13",
-    "@types/react": "^18.2.47",
-    "react": "^18.2.0",
-    "@types/three": "^0.161.0",
-    "three": "^0.161.0"
+    "@preact/signals-core": "^1.5.1"
   },
   "type": "module",
   "dependencies": {

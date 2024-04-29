@@ -60,15 +60,15 @@ export const add = new Command('add')
         ).path as string
       }
 
-      const absPath = resolve(cwd, path)
+      const absPath = resolve(cwd, path, kit)
 
-      if (!existsSync(path)) {
+      if (!existsSync(absPath)) {
         await mkdir(absPath, { recursive: true })
       }
 
-      const absThemePath = resolve(path, 'base-theme.tsx')
+      const absThemePath = resolve(absPath, 'theme.tsx')
       if (!existsSync(absThemePath)) {
-        await download(kit, 'theme.tsx', absThemePath)
+        await download(kit, 'base-theme.tsx', absThemePath)
       }
 
       const componentsToInstall = new Set<string>()
@@ -134,7 +134,7 @@ export const add = new Command('add')
   })
 
 async function download(kit: string, file: string, targetAbsolutePath: string) {
-  const response = await fetch(`${BASE_URL}${kit}/${file}`)
+  const response = await fetch(`${BASE_URL}${kit}/src/${file}`)
   if (response.body == null) {
     throw new Error(`Invalid response when downloading ${file} from registry: ${response.statusText}`)
   }

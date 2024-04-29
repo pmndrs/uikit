@@ -15,5 +15,6 @@ export default defineConfig({
       { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/apfel/src') },
       { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') },
     ],
+    dedupe: ['@react-three/fiber'],
   },
 })
