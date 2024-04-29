@@ -14,6 +14,6 @@ export default defineConfig({
       },
       { find: '@pmndrs/uikit', replacement: path.resolve(__dirname, '../../packages/uikit/src/index.ts') },
     ],
-    dedupe: ['@react-three/fiber'],
+    dedupe: ['@react-three/fiber', 'three'],
   },
 })
