@@ -61,6 +61,7 @@ export type InheritableInputProperties = WithClasses<
             PanelGroupProperties &
             InstancedTextProperties &
             DisabledProperties &
+            PasswordProperties &
             VisibilityProperties
         >
       >
@@ -70,6 +71,10 @@ export type InheritableInputProperties = WithClasses<
 
 export type DisabledProperties = {
   disabled?: boolean
+}
+
+export type PasswordProperties = {
+  password?: boolean
 }
 
 const cancelSet = new Set<PointerEvent>()
@@ -100,6 +105,7 @@ export type InputProperties = InheritableInputProperties &
     disabled?: boolean
   }> & {
     multiline?: boolean
+    password?: boolean
     defaultValue?: string
   }
 
@@ -208,10 +214,16 @@ export function createInput(
   const defaultValue = style.peek()?.defaultValue ?? properties.peek()?.defaultValue
   const writeValue =
     style.value?.value == null && properties.value?.value == null ? signal(defaultValue ?? '') : undefined
-  const valueSignal = computed(
-    () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
-  )
+  const valueSignal = computed(() => {
+    const password = readReactive(properties.value?.password);
+    const value = writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value);
+    if (password) {
+      return '*'.repeat(value?.length ?? 0);
+    }
+    return value ?? '';
+  });
   const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
+  const password = properties.peek()?.password ?? false
   const measureFunc = createInstancedText(
     mergedProperties,
     valueSignal,
@@ -248,6 +260,7 @@ export function createInput(
       properties.peek()?.onValueChange?.(newValue)
     },
     multiline,
+    password,
     disabled,
     computedProperty(mergedProperties, 'tabIndex', 0),
     initializers,
@@ -345,6 +358,7 @@ export function createHtmlInputElement(
   selectionRange: Signal<Vector2Tuple | undefined>,
   onChange: (value: string) => void,
   multiline: boolean,
+  password: boolean,
   disabled: Signal<boolean>,
   tabIndex: Signal<number>,
   initializers: Initializers,
@@ -352,6 +366,10 @@ export function createHtmlInputElement(
   const elementSignal = signal<HTMLInputElement | HTMLTextAreaElement | undefined>(undefined)
   initializers.push((subscriptions) => {
     const element = document.createElement(multiline ? 'textarea' : 'input')
+    console.log(password)
+    if (password) {
+      element.setAttribute('type', 'password')
+    }
     const style = element.style
     style.setProperty('position', 'absolute')
     style.setProperty('left', '-1000vw')

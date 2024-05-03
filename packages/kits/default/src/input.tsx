@@ -57,6 +57,7 @@ export function Input({
           onValueChange={onValueChange}
           tabIndex={tabIndex}
           disabled={disabled}
+          password={props.password}
         />
         {placeholder != null && (
           <Text
