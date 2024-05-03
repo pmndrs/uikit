@@ -366,7 +366,6 @@ export function createHtmlInputElement(
   const elementSignal = signal<HTMLInputElement | HTMLTextAreaElement | undefined>(undefined)
   initializers.push((subscriptions) => {
     const element = document.createElement(multiline ? 'textarea' : 'input')
-    console.log(password)
     if (password) {
       element.setAttribute('type', 'password')
     }
