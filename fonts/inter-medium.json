@@ -1348,6 +1348,20 @@
             "page": 0
         },
         {
+            "id": 176,
+            "index": 114,
+            "char": "°",
+            "width": 20,
+            "height": 20,
+            "xoffset": 1,
+            "yoffset": 14,
+            "xadvance": 22,
+            "chnl": 15,
+            "x": 167,
+            "y": 377,
+            "page": 0
+        },
+        {
             "id": 45,
             "index": 16,
             "char": "-",
@@ -1453,6 +1467,7 @@
         "italic": 0,
         "charset": [
             " ",
+            "°",
             "!",
             "\\",
             "\"",
