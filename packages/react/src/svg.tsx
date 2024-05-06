@@ -44,7 +44,7 @@ export const Svg: (props: SvgProperties & RefAttributes<ComponentInternals<SvgPr
       <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
         <primitive object={internals.interactionPanel} />
         <primitive object={internals.centerGroup} />
-        <object3D ref={innerRef}>
+        <object3D matrixAutoUpdate={false} ref={innerRef}>
           <ParentProvider value={internals}>{properties.children}</ParentProvider>
         </object3D>
       </AddHandlers>

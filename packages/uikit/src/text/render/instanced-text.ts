@@ -11,7 +11,7 @@ import {
   getOffsetToNextLine,
 } from '../utils.js'
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedMeasureFunc } from '../layout.js'
+import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
 import { SelectionBoxes } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
@@ -28,7 +28,7 @@ export type TextAppearanceProperties = {
   opacity?: number
 }
 
-const defaultVerticalAlign: keyof typeof alignmentYMap = 'top'
+const defaultVerticalAlign: keyof typeof alignmentYMap = 'middle'
 const defaulttextAlign: keyof typeof alignmentXMap | 'block' = 'left'
 
 export function createInstancedText(
@@ -51,7 +51,13 @@ export function createInstancedText(
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
-  const measureFunc = computedMeasureFunc(properties, fontSignal, textSignal, layoutPropertiesRef, defaultWordBreak)
+  const customLayouting = computedCustomLayouting(
+    properties,
+    fontSignal,
+    textSignal,
+    layoutPropertiesRef,
+    defaultWordBreak,
+  )
   const verticalAlign = computedProperty(properties, 'verticalAlign', defaultVerticalAlign)
   const textAlign = computedProperty(properties, 'textAlign', defaulttextAlign)
   const color = computedProperty(properties, 'color', 0x0)
@@ -106,7 +112,7 @@ export function createInstancedText(
       }),
   )
 
-  return measureFunc
+  return customLayouting
 }
 
 const noSelectionBoxes: SelectionBoxes = []
@@ -450,6 +456,7 @@ function getXOffset(
 function getYOffset(layout: GlyphLayout, verticalAlign: keyof typeof alignmentYMap) {
   switch (verticalAlign) {
     case 'center':
+    case 'middle':
       return (layout.availableHeight - getGlyphLayoutHeight(layout.lines.length, layout)) / 2
     case 'bottom':
       return layout.availableHeight - getGlyphLayoutHeight(layout.lines.length, layout)

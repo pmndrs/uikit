@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import {
   Dialog,
   DialogContentPrimitive,
@@ -15,11 +15,13 @@ import {
   DialogTriggerProperties,
   useCloseDialog,
 } from './dialog.js'
-import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import { borderRadius, colors } from './theme.js'
 export type AlertDialogOverlayProperties = DialogOverlayProperties
 
-export const AlertDialogOverlay = DialogOverlay
+export const AlertDialogOverlay: (
+  props: AlertDialogOverlayProperties & RefAttributes<ComponentInternals>,
+) => ReactNode = DialogOverlay
 
 export type AlertDialogProperties = DialogProperties
 
@@ -27,11 +29,15 @@ export const AlertDialog = Dialog
 
 export type AlertDialogTriggerProperties = DialogTriggerProperties
 
-export const AlertDialogTrigger = DialogTrigger
+export const AlertDialogTrigger: (
+  props: AlertDialogTriggerProperties & RefAttributes<ComponentInternals>,
+) => ReactNode = DialogTrigger
 
 export type AlertDialogContentProperties = ContainerProperties
 
-export function AlertDialogContent({ onClick, sm, ...props }: AlertDialogContentProperties) {
+export const AlertDialogContent: (
+  props: AlertDialogContentProperties & RefAttributes<ComponentInternals>,
+) => ReactNode = forwardRef(({ onClick, sm, ...props }, ref) => {
   const close = useCloseDialog()
   return (
     <DialogContentPrimitive>
@@ -57,20 +63,23 @@ export function AlertDialogContent({ onClick, sm, ...props }: AlertDialogContent
           backgroundColor={colors.background}
           padding={24}
           sm={{ borderRadius: borderRadius.lg, ...sm }}
+          ref={ref}
           {...props}
         ></Container>
       </DialogOverlay>
     </DialogContentPrimitive>
   )
-}
+})
 
 export type AlertDialogHeaderProperties = DialogHeaderProperties
 
-export const AlertDialogHeader = DialogHeader
+export const AlertDialogHeader: (props: AlertDialogHeaderProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  DialogHeader
 
 export type AlertDialogFooterProperties = DialogFooterProperties
 
-export const AlertDialogFooter = DialogFooter
+export const AlertDialogFooter: (props: AlertDialogFooterProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  DialogFooter
 
 export type AlertDialogTitleProperties = { children?: ReactNode }
 
@@ -84,74 +93,78 @@ export const AlertDialogDescription = DialogDescription
 
 export type AlertDialogActionProperties = ContainerProperties
 
-export function AlertDialogAction({ children, onClick, ...props }: AlertDialogActionProperties) {
-  const close = useCloseDialog()
-  return (
-    <Container
-      borderRadius={borderRadius.md}
-      height={40}
-      paddingX={16}
-      paddingY={8}
-      alignItems="center"
-      justifyContent="center"
-      cursor="pointer"
-      flexDirection="row"
-      backgroundColor={colors.primary}
-      onClick={(e) => {
-        e.stopPropagation()
-        close()
-        onClick?.(e)
-      }}
-      hover={{
-        backgroundOpacity: 0.9,
-      }}
-      {...props}
-    >
-      <DefaultProperties>
-        <DefaultProperties
-          fontSize={14}
-          lineHeight={20}
-          fontWeight="medium"
-          wordBreak="keep-all"
-          color={colors.primaryForeground}
-        >
-          {children}
+export const AlertDialogAction: (props: AlertDialogActionProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(({ children, onClick, ...props }, ref) => {
+    const close = useCloseDialog()
+    return (
+      <Container
+        borderRadius={borderRadius.md}
+        height={40}
+        paddingX={16}
+        paddingY={8}
+        alignItems="center"
+        justifyContent="center"
+        cursor="pointer"
+        flexDirection="row"
+        backgroundColor={colors.primary}
+        onClick={(e) => {
+          e.stopPropagation()
+          close()
+          onClick?.(e)
+        }}
+        hover={{
+          backgroundOpacity: 0.9,
+        }}
+        ref={ref}
+        {...props}
+      >
+        <DefaultProperties>
+          <DefaultProperties
+            fontSize={14}
+            lineHeight={20}
+            fontWeight="medium"
+            wordBreak="keep-all"
+            color={colors.primaryForeground}
+          >
+            {children}
+          </DefaultProperties>
         </DefaultProperties>
-      </DefaultProperties>
-    </Container>
-  )
-}
+      </Container>
+    )
+  })
 
 export type AlertDialogCancelProperties = ContainerProperties
 
-export function AlertDialogCancel({ children, onClick, ...props }: AlertDialogCancelProperties) {
-  const close = useCloseDialog()
-  return (
-    <Container
-      borderRadius={borderRadius.md}
-      height={40}
-      paddingX={16}
-      paddingY={8}
-      alignItems="center"
-      justifyContent="center"
-      cursor="pointer"
-      flexDirection="row"
-      borderWidth={1}
-      borderColor={colors.input}
-      backgroundColor={colors.background}
-      onClick={(e) => {
-        e.stopPropagation()
-        close()
-        onClick?.(e)
-      }}
-      hover={{
-        backgroundColor: colors.accent,
-      }}
-      {...props}
-    >
-      <DefaultProperties fontSize={14} lineHeight={20} fontWeight="medium" wordBreak="keep-all">
-        {children}
-      </DefaultProperties>
-    </Container>
-  )
-}
+export const AlertDialogCancel: (props: AlertDialogCancelProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(({ children, onClick, ...props }, ref) => {
+    const close = useCloseDialog()
+    return (
+      <Container
+        borderRadius={borderRadius.md}
+        height={40}
+        paddingX={16}
+        paddingY={8}
+        alignItems="center"
+        justifyContent="center"
+        cursor="pointer"
+        flexDirection="row"
+        borderWidth={1}
+        borderColor={colors.input}
+        backgroundColor={colors.background}
+        onClick={(e) => {
+          e.stopPropagation()
+          close()
+          onClick?.(e)
+        }}
+        hover={{
+          backgroundColor: colors.accent,
+        }}
+        ref={ref}
+        {...props}
+      >
+        <DefaultProperties fontSize={14} lineHeight={20} fontWeight="medium" wordBreak="keep-all">
+          {children}
+        </DefaultProperties>
+      </Container>
+    )
+  })

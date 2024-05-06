@@ -1,11 +1,13 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Text extends Object3D {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<TextProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -39,6 +41,7 @@ export class Text extends Object3D {
         this.defaultPropertiesSignal,
         { current: this },
       )
+      this.mergedProperties = internals.mergedProperties
 
       super.add(internals.interactionPanel)
       const subscriptions: Subscriptions = []
@@ -53,6 +56,14 @@ export class Text extends Object3D {
 
   setText(text: string | Signal<string> | Array<string | Signal<string>>) {
     this.textSignal.value = text
+  }
+
+  getComputedProperty<K extends keyof TextProperties>(key: K): TextProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<TextProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: TextProperties | undefined) {

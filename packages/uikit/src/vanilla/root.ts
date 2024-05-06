@@ -1,13 +1,14 @@
 import { Camera, WebGLRenderer } from 'three'
-import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
-import { AllOptionalProperties, WithReactive } from '../properties/index.js'
+import { ReadonlySignal, Signal, computed, effect, signal, untracked } from '@preact/signals-core'
+import { AllOptionalProperties, MergedProperties, WithReactive } from '../properties/index.js'
 import { createRoot, DEFAULT_PIXEL_SIZE, RootProperties } from '../components/root.js'
 import { Parent, bindHandlers } from './utils.js'
 import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { FontFamilies } from '../text/index.js'
 
 export class Root extends Parent {
-  private readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
+  private mergedProperties?: ReadonlySignal<MergedProperties>
+  protected readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<RootProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly unsubscribe: () => void
@@ -51,6 +52,7 @@ export class Root extends Parent {
         renderer,
         this.onFrameSet,
       )
+      this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: this.fontFamiliesSignal })
       super.add(internals.interactionPanel)
       const subscriptions: Subscriptions = []
@@ -72,6 +74,14 @@ export class Root extends Parent {
 
   setFontFamilies(fontFamilies: FontFamilies | undefined) {
     this.fontFamiliesSignal.value = fontFamilies
+  }
+
+  getComputedProperty<K extends keyof RootProperties>(key: K): RootProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<RootProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: RootProperties | undefined) {

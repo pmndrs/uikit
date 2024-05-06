@@ -1,6 +1,6 @@
 import { Object3D, Vector2Tuple } from 'three'
-import { Signal, batch, computed, effect, signal } from '@preact/signals-core'
-import { Display, Edge, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
+import { Signal, batch, computed, effect, signal, untracked } from '@preact/signals-core'
+import { Display, Edge, FlexDirection, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
 import { setter } from './setter.js'
 import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
@@ -13,6 +13,12 @@ export type YogaProperties = {
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
+
+export type CustomLayouting = {
+  minWidth: number
+  minHeight: number
+  measure: MeasureFunction
+}
 
 function hasImmediateProperty(key: string): boolean {
   if (key === 'measureFunc') {
@@ -42,12 +48,13 @@ export class FlexNode {
   private yogaNode: Node | undefined
 
   private layoutChangeListeners = new Set<() => void>()
+  private customLayouting?: CustomLayouting
 
   private active = signal(false)
 
   constructor(
     private state: FlexNodeState,
-    propertiesSignal: Signal<MergedProperties>,
+    private readonly propertiesSignal: Signal<MergedProperties>,
     private readonly requestCalculateLayout: () => void,
     private object: Object3DRef,
     subscriptions: Subscriptions,
@@ -60,6 +67,7 @@ export class FlexNode {
         }
         this.yogaNode = yogaNode
         this.active.value = true
+        this.updateMeasureFunction()
         return () => {
           this.yogaNode?.getParent()?.removeChild(this.yogaNode)
           this.yogaNode?.free()
@@ -78,11 +86,16 @@ export class FlexNode {
     )
   }
 
-  setMeasureFunc(func: Signal<MeasureFunction | undefined>) {
-    if (!this.active.value) {
+  setCustomLayouting(layouting: CustomLayouting | undefined) {
+    this.customLayouting = layouting
+    this.updateMeasureFunction()
+  }
+
+  private updateMeasureFunction() {
+    if (this.customLayouting == null || !this.active.value) {
       return
     }
-    setMeasureFunc(this.yogaNode!, func.value)
+    setMeasureFunc(this.yogaNode!, this.customLayouting.measure)
     this.requestCalculateLayout()
   }
 
@@ -93,7 +106,7 @@ export class FlexNode {
     if (this.yogaNode == null) {
       return
     }
-    this.commit()
+    this.commit(this.yogaNode.getFlexDirection())
     this.yogaNode.calculateLayout(undefined, undefined)
     batch(() => this.updateMeasurements(true, undefined, undefined))
   }
@@ -112,10 +125,33 @@ export class FlexNode {
     this.requestCalculateLayout()
   }
 
-  commit(): void {
+  commit(parentDirection: FlexDirection): void {
     if (this.yogaNode == null) {
       throw new Error(`commit cannot be called without a yoga node`)
     }
+
+    /** ---- START : adaptation of yoga's behavior to align more to the web behavior ---- */
+    const parentDirectionVertical =
+      parentDirection === FlexDirection.Column || parentDirection === FlexDirection.ColumnReverse
+    const properties = this.propertiesSignal.peek()
+    if (
+      this.customLayouting != null &&
+      untracked(() =>
+        properties.read<YogaProperties['minWidth']>(parentDirectionVertical ? 'minHeight' : 'minWidth', undefined),
+      ) === undefined
+    ) {
+      this.yogaNode[parentDirectionVertical ? 'setMinHeight' : 'setMinWidth'](
+        parentDirectionVertical ? this.customLayouting.minHeight : this.customLayouting.minWidth,
+      )
+    }
+
+    //see: https://codepen.io/Gettinqdown-Dev/pen/wvZLKBm
+    //-> on the web if the parent has flexdireciton column, elements dont shrink below flexBasis
+    if (untracked(() => properties.read<YogaProperties['flexShrink']>('flexShrink', undefined)) == null) {
+      const hasHeight = untracked(() => properties.read<YogaProperties['height']>('height', undefined)) != null
+      this.yogaNode.setFlexShrink(hasHeight && parentDirectionVertical ? 0 : undefined)
+    }
+    /** ---- END ---- */
 
     //commiting the children
     let groupChildren: Array<Object3D> | undefined
@@ -175,7 +211,7 @@ export class FlexNode {
     //recursively executing commit in children
     const childrenLength = this.children.length
     for (let i = 0; i < childrenLength; i++) {
-      this.children[i].commit()
+      this.children[i].commit(this.yogaNode.getFlexDirection())
     }
   }
 

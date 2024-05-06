@@ -10,7 +10,8 @@ export type ConversionPropertyTypes =
 
 export type ConversionColorMap = Record<string, ColorRepresentation | (() => ColorRepresentation)>
 
-const yogaPropertyRenamings = {
+const propertyRenamings = {
+  //yoga
   rowGap: 'gapRow',
   columnGap: 'gapColumn',
   position: 'positionType',
@@ -18,6 +19,8 @@ const yogaPropertyRenamings = {
   left: 'positionLeft',
   right: 'positionRight',
   bottom: 'positionBottom',
+  //ours
+  zIndex: 'zIndexOffset',
 }
 
 const cssShorthandPropertyTranslation: Record<
@@ -98,6 +101,8 @@ export function isInheritingProperty(key: string): boolean {
 
 const percentageRegex = /^(-?\d+|\d*\.\d+)\%$/
 
+const conditionals = ['sm', 'md', 'lg', 'xl', '2xl', 'focus', 'hover', 'active', 'dark']
+
 export function convertProperties(
   propertyTypes: ConversionPropertyTypes,
   properties: Record<string, string>,
@@ -117,8 +122,18 @@ export function convertProperties(
   }
   for (let key in properties) {
     let property = properties[key as keyof CSSProperties]
-    if (key in yogaPropertyRenamings) {
-      key = yogaPropertyRenamings[key as keyof typeof yogaPropertyRenamings]
+    if (conditionals.includes(key) && property != null && typeof property === 'object') {
+      const conditionalProperties = convertProperties(propertyTypes, property, colorMap, convertKey)
+      if (conditionalProperties != null) {
+        if (result == null) {
+          result = {}
+        }
+        result[key] = conditionalProperties
+        continue
+      }
+    }
+    if (key in propertyRenamings) {
+      key = propertyRenamings[key as keyof typeof propertyRenamings]
     }
     if (convertKey != null) {
       key = convertKey(key)
@@ -127,8 +142,28 @@ export function convertProperties(
       cssShorthandPropertyTranslation[key](set, property)
       continue
     }
+    if (key === 'positionType' && property === 'fixed') {
+      property = 'absolute'
+    }
     if (key === 'display' && property === 'block') {
       property = 'flex'
+    }
+    if (key === 'overflow' && property === 'auto') {
+      property = 'scroll'
+    }
+    if (key === 'borderColor' && property === 'transparent') {
+      key = 'borderOpacity'
+      property = '0'
+    }
+    if (key === 'backgroundColor' && property === 'transparent') {
+      if (result == null) {
+        result = {}
+      }
+      result[key] = undefined
+      return
+    }
+    if (key === 'opacity') {
+      set('backgroundOpacity', property)
     }
     set(key, property)
   }

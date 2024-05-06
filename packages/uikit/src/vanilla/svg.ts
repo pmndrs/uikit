@@ -1,10 +1,12 @@
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent, createParentContextSignal, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { SvgProperties, createSvg } from '../components/svg.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Svg extends Parent {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<SvgProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<SvgProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -31,6 +33,7 @@ export class Svg extends Parent {
         { current: this },
         { current: this.childrenContainer },
       )
+      this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
 
       super.add(internals.interactionPanel)
@@ -44,6 +47,14 @@ export class Svg extends Parent {
         unsubscribeSubscriptions(subscriptions)
       }
     })
+  }
+
+  getComputedProperty<K extends keyof SvgProperties>(key: K): SvgProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<SvgProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: SvgProperties | undefined) {

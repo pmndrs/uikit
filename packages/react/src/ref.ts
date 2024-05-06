@@ -1,4 +1,4 @@
-import { ReadonlySignal, Signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, untracked } from '@preact/signals-core'
 import {
   Inset,
   createContainer,
@@ -9,6 +9,7 @@ import {
   createIcon,
   createCustomContainer,
   ContainerProperties,
+  MergedProperties,
 } from '@pmndrs/uikit/internals'
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh } from 'three'
@@ -24,6 +25,7 @@ export type ComponentInternals<T = ContainerProperties> = {
   interactionPanel: Mesh
   setStyle(style: T | undefined): void
   getStyle(): Readonly<T> | undefined
+  getComputedProperty<K extends keyof T>(key: K): T[K]
 }
 
 export function useComponentInternals<T, O = {}>(
@@ -40,6 +42,7 @@ export function useComponentInternals<T, O = {}>(
     | typeof createCustomContainer
   > & {
     scrollPosition?: Signal<Vector2Tuple>
+    mergedProperties: Signal<MergedProperties>
   },
   interactionPanel: Mesh | RefObject<Mesh>,
   additional?: O,
@@ -51,6 +54,7 @@ export function useComponentInternals<T, O = {}>(
       return {
         setStyle: (style: T | undefined) => (styleSignal.value = style),
         getStyle: () => styleSignal.peek(),
+        getComputedProperty: (key: any) => untracked(() => internals.mergedProperties.value.read(key, undefined)),
         pixelSize,
         borderInset,
         paddingInset,

@@ -145,6 +145,7 @@ export function createContainer(
   setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(
       globalMatrix,

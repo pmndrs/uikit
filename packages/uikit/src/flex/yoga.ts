@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core'
-import { Node, Yoga, loadYoga } from 'yoga-layout/load'
+import { ExperimentalFeature, Node, Yoga, loadYoga } from 'yoga-layout/load'
 
 export const PointScaleFactor = 100
 
@@ -7,6 +7,7 @@ export function createDefaultConfig(Config: Yoga['Config']) {
   const config = Config.create()
   config.setUseWebDefaults(true)
   config.setPointScaleFactor(PointScaleFactor)
+  config.setExperimentalFeatureEnabled(ExperimentalFeature.WebFlexBasis, true)
   return config
 }
 

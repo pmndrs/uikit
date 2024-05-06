@@ -1,7 +1,7 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { Root } from './root.js'
 import { Signal, batch, signal } from '@preact/signals-core'
-import { FullscreenProperties, RootProperties, updateSizeFullscreen } from '../components/index.js'
+import { FullscreenProperties, updateSizeFullscreen } from '../components/index.js'
 import { AllOptionalProperties } from '../properties/index.js'
 import { FontFamilies } from '../text/index.js'
 
@@ -71,11 +71,15 @@ export class Fullscreen extends Root {
     })
   }
 
-  setStyle(style: Omit<RootProperties, 'sizeX' | 'sizeY' | 'pixelSize'> | undefined): void {
+  getStyle(): undefined | Readonly<FullscreenProperties> {
+    return this.styleSignal.peek()
+  }
+
+  setStyle(style: FullscreenProperties | undefined): void {
     super.setStyle(style)
   }
 
-  setProperties(properties: Omit<RootProperties, 'sizeX' | 'sizeY' | 'pixelSize'> | undefined): void {
+  setProperties(properties: FullscreenProperties | undefined): void {
     super.setProperties({
       ...properties,
       sizeX: this.sizeX,

@@ -1,11 +1,13 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { InputProperties, createInput } from '../components/input.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Input extends Object3D {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<InputProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<InputProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -32,6 +34,7 @@ export class Input extends Object3D {
         this.defaultPropertiesSignal,
         { current: this },
       )
+      this.mergedProperties = internals.mergedProperties
 
       //setup events
       super.add(internals.interactionPanel)
@@ -43,6 +46,14 @@ export class Input extends Object3D {
         unsubscribeSubscriptions(subscriptions)
       }
     })
+  }
+
+  getComputedProperty<K extends keyof InputProperties>(key: K): InputProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<InputProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: InputProperties | undefined) {

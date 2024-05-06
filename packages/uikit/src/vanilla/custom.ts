@@ -1,12 +1,14 @@
 import { Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { CustomContainerProperties, createCustomContainer } from '../components/index.js'
 import { panelGeometry } from '../panel/index.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class CustomContainer extends Object3D {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<CustomContainerProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<CustomContainerProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -40,6 +42,7 @@ export class CustomContainer extends Object3D {
           current: mesh,
         },
       )
+      this.mergedProperties = internals.mergedProperties
 
       //setup events
       //TODO make the container the mesh
@@ -51,6 +54,14 @@ export class CustomContainer extends Object3D {
         unsubscribeSubscriptions(subscriptions)
       }
     })
+  }
+
+  getComputedProperty<K extends keyof CustomContainerProperties>(key: K): CustomContainerProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<CustomContainerProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: CustomContainerProperties | undefined) {

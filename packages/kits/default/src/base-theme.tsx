@@ -64,6 +64,7 @@ export function Defaults(props: DefaultPropertiesProperties) {
       scrollbarColor={colors.foreground}
       scrollbarBorderRadius={4}
       scrollbarOpacity={0.3}
+      lineHeight="150%"
       borderColor={colors.border}
       color={colors.foreground}
       {...props}

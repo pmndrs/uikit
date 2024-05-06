@@ -23,8 +23,8 @@ const eventHandlerKeys: Array<keyof EventHandlers> = [
 
 export const AddHandlers = forwardRef<
   Object3D,
-  { userHandlers: EventHandlers; handlers: Signal<EventHandlers>; children?: ReactNode }
->(({ handlers: handlersSignal, userHandlers, children }, ref) => {
+  { userHandlers: EventHandlers; handlers: Signal<EventHandlers>; children?: ReactNode; visible?: boolean }
+>(({ handlers: handlersSignal, userHandlers, children, visible = true }, ref) => {
   const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.value)
   useEffect(
     () =>
@@ -42,10 +42,16 @@ export const AddHandlers = forwardRef<
       const key = eventHandlerKeys[i]
       addHandler(key, result, userHandlers[key])
     }
+    if (Object.keys(result).length === 0) {
+      return undefined
+    }
     return result
   }, [systemHandlers, userHandlers])
+  if (!visible && handlers == null) {
+    return null
+  }
   return (
-    <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
+    <object3D visible={visible} ref={ref} matrixAutoUpdate={false} {...handlers}>
       {children}
     </object3D>
   )

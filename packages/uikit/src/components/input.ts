@@ -212,7 +212,7 @@ export function createInput(
     () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
   )
   const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
-  const measureFunc = createInstancedText(
+  const customLayouting = createInstancedText(
     mergedProperties,
     valueSignal,
     globalMatrix,
@@ -230,7 +230,7 @@ export function createInput(
     initializers,
     multiline ? 'break-word' : 'keep-all',
   )
-  initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
+  initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupViewportListeners(style, properties, isVisible, initializers)
@@ -269,6 +269,7 @@ export function createInput(
   const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
+    mergedProperties,
     valueSignal,
     focus: () => focus(),
     root: parentContext.root,

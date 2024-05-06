@@ -206,6 +206,7 @@ export function createRoot(
   })
 
   return Object.assign(flexState, {
+    mergedProperties,
     anyAncestorScrollable: flexState.scrollable,
     clippingRect: computedClippingRect(identityMatrix, flexState, pixelSize, undefined),
     childrenMatrix,

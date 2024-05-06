@@ -131,6 +131,7 @@ export function createContent(
   setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     remeasureContent: createMeasureContent(
       mergedProperties,
       parentContext.root,

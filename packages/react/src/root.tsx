@@ -67,7 +67,7 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
     return (
       <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
         <primitive object={internals.interactionPanel} />
-        <object3D ref={innerRef}>
+        <object3D matrixAutoUpdate={false} ref={innerRef}>
           <ParentProvider value={internals}>{properties.children}</ParentProvider>
         </object3D>
       </AddHandlers>

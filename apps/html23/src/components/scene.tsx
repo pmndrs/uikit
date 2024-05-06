@@ -1,21 +1,50 @@
-import { useEditorStore, useParsedHtmlStore } from '@/state.js'
-import { Defaults, colors } from '@/theme.js'
-import { XRCanvas } from '@coconut-xr/natuerlich/defaults'
-import { NonImmersiveCamera, useIsInSessionMode } from '@coconut-xr/natuerlich/react'
-import { PreviewParsedHtml, canvasInputProps, Root, Fullscreen } from '@react-three/uikit'
+import { setCodeBasedOnParsedHtml, useEditorStore, useParsedHtmlStore } from '@/state.js'
+import { Controllers, Grabbable, Hands, XRCanvas } from '@coconut-xr/natuerlich/defaults'
+import { NonImmersiveCamera, SessionModeGuard, useIsInSessionMode } from '@coconut-xr/natuerlich/react'
+import {
+  PreviewParsedHtml,
+  canvasInputProps,
+  Root,
+  Fullscreen,
+  CustomHook,
+  ConversionHtmlNode,
+  ComponentInternals,
+} from '@react-three/uikit'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { EffectComposer, ChromaticAberration, TiltShift2, Bloom, Vignette } from '@react-three/postprocessing'
 import { Vector2 } from 'three'
-import { DialogAnchor } from '@react-three/uikit-default'
+import { Defaults, DialogAnchor, colors } from '@react-three/uikit-default'
 import { componentMap } from '@/App.js'
+import { Suspense } from 'react'
+import { ThreeEvent } from '@react-three/fiber'
+import { useDraggingMaterialStore } from './popover/materials.js'
 
 export function Scene() {
   return (
     <XRCanvas className="flex-grow" {...canvasInputProps}>
-      <Background />
+      <Suspense>
+        <Background />
+      </Suspense>
       <Effects />
-      <Content />
-      <NonImmersiveCamera position={[0, 0, 5]} />
+      <Suspense>
+        <Hands type="grab" />
+      </Suspense>
+      <Controllers type="grab" />
+      <SessionModeGuard allow={['immersive-ar', 'immersive-vr']}>
+        <group position={[0, 1.5, -0.5]}>
+          <Suspense>
+            <Grabbable>
+              <Content />
+            </Grabbable>
+          </Suspense>
+        </group>
+      </SessionModeGuard>
+      <SessionModeGuard allow={['none']}>
+        <Suspense>
+          <Content />
+        </Suspense>
+      </SessionModeGuard>
+      <NonImmersiveCamera position={[0, 0, 1.2]} />
       <directionalLight position={[1, 10, 10]} intensity={1} />
       <directionalLight position={[-10, 10, 5]} intensity={1} />
     </XRCanvas>
@@ -23,6 +52,62 @@ export function Scene() {
 }
 
 const immersiveModes = ['immersive-ar', 'immersive-vr'] as const
+
+let currentHovered: { ref: ComponentInternals; element: ConversionHtmlNode } | undefined
+function update(newHovered: { ref: ComponentInternals; element: ConversionHtmlNode } | undefined) {
+  const material = useDraggingMaterialStore.getState()
+  if (material == null) {
+    return
+  }
+  currentHovered?.ref.setStyle(undefined)
+  newHovered?.ref.setStyle(material.style)
+  currentHovered = newHovered
+}
+
+export function applyMaterialToLastHovered() {
+  const material = useDraggingMaterialStore.getState()
+  if (material == null || currentHovered == null) {
+    return
+  }
+  let className = currentHovered.element.attributes.className ?? ''
+  for (const removeClassName of material.removeClassNames) {
+    className = className.replaceAll(removeClassName, '')
+  }
+  className += ' ' + material.applyClassNames.join(' ')
+  currentHovered.element.setAttribute('className', className)
+  setCodeBasedOnParsedHtml()
+  currentHovered = undefined
+}
+
+const useEditMaterial: CustomHook = (element, ref, properties) => {
+  if (!(element instanceof ConversionHtmlNode)) {
+    return properties
+  }
+  return {
+    ...properties,
+    onPointerMove: (e: ThreeEvent<PointerEvent>) => {
+      const material = useDraggingMaterialStore.getState()
+      if (
+        material == null ||
+        ref.current == null ||
+        (element.rawTagName != 'img' &&
+          element.rawTagName != 'video' &&
+          element.rawTagName != 'avatar' &&
+          ref.current.getComputedProperty('backgroundColor') == null)
+      ) {
+        return
+      }
+      e.stopPropagation?.()
+      update({ ref: ref.current, element })
+    },
+    onPointerLeave: (e: ThreeEvent<PointerEvent>) => {
+      if (currentHovered?.ref != ref.current) {
+        return
+      }
+      update(undefined)
+    },
+  }
+}
 
 function Content() {
   const view = useEditorStore((state) => state.view)
@@ -36,6 +121,7 @@ function Content() {
         <Defaults>
           <DialogAnchor>
             <PreviewParsedHtml
+              customHook={useEditMaterial}
               classes={parsed.classes}
               element={parsed.element}
               componentMap={componentMap}
@@ -48,11 +134,12 @@ function Content() {
   }
   return (
     <>
-      <OrbitControls />
-      <Root>
+      <OrbitControls maxDistance={5} minDistance={0.2} maxAzimuthAngle={Math.PI / 2} minAzimuthAngle={-Math.PI / 2} />
+      <Root flexDirection="column" pixelSize={0.001}>
         <Defaults>
           <DialogAnchor>
             <PreviewParsedHtml
+              customHook={useEditMaterial}
               classes={parsed.classes}
               element={parsed.element}
               componentMap={componentMap}
@@ -89,9 +176,10 @@ function Effects() {
 }
 
 function Background() {
-  const background = useEditorStore((state) => state.background)
+  const background = useEditorStore((state) => state.environment)
+  const isInAR = useIsInSessionMode('immersive-ar')
   if (typeof background === 'string') {
-    return <Environment background preset={background as any} />
+    return <Environment background={!isInAR} preset={background as any} />
   }
   return (
     <>

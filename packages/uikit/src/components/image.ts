@@ -182,6 +182,7 @@ export function createImage(
   setupViewportListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     initializers,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
