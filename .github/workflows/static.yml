@@ -9,6 +9,8 @@ jobs:
   deploy-static-files:
     env:
       GOOGLE_FONTS_API_KEY: ${{ secrets.GOOGLE_FONTS_API_KEY }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -111,7 +113,7 @@ jobs:
           cp -r ./examples/lucide/dist/* ./public/examples/lucide
           cp -r ./examples/market/dist/* ./public/examples/market
           cp -r ./examples/auth/dist/* ./public/examples/auth
-          cp -r ./apps/html23/redirect.html ./public/apps/html23
+          cp -r ./apps/html23/redirect.html ./public/apps/html23/index.html
 
       # Deploy to GH Pages
       - name: Add no jekyll
@@ -128,7 +130,7 @@ jobs:
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       
       - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
