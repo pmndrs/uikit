@@ -104,7 +104,7 @@ export function createSvg(
   createNode(node, flexState, parentContext, mergedProperties, object, true, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
@@ -152,14 +152,7 @@ export function createSvg(
     aspectRatio,
   )
   applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers, parentContext.root)
-  const centerGroup = createCenterGroup(
-    flexState,
-    parentContext.root.pixelSize,
-    svgObject,
-    aspectRatio,
-    isVisible,
-    initializers,
-  )
+  const centerGroup = createCenterGroup(parentContext.root, flexState, svgObject, aspectRatio, isVisible, initializers)
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
@@ -181,8 +174,7 @@ export function createSvg(
     flexState,
     object,
     properties,
-    parentContext.root.pixelSize,
-    parentContext.root.onFrameSet,
+    parentContext.root,
     initializers,
   )
 
@@ -216,8 +208,8 @@ export function createSvg(
 }
 
 function createCenterGroup(
+  root: RootContext,
   flexState: FlexNodeState,
-  pixelSize: Signal<number>,
   svgObject: Signal<Object3D | undefined>,
   aspectRatio: Signal<number | undefined>,
   isVisible: Signal<boolean>,
@@ -234,10 +226,11 @@ function createCenterGroup(
           flexState.size,
           flexState.paddingInset,
           flexState.borderInset,
-          pixelSize.value,
+          root.pixelSize.value,
           aspectRatio.value ?? 1,
         )
         centerGroup.updateMatrix()
+        root.requestRender()
       }),
     () =>
       effect(() => {
@@ -246,9 +239,17 @@ function createCenterGroup(
           return
         }
         centerGroup.add(object)
-        return () => centerGroup.remove(object)
+        root.requestRender()
+        return () => {
+          centerGroup.remove(object)
+          root.requestRender()
+        }
       }),
-    () => effect(() => void (centerGroup.visible = svgObject.value != null && isVisible.value)),
+    () =>
+      effect(() => {
+        void (centerGroup.visible = svgObject.value != null && isVisible.value)
+        root.requestRender()
+      }),
   )
   return centerGroup
 }

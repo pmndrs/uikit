@@ -23,6 +23,7 @@ export default function App() {
   return (
     <Canvas
       events={noEvents}
+      frameloop="demand"
       flat
       camera={{ position: [0, 0, 18], fov: 35 }}
       style={{ height: '100dvh', touchAction: 'none' }}

@@ -78,7 +78,7 @@ export function createText(
   createNode(nodeSignal, flexState, parentContext, mergedProperties, object, false, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 

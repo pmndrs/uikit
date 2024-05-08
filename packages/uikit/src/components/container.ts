@@ -82,7 +82,7 @@ export function createContainer(
 
   //transform
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
@@ -136,8 +136,7 @@ export function createContainer(
     flexState,
     object,
     properties,
-    parentContext.root.pixelSize,
-    parentContext.root.onFrameSet,
+    parentContext.root,
     initializers,
   )
 

@@ -137,7 +137,7 @@ export function createImage(
   createNode(node, flexState, parentContext, mergedProperties, object, true, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
@@ -173,8 +173,7 @@ export function createImage(
     flexState,
     object,
     properties,
-    parentContext.root.pixelSize,
-    parentContext.root.onFrameSet,
+    parentContext.root,
     initializers,
   )
 
@@ -231,8 +230,8 @@ function getImageMaterialConfig() {
 
 function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
-  texture: Signal<Texture | undefined>,
-  parent: ParentContext,
+  textureSignal: Signal<Texture | undefined>,
+  parentContext: ParentContext,
   flexState: FlexNodeState,
   orderInfo: Signal<OrderInfo | undefined>,
   root: RootContext,
@@ -241,7 +240,7 @@ function createImageMesh(
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
-  const clippingPlanes = createGlobalClippingPlanes(root, parent.clippingRect, initializers)
+  const clippingPlanes = createGlobalClippingPlanes(root, parentContext.clippingRect, initializers)
   const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
     propertiesSignal,
     flexState.borderInset,
@@ -258,63 +257,28 @@ function createImageMesh(
     root,
     initializers,
   )
-  mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parent.clippingRect, orderInfo)
+  mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parentContext.clippingRect, orderInfo)
   setupRenderOrder(mesh, root, orderInfo)
-
-  setupTextureFit(propertiesSignal, texture, flexState.borderInset, flexState.size, initializers)
-
-  initializers.push(() => effect(() => (mesh.visible = isMeshVisible.value)))
-
-  initializers.push(
-    () =>
-      effect(() => {
-        const map = texture.value ?? null
-        if (mesh.material.map === map) {
-          return
-        }
-        mesh.material.map = map
-        mesh.material.needsUpdate = true
-      }),
-    () =>
-      effect(() => {
-        if (flexState.size.value == null) {
-          return
-        }
-        const [width, height] = flexState.size.value
-        const pixelSize = parent.root.pixelSize.value
-        mesh.scale.set(width * pixelSize, height * pixelSize, 1)
-        mesh.updateMatrix()
-      }),
-  )
-  return mesh
-}
-
-function setupTextureFit(
-  propertiesSignal: Signal<MergedProperties>,
-  textureSignal: Signal<Texture | undefined>,
-  borderInset: Signal<Inset | undefined>,
-  size: Signal<Vector2Tuple | undefined>,
-  initializers: Initializers,
-): void {
   const objectFit = computedInheritableProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(() =>
     effect(() => {
       const texture = textureSignal.value
-      if (texture == null || size.value == null || borderInset.value == null) {
+      if (texture == null || flexState.size.value == null || flexState.borderInset.value == null) {
         return
       }
       texture.matrix.identity()
+      root.requestRender()
 
       if (objectFit.value === 'fill' || texture == null) {
-        transformInsideBorder(borderInset, size, texture)
+        transformInsideBorder(flexState.borderInset, flexState.size, texture)
         return
       }
 
       const { width: textureWidth, height: textureHeight } = texture.source.data as { width: number; height: number }
       const textureRatio = textureWidth / textureHeight
 
-      const [width, height] = size.value
-      const [top, right, bottom, left] = borderInset.value
+      const [width, height] = flexState.size.value
+      const [top, right, bottom, left] = flexState.borderInset.value
       const boundsRatioValue = (width - left - right) / (height - top - bottom)
 
       if (textureRatio > boundsRatioValue) {
@@ -326,9 +290,41 @@ function setupTextureFit(
           .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
           .scale(1, textureRatio / boundsRatioValue)
       }
-      transformInsideBorder(borderInset, size, texture)
+      transformInsideBorder(flexState.borderInset, flexState.size, texture)
     }),
   )
+
+  initializers.push(() =>
+    effect(() => {
+      mesh.visible = isMeshVisible.value
+      parentContext.root.requestRender()
+    }),
+  )
+
+  initializers.push(
+    () =>
+      effect(() => {
+        const map = textureSignal.value ?? null
+        if (mesh.material.map === map) {
+          return
+        }
+        mesh.material.map = map
+        mesh.material.needsUpdate = true
+        parentContext.root.requestRender()
+      }),
+    () =>
+      effect(() => {
+        if (flexState.size.value == null) {
+          return
+        }
+        const [width, height] = flexState.size.value
+        const pixelSize = parentContext.root.pixelSize.value
+        mesh.scale.set(width * pixelSize, height * pixelSize, 1)
+        mesh.updateMatrix()
+        parentContext.root.requestRender()
+      }),
+  )
+  return mesh
 }
 
 function transformInsideBorder(
@@ -395,11 +391,23 @@ function setupImageMaterials(
         const material = createPanelMaterial(panelMaterialClass.value, info)
         material.clippingPlanes = clippingPlanes
         target.material = material
-        return effect(() => (material.depthTest = root.depthTest.value))
+        return effect(() => {
+          material.depthTest = root.depthTest.value
+          root.requestRender()
+        })
       }),
-      effect(() => (target.renderOrder = root.renderOrder.value)),
-      effect(() => (target.castShadow = propertiesSignal.value.read('castShadow', false))),
-      effect(() => (target.receiveShadow = propertiesSignal.value.read('receiveShadow', false))),
+      effect(() => {
+        target.renderOrder = root.renderOrder.value
+        root.requestRender()
+      }),
+      effect(() => {
+        target.castShadow = propertiesSignal.value.read('castShadow', false)
+        root.requestRender()
+      }),
+      effect(() => {
+        target.receiveShadow = propertiesSignal.value.read('receiveShadow', false)
+        root.requestRender()
+      }),
     )
     return subscriptions
   })
@@ -418,6 +426,7 @@ function setupImageMaterials(
         effect(() => size.value != null && data.set(size.value, 13)),
         effect(() => borderInset.value != null && data.set(borderInset.value, 0)),
       )
+      root.requestRender()
       return () => unsubscribeSubscriptions(internalSubscriptions)
     }),
   )
@@ -427,7 +436,10 @@ function setupImageMaterials(
       propertiesSignal,
       isVisible,
       imageMaterialConfig.hasProperty,
-      (key, value) => setters[key](data, 0, value as any, size, undefined),
+      (key, value) => {
+        setters[key](data, 0, value as any, size, undefined)
+        root.requestRender()
+      },
       subscriptions,
     )
     return subscriptions

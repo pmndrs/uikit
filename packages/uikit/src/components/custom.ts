@@ -72,7 +72,7 @@ export function createCustomContainer(
 
   //transform
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
@@ -99,7 +99,12 @@ export function createCustomContainer(
       material.clippingPlanes = clippingPlanes
       material.needsUpdate = true
       material.shadowSide = FrontSide
-      subscriptions.push(() => effect(() => (material.depthTest = parentContext.root.depthTest.value)))
+      subscriptions.push(() =>
+        effect(() => {
+          material.depthTest = parentContext.root.depthTest.value
+          parentContext.root.requestRender()
+        }),
+      )
     }
     mesh.raycast = makeClippedRaycast(
       mesh,
@@ -110,9 +115,18 @@ export function createCustomContainer(
     )
     setupRenderOrder(mesh, parentContext.root, orderInfo)
     subscriptions.push(
-      effect(() => (mesh.renderOrder = parentContext.root.renderOrder.value)),
-      effect(() => (mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false))),
-      effect(() => (mesh.castShadow = mergedProperties.value.read('castShadow', false))),
+      effect(() => {
+        mesh.renderOrder = parentContext.root.renderOrder.value
+        parentContext.root.requestRender()
+      }),
+      effect(() => {
+        mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false)
+        parentContext.root.requestRender()
+      }),
+      effect(() => {
+        mesh.castShadow = mergedProperties.value.read('castShadow', false)
+        parentContext.root.requestRender()
+      }),
       effect(() => {
         if (flexState.size.value == null) {
           return
@@ -121,8 +135,12 @@ export function createCustomContainer(
         const pixelSize = parentContext.root.pixelSize.value
         mesh.scale.set(width * pixelSize, height * pixelSize, 1)
         mesh.updateMatrix()
+        parentContext.root.requestRender()
       }),
-      effect(() => void (mesh.visible = isVisible.value)),
+      effect(() => {
+        void (mesh.visible = isVisible.value)
+        parentContext.root.requestRender()
+      }),
     )
     return subscriptions
   })

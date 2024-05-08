@@ -90,7 +90,7 @@ export function createIcon(
   createNode(undefined, flexState, parentContext, mergedProperties, object, true, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
@@ -217,8 +217,13 @@ function createIconGroup(
         group.position.y += group.scale.x / 2
         group.scale.divideScalar(svgHeight)
         group.updateMatrix()
+        parentContext.root.requestRender()
       }),
-    () => effect(() => void (group.visible = isVisible.value)),
+    () =>
+      effect(() => {
+        group.visible = isVisible.value
+        parentContext.root.requestRender()
+      }),
   )
   applyAppearancePropertiesToGroup(propertiesSignal, group, initializers, parentContext.root)
   return group

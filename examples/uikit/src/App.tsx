@@ -29,7 +29,7 @@ export default function App() {
   const ref = useRef<ComponentInternals<ImageProperties>>(null)
   const inputRef = useRef<ComponentRef<typeof Input>>(null)
   return (
-    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+    <Canvas frameloop="demand" style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <StrictMode>
         <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
           <color attach="background" args={['black']} />

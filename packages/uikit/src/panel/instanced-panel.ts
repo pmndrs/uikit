@@ -98,8 +98,9 @@ export class InstancedPanel {
         if (index == null) {
           return
         }
-        const { instanceData, instanceDataOnUpdate: instanceDataAddUpdateRange } = this.group
+        const { instanceData, instanceDataOnUpdate: instanceDataAddUpdateRange, root } = this.group
         setters[key](instanceData.array, instanceData.itemSize * index, value, size, instanceDataAddUpdateRange)
+        root.requestRender()
       },
       subscriptions,
     )
@@ -149,10 +150,11 @@ export class InstancedPanel {
           matrixHelper1.premultiply(matrixHelper2.makeTranslation(x * pixelSize, y * pixelSize, 0))
         }
         matrixHelper1.premultiply(this.matrix.value)
-        const { instanceMatrix } = this.group
+        const { instanceMatrix, root } = this.group
         matrixHelper1.toArray(instanceMatrix.array, arrayIndex)
         instanceMatrix.addUpdateRange(arrayIndex, 16)
         instanceMatrix.needsUpdate = true
+        root.requestRender()
       }),
       effect(() => {
         const index = this.getIndexInBuffer()
@@ -160,31 +162,33 @@ export class InstancedPanel {
           return
         }
         const [width, height] = this.size.value
-        const { instanceData } = this.group
+        const { instanceData, root } = this.group
         const { array } = instanceData
         const bufferIndex = index * 16 + 13
         array[bufferIndex] = width
         array[bufferIndex + 1] = height
         instanceData.addUpdateRange(bufferIndex, 2)
         instanceData.needsUpdate = true
+        root.requestRender()
       }),
       effect(() => {
         const index = this.getIndexInBuffer()
         if (index == null || this.borderInset.value == null) {
           return
         }
-        const { instanceData } = this.group
+        const { instanceData, root } = this.group
         const offset = index * 16 + 0
         instanceData.array.set(this.borderInset.value, offset)
         instanceData.addUpdateRange(offset, 4)
         instanceData.needsUpdate = true
+        root.requestRender()
       }),
       effect(() => {
-        const { instanceClipping } = this.group
         const index = this.getIndexInBuffer()
         if (index == null) {
           return
         }
+        const { instanceClipping, root } = this.group
         const offset = index * 16
         const clipping = this.clippingRect?.value
         if (clipping != null) {
@@ -194,6 +198,7 @@ export class InstancedPanel {
         }
         instanceClipping.addUpdateRange(offset, 16)
         instanceClipping.needsUpdate = true
+        root.requestRender()
       }),
     )
   }

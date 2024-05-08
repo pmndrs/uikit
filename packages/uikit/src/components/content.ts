@@ -93,7 +93,7 @@ export function createContent(
 
   //transform
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(object, transformMatrix, initializers)
+  applyTransform(parentContext.root, object, transformMatrix, initializers)
 
   const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
 
@@ -137,6 +137,7 @@ export function createContent(
       parentContext.root,
       flexState,
       parentContext.clippingRect,
+      isVisible,
       orderInfo,
       sizeSignal,
       contentContainerRef,
@@ -168,6 +169,7 @@ function createMeasureContent(
   root: RootContext,
   flexState: FlexNodeState,
   parentClippingRect: Signal<ClippingRect | undefined>,
+  isVisible: Signal<boolean>,
   orderInfo: Signal<OrderInfo | undefined>,
   sizeSignal: Signal<Vector3>,
   contentContainerRef: Object3DRef,
@@ -178,8 +180,17 @@ function createMeasureContent(
   const keepAspectRatio = computedInheritableProperty(propertiesSignal, 'keepAspectRatio', true)
   const measuredSize = new Vector3()
   const measuredCenter = new Vector3()
-  const updateRenderProperties = (content: Object3D | null, renderOrder: number, depthTest: boolean) =>
-    content?.traverse((object) => {
+  const updateRenderProperties = (
+    content: Object3D | null,
+    visible: boolean,
+    renderOrder: number,
+    depthTest: boolean,
+  ) => {
+    if (content == null) {
+      return
+    }
+    content.visible = visible
+    content.traverse((object) => {
       if (!(object instanceof Mesh)) {
         return
       }
@@ -189,6 +200,8 @@ function createMeasureContent(
       }
       object.material.depthTest = depthTest
     })
+    root.requestRender()
+  }
   const measureContent = () => {
     const content = contentContainerRef.current
     if (content == null) {
@@ -214,10 +227,19 @@ function createMeasureContent(
       content.parent = parent
     }
     box3Helper.getCenter(measuredCenter)
+    root.requestRender()
   }
   initializers.push(
     () =>
-      effect(() => updateRenderProperties(contentContainerRef.current, root.renderOrder.value, root.depthTest.value)),
+      effect(() => {
+        updateRenderProperties(
+          contentContainerRef.current,
+          isVisible.value,
+          root.renderOrder.value,
+          root.depthTest.value,
+        )
+        root.requestRender()
+      }),
     (subscriptions) => {
       const content = contentContainerRef.current
       if (content == null) {
@@ -262,13 +284,19 @@ function createMeasureContent(
             vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
           )
           content.updateMatrix()
+          root.requestRender()
         }),
       )
       return subscriptions
     },
   )
   return () => {
-    updateRenderProperties(contentContainerRef.current, root.renderOrder.peek(), root.depthTest.peek())
+    updateRenderProperties(
+      contentContainerRef.current,
+      isVisible.peek(),
+      root.renderOrder.peek(),
+      root.depthTest.peek(),
+    )
     measureContent()
   }
 }

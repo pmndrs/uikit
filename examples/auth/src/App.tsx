@@ -19,6 +19,7 @@ export default function App() {
   return (
     <Canvas
       flat
+      frameloop="demand"
       camera={{ position: [0, 0, 18], fov: 35 }}
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}

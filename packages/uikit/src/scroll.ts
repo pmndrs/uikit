@@ -75,8 +75,7 @@ export function computedScrollHandlers(
   { scrollable, maxScrollPosition }: FlexNodeState,
   object: Object3DRef,
   listeners: Signal<ScrollListeners | undefined>,
-  pixelSize: Signal<number>,
-  onFrameSet: RootContext['onFrameSet'],
+  root: Pick<RootContext, 'onFrameSet' | 'requestRender' | 'pixelSize'>,
   initializers: Initializers,
 ) {
   const isScrollable = computed(() => scrollable.value?.some((scrollable) => scrollable) ?? false)
@@ -146,10 +145,14 @@ export function computedScrollHandlers(
 
     if (Math.abs(scrollVelocity.x) < 0.01) {
       scrollVelocity.x = 0
+    } else {
+      root.requestRender()
     }
 
     if (Math.abs(scrollVelocity.y) < 0.01) {
       scrollVelocity.y = 0
+    } else {
+      root.requestRender()
     }
 
     if (deltaX === 0 && deltaY === 0) {
@@ -163,14 +166,18 @@ export function computedScrollHandlers(
       if (!isScrollable.value) {
         return
       }
-      onFrameSet.add(onFrame)
-      return () => onFrameSet.delete(onFrame)
+      root.onFrameSet.add(onFrame)
+      return () => root.onFrameSet.delete(onFrame)
     }),
   )
 
   return computed<ScrollEventHandlers | undefined>(() => {
     if (!isScrollable.value) {
       return undefined
+    }
+    const onPointerFinish = ({ nativeEvent }: ThreeEvent<PointerEvent>) => {
+      downPointerMap.delete(nativeEvent.pointerId)
+      root.requestRender()
     }
     return {
       onPointerDown: ({ nativeEvent, point }) => {
@@ -181,9 +188,9 @@ export function computedScrollHandlers(
         interaction.timestamp = performance.now() / 1000
         object.current!.worldToLocal(interaction.point.copy(point))
       },
-      onPointerUp: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
-      onPointerLeave: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
-      onPointerCancel: ({ nativeEvent }) => downPointerMap.delete(nativeEvent.pointerId),
+      onPointerUp: onPointerFinish,
+      onPointerLeave: onPointerFinish,
+      onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
         const prevInteraction = downPointerMap.get(event.nativeEvent.pointerId)
 
@@ -191,7 +198,7 @@ export function computedScrollHandlers(
           return
         }
         object.current!.worldToLocal(localPointHelper.copy(event.point))
-        distanceHelper.copy(localPointHelper).sub(prevInteraction.point).divideScalar(pixelSize.peek())
+        distanceHelper.copy(localPointHelper).sub(prevInteraction.point).divideScalar(root.pixelSize.peek())
         const timestamp = performance.now() / 1000
         const deltaTime = timestamp - prevInteraction.timestamp
 

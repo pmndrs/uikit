@@ -49,25 +49,28 @@ export class PanelGroupManager {
     private renderOrder: Signal<number>,
     private depthTest: Signal<boolean>,
     private pixelSize: Signal<number>,
-    private root: WithCameraDistance & Pick<RootContext, 'onFrameSet'>,
+    private root: WithCameraDistance & Pick<RootContext, 'onFrameSet' | 'requestRender'>,
     private object: Object3DRef,
     initializers: Initializers,
   ) {
     initializers.push(
       () => {
-        const onFrame = (delta: number) => this.traverse((group) => group.onFrame(delta))
+        const onFrame = () => this.traverse((group) => group.onFrame())
         root.onFrameSet.add(onFrame)
         return () => root.onFrameSet.delete(onFrame)
       },
+      () => () => this.traverse((group) => group.destroy()),
       () =>
         effect(() => {
           const ro = renderOrder.value
           this.traverse((group) => group.setRenderOrder(ro))
+          this.root.requestRender()
         }),
       () =>
         effect(() => {
           const dt = depthTest.value
           this.traverse((group) => group.setDepthTest(dt))
+          this.root.requestRender()
         }),
     )
   }
@@ -114,6 +117,8 @@ export class PanelGroupManager {
   }
 }
 
+const nextFrame = Symbol('nextFrame')
+
 export class InstancedPanelGroup {
   private mesh?: InstancedPanelMesh
   public instanceMatrix!: InstancedBufferAttribute
@@ -124,9 +129,11 @@ export class InstancedPanelGroup {
   private buckets: Array<Bucket<InstancedPanel>> = []
   private elementCount: number = 0
   private bufferElementSize: number = 0
-  private timeToNextUpdate: number | undefined
 
   public instanceDataOnUpdate!: InstancedBufferAttribute['addUpdateRange']
+
+  private nextUpdateTime: typeof nextFrame | number | undefined
+  private nextUpdateTimeoutRef: NodeJS.Timeout | undefined
 
   private activateElement = (element: InstancedPanel, bucket: Bucket<InstancedPanel>, indexInBucket: number) => {
     const index = bucket.offset + indexInBucket
@@ -160,7 +167,7 @@ export class InstancedPanelGroup {
     private readonly object: Object3DRef,
     materialClass: MaterialClass,
     public readonly pixelSize: Signal<number>,
-    private readonly root: WithCameraDistance,
+    public readonly root: WithCameraDistance & Pick<RootContext, 'requestRender'>,
     private readonly orderInfo: OrderInfo,
     private readonly meshReceiveShadow: boolean,
     private readonly meshCastShadow: boolean,
@@ -177,6 +184,29 @@ export class InstancedPanelGroup {
     }
     this.mesh.count = count
     this.mesh.visible = count > 0
+    this.root.requestRender()
+  }
+
+  private requestUpdate(time: number): void {
+    if (this.nextUpdateTime == nextFrame) {
+      return
+    }
+
+    const forTime = performance.now() + time
+
+    if (this.nextUpdateTime != null && this.nextUpdateTime < forTime) {
+      return
+    }
+    this.nextUpdateTime = forTime
+    clearTimeout(this.nextUpdateTimeoutRef)
+    this.nextUpdateTimeoutRef = setTimeout(this.requestUpdateNextFrame.bind(this), time)
+  }
+
+  private requestUpdateNextFrame() {
+    this.nextUpdateTime = nextFrame
+    clearTimeout(this.nextUpdateTimeoutRef)
+    this.nextUpdateTimeoutRef = undefined
+    this.root.requestRender()
   }
 
   setDepthTest(depthTest: boolean) {
@@ -197,7 +227,7 @@ export class InstancedPanelGroup {
       this.updateCount()
       return
     }
-    this.requestUpdate(0)
+    this.requestUpdateNextFrame()
   }
 
   delete(bucketIndex: number, elementIndex: number | undefined, panel: InstancedPanel): void {
@@ -220,20 +250,12 @@ export class InstancedPanelGroup {
     this.requestUpdate(1000) //request update in 1 second
   }
 
-  onFrame(delta: number): void {
-    if (this.timeToNextUpdate == null) {
+  onFrame(): void {
+    if (this.nextUpdateTime != nextFrame) {
       return
     }
-    this.timeToNextUpdate -= delta
-    if (this.timeToNextUpdate > 0) {
-      return
-    }
+    this.nextUpdateTime = undefined
     this.update()
-    this.timeToNextUpdate = undefined
-  }
-
-  private requestUpdate(time: number): void {
-    this.timeToNextUpdate = Math.min(this.timeToNextUpdate ?? Infinity, time)
   }
 
   private update(): void {
@@ -293,6 +315,10 @@ export class InstancedPanelGroup {
     this.mesh.receiveShadow = this.meshReceiveShadow
     this.mesh.castShadow = this.meshCastShadow
     this.object.current?.add(this.mesh)
+  }
+
+  destroy() {
+    clearTimeout(this.nextUpdateTimeoutRef)
   }
 }
 

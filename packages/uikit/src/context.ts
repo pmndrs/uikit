@@ -29,4 +29,5 @@ export type RootContext = WithCameraDistance &
     onFrameSet: Set<(delta: number) => void>
     renderer: WebGLRenderer
     size: Signal<Vector2Tuple | undefined>
+    requestRender: () => void
   }>

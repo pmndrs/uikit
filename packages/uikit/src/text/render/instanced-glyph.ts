@@ -85,7 +85,7 @@ export class InstancedGlyph {
       return
     }
     const offset = this.index * 16
-    const { instanceClipping } = this.group
+    const { instanceClipping, root } = this.group
     if (this.clippingRect == null) {
       instanceClipping.set(defaultClippingData, offset)
     } else {
@@ -93,6 +93,7 @@ export class InstancedGlyph {
     }
     instanceClipping.addUpdateRange(offset, 16)
     instanceClipping.needsUpdate = true
+    root.requestRender()
   }
 
   updateColor(color: ColorRepresentation): void {
@@ -100,11 +101,12 @@ export class InstancedGlyph {
     if (this.index == null) {
       return
     }
-    const { instanceRGBA } = this.group
+    const { instanceRGBA, root } = this.group
     const offset = instanceRGBA.itemSize * this.index
     writeColor(instanceRGBA.array, offset, color, undefined)
     instanceRGBA.addUpdateRange(offset, 3)
     instanceRGBA.needsUpdate = true
+    root.requestRender()
   }
 
   updateOpacity(opacity: number): void {
@@ -112,11 +114,12 @@ export class InstancedGlyph {
     if (this.index == null) {
       return
     }
-    const { instanceRGBA } = this.group
+    const { instanceRGBA, root } = this.group
     const bufferIndex = this.index * 4 + 3
     instanceRGBA.array[bufferIndex] = opacity
     instanceRGBA.addUpdateRange(bufferIndex, 1)
     instanceRGBA.needsUpdate = true
+    root.requestRender()
   }
 
   updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number, pixelSize: number): void {
@@ -153,10 +156,11 @@ export class InstancedGlyph {
       return
     }
     const offset = this.index * 4
-    const { instanceUV } = this.group
+    const { instanceUV, root } = this.group
     glyphIntoToUV(this.glyphInfo, instanceUV.array, offset)
     instanceUV.addUpdateRange(offset, 4)
     instanceUV.needsUpdate = true
+    root.requestRender()
   }
 
   private writeUpdatedMatrix(): void {
@@ -164,7 +168,7 @@ export class InstancedGlyph {
       return
     }
     const offset = this.index * 16
-    const { instanceMatrix } = this.group
+    const { instanceMatrix, root } = this.group
     instanceMatrix.addUpdateRange(offset, 16)
     helperMatrix1
       .makeTranslation(this.x * this.pixelSize, this.y * this.pixelSize, 0)
@@ -178,5 +182,6 @@ export class InstancedGlyph {
       .premultiply(this.baseMatrix)
     helperMatrix1.toArray(instanceMatrix.array, offset)
     instanceMatrix.needsUpdate = true
+    root.requestRender()
   }
 }

@@ -14,7 +14,7 @@ export class GlyphGroupManager {
     private renderOrder: Signal<number>,
     private depthTest: Signal<boolean>,
     private pixelSize: Signal<number>,
-    private root: WithCameraDistance & Pick<RootContext, 'onFrameSet'>,
+    private root: WithCameraDistance & Pick<RootContext, 'requestRender' | 'onFrameSet'>,
     private object: Object3DRef,
     initializers: Initializers,
   ) {
@@ -94,7 +94,7 @@ export class InstancedGlyphGroup {
     private object: Object3DRef,
     font: Font,
     public readonly pixelSize: Signal<number>,
-    private readonly rootCameraDistance: WithCameraDistance,
+    public readonly root: WithCameraDistance & Pick<RootContext, 'requestRender'>,
     private orderInfo: OrderInfo,
   ) {
     this.instanceMaterial = new InstancedGlyphMaterial(font)
@@ -103,6 +103,7 @@ export class InstancedGlyphGroup {
 
   setDepthTest(depthTest: boolean) {
     this.instanceMaterial.depthTest = depthTest
+    this.root.requestRender()
   }
 
   setRenderOrder(renderOrder: number) {
@@ -111,10 +112,12 @@ export class InstancedGlyphGroup {
       return
     }
     this.mesh.renderOrder = renderOrder
+    this.root.requestRender()
   }
 
   requestActivate(glyph: InstancedGlyph): void {
     const holeIndex = this.holeIndicies.shift()
+    this.root.requestRender()
     if (holeIndex != null) {
       //inserting into existing hole
       this.glyphs[holeIndex] = glyph
@@ -138,6 +141,7 @@ export class InstancedGlyphGroup {
 
   delete(glyph: InstancedGlyph): void {
     if (glyph.index == null) {
+      //remove an not yet added glyph
       const indexInRequested = this.requestedGlyphs.indexOf(glyph)
       if (indexInRequested === -1) {
         return
@@ -145,6 +149,8 @@ export class InstancedGlyphGroup {
       this.requestedGlyphs.splice(indexInRequested, 1)
       return
     }
+
+    this.root.requestRender()
 
     const replacement = this.requestedGlyphs.shift()
     if (replacement != null) {
@@ -266,7 +272,7 @@ export class InstancedGlyphGroup {
     }
 
     //finalizing the new mesh
-    setupRenderOrder(this.mesh, this.rootCameraDistance, { value: this.orderInfo })
+    setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
     this.object.current?.add(this.mesh)
   }

@@ -1,4 +1,4 @@
-import { useFrame, useStore, useThree } from '@react-three/fiber'
+import { invalidate, useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
@@ -46,6 +46,7 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
           () => store.getState().camera,
           renderer,
           onFrameSet,
+          invalidate,
         ),
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [],

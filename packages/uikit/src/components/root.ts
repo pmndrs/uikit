@@ -80,6 +80,7 @@ export function createRoot(
   getCamera: () => Camera,
   renderer: WebGLRenderer,
   onFrameSet: Set<(delta: number) => void>,
+  requestRender: () => void = () => {},
 ) {
   const rootSize = signal<Vector2Tuple>([0, 0])
   const hoveredSignal = signal<Array<number>>([])
@@ -105,8 +106,15 @@ export function createRoot(
   const renderOrder = computedInheritableProperty(mergedProperties, 'renderOrder', 0)
   const depthTest = computedInheritableProperty(mergedProperties, 'depthTest', true)
 
+  const ctx: WithCameraDistance & Pick<RootContext, 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
+    cameraDistance: 0,
+    onFrameSet,
+    requestRender,
+    pixelSize,
+  }
+
   const node = signal<FlexNode | undefined>(undefined)
-  const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, node, initializers)
+  const requestCalculateLayout = createDeferredRequestLayoutCalculation(ctx, node, initializers)
   const flexState = createFlexNodeState()
   initializers.push((subscriptions) => {
     const newNode = new FlexNode(flexState, mergedProperties, requestCalculateLayout, object, true, subscriptions)
@@ -118,12 +126,10 @@ export function createRoot(
   const rootMatrix = computedRootMatrix(mergedProperties, transformMatrix, flexState.size, pixelSize)
 
   //rootMatrix is automatically applied to everything, even the instanced things because everything is part of object
-  applyTransform(object, rootMatrix, initializers)
+  applyTransform(ctx, object, rootMatrix, initializers)
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
-
-  const ctx: WithCameraDistance & Pick<RootContext, 'onFrameSet'> = { cameraDistance: 0, onFrameSet }
 
   const panelGroupManager = new PanelGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
@@ -183,8 +189,7 @@ export function createRoot(
     flexState,
     object,
     properties,
-    pixelSize,
-    onFrameSet,
+    ctx,
     initializers,
   )
 
@@ -220,7 +225,7 @@ export function createRoot(
 }
 
 function createDeferredRequestLayoutCalculation(
-  onFrameSet: Set<(delta: number) => void>,
+  root: Pick<RootContext, 'requestRender' | 'onFrameSet'>,
   nodeSignal: Signal<FlexNode | undefined>,
   initializers: Initializers,
 ) {
@@ -234,10 +239,13 @@ function createDeferredRequestLayoutCalculation(
     node.calculateLayout()
   }
   initializers.push(() => {
-    onFrameSet.add(onFrame)
-    return () => onFrameSet.delete(onFrame)
+    root.onFrameSet.add(onFrame)
+    return () => root.onFrameSet.delete(onFrame)
   })
-  return () => (requested = true)
+  return () => {
+    requested = true
+    root.requestRender()
+  }
 }
 
 function createSizeTranslator(pixelSize: Signal<number>, key: 'sizeX' | 'sizeY', to: string): PropertyTransformers {

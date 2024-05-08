@@ -3,7 +3,7 @@ import { Euler, Matrix4, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 
 import { FlexNodeState } from './flex/node.js'
 import { Initializers, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
-import { Object3DRef } from './context.js'
+import { Object3DRef, RootContext } from './context.js'
 import { computedInheritableProperty } from './properties/index.js'
 
 export type Percentage = `${number}%`
@@ -124,6 +124,7 @@ function translateToNumber(translate: number | Percentage, size: Signal<Vector2T
 }
 
 export function applyTransform(
+  root: Pick<RootContext, 'requestRender'>,
   object: Object3DRef,
   transformMatrix: Signal<Matrix4 | undefined>,
   initializers: Initializers,
@@ -135,6 +136,7 @@ export function applyTransform(
         return
       }
       object.current?.matrix.copy(transformMatrix.value)
+      root.requestRender()
     }),
   )
 }
