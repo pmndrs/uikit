@@ -10,6 +10,7 @@ export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Contai
       <Container flexDirection="column" gap={8}>
         <Container flexDirection="column" gap={4}>
           <Input placeholder="name@example.com" />
+          <Input type="password" placeholder="password" />
         </Container>
         <Button>
           <Text>Sign In with Email</Text>

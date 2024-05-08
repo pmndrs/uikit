@@ -14,7 +14,7 @@ import { Signal, computed, effect } from '@preact/signals-core'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef, RootContext } from '../context.js'
 import { Initializers } from '../utils.js'
-import { computedProperty } from '../properties/index.js'
+import { computedInheritableProperty } from '../properties/index.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -26,9 +26,9 @@ export type PanelGroupProperties = {
 } & ShadowProperties
 
 export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
-  const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
-  const castShadow = computedProperty(propertiesSignal, 'castShadow', false)
-  const receiveShadow = computedProperty(propertiesSignal, 'receiveShadow', false)
+  const panelMaterialClass = computedInheritableProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
+  const castShadow = computedInheritableProperty(propertiesSignal, 'castShadow', false)
+  const receiveShadow = computedInheritableProperty(propertiesSignal, 'receiveShadow', false)
   return computed<Required<PanelGroupProperties>>(() => ({
     panelMaterialClass: panelMaterialClass.value,
     castShadow: castShadow.value,

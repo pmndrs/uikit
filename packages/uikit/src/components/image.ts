@@ -53,7 +53,7 @@ import { setupImmediateProperties } from '../properties/immediate.js'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
-import { computedProperty } from '../properties/batched.js'
+import { computedInheritableProperty } from '../properties/utils.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
@@ -296,7 +296,7 @@ function setupTextureFit(
   size: Signal<Vector2Tuple | undefined>,
   initializers: Initializers,
 ): void {
-  const objectFit = computedProperty(propertiesSignal, 'objectFit', defaultImageFit)
+  const objectFit = computedInheritableProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(() =>
     effect(() => {
       const texture = textureSignal.value
@@ -388,7 +388,7 @@ function setupImageMaterials(
   target.customDepthMaterial.clippingPlanes = clippingPlanes
   target.customDistanceMaterial.clippingPlanes = clippingPlanes
 
-  const panelMaterialClass = computedProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
+  const panelMaterialClass = computedInheritableProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
   initializers.push((subscriptions) => {
     subscriptions.push(
       effect(() => {

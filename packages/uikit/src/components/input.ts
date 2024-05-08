@@ -9,7 +9,8 @@ import {
   AllOptionalProperties,
   WithClasses,
   WithReactive,
-  computedProperty,
+  computedInheritableProperty,
+  computedNonInheritableProperty,
   traverseProperties,
 } from '../properties/index.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
@@ -91,10 +92,13 @@ export const canvasInputProps = {
   },
 }
 
+export type InputType = 'text' | 'password'
+
 export type InputProperties = InheritableInputProperties &
   Listeners & {
     onValueChange?: (value: string) => void
   } & WithReactive<{
+    type?: InputType
     value?: string
     tabIndex?: number
     disabled?: boolean
@@ -207,14 +211,18 @@ export function createInput(
   )
   const defaultValue = style.peek()?.defaultValue ?? properties.peek()?.defaultValue
   const writeValue =
-    style.value?.value == null && properties.value?.value == null ? signal(defaultValue ?? '') : undefined
+    style.peek()?.value == null && properties.peek()?.value == null ? signal(defaultValue ?? '') : undefined
   const valueSignal = computed(
     () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
+  )
+  const type = computedNonInheritableProperty<InputType>(style, properties, 'type', 'text')
+  const displayValueSignal = computed(() =>
+    type.value === 'text' ? valueSignal.value : '*'.repeat(valueSignal.value.length ?? 0),
   )
   const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
   const customLayouting = createInstancedText(
     mergedProperties,
-    valueSignal,
+    displayValueSignal,
     globalMatrix,
     nodeSignal,
     flexState,
@@ -235,7 +243,7 @@ export function createInput(
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupViewportListeners(style, properties, isVisible, initializers)
 
-  const disabled = computedProperty(mergedProperties, 'disabled', false)
+  const disabled = computedNonInheritableProperty(style, properties, 'disabled', false)
 
   const element = createHtmlInputElement(
     valueSignal,
@@ -248,8 +256,9 @@ export function createInput(
       properties.peek()?.onValueChange?.(newValue)
     },
     multiline,
+    type,
     disabled,
-    computedProperty(mergedProperties, 'tabIndex', 0),
+    computedNonInheritableProperty(style, properties, 'tabIndex', 0),
     initializers,
   )
   const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
@@ -346,6 +355,7 @@ export function createHtmlInputElement(
   selectionRange: Signal<Vector2Tuple | undefined>,
   onChange: (value: string) => void,
   multiline: boolean,
+  type: Signal<InputType>,
   disabled: Signal<boolean>,
   tabIndex: Signal<number>,
   initializers: Initializers,
@@ -387,6 +397,7 @@ export function createHtmlInputElement(
       effect(() => (element.value = value.value)),
       effect(() => (element.disabled = disabled.value)),
       effect(() => (element.tabIndex = tabIndex.value)),
+      effect(() => element.setAttribute('type', type.value)),
     )
     return subscriptions
   })

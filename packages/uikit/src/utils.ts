@@ -2,7 +2,7 @@ import { computed, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple, Vector3 } from 'three'
 import { Inset } from './flex/node.js'
 import { MergedProperties } from './properties/merged.js'
-import { computedProperty } from './properties/index.js'
+import { computedInheritableProperty } from './properties/index.js'
 
 export const percentageRegex = /(-?\d+(?:\.\d+)?)%/
 
@@ -97,6 +97,6 @@ export function computedBorderInset(
   propertiesSignal: Signal<MergedProperties>,
   keys: ReadonlyArray<string>,
 ): Signal<Inset> {
-  const sizes = keys.map((key) => computedProperty(propertiesSignal, key, 0))
+  const sizes = keys.map((key) => computedInheritableProperty(propertiesSignal, key, 0))
   return computed(() => sizes.map((size) => size.value) as Inset)
 }

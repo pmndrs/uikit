@@ -15,7 +15,7 @@ import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLay
 import { SelectionBoxes } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
-import { MergedProperties, computedProperty } from '../../properties/index.js'
+import { MergedProperties, computedInheritableProperty } from '../../properties/index.js'
 import { FlexNode, FlexNodeState } from '../../flex/index.js'
 
 export type TextAlignProperties = {
@@ -58,10 +58,10 @@ export function createInstancedText(
     layoutPropertiesRef,
     defaultWordBreak,
   )
-  const verticalAlign = computedProperty(properties, 'verticalAlign', defaultVerticalAlign)
-  const textAlign = computedProperty(properties, 'textAlign', defaulttextAlign)
-  const color = computedProperty(properties, 'color', 0x0)
-  const opacity = computedProperty(properties, 'opacity', 1)
+  const verticalAlign = computedInheritableProperty(properties, 'verticalAlign', defaultVerticalAlign)
+  const textAlign = computedInheritableProperty(properties, 'textAlign', defaulttextAlign)
+  const color = computedInheritableProperty(properties, 'color', 0x0)
+  const opacity = computedInheritableProperty(properties, 'opacity', 1)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
   initializers.push(

@@ -5,7 +5,7 @@ import { Signal, computed } from '@preact/signals-core'
 import { MeasureFunction, MeasureMode } from 'yoga-layout/load'
 import { MergedProperties } from '../properties/merged.js'
 import { readReactive } from '../utils.js'
-import { computedProperty } from '../properties/index.js'
+import { computedInheritableProperty } from '../properties/index.js'
 import { CustomLayouting } from '../internals.js'
 
 export type GlyphLayoutLine = {
@@ -40,10 +40,10 @@ export function computedCustomLayouting(
   propertiesRef: { current: GlyphLayoutProperties | undefined },
   defaultWordBreak: GlyphLayoutProperties['wordBreak'],
 ) {
-  const fontSize = computedProperty(properties, 'fontSize', 16)
-  const letterSpacing = computedProperty(properties, 'letterSpacing', 0)
-  const lineHeight = computedProperty<number | `${number}%`>(properties, 'lineHeight', '120%')
-  const wordBreak = computedProperty(properties, 'wordBreak', defaultWordBreak)
+  const fontSize = computedInheritableProperty(properties, 'fontSize', 16)
+  const letterSpacing = computedInheritableProperty(properties, 'letterSpacing', 0)
+  const lineHeight = computedInheritableProperty<number | `${number}%`>(properties, 'lineHeight', '120%')
+  const wordBreak = computedInheritableProperty(properties, 'wordBreak', defaultWordBreak)
   return computed<CustomLayouting | undefined>(() => {
     const font = fontSignal.value
     if (font == null) {

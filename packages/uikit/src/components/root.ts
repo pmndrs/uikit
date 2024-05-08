@@ -37,7 +37,7 @@ import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { darkPropertyTransformers } from '../dark.js'
-import { computedProperty } from '../properties/index.js'
+import { computedInheritableProperty } from '../properties/index.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 
 export type InheritableRootProperties = WithClasses<
@@ -102,8 +102,8 @@ export function createRoot(
     },
   )
 
-  const renderOrder = computedProperty(mergedProperties, 'renderOrder', 0)
-  const depthTest = computedProperty(mergedProperties, 'depthTest', true)
+  const renderOrder = computedInheritableProperty(mergedProperties, 'renderOrder', 0)
+  const depthTest = computedInheritableProperty(mergedProperties, 'depthTest', true)
 
   const node = signal<FlexNode | undefined>(undefined)
   const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, node, initializers)
@@ -272,8 +272,8 @@ function computedRootMatrix(
   size: Signal<Vector2Tuple | undefined>,
   pixelSize: Signal<number>,
 ) {
-  const anchorX = computedProperty(propertiesSignal, 'anchorX', defaultAnchorX)
-  const anchorY = computedProperty(propertiesSignal, 'anchorY', defaultAnchorY)
+  const anchorX = computedInheritableProperty(propertiesSignal, 'anchorX', defaultAnchorX)
+  const anchorY = computedInheritableProperty(propertiesSignal, 'anchorY', defaultAnchorY)
   return computed(() => {
     if (size.value == null) {
       return undefined
