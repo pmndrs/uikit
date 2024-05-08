@@ -4,6 +4,7 @@
     "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/uikit": "workspace:^",
+    "r3f-perf": "^7.2.1",
     "react-dom": "^18.2.0"
   },
   "scripts": {

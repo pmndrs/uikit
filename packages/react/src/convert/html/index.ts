@@ -4,7 +4,7 @@ import babel, * as starBabel from 'prettier/plugins/babel.js'
 import estree, * as starEstree from 'prettier/plugins/estree.js'
 import { ConversionComponentMap } from './preview.js'
 
-export { ConversionNode } from '@pmndrs/uikit/internals'
+export { ConversionNode, ConversionHtmlNode } from '@pmndrs/uikit/internals'
 
 export function htmlToCode(html: string, colorMap?: ConversionColorMap, componentMap?: ConversionComponentMap) {
   const { classes, element } = parseHtml(html, colorMap)
@@ -28,6 +28,7 @@ export function parsedHtmlToCode(
 }
 
 function elementToCode(
+  element: ConversionNode | undefined,
   typeName: string,
   custom: boolean,
   props: Record<string, unknown>,
@@ -37,6 +38,10 @@ function elementToCode(
   const propsText = Object.entries(props)
     .filter(([, value]) => typeof value != 'undefined')
     .map(([name, value]) => {
+      const firstChar = name[0]
+      if ('0' <= firstChar && firstChar <= '9') {
+        return `{...${JSON.stringify({ [name]: value })}}`
+      }
       if (name === 'panelMaterialClass' && typeof value === 'function') {
         return `${name}={${value.name}}`
       }
@@ -65,5 +70,11 @@ function elementToCode(
   return `<${typeName} ${propsText} >${children.join('\n')}</${typeName}>`
 }
 
-export { conversionPropertyTypes, type ConversionColorMap } from '@pmndrs/uikit/internals'
+export {
+  conversionPropertyTypes,
+  type ConversionColorMap,
+  MetalMaterial,
+  GlassMaterial,
+  PlasticMaterial,
+} from '@pmndrs/uikit/internals'
 export * from './preview.js'

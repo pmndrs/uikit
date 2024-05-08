@@ -48,6 +48,12 @@ export const htmlDefaults: Record<
       fontWeight: 'bold',
     },
   },
+  ol: {
+    defaultProperties: { flexDirection: 'column' },
+  },
+  ul: {
+    defaultProperties: { flexDirection: 'column' },
+  },
   p: {
     defaultProperties: {
       //tailwind disables this marginY: 16
@@ -63,7 +69,7 @@ export const htmlDefaults: Record<
   img: {
     renderAs: 'Image',
   },
-  button: { defaultProperties: { cursor: 'pointer' } },
+  button: { defaultProperties: { verticalAlign: 'middle', textAlign: 'center', cursor: 'pointer' } },
   input: {
     renderAs: 'Input',
     children: 'none',

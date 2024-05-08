@@ -1,5 +1,11 @@
-import { AllOptionalProperties, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
-import React from 'react'
+import {
+  AllOptionalProperties,
+  ComponentInternals,
+  Container,
+  ContainerProperties,
+  DefaultProperties,
+} from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 const buttonVariants = {
@@ -73,52 +79,48 @@ export type ButtonProperties = ContainerProperties & {
   disabled?: boolean
 }
 
-export function Button({
-  children,
-  variant = 'default',
-  size = 'default',
-  disabled = false,
-  hover,
-  ...props
-}: ButtonProperties) {
-  const {
-    containerProps,
-    defaultProps,
-    containerHoverProps,
-  }: {
-    containerHoverProps?: ContainerProperties['hover']
-    containerProps?: Omit<ContainerProperties, 'hover'>
-    defaultProps?: AllOptionalProperties
-  } = buttonVariants[variant]
-  const sizeProps = buttonSizes[size]
+export const Button: (props: ButtonProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  ({ children, variant = 'default', size = 'default', disabled = false, hover, ...props }, ref) => {
+    const {
+      containerProps,
+      defaultProps,
+      containerHoverProps,
+    }: {
+      containerHoverProps?: ContainerProperties['hover']
+      containerProps?: Omit<ContainerProperties, 'hover'>
+      defaultProps?: AllOptionalProperties
+    } = buttonVariants[variant]
+    const sizeProps = buttonSizes[size]
 
-  return (
-    <Container
-      borderRadius={borderRadius.md}
-      alignItems="center"
-      justifyContent="center"
-      {...containerProps}
-      {...sizeProps}
-      borderOpacity={disabled ? 0.5 : undefined}
-      backgroundOpacity={disabled ? 0.5 : undefined}
-      cursor={disabled ? undefined : 'pointer'}
-      flexDirection="row"
-      hover={{
-        ...containerHoverProps,
-        ...hover,
-      }}
-      {...props}
-    >
-      <DefaultProperties
-        fontSize={14}
-        lineHeight={20}
-        fontWeight="medium"
-        wordBreak="keep-all"
-        {...defaultProps}
-        opacity={disabled ? 0.5 : undefined}
+    return (
+      <Container
+        borderRadius={borderRadius.md}
+        alignItems="center"
+        justifyContent="center"
+        {...containerProps}
+        {...sizeProps}
+        borderOpacity={disabled ? 0.5 : undefined}
+        backgroundOpacity={disabled ? 0.5 : undefined}
+        cursor={disabled ? undefined : 'pointer'}
+        flexDirection="row"
+        hover={{
+          ...containerHoverProps,
+          ...hover,
+        }}
+        ref={ref}
+        {...props}
       >
-        {children}
-      </DefaultProperties>
-    </Container>
-  )
-}
+        <DefaultProperties
+          fontSize={14}
+          lineHeight={20}
+          fontWeight="medium"
+          wordBreak="keep-all"
+          {...defaultProps}
+          opacity={disabled ? 0.5 : undefined}
+        >
+          {children}
+        </DefaultProperties>
+      </Container>
+    )
+  },
+)

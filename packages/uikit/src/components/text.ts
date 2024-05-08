@@ -117,7 +117,7 @@ export function createText(
     backgroundOrderInfo,
   )
 
-  const measureFunc = createInstancedText(
+  const customLayouting = createInstancedText(
     mergedProperties,
     textSignal,
     globalMatrix,
@@ -135,12 +135,13 @@ export function createText(
     initializers,
     'break-word',
   )
-  initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
+  initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     interactionPanel: createInteractionPanel(
       backgroundOrderInfo,
       parentContext.root,

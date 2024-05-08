@@ -9,8 +9,8 @@ import { themes } from '@/themes.js'
 import { Label } from '../ui/label.js'
 import { startTransition } from 'react'
 
-const themeNames = Object.keys(themes) as Array<keyof typeof themes>
-const themeColors = [
+export const themeNames = Object.keys(themes) as Array<keyof typeof themes>
+export const themeColors = [
   {
     light: '240 5.9% 10%',
     dark: '240 5.2% 33.9%',
@@ -60,6 +60,8 @@ const themeColors = [
     dark: '263.4 70% 50.4%',
   },
 ]
+
+export const themeRadii = ['0', '0.3', '0.5', '0.75', '1.0']
 
 export function ThemePopover() {
   const theme = useEditorStore((state) => state.theme)
@@ -118,7 +120,7 @@ export function ThemePopover() {
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs">Radius</Label>
             <div className="flex flex-row gap-2">
-              {['0', '0.3', '0.5', '0.75', '1.0'].map((value) => {
+              {themeRadii.map((value) => {
                 return (
                   <Button
                     variant={'outline'}

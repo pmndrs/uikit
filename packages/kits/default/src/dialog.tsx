@@ -1,8 +1,10 @@
-import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import { borderRadius, colors } from './theme.js'
 import React, {
   ReactNode,
+  RefAttributes,
   createContext,
+  forwardRef,
   memo,
   useCallback,
   useContext,
@@ -107,37 +109,41 @@ export function Dialog({ children, open: providedOpen, onOpenChange, defaultOpen
 
 export type DialogTriggerProperties = ContainerProperties
 
-export function DialogTrigger({ onClick, ...props }: DialogTriggerProperties) {
-  const { setOpen } = useDialogContext()
-  return (
-    <Container
-      onClick={(e) => {
-        setOpen(true)
-        onClick?.(e)
-      }}
-      {...props}
-    />
-  )
-}
+export const DialogTrigger: (props: DialogTriggerProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(({ onClick, ...props }, ref) => {
+    const { setOpen } = useDialogContext()
+    return (
+      <Container
+        onClick={(e) => {
+          setOpen(true)
+          onClick?.(e)
+        }}
+        ref={ref}
+        {...props}
+      />
+    )
+  })
 
 export type DialogOverlayProperties = ContainerProperties
 
-export function DialogOverlay(props: DialogOverlayProperties) {
-  return (
-    <Container
-      onPointerMove={(e) => e.stopPropagation()}
-      onPointerEnter={(e) => e.stopPropagation()}
-      onPointerLeave={(e) => e.stopPropagation()}
-      onWheel={(e) => e.stopPropagation()}
-      positionType="absolute"
-      inset={0}
-      zIndexOffset={50}
-      backgroundColor="black"
-      backgroundOpacity={0.8}
-      {...props}
-    />
-  )
-}
+export const DialogOverlay: (props: DialogOverlayProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef((props, ref) => {
+    return (
+      <Container
+        onPointerMove={(e) => e.stopPropagation()}
+        onPointerEnter={(e) => e.stopPropagation()}
+        onPointerLeave={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        positionType="absolute"
+        inset={0}
+        zIndexOffset={50}
+        backgroundColor="black"
+        backgroundOpacity={0.8}
+        ref={ref}
+        {...props}
+      />
+    )
+  })
 
 export function useCloseDialog() {
   const { setOpen } = useDialogContext()
@@ -157,76 +163,81 @@ export function DialogContentPrimitive({ children }: DialogContentPrimitivePrope
 
 export type DialogContentProperties = ContainerProperties
 
-export function DialogContent({ children, sm, ...props }: DialogContentProperties) {
-  const close = useCloseDialog()
-  return (
-    <DialogContentPrimitive>
-      <DialogOverlay
-        onClick={(e) => {
-          close()
-          e.stopPropagation()
-        }}
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Container
-          onClick={(e) => e.stopPropagation()}
-          positionType="relative"
-          flexDirection="column"
-          width="100%"
-          gap={16}
-          borderWidth={1}
-          backgroundColor={colors.background}
-          padding={24}
-          sm={{ borderRadius: borderRadius.lg, ...sm }}
-          {...props}
+export const DialogContent: (props: DialogContentProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(({ children, sm, ...props }, ref) => {
+    const close = useCloseDialog()
+    return (
+      <DialogContentPrimitive>
+        <DialogOverlay
+          onClick={(e) => {
+            close()
+            e.stopPropagation()
+          }}
+          alignItems="center"
+          justifyContent="center"
         >
-          {children}
-          <X
-            color={colors.mutedForeground}
-            onClick={close}
-            cursor="pointer"
-            positionType="absolute"
-            zIndexOffset={50}
-            positionRight={16}
-            positionTop={16}
-            borderRadius={2}
-            opacity={0.7}
-            backgroundOpacity={0.7}
-            hover={{ opacity: 1, backgroundOpacity: 1 }}
-            width={16}
-            height={16}
-          />
-        </Container>
-      </DialogOverlay>
-    </DialogContentPrimitive>
-  )
-}
+          <Container
+            onClick={(e) => e.stopPropagation()}
+            positionType="relative"
+            flexDirection="column"
+            width="100%"
+            gap={16}
+            borderWidth={1}
+            backgroundColor={colors.background}
+            padding={24}
+            sm={{ borderRadius: borderRadius.lg, ...sm }}
+            ref={ref}
+            {...props}
+          >
+            {children}
+            <X
+              color={colors.mutedForeground}
+              onClick={close}
+              cursor="pointer"
+              positionType="absolute"
+              zIndexOffset={50}
+              positionRight={16}
+              positionTop={16}
+              borderRadius={2}
+              opacity={0.7}
+              backgroundOpacity={0.7}
+              hover={{ opacity: 1, backgroundOpacity: 1 }}
+              width={16}
+              height={16}
+            />
+          </Container>
+        </DialogOverlay>
+      </DialogContentPrimitive>
+    )
+  })
 
 export type DialogHeaderProperties = ContainerProperties
 
-export function DialogHeader({ children, ...props }: DialogHeaderProperties) {
-  return (
-    <Container flexDirection="column" gap={6} {...props}>
-      <DefaultProperties textAlign="center" sm={{ textAlign: 'left' }}>
-        {children}
-      </DefaultProperties>
-    </Container>
-  )
-}
+export const DialogHeader: (props: DialogHeaderProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(({ children, ...props }, ref) => {
+    return (
+      <Container flexDirection="column" gap={6} ref={ref} {...props}>
+        <DefaultProperties textAlign="center" sm={{ textAlign: 'left' }}>
+          {children}
+        </DefaultProperties>
+      </Container>
+    )
+  })
 
 export type DialogFooterProperties = ContainerProperties
 
-export function DialogFooter({ sm, ...props }: DialogFooterProperties) {
-  return (
-    <Container
-      flexDirection="column-reverse"
-      sm={{ flexDirection: 'row', justifyContent: 'flex-end', ...sm }}
-      gap={8}
-      {...props}
-    />
-  )
-}
+export const DialogFooter: (props: DialogFooterProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(({ sm, ...props }, ref) => {
+    return (
+      <Container
+        flexDirection="column-reverse"
+        sm={{ flexDirection: 'row', justifyContent: 'flex-end', ...sm }}
+        gap={8}
+        ref={ref}
+        {...props}
+      />
+    )
+  })
 
 export type DialogTitleProperties = { children?: ReactNode }
 

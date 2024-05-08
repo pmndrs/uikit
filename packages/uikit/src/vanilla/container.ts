@@ -1,10 +1,12 @@
 import { ContainerProperties, createContainer } from '../components/container.js'
 import { AllOptionalProperties } from '../properties/default.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { Parent, createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Container extends Parent {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<ContainerProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ContainerProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -31,6 +33,7 @@ export class Container extends Parent {
         { current: this },
         { current: this.childrenContainer },
       )
+      this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
 
       //setup events
@@ -43,6 +46,14 @@ export class Container extends Parent {
         unsubscribeSubscriptions(subscriptions)
       }
     })
+  }
+
+  getComputedProperty<K extends keyof ContainerProperties>(key: K): ContainerProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<ContainerProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: ContainerProperties | undefined) {

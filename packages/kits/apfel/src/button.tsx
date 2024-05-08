@@ -1,5 +1,5 @@
-import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
-import React from 'react'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { colors } from './theme.js'
 
 function getAribtrarySize(size: number) {
@@ -53,48 +53,45 @@ const sizes = {
 
 type Variant = 'pill' | 'rect' | 'icon'
 
-export function Button({
-  children,
-  size = 'md',
-  variant = 'rect',
-  platter,
-  selected,
-  disabled,
-  ...props
-}: ContainerProperties & {
+export type ButtonProperties = ContainerProperties & {
   size?: keyof typeof sizes | number
   variant?: Variant
   platter?: boolean
   selected?: boolean
   disabled?: boolean
-}) {
-  const { borderRadius, fontSize, height, padding, iconSize } =
-    typeof size === 'number' ? getAribtrarySize(size) : sizes[size]
-  return (
-    <Container
-      cursor={disabled ? undefined : 'pointer'}
-      height={height}
-      width={variant === 'icon' ? height : undefined}
-      paddingX={variant === 'icon' ? undefined : padding}
-      borderRadius={variant === 'rect' ? borderRadius : height / 2}
-      justifyContent="center"
-      alignItems="center"
-      backgroundColor={colors.foreground}
-      backgroundOpacity={disabled ? 0.1 : selected ? 1 : platter ? 0.15 : 0}
-      hover={{
-        backgroundOpacity: disabled ? 0.1 : selected ? 1 : 0.2,
-      }}
-      {...props}
-    >
-      <DefaultProperties
-        color={selected && !disabled ? colors.background : colors.foreground}
-        opacity={disabled ? 0.4 : 1}
-        fontSize={fontSize}
-        width={variant === 'icon' ? iconSize : undefined}
-        height={variant === 'icon' ? iconSize : undefined}
-      >
-        {children}
-      </DefaultProperties>
-    </Container>
-  )
 }
+
+export const Button: (props: ButtonProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  ({ children, size = 'md', variant = 'rect', platter, selected, disabled, ...props }, ref) => {
+    const { borderRadius, fontSize, height, padding, iconSize } =
+      typeof size === 'number' ? getAribtrarySize(size) : sizes[size]
+    return (
+      <Container
+        cursor={disabled ? undefined : 'pointer'}
+        height={height}
+        width={variant === 'icon' ? height : undefined}
+        paddingX={variant === 'icon' ? undefined : padding}
+        borderRadius={variant === 'rect' ? borderRadius : height / 2}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor={colors.foreground}
+        backgroundOpacity={disabled ? 0.1 : selected ? 1 : platter ? 0.15 : 0}
+        hover={{
+          backgroundOpacity: disabled ? 0.1 : selected ? 1 : 0.2,
+        }}
+        ref={ref}
+        {...props}
+      >
+        <DefaultProperties
+          color={selected && !disabled ? colors.background : colors.foreground}
+          opacity={disabled ? 0.4 : 1}
+          fontSize={fontSize}
+          width={variant === 'icon' ? iconSize : undefined}
+          height={variant === 'icon' ? iconSize : undefined}
+        >
+          {children}
+        </DefaultProperties>
+      </Container>
+    )
+  },
+)

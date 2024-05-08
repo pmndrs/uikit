@@ -4,6 +4,8 @@ import { Inset } from './flex/node.js'
 import { MergedProperties } from './properties/merged.js'
 import { computedProperty } from './properties/index.js'
 
+export const percentageRegex = /(-?\d+(?:\.\d+)?)%/
+
 export type ColorRepresentation = Color | string | number | Vector3Tuple
 
 export type Initializers = Array<(subscriptions: Subscriptions) => Subscriptions | (() => void)>

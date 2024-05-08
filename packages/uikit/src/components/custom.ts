@@ -131,6 +131,7 @@ export function createCustomContainer(
   setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     root: parentContext.root,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     initializers,

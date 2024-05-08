@@ -1,5 +1,14 @@
 import { createRoot } from 'react-dom/client'
-import App from './App.js'
 import './global.css'
+import { Suspense, lazy } from 'react'
+import { Onboarding } from './components/onboarding.js'
 
-createRoot(document.getElementById('root')!).render(<App />)
+const LazyApp = lazy(() => import('./App.js'))
+
+createRoot(document.getElementById('root')!).render(
+  <Onboarding>
+    <Suspense>
+      <LazyApp />
+    </Suspense>
+  </Onboarding>,
+)

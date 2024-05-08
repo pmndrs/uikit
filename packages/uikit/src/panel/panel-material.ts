@@ -467,6 +467,10 @@ function getFargmentOpacityCode(instanced: boolean, existingOpacity: string | un
     backgroundOpacity = 0.0;
   }
 
+  borderOpacity = min(backgroundOpacity + data[3].x, 1.0);
+  borderColor = mix(backgroundColor, data[2].xyz, data[3].x / borderOpacity);
+        
+
   float outOpacity = ${
     instanced ? 'clipOpacity * ' : ''
   } outer * mix(borderOpacity, ${existingOpacity == null ? '' : `${existingOpacity} *`} backgroundOpacity, transition);

@@ -9,6 +9,8 @@ jobs:
   deploy-static-files:
     env:
       GOOGLE_FONTS_API_KEY: ${{ secrets.GOOGLE_FONTS_API_KEY }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -30,12 +32,12 @@ jobs:
           version: 8
           run_install: true
 
-# Fonts
+      # Fonts
       - name: Make Dist Dir
         working-directory: ./packages/fonts
         run: mkdir dist
 
-# Inter
+      # Inter
       - name: Generate Inter Light
         working-directory: ./packages/fonts
         run: |
@@ -70,7 +72,7 @@ jobs:
           node download.js "Inter" 700
           fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-bold.ttf
           pnpm msdf-bmfont -f json inter-bold.ttf -i charset.txt -m 256,512 -o dist/inter-bold -s 48
-      
+
       - name: Convert to Webp
         working-directory: ./packages/fonts
         run: pnpm sharp --lossless -i dist/*.png -o dist/ -f webp
@@ -87,7 +89,7 @@ jobs:
           cp ./packages/fonts/dist/* ./public/fonts
           cp ./packages/fonts/LICENSE public/fonts/LICENSE
 
-# Examples
+      # Examples
       - name: Building Examples
         run: |
           pnpm -r convert
@@ -111,9 +113,9 @@ jobs:
           cp -r ./examples/lucide/dist/* ./public/examples/lucide
           cp -r ./examples/market/dist/* ./public/examples/market
           cp -r ./examples/auth/dist/* ./public/examples/auth
-          cp -r ./apps/html23/dist/* ./public/apps/html23
+          cp -r ./apps/html23/redirect.html ./public/apps/html23/index.html
 
-# Deploy to GH Pages
+      # Deploy to GH Pages
       - name: Add no jekyll
         run: touch public/.nojekyll
 
@@ -122,3 +124,13 @@ jobs:
         with:
           branch: gh-pages
           folder: public
+
+      # Deploy Apps to Vercel
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

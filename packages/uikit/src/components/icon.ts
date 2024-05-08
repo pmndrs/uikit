@@ -141,6 +141,7 @@ export function createIcon(
   setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     initializers,
     iconGroup,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),

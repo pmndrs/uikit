@@ -2,10 +2,12 @@ import { Texture } from 'three'
 import { ImageProperties, createImage } from '../components/image.js'
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent, createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Image extends Parent {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<ImageProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ImageProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -32,6 +34,7 @@ export class Image extends Parent {
         { current: this },
         { current: this.childrenContainer },
       )
+      this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
       super.add(internals.interactionPanel)
       const subscriptions: Subscriptions = []
@@ -42,6 +45,14 @@ export class Image extends Parent {
         unsubscribeSubscriptions(subscriptions)
       }
     })
+  }
+
+  getComputedProperty<K extends keyof ImageProperties>(key: K): ImageProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<ImageProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: ImageProperties | undefined) {

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react'
-import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext, useState } from 'react'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import { ChevronDown } from '@react-three/uikit-lucide'
 
 const AccordionContext = createContext<[string | undefined, (value: string | undefined) => void]>(null as any)
@@ -18,57 +18,62 @@ const AccordionItemContext = createContext<string>('')
 
 export type AccordionItemProperties = ContainerProperties & { value: string }
 
-export function AccordionItem({ children, ...props }: AccordionItemProperties) {
-  const [value, setValue] = useContext(AccordionContext)
-  const isSelected = props.value === value
-  return (
-    <Container
-      cursor="pointer"
-      flexDirection="column"
-      onClick={() => setValue(isSelected ? undefined : props.value)}
-      borderBottomWidth={1}
-      {...props}
-    >
-      <AccordionItemContext.Provider value={props.value}>{children}</AccordionItemContext.Provider>
-    </Container>
-  )
-}
+export const AccordionItem: (props: RefAttributes<ComponentInternals> & AccordionItemProperties) => ReactNode =
+  forwardRef(({ children, ...props }, ref) => {
+    const [value, setValue] = useContext(AccordionContext)
+    const isSelected = props.value === value
+    return (
+      <Container
+        cursor="pointer"
+        flexDirection="column"
+        onClick={() => setValue(isSelected ? undefined : props.value)}
+        borderBottomWidth={1}
+        ref={ref}
+        {...props}
+      >
+        <AccordionItemContext.Provider value={props.value}>{children}</AccordionItemContext.Provider>
+      </Container>
+    )
+  })
 
 export type AccordionTriggerProperties = ContainerProperties
 
-export function AccordionTrigger({ children, ...props }: AccordionTriggerProperties) {
-  const itemValue = useContext(AccordionItemContext)
-  const [value] = useContext(AccordionContext)
-  const isSelected = itemValue === value
-  return (
-    <Container
-      flexDirection="row"
-      flexGrow={1}
-      flexShrink={1}
-      alignItems="center"
-      justifyContent="space-between"
-      paddingY={16}
-      {...props}
-    >
-      <DefaultProperties fontWeight="medium">{children}</DefaultProperties>
-      <ChevronDown transformRotateZ={isSelected ? 180 : 0} width={16} height={16} flexShrink={0} />
-    </Container>
-  )
-}
+export const AccordionTrigger: (props: RefAttributes<ComponentInternals> & AccordionTriggerProperties) => ReactNode =
+  forwardRef(({ children, ...props }, ref) => {
+    const itemValue = useContext(AccordionItemContext)
+    const [value] = useContext(AccordionContext)
+    const isSelected = itemValue === value
+    return (
+      <Container
+        flexDirection="row"
+        flexGrow={1}
+        flexShrink={1}
+        alignItems="center"
+        justifyContent="space-between"
+        paddingY={16}
+        ref={ref}
+        {...props}
+      >
+        <DefaultProperties fontWeight="medium">{children}</DefaultProperties>
+        <ChevronDown transformRotateZ={isSelected ? 180 : 0} width={16} height={16} flexShrink={0} />
+      </Container>
+    )
+  })
 
 export type AccordionContentProperties = ContainerProperties
 
-export function AccordionContent({ children, ...props }: AccordionContentProperties) {
-  const itemValue = useContext(AccordionItemContext)
-  const [value] = useContext(AccordionContext)
-  if (value != itemValue) {
-    return null
-  }
-  return (
-    <Container overflow="hidden" {...props}>
-      <Container paddingBottom={16}>
-        <DefaultProperties fontSize={14}>{children}</DefaultProperties>
+export const AccordionContent: (props: RefAttributes<ComponentInternals> & AccordionContentProperties) => ReactNode =
+  forwardRef(({ children, ...props }, ref) => {
+    const itemValue = useContext(AccordionItemContext)
+    const [value] = useContext(AccordionContext)
+    if (value != itemValue) {
+      return null
+    }
+    return (
+      <Container overflow="hidden" ref={ref} {...props}>
+        <Container paddingBottom={16}>
+          <DefaultProperties fontSize={14}>{children}</DefaultProperties>
+        </Container>
       </Container>
-    </Container>
-  )
-}
+    )
+  })

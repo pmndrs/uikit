@@ -2,11 +2,11 @@ import { parse as parseHTML, Node as ConversionNode, TextNode, HTMLElement } fro
 import { htmlDefaults } from './defaults.js'
 import parseInlineCSS, { Declaration, Comment } from 'inline-style-parser'
 import { tailwindToCSS } from 'tw-to-css'
-import generatedPropertyTypes from './properties.json' assert { type: 'json' }
+//@ts-ignore
+import { generatedPropertyTypes } from './generated-property-types.js'
 import {
   ConversionColorMap,
   ConversionPropertyTypes,
-  convertProperties as convertCssProperties,
   convertProperties,
   convertProperty,
   isInheritingProperty,
@@ -15,6 +15,7 @@ import {
 import { MeshPhongMaterial, MeshPhysicalMaterial } from 'three'
 
 export type ConversionGenerateComponent<T> = (
+  element: ConversionNode | undefined,
   renderAs: string,
   custom: boolean,
   properties: Record<string, unknown>,
@@ -30,7 +31,7 @@ export type ConversionComponentData = {
   children?: 'none' | 'text'
 }
 
-export { Node as ConversionNode } from 'node-html-parser'
+export { Node as ConversionNode, HTMLElement as ConversionHtmlNode } from 'node-html-parser'
 
 const styleTagRegex = /\<style\>(?:.|\s)*?\<\/style\>/gm
 
@@ -86,12 +87,25 @@ export class MetalMaterial extends MeshPhysicalMaterial {
   }
 }
 
+const voidTagRegex = /<((\S+).*)\/>/g
+const mediaQueryRegex = /@media\(min-width:(\d+)px\)([^@]+)/gm
+
+const breakpoints = {
+  '640': 'sm',
+  '768': 'md',
+  '1024': 'lg',
+  '1280': 'xl',
+  '1536': '2xl',
+}
+
 export function parseHtml(
   text: string,
   colorMap?: ConversionColorMap,
 ): { element: HTMLElement; classes: Map<string, any> } {
-  text = text.replaceAll(styleTagRegex, '')
-  const element = parseHTML(text)
+  text = text
+    .replaceAll(styleTagRegex, '')
+    .replaceAll(voidTagRegex, (_, tagContent, tagName) => `<${tagContent}></${tagName}>`)
+  const element = parseHTML(text, { voidTag: { tags: [] } })
   const themeColors: Record<string, string> = {}
   for (const key in colorMap) {
     themeColors[key.replaceAll(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`)] = `$${key}`
@@ -119,6 +133,12 @@ export function parseHtml(
       'border-bend',
       {
         borderBend: 0.5,
+      },
+    ],
+    [
+      'inline-flex',
+      {
+        alignSelf: 'flex-start',
       },
     ],
   ])
@@ -149,9 +169,25 @@ export function parseHtml(
       { merge: false, ignoreMediaQueries: false },
     )
     .replaceAll(/\\(.)/g, (_, result) => result)
+    .replaceAll(mediaQueryRegex, (_, breakpoint: string, content: string) => {
+      const prefix = breakpoints[breakpoint as keyof typeof breakpoints]
+      if (prefix == null) {
+        return ''
+      }
+      content = content.slice(1, -1)
+      parseCssClassDefinitions(content, (key, properties) => {
+        const existingProperties = classes.get(key) ?? {}
+        classes.set(key, { ...existingProperties, [prefix]: { ...existingProperties[prefix], ...properties } })
+      })
+      return ''
+    })
+  parseCssClassDefinitions(css, (key, properties) => classes.set(key, { ...classes.get(key), ...properties }))
+  return { classes, element }
+}
+
+function parseCssClassDefinitions(css: string, set: (className: string, properties: any) => void) {
   let classesResult: RegExpExecArray | null
   let contentResult: RegExpExecArray | null
-
   while ((classesResult = cssClassRegex.exec(css)) != null) {
     const [, className, classContent] = classesResult
     const properties: any = {}
@@ -159,9 +195,8 @@ export function parseHtml(
       const [, name, value] = contentResult
       properties[kebabToCamelCase(name)] = value
     }
-    classes.set(className, properties)
+    set(className, properties)
   }
-  return { classes, element }
 }
 
 function collectClasses(element: ConversionNode): string {
@@ -213,6 +248,7 @@ function convertParsedHtmlRecursive<T>(
   if (element instanceof HTMLElement && element.tagName?.toLowerCase() === 'svg') {
     const { width, height, ...restAttributes } = element.attributes
     const { inheritingProperties, properties, srOnly } = convertMergeSortProperties(
+      false,
       [...conversionPropertyTypes.Icon, { svgWidth: ['number'], svgHeight: ['number'] }],
       classes,
       { svgWidth: toNumber(width) ?? 24, svgHeight: toNumber(height) ?? 24, text: element.toString() },
@@ -222,7 +258,7 @@ function convertParsedHtmlRecursive<T>(
     if (srOnly) {
       return undefined
     }
-    return generate('Icon', false, { ...inheritingProperties, ...properties }, index)
+    return generate(element, 'Icon', false, { ...inheritingProperties, ...properties }, index)
   }
 
   const [{ skipIfEmpty, defaultProperties, children, propertyTypes, renderAs }, custom] = nodeToConversionData(
@@ -239,7 +275,7 @@ function convertParsedHtmlRecursive<T>(
 
   const { inheritingProperties, properties, srOnly } =
     element instanceof HTMLElement
-      ? convertMergeSortProperties(propertyTypes, classes, defaultProperties, element.attributes, colorMap)
+      ? convertMergeSortProperties(custom, propertyTypes, classes, defaultProperties, element.attributes, colorMap)
       : { inheritingProperties: undefined, properties: undefined, srOnly: false }
 
   if (srOnly) {
@@ -248,10 +284,11 @@ function convertParsedHtmlRecursive<T>(
 
   switch (children) {
     case 'none':
-      return generate(renderAs, custom, { ...inheritingProperties, ...properties }, index)
+      return generate(element, renderAs, custom, { ...inheritingProperties, ...properties }, index)
     case 'text':
       if (!(element instanceof TextNode)) {
         return generate(
+          element,
           renderAs,
           custom,
           { ...inheritingProperties, ...properties },
@@ -266,10 +303,11 @@ function convertParsedHtmlRecursive<T>(
       if (text.length === 0) {
         return undefined
       }
-      return generate(renderAs, custom, { ...inheritingProperties, ...properties }, index, [text])
+      return generate(element, renderAs, custom, { ...inheritingProperties, ...properties }, index, [text])
   }
 
   let result = generate(
+    element,
     renderAs,
     custom,
     properties ?? {},
@@ -280,7 +318,7 @@ function convertParsedHtmlRecursive<T>(
   )
 
   if (inheritingProperties == null || Object.keys(inheritingProperties).length > 0) {
-    result = generate('DefaultProperties', false, inheritingProperties ?? {}, index, [result])
+    result = generate(undefined, 'DefaultProperties', false, inheritingProperties ?? {}, index, [result])
   }
 
   return result
@@ -349,6 +387,7 @@ function filterNull<T>(val: T | undefined): val is T {
 }
 
 function convertMergeSortProperties(
+  custom: boolean,
   propertyTypes: ConversionPropertyTypes,
   classes: Map<string, any>,
   defaultProperties: Record<string, unknown> | undefined,
@@ -359,7 +398,7 @@ function convertMergeSortProperties(
   inheritingProperties: Record<string, unknown>
   srOnly: boolean
 } {
-  const [properties, srOnly] = convertHtmlAttributes(propertyTypes, classes, attributes, colorMap)
+  const [properties, srOnly] = convertHtmlAttributes(custom, propertyTypes, classes, attributes, colorMap)
   const result = {
     ...defaultProperties,
     ...properties,
@@ -386,6 +425,7 @@ export function kebabToCamelCase(name: string): string {
 }
 
 function convertHtmlAttributes(
+  custom: boolean,
   propertyTypes: ConversionPropertyTypes,
   classes: Map<string, any>,
   { class: _class, className, style, ...rest }: HTMLElement['attributes'],
@@ -414,22 +454,25 @@ function convertHtmlAttributes(
       styles = parseInlineCSS(style)
     }
   } catch {}
+  const stylesMap: Record<string, string> = {}
   for (const style of styles) {
     if (style.type === 'comment') {
       continue
     }
-    const key = kebabToCamelCase(style.property)
-    const value = convertProperty(propertyTypes, key, style.value, colorMap)
-    if (value == null) {
-      continue
+    stylesMap[kebabToCamelCase(style.property)] = style.value
+  }
+  Object.assign(result, convertProperties(propertyTypes, stylesMap, colorMap, kebabToCamelCase) ?? {})
+
+  if (!custom && !('display' in result) && !('flexDirection' in result)) {
+    const key = 'flexDirection'
+    const value = convertProperty(propertyTypes, key, 'column', colorMap)
+    if (value != null) {
+      result[key] = value
     }
-    result[key] = value
   }
 
   return [result, srOnly] as const
 }
-
-const conditionals = ['sm', 'md', 'lg', 'xl', '2xl', 'focus', 'hover', 'active', 'dark']
 
 const nonWhitespaceRegex = /\S+/g
 
@@ -455,30 +498,19 @@ function convertTailwind(
   className: string,
   colorMap: ConversionColorMap | undefined,
 ) {
-  const conditionalMap = new Map<string, Array<string>>()
+  const properties: Record<string, any> = {}
 
   const withoutConditionals = className.replaceAll(conditionalRegex, (_, conditional, value) => {
-    if (conditionals.includes(conditional)) {
-      let entries = conditionalMap.get(conditional)
-      if (entries == null) {
-        conditionalMap.set(conditional, (entries = []))
-      }
-      entries.push(value)
+    properties[conditional] = {
+      ...properties[conditional],
+      ...tailwindToJson(value, classes),
     }
     return ''
   })
 
-  const result: Record<string, unknown> =
-    convertCssProperties(propertyTypes, tailwindToJson(withoutConditionals, classes), colorMap) ?? {}
+  Object.assign(properties, tailwindToJson(withoutConditionals, classes))
 
-  for (const [key, values] of conditionalMap) {
-    const properties = convertCssProperties(propertyTypes, tailwindToJson(values.join(' '), classes), colorMap)
-    if (properties == null) {
-      continue
-    }
-    result[key] = properties
-  }
-  return result
+  return convertProperties(propertyTypes, properties, colorMap) ?? {}
 }
 
 export * from './properties.js'

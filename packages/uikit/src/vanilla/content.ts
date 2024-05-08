@@ -1,11 +1,13 @@
 import { Object3D, Object3DEventMap } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, EventMap, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { ContentProperties, createContent } from '../components/index.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Content extends Object3D<EventMap & { childadded: {}; childremoved: {} }> {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly contentContainer: Object3D
   private readonly styleSignal: Signal<ContentProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ContentProperties | undefined>
@@ -42,6 +44,7 @@ export class Content extends Object3D<EventMap & { childadded: {}; childremoved:
           current: this.contentContainer,
         },
       )
+      this.mergedProperties = internals.mergedProperties
 
       //setup events
       super.add(internals.interactionPanel)
@@ -75,6 +78,14 @@ export class Content extends Object3D<EventMap & { childadded: {}; childremoved:
       this.contentContainer.remove(object)
     }
     return this
+  }
+
+  getComputedProperty<K extends keyof ContentProperties>(key: K): ContentProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<ContentProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: ContentProperties | undefined) {

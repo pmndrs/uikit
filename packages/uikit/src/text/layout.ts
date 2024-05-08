@@ -6,6 +6,7 @@ import { MeasureFunction, MeasureMode } from 'yoga-layout/load'
 import { MergedProperties } from '../properties/merged.js'
 import { readReactive } from '../utils.js'
 import { computedProperty } from '../properties/index.js'
+import { CustomLayouting } from '../internals.js'
 
 export type GlyphLayoutLine = {
   charIndexOffset: number
@@ -32,7 +33,7 @@ export type GlyphLayoutProperties = {
   wordBreak: keyof typeof wrappers
 }
 
-export function computedMeasureFunc(
+export function computedCustomLayouting(
   properties: Signal<MergedProperties>,
   fontSignal: Signal<Font | undefined>,
   textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
@@ -43,7 +44,7 @@ export function computedMeasureFunc(
   const letterSpacing = computedProperty(properties, 'letterSpacing', 0)
   const lineHeight = computedProperty<number | `${number}%`>(properties, 'lineHeight', '120%')
   const wordBreak = computedProperty(properties, 'wordBreak', defaultWordBreak)
-  return computed<MeasureFunction | undefined>(() => {
+  return computed<CustomLayouting | undefined>(() => {
     const font = fontSignal.value
     if (font == null) {
       return undefined
@@ -59,8 +60,15 @@ export function computedMeasureFunc(
     }
     propertiesRef.current = layoutProperties
 
-    return (width, widthMode) =>
-      measureGlyphLayout(layoutProperties, widthMode === MeasureMode.Undefined ? undefined : width)
+    const { width: minWidth } = measureGlyphLayout(layoutProperties, 0)
+    const { height: minHeight } = measureGlyphLayout(layoutProperties, undefined)
+
+    return {
+      minHeight,
+      minWidth,
+      measure: (width, widthMode) =>
+        measureGlyphLayout(layoutProperties, widthMode === MeasureMode.Undefined ? undefined : width),
+    }
   })
 }
 

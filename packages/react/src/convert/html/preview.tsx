@@ -5,7 +5,7 @@ import {
   ConversionNode,
   parseHtml,
 } from '@pmndrs/uikit/internals'
-import { ComponentType, Fragment, ReactNode, useMemo } from 'react'
+import { ComponentType, ReactNode, RefObject, useMemo, useRef } from 'react'
 import { DefaultProperties } from '../../default.js'
 import { Container } from '../../container.js'
 import { Input } from '../../input.js'
@@ -14,21 +14,29 @@ import { Svg } from '../../svg.js'
 import { Image } from '../../image.js'
 import { VideoContainer } from '../../video.js'
 import { Icon } from '../../icon.js'
+import { ComponentInternals } from '../../ref.js'
 
 export type ConversionComponentMap = ConversionComponentMapWihoutRenderAsComponent &
   Record<string, { renderAsImpl: ComponentType<any> }>
 
+export type CustomHook = (
+  element: ConversionNode | undefined,
+  ref: RefObject<ComponentInternals>,
+  properties: Record<string, unknown>,
+) => Record<string, unknown>
+
 export function PreviewHtml({
   children,
   colorMap,
-  componentMap,
+  customHook,
 }: {
   children: string
   colorMap?: ConversionColorMap
-  componentMap?: ConversionComponentMap
+  customHook?: CustomHook
+  wrapperComponent?: ComponentType<{}>
 }) {
   const { classes, element } = useMemo(() => parseHtml(children, colorMap), [children, colorMap])
-  return <PreviewParsedHtml classes={classes} element={element} colorMap={colorMap} componentMap={componentMap} />
+  return <PreviewParsedHtml classes={classes} element={element} colorMap={colorMap} customHook={customHook} />
 }
 
 export function PreviewParsedHtml({
@@ -36,80 +44,102 @@ export function PreviewParsedHtml({
   element,
   colorMap,
   componentMap,
+  customHook,
 }: {
   element: ConversionNode
   classes: Map<string, any>
   colorMap?: ConversionColorMap
   componentMap?: ConversionComponentMap
+  customHook?: CustomHook
 }) {
   return useMemo(() => {
     try {
-      return convertParsedHtml<ReactNode>(element, classes, createRenderElement(componentMap), colorMap, componentMap)
+      return convertParsedHtml<ReactNode>(
+        element,
+        classes,
+        createRenderElement(componentMap, customHook),
+        colorMap,
+        componentMap,
+      )
     } catch (e) {
       console.error(e)
       return null
     }
-  }, [element, classes, componentMap, colorMap])
+  }, [element, classes, componentMap, colorMap, customHook])
 }
 
-function createRenderElement(componentMap?: ConversionComponentMap) {
-  return (
-    typeName: string,
-    custom: boolean,
-    props: Record<string, unknown>,
-    index: number,
-    children?: Array<ReactNode> | undefined,
-  ): ReactNode => {
+function createRenderElement(componentMap?: ConversionComponentMap, customHook?: CustomHook) {
+  const Component = ({
+    custom,
+    props,
+    typeName,
+    children,
+    element,
+  }: {
+    element: ConversionNode | undefined
+    typeName: string
+    custom: boolean
+    props: Record<string, unknown>
+    children?: Array<ReactNode> | undefined
+  }) => {
+    const ref = useRef(null)
+    props = customHook?.(element, ref, props) ?? props
     if (custom && componentMap != null) {
       const Component = componentMap[typeName].renderAsImpl
       if (Component == null) {
         throw new Error(`unknown custom component "${typeName}"`)
       }
       return (
-        <Component key={index} {...props}>
+        <Component {...props} ref={ref}>
           {children}
         </Component>
       )
     }
     switch (typeName) {
       case 'VideoContainer':
-        return <VideoContainer key={index} {...props} />
+        return <VideoContainer {...props} ref={ref} />
       case 'Image':
         return (
-          <Image key={index} {...props}>
+          <Image {...props} ref={ref}>
             {children}
           </Image>
         )
       case 'Svg':
         return (
-          <Svg key={index} {...props}>
+          <Svg {...props} ref={ref}>
             {children}
           </Svg>
         )
       case 'Icon':
-        return <Icon key={index} {...(props as any)} />
+        return <Icon {...(props as any)} ref={ref} />
       case 'Input':
-        return <Input key={index} {...props} />
+        return <Input {...props} ref={ref} />
       case 'Text':
         return (
-          <Text key={index} {...props}>
+          <Text {...props} ref={ref}>
             {children?.join('') ?? ''}
           </Text>
         )
       case 'Container':
         return (
-          <Container key={index} {...props}>
+          <Container {...props} ref={ref}>
             {children}
           </Container>
         )
       case 'DefaultProperties':
-        return (
-          <DefaultProperties key={index} {...props}>
-            {children}
-          </DefaultProperties>
-        )
+        return <DefaultProperties {...props}>{children}</DefaultProperties>
       case 'Fragment':
-        return <Fragment key={index}>{children}</Fragment>
+        return <>{children}</>
     }
   }
+  return (
+    element: ConversionNode | undefined,
+    typeName: string,
+    custom: boolean,
+    props: Record<string, unknown>,
+    index: number,
+    children?: Array<ReactNode> | undefined,
+  ): ReactNode => (
+    <Component key={index} element={element} custom={custom} props={props} typeName={typeName} children={children} />
+  )
 }

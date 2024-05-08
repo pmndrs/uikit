@@ -1,5 +1,5 @@
-import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
-import React, { createContext, useContext, useState } from 'react'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 const toggleVariants = {
@@ -32,13 +32,15 @@ export type ToggleGroupProperties = ContainerProperties & {
   size?: keyof typeof toggleSizes
 }
 
-export function ToggleGroup({ children, size = 'default', variant = 'default', ...props }: ToggleGroupProperties) {
-  return (
-    <Container flexDirection="row" alignItems="center" justifyContent="center" gap={4} {...props}>
-      <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
-    </Container>
-  )
-}
+export const ToggleGroup: (props: ToggleGroupProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  ({ children, size = 'default', variant = 'default', ...props }, ref) => {
+    return (
+      <Container flexDirection="row" alignItems="center" justifyContent="center" gap={4} ref={ref} {...props}>
+        <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
+      </Container>
+    )
+  },
+)
 
 export type ToggleGroupItemProperties = ContainerProperties & {
   defaultChecked?: boolean
@@ -47,58 +49,57 @@ export type ToggleGroupItemProperties = ContainerProperties & {
   onCheckedChange?(checked: boolean): void
 }
 
-export function ToggleGroupItem({
-  children,
-  defaultChecked,
-  checked: providedChecked,
-  disabled = false,
-  onCheckedChange,
-  hover,
-  ...props
-}: ToggleGroupItemProperties) {
-  const { size, variant } = useContext(ToggleGroupContext)
-  const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
-  const checked = providedChecked ?? uncontrolled
-  const {
-    containerHoverProps,
-    containerProps,
-  }: {
-    containerProps?: ContainerProperties
-    containerHoverProps?: ContainerProperties['hover']
-  } = toggleVariants[variant]
-  return (
-    <Container
-      onClick={
-        disabled
-          ? undefined
-          : () => {
-              if (providedChecked == null) {
-                setUncontrolled(!checked)
-              }
-              onCheckedChange?.(!checked)
-            }
-      }
-      alignItems="center"
-      justifyContent="center"
-      borderRadius={borderRadius.md}
-      cursor={disabled ? undefined : 'pointer'}
-      backgroundOpacity={disabled ? 0.5 : undefined}
-      borderOpacity={disabled ? 0.5 : undefined}
-      backgroundColor={checked ? colors.accent : undefined}
-      hover={disabled ? hover : { backgroundColor: colors.muted, ...containerHoverProps, ...hover }}
-      {...containerProps}
-      {...toggleSizes[size]}
-      {...props}
-    >
-      <DefaultProperties
-        color={checked ? colors.accentForeground : undefined}
-        opacity={disabled ? 0.5 : undefined}
-        fontSize={14}
-        lineHeight={20}
-      >
-        {children}
-      </DefaultProperties>
-    </Container>
+export const ToggleGroupItem: (props: ToggleGroupItemProperties & RefAttributes<ComponentInternals>) => ReactNode =
+  forwardRef(
+    (
+      { children, defaultChecked, checked: providedChecked, disabled = false, onCheckedChange, hover, ...props },
+      ref,
+    ) => {
+      const { size, variant } = useContext(ToggleGroupContext)
+      const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
+      const checked = providedChecked ?? uncontrolled
+      const {
+        containerHoverProps,
+        containerProps,
+      }: {
+        containerProps?: ContainerProperties
+        containerHoverProps?: ContainerProperties['hover']
+      } = toggleVariants[variant]
+      return (
+        <Container
+          onClick={
+            disabled
+              ? undefined
+              : () => {
+                  if (providedChecked == null) {
+                    setUncontrolled(!checked)
+                  }
+                  onCheckedChange?.(!checked)
+                }
+          }
+          alignItems="center"
+          justifyContent="center"
+          borderRadius={borderRadius.md}
+          cursor={disabled ? undefined : 'pointer'}
+          backgroundOpacity={disabled ? 0.5 : undefined}
+          borderOpacity={disabled ? 0.5 : undefined}
+          backgroundColor={checked ? colors.accent : undefined}
+          hover={disabled ? hover : { backgroundColor: colors.muted, ...containerHoverProps, ...hover }}
+          ref={ref}
+          {...containerProps}
+          {...toggleSizes[size]}
+          {...props}
+        >
+          <DefaultProperties
+            color={checked ? colors.accentForeground : undefined}
+            opacity={disabled ? 0.5 : undefined}
+            fontSize={14}
+            lineHeight={20}
+          >
+            {children}
+          </DefaultProperties>
+        </Container>
+      )
+      //TODO: hover:text-muted-foreground
+    },
   )
-  //TODO: hover:text-muted-foreground
-}

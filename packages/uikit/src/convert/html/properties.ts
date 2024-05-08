@@ -1,5 +1,4 @@
-import { ReadonlySignal, Signal } from '@preact/signals-core'
-import { ColorRepresentation } from '../../utils.js'
+import { ColorRepresentation, percentageRegex } from '../../utils.js'
 import { CSSProperties } from 'react'
 
 export type ConversionPropertyType = Array<string | Array<string>> //<- enum
@@ -10,7 +9,8 @@ export type ConversionPropertyTypes =
 
 export type ConversionColorMap = Record<string, ColorRepresentation | (() => ColorRepresentation)>
 
-const yogaPropertyRenamings = {
+const propertyRenamings = {
+  //yoga
   rowGap: 'gapRow',
   columnGap: 'gapColumn',
   position: 'positionType',
@@ -18,12 +18,45 @@ const yogaPropertyRenamings = {
   left: 'positionLeft',
   right: 'positionRight',
   bottom: 'positionBottom',
+  //ours
+  zIndex: 'zIndexOffset',
 }
 
-const cssShorthandPropertyTranslation: Record<
-  string,
-  (set: (key: string, value: string) => void, property: unknown) => void
-> = {
+const transformRegex = /(translate|rotate)(X|Y|Z|3d)?\((\s*[^,)]+\s*(?:,\s*[^,)]+\s*)*)\)/g
+
+const customCssTranslation: Record<string, (set: (key: string, value: string) => void, property: unknown) => void> = {
+  transform: (set, property) => {
+    if (typeof property != 'string') {
+      return
+    }
+    let result: RegExpExecArray | null
+    while ((result = transformRegex.exec(property)) != null) {
+      const [, operation, type, values] = result
+      let [x, y, z] = values.split(',').map((s) => s.trim())
+
+      const prefix = `transform${operation[0].toUpperCase()}${operation.slice(1)}`
+
+      if (operation === 'rotate') {
+        set(`${prefix}Z`, x)
+        continue
+      }
+
+      y ??= x
+      z ??= x
+
+      if (type === 'X' || type === '3d' || type === undefined) {
+        set(`${prefix}X`, x)
+      }
+
+      if (type === 'Y' || type === '3d' || type === undefined) {
+        set(`${prefix}Y`, y)
+      }
+
+      if (type === 'Z' || type === '3d') {
+        set(`${prefix}Z`, z)
+      }
+    }
+  },
   flex: (set, property) => {
     //TODO: simplify
     if (typeof property != 'string') {
@@ -96,7 +129,7 @@ export function isInheritingProperty(key: string): boolean {
   }
 }
 
-const percentageRegex = /^(-?\d+|\d*\.\d+)\%$/
+const conditionals = ['sm', 'md', 'lg', 'xl', '2xl', 'focus', 'hover', 'active', 'dark']
 
 export function convertProperties(
   propertyTypes: ConversionPropertyTypes,
@@ -117,18 +150,48 @@ export function convertProperties(
   }
   for (let key in properties) {
     let property = properties[key as keyof CSSProperties]
-    if (key in yogaPropertyRenamings) {
-      key = yogaPropertyRenamings[key as keyof typeof yogaPropertyRenamings]
+    if (conditionals.includes(key) && property != null && typeof property === 'object') {
+      const conditionalProperties = convertProperties(propertyTypes, property, colorMap, convertKey)
+      if (conditionalProperties != null) {
+        if (result == null) {
+          result = {}
+        }
+        result[key] = conditionalProperties
+        continue
+      }
+    }
+    if (key in propertyRenamings) {
+      key = propertyRenamings[key as keyof typeof propertyRenamings]
     }
     if (convertKey != null) {
       key = convertKey(key)
     }
-    if (key in cssShorthandPropertyTranslation) {
-      cssShorthandPropertyTranslation[key](set, property)
+    if (key in customCssTranslation) {
+      customCssTranslation[key](set, property)
       continue
+    }
+    if (key === 'positionType' && property === 'fixed') {
+      property = 'absolute'
     }
     if (key === 'display' && property === 'block') {
       property = 'flex'
+    }
+    if (key === 'overflow' && property === 'auto') {
+      property = 'scroll'
+    }
+    if (key === 'borderColor' && property === 'transparent') {
+      key = 'borderOpacity'
+      property = '0'
+    }
+    if (key === 'backgroundColor' && property === 'transparent') {
+      if (result == null) {
+        result = {}
+      }
+      result[key] = undefined
+      return
+    }
+    if (key === 'opacity') {
+      set('backgroundOpacity', property)
     }
     set(key, property)
   }

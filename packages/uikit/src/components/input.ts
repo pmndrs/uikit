@@ -61,7 +61,7 @@ export type InheritableInputProperties = WithClasses<
             PanelGroupProperties &
             InstancedTextProperties &
             DisabledProperties &
-            PasswordProperties &
+            InputTypeProperties &
             VisibilityProperties
         >
       >
@@ -73,8 +73,10 @@ export type DisabledProperties = {
   disabled?: boolean
 }
 
-export type PasswordProperties = {
-  password?: boolean
+export type InputType = 'text' | 'password'
+
+export type InputTypeProperties = {
+  type?: InputType
 }
 
 const cancelSet = new Set<PointerEvent>()
@@ -215,16 +217,15 @@ export function createInput(
   const writeValue =
     style.value?.value == null && properties.value?.value == null ? signal(defaultValue ?? '') : undefined
   const valueSignal = computed(() => {
-    const password = readReactive(properties.value?.password);
-    const value = writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value);
+    const password = readReactive(properties.value?.password)
+    const value = writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value)
     if (password) {
-      return '*'.repeat(value?.length ?? 0);
+      return '*'.repeat(value?.length ?? 0)
     }
-    return value ?? '';
-  });
+    return value ?? ''
+  })
   const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
-  const password = properties.peek()?.password ?? false
-  const measureFunc = createInstancedText(
+  const customLayouting = createInstancedText(
     mergedProperties,
     valueSignal,
     globalMatrix,
@@ -242,12 +243,13 @@ export function createInput(
     initializers,
     multiline ? 'break-word' : 'keep-all',
   )
-  initializers.push(() => effect(() => nodeSignal.value?.setMeasureFunc(measureFunc)))
+  initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupViewportListeners(style, properties, isVisible, initializers)
 
   const disabled = computedProperty(mergedProperties, 'disabled', false)
+  const type = computedProperty<InputType>(mergedProperties, 'type', 'text')
 
   const element = createHtmlInputElement(
     valueSignal,
@@ -260,7 +262,7 @@ export function createInput(
       properties.peek()?.onValueChange?.(newValue)
     },
     multiline,
-    password,
+    type,
     disabled,
     computedProperty(mergedProperties, 'tabIndex', 0),
     initializers,
@@ -282,6 +284,7 @@ export function createInput(
   const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
+    mergedProperties,
     valueSignal,
     focus: () => focus(),
     root: parentContext.root,
@@ -358,7 +361,7 @@ export function createHtmlInputElement(
   selectionRange: Signal<Vector2Tuple | undefined>,
   onChange: (value: string) => void,
   multiline: boolean,
-  password: boolean,
+  type: Signal<InputType>,
   disabled: Signal<boolean>,
   tabIndex: Signal<number>,
   initializers: Initializers,
@@ -366,9 +369,6 @@ export function createHtmlInputElement(
   const elementSignal = signal<HTMLInputElement | HTMLTextAreaElement | undefined>(undefined)
   initializers.push((subscriptions) => {
     const element = document.createElement(multiline ? 'textarea' : 'input')
-    if (password) {
-      element.setAttribute('type', 'password')
-    }
     const style = element.style
     style.setProperty('position', 'absolute')
     style.setProperty('left', '-1000vw')
@@ -403,6 +403,7 @@ export function createHtmlInputElement(
       effect(() => (element.value = value.value)),
       effect(() => (element.disabled = disabled.value)),
       effect(() => (element.tabIndex = tabIndex.value)),
+      effect(() => element.setAttribute('type', type.value)),
     )
     return subscriptions
   })

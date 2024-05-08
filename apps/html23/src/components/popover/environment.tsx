@@ -7,11 +7,22 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip.js'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useEditorStore } from '@/state.js'
 
-const backgroundPresets = ['apartment', 'city', 'dawn', 'forest', 'lobby', 'night', 'park', 'studio', 'sunset'] as const
-const backgroundColors = [0xffffff, 0x0, 0xadd8e6, 0x90ee90, 0xd3d3d3, 0xffffe0, 0xffb6c1, 0xe6e6fa, 0xffdab9]
+export const environmentPresets = [
+  'apartment',
+  'city',
+  'dawn',
+  'forest',
+  'lobby',
+  'night',
+  'park',
+  'studio',
+  'sunset',
+] as const
+export const environmentColors = [0xffffff, 0x0, 0xadd8e6, 0x90ee90, 0xd3d3d3, 0xffffe0, 0xffb6c1, 0xe6e6fa, 0xffdab9]
+export const environmentColorNames = ['White', 'Black', 'Blue', 'Green', 'Grey', 'Yellow', 'Pink', 'Lavender', 'Peach']
 
-export function BackgroundPopover() {
-  const background = useEditorStore((state) => state.background)
+export function EnvironmentPopover() {
+  const environment = useEditorStore((state) => state.environment)
   return (
     <Popover>
       <Tooltip>
@@ -22,21 +33,21 @@ export function BackgroundPopover() {
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent side="left">Change Background</TooltipContent>
+        <TooltipContent side="left">Change Environment</TooltipContent>
       </Tooltip>
       <PopoverContent side="left" className="w-auto p-0">
         <Card className="flex flex-col gap-4 p-4 bg-background">
           <div className="flex flex-col gap-2">
-            <h4 className="font-medium leading-none">Background</h4>
-            <p className="text-sm text-muted-foreground ">Choose a background.</p>
+            <h4 className="font-medium leading-none">Environment</h4>
+            <p className="text-sm text-muted-foreground ">Choose a environment.</p>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {backgroundColors.map((color) => (
+            {environmentColors.map((color) => (
               <PopoverClose asChild key={color}>
                 <Button
-                  onClick={() => useEditorStore.getState().setBackground(color)}
+                  onClick={() => useEditorStore.getState().setEnvironment(color)}
                   variant="ghost"
-                  className={cn(color === background && 'border-2 border-white')}
+                  className={cn(color === environment && 'border-2 border-white')}
                   size="icon"
                 >
                   <div
@@ -46,12 +57,12 @@ export function BackgroundPopover() {
                 </Button>
               </PopoverClose>
             ))}
-            {backgroundPresets.map((preset) => (
+            {environmentPresets.map((preset) => (
               <PopoverClose asChild key={preset}>
                 <Button
                   variant="ghost"
-                  onClick={() => useEditorStore.getState().setBackground(preset)}
-                  className={cn(preset === background && 'border-2 border-white')}
+                  onClick={() => useEditorStore.getState().setEnvironment(preset)}
+                  className={cn(preset === environment && 'border-2 border-white')}
                   size="icon"
                 >
                   <img src={`./${preset}.png`} className="rounded w-6 h-6" />

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 11.8%;
+    --background: 226 19.4% 13.1%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -33,6 +33,18 @@
   }
 }
 
+body {
+  user-select: none;
+  touch-action: none;
+}
+
 * {
   scrollbar-color: gray transparent;
+}
+
+.background-pattern {
+  background-color: #e5e5f7;
+  opacity: 0.8;
+  background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #e5e5f7 10px),
+    repeating-linear-gradient(#444cf755, #444cf7);
 }

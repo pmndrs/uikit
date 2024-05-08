@@ -1,4 +1,4 @@
-import { ArrowRight, Rocket } from 'lucide-react'
+import { Rocket } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -10,18 +10,35 @@ import {
 } from './ui/dialog.js'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip.js'
 import { Button } from './ui/button.js'
-import { Label } from './ui/label.js'
 import { DialogClose } from '@radix-ui/react-dialog'
+import { create } from 'zustand'
+
+const useDeployDialogStore = create<boolean>(() => false)
+
+export function showDeployDialog() {
+  useDeployDialogStore.setState(true)
+}
 
 export function DeployDialog() {
+  const open = useDeployDialogStore()
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={useDeployDialogStore.setState}>
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="outline" className="flex flex-row items-center gap-2 pl-3">
-              <Rocket />
+            <Button variant="outline" className="hidden md:flex flex-row items-center gap-2">
+              <Rocket className="h-5" />
               Deploy
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Deploy the Project</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="ghost" className="md:hidden" size="icon">
+              <Rocket className="h-4 w-4" />
             </Button>
           </DialogTrigger>
         </TooltipTrigger>

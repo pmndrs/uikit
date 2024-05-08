@@ -1,28 +1,33 @@
-import { Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
-import React, { ReactNode } from 'react'
+import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 export type CardProperties = ContainerProperties
 
-export function Card({ children, ...props }: CardProperties) {
-  return (
-    <Container
-      flexDirection="column"
-      borderRadius={borderRadius.lg}
-      borderWidth={1}
-      backgroundColor={colors.card}
-      {...props}
-    >
-      <DefaultProperties color={colors.cardForeground}>{children}</DefaultProperties>
-    </Container>
-  )
-}
+export const Card: (props: CardProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  ({ children, ...props }, ref) => {
+    return (
+      <Container
+        flexDirection="column"
+        borderRadius={borderRadius.lg}
+        borderWidth={1}
+        backgroundColor={colors.card}
+        ref={ref}
+        {...props}
+      >
+        <DefaultProperties color={colors.cardForeground}>{children}</DefaultProperties>
+      </Container>
+    )
+  },
+)
 
 export type CardHeaderProperties = ContainerProperties
 
-export function CardHeader(props: CardHeaderProperties) {
-  return <Container padding={24} flexDirection="column" gap={6} {...props} />
-}
+export const CardHeader: (props: CardHeaderProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  (props, ref) => {
+    return <Container padding={24} flexDirection="column" gap={6} ref={ref} {...props} />
+  },
+)
 
 export type CardTitleProperties = { children?: ReactNode }
 
@@ -38,12 +43,16 @@ export function CardDescription(props: CardDescriptionProperties) {
 
 export type CardContentProperties = ContainerProperties
 
-export function CardContent(props: CardContentProperties) {
-  return <Container padding={24} paddingTop={0} {...props} />
-}
+export const CardContent: (props: CardContentProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  (props, ref) => {
+    return <Container padding={24} paddingTop={0} ref={ref} {...props} />
+  },
+)
 
 export type CardFooterProperties = ContainerProperties
 
-export function CardFooter(props: CardFooterProperties) {
-  return <Container flexDirection="row" alignItems="center" padding={24} paddingTop={0} {...props} />
-}
+export const CardFooter: (props: CardFooterProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  (props, ref) => {
+    return <Container flexDirection="row" alignItems="center" padding={24} paddingTop={0} ref={ref} {...props} />
+  },
+)

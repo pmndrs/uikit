@@ -10,6 +10,22 @@ import { baseBorderRadius, themeName } from '@react-three/uikit-default'
 import { compress, decompress } from 'brotli-compress'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, getDoc, doc, setDoc, addDoc, collection } from 'firebase/firestore'
+import CardExample from './examples/card.json'
+
+export type UiState = {
+  showEditor?: boolean
+  showOutputCode?: boolean
+}
+
+export const useUiState = create(
+  persist<UiState>(
+    () => ({
+      showEditor: false,
+      showOutputCode: false,
+    }),
+    { name: 'html23-ui' },
+  ),
+)
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCaBoJlRYNt3hSE4HeGE0quMKduBpSOYxQ',
@@ -27,7 +43,7 @@ const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
 const EditorStateSchema = z.object({
-  background: z
+  environment: z
     .enum(['apartment', 'city', 'dawn', 'forest', 'lobby', 'night', 'park', 'studio', 'sunset', 'warehouse'])
     .or(z.coerce.number())
     .default(0xffffff),
@@ -50,7 +66,7 @@ function parseState(object: any) {
   try {
     return EditorStateSchema.parse(object)
   } catch (e: any) {
-    return EditorStateSchema.parse({})
+    return EditorStateSchema.parse(CardExample)
   }
 }
 
@@ -76,7 +92,8 @@ async function urlParamsToObject() {
 
 const localStorageKey = 'html23-state'
 
-const initialState = parseState(JSON.parse(localStorage.getItem(localStorageKey) ?? '{}'))
+const fromLocalStorage = localStorage.getItem(localStorageKey)
+const initialState = parseState(fromLocalStorage == null ? CardExample : JSON.parse(fromLocalStorage))
 
 const textDecoder = new TextDecoder()
 const textEncoder = new TextEncoder()
@@ -91,19 +108,25 @@ async function encode(object: any) {
   return btoa(String.fromCodePoint(...(await compress(binString))))
 }
 
+export function confirmNotOverrride(): boolean {
+  if (
+    useEditorStore.getState().code.length > 0 &&
+    !window.confirm(
+      'Caution! You are overwriting your existing project by importing this example. Do you want to continue?',
+    )
+  ) {
+    return false
+  }
+  return true
+}
+
 export const useEditorStore = create(
   combine(initialState, (set, get) => ({
     setTheme(theme: keyof typeof themes) {
       set({ theme })
     },
     setExample(state: any) {
-      const currentState = get()
-      if (
-        currentState.code.length > 0 &&
-        !window.confirm(
-          'Caution! You are overwriting your existing project by importing this example. Do you want to continue?',
-        )
-      ) {
+      if (!confirmNotOverrride()) {
         return
       }
       set(state)
@@ -121,7 +144,6 @@ export const useEditorStore = create(
     },
     async generateLink() {
       const url = new URL(window.location.href)
-      console.log(textDecoder.decode(await compress(textEncoder.encode(JSON.stringify(get())))))
       url.search = ''
       const data = await encode(get())
       const docRef = await addDoc(collection(db, 'links'), {
@@ -136,8 +158,8 @@ export const useEditorStore = create(
     setLightMode(lightMode: boolean) {
       set({ lightMode })
     },
-    setBackground(background: EditorState['background'] | number) {
-      set({ background })
+    setEnvironment(environment: EditorState['environment'] | number) {
+      set({ environment })
     },
     setVignetteEffect(vignetteEffect: CheckedState) {
       if (typeof vignetteEffect === 'string') {
@@ -227,6 +249,14 @@ function tryParseHtml(prevResult: ParsedHtmlState['parsed'], code: string): Pars
       error: e.message,
     }
   }
+}
+
+export function setCodeBasedOnParsedHtml() {
+  const { parsed } = useParsedHtmlStore.getState()
+  if (parsed == null) {
+    return
+  }
+  useEditorStore.setState({ code: parsed.element.toString() })
 }
 
 export const useParsedHtmlStore = create<

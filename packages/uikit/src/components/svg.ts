@@ -37,7 +37,7 @@ import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { SVGLoader } from 'three/examples/jsm/Addons.js'
+import { SVGLoader, SVGResult } from 'three/examples/jsm/Addons.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { KeepAspectRatioProperties } from './image.js'
@@ -190,6 +190,7 @@ export function createSvg(
   setupViewportListeners(style, properties, isVisible, initializers)
 
   return Object.assign(flexState, {
+    mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(
       globalMatrix,
@@ -257,6 +258,8 @@ const loader = new SVGLoader()
 const box3Helper = new Box3()
 const vectorHelper = new Vector3()
 
+const svgCache = new Map<string, SVGResult>()
+
 async function loadSvg(
   url: string | undefined,
   root: RootContext,
@@ -270,7 +273,10 @@ async function loadSvg(
   }
   const object = new Group()
   object.matrixAutoUpdate = false
-  const result = await loader.loadAsync(url)
+  let result = svgCache.get(url)
+  if (result == null) {
+    svgCache.set(url, (result = await loader.loadAsync(url)))
+  }
   box3Helper.makeEmpty()
   for (const path of result.paths) {
     const shapes = SVGLoader.createShapes(path)

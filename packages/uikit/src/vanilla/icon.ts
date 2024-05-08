@@ -1,11 +1,13 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { IconProperties, createIcon } from '../components/icon.js'
+import { MergedProperties } from '../properties/index.js'
 
 export class Icon extends Object3D {
+  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<IconProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<IconProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -39,6 +41,7 @@ export class Icon extends Object3D {
         this.defaultPropertiesSignal,
         { current: this },
       )
+      this.mergedProperties = internals.mergedProperties
 
       super.add(internals.interactionPanel)
       super.add(internals.iconGroup)
@@ -51,6 +54,14 @@ export class Icon extends Object3D {
         unsubscribeSubscriptions(subscriptions)
       }
     })
+  }
+
+  getComputedProperty<K extends keyof IconProperties>(key: K): IconProperties[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  }
+
+  getStyle(): undefined | Readonly<IconProperties> {
+    return this.styleSignal.peek()
   }
 
   setStyle(style: IconProperties | undefined) {

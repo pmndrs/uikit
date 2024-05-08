@@ -25,4 +25,4 @@ export type {
 } from './components/index.js'
 export * from './vanilla/index.js'
 export { htmlToCode } from './convert/html/index.js'
-export { ColorRepresentation } from './utils.js'
+export type { ColorRepresentation } from './utils.js'

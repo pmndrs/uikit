@@ -1,5 +1,11 @@
-import { Container, ContainerProperties, DefaultProperties, DefaultPropertiesProperties } from '@react-three/uikit'
-import React from 'react'
+import {
+  ComponentInternals,
+  Container,
+  ContainerProperties,
+  DefaultProperties,
+  DefaultPropertiesProperties,
+} from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { colors } from './theme.js'
 
 const badgeVariants = {
@@ -41,29 +47,32 @@ const badgeVariants = {
 
 export type BadgeProperties = ContainerProperties & { variant?: keyof typeof badgeVariants }
 
-export function Badge({ children, variant = 'default', hover, ...props }: BadgeProperties) {
-  const {
-    containerProps,
-    defaultProps,
-    containerHoverProps,
-  }: {
-    defaultProps?: DefaultPropertiesProperties
-    containerProps?: Omit<ContainerProperties, 'hover'>
-    containerHoverProps?: ContainerProperties['hover']
-  } = badgeVariants[variant]
-  return (
-    <Container
-      borderRadius={1000}
-      borderWidth={1}
-      paddingX={10}
-      paddingY={2}
-      hover={{ ...containerHoverProps, ...hover }}
-      {...containerProps}
-      {...props}
-    >
-      <DefaultProperties fontSize={12} lineHeight={16} fontWeight="semi-bold" {...defaultProps}>
-        {children}
-      </DefaultProperties>
-    </Container>
-  )
-}
+export const Badge: (props: BadgeProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+  ({ children, variant = 'default', hover, ...props }, ref) => {
+    const {
+      containerProps,
+      defaultProps,
+      containerHoverProps,
+    }: {
+      defaultProps?: DefaultPropertiesProperties
+      containerProps?: Omit<ContainerProperties, 'hover'>
+      containerHoverProps?: ContainerProperties['hover']
+    } = badgeVariants[variant]
+    return (
+      <Container
+        borderRadius={1000}
+        borderWidth={1}
+        paddingX={10}
+        paddingY={2}
+        hover={{ ...containerHoverProps, ...hover }}
+        ref={ref}
+        {...containerProps}
+        {...props}
+      >
+        <DefaultProperties fontSize={12} lineHeight={16} fontWeight="semi-bold" {...defaultProps}>
+          {children}
+        </DefaultProperties>
+      </Container>
+    )
+  },
+)

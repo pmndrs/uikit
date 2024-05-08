@@ -15,6 +15,7 @@ const ResizablePanel = ResizablePrimitive.Panel
 const ResizableHandle = ({
   withHandle,
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
   withHandle?: boolean
@@ -31,6 +32,7 @@ const ResizableHandle = ({
         <GripVertical className="h-2.5 w-2.5" />
       </div>
     )}
+    {children}
   </ResizablePrimitive.PanelResizeHandle>
 )
 
