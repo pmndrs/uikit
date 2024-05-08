@@ -1,8 +1,8 @@
 import { Image } from './image.js'
 import { VideoTexture } from 'three'
-import { AllOptionalProperties, ImageProperties, VideoContainerProperties } from '../index.js'
 import { Signal, signal } from '@preact/signals-core'
-import { updateVideoElement } from '../components/index.js'
+import { ImageProperties, VideoContainerProperties, updateVideoElement } from '../components/index.js'
+import { AllOptionalProperties } from '../properties/index.js'
 
 export class VideoContainer extends Image {
   public readonly element: HTMLVideoElement

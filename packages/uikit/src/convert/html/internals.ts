@@ -2,11 +2,11 @@ import { parse as parseHTML, Node as ConversionNode, TextNode, HTMLElement } fro
 import { htmlDefaults } from './defaults.js'
 import parseInlineCSS, { Declaration, Comment } from 'inline-style-parser'
 import { tailwindToCSS } from 'tw-to-css'
-import generatedPropertyTypes from './properties.json' assert { type: 'json' }
+//@ts-ignore
+import { generatedPropertyTypes } from './generated-property-types.js'
 import {
   ConversionColorMap,
   ConversionPropertyTypes,
-  convertProperties as convertCssProperties,
   convertProperties,
   convertProperty,
   isInheritingProperty,
@@ -454,17 +454,14 @@ function convertHtmlAttributes(
       styles = parseInlineCSS(style)
     }
   } catch {}
+  const stylesMap: Record<string, string> = {}
   for (const style of styles) {
     if (style.type === 'comment') {
       continue
     }
-    const key = kebabToCamelCase(style.property)
-    const value = convertProperty(propertyTypes, key, style.value, colorMap)
-    if (value == null) {
-      continue
-    }
-    result[key] = value
+    stylesMap[kebabToCamelCase(style.property)] = style.value
   }
+  Object.assign(result, convertProperties(propertyTypes, stylesMap, colorMap, kebabToCamelCase) ?? {})
 
   if (!custom && !('display' in result) && !('flexDirection' in result)) {
     const key = 'flexDirection'
@@ -513,7 +510,7 @@ function convertTailwind(
 
   Object.assign(properties, tailwindToJson(withoutConditionals, classes))
 
-  return convertCssProperties(propertyTypes, properties, colorMap) ?? {}
+  return convertProperties(propertyTypes, properties, colorMap) ?? {}
 }
 
 export * from './properties.js'

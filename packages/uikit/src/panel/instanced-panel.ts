@@ -8,7 +8,7 @@ import { ColorRepresentation, Subscriptions, unsubscribeSubscriptions } from '..
 import { MergedProperties } from '../properties/merged.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { OrderInfo } from '../order.js'
-import { PanelMaterialConfig } from './index.js'
+import { PanelMaterialConfig } from './panel-material.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number

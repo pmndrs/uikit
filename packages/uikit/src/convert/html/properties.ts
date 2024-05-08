@@ -1,5 +1,4 @@
-import { ReadonlySignal, Signal } from '@preact/signals-core'
-import { ColorRepresentation } from '../../utils.js'
+import { ColorRepresentation, percentageRegex } from '../../utils.js'
 import { CSSProperties } from 'react'
 
 export type ConversionPropertyType = Array<string | Array<string>> //<- enum
@@ -23,10 +22,41 @@ const propertyRenamings = {
   zIndex: 'zIndexOffset',
 }
 
-const cssShorthandPropertyTranslation: Record<
-  string,
-  (set: (key: string, value: string) => void, property: unknown) => void
-> = {
+const transformRegex = /(translate|rotate)(X|Y|Z|3d)?\((\s*[^,)]+\s*(?:,\s*[^,)]+\s*)*)\)/g
+
+const customCssTranslation: Record<string, (set: (key: string, value: string) => void, property: unknown) => void> = {
+  transform: (set, property) => {
+    if (typeof property != 'string') {
+      return
+    }
+    let result: RegExpExecArray | null
+    while ((result = transformRegex.exec(property)) != null) {
+      const [, operation, type, values] = result
+      let [x, y, z] = values.split(',').map((s) => s.trim())
+
+      const prefix = `transform${operation[0].toUpperCase()}${operation.slice(1)}`
+
+      if (operation === 'rotate') {
+        set(`${prefix}Z`, x)
+        continue
+      }
+
+      y ??= x
+      z ??= x
+
+      if (type === 'X' || type === '3d' || type === undefined) {
+        set(`${prefix}X`, x)
+      }
+
+      if (type === 'Y' || type === '3d' || type === undefined) {
+        set(`${prefix}Y`, y)
+      }
+
+      if (type === 'Z' || type === '3d') {
+        set(`${prefix}Z`, z)
+      }
+    }
+  },
   flex: (set, property) => {
     //TODO: simplify
     if (typeof property != 'string') {
@@ -99,8 +129,6 @@ export function isInheritingProperty(key: string): boolean {
   }
 }
 
-const percentageRegex = /^(-?\d+|\d*\.\d+)\%$/
-
 const conditionals = ['sm', 'md', 'lg', 'xl', '2xl', 'focus', 'hover', 'active', 'dark']
 
 export function convertProperties(
@@ -138,8 +166,8 @@ export function convertProperties(
     if (convertKey != null) {
       key = convertKey(key)
     }
-    if (key in cssShorthandPropertyTranslation) {
-      cssShorthandPropertyTranslation[key](set, property)
+    if (key in customCssTranslation) {
+      customCssTranslation[key](set, property)
       continue
     }
     if (key === 'positionType' && property === 'fixed') {

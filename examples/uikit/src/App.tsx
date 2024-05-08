@@ -55,7 +55,7 @@ export default function App() {
             borderRightWidth={0}
             borderColor="red"
           >
-            <Portal flexShrink={0} borderRadius={30} width={200} aspectRatio={2}>
+            <Portal flexShrink={0} borderRadius={30} width={200} aspectRatio={1}>
               <PerspectiveCamera makeDefault position={[0, 0, 4]} />
               <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
               <color attach="background" args={['red']} />

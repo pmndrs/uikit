@@ -1,8 +1,8 @@
-import { effect } from '@preact/signals-core'
+import { Signal, computed, effect } from '@preact/signals-core'
 import { ReactNode, RefAttributes, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { HalfFloatType, LinearFilter, Scene, WebGLRenderTarget } from 'three'
 import { Image } from './image.js'
-import { InjectState, RootState, createPortal, useFrame, useStore } from '@react-three/fiber'
+import { InjectState, RootState, createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import type { DomEvent, EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import type { ImageProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
@@ -21,16 +21,7 @@ export type PortalProperties = {
 export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals<PortalProperties>>) => ReactNode =
   forwardRef(
     ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      const fbo = useMemo(
-        () =>
-          new WebGLRenderTarget(1, 1, {
-            minFilter: LinearFilter,
-            magFilter: LinearFilter,
-            type: HalfFloatType,
-          }),
-        [],
-      )
+      const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
       const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
       const injectState = useMemo<InjectState>(
         () => ({
@@ -39,28 +30,35 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
         }),
         [eventPriority],
       )
+      const store = useStore()
       useEffect(() => {
         if (imageRef.current == null) {
           return
         }
+        const renderTarget = (fbo.value = new WebGLRenderTarget(1, 1, {
+          minFilter: LinearFilter,
+          magFilter: LinearFilter,
+          type: HalfFloatType,
+        }))
         const { size } = imageRef.current
         const unsubscribeSetSize = effect(() => {
           if (size.value == null) {
             return
           }
           const [width, height] = size.value
-          fbo.setSize(width, height)
+          const dpr = store.getState().viewport.dpr
+          renderTarget.setSize(width * dpr, height * dpr)
           injectState.size!.width = width
           injectState.size!.height = height
         })
         return () => {
           unsubscribeSetSize()
-          //TODO: portal wont work in strict mode
-          fbo.dispose()
+          renderTarget.dispose()
         }
-      }, [fbo, injectState])
+      }, [fbo, injectState, store])
       useImperativeHandle(ref, () => imageRef.current!, [])
       const vScene = useMemo(() => new Scene(), [])
+      const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
       return (
         <>
           {createPortal(
@@ -72,7 +70,7 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
             vScene,
             injectState,
           )}
-          <Image src={fbo.texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
+          <Image src={texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
         </>
       )
     },
@@ -108,7 +106,7 @@ function ChildrenToFBO({
   frames: number
   renderPriority: number
   children: ReactNode
-  fbo: WebGLRenderTarget
+  fbo: Signal<WebGLRenderTarget | undefined>
   imageRef: RefObject<ComponentInternals<ImageProperties>>
 }) {
   const store = useStore()
@@ -129,12 +127,16 @@ function ChildrenToFBO({
   let oldAutoClear
   let oldXrEnabled
   useFrame((state) => {
+    const currentFBO = fbo.peek()
+    if (currentFBO == null) {
+      return
+    }
     if (frames === Infinity || count < frames) {
       oldAutoClear = state.gl.autoClear
       oldXrEnabled = state.gl.xr.enabled
       state.gl.autoClear = true
       state.gl.xr.enabled = false
-      state.gl.setRenderTarget(fbo)
+      state.gl.setRenderTarget(currentFBO)
       state.gl.render(state.scene, state.camera)
       state.gl.setRenderTarget(null)
       state.gl.autoClear = oldAutoClear

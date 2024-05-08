@@ -48,8 +48,8 @@ function OnboardDialog() {
   const [suggestedTutorials, setSuggestedTutorials] = useState<Array<SuggestedTutorial> | undefined>(undefined)
   return (
     <Dialog onOpenChange={skipOnboarding} open>
-      <DialogContent className="flex flex-col flex-shrink bg-black">
-        <div className="flex flex-col gap-6 items-center mb-8">
+      <DialogContent className="flex flex-col flex-shrink bg-black" style={{ maxHeight: '95dvh', overflowY: 'auto' }}>
+        <div className="flex flex-col gap-6 items-center mb-6">
           <img width={100} src="./logo.svg" />
           <h1 className="font-bold text-2xl">Welcome to HTML23</h1>
         </div>
@@ -75,6 +75,14 @@ function ExperienceQuestionnaire({
   return (
     <>
       <h2 className="text-muted-foreground">HTML23 simplifies building 3D user interfaces on the web.</h2>
+      <iframe
+        style={{ width: '100%', aspectRatio: 1.7777777 }}
+        src="https://www.youtube.com/embed/9mYR_WvC71Q?si=MVRXzIHzzYL4OLVI&amp;controls=0"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      ></iframe>
 
       <h3 className="text-foreground">
         For the best experience answer the following questions to the best of your knowledge.

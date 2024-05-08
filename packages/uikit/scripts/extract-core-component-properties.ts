@@ -85,4 +85,7 @@ const result = {
     ),
   ),
 }
-writeFileSync(resolve(__dirname, '../src/convert/html/properties.json'), JSON.stringify(result))
+writeFileSync(
+  resolve(__dirname, '../src/convert/html/generated-property-types.ts'),
+  `export const generatedPropertyTypes = ${JSON.stringify(result)}`,
+)
