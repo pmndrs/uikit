@@ -6,7 +6,7 @@ import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
-import { computedProperty } from './properties/batched.js'
+import { computedInheritableProperty } from './properties/utils.js'
 import { MergedProperties } from './properties/merged.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupManager, defaultPanelDependencies } from './panel/instanced-panel-group.js'
@@ -307,7 +307,7 @@ export function createScrollbars(
 ): void {
   const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, orderInfo)
 
-  const scrollbarWidth = computedProperty(propertiesSignal, 'scrollbarWidth', 10)
+  const scrollbarWidth = computedInheritableProperty(propertiesSignal, 'scrollbarWidth', 10)
 
   const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
   createScrollbar(

@@ -1,7 +1,7 @@
 import { Signal, computed } from '@preact/signals-core'
 import { RenderItem } from 'three'
 import { MergedProperties } from './properties/merged.js'
-import { computedProperty } from './properties/index.js'
+import { computedInheritableProperty } from './properties/index.js'
 import { readReactive } from './utils.js'
 
 export type WithCameraDistance = { cameraDistance: number }
@@ -77,7 +77,7 @@ export function computedOrderInfo(
   const zIndexOffset =
     propertiesSignal == null
       ? undefined
-      : computedProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
+      : computedInheritableProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
   return computed(() => {
     let parentOrderInfo: OrderInfo | undefined
     if (parentOrderInfoSignal == null) {

@@ -15,7 +15,7 @@ export type InputProperties = Omit<BaseInputProperties, 'multiline'> & { placeho
 
 export const Input: (props: InputProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
   (
-    { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled = false, placeholder, type, ...props },
+    { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled, placeholder, type, ...props },
     ref,
   ) => {
     const [internal, setInternal] = useState<InputInternals | null>(null)

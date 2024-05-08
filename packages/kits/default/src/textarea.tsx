@@ -15,7 +15,7 @@ export type TextareaProperties = Omit<BaseInputProperties, 'multiline'> & { plac
 
 export const Textarea: (props: TextareaProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
   (
-    { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled = false, placeholder, ...props },
+    { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled, placeholder, type, ...props },
     ref,
   ) => {
     const [internal, setInternal] = useState<InputInternals | null>(null)
@@ -53,6 +53,7 @@ export const Textarea: (props: TextareaProperties & RefAttributes<ComponentInter
             onValueChange={onValueChange}
             tabIndex={tabIndex}
             disabled={disabled}
+            type={type}
           />
           {placeholder != null && (
             <Text

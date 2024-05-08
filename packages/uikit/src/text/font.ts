@@ -3,7 +3,7 @@ import { Texture, TypedArray, WebGLRenderer } from 'three'
 import { MergedProperties } from '../properties/merged.js'
 import { Initializers } from '../utils.js'
 import { loadCachedFont } from './cache.js'
-import { computedProperty } from '../properties/index.js'
+import { computedInheritableProperty } from '../properties/index.js'
 
 export type FontFamilyUrls = Partial<Record<FontWeight, string>>
 
@@ -43,8 +43,8 @@ export function computedFont(
   initializers: Initializers,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
-  const fontFamily = computedProperty<string | undefined>(properties, 'fontFamily', undefined)
-  const fontWeight = computedProperty<FontWeight>(properties, 'fontWeight', 'normal')
+  const fontFamily = computedInheritableProperty<string | undefined>(properties, 'fontFamily', undefined)
+  const fontWeight = computedInheritableProperty<FontWeight>(properties, 'fontWeight', 'normal')
   initializers.push(() =>
     effect(() => {
       const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls

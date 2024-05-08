@@ -13,7 +13,7 @@ import {
   MergedProperties,
   Properties,
   PropertyTransformers,
-  computedProperty,
+  computedInheritableProperty,
 } from '../properties/index.js'
 import { Display } from 'yoga-layout/load'
 
@@ -189,8 +189,8 @@ export function applyAppearancePropertiesToGroup(
   initializers: Initializers,
   root: RootContext,
 ) {
-  const color = computedProperty<ColorRepresentation | undefined>(propertiesSignal, 'color', undefined)
-  const opacity = computedProperty(propertiesSignal, 'opacity', 1)
+  const color = computedInheritableProperty<ColorRepresentation | undefined>(propertiesSignal, 'color', undefined)
+  const opacity = computedInheritableProperty(propertiesSignal, 'opacity', 1)
   initializers.push(() =>
     effect(() => {
       let c: Color | undefined

@@ -10,7 +10,7 @@ import {
   createPanelMaterialConfig,
   defaultPanelDependencies,
 } from './panel/index.js'
-import { MergedProperties, computedProperty } from './properties/index.js'
+import { MergedProperties, computedInheritableProperty } from './properties/index.js'
 
 export type CaretWidthProperties = {
   caretWidth?: number
@@ -90,7 +90,7 @@ export function createCaret(
     }),
   )
   const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
-  const caretWidth = computedProperty(propertiesSignal, 'caretWidth', 1.5)
+  const caretWidth = computedInheritableProperty(propertiesSignal, 'caretWidth', 1.5)
 
   initializers.push((subscriptions) =>
     createInstancedPanel(

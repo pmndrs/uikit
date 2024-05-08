@@ -4,7 +4,7 @@ import { FlexNodeState } from './flex/node.js'
 import { Initializers, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
 import { Object3DRef } from './context.js'
-import { computedProperty } from './properties/index.js'
+import { computedInheritableProperty } from './properties/index.js'
 
 export type Percentage = `${number}%`
 
@@ -50,17 +50,17 @@ export function computedTransformMatrix(
   //O = matrix to transform the origin for matrix T
   //T = transform matrix (translate, rotate, scale)
 
-  const tTX = computedProperty<Percentage | number>(propertiesSignal, 'transformTranslateX', 0)
-  const tTY = computedProperty<Percentage | number>(propertiesSignal, 'transformTranslateY', 0)
-  const tTZ = computedProperty(propertiesSignal, 'transformTranslateZ', 0)
-  const tRX = computedProperty(propertiesSignal, 'transformRotateX', 0)
-  const tRY = computedProperty(propertiesSignal, 'transformRotateY', 0)
-  const tRZ = computedProperty(propertiesSignal, 'transformRotateZ', 0)
-  const tSX = computedProperty<Percentage | number>(propertiesSignal, 'transformScaleX', 1)
-  const tSY = computedProperty<Percentage | number>(propertiesSignal, 'transformScaleY', 1)
-  const tSZ = computedProperty<Percentage | number>(propertiesSignal, 'transformScaleZ', 1)
-  const tOX = computedProperty(propertiesSignal, 'transformOriginX', defaultTransformOriginX)
-  const tOY = computedProperty(propertiesSignal, 'transformOriginY', defaultTransformOriginY)
+  const tTX = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformTranslateX', 0)
+  const tTY = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformTranslateY', 0)
+  const tTZ = computedInheritableProperty(propertiesSignal, 'transformTranslateZ', 0)
+  const tRX = computedInheritableProperty(propertiesSignal, 'transformRotateX', 0)
+  const tRY = computedInheritableProperty(propertiesSignal, 'transformRotateY', 0)
+  const tRZ = computedInheritableProperty(propertiesSignal, 'transformRotateZ', 0)
+  const tSX = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformScaleX', 1)
+  const tSY = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformScaleY', 1)
+  const tSZ = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformScaleZ', 1)
+  const tOX = computedInheritableProperty(propertiesSignal, 'transformOriginX', defaultTransformOriginX)
+  const tOY = computedInheritableProperty(propertiesSignal, 'transformOriginY', defaultTransformOriginY)
 
   return computed(() => {
     if (relativeCenter.value == null) {

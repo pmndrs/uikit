@@ -28,7 +28,8 @@ export const Input: (props: InputProperties & RefAttributes<ComponentInternals>)
       defaultValue,
       onValueChange,
       tabIndex,
-      disabled = false,
+      disabled,
+      type,
       ...props
     },
     ref,
@@ -89,6 +90,7 @@ export const Input: (props: InputProperties & RefAttributes<ComponentInternals>)
               onValueChange={onValueChange}
               tabIndex={tabIndex}
               disabled={disabled}
+              type={type}
             />
           </Container>
         </DefaultProperties>

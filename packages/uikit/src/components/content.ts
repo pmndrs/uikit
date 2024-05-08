@@ -28,7 +28,7 @@ import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
 import { getDefaultPanelMaterialConfig, makeClippedRaycast } from '../panel/index.js'
-import { MergedProperties, computedProperty } from '../properties/index.js'
+import { MergedProperties, computedInheritableProperty } from '../properties/index.js'
 import { KeepAspectRatioProperties } from './image.js'
 
 export type InheritableContentProperties = WithClasses<
@@ -174,8 +174,8 @@ function createMeasureContent(
   initializers: Initializers,
 ) {
   const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect, initializers)
-  const depthAlign = computedProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
-  const keepAspectRatio = computedProperty(propertiesSignal, 'keepAspectRatio', true)
+  const depthAlign = computedInheritableProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
+  const keepAspectRatio = computedInheritableProperty(propertiesSignal, 'keepAspectRatio', true)
   const measuredSize = new Vector3()
   const measuredCenter = new Vector3()
   const updateRenderProperties = (content: Object3D | null, renderOrder: number, depthTest: boolean) =>
