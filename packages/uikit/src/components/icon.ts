@@ -87,7 +87,7 @@ export function createIcon(
   )
 
   const flexState = createFlexNodeState()
-  createNode(undefined, flexState, parentContext, mergedProperties, object, initializers)
+  createNode(undefined, flexState, parentContext, mergedProperties, object, true, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, initializers)

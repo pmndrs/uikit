@@ -83,10 +83,18 @@ export function createNode(
   parentContext: ParentContext,
   mergedProperties: Signal<MergedProperties>,
   object: Object3DRef,
+  objectVisibleDefault: boolean,
   initializers: Initializers,
 ) {
   initializers.push((subscriptions) => {
-    const node = new FlexNode(state, mergedProperties, parentContext.root.requestCalculateLayout, object, subscriptions)
+    const node = new FlexNode(
+      state,
+      mergedProperties,
+      parentContext.root.requestCalculateLayout,
+      object,
+      objectVisibleDefault,
+      subscriptions,
+    )
     if (target != null) {
       target.value = node
     }

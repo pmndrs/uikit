@@ -75,7 +75,7 @@ export function createText(
 
   const nodeSignal = signal<FlexNode | undefined>(undefined)
   const flexState = createFlexNodeState()
-  createNode(nodeSignal, flexState, parentContext, mergedProperties, object, initializers)
+  createNode(nodeSignal, flexState, parentContext, mergedProperties, object, false, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, initializers)

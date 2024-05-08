@@ -31,7 +31,7 @@ export type VideoContainerProperties = BaseVideoContainerProperties &
   }
 
 export const VideoContainer: (props: VideoContainerProperties & RefAttributes<HTMLVideoElement>) => ReactNode =
-  forwardRef(({ children, ...props }: VideoContainerProperties, ref) => {
+  forwardRef((props: VideoContainerProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
     const video = useMemo(() => document.createElement('video'), [])
@@ -58,8 +58,8 @@ export const VideoContainer: (props: VideoContainerProperties & RefAttributes<HT
 
     useImperativeHandle(ref, () => video, [video])
     return (
-      <Image aspectRatio={aspectRatio} {...props} src={texture}>
-        <VideoContainerContext.Provider value={video}>{children}</VideoContainerContext.Provider>
-      </Image>
+      <VideoContainerContext.Provider value={video}>
+        <Image aspectRatio={aspectRatio} {...props} src={texture} />
+      </VideoContainerContext.Provider>
     )
   })

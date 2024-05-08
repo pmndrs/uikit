@@ -23,9 +23,14 @@ const eventHandlerKeys: Array<keyof EventHandlers> = [
 
 export const AddHandlers = forwardRef<
   Object3D,
-  { userHandlers: EventHandlers; handlers: Signal<EventHandlers>; children?: ReactNode; visible?: boolean }
->(({ handlers: handlersSignal, userHandlers, children, visible = true }, ref) => {
-  const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.value)
+  {
+    userHandlers: EventHandlers
+    handlers: Signal<EventHandlers>
+    children?: ReactNode
+    allowSkippingChildren?: boolean
+  }
+>(({ handlers: handlersSignal, allowSkippingChildren, userHandlers, children }, ref) => {
+  const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.peek())
   useEffect(
     () =>
       effect(() => {
@@ -47,11 +52,11 @@ export const AddHandlers = forwardRef<
     }
     return result
   }, [systemHandlers, userHandlers])
-  if (!visible && handlers == null) {
+  if (allowSkippingChildren && handlers == null) {
     return null
   }
   return (
-    <object3D visible={visible} ref={ref} matrixAutoUpdate={false} {...handlers}>
+    <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
       {children}
     </object3D>
   )

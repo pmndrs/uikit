@@ -109,7 +109,7 @@ export function createRoot(
   const requestCalculateLayout = createDeferredRequestLayoutCalculation(onFrameSet, node, initializers)
   const flexState = createFlexNodeState()
   initializers.push((subscriptions) => {
-    const newNode = new FlexNode(flexState, mergedProperties, requestCalculateLayout, object, subscriptions)
+    const newNode = new FlexNode(flexState, mergedProperties, requestCalculateLayout, object, true, subscriptions)
     node.value = newNode
     return subscriptions
   })

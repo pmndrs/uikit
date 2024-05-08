@@ -62,7 +62,9 @@ export default function App() {
             </Portal>
             <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
               <Container flexDirection="column">
-                <Text height={100}>Escribe algo...</Text>
+                <Text wordBreak="break-all" height={100}>
+                  Escribe algo...
+                </Text>
               </Container>
               <Container
                 flexDirection="column"

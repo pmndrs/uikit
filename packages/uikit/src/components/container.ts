@@ -78,7 +78,7 @@ export function createContainer(
   })
 
   //create node
-  createNode(node, flexState, parentContext, mergedProperties, object, initializers)
+  createNode(node, flexState, parentContext, mergedProperties, object, false, initializers)
 
   //transform
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)

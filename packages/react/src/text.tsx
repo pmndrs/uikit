@@ -54,7 +54,7 @@ export const Text: (props: TextProperties & RefAttributes<ComponentInternals<Tex
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
     return (
-      <AddHandlers visible={false} userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+      <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
         <primitive object={internals.interactionPanel} />
       </AddHandlers>
     )

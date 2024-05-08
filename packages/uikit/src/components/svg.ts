@@ -101,7 +101,7 @@ export function createSvg(
 
   const node = signal<FlexNode | undefined>(undefined)
   const flexState = createFlexNodeState()
-  createNode(node, flexState, parentContext, mergedProperties, object, initializers)
+  createNode(node, flexState, parentContext, mergedProperties, object, true, initializers)
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
   applyTransform(object, transformMatrix, initializers)

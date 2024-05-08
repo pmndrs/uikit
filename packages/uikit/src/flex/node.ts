@@ -51,12 +51,14 @@ export class FlexNode {
   private customLayouting?: CustomLayouting
 
   private active = signal(false)
+  private objectVisible = false
 
   constructor(
     private state: FlexNodeState,
     private readonly propertiesSignal: Signal<MergedProperties>,
     private readonly requestCalculateLayout: () => void,
     private object: Object3DRef,
+    private objectVisibileDefault: boolean,
     subscriptions: Subscriptions,
   ) {
     subscriptions.push(
@@ -212,6 +214,11 @@ export class FlexNode {
     const childrenLength = this.children.length
     for (let i = 0; i < childrenLength; i++) {
       this.children[i].commit(this.yogaNode.getFlexDirection())
+    }
+
+    this.objectVisible = this.objectVisibileDefault || this.children.some((child) => child.objectVisible)
+    if (this.object.current != null) {
+      this.object.current.visible = this.objectVisible
     }
   }
 

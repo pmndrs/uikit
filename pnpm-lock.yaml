@@ -418,6 +418,24 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.3.1)
 
+  examples/performance:
+    dependencies:
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.5.1
+      '@react-three/drei':
+        specifier: ^9.96.1
+        version: 9.105.6(@react-three/fiber@8.16.2)(@types/react@18.3.1)(@types/three@0.161.0)(react-dom@18.2.0)(react@18.3.1)(three@0.161.0)
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../packages/react
+      r3f-perf:
+        specifier: ^7.2.1
+        version: 7.2.1(@react-three/fiber@8.16.2)(@types/react@18.3.1)(@types/three@0.161.0)(react-dom@18.2.0)(react@18.3.1)(three@0.161.0)
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.3.1)
+
   examples/uikit:
     dependencies:
       '@preact/signals-core':
