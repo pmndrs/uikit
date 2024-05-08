@@ -33,7 +33,7 @@ export const BreakallWrapper: GlyphWrapper = (
     }
 
     //non whitespace
-    if (availableWidth != null && position > availableWidth) {
+    if (target.nonWhitespaceWidth > 0 && availableWidth != null && position > availableWidth) {
       break
     }
 
