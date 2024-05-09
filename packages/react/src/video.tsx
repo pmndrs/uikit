@@ -7,22 +7,28 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
 } from 'react'
 import { Image } from './image.js'
 import { Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
-import { VideoContainerProperties as BaseVideoContainerProperties } from '@pmndrs/uikit'
+import { VideoContainerProperties as BaseVideoContainerProperties, ImageProperties } from '@pmndrs/uikit'
 import { updateVideoElement } from '@pmndrs/uikit/internals'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { ComponentInternals } from './ref.js'
 
 const VideoContainerContext = createContext<HTMLVideoElement | undefined>(undefined)
 
-export function useVideoElement(): HTMLVideoElement {
+export function useVideoContainerElement(): HTMLVideoElement {
   const element = useContext(VideoContainerContext)
   if (element == null) {
-    throw new Error(`useVideoElement can only be executed inside a VideoContainer`)
+    throw new Error(`useVideoContainerElement can only be executed inside a VideoContainer`)
   }
   return element
+}
+
+export type VideoInternals = ComponentInternals<ImageProperties> & {
+  element: HTMLVideoElement
 }
 
 export type VideoContainerProperties = BaseVideoContainerProperties &
@@ -30,7 +36,7 @@ export type VideoContainerProperties = BaseVideoContainerProperties &
     children?: ReactNode
   }
 
-export const VideoContainer: (props: VideoContainerProperties & RefAttributes<HTMLVideoElement>) => ReactNode =
+export const VideoContainer: (props: VideoContainerProperties & RefAttributes<VideoInternals>) => ReactNode =
   forwardRef((props: VideoContainerProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
@@ -56,10 +62,11 @@ export const VideoContainer: (props: VideoContainerProperties & RefAttributes<HT
       return () => videoTexture.dispose()
     }, [texture, video])
 
-    useImperativeHandle(ref, () => video, [video])
+    const internalRef = useRef<ComponentInternals<ImageProperties>>(null)
+    useImperativeHandle(ref, () => ({ ...internalRef.current!, element: video }), [video])
     return (
       <VideoContainerContext.Provider value={video}>
-        <Image aspectRatio={aspectRatio} {...props} src={texture} />
+        <Image aspectRatio={aspectRatio} {...props} ref={internalRef} src={texture} />
       </VideoContainerContext.Provider>
     )
   })

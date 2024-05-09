@@ -223,6 +223,31 @@ The `Portal` component uses the `Image` component under the hood to render its c
 </Root>
 ```
 
+## VideoContainer
+
+The `VideoContainer` component has the same properties and functionalities as a `Image` component but allows you to render an video inside it. The `VideoContainer` component corresponds to the HTML `video` element. The `VideoContainer` component has the `src`, `volume`, `preservesPitch`, `playbackRate`, `muted`, `loop`, and `autoplay` property to setip the video and can even be used to play media streams.
+
+To control playing the video the `VideoContainer` provide the html video element through a provide, that can be consumed by its children through `useVideoContainerElement` to create video controls. Additionally, the html video element can be received from the parent of the `VideoContainer` using `ref.current.element`.
+
+```jsx
+<Root>
+  <Video src="example.mp4" width={100} />
+</Root>
+```
+
+<details>
+<summary>View all properties specific to the `VideoContainer` component</summary>
+
+| Property       | Type                |
+| -------------- | ------------------- |
+| src            | string, MediaStream |
+| volume         | number              |
+| preservesPitch | boolean             |
+| playbackRate   | number              |
+| muted          | boolean             |
+| loop           | boolean             |
+| autoplay       | boolean             |
+
 ## Text
 
 The `Text` component allows you to render of text and is highly intertwined with the layout engine to allow the layout engine to measure and influence the text layout (e.g., how the text should be broken up). The `Text` component has several properties aligned with the CSS text properties such as `letterSpacing`, `lineHeight`, `fontSize`, `wordBreak`, `fontFamily`, and `fontWeight`. In addition, the `Text` component has all the properties available in the `Container` component.
@@ -331,11 +356,11 @@ The `SVG` component allows rendering an SVG file. The URL of the file is provide
 <details>
 <summary>View all properties specific to the `SVG` component</summary>
 
-| Property      | Type                |
-| ------------- | ------------------- |
-| src           | string              |
-| color         | ColorRepresentation |
-| opacity       | number              |
+| Property           | Type                |
+| ------------------ | ------------------- |
+| src                | string              |
+| color              | ColorRepresentation |
+| opacity            | number              |
 | panelMaterialClass | MaterialClass       |
 
 </details>
@@ -353,13 +378,13 @@ The `SVGIconFromText` component only differs from the `SVG` component in how the
 <details>
 <summary>View all properties specific to the `SVGIconFromText` component</summary>
 
-| Property      | Type                |
-| ------------- | ------------------- |
-| text          | string              |
-| svgHeight     | number              |
-| svgWidth      | number              |
-| color         | ColorRepresentation |
-| opacity       | number              |
+| Property           | Type                |
+| ------------------ | ------------------- |
+| text               | string              |
+| svgHeight          | number              |
+| svgWidth           | number              |
+| color              | ColorRepresentation |
+| opacity            | number              |
 | panelMaterialClass | MaterialClass       |
 
 </details>
@@ -505,23 +530,23 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 <details>
 <summary>View all event handlers</summary>
 
-| Property             | Type                                                                                                                                          |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| onWheel              | `(event: ThreeEvent<WheelEvent>) => void`                                                                                                     |
-| onPointerUp          | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerOver        | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerOut         | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerMove        | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerLeave       | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerEnter       | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerDown        | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onPointerCancel      | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onDoubleClick        | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
-| onContextMenu        | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
-| onClick              | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
-| onSizeChange         | `(width: number, height: number) => void`                                                                                                     |
-| onIsClippedChange | `(isClipped: boolean) => void`                                                                                                             |
-| onScroll             | `(scrollX: number, scrollY: number, scrollPosition: Signal<Vector2Tuple>, event?: ThreeEvent<WheelEvent \| PointerEvent>) => boolean \| void` |
+| Property          | Type                                                                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| onWheel           | `(event: ThreeEvent<WheelEvent>) => void`                                                                                                     |
+| onPointerUp       | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerOver     | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerOut      | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerMove     | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerLeave    | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerEnter    | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerDown     | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onPointerCancel   | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
+| onDoubleClick     | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onContextMenu     | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onClick           | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onSizeChange      | `(width: number, height: number) => void`                                                                                                     |
+| onIsClippedChange | `(isClipped: boolean) => void`                                                                                                                |
+| onScroll          | `(scrollX: number, scrollY: number, scrollPosition: Signal<Vector2Tuple>, event?: ThreeEvent<WheelEvent \| PointerEvent>) => boolean \| void` |
 
 </details>
 
@@ -529,17 +554,17 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 
 Each component exposes the `ComponentInternals` when using a `ref`. The component internals provide you with access to
 
-| Property         | Explanation                                                                      |
-| ---------------- | -------------------------------------------------------------------------------- |
-| borderInset      | a tuple containing the border sizes on all 4 sides `[top, right, bottom, left]`  |
-| paddingInset     | a tuple containing the padding sizes on all 4 sides `[top, right, bottom, left]` |
-| center           | the offset between from the element's center to its parent's center              |
-| size             | the outer width/height of the element                                            |
-| interactionPanel | the mesh added to the scene graph to capture events                              |
-| scrollPosition   | the x/y scroll position of the children when the element is scrollable           |
-| pixelSize | the size of one pixel |
-| maxScrollPosition | the maximum x/y scroll position, based on the size of the children |
-| isClipped | exploses whether the element is fully clipped by some ancestor |
-| setStyle | set the styles of the element (the provided styles have a higher precedence then the element's properties) |
-| getStyle | get the object last written to `setStyle` |
-| getComputedProperty | read the current value for any property (combines default properties, direct properties, and styles) |
+| Property            | Explanation                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| borderInset         | a tuple containing the border sizes on all 4 sides `[top, right, bottom, left]`                            |
+| paddingInset        | a tuple containing the padding sizes on all 4 sides `[top, right, bottom, left]`                           |
+| center              | the offset between from the element's center to its parent's center                                        |
+| size                | the outer width/height of the element                                                                      |
+| interactionPanel    | the mesh added to the scene graph to capture events                                                        |
+| scrollPosition      | the x/y scroll position of the children when the element is scrollable                                     |
+| pixelSize           | the size of one pixel                                                                                      |
+| maxScrollPosition   | the maximum x/y scroll position, based on the size of the children                                         |
+| isClipped           | exploses whether the element is fully clipped by some ancestor                                             |
+| setStyle            | set the styles of the element (the provided styles have a higher precedence then the element's properties) |
+| getStyle            | get the object last written to `setStyle`                                                                  |
+| getComputedProperty | read the current value for any property (combines default properties, direct properties, and styles)       |
