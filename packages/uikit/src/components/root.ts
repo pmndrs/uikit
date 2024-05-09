@@ -198,6 +198,7 @@ export function createRoot(
   const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
+    scrollPosition,
     requestCalculateLayout,
     cameraDistance: 0,
     gylphGroupManager,
