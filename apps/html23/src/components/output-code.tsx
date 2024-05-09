@@ -14,10 +14,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 
 async function tryparsedHtmlToCode(element: ConversionNode, classes: Map<string, any>): Promise<string> {
   try {
-    return parsedHtmlToCode(element, classes, customColorsForText, componentMap).catch((e) => {
-      console.error(e)
-      return ''
-    })
+    return (
+      await parsedHtmlToCode(element, classes, customColorsForText, componentMap).catch((e) => {
+        console.error(e)
+        return { code: '' }
+      })
+    ).code
   } catch (e: any) {
     console.error(e)
     return ''

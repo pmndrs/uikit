@@ -1,4 +1,4 @@
-import { writeFileSync } from 'fs'
+import { readdirSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Converter, mapIncludesAllKeys, mapToRecord } from '../../../../scripts/shared.js'
@@ -10,9 +10,16 @@ const components = Object.keys(DefaultKit)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const fileExtensionRegex = /\.[^\.]+$/
+
+const componentNames = readdirSync(resolve(__dirname, '../src')).map((fileName) => {
+  fileName = fileName.replace(fileExtensionRegex, '')
+  return fileName[0].toUpperCase() + fileName.slice(1).replace(/-./g, (x) => x[1].toUpperCase())
+})
+
 const converter = new Converter(resolve(__dirname, '../src/components.ts'))
 
-const conversionComponentMapEntries: Array<string> = []
+const conversionComponentMap = new Map<string, Array<string>>()
 const imports: Array<string> = []
 
 const containerPropertyTypes = converter.extractPropertyTypes(converter.getSchema(`ContainerProperties`))
@@ -26,9 +33,17 @@ for (const component of components) {
   const schema = converter.getSchema(`${component}Properties`)
   imports.push(component) //TODO
   const propertyTypes = converter.extractPropertyTypes(schema)
-  conversionComponentMapEntries.push(`${component}: {
-    renderAs: '${component}',
-    renderAsImpl: ${component},
+  const componentName = componentNames.find((name) => component.includes(name))
+  if (componentName == null) {
+    throw new Error(`no corresponding component name found for component "${component}"`)
+  }
+  let conversionComponents = conversionComponentMap.get(componentName)
+  if (conversionComponents == null) {
+    conversionComponentMap.set(componentName, (conversionComponents = []))
+  }
+  conversionComponents.push(`${component}: {
+    componentName: '${component}',
+    componentImpl: ${component},
     children: ${converter.hasChildren(schema) ? 'undefined' : "'none'"},
     propertyTypes: [${
       mapIncludesAllKeys(propertyTypes, inputPropertyTypes)
@@ -49,7 +64,7 @@ import { ConversionComponentMap, conversionPropertyTypes } from '@react-three/ui
 import { ${imports.join(',\n')} } from "./index.js"
 
 export const componentMap: ConversionComponentMap = {
-  ${conversionComponentMapEntries.join('\n')}
+    ${Array.from(conversionComponentMap).map(([name, codes]) => `${name}: { ${codes.join('\n')} }`)}
 }
 
 `,

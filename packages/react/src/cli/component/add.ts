@@ -4,7 +4,7 @@ import prompts from 'prompts'
 import chalk from 'chalk'
 import { resolve } from 'path'
 import { createWriteStream, existsSync } from 'fs'
-import ora from 'ora'
+import ora, { Ora, Spinner } from 'ora'
 import { Readable } from 'stream'
 import { finished } from 'stream/promises'
 import { cwd } from 'process'
@@ -42,13 +42,6 @@ export const add = new Command('add')
         .map((s) => s.toLowerCase())
       let { overwrite, path, cwd } = commandOptionsSchema.parse(opts)
 
-      let registry: Awaited<ReturnType<typeof getRegistry>>
-      try {
-        registry = await getRegistry(kit)
-      } catch (e) {
-        throw `Unable to fetch registry for ${kit} kit: ${getErrorString(e)}`
-      }
-
       if (path == null) {
         path = (
           await prompts({
@@ -60,78 +53,100 @@ export const add = new Command('add')
         ).path as string
       }
 
-      const absPath = resolve(cwd, path, kit)
+      const spinner = ora()
 
-      if (!existsSync(absPath)) {
-        await mkdir(absPath, { recursive: true })
-      }
+      installComponents(kit, cwd, path, components, overwrite ? 'overwrite' : 'ask', spinner)
 
-      const absThemePath = resolve(absPath, 'theme.tsx')
-      if (!existsSync(absThemePath)) {
-        await download(kit, 'base-theme.tsx', absThemePath)
-      }
-
-      const componentsToInstall = new Set<string>()
-
-      for (const component of components) {
-        componentsToInstall.add(component)
-        const registryEntry = registry[component]
-        if (registryEntry == null) {
-          throw `component ${kit} ${component} is not in the registry`
-        }
-        if (registryEntry.registryDependencies == null) {
-          continue
-        }
-        for (const dependency of registryEntry.registryDependencies) {
-          componentsToInstall.add(dependency)
-        }
-      }
-
-      const spinner = ora(`Installing ${kit} components...`).start()
-      component: for (const component of componentsToInstall) {
-        try {
-          spinner.text = `Installing ${kit} ${component}...`
-          const registryEntry = registry[component]
-          if (registryEntry == null) {
-            throw `component not in registry`
-          }
-          const files = registryEntry.files
-
-          if (!overwrite) {
-            for (const file of files) {
-              const absFilePath = resolve(absPath, file)
-              if (existsSync(absFilePath)) {
-                spinner.stop()
-                const { overwrite } = await prompts({
-                  type: 'confirm',
-                  name: 'overwrite',
-                  message: `Component ${component} already exists. Would you like to overwrite?`,
-                  initial: false,
-                })
-
-                if (overwrite === false) {
-                  console.log(chalk.cyan(`Installing ${kit} ${component} was skipped to prevent overwriting ${file}.`))
-                  continue component
-                }
-
-                spinner.start(`Installing ${kit} ${component}...`)
-              }
-            }
-          }
-          for (const file of files) {
-            const absFilePath = resolve(absPath, file)
-            download(kit, file, absFilePath)
-          }
-        } catch (e) {
-          throw `Unable to install ${kit} ${component}: ${getErrorString(e)}`
-        }
-      }
       spinner.succeed(`Done.`)
     } catch (e) {
       console.log(chalk.red(getErrorString(e)))
       process.exit(1)
     }
   })
+
+export async function installComponents(
+  kit: string,
+  cwd: string,
+  path: string,
+  components: Iterable<string>,
+  onExist: 'ask' | 'skip' | 'overwrite',
+  spinner: Ora,
+) {
+  let registry: Awaited<ReturnType<typeof getRegistry>>
+  try {
+    registry = await getRegistry(kit)
+  } catch (e) {
+    throw `Unable to fetch registry for ${kit} kit: ${getErrorString(e)}`
+  }
+
+  const absPath = resolve(cwd, path, kit)
+
+  if (!existsSync(absPath)) {
+    await mkdir(absPath, { recursive: true })
+  }
+
+  const absThemePath = resolve(absPath, 'theme.tsx')
+  if (!existsSync(absThemePath)) {
+    await download(kit, 'base-theme.tsx', absThemePath)
+  }
+
+  const componentsToInstall = new Set<string>()
+
+  for (let component of components) {
+    component = component.toLowerCase()
+    componentsToInstall.add(component)
+    const registryEntry = registry[component]
+    if (registryEntry == null) {
+      throw `component ${kit} ${component} is not in the registry`
+    }
+    if (registryEntry.registryDependencies == null) {
+      continue
+    }
+    for (const dependency of registryEntry.registryDependencies) {
+      componentsToInstall.add(dependency)
+    }
+  }
+
+  spinner.text = `Installing ${kit} components...`
+  component: for (const component of componentsToInstall) {
+    try {
+      spinner.text = `Installing ${kit} ${component}...`
+      const registryEntry = registry[component]
+      if (registryEntry == null) {
+        throw `component not in registry`
+      }
+      const files = registryEntry.files
+
+      for (const file of files) {
+        const absFilePath = resolve(absPath, file)
+        if (existsSync(absFilePath)) {
+          if (onExist === 'skip') {
+            console.log(chalk.cyan(`Installing ${kit} ${component} was skipped to prevent overwriting ${file}.`))
+            continue component
+          }
+          if (onExist === 'ask') {
+            spinner.stop()
+            const { overwrite } = await prompts({
+              type: 'confirm',
+              name: 'overwrite',
+              message: `Component ${component} already exists. Would you like to overwrite?`,
+              initial: false,
+            })
+
+            if (overwrite === false) {
+              console.log(chalk.cyan(`Installing ${kit} ${component} was skipped to prevent overwriting ${file}.`))
+              continue component
+            }
+          }
+        }
+        spinner.start(`Installing ${kit} ${component}...`)
+        download(kit, file, absFilePath)
+      }
+    } catch (e) {
+      throw `Unable to install ${kit} ${component}: ${getErrorString(e)}`
+    }
+  }
+}
 
 async function download(kit: string, file: string, targetAbsolutePath: string) {
   const response = await fetch(`${BASE_URL}${kit}/src/${file}`)

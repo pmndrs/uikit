@@ -475,6 +475,46 @@ importers:
         specifier: ^4.1.1
         version: 4.2.0
 
+  packages/html23:
+    dependencies:
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../react
+      '@react-three/uikit-default':
+        specifier: workspace:^
+        version: link:../kits/default
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../icons/lucide/react
+      brotli-compress:
+        specifier: ^1.3.3
+        version: 1.3.3
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
+      commander:
+        specifier: ^12.0.0
+        version: 12.0.0
+      firebase:
+        specifier: ^10.11.1
+        version: 10.11.1
+      html23:
+        specifier: ^0.0.0
+        version: 'link:'
+      ora:
+        specifier: ^8.0.1
+        version: 8.0.1
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.9
+        version: 2.4.9
+
   packages/icons/lucide:
     devDependencies:
       '@types/node':

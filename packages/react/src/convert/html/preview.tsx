@@ -17,7 +17,7 @@ import { Icon } from '../../icon.js'
 import { ComponentInternals } from '../../ref.js'
 
 export type ConversionComponentMap = ConversionComponentMapWihoutRenderAsComponent &
-  Record<string, { renderAsImpl: ComponentType<any> }>
+  Record<string, Record<string, { componentImpl: ComponentType<any> }>>
 
 export type CustomHook = (
   element: ConversionNode | undefined,
@@ -70,76 +70,83 @@ export function PreviewParsedHtml({
 
 function createRenderElement(componentMap?: ConversionComponentMap, customHook?: CustomHook) {
   const Component = ({
-    custom,
-    props,
-    typeName,
-    children,
-    element,
+    componentCustomOrigin,
+    elementProperties,
+    componentName,
+    elementChildren,
+    elementInfo,
   }: {
-    element: ConversionNode | undefined
-    typeName: string
-    custom: boolean
-    props: Record<string, unknown>
-    children?: Array<ReactNode> | undefined
+    componentName: string
+    componentCustomOrigin: undefined | string
+    elementInfo: ConversionNode | undefined
+    elementProperties: Record<string, unknown>
+    elementChildren?: Array<ReactNode> | undefined
   }) => {
     const ref = useRef(null)
-    props = customHook?.(element, ref, props) ?? props
-    if (custom && componentMap != null) {
-      const Component = componentMap[typeName].renderAsImpl
+    elementProperties = customHook?.(elementInfo, ref, elementProperties) ?? elementProperties
+    if (componentCustomOrigin && componentMap != null) {
+      const Component = componentMap[componentCustomOrigin][componentName].componentImpl
       if (Component == null) {
-        throw new Error(`unknown custom component "${typeName}"`)
+        throw new Error(`unknown custom component "${componentName}"`)
       }
       return (
-        <Component {...props} ref={ref}>
-          {children}
+        <Component {...elementProperties} ref={ref}>
+          {elementChildren}
         </Component>
       )
     }
-    switch (typeName) {
+    switch (componentName) {
       case 'VideoContainer':
-        return <VideoContainer {...props} ref={ref} />
+        return <VideoContainer {...elementProperties} ref={ref} />
       case 'Image':
         return (
-          <Image {...props} ref={ref}>
-            {children}
+          <Image {...elementProperties} ref={ref}>
+            {elementChildren}
           </Image>
         )
       case 'Svg':
         return (
-          <Svg {...props} ref={ref}>
-            {children}
+          <Svg {...elementProperties} ref={ref}>
+            {elementChildren}
           </Svg>
         )
       case 'Icon':
-        return <Icon {...(props as any)} ref={ref} />
+        return <Icon {...(elementProperties as any)} ref={ref} />
       case 'Input':
-        return <Input {...props} ref={ref} />
+        return <Input {...elementProperties} ref={ref} />
       case 'Text':
         return (
-          <Text {...props} ref={ref}>
-            {children?.join('') ?? ''}
+          <Text {...elementProperties} ref={ref}>
+            {elementChildren?.join('') ?? ''}
           </Text>
         )
       case 'Container':
         return (
-          <Container {...props} ref={ref}>
-            {children}
+          <Container {...elementProperties} ref={ref}>
+            {elementChildren}
           </Container>
         )
       case 'DefaultProperties':
-        return <DefaultProperties {...props}>{children}</DefaultProperties>
+        return <DefaultProperties {...elementProperties}>{elementChildren}</DefaultProperties>
       case 'Fragment':
-        return <>{children}</>
+        return <>{elementChildren}</>
     }
   }
   return (
-    element: ConversionNode | undefined,
-    typeName: string,
-    custom: boolean,
-    props: Record<string, unknown>,
-    index: number,
-    children?: Array<ReactNode> | undefined,
+    componentName: string,
+    componentCustomOrigin: undefined | string,
+    elementInfo: ConversionNode | undefined,
+    elementProperties: Record<string, unknown>,
+    elementIndex: number,
+    elementChildren?: Array<ReactNode> | undefined,
   ): ReactNode => (
-    <Component key={index} element={element} custom={custom} props={props} typeName={typeName} children={children} />
+    <Component
+      key={elementIndex}
+      componentName={componentName}
+      componentCustomOrigin={componentCustomOrigin}
+      elementInfo={elementInfo}
+      elementProperties={elementProperties}
+      elementChildren={elementChildren}
+    />
   )
 }

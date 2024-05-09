@@ -25,9 +25,9 @@ async function main() {
     `
     convertImports.push(`import { ${name}Icon } from './${name}.js'`)
     convertEntries.push(`${name}Icon: {
+      componentName: '${name}Icon',
+      componentImpl: ${name}Icon,
       propertyTypes: conversionPropertyTypes.Svg,
-      renderAs: '${name}Icon',
-      renderAsImpl: ${name}Icon,
       children: 'none',
     }`)
     writeFile(`src/${name}.tsx`, code)
@@ -39,7 +39,9 @@ async function main() {
     ${convertImports.join('\n')}
 
     export const componentMap: ConversionComponentMap = {
-      ${convertEntries.join(',\n')}
+      lucide: {
+        ${convertEntries.join(',\n')}
+      }
     }`,
   )
   writeFile(

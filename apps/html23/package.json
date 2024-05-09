@@ -1,5 +1,5 @@
 {
-  "name": "html23",
+  "name": "apps/html23",
   "type": "module",
   "dependencies": {
     "@babel/plugin-syntax-import-attributes": "^7.24.1",

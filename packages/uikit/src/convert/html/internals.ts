@@ -15,19 +15,19 @@ import {
 import { MeshPhongMaterial, MeshPhysicalMaterial } from 'three'
 
 export type ConversionGenerateComponent<T> = (
-  element: ConversionNode | undefined,
-  renderAs: string,
-  custom: boolean,
-  properties: Record<string, unknown>,
-  index: number,
-  children?: Array<T | string>,
+  componentName: string,
+  componentCustomOrigin: undefined | string,
+  elementInfo: ConversionNode | undefined,
+  elementProperties: Record<string, unknown>,
+  elementIndex: number,
+  elementChildren?: Array<T | string>,
 ) => T | string
 
 export type ConversionComponentData = {
   defaultProperties?: Record<string, unknown>
   skipIfEmpty?: boolean
   propertyTypes: ConversionPropertyTypes
-  renderAs: string
+  componentName: string
   children?: 'none' | 'text'
 }
 
@@ -35,7 +35,7 @@ export { Node as ConversionNode, HTMLElement as ConversionHtmlNode } from 'node-
 
 const styleTagRegex = /\<style\>(?:.|\s)*?\<\/style\>/gm
 
-export type ConversionComponentMap = Record<string, ConversionComponentData>
+export type ConversionComponentMap = Record<string, Record<string, ConversionComponentData>>
 
 export function convertHtml<T>(
   text: string,
@@ -258,13 +258,11 @@ function convertParsedHtmlRecursive<T>(
     if (srOnly) {
       return undefined
     }
-    return generate(element, 'Icon', false, { ...inheritingProperties, ...properties }, index)
+    return generate('Icon', undefined, element, { ...inheritingProperties, ...properties }, index)
   }
 
-  const [{ skipIfEmpty, defaultProperties, children, propertyTypes, renderAs }, custom] = nodeToConversionData(
-    element,
-    componentMap,
-  )
+  const [{ skipIfEmpty, defaultProperties, children, propertyTypes, componentName }, componentCustomOrigin] =
+    nodeToConversionData(element, componentMap)
   if (skipIfEmpty && element.childNodes.length === 0) {
     return undefined
   }
@@ -275,7 +273,14 @@ function convertParsedHtmlRecursive<T>(
 
   const { inheritingProperties, properties, srOnly } =
     element instanceof HTMLElement
-      ? convertMergeSortProperties(custom, propertyTypes, classes, defaultProperties, element.attributes, colorMap)
+      ? convertMergeSortProperties(
+          componentCustomOrigin != null,
+          propertyTypes,
+          classes,
+          defaultProperties,
+          element.attributes,
+          colorMap,
+        )
       : { inheritingProperties: undefined, properties: undefined, srOnly: false }
 
   if (srOnly) {
@@ -284,13 +289,13 @@ function convertParsedHtmlRecursive<T>(
 
   switch (children) {
     case 'none':
-      return generate(element, renderAs, custom, { ...inheritingProperties, ...properties }, index)
+      return generate(componentName, componentCustomOrigin, element, { ...inheritingProperties, ...properties }, index)
     case 'text':
       if (!(element instanceof TextNode)) {
         return generate(
+          componentName,
+          componentCustomOrigin,
           element,
-          renderAs,
-          custom,
           { ...inheritingProperties, ...properties },
           index,
           element.childNodes
@@ -303,13 +308,20 @@ function convertParsedHtmlRecursive<T>(
       if (text.length === 0) {
         return undefined
       }
-      return generate(element, renderAs, custom, { ...inheritingProperties, ...properties }, index, [text])
+      return generate(
+        componentName,
+        componentCustomOrigin,
+        element,
+        { ...inheritingProperties, ...properties },
+        index,
+        [text],
+      )
   }
 
   let result = generate(
+    componentName,
+    componentCustomOrigin,
     element,
-    renderAs,
-    custom,
     properties ?? {},
     index,
     element.childNodes
@@ -318,7 +330,7 @@ function convertParsedHtmlRecursive<T>(
   )
 
   if (inheritingProperties == null || Object.keys(inheritingProperties).length > 0) {
-    result = generate(undefined, 'DefaultProperties', false, inheritingProperties ?? {}, index, [result])
+    result = generate('DefaultProperties', undefined, undefined, inheritingProperties ?? {}, index, [result])
   }
 
   return result
@@ -330,16 +342,16 @@ function filterTextNode(val: any): val is TextNode {
 
 function nodeToConversionData(
   element: ConversionNode,
-  customComponents?: ConversionComponentMap,
-): [ConversionComponentData, boolean] {
+  customComponentsMap?: ConversionComponentMap,
+): [ConversionComponentData, string | undefined] {
   if (element instanceof TextNode) {
     return [
       {
         propertyTypes: conversionPropertyTypes.Text,
-        renderAs: 'Text',
+        componentName: 'Text',
         children: 'text',
       },
-      false,
+      undefined,
     ]
   }
   if (element.rawTagName == null) {
@@ -347,38 +359,43 @@ function nodeToConversionData(
       {
         skipIfEmpty: true,
         propertyTypes: {},
-        renderAs: 'Fragment',
+        componentName: 'Fragment',
       },
-      false,
+      undefined,
     ]
   }
 
-  if (customComponents != null && element.rawTagName in customComponents) {
-    return [customComponents[element.rawTagName], true]
+  if (customComponentsMap != null) {
+    for (const origin in customComponentsMap) {
+      const customComponents = customComponentsMap[origin]
+      if (element.rawTagName in customComponents) {
+        return [customComponents[element.rawTagName], origin]
+      }
+    }
   }
 
-  let { children, defaultProperties, renderAs, skipIfEmpty } = htmlDefaults[element.rawTagName.toLowerCase()] ?? {}
+  let { children, defaultProperties, componentName, skipIfEmpty } = htmlDefaults[element.rawTagName.toLowerCase()] ?? {}
 
   if (
     element.childNodes.length > 0 &&
     element.childNodes.every((e) => e instanceof TextNode) &&
     element.childNodes.some((e) => e instanceof TextNode && e.text.trim().length > 0)
   ) {
-    renderAs ??= 'Text'
+    componentName ??= 'Text'
     children ??= 'text'
   }
 
-  renderAs ??= 'Container'
+  componentName ??= 'Container'
 
   return [
     {
-      propertyTypes: conversionPropertyTypes[renderAs],
-      renderAs,
+      propertyTypes: conversionPropertyTypes[componentName],
+      componentName,
       children,
       defaultProperties,
       skipIfEmpty,
     },
-    false,
+    undefined,
   ]
 }
 
@@ -387,7 +404,7 @@ function filterNull<T>(val: T | undefined): val is T {
 }
 
 function convertMergeSortProperties(
-  custom: boolean,
+  isCustom: boolean,
   propertyTypes: ConversionPropertyTypes,
   classes: Map<string, any>,
   defaultProperties: Record<string, unknown> | undefined,
@@ -398,7 +415,7 @@ function convertMergeSortProperties(
   inheritingProperties: Record<string, unknown>
   srOnly: boolean
 } {
-  const [properties, srOnly] = convertHtmlAttributes(custom, propertyTypes, classes, attributes, colorMap)
+  const [properties, srOnly] = convertHtmlAttributes(isCustom, propertyTypes, classes, attributes, colorMap)
   const result = {
     ...defaultProperties,
     ...properties,

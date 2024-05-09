@@ -11,31 +11,53 @@ export function htmlToCode(html: string, colorMap?: ConversionColorMap, componen
   return parsedHtmlToCode(element, classes, colorMap, componentMap)
 }
 
-export function parsedHtmlToCode(
+export async function parsedHtmlToCode(
   element: ConversionNode,
   classes: Map<string, any>,
   colorMap?: ConversionColorMap,
   componentMap?: ConversionComponentMap,
-) {
-  return format(
-    `export default function Index() { return ${convertParsedHtml(element, classes, elementToCode, colorMap, componentMap) ?? `null`} }`,
-    {
+): Promise<{ code: string; componentNames: Set<string>; customComponentNamesMap: Map<string, Set<string>> }> {
+  const componentNames = new Set<string>()
+  const customComponentNamesMap: Map<string, Set<string>> = new Map()
+  const content =
+    convertParsedHtml(
+      element,
+      classes,
+      elementToCode.bind(null, componentNames, customComponentNamesMap),
+      colorMap,
+      componentMap,
+    ) ?? `null`
+  return {
+    code: await format(`export default function Index() { return ${content} }`, {
       parser: 'babel',
       plugins: [babel ?? starBabel, estree ?? starEstree],
       semi: false,
-    },
-  )
+    }),
+    componentNames,
+    customComponentNamesMap,
+  }
 }
 
 function elementToCode(
-  element: ConversionNode | undefined,
-  typeName: string,
-  custom: boolean,
-  props: Record<string, unknown>,
-  index: number,
+  componentNames: Set<string>,
+  customComponentNamesMap: Map<string, Set<string>>,
+  componentName: string,
+  componentCustomOrigin: undefined | string,
+  elementInfo: ConversionNode | undefined,
+  elementProperties: Record<string, unknown>,
+  elementIndex: number,
   children?: Array<string> | undefined,
 ) {
-  const propsText = Object.entries(props)
+  if (componentCustomOrigin != null) {
+    let elementTypesNames = customComponentNamesMap.get(componentCustomOrigin)
+    if (elementTypesNames == null) {
+      customComponentNamesMap.set(componentCustomOrigin, (elementTypesNames = new Set()))
+    }
+    elementTypesNames.add(componentName)
+  } else if (componentName != 'Fragment') {
+    componentNames.add(componentName)
+  }
+  const propsText = Object.entries(elementProperties)
     .filter(([, value]) => typeof value != 'undefined')
     .map(([name, value]) => {
       const firstChar = name[0]
@@ -62,12 +84,12 @@ function elementToCode(
     })
     .join(' ')
   if (children == null) {
-    return `<${typeName} ${propsText} />`
+    return `<${componentName} ${propsText} />`
   }
-  if (typeName === 'Fragment') {
-    typeName = ''
+  if (componentName === 'Fragment') {
+    componentName = ''
   }
-  return `<${typeName} ${propsText} >${children.join('\n')}</${typeName}>`
+  return `<${componentName} ${propsText} >${children.join('\n')}</${componentName}>`
 }
 
 export {

@@ -3,7 +3,7 @@ import { ConversionComponentData } from './internals.js'
 export const htmlDefaults: Record<
   string,
   Partial<Omit<ConversionComponentData, 'hasProperty'>> & {
-    renderAs?: 'Image' | 'Input' | 'VideoContainer' | 'Icon' | 'Container' | 'Text'
+    componentName?: 'Image' | 'Input' | 'VideoContainer' | 'Icon' | 'Container' | 'Text'
   }
 > = {
   h1: {
@@ -67,20 +67,20 @@ export const htmlDefaults: Record<
     },
   },
   img: {
-    renderAs: 'Image',
+    componentName: 'Image',
   },
   button: { defaultProperties: { verticalAlign: 'middle', textAlign: 'center', cursor: 'pointer' } },
   input: {
-    renderAs: 'Input',
+    componentName: 'Input',
     children: 'none',
   },
   textarea: {
-    renderAs: 'Input',
+    componentName: 'Input',
     children: 'none',
     defaultProperties: { multiline: true },
   },
   video: {
-    renderAs: 'VideoContainer',
+    componentName: 'VideoContainer',
   },
 }
 //TBD select option
