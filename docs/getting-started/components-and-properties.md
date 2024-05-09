@@ -500,7 +500,7 @@ const theme = basedOnPreferredColorScheme({
 
 ## Event Properties
 
-All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three-fiber/api/events). Additionally, event handlers for `onSizeChange`, `onIsInViewportChange`, and `onScroll` can be added to all components.
+All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three-fiber/api/events). Additionally, event handlers for `onSizeChange`, `onIsClippedChange`, and `onScroll` can be added to all components.
 
 <details>
 <summary>View all event handlers</summary>
@@ -520,7 +520,7 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 | onContextMenu        | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onClick              | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onSizeChange         | `(width: number, height: number) => void`                                                                                                     |
-| onIsInViewportChange | `(isInViewport: boolean) => void`                                                                                                             |
+| onIsClippedChange | `(isClipped: boolean) => void`                                                                                                             |
 | onScroll             | `(scrollX: number, scrollY: number, scrollPosition: Signal<Vector2Tuple>, event?: ThreeEvent<WheelEvent \| PointerEvent>) => boolean \| void` |
 
 </details>
@@ -537,3 +537,9 @@ Each component exposes the `ComponentInternals` when using a `ref`. The componen
 | size             | the outer width/height of the element                                            |
 | interactionPanel | the mesh added to the scene graph to capture events                              |
 | scrollPosition   | the x/y scroll position of the children when the element is scrollable           |
+| pixelSize | the size of one pixel |
+| maxScrollPosition | the maximum x/y scroll position, based on the size of the children |
+| isClipped | exploses whether the element is fully clipped by some ancestor |
+| setStyle | set the styles of the element (the provided styles have a higher precedence then the element's properties) |
+| getStyle | get the object last written to `setStyle` |
+| getComputedProperty | read the current value for any property (combines default properties, direct properties, and styles) |

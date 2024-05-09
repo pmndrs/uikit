@@ -20,7 +20,7 @@ import {
   createNode,
 } from './utils.js'
 import { Initializers } from '../utils.js'
-import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { FrontSide, Material, Mesh } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
@@ -146,9 +146,10 @@ export function createCustomContainer(
   })
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isVisible, initializers)
+  setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    isClipped,
     mergedProperties,
     root: parentContext.root,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),

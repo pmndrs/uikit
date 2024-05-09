@@ -3,7 +3,7 @@ import { Vector2Tuple } from 'three'
 import { Initializers } from './utils.js'
 import { ThreeEvent } from './events.js'
 
-export type Listeners = ScrollListeners & LayoutListeners & ViewportListeners
+export type Listeners = ScrollListeners & LayoutListeners & ClippedListeners
 
 export type ScrollListeners = {
   /**
@@ -26,8 +26,8 @@ export type LayoutListeners = {
   onSizeChange?: (width: number, height: number) => void
 }
 
-export type ViewportListeners = {
-  onIsInViewportChange?: (isInViewport: boolean) => void
+export type ClippedListeners = {
+  onIsClippedChange?: (isClipped: boolean) => void
 }
 
 export function setupLayoutListeners(
@@ -53,22 +53,22 @@ export function setupLayoutListeners(
   )
 }
 
-export function setupViewportListeners(
-  l1: Signal<ViewportListeners | undefined>,
-  l2: Signal<ViewportListeners | undefined>,
-  isVisible: Signal<boolean>,
+export function setupClippedListeners(
+  l1: Signal<ClippedListeners | undefined>,
+  l2: Signal<ClippedListeners | undefined>,
+  isClippedSignal: Signal<boolean>,
   initializers: Initializers,
 ) {
   let first = true
   initializers.push(() =>
     effect(() => {
-      const isInViewport = isVisible.value
+      const isClipped = isClippedSignal.value
       if (first) {
         first = false
         return
       }
-      l1.peek()?.onIsInViewportChange?.(isInViewport)
-      l2.peek()?.onIsInViewportChange?.(isInViewport)
+      l1.peek()?.onIsClippedChange?.(isClipped)
+      l2.peek()?.onIsClippedChange?.(isClipped)
     }),
   )
 }

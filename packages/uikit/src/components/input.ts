@@ -27,7 +27,7 @@ import {
   createNode,
 } from './utils.js'
 import { Initializers, readReactive } from '../utils.js'
-import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
@@ -241,7 +241,7 @@ export function createInput(
   initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isVisible, initializers)
+  setupClippedListeners(style, properties, isClipped, initializers)
 
   const disabled = computedNonInheritableProperty(style, properties, 'disabled', false)
 
@@ -278,6 +278,7 @@ export function createInput(
   const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
+    isClipped,
     mergedProperties,
     valueSignal,
     focus: () => focus(),

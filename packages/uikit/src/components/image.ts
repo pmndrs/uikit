@@ -52,7 +52,7 @@ import { Initializers, readReactive, unsubscribeSubscriptions } from '../utils.j
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
-import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { computedInheritableProperty } from '../properties/utils.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
@@ -178,9 +178,10 @@ export function createImage(
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isClipped, initializers)
+  setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    isClipped,
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     initializers,

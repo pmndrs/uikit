@@ -20,7 +20,7 @@ import {
   createNode,
 } from './utils.js'
 import { Initializers } from '../utils.js'
-import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel, getDefaultPanelMaterialConfig } from '../panel/index.js'
@@ -138,9 +138,10 @@ export function createText(
   initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isVisible, initializers)
+  setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    isClipped,
     mergedProperties,
     interactionPanel: createInteractionPanel(
       backgroundOrderInfo,

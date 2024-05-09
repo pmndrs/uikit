@@ -32,7 +32,7 @@ import {
 import { ColorRepresentation, Initializers, fitNormalizedContentInside, readReactive } from '../utils.js'
 import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
-import { setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
@@ -179,9 +179,10 @@ export function createSvg(
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isVisible, initializers)
+  setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    isClipped,
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(

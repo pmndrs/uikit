@@ -27,7 +27,7 @@ import {
   computedMergedProperties,
   createNode,
 } from './utils.js'
-import { Listeners, setupLayoutListeners, setupViewportListeners } from '../listeners.js'
+import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
@@ -141,9 +141,10 @@ export function createContainer(
   )
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupViewportListeners(style, properties, isVisible, initializers)
+  setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    isClipped,
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(

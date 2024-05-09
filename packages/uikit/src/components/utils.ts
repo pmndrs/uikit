@@ -15,7 +15,6 @@ import {
   PropertyTransformers,
   computedInheritableProperty,
 } from '../properties/index.js'
-import { Display } from 'yoga-layout/load'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
