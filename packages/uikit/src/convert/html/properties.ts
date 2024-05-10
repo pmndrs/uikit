@@ -31,14 +31,13 @@ const customCssTranslation: Record<string, (set: (key: string, value: string) =>
     }
     let result: RegExpExecArray | null
     while ((result = transformRegex.exec(property)) != null) {
-      const [, operation, type, values] = result
+      let [, operation, type, values] = result
       let [x, y, z] = values.split(',').map((s) => s.trim())
 
       const prefix = `transform${operation[0].toUpperCase()}${operation.slice(1)}`
 
       if (operation === 'rotate') {
-        set(`${prefix}Z`, x)
-        continue
+        type ??= 'Z'
       }
 
       y ??= x
