@@ -297,6 +297,7 @@ The `Input` component extends the `Text` component and allows the user to change
 | onValueChange                    | (value: string) => void |
 | tabIndex                         | number                  |
 | disabled                         | boolean                 |
+| type                             | "text", "password"      |
 | caretColor                       | ColorRepresentation     |
 | caretOpacity                     | opacity                 |
 | caretWidth                       | number                  |
