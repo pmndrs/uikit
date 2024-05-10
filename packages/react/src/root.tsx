@@ -1,4 +1,4 @@
-import { invalidate, useFrame, useStore, useThree } from '@react-three/fiber'
+import { addAfterEffect, addEffect, invalidate, useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
@@ -23,6 +23,11 @@ export type RootProperties = BaseRootProperties &
     children?: ReactNode
   } & EventHandlers
 
+let isRendering = false
+
+addEffect(() => (isRendering = true))
+addAfterEffect(() => (isRendering = false))
+
 export const Root: (props: RootProperties & RefAttributes<ComponentInternals<RootProperties>>) => ReactNode =
   forwardRef((properties, ref) => {
     const renderer = useThree((state) => state.gl)
@@ -46,6 +51,15 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
           () => store.getState().camera,
           renderer,
           onFrameSet,
+          () => {
+            if (isRendering) {
+              //request render unnecassary -> already rendering
+              return
+            }
+            //not rendering -> requesting a new frame
+            invalidate()
+          },
+          //requestFrame = invalidate, because invalidate always causes another frame
           invalidate,
         ),
       // eslint-disable-next-line react-hooks/exhaustive-deps

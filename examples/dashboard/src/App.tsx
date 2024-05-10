@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Container, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 
@@ -15,31 +15,64 @@ import { Overview } from './components/Overview.js'
 import { RecentSales } from './components/RecentSales.js'
 import { TeamSwitcher } from './components/TeamSwitcher.js'
 import { UserNav } from './components/UserNav.js'
+import { create } from 'zustand'
 
 setPreferredColorScheme('light')
+
+const useFrameCounter = create(() => 0)
 
 export default function App() {
   const [open, setOpen] = useState(false)
   return (
-    <Canvas
-      events={noEvents}
-      frameloop="demand"
-      flat
-      camera={{ position: [0, 0, 18], fov: 35 }}
-      style={{ height: '100dvh', touchAction: 'none' }}
-      gl={{ localClippingEnabled: true }}
+    <>
+      <FrameCounter />
+      <Canvas
+        events={noEvents}
+        frameloop="demand"
+        flat
+        camera={{ position: [0, 0, 18], fov: 35 }}
+        style={{ height: '100dvh', touchAction: 'none' }}
+        gl={{ localClippingEnabled: true }}
+      >
+        <CountFrames />
+        <XWebPointers />
+        <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
+          <Defaults>
+            <DialogAnchor>
+              <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
+                <DashboardPage open={open} setOpen={setOpen} />
+              </Container>
+            </DialogAnchor>
+          </Defaults>
+        </Fullscreen>
+      </Canvas>
+    </>
+  )
+}
+
+function CountFrames() {
+  useFrame(() => useFrameCounter.setState(useFrameCounter.getState() + 1))
+  return null
+}
+
+function FrameCounter() {
+  const counter = useFrameCounter()
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: 'black',
+        fontSize: '2rem',
+        padding: '0.5rem 1rem',
+        color: 'white',
+        fontFamily: 'sans-serif',
+        zIndex: 100,
+      }}
     >
-      <XWebPointers />
-      <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
-        <Defaults>
-          <DialogAnchor>
-            <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
-              <DashboardPage open={open} setOpen={setOpen} />
-            </Container>
-          </DialogAnchor>
-        </Defaults>
-      </Fullscreen>
-    </Canvas>
+      {counter}
+    </div>
   )
 }
 

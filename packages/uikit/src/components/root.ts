@@ -81,6 +81,7 @@ export function createRoot(
   renderer: WebGLRenderer,
   onFrameSet: Set<(delta: number) => void>,
   requestRender: () => void = () => {},
+  requestFrame: () => void = () => {},
 ) {
   const rootSize = signal<Vector2Tuple>([0, 0])
   const hoveredSignal = signal<Array<number>>([])
@@ -106,10 +107,11 @@ export function createRoot(
   const renderOrder = computedInheritableProperty(mergedProperties, 'renderOrder', 0)
   const depthTest = computedInheritableProperty(mergedProperties, 'depthTest', true)
 
-  const ctx: WithCameraDistance & Pick<RootContext, 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
+  const ctx: WithCameraDistance & Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
     cameraDistance: 0,
     onFrameSet,
     requestRender,
+    requestFrame,
     pixelSize,
   }
 
@@ -198,6 +200,7 @@ export function createRoot(
   const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
+    requestFrame,
     scrollPosition,
     requestCalculateLayout,
     cameraDistance: 0,

@@ -9,7 +9,7 @@
     "r3f-perf": "^7.1.2",
     "react-dom": "^18.2.0",
     "vite-plugin-mkcert": "^1.17.4",
-    "zustand": "4"
+    "zustand": "^4.4.7"
   },
   "scripts": {
     "dev": "vite --host",

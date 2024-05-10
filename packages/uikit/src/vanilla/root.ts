@@ -22,6 +22,8 @@ export class Root extends Parent {
     properties?: RootProperties & WithReactive<{ pixelSize?: number }>,
     defaultProperties?: AllOptionalProperties,
     fontFamilies?: FontFamilies,
+    requestRender?: () => void,
+    requestFrame?: () => void,
   ) {
     super()
     this.pixelSizeSignal = signal(properties?.pixelSize ?? DEFAULT_PIXEL_SIZE)
@@ -51,6 +53,8 @@ export class Root extends Parent {
         getCamera,
         renderer,
         this.onFrameSet,
+        requestRender,
+        requestFrame,
       )
       this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: this.fontFamiliesSignal })

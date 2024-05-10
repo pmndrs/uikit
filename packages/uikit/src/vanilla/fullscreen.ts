@@ -20,6 +20,7 @@ export class Fullscreen extends Root {
     properties?: FullscreenProperties,
     defaultProperties?: AllOptionalProperties,
     fontFamilies?: FontFamilies,
+    requestRender?: () => void,
   ) {
     const sizeX = signal(0)
     const sizeY = signal(0)
@@ -32,6 +33,7 @@ export class Fullscreen extends Root {
       { ...properties, sizeX, sizeY, pixelSize, transformTranslateZ },
       defaultProperties,
       fontFamilies,
+      requestRender,
     )
     this.matrixAutoUpdate = false
     this.parentCameraSignal = parentCameraSignal

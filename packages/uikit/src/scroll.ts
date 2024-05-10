@@ -75,7 +75,7 @@ export function computedScrollHandlers(
   { scrollable, maxScrollPosition }: FlexNodeState,
   object: Object3DRef,
   listeners: Signal<ScrollListeners | undefined>,
-  root: Pick<RootContext, 'onFrameSet' | 'requestRender' | 'pixelSize'>,
+  root: Pick<RootContext, 'onFrameSet' | 'requestRender' | 'pixelSize' | 'requestFrame'>,
   initializers: Initializers,
 ) {
   const isScrollable = computed(() => scrollable.value?.some((scrollable) => scrollable) ?? false)
@@ -143,16 +143,16 @@ export function computedScrollHandlers(
 
     scrollVelocity.multiplyScalar(0.9) //damping scroll factor
 
-    if (Math.abs(scrollVelocity.x) < 0.01) {
+    if (Math.abs(scrollVelocity.x) < 10 /** px per second */) {
       scrollVelocity.x = 0
     } else {
-      root.requestRender()
+      root.requestFrame()
     }
 
-    if (Math.abs(scrollVelocity.y) < 0.01) {
+    if (Math.abs(scrollVelocity.y) < 10 /** px per second */) {
       scrollVelocity.y = 0
     } else {
-      root.requestRender()
+      root.requestFrame()
     }
 
     if (deltaX === 0 && deltaY === 0) {
@@ -176,7 +176,10 @@ export function computedScrollHandlers(
       return undefined
     }
     const onPointerFinish = ({ nativeEvent }: ThreeEvent<PointerEvent>) => {
-      downPointerMap.delete(nativeEvent.pointerId)
+      if (!downPointerMap.delete(nativeEvent.pointerId) || downPointerMap.size > 0 || scrollPosition.value == null) {
+        return
+      }
+      //only request a render if the last pointer that was dragging stopped dragging and this panel is actually scrollable
       root.requestRender()
     }
     return {
