@@ -231,7 +231,7 @@ To control playing the video the `VideoContainer` provide the html video element
 
 ```jsx
 <Root>
-  <Video src="example.mp4" width={100} />
+  <VideoContainer src="example.mp4" autoplay width={100} />
 </Root>
 ```
 
@@ -409,31 +409,6 @@ The `Content` component allows you to include any R3F/Three.js element into the 
 | --------------- | ------------------------- |
 | depthAlign      | "back", "center", "front" |
 | keepAspectRatio | boolean                   |
-
-</details>
-
-## VideoContainer
-
-The `VideoContainer` component allows to display a video based on the `Image` component. The component as all the properties of the `Image` component in addition to properties such as `volume` that allow controlling the video playback.
-
-```jsx
-<Root>
-  <VideoContainer src="example.mp4" autoplay />
-</Root>
-```
-
-<details>
-<summary>View all properties specific to the `VideoContainer` component</summary>
-
-| Property       | Type                |
-| -------------- | ------------------- |
-| src            | string, MediaStream |
-| volume         | number              |
-| preservesPitch | boolean             |
-| playbackRate   | number              |
-| muted          | boolean             |
-| loop           | boolean             |
-| autoplay       | boolean             |
 
 </details>
 

@@ -27,7 +27,7 @@ import { Fullscreen, Container } from '@react-three/uikit'
 
 createRoot(document.getElementById('root')).render(
   <Canvas>
-    <Fullscreen flexDirection="row" padding={100} gap={100}>
+    <Fullscreen flexDirection="row" padding={10} gap={10}>
       <Container flexGrow={1} backgroundOpacity={0.5} hover={{ backgroundOpacity: 1 }} backgroundColor="red" />
       <Container flexGrow={1} backgroundOpacity={0.5} hover={{ backgroundOpacity: 1 }} backgroundColor="blue" />
     </Fullscreen>

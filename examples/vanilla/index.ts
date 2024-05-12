@@ -20,8 +20,8 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 const root = new Fullscreen(renderer, undefined, {
   flexDirection: 'row',
   gap: 30,
-  borderRadius: 100,
-  padding: 100,
+  borderRadius: 10,
+  padding: 10,
   alignItems: 'center',
   backgroundColor: 'red',
   overflow: 'scroll',

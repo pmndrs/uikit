@@ -35,8 +35,8 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 const root = new Root(camera, renderer, undefined, {
     flexDirection: "row",
-    padding: 100,
-    gap: 100
+    padding: 10,
+    gap: 10
 })
 scene.add(root)
 const c1 = new Container(root, {

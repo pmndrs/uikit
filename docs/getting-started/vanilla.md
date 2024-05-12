@@ -42,8 +42,8 @@ More in-depth information on the Flexbox properties can be found [here](https://
 ```js
 const root = new Root(camera, renderer, undefined, {
     flexDirection: "row",
-    padding: 100,
-    gap: 100
+    padding: 10,
+    gap: 10
 })
 scene.add(root)
 
