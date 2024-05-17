@@ -10,7 +10,7 @@ import { ResizableHandle, ResizablePanel } from './ui/resizable.js'
 import { useIsInSessionMode } from '@coconut-xr/natuerlich/react'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip.js'
 import { Button } from './ui/button.js'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Copy } from 'lucide-react'
 
 async function tryparsedHtmlToCode(element: ConversionNode, classes: Map<string, any>): Promise<string> {
   try {
@@ -90,7 +90,7 @@ export function OutputCode({ fullscreen }: { fullscreen: boolean }) {
           <TooltipContent side="top">Hide the Output Code</TooltipContent>
         </Tooltip>
       </ResizableHandle>
-      <ResizablePanel minSize={20} id="bottom" order={2} className={cn(fullscreen && 'hidden')}>
+      <ResizablePanel minSize={20} id="bottom" order={2} className={cn(fullscreen && 'hidden', 'relative')}>
         <Suspense fallback={null}>
           <ConvertAndHighlightCode />
         </Suspense>
@@ -171,20 +171,30 @@ function ConvertAndHighlightCode() {
   }
   const result = suspend(tryparsedHtmlToCode, [parsed.element, parsed.classes, cacheSymbol])
   return (
-    <div className="relative h-full w-full justify-stretch basis-0 items-stretch p-4 overflow-auto">
-      <Highlight theme={theme} code={result} language="jsx">
-        {({ className, style, tokens, getLineProps, getTokenProps }) => (
-          <pre style={style}>
-            {tokens.map((line, i) => (
-              <div key={i} {...getLineProps({ line })}>
-                {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token })} />
-                ))}
-              </div>
-            ))}
-          </pre>
-        )}
-      </Highlight>
-    </div>
+    <>
+      <Button
+        onClick={() => navigator.clipboard.writeText(result)}
+        className="absolute bottom-5 z-40 right-5 text-sm gap-2"
+        variant="outline"
+        size="sm"
+      >
+        <Copy className="w-3 h-3" /> Copy Code
+      </Button>
+      <div className="relative h-full w-full justify-stretch basis-0 items-stretch p-4 overflow-auto">
+        <Highlight theme={theme} code={result} language="jsx">
+          {({ className, style, tokens, getLineProps, getTokenProps }) => (
+            <pre style={style}>
+              {tokens.map((line, i) => (
+                <div key={i} {...getLineProps({ line })}>
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token })} />
+                  ))}
+                </div>
+              ))}
+            </pre>
+          )}
+        </Highlight>
+      </div>
+    </>
   )
 }

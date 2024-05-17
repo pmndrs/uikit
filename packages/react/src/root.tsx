@@ -1,4 +1,4 @@
-import { addAfterEffect, addEffect, invalidate, useFrame, useStore, useThree } from '@react-three/fiber'
+import { useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
@@ -23,11 +23,6 @@ export type RootProperties = BaseRootProperties &
     children?: ReactNode
   } & EventHandlers
 
-let isRendering = false
-
-addEffect(() => (isRendering = true))
-addAfterEffect(() => (isRendering = false))
-
 export const Root: (props: RootProperties & RefAttributes<ComponentInternals<RootProperties>>) => ReactNode =
   forwardRef((properties, ref) => {
     const renderer = useThree((state) => state.gl)
@@ -39,6 +34,8 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
     pixelSizeSignal.value = properties.pixelSize
     const propertySignals = usePropertySignals(properties)
     const onFrameSet = useMemo(() => new Set<(delta: number) => void>(), [])
+    const whileOnFrameRef = useRef(false)
+    const invalidate = useThree((s) => s.invalidate)
     const internals = useMemo(
       () =>
         createRoot(
@@ -52,7 +49,7 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
           renderer,
           onFrameSet,
           () => {
-            if (isRendering) {
+            if (whileOnFrameRef.current) {
               //request render unnecassary -> already rendering
               return
             }
@@ -63,7 +60,7 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
           invalidate,
         ),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [],
+      [invalidate],
     )
     useEffect(() => {
       const subscriptions: Subscriptions = []
@@ -72,9 +69,11 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
     }, [internals])
 
     useFrame((_, delta) => {
+      whileOnFrameRef.current = true
       for (const onFrame of onFrameSet) {
         onFrame(delta)
       }
+      whileOnFrameRef.current = false
     })
 
     useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
