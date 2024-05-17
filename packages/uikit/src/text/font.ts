@@ -5,7 +5,14 @@ import { Initializers } from '../utils.js'
 import { loadCachedFont } from './cache.js'
 import { computedInheritableProperty } from '../properties/index.js'
 
-export type FontFamilyUrls = Partial<Record<FontWeight, string>>
+export type FontUrls = {
+  jsonUrl: string
+  pageUrl: string
+}
+
+export type FontDefinition = string | FontUrls
+
+export type FontFamilyUrls = Partial<Record<FontWeight, FontDefinition>>
 
 export type FontFamilies = Record<string, FontFamilyUrls>
 
@@ -64,9 +71,9 @@ export function computedFont(
   return result
 }
 
-function getMatchingFontUrl(fontFamily: FontFamilyUrls, weight: number): string {
+function getMatchingFontUrl(fontFamily: FontFamilyUrls, weight: number): FontDefinition {
   let distance = Infinity
-  let result: string | undefined
+  let result: FontDefinition | undefined
   for (const fontWeight in fontFamily) {
     const d = Math.abs(weight - getWeightNumber(fontWeight))
     if (d === 0) {
@@ -219,4 +226,8 @@ export function glyphIntoToUV(info: GlyphInfo, target: TypedArray, offset: numbe
   target[offset + 1] = info.uvY + info.uvHeight
   target[offset + 2] = info.uvWidth
   target[offset + 3] = -info.uvHeight
+}
+
+export function isComplexDefinition(url: FontDefinition): url is FontUrls {
+  return typeof url === 'object'
 }

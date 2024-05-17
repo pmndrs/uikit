@@ -56,3 +56,17 @@ Repeat the previous process for other weights, such as bold, to support differen
   <Text fontFamily="roboto">Test123</Text>
 </FontFamilyProvider>
 ```
+
+If you are using some kind of hashes in your filenames, you can provide the json and the png urls separately:
+
+```tsx
+<FontFamilyProvider
+  roboto={{
+    medium: {
+      jsonUrl: "url-to-font.json",
+      pageUrl: "url-to-font.png",
+  }}}
+>
+    <Text fontFamily="roboto">Test123</Text>
+</FontFamilyProvider>
+```
