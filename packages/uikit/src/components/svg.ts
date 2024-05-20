@@ -182,6 +182,7 @@ export function createSvg(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    scrollPosition,
     isClipped,
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
