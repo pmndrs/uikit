@@ -14,6 +14,7 @@ import {
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export type CustomContainerProperties = {
+  name?: string
   children?: ReactNode
   customDepthMaterial?: Material
   customDistanceMaterial?: Material
@@ -46,6 +47,12 @@ export const CustomContainer: (
   }, [internals])
 
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, innerRef)
+
+  useEffect(() => {
+    if (innerRef.current && properties.name) {
+      innerRef.current.name = properties.name
+    }
+  }, [properties.name])
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

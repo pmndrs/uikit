@@ -18,6 +18,7 @@ export type IconProperties = BaseIconProperties &
     svgWidth: number
     svgHeight: number
     children?: ReactNode
+    name?: string
   }
 
 export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<IconProperties>>) => ReactNode =
@@ -46,6 +47,12 @@ export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<Ico
     }, [internals])
 
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+    useEffect(() => {
+      if (internals.interactionPanel && properties.name) {
+        internals.interactionPanel.name = properties.name
+      }
+    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>

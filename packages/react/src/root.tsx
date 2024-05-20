@@ -21,6 +21,7 @@ import { Signal, computed, signal } from '@preact/signals-core'
 export type RootProperties = BaseRootProperties &
   WithReactive<{ pixelSize?: number }> & {
     children?: ReactNode
+    name?: string
   } & EventHandlers
 
 export const Root: (props: RootProperties & RefAttributes<ComponentInternals<RootProperties>>) => ReactNode =
@@ -77,6 +78,12 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
     })
 
     useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+    useEffect(() => {
+      if (internals.interactionPanel && properties.name) {
+        internals.interactionPanel.name = properties.name
+      }
+    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

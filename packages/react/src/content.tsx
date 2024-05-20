@@ -8,6 +8,7 @@ import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ContentProperties as BaseContentProperties } from '../../uikit/dist/components/content.js'
 
 export type ContentProperties = {
+  name?: string
   children?: ReactNode
 } & BaseContentProperties &
   EventHandlers
@@ -37,6 +38,12 @@ export const Content: (props: ContentProperties & RefAttributes<ComponentInterna
     }, [internals])
 
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+    useEffect(() => {
+      if (internals.interactionPanel && properties.name) {
+        internals.interactionPanel.name = properties.name
+      }
+    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

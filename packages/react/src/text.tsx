@@ -17,6 +17,7 @@ import { useFontFamilies } from './font.js'
 
 export type TextProperties = {
   children: string | Array<string | Signal<string>> | Signal<string>
+  name?: string
 } & BaseTextProperties &
   EventHandlers
 
@@ -52,6 +53,12 @@ export const Text: (props: TextProperties & RefAttributes<ComponentInternals<Tex
     }, [internals])
 
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+    useEffect(() => {
+      if (internals.interactionPanel && properties.name) {
+        internals.interactionPanel.name = properties.name
+      }
+    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

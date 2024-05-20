@@ -13,6 +13,7 @@ import {
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export type ContainerProperties = {
+  name?: string
   children?: ReactNode
 } & BaseContainerProperties &
   EventHandlers
@@ -43,6 +44,12 @@ export const Container: (
   }, [parent, propertySignals, internals])
 
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+  useEffect(() => {
+    if (internals.interactionPanel && properties.name) {
+      internals.interactionPanel.name = properties.name
+    }
+  }, [internals.interactionPanel, properties.name])
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

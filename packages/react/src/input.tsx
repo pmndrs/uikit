@@ -20,7 +20,10 @@ export type InputInternals = ComponentInternals<InputProperties> & {
   focus: () => void
 }
 
-export type InputProperties = BaseInputProperties & EventHandlers
+export type InputProperties = BaseInputProperties &
+  EventHandlers & {
+    name?: string
+  }
 
 export const Input: (props: InputProperties & RefAttributes<InputInternals>) => ReactNode = forwardRef(
   (properties, ref) => {
@@ -61,6 +64,12 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
         [internals.focus, internals.valueSignal],
       ),
     )
+
+    useEffect(() => {
+      if (internals.interactionPanel && properties.name) {
+        internals.interactionPanel.name = properties.name
+      }
+    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
