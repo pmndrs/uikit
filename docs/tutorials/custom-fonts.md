@@ -41,6 +41,42 @@ example charset.txt:
 
 > **IMPORTANT:** Only a single texture file is supported by uikit, so make sure the generated texture is a single file. Otherwise adjust the texture by increasing the resolution or by decreasing the font size.
 
+#### Inlining the texture
+If you are using some kind of hashes in your filenames, you won't be able to use the separate texture. In that case you need to inline the texture in the `.json` file. Here's a sample script to do it:
+```ts
+import { writeFile } from "fs/promises";
+import generateBMFont from "msdf-bmfont-xml";
+
+const charset =
+  "’|Wj@$()[]{}/\\w%MQm0fgipqy!#&123456789?ABCDEFGHIJKLNOPRSTUVXYZbdhkl;t<>aceos:nruvxz~+=_^*-\"',`. €£";
+
+generateBMFont(
+  "src/assets/fonts/Inter-Bold.woff",
+  {
+    smallSize: true,
+    charset,
+    outputType: "json",
+  },
+  async (
+    error: Error | undefined,
+    textures: { filename: string; texture: Buffer }[],
+    font: { filename: string; data: string }
+  ) => {
+    if (error) {
+      throw error;
+    }
+    const pages = await Promise.all(
+      textures.map((texture) => "data:image/png;base64," + texture.texture.toString("base64"))
+    );
+    const json = JSON.parse(font.data);
+
+    json.pages = pages;
+    await writeFile(font.filename, JSON.stringify(json));
+  }
+);
+```
+
+
 #### Implementing the generated font
 Lastly, we add the font family via the `FontFamilyProvider`. It's necessary to host the `.json` file and the texture on the same URL and provide the URL to the `.json` file to the  `FontFamilyProvider`.
 
