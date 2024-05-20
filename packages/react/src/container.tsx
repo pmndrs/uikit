@@ -13,6 +13,7 @@ import {
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
 export type ContainerProperties = {
+  name?: string
   children?: ReactNode
 } & BaseContainerProperties &
   EventHandlers
@@ -36,6 +37,9 @@ export const Container: (
       ),
     [parent, propertySignals],
   )
+
+  internals.interactionPanel.name = properties.name ?? ''
+
   useEffect(() => {
     const subscriptions: Subscriptions = []
     initialize(internals.initializers, subscriptions)

@@ -8,6 +8,7 @@ import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ContentProperties as BaseContentProperties } from '../../uikit/dist/components/content.js'
 
 export type ContentProperties = {
+  name?: string
   children?: ReactNode
 } & BaseContentProperties &
   EventHandlers
@@ -30,6 +31,9 @@ export const Content: (props: ContentProperties & RefAttributes<ComponentInterna
         ),
       [parent, propertySignals],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)

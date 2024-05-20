@@ -17,6 +17,7 @@ import { useFontFamilies } from './font.js'
 
 export type TextProperties = {
   children: string | Array<string | Signal<string>> | Signal<string>
+  name?: string
 } & BaseTextProperties &
   EventHandlers
 
@@ -45,6 +46,9 @@ export const Text: (props: TextProperties & RefAttributes<ComponentInternals<Tex
         ),
       [fontFamilies, parent, propertySignals, textSignal],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)

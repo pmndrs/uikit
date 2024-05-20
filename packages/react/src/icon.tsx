@@ -18,6 +18,7 @@ export type IconProperties = BaseIconProperties &
     svgWidth: number
     svgHeight: number
     children?: ReactNode
+    name?: string
   }
 
 export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<IconProperties>>) => ReactNode =
@@ -39,6 +40,9 @@ export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<Ico
         ),
       [parent, properties.svgHeight, properties.svgWidth, properties.text, propertySignals],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)

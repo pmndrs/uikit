@@ -12,7 +12,11 @@ import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 
-export type SvgProperties = BaseSvgProperties & EventHandlers & { children?: ReactNode }
+export type SvgProperties = BaseSvgProperties &
+  EventHandlers & {
+    children?: ReactNode
+    name?: string
+  }
 
 export const Svg: (props: SvgProperties & RefAttributes<ComponentInternals<SvgProperties>>) => ReactNode = forwardRef(
   (properties, ref) => {
@@ -32,6 +36,9 @@ export const Svg: (props: SvgProperties & RefAttributes<ComponentInternals<SvgPr
         ),
       [parent, propertySignals],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)

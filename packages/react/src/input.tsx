@@ -20,7 +20,10 @@ export type InputInternals = ComponentInternals<InputProperties> & {
   focus: () => void
 }
 
-export type InputProperties = BaseInputProperties & EventHandlers
+export type InputProperties = BaseInputProperties &
+  EventHandlers & {
+    name?: string
+  }
 
 export const Input: (props: InputProperties & RefAttributes<InputInternals>) => ReactNode = forwardRef(
   (properties, ref) => {
@@ -43,6 +46,8 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
 
     useEffect(() => {
       const subscriptions: Subscriptions = []

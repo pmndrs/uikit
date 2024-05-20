@@ -21,6 +21,7 @@ import { Signal, computed, signal } from '@preact/signals-core'
 export type RootProperties = BaseRootProperties &
   WithReactive<{ pixelSize?: number }> & {
     children?: ReactNode
+    name?: string
   } & EventHandlers
 
 export const Root: (props: RootProperties & RefAttributes<ComponentInternals<RootProperties>>) => ReactNode =
@@ -62,6 +63,9 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [invalidate],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)

@@ -15,6 +15,7 @@ import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/cor
 export type ImageProperties = BaseImageProperties &
   EventHandlers & {
     children?: ReactNode
+    name?: string
   }
 
 export const Image: (props: ImageProperties & RefAttributes<ComponentInternals<ImageProperties>>) => ReactNode =
@@ -36,6 +37,9 @@ export const Image: (props: ImageProperties & RefAttributes<ComponentInternals<I
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)
