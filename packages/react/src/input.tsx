@@ -47,6 +47,8 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
       [],
     )
 
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)
@@ -64,12 +66,6 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
         [internals.focus, internals.valueSignal],
       ),
     )
-
-    useEffect(() => {
-      if (internals.interactionPanel && properties.name) {
-        internals.interactionPanel.name = properties.name
-      }
-    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

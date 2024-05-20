@@ -37,6 +37,9 @@ export const Container: (
       ),
     [parent, propertySignals],
   )
+
+  internals.interactionPanel.name = properties.name ?? ''
+
   useEffect(() => {
     const subscriptions: Subscriptions = []
     initialize(internals.initializers, subscriptions)
@@ -44,12 +47,6 @@ export const Container: (
   }, [parent, propertySignals, internals])
 
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
-
-  useEffect(() => {
-    if (internals.interactionPanel && properties.name) {
-      internals.interactionPanel.name = properties.name
-    }
-  }, [internals.interactionPanel, properties.name])
 
   return (
     <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

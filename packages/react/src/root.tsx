@@ -63,6 +63,9 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [invalidate],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)
@@ -78,12 +81,6 @@ export const Root: (props: RootProperties & RefAttributes<ComponentInternals<Roo
     })
 
     useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
-
-    useEffect(() => {
-      if (internals.interactionPanel && properties.name) {
-        internals.interactionPanel.name = properties.name
-      }
-    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>

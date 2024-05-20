@@ -46,6 +46,9 @@ export const Text: (props: TextProperties & RefAttributes<ComponentInternals<Tex
         ),
       [fontFamilies, parent, propertySignals, textSignal],
     )
+
+    internals.interactionPanel.name = properties.name ?? ''
+
     useEffect(() => {
       const subscriptions: Subscriptions = []
       initialize(internals.initializers, subscriptions)
@@ -53,12 +56,6 @@ export const Text: (props: TextProperties & RefAttributes<ComponentInternals<Tex
     }, [internals])
 
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
-
-    useEffect(() => {
-      if (internals.interactionPanel && properties.name) {
-        internals.interactionPanel.name = properties.name
-      }
-    }, [internals.interactionPanel, properties.name])
 
     return (
       <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
