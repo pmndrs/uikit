@@ -1,6 +1,6 @@
 import { Signal, computed, effect } from '@preact/signals-core'
 import { ReactNode, RefAttributes, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { HalfFloatType, LinearFilter, Scene, WebGLRenderTarget } from 'three'
+import { HalfFloatType, LinearFilter, Scene, WebGLRenderTarget, PerspectiveCamera } from 'three'
 import { Image } from './image.js'
 import { InjectState, RootState, createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import type { DomEvent, EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
@@ -27,6 +27,12 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
         () => ({
           events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
           size: { width: 1, height: 1, left: 0, top: 0 },
+          // We have our own camera in here, separate from the main scene.
+          camera: (() => {
+            const camera = new PerspectiveCamera(50, 1, 0.1, 1000)
+            camera.position.set(0, 0, 5)
+            return camera
+          })(),
         }),
         [eventPriority],
       )
@@ -123,6 +129,19 @@ function ChildrenToFBO({
       store.setState({ size: { width, height, top: 0, left: 0 } })
     })
   })
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe((state) => {
+      const { size } = state
+      if (size) {
+        state.camera.aspect = size.width / size.height
+        state.camera.updateProjectionMatrix()
+      }
+    })
+
+    return () => unsubscribe();
+  }, [store])
+
   let count = 0
   let oldAutoClear
   let oldXrEnabled
