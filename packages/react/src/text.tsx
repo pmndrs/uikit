@@ -21,7 +21,7 @@ export type TextProperties = {
 } & BaseTextProperties &
   EventHandlers
 
-export const Text: (props: TextProperties & RefAttributes<ComponentInternals<TextProperties>>) => ReactNode =
+export const Text: (props: TextProperties & RefAttributes<ComponentInternals<Partial<TextProperties>>>) => ReactNode =
   forwardRef((properties, ref) => {
     const parent = useParent()
     const outerRef = useRef<Object3D>(null)

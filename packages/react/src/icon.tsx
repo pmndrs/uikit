@@ -21,7 +21,7 @@ export type IconProperties = BaseIconProperties &
     name?: string
   }
 
-export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<IconProperties>>) => ReactNode =
+export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<Partial<IconProperties>>>) => ReactNode =
   forwardRef((properties, ref) => {
     const parent = useParent()
     const outerRef = useRef<Object3D>(null)
