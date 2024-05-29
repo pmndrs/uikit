@@ -27,9 +27,10 @@ export function useVideoContainerElement(): HTMLVideoElement {
   return element
 }
 
-export type VideoInternals = ComponentInternals<ImageProperties> & {
-  element: HTMLVideoElement
-}
+export type VideoInternals = BaseVideoContainerProperties &
+  EventHandlers & {
+    element: HTMLVideoElement
+  }
 
 export type VideoContainerProperties = BaseVideoContainerProperties &
   EventHandlers & {

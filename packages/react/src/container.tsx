@@ -19,7 +19,7 @@ export type ContainerProperties = {
   EventHandlers
 
 export const Container: (
-  props: ContainerProperties & RefAttributes<ComponentInternals<ContainerProperties>>,
+  props: ContainerProperties & RefAttributes<ComponentInternals<BaseContainerProperties & EventHandlers>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)

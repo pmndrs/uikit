@@ -25,8 +25,8 @@ export type InputProperties = BaseInputProperties &
     name?: string
   }
 
-export const Input: (props: InputProperties & RefAttributes<InputInternals>) => ReactNode = forwardRef(
-  (properties, ref) => {
+export const Input: (props: InputProperties & RefAttributes<BaseInputProperties & EventHandlers>) => ReactNode =
+  forwardRef((properties, ref) => {
     const parent = useParent()
     const outerRef = useRef<Object3D>(null)
     const propertySignals = usePropertySignals(properties)
