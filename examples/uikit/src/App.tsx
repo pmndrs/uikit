@@ -1,6 +1,6 @@
 import { ComponentRef, StrictMode, Suspense, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Gltf, Box, PerspectiveCamera, RenderTexture } from '@react-three/drei'
+import { Gltf, Box, PerspectiveCamera, RenderTexture, OrbitControls } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -31,18 +31,14 @@ export default function App() {
   return (
     <Canvas frameloop="demand" style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <StrictMode>
+        <OrbitControls />
         <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
           <color attach="background" args={['black']} />
           <ambientLight intensity={0.5} />
           <directionalLight intensity={10} position={[5, 1, 10]} />
-          <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
-          <Gltf position={[0, 0, 4]} scale={10} src="example.glb" />
           <RenderTexture ref={(t) => (texture.value = t ?? undefined)}>
             <Box />
           </RenderTexture>
-          <Box renderOrder={1} position={[0, 0, 4]} scale={0.2}>
-            <meshBasicMaterial depthWrite={false} transparent color="red" />
-          </Box>
           <Fullscreen
             renderOrder={10}
             distanceToCamera={1}
@@ -55,8 +51,7 @@ export default function App() {
             borderRightWidth={0}
             borderColor="red"
           >
-            <Portal flexShrink={0} borderRadius={30} width={200} aspectRatio={1}>
-              <PerspectiveCamera makeDefault position={[0, 0, 4]} />
+            <Portal flexShrink={0} borderRadius={30} width="100%" height={500}>
               <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
               <color attach="background" args={['red']} />
             </Portal>
