@@ -27,17 +27,16 @@ export function useVideoContainerElement(): HTMLVideoElement {
   return element
 }
 
-export type VideoInternals = BaseVideoContainerProperties &
-  EventHandlers & {
-    element: HTMLVideoElement
-  }
+export type VideoContainerInternals = ComponentInternals<Omit<ImageProperties, 'src'> & EventHandlers> & {
+  element: HTMLVideoElement
+}
 
 export type VideoContainerProperties = BaseVideoContainerProperties &
   EventHandlers & {
     children?: ReactNode
   }
 
-export const VideoContainer: (props: VideoContainerProperties & RefAttributes<VideoInternals>) => ReactNode =
+export const VideoContainer: (props: VideoContainerProperties & RefAttributes<VideoContainerInternals>) => ReactNode =
   forwardRef((props: VideoContainerProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
