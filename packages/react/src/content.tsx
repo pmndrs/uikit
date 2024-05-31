@@ -13,41 +13,42 @@ export type ContentProperties = {
 } & BaseContentProperties &
   EventHandlers
 
-export const Content: (props: ContentProperties & RefAttributes<ComponentInternals<ContentProperties>>) => ReactNode =
-  forwardRef((properties, ref) => {
-    const parent = useParent()
-    const outerRef = useRef<Object3D>(null)
-    const innerRef = useRef<Object3D>(null)
-    const propertySignals = usePropertySignals(properties)
-    const internals = useMemo(
-      () =>
-        createContent(
-          parent,
-          propertySignals.style,
-          propertySignals.properties,
-          propertySignals.default,
-          outerRef,
-          innerRef,
-        ),
-      [parent, propertySignals],
-    )
+export const Content: (
+  props: ContentProperties & RefAttributes<ComponentInternals<BaseContentProperties & EventHandlers>>,
+) => ReactNode = forwardRef((properties, ref) => {
+  const parent = useParent()
+  const outerRef = useRef<Object3D>(null)
+  const innerRef = useRef<Object3D>(null)
+  const propertySignals = usePropertySignals(properties)
+  const internals = useMemo(
+    () =>
+      createContent(
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+        innerRef,
+      ),
+    [parent, propertySignals],
+  )
 
-    internals.interactionPanel.name = properties.name ?? ''
+  internals.interactionPanel.name = properties.name ?? ''
 
-    useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
-    }, [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
-    return (
-      <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
-        <primitive object={internals.interactionPanel} />
-        <object3D matrixAutoUpdate={false} ref={innerRef}>
-          <ParentProvider value={undefined}>{properties.children}</ParentProvider>
-        </object3D>
-      </AddHandlers>
-    )
-  })
+  return (
+    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+      <primitive object={internals.interactionPanel} />
+      <object3D matrixAutoUpdate={false} ref={innerRef}>
+        <ParentProvider value={undefined}>{properties.children}</ParentProvider>
+      </object3D>
+    </AddHandlers>
+  )
+})

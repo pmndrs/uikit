@@ -7,74 +7,77 @@ import type { DomEvent, EventHandlers } from '@react-three/fiber/dist/declaratio
 import type { ImageProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
 
+type BasePortalProperties = Omit<ImageProperties, 'src' | 'objectFit'>
+
 export type PortalProperties = {
   frames?: number
   renderPriority?: number
   eventPriority?: number
   resolution?: number
   children?: ReactNode
-} & Omit<ImageProperties, 'src' | 'objectFit'> &
+} & BasePortalProperties &
   EventHandlers & {
     children?: ReactNode
   }
 
-export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals<PortalProperties>>) => ReactNode =
-  forwardRef(
-    ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
-      const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
-      const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
-      const injectState = useMemo<InjectState>(
-        () => ({
-          events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
-          size: { width: 1, height: 1, left: 0, top: 0 },
-        }),
-        [eventPriority],
-      )
-      const store = useStore()
-      useEffect(() => {
-        if (imageRef.current == null) {
+export const Portal: (
+  props: PortalProperties & RefAttributes<ComponentInternals<BasePortalProperties & EventHandlers>>,
+) => ReactNode = forwardRef(
+  ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
+    const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
+    const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
+    const injectState = useMemo<InjectState>(
+      () => ({
+        events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
+        size: { width: 1, height: 1, left: 0, top: 0 },
+      }),
+      [eventPriority],
+    )
+    const store = useStore()
+    useEffect(() => {
+      if (imageRef.current == null) {
+        return
+      }
+      const renderTarget = (fbo.value = new WebGLRenderTarget(1, 1, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        type: HalfFloatType,
+      }))
+      const { size } = imageRef.current
+      const unsubscribeSetSize = effect(() => {
+        if (size.value == null) {
           return
         }
-        const renderTarget = (fbo.value = new WebGLRenderTarget(1, 1, {
-          minFilter: LinearFilter,
-          magFilter: LinearFilter,
-          type: HalfFloatType,
-        }))
-        const { size } = imageRef.current
-        const unsubscribeSetSize = effect(() => {
-          if (size.value == null) {
-            return
-          }
-          const [width, height] = size.value
-          const dpr = store.getState().viewport.dpr
-          renderTarget.setSize(width * dpr, height * dpr)
-          injectState.size!.width = width
-          injectState.size!.height = height
-        })
-        return () => {
-          unsubscribeSetSize()
-          renderTarget.dispose()
-        }
-      }, [fbo, injectState, store])
-      useImperativeHandle(ref, () => imageRef.current!, [])
-      const vScene = useMemo(() => new Scene(), [])
-      const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
-      return (
-        <>
-          {createPortal(
-            <ChildrenToFBO imageRef={imageRef} renderPriority={renderPriority} frames={frames} fbo={fbo}>
-              {children}
-              {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
-              <group onPointerOver={() => null} />
-            </ChildrenToFBO>,
-            vScene,
-            injectState,
-          )}
-          <Image src={texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
-        </>
-      )
-    },
-  )
+        const [width, height] = size.value
+        const dpr = store.getState().viewport.dpr
+        renderTarget.setSize(width * dpr, height * dpr)
+        injectState.size!.width = width
+        injectState.size!.height = height
+      })
+      return () => {
+        unsubscribeSetSize()
+        renderTarget.dispose()
+      }
+    }, [fbo, injectState, store])
+    useImperativeHandle(ref, () => imageRef.current!, [])
+    const vScene = useMemo(() => new Scene(), [])
+    const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
+    return (
+      <>
+        {createPortal(
+          <ChildrenToFBO imageRef={imageRef} renderPriority={renderPriority} frames={frames} fbo={fbo}>
+            {children}
+            {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
+            <group onPointerOver={() => null} />
+          </ChildrenToFBO>,
+          vScene,
+          injectState,
+        )}
+        <Image src={texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
+      </>
+    )
+  },
+)
 
 function uvCompute(
   { current }: RefObject<ComponentInternals<ImageProperties>>,

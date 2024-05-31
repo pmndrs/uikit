@@ -17,7 +17,7 @@ export type FullscreenProperties = BaseFullscreenProperties & {
 } & EventHandlers
 
 export const Fullscreen: (
-  props: FullscreenProperties & RefAttributes<ComponentInternals<RootProperties>>,
+  props: FullscreenProperties & RefAttributes<ComponentInternals<RootProperties & EventHandlers>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const store = useStore()
   const [sizeX, sizeY, pixelSize] = useMemo(() => [signal<number>(1), signal<number>(1), signal<number>(1)], [])

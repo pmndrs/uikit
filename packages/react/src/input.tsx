@@ -15,7 +15,7 @@ import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ReadonlySignal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
 
-export type InputInternals = ComponentInternals<InputProperties> & {
+export type InputInternals = ComponentInternals<BaseInputProperties & EventHandlers> & {
   current: ReadonlySignal<string>
   focus: () => void
 }

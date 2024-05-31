@@ -21,45 +21,46 @@ export type TextProperties = {
 } & BaseTextProperties &
   EventHandlers
 
-export const Text: (props: TextProperties & RefAttributes<ComponentInternals<TextProperties>>) => ReactNode =
-  forwardRef((properties, ref) => {
-    const parent = useParent()
-    const outerRef = useRef<Object3D>(null)
-    const propertySignals = usePropertySignals(properties)
-    const textSignal = useMemo(
-      () => signal<string | Array<string | Signal<string>> | Signal<string>>(undefined as any),
-      [],
-    )
-    textSignal.value = properties.children
-    const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
-    fontFamilies.value = useFontFamilies()
-    const internals = useMemo(
-      () =>
-        createText(
-          parent,
-          textSignal,
-          fontFamilies,
-          propertySignals.style,
-          propertySignals.properties,
-          propertySignals.default,
-          outerRef,
-        ),
-      [fontFamilies, parent, propertySignals, textSignal],
-    )
+export const Text: (
+  props: TextProperties & RefAttributes<ComponentInternals<Partial<BaseTextProperties & EventHandlers>>>,
+) => ReactNode = forwardRef((properties, ref) => {
+  const parent = useParent()
+  const outerRef = useRef<Object3D>(null)
+  const propertySignals = usePropertySignals(properties)
+  const textSignal = useMemo(
+    () => signal<string | Array<string | Signal<string>> | Signal<string>>(undefined as any),
+    [],
+  )
+  textSignal.value = properties.children
+  const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
+  fontFamilies.value = useFontFamilies()
+  const internals = useMemo(
+    () =>
+      createText(
+        parent,
+        textSignal,
+        fontFamilies,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+      ),
+    [fontFamilies, parent, propertySignals, textSignal],
+  )
 
-    internals.interactionPanel.name = properties.name ?? ''
+  internals.interactionPanel.name = properties.name ?? ''
 
-    useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
-    }, [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
-    return (
-      <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
-        <primitive object={internals.interactionPanel} />
-      </AddHandlers>
-    )
-  })
+  return (
+    <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+      <primitive object={internals.interactionPanel} />
+    </AddHandlers>
+  )
+})

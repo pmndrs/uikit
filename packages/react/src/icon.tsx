@@ -21,40 +21,41 @@ export type IconProperties = BaseIconProperties &
     name?: string
   }
 
-export const Icon: (props: IconProperties & RefAttributes<ComponentInternals<IconProperties>>) => ReactNode =
-  forwardRef((properties, ref) => {
-    const parent = useParent()
-    const outerRef = useRef<Object3D>(null)
-    const propertySignals = usePropertySignals(properties)
-    const internals = useMemo(
-      () =>
-        createIcon(
-          parent,
-          properties.text,
-          properties.svgWidth,
-          properties.svgHeight,
-          propertySignals.style,
-          propertySignals.properties,
-          propertySignals.default,
-          outerRef,
-        ),
-      [parent, properties.svgHeight, properties.svgWidth, properties.text, propertySignals],
-    )
+export const Icon: (
+  props: IconProperties & RefAttributes<ComponentInternals<Partial<BaseIconProperties & EventHandlers>>>,
+) => ReactNode = forwardRef((properties, ref) => {
+  const parent = useParent()
+  const outerRef = useRef<Object3D>(null)
+  const propertySignals = usePropertySignals(properties)
+  const internals = useMemo(
+    () =>
+      createIcon(
+        parent,
+        properties.text,
+        properties.svgWidth,
+        properties.svgHeight,
+        propertySignals.style,
+        propertySignals.properties,
+        propertySignals.default,
+        outerRef,
+      ),
+    [parent, properties.svgHeight, properties.svgWidth, properties.text, propertySignals],
+  )
 
-    internals.interactionPanel.name = properties.name ?? ''
+  internals.interactionPanel.name = properties.name ?? ''
 
-    useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
-    }, [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
-    return (
-      <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
-        <primitive object={internals.interactionPanel} />
-        <primitive object={internals.iconGroup} />
-      </AddHandlers>
-    )
-  })
+  return (
+    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
+      <primitive object={internals.interactionPanel} />
+      <primitive object={internals.iconGroup} />
+    </AddHandlers>
+  )
+})
