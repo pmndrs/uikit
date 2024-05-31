@@ -7,6 +7,10 @@ import type { DomEvent, EventHandlers } from '@react-three/fiber/dist/declaratio
 import type { ImageProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
 
+type Camera = THREE.OrthographicCamera | THREE.PerspectiveCamera
+const isOrthographicCamera = (def: Camera): def is THREE.OrthographicCamera =>
+  def && (def as THREE.OrthographicCamera).isOrthographicCamera
+
 export type PortalProperties = {
   frames?: number
   renderPriority?: number
@@ -24,16 +28,16 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
       const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
       const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
       const injectState = useMemo<InjectState>(
-        () => ({
-          events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
-          size: { width: 1, height: 1, left: 0, top: 0 },
+        () => {
           // We have our own camera in here, separate from the main scene.
-          camera: (() => {
-            const camera = new PerspectiveCamera(50, 1, 0.1, 1000)
-            camera.position.set(0, 0, 5)
-            return camera
-          })(),
-        }),
+          const camera = new PerspectiveCamera(50, 1, 0.1, 1000);
+          camera.position.set(0, 0, 5);
+          return {
+            events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
+            size: { width: 1, height: 1, left: 0, top: 0 },
+            camera,
+          }
+        },
         [eventPriority],
       )
       const store = useStore()
@@ -131,15 +135,25 @@ function ChildrenToFBO({
   })
 
   useEffect(() => {
-    const unsubscribe = store.subscribe((state) => {
-      const { size } = state
+    return store.subscribe((state, prevState) => {
+      const { size, camera } = state
       if (size) {
-        state.camera.aspect = size.width / size.height
-        state.camera.updateProjectionMatrix()
+        if (isOrthographicCamera(camera)) {
+          camera.left = size.width / -2
+          camera.right = size.width / 2
+          camera.top = size.height / 2
+          camera.bottom = size.height / -2
+        } else {
+          camera.aspect = size.width / size.height
+        }
+        if (size !== prevState.size || camera !== prevState.camera) {
+          camera.updateProjectionMatrix()
+          // https://github.com/pmndrs/react-three-fiber/issues/178
+          // Update matrix world since the renderer is a frame late
+          camera.updateMatrixWorld()
+        }
       }
     })
-
-    return () => unsubscribe();
   }, [store])
 
   let count = 0

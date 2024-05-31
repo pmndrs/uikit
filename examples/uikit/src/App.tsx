@@ -1,6 +1,6 @@
 import { ComponentRef, StrictMode, Suspense, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Gltf, Box, PerspectiveCamera, RenderTexture, OrbitControls } from '@react-three/drei'
+import { Box, PerspectiveCamera, OrthographicCamera, RenderTexture, OrbitControls } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -51,11 +51,31 @@ export default function App() {
             borderRightWidth={0}
             borderColor="red"
           >
-            <Portal flexShrink={0} borderRadius={30} width="100%" height={500}>
-              <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
-              <color attach="background" args={['red']} />
-            </Portal>
-            <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
+            {/* Tests for the Portal component.*/}
+            <Container flexShrink={0} flexDirection="row" height={500}>
+              {/* By default, the Portal should create it's own camera and thus
+                not be affected by the scene camera and orbit controls..*/}
+              <Portal borderRadius={30} width="33%">
+                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+                <color attach="background" args={['red']} />
+              </Portal>
+              {/* However, we can provide a camera with custom properties, like
+                a different position or field of view. Note that the aspect
+                ratio will be overriden to match with the screens aspect ratio,
+                s.t. resizing the screen would not distort the portal view.*/}
+              <Portal borderRadius={30} width="33%">
+                <PerspectiveCamera makeDefault position={[0, -1, 4]} fov={500} aspect={100}/>
+                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+                <color attach="background" args={['blue']} />
+              </Portal>
+              {/* The resizing should work for the orthographic camera as well.*/}
+              <Portal borderRadius={30} width="33%">
+                <OrthographicCamera makeDefault position={[0, 2, 100]} left={10} right={10} top={10} bottom={10}/>
+                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+                <color attach="background" args={['green']} />
+              </Portal>
+            </Container>
+           <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
               <Container flexDirection="column">
                 <Text wordBreak="break-all" height={100}>
                   Escribe algo...
