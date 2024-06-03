@@ -118,7 +118,6 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
                 newOwnState = newOwnState(get())
               }
               Object.assign(ownState, newOwnState)
-              console.log(newOwnState.camera)
               update()
             },
             setPreviousState(prevState: RootState) {
