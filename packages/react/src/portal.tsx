@@ -54,144 +54,144 @@ type Camera = THREE.OrthographicCamera | THREE.PerspectiveCamera
 const isOrthographicCamera = (def: Camera): def is THREE.OrthographicCamera =>
   def && (def as THREE.OrthographicCamera).isOrthographicCamera
 
+type BasePortalProperties = Omit<ImageProperties, 'src' | 'objectFit'>
+
 export type PortalProperties = {
   frames?: number
   renderPriority?: number
   eventPriority?: number
   resolution?: number
   children?: ReactNode
-} & Omit<ImageProperties, 'src' | 'objectFit'> &
+} & BasePortalProperties &
   EventHandlers & {
     children?: ReactNode
   }
 
-export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals<PortalProperties>>) => ReactNode =
-  forwardRef(
-    ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
-      const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
-      const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
-      const previousRoot = useStore()
-      useImperativeHandle(ref, () => imageRef.current!, [])
-      const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
+export const Portal: (
+  props: PortalProperties & RefAttributes<ComponentInternals<BasePortalProperties & EventHandlers>>,
+) => ReactNode = forwardRef(
+  ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
+    const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
+    const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
+    const previousRoot = useStore()
+    useImperativeHandle(ref, () => imageRef.current!, [])
+    const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
 
-      const usePortalStore = useMemo(() => {
-        let previousState = previousRoot.getState()
-        // We have our own camera in here, separate from the main scene.
-        const camera = new PerspectiveCamera(50, 1, 0.1, 1000)
-        camera.position.set(0, 0, 5)
-        const pointer = new Vector2()
-        let ownState = {
-          events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
-          size: { width: 1, height: 1, left: 0, top: 0 },
-          camera,
-          scene: new Scene(),
-          raycaster: new Raycaster(),
-          pointer: pointer,
-          mouse: pointer,
-          previousRoot,
-        }
-        //we now merge in order previousState, injectState, ownState
-        const store = create<RootState & { setPreviousState: (prevState: RootState) => void }>((innerSet, get) => {
-          const merge = () => {
-            const result = {} as any
-            for (const key in previousState) {
-              if (privateKeys.includes(key)) {
-                continue
-              }
-              result[key as keyof RootState] = previousState[key as keyof RootState] as never
+    const usePortalStore = useMemo(() => {
+      let previousState = previousRoot.getState()
+      // We have our own camera in here, separate from the main scene.
+      const camera = new PerspectiveCamera(50, 1, 0.1, 1000)
+      camera.position.set(0, 0, 5)
+      const pointer = new Vector2()
+      let ownState = {
+        events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
+        size: { width: 1, height: 1, left: 0, top: 0 },
+        camera,
+        scene: new Scene(),
+        raycaster: new Raycaster(),
+        pointer: pointer,
+        mouse: pointer,
+        previousRoot,
+      }
+      //we now merge in order previousState, injectState, ownState
+      const store = create<RootState & { setPreviousState: (prevState: RootState) => void }>((innerSet, get) => {
+        const merge = () => {
+          const result = {} as any
+          for (const key in previousState) {
+            if (privateKeys.includes(key)) {
+              continue
             }
-            return Object.assign(result, ownState, {
-              events: { ...previousState.events, ...ownState.events },
-              viewport: Object.assign(
-                {},
-                previousState.viewport,
-                previousState.viewport.getCurrentViewport(camera, new Vector3(), ownState.size),
-              ),
-            })
+            result[key as keyof RootState] = previousState[key as keyof RootState] as never
           }
-          const update = () => innerSet(merge())
-          return {
-            ...previousState,
-            // Set and get refer to this root-state
-            set(newOwnState: Partial<InjectState> | ((s: InjectState) => Partial<InjectState>)) {
-              if (typeof newOwnState === 'function') {
-                newOwnState = newOwnState(get())
-              }
-              Object.assign(ownState, newOwnState)
-              update()
-            },
-            setPreviousState(prevState: RootState) {
-              previousState = prevState
-              update()
-            },
-            get,
-            // Layers are allowed to override events
-            setEvents(events: Partial<EventManager<any>>) {
-              Object.assign(ownState.events, events)
-              update()
-            },
-            ...merge(),
-          }
-        })
-        return Object.assign(store, {
-          setState(state: Partial<RootState>) {
-            store.getState().set(state as any)
+          return Object.assign(result, ownState, {
+            events: { ...previousState.events, ...ownState.events },
+            viewport: Object.assign(
+              {},
+              previousState.viewport,
+              previousState.viewport.getCurrentViewport(camera, new Vector3(), ownState.size),
+            ),
+          })
+        }
+        const update = () => innerSet(merge())
+        return {
+          ...previousState,
+          // Set and get refer to this root-state
+          set(newOwnState: Partial<InjectState> | ((s: InjectState) => Partial<InjectState>)) {
+            if (typeof newOwnState === 'function') {
+              newOwnState = newOwnState(get())
+            }
+            Object.assign(ownState, newOwnState)
+            update()
           },
-        })
-      }, [eventPriority, previousRoot])
+          setPreviousState(prevState: RootState) {
+            previousState = prevState
+            update()
+          },
+          get,
+          // Layers are allowed to override events
+          setEvents(events: Partial<EventManager<any>>) {
+            Object.assign(ownState.events, events)
+            update()
+          },
+          ...merge(),
+        }
+      })
+      return Object.assign(store, {
+        setState(state: Partial<RootState>) {
+          store.getState().set(state as any)
+        },
+      })
+    }, [eventPriority, previousRoot])
 
-      //syncing up previous store with the current store
-      useEffect(
-        () => previousRoot.subscribe(usePortalStore.getState().setPreviousState),
-        [previousRoot, usePortalStore],
-      )
+    //syncing up previous store with the current store
+    useEffect(() => previousRoot.subscribe(usePortalStore.getState().setPreviousState), [previousRoot, usePortalStore])
 
-      useEffect(() => {
-        if (imageRef.current == null) {
+    useEffect(() => {
+      if (imageRef.current == null) {
+        return
+      }
+      const renderTarget = (fbo.value = new WebGLRenderTarget(1, 1, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        type: HalfFloatType,
+      }))
+      const { size } = imageRef.current
+      const unsubscribeSetSize = effect(() => {
+        if (size.value == null) {
           return
         }
-        const renderTarget = (fbo.value = new WebGLRenderTarget(1, 1, {
-          minFilter: LinearFilter,
-          magFilter: LinearFilter,
-          type: HalfFloatType,
-        }))
-        const { size } = imageRef.current
-        const unsubscribeSetSize = effect(() => {
-          if (size.value == null) {
-            return
-          }
-          const [width, height] = size.value
-          const dpr = previousRoot.getState().viewport.dpr
-          renderTarget.setSize(width * dpr, height * dpr)
-          usePortalStore.setState({
-            size: { width, height, top: 0, left: 0 },
-            viewport: { ...previousRoot.getState().viewport, width, height, aspect: width / height },
-          })
+        const [width, height] = size.value
+        const dpr = previousRoot.getState().viewport.dpr
+        renderTarget.setSize(width * dpr, height * dpr)
+        usePortalStore.setState({
+          size: { width, height, top: 0, left: 0 },
+          viewport: { ...previousRoot.getState().viewport, width, height, aspect: width / height },
         })
-        return () => {
-          unsubscribeSetSize()
-          renderTarget.dispose()
-        }
-      }, [fbo, previousRoot, usePortalStore])
+      })
+      return () => {
+        unsubscribeSetSize()
+        renderTarget.dispose()
+      }
+    }, [fbo, previousRoot, usePortalStore])
 
-      return (
-        <>
-          {reconciler.createPortal(
-            <context.Provider value={usePortalStore}>
-              <ChildrenToFBO renderPriority={renderPriority} frames={frames} fbo={fbo}>
-                {children}
-                {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
-                <group onPointerOver={() => null} />
-              </ChildrenToFBO>
-            </context.Provider>,
-            usePortalStore,
-            null,
-          )}
-          <Image src={texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
-        </>
-      )
-    },
-  )
+    return (
+      <>
+        {reconciler.createPortal(
+          <context.Provider value={usePortalStore}>
+            <ChildrenToFBO renderPriority={renderPriority} frames={frames} fbo={fbo}>
+              {children}
+              {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
+              <group onPointerOver={() => null} />
+            </ChildrenToFBO>
+          </context.Provider>,
+          usePortalStore,
+          null,
+        )}
+        <Image src={texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
+      </>
+    )
+  },
+)
 
 function uvCompute(
   { current }: RefObject<ComponentInternals<ImageProperties>>,
