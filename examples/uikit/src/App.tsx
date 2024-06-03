@@ -64,18 +64,26 @@ export default function App() {
                 ratio will be overriden to match with the screens aspect ratio,
                 s.t. resizing the screen would not distort the portal view.*/}
               <Portal borderRadius={30} width="33%">
-                <PerspectiveCamera makeDefault position={[0, -1, 4]} fov={500} aspect={100}/>
+                <PerspectiveCamera makeDefault position={[0, -1, 4]} fov={500} aspect={100} />
                 <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
                 <color attach="background" args={['blue']} />
               </Portal>
               {/* The resizing should work for the orthographic camera as well.*/}
               <Portal borderRadius={30} width="33%">
-                <OrthographicCamera makeDefault position={[0, 2, 100]} left={10} right={10} top={10} bottom={10}/>
+                <OrthographicCamera
+                  makeDefault
+                  position={[0, 0, 100]}
+                  left={10}
+                  right={10}
+                  top={10}
+                  zoom={100}
+                  bottom={10}
+                />
                 <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
                 <color attach="background" args={['green']} />
               </Portal>
             </Container>
-           <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
+            <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
               <Container flexDirection="column">
                 <Text wordBreak="break-all" height={100}>
                   Escribe algo...

@@ -1,11 +1,54 @@
 import { Signal, computed, effect } from '@preact/signals-core'
-import { ReactNode, RefAttributes, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { HalfFloatType, LinearFilter, Scene, WebGLRenderTarget, PerspectiveCamera } from 'three'
+import {
+  ReactNode,
+  RefAttributes,
+  RefObject,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import {
+  HalfFloatType,
+  LinearFilter,
+  Scene,
+  WebGLRenderTarget,
+  PerspectiveCamera,
+  Raycaster,
+  Vector2,
+  Vector3,
+} from 'three'
 import { Image } from './image.js'
-import { InjectState, RootState, createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
-import type { DomEvent, EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import {
+  InjectState,
+  RootState,
+  createPortal,
+  reconciler,
+  useFrame,
+  useStore,
+  context,
+  Viewport,
+} from '@react-three/fiber'
+import type { DomEvent, EventHandlers, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import type { ImageProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
+import { create } from 'zustand'
+
+// Keys that shouldn't be copied between R3F stores
+export const privateKeys = [
+  'set',
+  'get',
+  'setSize',
+  'setFrameloop',
+  'setDpr',
+  'events',
+  'invalidate',
+  'advance',
+  'size',
+  'viewport',
+]
 
 type Camera = THREE.OrthographicCamera | THREE.PerspectiveCamera
 const isOrthographicCamera = (def: Camera): def is THREE.OrthographicCamera =>
@@ -27,20 +70,83 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
     ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
       const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
       const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
-      const injectState = useMemo<InjectState>(
-        () => {
-          // We have our own camera in here, separate from the main scene.
-          const camera = new PerspectiveCamera(50, 1, 0.1, 1000);
-          camera.position.set(0, 0, 5);
-          return {
-            events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
-            size: { width: 1, height: 1, left: 0, top: 0 },
-            camera,
+      const previousRoot = useStore()
+      useImperativeHandle(ref, () => imageRef.current!, [])
+      const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
+
+      const usePortalStore = useMemo(() => {
+        let previousState = previousRoot.getState()
+        // We have our own camera in here, separate from the main scene.
+        const camera = new PerspectiveCamera(50, 1, 0.1, 1000)
+        camera.position.set(0, 0, 5)
+        const pointer = new Vector2()
+        let ownState = {
+          events: { compute: uvCompute.bind(null, imageRef), priority: eventPriority },
+          size: { width: 1, height: 1, left: 0, top: 0 },
+          camera,
+          scene: new Scene(),
+          raycaster: new Raycaster(),
+          pointer: pointer,
+          mouse: pointer,
+          previousRoot,
+        }
+        //we now merge in order previousState, injectState, ownState
+        const store = create<RootState & { setPreviousState: (prevState: RootState) => void }>((innerSet, get) => {
+          const merge = () => {
+            const result = {} as any
+            for (const key in previousState) {
+              if (privateKeys.includes(key)) {
+                continue
+              }
+              result[key as keyof RootState] = previousState[key as keyof RootState] as never
+            }
+            return Object.assign(result, ownState, {
+              events: { ...previousState.events, ...ownState.events },
+              viewport: Object.assign(
+                {},
+                previousState.viewport,
+                previousState.viewport.getCurrentViewport(camera, new Vector3(), ownState.size),
+              ),
+            })
           }
-        },
-        [eventPriority],
+          const update = () => innerSet(merge())
+          return {
+            ...previousState,
+            // Set and get refer to this root-state
+            set(newOwnState: Partial<InjectState> | ((s: InjectState) => Partial<InjectState>)) {
+              if (typeof newOwnState === 'function') {
+                newOwnState = newOwnState(get())
+              }
+              Object.assign(ownState, newOwnState)
+              console.log(newOwnState.camera)
+              update()
+            },
+            setPreviousState(prevState: RootState) {
+              previousState = prevState
+              update()
+            },
+            get,
+            // Layers are allowed to override events
+            setEvents(events: Partial<EventManager<any>>) {
+              Object.assign(ownState.events, events)
+              update()
+            },
+            ...merge(),
+          }
+        })
+        return Object.assign(store, {
+          setState(state: Partial<RootState>) {
+            store.getState().set(state as any)
+          },
+        })
+      }, [eventPriority, previousRoot])
+
+      //syncing up previous store with the current store
+      useEffect(
+        () => previousRoot.subscribe(usePortalStore.getState().setPreviousState),
+        [previousRoot, usePortalStore],
       )
-      const store = useStore()
+
       useEffect(() => {
         if (imageRef.current == null) {
           return
@@ -56,29 +162,31 @@ export const Portal: (props: PortalProperties & RefAttributes<ComponentInternals
             return
           }
           const [width, height] = size.value
-          const dpr = store.getState().viewport.dpr
+          const dpr = previousRoot.getState().viewport.dpr
           renderTarget.setSize(width * dpr, height * dpr)
-          injectState.size!.width = width
-          injectState.size!.height = height
+          usePortalStore.setState({
+            size: { width, height, top: 0, left: 0 },
+            viewport: { ...previousRoot.getState().viewport, width, height, aspect: width / height },
+          })
         })
         return () => {
           unsubscribeSetSize()
           renderTarget.dispose()
         }
-      }, [fbo, injectState, store])
-      useImperativeHandle(ref, () => imageRef.current!, [])
-      const vScene = useMemo(() => new Scene(), [])
-      const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
+      }, [fbo, previousRoot, usePortalStore])
+
       return (
         <>
-          {createPortal(
-            <ChildrenToFBO imageRef={imageRef} renderPriority={renderPriority} frames={frames} fbo={fbo}>
-              {children}
-              {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
-              <group onPointerOver={() => null} />
-            </ChildrenToFBO>,
-            vScene,
-            injectState,
+          {reconciler.createPortal(
+            <context.Provider value={usePortalStore}>
+              <ChildrenToFBO renderPriority={renderPriority} frames={frames} fbo={fbo}>
+                {children}
+                {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
+                <group onPointerOver={() => null} />
+              </ChildrenToFBO>
+            </context.Provider>,
+            usePortalStore,
+            null,
           )}
           <Image src={texture} objectFit="fill" keepAspectRatio={false} {...props} ref={imageRef} />
         </>
@@ -111,28 +219,13 @@ function ChildrenToFBO({
   renderPriority,
   children,
   fbo,
-  imageRef,
 }: {
   frames: number
   renderPriority: number
   children: ReactNode
   fbo: Signal<WebGLRenderTarget | undefined>
-  imageRef: RefObject<ComponentInternals<ImageProperties>>
 }) {
   const store = useStore()
-  useEffect(() => {
-    if (imageRef.current == null) {
-      return
-    }
-    const { size } = imageRef.current
-    return effect(() => {
-      if (size.value == null) {
-        return
-      }
-      const [width, height] = size.value
-      store.setState({ size: { width, height, top: 0, left: 0 } })
-    })
-  })
 
   useEffect(() => {
     return store.subscribe((state, prevState) => {
