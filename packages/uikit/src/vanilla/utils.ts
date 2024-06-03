@@ -102,11 +102,9 @@ export function bindHandlers(
 }
 
 function keyToEventName(key: keyof EventHandlers) {
-  return (key[2].toLowerCase() + key.slice(3)) as keyof EventMap
+  return key.slice(2).toLowerCase() as keyof EventMap
 }
 
 export type EventMap = Object3DEventMap & {
-  [Key in keyof EventHandlers as RemoveOn<Key>]: EventHandlers[Key]
+  [Key in keyof EventHandlers as Lowercase<Key extends `on${infer K}` ? K : never>]: EventHandlers[Key]
 }
-
-type RemoveOn<T> = Uncapitalize<T extends `on${infer K}` ? K : never>
