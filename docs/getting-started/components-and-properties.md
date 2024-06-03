@@ -344,13 +344,13 @@ The `Input` component extends the `Text` component and allows the user to change
 
 </details>
 
-## SVG
+## Svg
 
-The `SVG` component allows rendering an SVG file. The URL of the file is provided in the `src` property. Additionally, the `opacity`, `color`, and `panelMaterialClass` properties can be used to transform the appearance of the SVG, and all the `Container` properties are available for styling the background panel.
+The `Svg` component allows rendering an Svg file. The URL of the file is provided in the `src` property. Additionally, the `opacity`, `color`, and `panelMaterialClass` properties can be used to transform the appearance of the Svg, and all the `Container` properties are available for styling the background panel.
 
 ```jsx
 <Root>
-  <SVG src="..." width={100} />
+  <Svg src="..." width={100} />
 </Root>
 ```
 
@@ -366,13 +366,13 @@ The `SVG` component allows rendering an SVG file. The URL of the file is provide
 
 </details>
 
-## SVGIconFromText
+## Icon
 
-The `SVGIconFromText` component only differs from the `SVG` component in how the SVG content is provided. The `SVGIconFromText` component takes a `text` property, which must contain the source code of the SVG. This component helps to inline small SVG files in use cases such as icons. For example, this component is used to implement the uikit-lucide icon pack. When creating the component, the `svgWidth` and `svgHeight` properties must be provided since three.js currently doesn't respect the viewport defined in svg files.
+The `Icon` component only differs from the `SVG` component in how the SVG content is provided. The `Icon` component takes a `text` property, which must contain the source code of the SVG. This component helps to inline small SVG files in use cases such as icons. For example, this component is used to implement the uikit-lucide icon pack. When creating the component, the `svgWidth` and `svgHeight` properties must be provided since three.js currently doesn't respect the viewport defined in svg files.
 
 ```jsx
 <Root>
-  <SVGIconFromText text="..." svgWidth={16} svgHeight={16} width={20} />
+  <Icon text="..." svgWidth={16} svgHeight={16} width={20} />
 </Root>
 ```
 

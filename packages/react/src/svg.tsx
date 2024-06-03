@@ -18,43 +18,36 @@ export type SvgProperties = BaseSvgProperties &
     name?: string
   }
 
-export const Svg: (props: SvgProperties & RefAttributes<ComponentInternals<SvgProperties>>) => ReactNode = forwardRef(
-  (properties, ref) => {
-    const parent = useParent()
-    const outerRef = useRef<Object3D>(null)
-    const innerRef = useRef<Object3D>(null)
-    const propertySignals = usePropertySignals(properties)
-    const internals = useMemo(
-      () =>
-        createSvg(
-          parent,
-          propertySignals.style,
-          propertySignals.properties,
-          propertySignals.default,
-          outerRef,
-          innerRef,
-        ),
-      [parent, propertySignals],
-    )
+export const Svg: (
+  props: SvgProperties & RefAttributes<ComponentInternals<BaseSvgProperties & EventHandlers>>,
+) => ReactNode = forwardRef((properties, ref) => {
+  const parent = useParent()
+  const outerRef = useRef<Object3D>(null)
+  const innerRef = useRef<Object3D>(null)
+  const propertySignals = usePropertySignals(properties)
+  const internals = useMemo(
+    () =>
+      createSvg(parent, propertySignals.style, propertySignals.properties, propertySignals.default, outerRef, innerRef),
+    [parent, propertySignals],
+  )
 
-    internals.interactionPanel.name = properties.name ?? ''
+  internals.interactionPanel.name = properties.name ?? ''
 
-    useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
-    }, [internals])
+  useEffect(() => {
+    const subscriptions: Subscriptions = []
+    initialize(internals.initializers, subscriptions)
+    return () => unsubscribeSubscriptions(subscriptions)
+  }, [internals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
-    return (
-      <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
-        <primitive object={internals.interactionPanel} />
-        <primitive object={internals.centerGroup} />
-        <object3D matrixAutoUpdate={false} ref={innerRef}>
-          <ParentProvider value={internals}>{properties.children}</ParentProvider>
-        </object3D>
-      </AddHandlers>
-    )
-  },
-)
+  return (
+    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
+      <primitive object={internals.interactionPanel} />
+      <primitive object={internals.centerGroup} />
+      <object3D matrixAutoUpdate={false} ref={innerRef}>
+        <ParentProvider value={internals}>{properties.children}</ParentProvider>
+      </object3D>
+    </AddHandlers>
+  )
+})
