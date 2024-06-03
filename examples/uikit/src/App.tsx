@@ -1,6 +1,6 @@
 import { ComponentRef, StrictMode, Suspense, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Gltf, Box, PerspectiveCamera, RenderTexture } from '@react-three/drei'
+import { Box, PerspectiveCamera, OrthographicCamera, RenderTexture, OrbitControls } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -31,18 +31,14 @@ export default function App() {
   return (
     <Canvas frameloop="demand" style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <StrictMode>
+        <OrbitControls />
         <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
           <color attach="background" args={['black']} />
           <ambientLight intensity={0.5} />
           <directionalLight intensity={10} position={[5, 1, 10]} />
-          <Gltf position={[200, 0, 200]} scale={0.1} src="scene.glb" />
-          <Gltf position={[0, 0, 4]} scale={10} src="example.glb" />
           <RenderTexture ref={(t) => (texture.value = t ?? undefined)}>
             <Box />
           </RenderTexture>
-          <Box renderOrder={1} position={[0, 0, 4]} scale={0.2}>
-            <meshBasicMaterial depthWrite={false} transparent color="red" />
-          </Box>
           <Fullscreen
             renderOrder={10}
             distanceToCamera={1}
@@ -55,11 +51,38 @@ export default function App() {
             borderRightWidth={0}
             borderColor="red"
           >
-            <Portal flexShrink={0} borderRadius={30} width={200} aspectRatio={1}>
-              <PerspectiveCamera makeDefault position={[0, 0, 4]} />
-              <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
-              <color attach="background" args={['red']} />
-            </Portal>
+            {/* Tests for the Portal component.*/}
+            <Container flexShrink={0} flexDirection="row" height={500}>
+              {/* By default, the Portal should create it's own camera and thus
+                not be affected by the scene camera and orbit controls..*/}
+              <Portal borderRadius={30} width="33%">
+                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+                <color attach="background" args={['red']} />
+              </Portal>
+              {/* However, we can provide a camera with custom properties, like
+                a different position or field of view. Note that the aspect
+                ratio will be overriden to match with the screens aspect ratio,
+                s.t. resizing the screen would not distort the portal view.*/}
+              <Portal borderRadius={30} width="33%">
+                <PerspectiveCamera makeDefault position={[0, -1, 4]} fov={500} aspect={100} />
+                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+                <color attach="background" args={['blue']} />
+              </Portal>
+              {/* The resizing should work for the orthographic camera as well.*/}
+              <Portal borderRadius={30} width="33%">
+                <OrthographicCamera
+                  makeDefault
+                  position={[0, 0, 100]}
+                  left={10}
+                  right={10}
+                  top={10}
+                  zoom={100}
+                  bottom={10}
+                />
+                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+                <color attach="background" args={['green']} />
+              </Portal>
+            </Container>
             <Container flexShrink={0} flexDirection="column" backgroundColor="blue" width={100} positionType="relative">
               <Container flexDirection="column">
                 <Text wordBreak="break-all" height={100}>
