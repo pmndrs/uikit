@@ -1,7 +1,7 @@
 ---
 title: Default
 description: All the Default components.
-nav: 6
+nav: 5
 ---
   
 ## Accordion
@@ -12,12 +12,12 @@ nav: 6
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/accordion.js'
 
 //TODO: type="single" collapsible
 export function AccordionDemo() {
   return (
-    <Container width={300}>
+    <Container flexDirection="column" width={300}>
       <Accordion>
         <AccordionItem value="item-1">
           <AccordionTrigger>
@@ -66,11 +66,11 @@ npx uikit component add default accordion
 ```tsx
 import { Text } from '@react-three/uikit'
 import { Terminal } from '@react-three/uikit-lucide'
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert.js'
 
 export function AlertDemo() {
   return (
-    <Alert>
+    <Alert maxWidth={500}>
       <AlertIcon>
         <Terminal width={16} height={16} />
       </AlertIcon>
@@ -101,7 +101,7 @@ npx uikit component add default alert
 
 ```tsx
 import { Text } from '@react-three/uikit'
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -164,7 +164,7 @@ npx uikit component add default alert-dialog
 
 ```tsx
 import { Container } from '@react-three/uikit'
-import { Avatar } from '@/avatar'
+import { Avatar } from '@/avatar.js'
 
 export function AvatarDemo() {
   return (
@@ -191,7 +191,7 @@ npx uikit component add default avatar
 
 ```tsx
 import { Text } from '@react-three/uikit'
-import { Badge } from '@/badge'
+import { Badge } from '@/badge.js'
 
 export function BadgeDemo() {
   return (
@@ -218,7 +218,7 @@ npx uikit component add default badge
 
 ```tsx
 import { ChevronRight } from '@react-three/uikit-lucide'
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 
 export function ButtonDemo() {
   return (
@@ -246,10 +246,10 @@ npx uikit component add default button
 ```tsx
 import { Text, Container } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
-import { colors } from '@/theme'
-import { Button } from '@/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
-import { Switch } from '@/switch'
+import { colors } from '@/theme.js'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
+import { Switch } from '@/switch.js'
 
 const notifications = [
   {
@@ -278,9 +278,9 @@ export function CardDemo() {
         </CardDescription>
       </CardHeader>
       <CardContent flexDirection="column" gap={16}>
-        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} border={1} padding={16}>
+        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} borderWidth={1} padding={16}>
           <BellRing />
-          <Container gap={4}>
+          <Container flexDirection="column" gap={4}>
             <Text fontSize={14} lineHeight="100%">
               Push Notifications
             </Text>
@@ -290,7 +290,7 @@ export function CardDemo() {
           </Container>
           <Switch />
         </Container>
-        <Container>
+        <Container flexDirection="column">
           {notifications.map((notification, index) => (
             <Container
               key={index}
@@ -301,7 +301,7 @@ export function CardDemo() {
               gap={17}
             >
               <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
-              <Container gap={4}>
+              <Container flexDirection="column" gap={4}>
                 <Text fontSize={14} lineHeight="100%">
                   {notification.title}
                 </Text>
@@ -340,8 +340,8 @@ npx uikit component add default card
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
-import { Checkbox } from '@/checkbox'
-import { Label } from '@/label'
+import { Checkbox } from '@/checkbox.js'
+import { Label } from '@/label.js'
 
 export function CheckboxDemo() {
   return (
@@ -371,8 +371,8 @@ npx uikit component add default checkbox
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
-import { Button } from '@/button'
-import { Label } from '@/label'
+import { Button } from '@/button.js'
+import { Label } from '@/label.js'
 import {
   Dialog,
   DialogContent,
@@ -381,7 +381,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog'
+} from '@/dialog.js'
 
 export function DialogDemo() {
   return (
@@ -400,7 +400,7 @@ export function DialogDemo() {
             <Text>Make changes to your profile here. Click save when you're done.</Text>
           </DialogDescription>
         </DialogHeader>
-        <Container gap={16} paddingY={16}>
+        <Container flexDirection="column" alignItems="center" gap={16} paddingY={16}>
           <Container alignItems="center" gap={16}>
             <Label>
               <Text textAlign="right">Name</Text>
@@ -441,8 +441,8 @@ npx uikit component add default dialog
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
-import { Checkbox } from '@/checkbox'
-import { Label } from '@/label'
+import { Checkbox } from '@/checkbox.js'
+import { Label } from '@/label.js'
 
 export function LabelDemo() {
   return (
@@ -480,7 +480,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/pagination'
+} from '@/pagination.js'
 
 export function PaginationDemo() {
   return (
@@ -532,7 +532,7 @@ npx uikit component add default pagination
 
 ```tsx
 import { useEffect, useState } from 'react'
-import { Progress } from '@/progress'
+import { Progress } from '@/progress.js'
 
 export function ProgressDemo() {
   const [progress, setProgress] = useState(13)
@@ -562,8 +562,8 @@ npx uikit component add default progress
 
 ```tsx
 import { Text } from '@react-three/uikit'
-import { Label } from '@/label'
-import { RadioGroup, RadioGroupItem } from '@/radio-group'
+import { Label } from '@/label.js'
+import { RadioGroup, RadioGroupItem } from '@/radio-group.js'
 
 export function RadioGroupDemo() {
   return (
@@ -604,13 +604,13 @@ npx uikit component add default radio-group
 
 ```tsx
 import { DefaultProperties, Text, Container } from '@react-three/uikit'
-import { colors } from '@/theme'
-import { Separator } from '@/separator'
+import { colors } from '@/theme.js'
+import { Separator } from '@/separator.js'
 
 export function SeparatorDemo() {
   return (
-    <Container>
-      <Container gap={4}>
+    <Container width={300} flexDirection="column">
+      <Container flexDirection="column" gap={4}>
         <Text fontSize={14} lineHeight="100%">
           Radix Primitives
         </Text>
@@ -649,13 +649,13 @@ npx uikit component add default separator
 
 ```tsx
 import { Container } from '@react-three/uikit'
-import { Skeleton } from '@/skeleton'
+import { Skeleton } from '@/skeleton.js'
 
 export function SkeletonDemo() {
   return (
     <Container flexDirection="row" alignItems="center" gap={16}>
       <Skeleton borderRadius={1000} height={48} width={48} />
-      <Container gap={8}>
+      <Container flexDirection="column" gap={8}>
         <Skeleton height={16} width={250} />
         <Skeleton height={16} width={200} />
       </Container>
@@ -679,7 +679,7 @@ npx uikit component add default skeleton
 <summary>Code</summary>
 
 ```tsx
-import { Slider } from '@/slider'
+import { Slider } from '@/slider.js'
 
 export function SliderDemo() {
   return <Slider defaultValue={50} max={100} step={1} width={300} />
@@ -702,8 +702,8 @@ npx uikit component add default slider
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
-import { Label } from '@/label'
-import { Switch } from '@/switch'
+import { Label } from '@/label.js'
+import { Switch } from '@/switch.js'
 
 export function SwitchDemo() {
   return (
@@ -733,10 +733,10 @@ npx uikit component add default switch
 
 ```tsx
 import { Text, Container } from '@react-three/uikit'
-import { Button } from '@/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card'
-import { Label } from '@/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs'
+import { Button } from '@/button.js'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
+import { Label } from '@/label.js'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 
 export function TabsDemo() {
   return (
@@ -759,14 +759,14 @@ export function TabsDemo() {
               <Text>Make changes to your account here. Click save when you're done.</Text>
             </CardDescription>
           </CardHeader>
-          <CardContent gap={8}>
-            <Container gap={4}>
+          <CardContent flexDirection="column" gap={8}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>Name</Text>
               </Label>
               <Text>Pedro Duarte</Text>
             </Container>
-            <Container gap={4}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>Username</Text>
               </Label>
@@ -790,14 +790,14 @@ export function TabsDemo() {
               <Text>Change your password here. After saving, you'll be logged out.</Text>
             </CardDescription>
           </CardHeader>
-          <CardContent gap={8}>
-            <Container gap={4}>
+          <CardContent flexDirection="column" gap={8}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>Current password</Text>
               </Label>
               <Text>password</Text>
             </Container>
-            <Container gap={4}>
+            <Container flexDirection="column" gap={4}>
               <Label>
                 <Text>New password</Text>
               </Label>
@@ -832,7 +832,7 @@ npx uikit component add default tabs
 
 ```tsx
 import { Bold } from '@react-three/uikit-lucide'
-import { Toggle } from '@/toggle'
+import { Toggle } from '@/toggle.js'
 
 export function ToggleDemo() {
   return (
@@ -859,7 +859,7 @@ npx uikit component add default toggle
 
 ```tsx
 import { Bold, Italic, Underline } from '@react-three/uikit-lucide'
-import { ToggleGroup, ToggleGroupItem } from '@/toggle-group'
+import { ToggleGroup, ToggleGroupItem } from '@/toggle-group.js'
 
 export function ToggleGroupDemo() {
   return (
@@ -894,7 +894,7 @@ npx uikit component add default toggle-group
 
 ```tsx
 import { Text } from '@react-three/uikit'
-import { Button } from '@/button'
+import { Button } from '@/button.js'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/tooltip.js'
 
 export function TooltipDemo() {
@@ -928,7 +928,7 @@ npx uikit component add default tooltip
 <summary>Code</summary>
 
 ```tsx
-import { Input } from '@/input'
+import { Input } from '@/input.js'
 
 export default function InputDemo() {
   return <Input width={200} placeholder="Email" />
@@ -941,5 +941,27 @@ export default function InputDemo() {
 [Live View](https://pmndrs.github.io/uikit/examples/default/?component=input)   
 ```bash
 npx uikit component add default input
+```
+
+## Video
+![video example image](./default/video.png)
+
+<details>
+<summary>Code</summary>
+
+```tsx
+import { VideoContainer } from '@/video.js'
+
+export function VideoDemo() {
+  return <VideoContainer src="example.mp4" controls width={500} />
+}
+
+```
+
+</details>
+
+[Live View](https://pmndrs.github.io/uikit/examples/default/?component=video)   
+```bash
+npx uikit component add default video
 ```
 

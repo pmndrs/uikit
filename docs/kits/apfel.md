@@ -1,7 +1,7 @@
 ---
 title: Apfel
 description: All the Apfel components.
-nav: 5
+nav: 4
 ---
   
 ## Button
@@ -12,8 +12,8 @@ nav: 5
 
 ```tsx
 import { Container, Text } from '@react-three/uikit'
-import { Card } from '@/card'
-import { Button } from '@/button'
+import { Card } from '@/card.js'
+import { Button } from '@/button.js'
 import { BoxSelect } from '@react-three/uikit-lucide'
 
 export function ButtonsOnCard() {
@@ -210,7 +210,7 @@ npx uikit component add apfel button
 
 ```tsx
 import { Text } from '@react-three/uikit'
-import { Card } from '@/card'
+import { Card } from '@/card.js'
 
 export function TextOnCard() {
   return (
@@ -239,8 +239,8 @@ npx uikit component add apfel card
 <summary>Code</summary>
 
 ```tsx
-import { Card } from '@/card'
-import { Checkbox } from '@/checkbox'
+import { Card } from '@/card.js'
+import { Checkbox } from '@/checkbox.js'
 
 export function CheckboxOnCard() {
   return (
@@ -269,15 +269,15 @@ npx uikit component add apfel checkbox
 ```tsx
 import { Text, Container } from '@react-three/uikit'
 import { BoxSelect, ChevronRight, Info } from '@react-three/uikit-lucide'
-import { Card } from '@/card'
-import { List, ListItem } from '@/list'
-import { Button } from '@/button'
+import { Card } from '@/card.js'
+import { List, ListItem } from '@/list.js'
+import { Button } from '@/button.js'
 
 export function ListsOnCard() {
   return (
     <Container flexDirection="column" gapRow={32} alignItems="center">
       <Container flexDirection="column" md={{ flexDirection: 'row' }} gap={32}>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="plain" width={400}>
             <ListItem
               subtitle={<Text>Subtitle</Text>}
@@ -297,7 +297,7 @@ export function ListsOnCard() {
             </ListItem>
           </List>
         </Card>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="plain" width={400}>
             <ListItem
               subtitle={<Text>Subtitle</Text>}
@@ -336,7 +336,7 @@ export function ListsOnCard() {
         </Card>
       </Container>
       <Container flexDirection="column" md={{ flexDirection: 'row' }} gap={32}>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="inset" width={400}>
             <ListItem
               isFirst
@@ -357,7 +357,7 @@ export function ListsOnCard() {
             </ListItem>
           </List>
         </Card>
-        <Card borderRadius={32} padding={16}>
+        <Card flexDirection="column" borderRadius={32} padding={16}>
           <List type="inset" width={400}>
             <ListItem
               isFirst
@@ -416,8 +416,8 @@ npx uikit component add apfel list
 <summary>Code</summary>
 
 ```tsx
-import { Card } from '@/card'
-import { Loading } from '@/loading'
+import { Card } from '@/card.js'
+import { Loading } from '@/loading.js'
 
 export function LoadingSpinnersOnCard() {
   return (
@@ -445,8 +445,8 @@ npx uikit component add apfel loading
 <summary>Code</summary>
 
 ```tsx
-import { Card } from '@/card'
-import { Progress } from '@/progress'
+import { Card } from '@/card.js'
+import { Progress } from '@/progress.js'
 
 export function ProgressBarsOnCard() {
   return (
@@ -478,8 +478,8 @@ npx uikit component add apfel progress
 ```tsx
 import { Container } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
-import { Card } from '@/card'
-import { Slider } from '@/slider'
+import { Card } from '@/card.js'
+import { Slider } from '@/slider.js'
 
 export function SlidersOnCard() {
   return (
@@ -525,7 +525,7 @@ npx uikit component add apfel slider
 ```tsx
 import { Text } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
-import { TabBar, TabBarItem } from '@/tab-bar'
+import { TabBar, TabBarItem } from '@/tab-bar.js'
 
 export function TabBarWithText() {
   return (
@@ -564,8 +564,8 @@ npx uikit component add apfel tab-bar
 ```tsx
 import { Text } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
-import { Card } from '@/card'
-import { Tabs, TabsButton } from '@/tabs'
+import { Card } from '@/card.js'
+import { Tabs, TabsButton } from '@/tabs.js'
 
 export function TabsOnCard() {
   return (
@@ -642,8 +642,8 @@ npx uikit component add apfel tabs
 <summary>Code</summary>
 
 ```tsx
-import { Card } from '@/card'
-import { Input } from '@/input'
+import { Card } from '@/card.js'
+import { Input } from '@/input.js'
 import { Container } from '@react-three/uikit'
 import { BoxSelect } from '@react-three/uikit-lucide'
 import { useState } from 'react'
@@ -651,7 +651,7 @@ import { useState } from 'react'
 export function InputsOnCard() {
   const [text, setText] = useState('')
   return (
-    <Card borderRadius={32} padding={16}>
+    <Card flexDirection="column" borderRadius={32} padding={16}>
       <Container flexDirection="row" gapColumn={16}>
         <Container flexDirection="column" alignItems="stretch" gapRow={16} width={300}>
           <Input value={text} onValueChange={setText} variant="rect" placeholder="Placeholder" />

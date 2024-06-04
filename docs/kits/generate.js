@@ -1,5 +1,5 @@
-import ApfelRegistry from '../../packages/kits/apfel/registry.json' assert { type: 'json' }
-import DefaultRegistry from '../../packages/kits/default/registry.json' assert { type: 'json' }
+import ApfelRegistry from '../../packages/kits/apfel/src/registry.json' assert { type: 'json' }
+import DefaultRegistry from '../../packages/kits/default/src/registry.json' assert { type: 'json' }
 import { readFileSync, writeFileSync } from 'fs'
 
 function generateMarkdown(nav, kit, components) {

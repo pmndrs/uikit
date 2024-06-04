@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { Converter, mapIncludesAllKeys, mapToRecord } from '../../../../scripts/shared.js'
 
 import * as DefaultKit from '../src/components.js'
+import { Definition } from 'typescript-json-schema'
 
 const components = Object.keys(DefaultKit)
 
@@ -23,7 +24,11 @@ for (const component of components) {
   if (component === 'Defaults' || component.charAt(0).toUpperCase() != component.charAt(0)) {
     continue
   }
-  const schema = converter.getSchema(`${component}Properties`)
+  let schema: Definition | null = null
+  try {
+    schema = converter.getSchema(`_${component}Properties`)
+  } catch {}
+  schema ??= converter.getSchema(`${component}Properties`)
   imports.push(component) //TODO
   const propertyTypes = converter.extractPropertyTypes(schema)
   conversionComponentMapEntries.push(`${component}: {
