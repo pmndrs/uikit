@@ -1,13 +1,25 @@
-<h1>uikit</h1>
+<p align="center">
+  <img src="./docs/getting-started/logo.svg" width="100" />
+</p>
 
-[![Version](https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@react-three/uikit)
-[![Downloads](https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@react-three/uikit)
-[![Twitter](https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000)](https://twitter.com/pmndrs)
-[![Discord](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000)](https://discord.gg/ZZjjNvJ)
+<h1 align="center">uikit</h1>
+<h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
+<br>
 
-![uikit banner](./docs/getting-started/banner.jpg)
-
-Build performant 3D user interfaces for **Three.js** using **@react-three/fiber** and **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
+<p align="center">
+  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
+    <img src="https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000" alt="NPM" />
+  </a>
+  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
+    <img src="https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000" alt="NPM" />
+  </a>
+  <a href="https://twitter.com/pmndrs" target="_blank">
+    <img src="https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000" alt="Twitter">
+  </a>
+  <a href="https://discord.gg/ZZjjNvJ" target="_blank">
+    <img src="https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000" alt="Discord">
+  </a>
+</p>
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
@@ -36,18 +48,6 @@ createRoot(document.getElementById('root')).render(
 )
 ```
 
-## Pre-styled component kits
-
-We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
-
-> For example, to add the button from the default kit, run: `npx uikit component add default Button`
-
-| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
-| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
-| `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
-
 ## How to get started
 
 > Some familiarity with
@@ -66,8 +66,27 @@ Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getti
 - [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
 - [Theming components](https://docs.pmnd.rs/uikit/kits/theming)
 
+
+## Pre-styled component kits
+
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
+
+> For example, to add the button from the default kit, run: `npx uikit component add default Button`
+
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
+| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
+| `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
+
 ## Migration guides
 
 - from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
 - from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)
 - from [Tailwind](https://docs.pmnd.rs/uikit/migration/from-tailwind)
+
+## Sponsors 
+
+This project is support by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
+
+![Sponsors Overview](https://bbohlender.github.io/sponsors/screenshot.png)

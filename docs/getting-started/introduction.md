@@ -4,9 +4,28 @@ description: uikit brings user interfaces to @react-three/fiber
 nav: 0
 ---
 
-![uikit banner](./banner.jpg)
+<p align="center">
+  <img src="logo.svg" width="100" />
+</p>
 
-Build performant 3D user interfaces for **Three.js** using **@react-three/fiber** and **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
+<h1 align="center">uikit</h1>
+<h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
+<br>
+
+<p align="center">
+  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
+    <img src="https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000" alt="NPM" />
+  </a>
+  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
+    <img src="https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000" alt="NPM" />
+  </a>
+  <a href="https://twitter.com/pmndrs" target="_blank">
+    <img src="https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000" alt="Twitter">
+  </a>
+  <a href="https://discord.gg/ZZjjNvJ" target="_blank">
+    <img src="https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000" alt="Discord">
+  </a>
+</p>
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
@@ -35,17 +54,6 @@ createRoot(document.getElementById('root')).render(
 )
 ```
 
-## Pre-styled component kits
-
-We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
-> For example, to add the button from the default kit, run: `npx uikit component add default Button`
-
-| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
-| --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| ![Overview over all default components](./default-overview.jpg)                                                                      | ![Overview over all apfel components](./apfel-overview.jpg) |
-| [View All Components](../kits/default.md)                             | [View All Components](../kits/apfel.md)                     |
-| `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
-
 ## How to get started
 
 > Some familiarity with
@@ -64,8 +72,26 @@ Get started with **[building your first layout](./first-layout.md)**, take a loo
 - [Optimize performance](../advanced/performance.md)
 - [Theming components](../kits/theming.md)
 
+## Pre-styled component kits
+
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
+> For example, to add the button from the default kit, run: `npx uikit component add default Button`
+
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| ![Overview over all default components](./default-overview.jpg)                                                                      | ![Overview over all apfel components](./apfel-overview.jpg) |
+| [View All Components](../kits/default.md)                             | [View All Components](../kits/apfel.md)                     |
+| `npx uikit component add default Button`                                  | `npx uikit component add apfel Button`                          |
+
 ## Migration guides
 
 - from [Koestlich](../migration/from-koestlich.md)
 - from [HTML/CSS](../migration/from-html-css.md)
 - from [Tailwind](../migration/from-tailwind.md)
+
+
+## Sponsors 
+
+This project is support by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
+
+![Sponsors Overview](https://bbohlender.github.io/sponsors/screenshot.png)
