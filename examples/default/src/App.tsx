@@ -32,6 +32,7 @@ import { ToggleDemo } from './components/toggle.js'
 import { ToggleGroupDemo } from './components/toggle-group.js'
 import InputDemo from './components/input.js'
 import TextareDemo from './components/textarea.js'
+import { VideoDemo } from './components/video.js'
 
 const componentPages = {
   accordion: AccordionDemo,
@@ -57,6 +58,7 @@ const componentPages = {
   tooltip: TooltipDemo,
   input: InputDemo,
   textarea: TextareDemo,
+  video: VideoDemo,
 }
 
 const defaultComponent = 'card'

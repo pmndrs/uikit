@@ -155,12 +155,11 @@ export const VideoControls: (
           )}
         </Button>
         <Container flexGrow={1} />
-        <Text color="white" marginRight={16} fontSize={12}>
+        <Text marginRight={16} fontSize={12}>
           {timeTextSignal}
         </Text>
       </Container>
       <Slider
-        borderColor="#2C2D2E"
         min={0}
         margin={16}
         marginTop={8}
