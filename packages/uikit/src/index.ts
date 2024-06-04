@@ -21,7 +21,7 @@ export type {
   RootProperties,
   SvgProperties,
   TextProperties,
-  VideoContainerProperties,
+  VideoProperties,
 } from './components/index.js'
 export * from './vanilla/index.js'
 export { htmlToCode } from './convert/html/index.js'

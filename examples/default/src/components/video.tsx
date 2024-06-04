@@ -1,5 +1,5 @@
-import { VideoContainer } from '@/video.js'
+import { Video } from '@/video.js'
 
 export function VideoDemo() {
-  return <VideoContainer src="example.mp4" controls width={500} />
+  return <Video src="example.mp4" controls width={500} />
 }

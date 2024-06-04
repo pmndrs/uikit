@@ -223,20 +223,20 @@ The `Portal` component uses the `Image` component under the hood to render its c
 </Root>
 ```
 
-## VideoContainer
+## Video
 
-The `VideoContainer` component has the same properties and functionalities as a `Image` component but allows you to render an video inside it. The `VideoContainer` component corresponds to the HTML `video` element. The `VideoContainer` component has the `src`, `volume`, `preservesPitch`, `playbackRate`, `muted`, `loop`, and `autoplay` property to setip the video and can even be used to play media streams.
+The `Video` component has the same properties and functionalities as a `Image` component but allows you to render an video inside it. The `Video` component corresponds to the HTML `video` element. The `Video` component has the `src`, `volume`, `preservesPitch`, `playbackRate`, `muted`, `loop`, and `autoplay` property to setip the video and can even be used to play media streams.
 
-To control playing the video the `VideoContainer` provide the html video element through a provide, that can be consumed by its children through `useVideoContainerElement` to create video controls. Additionally, the html video element can be received from the parent of the `VideoContainer` using `ref.current.element`.
+To control playing the video the `Video` provide the html video element through a provide, that can be consumed by its children through `useVideoElement` to create video controls. Additionally, the html video element can be received from the parent of the `Video` using `ref.current.element`.
 
 ```jsx
 <Root>
-  <VideoContainer src="example.mp4" autoplay width={100} />
+  <Video src="example.mp4" autoplay width={100} />
 </Root>
 ```
 
 <details>
-<summary>View all properties specific to the `VideoContainer` component</summary>
+<summary>View all properties specific to the `Video` component</summary>
 
 | Property       | Type                |
 | -------------- | ------------------- |

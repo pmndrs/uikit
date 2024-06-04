@@ -1,6 +1,6 @@
 import { ImageProperties } from './image.js'
 
-export type VideoContainerProperties = Omit<ImageProperties, 'src'> & {
+export type VideoProperties = Omit<ImageProperties, 'src'> & {
   src?: string | MediaStream
   volume?: number
   preservesPitch?: boolean

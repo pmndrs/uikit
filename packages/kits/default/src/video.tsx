@@ -12,12 +12,12 @@ import React, {
 import { Signal, computed, signal } from '@preact/signals-core'
 import {
   Container,
-  VideoContainer as VideoContainerImpl,
-  VideoContainerProperties as BaseVideoContainerProperties,
+  Video as VideoImpl,
+  VideoProperties as BaseVideoProperties,
   Text,
   VideoInternals,
   ContainerProperties,
-  useVideoContainerElement,
+  useVideoElement,
   ComponentInternals,
 } from '@react-three/uikit'
 import { Play, Pause, VolumeX, Volume2 } from '@react-three/uikit-lucide'
@@ -26,15 +26,15 @@ import { Button } from './button.js'
 import { colors } from './theme.js'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 
-export type VideoContainerProperties = { controls?: boolean } & BaseVideoContainerProperties
+export type VideoProperties = { controls?: boolean } & BaseVideoProperties
 
 //for getting the correct types for conversion
-type _VideoContainerProperties = VideoContainerProperties
+type _VideoProperties = VideoProperties
 
 const movingContext = createContext<Signal<boolean> | undefined>(undefined)
 
-export const VideoContainer: (props: VideoContainerProperties & RefAttributes<VideoInternals>) => ReactNode =
-  forwardRef(({ controls, children, ...rest }: VideoContainerProperties, ref) => {
+export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => ReactNode = forwardRef(
+  ({ controls, children, ...rest }: VideoProperties, ref) => {
     const moving = useMemo(() => signal(false), [])
     const handlers = useMemo<EventHandlers>(() => {
       let timeoutRef: NodeJS.Timeout | undefined
@@ -58,19 +58,20 @@ export const VideoContainer: (props: VideoContainerProperties & RefAttributes<Vi
       }
     }, [moving])
     return (
-      <VideoContainerImpl {...rest} {...handlers} positionType="relative" ref={ref}>
+      <VideoImpl {...rest} {...handlers} positionType="relative" ref={ref}>
         <movingContext.Provider value={moving}>{controls && <VideoControls />}</movingContext.Provider>
         {children}
-      </VideoContainerImpl>
+      </VideoImpl>
     )
-  })
+  },
+)
 
 export type VideoControlsProperties = Omit<ContainerProperties, 'children'>
 
 export const VideoControls: (
   props: VideoControlsProperties & RefAttributes<ComponentInternals<ContainerProperties>>,
 ) => ReactNode = forwardRef((props: VideoControlsProperties, ref) => {
-  const videoElement = useVideoContainerElement()
+  const videoElement = useVideoElement()
   const [paused, setPaused] = useState(videoElement.paused)
   useEffect(() => {
     const listener = () => setPaused(videoElement.paused)
@@ -94,7 +95,7 @@ export const VideoControls: (
 
   const moving = useContext(movingContext)
   if (moving == null) {
-    throw new Error(`VideoControls form the default kit can only be used inside a VideoContainer from the default kit`)
+    throw new Error(`VideoControls form the default kit can only be used inside a Video from the default kit`)
   }
   const displaySignal = useMemo(() => computed(() => (moving.value ? 'flex' : 'none')), [moving])
 

@@ -230,11 +230,7 @@ export const conversionPropertyTypes = {
   Input: [generatedPropertyTypes.Inheriting, generatedPropertyTypes.Shared, generatedPropertyTypes.Input],
   Svg: [generatedPropertyTypes.Inheriting, generatedPropertyTypes.Shared, generatedPropertyTypes.Svg],
   Text: [generatedPropertyTypes.Inheriting, generatedPropertyTypes.Shared, generatedPropertyTypes.Text],
-  VideoContainer: [
-    generatedPropertyTypes.Inheriting,
-    generatedPropertyTypes.Shared,
-    generatedPropertyTypes.VideoContainer,
-  ],
+  Video: [generatedPropertyTypes.Inheriting, generatedPropertyTypes.Shared, generatedPropertyTypes.Video],
 } satisfies Record<string, ConversionPropertyTypes>
 
 function convertParsedHtmlRecursive<T>(

@@ -12,32 +12,32 @@ import {
 import { Image } from './image.js'
 import { Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
-import { VideoContainerProperties as BaseVideoContainerProperties, ImageProperties } from '@pmndrs/uikit'
+import { VideoProperties as BaseVideoProperties, ImageProperties } from '@pmndrs/uikit'
 import { updateVideoElement } from '@pmndrs/uikit/internals'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ComponentInternals } from './ref.js'
 
-const VideoContainerContext = createContext<HTMLVideoElement | undefined>(undefined)
+const VideoContext = createContext<HTMLVideoElement | undefined>(undefined)
 
-export function useVideoContainerElement(): HTMLVideoElement {
-  const element = useContext(VideoContainerContext)
+export function useVideoElement(): HTMLVideoElement {
+  const element = useContext(VideoContext)
   if (element == null) {
-    throw new Error(`useVideoContainerElement can only be executed inside a VideoContainer`)
+    throw new Error(`useVideoElement can only be executed inside a Video component`)
   }
   return element
 }
 
-export type VideoContainerInternals = ComponentInternals<Omit<ImageProperties, 'src'> & EventHandlers> & {
+export type VideoInternals = ComponentInternals<Omit<ImageProperties, 'src'> & EventHandlers> & {
   element: HTMLVideoElement
 }
 
-export type VideoContainerProperties = BaseVideoContainerProperties &
+export type VideoProperties = BaseVideoProperties &
   EventHandlers & {
     children?: ReactNode
   }
 
-export const VideoContainer: (props: VideoContainerProperties & RefAttributes<VideoContainerInternals>) => ReactNode =
-  forwardRef((props: VideoContainerProperties, ref) => {
+export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => ReactNode = forwardRef(
+  (props: VideoProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
     const video = useMemo(() => document.createElement('video'), [])
@@ -65,8 +65,9 @@ export const VideoContainer: (props: VideoContainerProperties & RefAttributes<Vi
     const internalRef = useRef<ComponentInternals<ImageProperties>>(null)
     useImperativeHandle(ref, () => ({ ...internalRef.current!, element: video }), [video])
     return (
-      <VideoContainerContext.Provider value={video}>
+      <VideoContext.Provider value={video}>
         <Image aspectRatio={aspectRatio} {...props} ref={internalRef} src={texture} />
-      </VideoContainerContext.Provider>
+      </VideoContext.Provider>
     )
-  })
+  },
+)

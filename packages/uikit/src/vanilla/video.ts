@@ -1,17 +1,17 @@
 import { Image } from './image.js'
 import { VideoTexture } from 'three'
 import { Signal, signal } from '@preact/signals-core'
-import { ImageProperties, VideoContainerProperties, updateVideoElement } from '../components/index.js'
+import { ImageProperties, VideoProperties, updateVideoElement } from '../components/index.js'
 import { AllOptionalProperties } from '../properties/index.js'
 
-export class VideoContainer extends Image {
+export class Video extends Image {
   public readonly element: HTMLVideoElement
   private readonly texture: VideoTexture
   private readonly aspectRatio: Signal<number>
   private readonly updateAspectRatio: () => void
 
   constructor(
-    { src, autoplay, volume, preservesPitch, playbackRate, muted, loop, ...rest }: VideoContainerProperties = {},
+    { src, autoplay, volume, preservesPitch, playbackRate, muted, loop, ...rest }: VideoProperties = {},
     defaultProperties?: AllOptionalProperties,
   ) {
     const element = document.createElement('video')
@@ -39,7 +39,7 @@ export class VideoContainer extends Image {
     muted,
     loop,
     ...rest
-  }: VideoContainerProperties & ImageProperties): void {
+  }: VideoProperties & ImageProperties): void {
     if (autoplay) {
       this.element.remove()
       document.body.append(this.element)

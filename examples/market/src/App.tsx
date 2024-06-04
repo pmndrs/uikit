@@ -8,7 +8,7 @@ import { DialogAnchor } from '@/dialog.js'
 import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/tabs.js'
 import { Separator } from '@/separator.js'
 import { Button } from '@/button.js'
-import { VideoContainer } from '@/video.js'
+import { Video } from '@/video.js'
 import { AlbumArtwork } from './components/album-artwork.js'
 import { listenNowAlbums, madeForYouAlbums } from './data/albums.js'
 import { Sidebar } from './components/sidebar.js'
@@ -109,7 +109,7 @@ export function MarketPage() {
               </Container>
               <Separator marginY={16} />
               <Container flexShrink={1} flexDirection="row" overflow="scroll" gap={16} paddingBottom={16}>
-                <VideoContainer controls borderRadius={6} flexShrink={0} src="example.mp4" />
+                <Video controls borderRadius={6} flexShrink={0} src="example.mp4" />
                 {madeForYouAlbums.map((album) => (
                   <AlbumArtwork key={album.name} album={album} aspectRatio="square" width={150} height={150} />
                 ))}

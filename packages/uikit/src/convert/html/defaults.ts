@@ -3,7 +3,7 @@ import { ConversionComponentData } from './internals.js'
 export const htmlDefaults: Record<
   string,
   Partial<Omit<ConversionComponentData, 'hasProperty'>> & {
-    renderAs?: 'Image' | 'Input' | 'VideoContainer' | 'Icon' | 'Container' | 'Text'
+    renderAs?: 'Image' | 'Input' | 'Video' | 'Icon' | 'Container' | 'Text'
   }
 > = {
   h1: {
@@ -80,7 +80,7 @@ export const htmlDefaults: Record<
     defaultProperties: { multiline: true },
   },
   video: {
-    renderAs: 'VideoContainer',
+    renderAs: 'Video',
   },
 }
 //TBD select option

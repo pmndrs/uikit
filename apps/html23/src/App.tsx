@@ -27,7 +27,7 @@ import { copyLink, importV0, toggleFullscreen } from './shared.js'
 import { ImportV0Dialog } from './components/import.js'
 import { MaterialsPopover } from './components/popover/materials.js'
 
-export const componentMap = { ...defaultComponentMap, video: defaultComponentMap.VideoContainer, ...lucideComponentMap }
+export const componentMap = { ...defaultComponentMap, video: defaultComponentMap.Video, ...lucideComponentMap }
 
 const sessionConfig: XRSessionInit = {
   requiredFeatures: ['local-floor'],

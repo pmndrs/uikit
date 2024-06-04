@@ -76,9 +76,9 @@ const result = {
     ),
   ),
   Text: {},
-  VideoContainer: mapToRecord(
+  Video: mapToRecord(
     converter.extractPropertyTypes(
-      converter.getSchema('VideoContainerProperties'),
+      converter.getSchema('VideoProperties'),
       containerProperties,
       inheritableProperties,
       removeConditionalsAndClasses,

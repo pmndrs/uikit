@@ -12,7 +12,7 @@ import { Input } from '../../input.js'
 import { Text } from '../../text.js'
 import { Svg } from '../../svg.js'
 import { Image } from '../../image.js'
-import { VideoContainer } from '../../video.js'
+import { Video } from '../../video.js'
 import { Icon } from '../../icon.js'
 import { ComponentInternals } from '../../ref.js'
 
@@ -96,8 +96,8 @@ function createRenderElement(componentMap?: ConversionComponentMap, customHook?:
       )
     }
     switch (typeName) {
-      case 'VideoContainer':
-        return <VideoContainer {...props} ref={ref} />
+      case 'Video':
+        return <Video {...props} ref={ref} />
       case 'Image':
         return (
           <Image {...props} ref={ref}>
