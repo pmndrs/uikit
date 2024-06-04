@@ -3,16 +3,17 @@ import { colors } from './theme.js'
 import React, { ReactNode, RefAttributes, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { Vector3 } from 'three'
+import { Signal, computed } from '@preact/signals-core'
 
 const vectorHelper = new Vector3()
 
 export type SliderProperties = {
   disabled?: boolean
-  value?: number
+  value?: Signal<number> | number
   defaultValue?: number
   onValueChange?(value: number): void
-  min?: number
-  max?: number
+  min?: Signal<number> | number
+  max?: Signal<number> | number
   step?: number
 } & Omit<ContainerProperties, 'children'>
 
@@ -23,8 +24,14 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
   ) => {
     const [uncontrolled, setUncontrolled] = useState(defaultValue)
     const value = providedValue ?? uncontrolled ?? 50
-    const range = max - min
-    const percentage = `${(100 * value) / range}%` as const
+    const percentage = useMemo(
+      () =>
+        computed(() => {
+          const range = readReactive(max) - readReactive(min)
+          return `${(100 * readReactive(value)) / range}%` as const
+        }),
+      [min, max, value],
+    )
     const internalRef = useRef<ComponentInternals<ContainerProperties>>(null)
     const onChange = useRef(onValueChange)
     onChange.current = onValueChange
@@ -37,9 +44,11 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
         }
         vectorHelper.copy(e.point)
         internalRef.current.interactionPanel.worldToLocal(vectorHelper)
+        const minValue = readReactive(min)
+        const maxValue = readReactive(max)
         const newValue = Math.min(
-          Math.max(Math.round(((vectorHelper.x + 0.5) * (max - min) + min) / step) * step, min),
-          max,
+          Math.max(Math.round(((vectorHelper.x + 0.5) * (maxValue - minValue) + minValue) / step) * step, minValue),
+          maxValue,
         )
         if (!hasProvidedValue) {
           setUncontrolled(newValue)
@@ -111,3 +120,10 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
     )
   },
 )
+
+function readReactive<T>(s: Signal<T> | T): T {
+  if (s instanceof Signal) {
+    return s.value
+  }
+  return s
+}

@@ -67,5 +67,9 @@
   },
   "input": {
     "files": ["input.tsx"]
+  },
+  "video": {
+    "registryDependencies": ["slider", "button"],
+    "files": ["video.tsx"]
   }
 }
