@@ -1,7 +1,7 @@
 {
   "name": "@pmndrs/uikit",
   "type": "module",
-  "description": "Build performant 3D user interfaces for Three.js yoga.",
+  "description": "Build performant 3D user interfaces with Three.js and yoga.",
   "version": "0.0.0",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",

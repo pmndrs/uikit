@@ -1,7 +1,7 @@
 {
   "name": "@pmndrs/uikit-lucide",
   "version": "0.0.0",
-  "description": "lucide icons for v3/uikit",
+  "description": "lucide icons for vanilla uikit",
   "files": [
     "dist"
   ],

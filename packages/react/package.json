@@ -2,6 +2,7 @@
   "name": "@react-three/uikit",
   "type": "module",
   "version": "0.0.0",
+  "description": "Build performant 3D user interfaces with react-three-fiber and yoga.",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",
