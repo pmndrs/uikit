@@ -55,7 +55,7 @@ export default function App() {
             <Container flexShrink={0} flexDirection="row" height={500}>
               {/* By default, the Portal should create it's own camera and thus
                 not be affected by the scene camera and orbit controls..*/}
-              <Portal borderRadius={30} width="33%">
+              <Portal dpr={0.5} borderRadius={30} width="33%">
                 <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
                 <color attach="background" args={['red']} />
               </Portal>

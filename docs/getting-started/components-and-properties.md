@@ -210,7 +210,7 @@ The default image doesn't use react's suspense but rather loads the image silent
 
 ## Portal
 
-The `Portal` component uses the `Image` component under the hood to render its children into a render target, which is displayed on the surface of the `Portal` component. In contrast to the `Image` component, the `Portal` component doesn't have a default `aspectRatio` or an `src` property. The size of the portal is completly controlled through the flexbox properties.
+The `Portal` component uses the `Image` component under the hood to render its children into a render target, which is displayed on the surface of the `Portal` component. In contrast to the `Image` component, the `Portal` component doesn't have a default `aspectRatio` or an `src` property. The size of the portal is completly controlled through the flexbox properties, the resolution of the portal is equal to the size multiplied by the `dpr` property, which defaults to the system `dpr`.
 
 ```jsx
 <Root>

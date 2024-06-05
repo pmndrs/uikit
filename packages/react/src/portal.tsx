@@ -60,7 +60,11 @@ export type PortalProperties = {
   frames?: number
   renderPriority?: number
   eventPriority?: number
-  resolution?: number
+  /**
+   * ratio between the size (in pixels) and the size of the render target (in pixels)
+   * higher dpr means higher resolution of the render target
+   */
+  dpr?: number
   children?: ReactNode
 } & BasePortalProperties &
   EventHandlers & {
@@ -70,10 +74,11 @@ export type PortalProperties = {
 export const Portal: (
   props: PortalProperties & RefAttributes<ComponentInternals<BasePortalProperties & EventHandlers>>,
 ) => ReactNode = forwardRef(
-  ({ children, resolution = 1, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
+  ({ children, dpr, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
     const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
     const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
     const previousRoot = useStore()
+    dpr ??= previousRoot.getState().viewport.dpr
     useImperativeHandle(ref, () => imageRef.current!, [])
     const texture = useMemo(() => computed(() => fbo.value?.texture), [fbo])
 
@@ -161,7 +166,6 @@ export const Portal: (
           return
         }
         const [width, height] = size.value
-        const dpr = previousRoot.getState().viewport.dpr
         renderTarget.setSize(width * dpr, height * dpr)
         usePortalStore.setState({
           size: { width, height, top: 0, left: 0 },
@@ -172,7 +176,7 @@ export const Portal: (
         unsubscribeSetSize()
         renderTarget.dispose()
       }
-    }, [fbo, previousRoot, usePortalStore])
+    }, [fbo, previousRoot, usePortalStore, dpr])
 
     return (
       <>
