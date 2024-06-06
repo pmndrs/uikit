@@ -45,7 +45,7 @@ const x = new Container({
   justifyContent: 'center',
   onSizeChange: console.log,
 })
-setTimeout(() => x.dispatchEvent({ type: 'pointerOver', target: x, nativeEvent: { pointerId: 1 } } as any), 0)
+setTimeout(() => x.dispatchEvent({ type: 'pointerover', target: x, nativeEvent: { pointerId: 1 } } as any), 0)
 const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,
