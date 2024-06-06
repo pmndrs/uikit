@@ -274,7 +274,10 @@ export function createInput(
     }
     selectionRange.value = [inputElement.selectionStart ?? 0, inputElement.selectionEnd ?? 0]
   }
-  updateHasFocus(element, hasFocusSignal, initializers)
+  setupUpdateHasFocus(element, hasFocusSignal, initializers, (hasFocus: boolean) => {
+    properties.peek()?.onFocusChange?.(hasFocus)
+    style.peek()?.onFocusChange?.(hasFocus)
+  })
   const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
@@ -406,10 +409,11 @@ export function createHtmlInputElement(
   return elementSignal
 }
 
-function updateHasFocus(
+function setupUpdateHasFocus(
   elementSignal: Signal<HTMLElement | undefined>,
   hasFocusSignal: Signal<boolean>,
   initializers: Initializers,
+  onFocusChange: (focus: boolean) => void,
 ) {
   initializers.push(() =>
     effect(() => {
@@ -417,13 +421,20 @@ function updateHasFocus(
       if (element == null) {
         return
       }
-      const updateFocus = () => (hasFocusSignal.value = document.activeElement === element)
-      updateFocus()
-      element.addEventListener('focus', updateFocus)
-      element.addEventListener('blur', updateFocus)
+      hasFocusSignal.value = document.activeElement === element
+      const listener = () => {
+        const hasFocus = document.activeElement === element
+        if (hasFocus == hasFocusSignal.value) {
+          return
+        }
+        hasFocusSignal.value = hasFocus
+        onFocusChange(hasFocus)
+      }
+      element.addEventListener('focus', listener)
+      element.addEventListener('blur', listener)
       return () => {
-        element.removeEventListener('focus', updateFocus)
-        element.removeEventListener('blur', updateFocus)
+        element.removeEventListener('focus', listener)
+        element.removeEventListener('blur', listener)
       }
     }),
   )

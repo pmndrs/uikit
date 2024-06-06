@@ -16,6 +16,7 @@ import {
   FontFamilyProvider,
   ComponentInternals,
   ImageProperties,
+  canvasInputProps,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
@@ -29,9 +30,13 @@ export default function App() {
   const ref = useRef<ComponentInternals<ImageProperties>>(null)
   const inputRef = useRef<ComponentRef<typeof Input>>(null)
   return (
-    <Canvas frameloop="demand" style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+    <Canvas
+      {...canvasInputProps}
+      frameloop="demand"
+      style={{ height: '100dvh', touchAction: 'none' }}
+      gl={{ localClippingEnabled: true }}
+    >
       <StrictMode>
-        <OrbitControls />
         <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
           <color attach="background" args={['black']} />
           <ambientLight intensity={0.5} />
@@ -215,6 +220,7 @@ export default function App() {
               ></Container>
               <Input
                 ref={inputRef}
+                onFocusChange={(focus) => console.log('focus change', focus)}
                 backgroundColor="white"
                 width="100%"
                 height="100%"
