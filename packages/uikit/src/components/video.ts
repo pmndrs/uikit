@@ -1,7 +1,7 @@
 import { ImageProperties } from './image.js'
 
 export type VideoProperties = Omit<ImageProperties, 'src'> & {
-  src?: string | MediaStream
+  src?: string | HTMLVideoElement
   volume?: number
   preservesPitch?: boolean
   playbackRate?: number
@@ -15,7 +15,7 @@ export type VideoProperties = Omit<ImageProperties, 'src'> & {
  */
 export function updateVideoElement(
   element: HTMLVideoElement,
-  src: string | MediaStream | undefined,
+  src: string | HTMLVideoElement | undefined,
   autoplay = false,
   volume = 1,
   preservesPitch = true,
@@ -23,29 +23,22 @@ export function updateVideoElement(
   muted = false,
   loop = false,
 ) {
-  if (autoplay) {
-    element.style.position = 'absolute'
-    element.style.width = '1px'
-    element.style.zIndex = '-1000'
-    element.style.top = '0px'
-    element.style.left = '0px'
-  }
-  element.playsInline = true
-  element.volume = volume ?? 1
-  element.preservesPitch = preservesPitch ?? true
-  element.playbackRate = playbackRate ?? 1
-  element.muted = muted ?? false
-  element.loop = loop ?? false
-  element.autoplay = autoplay ?? false
+  const videoElement = src instanceof HTMLVideoElement ? src : element
+
+  videoElement.playsInline = true
+  videoElement.volume = volume ?? 1
+  videoElement.preservesPitch = preservesPitch ?? true
+  videoElement.playbackRate = playbackRate ?? 1
+  videoElement.muted = muted ?? false
+  videoElement.loop = loop ?? false
+  // videoElement.autoplay = autoplay ?? false
   //update src
   if (src == null) {
-    element.removeAttribute('src')
-    element.removeAttribute('srcObject')
+    videoElement.removeAttribute('src')
+    videoElement.removeAttribute('srcObject')
     return
   }
   if (typeof src === 'string') {
-    element.src = src
-  } else {
-    element.srcObject = src
+    videoElement.src = src
   }
 }

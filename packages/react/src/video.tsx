@@ -10,7 +10,7 @@ import {
   useRef,
 } from 'react'
 import { Image } from './image.js'
-import { Texture, VideoTexture } from 'three'
+import { SRGBColorSpace, Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
 import { VideoProperties as BaseVideoProperties, ImageProperties } from '@pmndrs/uikit'
 import { updateVideoElement } from '@pmndrs/uikit/internals'
@@ -38,32 +38,41 @@ export type VideoProperties = BaseVideoProperties &
 
 export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => ReactNode = forwardRef(
   (props: VideoProperties, ref) => {
+    const { src, autoplay, volume, preservesPitch, playbackRate, muted, loop } = props
+
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
-    const video = useMemo(() => document.createElement('video'), [])
+
+    const video = useMemo(() => (src instanceof HTMLVideoElement ? src : document.createElement('video')), [src])
+
     useEffect(() => {
-      if (!props.autoplay) {
-        return
+      if (!(src instanceof HTMLVideoElement)) {
+        document.body.append(video)
+
+        return () => video.remove()
       }
-      document.body.append(video)
-      return () => video.remove()
-    }, [props.autoplay, video])
-    const { src, autoplay, volume, preservesPitch, playbackRate, muted, loop } = props
+    }, [video])
+
     updateVideoElement(video, src, autoplay, volume, preservesPitch, playbackRate, muted, loop)
+
     useEffect(() => {
       const updateAspectRatio = () => (aspectRatio.value = video.videoWidth / video.videoHeight)
       updateAspectRatio()
       video.addEventListener('resize', updateAspectRatio)
       return () => video.removeEventListener('resize', updateAspectRatio)
     }, [aspectRatio, video])
+
     useEffect(() => {
       const videoTexture = new VideoTexture(video)
+      videoTexture.colorSpace = SRGBColorSpace
       texture.value = videoTexture
       return () => videoTexture.dispose()
     }, [texture, video])
 
     const internalRef = useRef<ComponentInternals<ImageProperties>>(null)
+
     useImperativeHandle(ref, () => ({ ...internalRef.current!, element: video }), [video])
+
     return (
       <VideoContext.Provider value={video}>
         <Image aspectRatio={aspectRatio} {...props} ref={internalRef} src={texture} />
