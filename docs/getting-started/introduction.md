@@ -1,16 +1,8 @@
 ---
 title: Introduction
-description: uikit brings user interfaces to @react-three/fiber
+description: Build performant 3D user interfaces for threejs using R3F and yoga.
 nav: 0
 ---
-
-<p align="center">
-  <img src="./logo.svg" width="100" />
-</p>
-
-<h1 align="center">uikit</h1>
-<h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
-<br/>
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
