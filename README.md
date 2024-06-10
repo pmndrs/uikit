@@ -4,7 +4,7 @@
 
 <h1 align="center">uikit</h1>
 <h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
-<br>
+<br/>
 
 <p align="center">
   <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
