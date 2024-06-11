@@ -64,8 +64,8 @@ export class Icon extends Object3D {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: IconProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: IconProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: IconProperties | undefined) {

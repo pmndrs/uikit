@@ -66,8 +66,8 @@ export class Text extends Object3D {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: TextProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: TextProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: TextProperties | undefined) {

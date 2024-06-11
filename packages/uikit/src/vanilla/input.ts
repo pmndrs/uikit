@@ -56,8 +56,8 @@ export class Input extends Object3D {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: InputProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: InputProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: InputProperties | undefined) {
