@@ -16,6 +16,7 @@ import { VideoProperties as BaseVideoProperties, ImageProperties } from '@pmndrs
 import { updateVideoElement } from '@pmndrs/uikit/internals'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ComponentInternals } from './ref.js'
+import { useThree } from '@react-three/fiber'
 
 const VideoContext = createContext<HTMLVideoElement | undefined>(undefined)
 
@@ -52,6 +53,15 @@ export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => 
         return () => video.remove()
       }
     }, [video])
+
+    const invalidate = useThree((s) => s.invalidate)
+    useEffect(() => {
+      const callback = () => {
+        invalidate()
+        video.requestVideoFrameCallback(callback)
+      }
+      callback()
+    }, [video, invalidate])
 
     updateVideoElement(video, src, autoplay, volume, preservesPitch, playbackRate, muted, loop)
 
