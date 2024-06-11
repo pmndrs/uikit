@@ -248,6 +248,8 @@ To control playing the video the `Video` provide the html video element through 
 | loop           | boolean             |
 | autoplay       | boolean             |
 
+</details>
+
 ## Text
 
 The `Text` component allows you to render of text and is highly intertwined with the layout engine to allow the layout engine to measure and influence the text layout (e.g., how the text should be broken up). The `Text` component has several properties aligned with the CSS text properties such as `letterSpacing`, `lineHeight`, `fontSize`, `wordBreak`, `fontFamily`, and `fontWeight`. In addition, the `Text` component has all the properties available in the `Container` component.

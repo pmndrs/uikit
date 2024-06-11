@@ -1,31 +1,8 @@
 ---
 title: Introduction
-description: uikit brings user interfaces to @react-three/fiber
+description: Build performant 3D user interfaces for threejs using R3F and yoga.
 nav: 0
 ---
-
-<p align="center">
-  <img src="logo.svg" width="100" />
-</p>
-
-<h1 align="center">uikit</h1>
-<h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
-<br>
-
-<p align="center">
-  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
-    <img src="https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000" alt="NPM" />
-  </a>
-  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
-    <img src="https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000" alt="NPM" />
-  </a>
-  <a href="https://twitter.com/pmndrs" target="_blank">
-    <img src="https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000" alt="Twitter">
-  </a>
-  <a href="https://discord.gg/ZZjjNvJ" target="_blank">
-    <img src="https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000" alt="Discord">
-  </a>
-</p>
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 

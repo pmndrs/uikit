@@ -36,15 +36,10 @@ export function setupLayoutListeners(
   size: Signal<Vector2Tuple | undefined>,
   initializers: Initializers,
 ) {
-  let first = true
   initializers.push(() =>
     effect(() => {
       const s = size.value
       if (s == null) {
-        return
-      }
-      if (first) {
-        first = false
         return
       }
       l1.peek()?.onSizeChange?.(...s)
