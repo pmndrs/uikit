@@ -42,7 +42,7 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
         if (internalRef.current == null) {
           return
         }
-        vectorHelper.copy(e.point)
+        vectorHelper.copy(e.unprojectedPoint)
         internalRef.current.interactionPanel.worldToLocal(vectorHelper)
         const minValue = readReactive(min)
         const maxValue = readReactive(max)
