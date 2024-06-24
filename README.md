@@ -69,7 +69,7 @@ Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getti
 
 ## Pre-styled component kits
 
-We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired location with one command.
 
 > For example, to add the button from the default kit, run: `npx uikit component add default Button`
 
