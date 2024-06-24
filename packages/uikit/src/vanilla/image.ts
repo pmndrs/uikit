@@ -11,7 +11,7 @@ export class Image extends Parent {
   private readonly styleSignal: Signal<ImageProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ImageProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  protected readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
   constructor(properties?: ImageProperties, defaultProperties?: AllOptionalProperties) {
