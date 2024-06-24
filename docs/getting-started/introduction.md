@@ -51,7 +51,7 @@ Get started with **[building your first layout](./first-layout.md)**, take a loo
 
 ## Pre-styled component kits
 
-We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired loaction with one command.
+We provide multiple kits containing **themable pre-styled components**. Inspired by shadcn, you can use our CLI to install the source code of any component to your desired location with one command.
 > For example, to add the button from the default kit, run: `npx uikit component add default Button`
 
 | <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_ | <h3>apfel</h3> _inspired by AVP_                            |
