@@ -1,6 +1,6 @@
 import { ComponentRef, StrictMode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Box, PerspectiveCamera, OrthographicCamera, RenderTexture, OrbitControls } from '@react-three/drei'
+import { Box, OrthographicCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -18,6 +18,7 @@ import {
   ImageProperties,
   canvasInputProps,
   Video,
+  useMeasureFont,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
@@ -47,6 +48,8 @@ export default function App() {
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}
       >
+        <MeasureText />
+        <OrthographicCamera makeDefault />
         <StrictMode>
           <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
             <color attach="background" args={['black']} />
@@ -297,6 +300,22 @@ export default function App() {
       </Canvas>
     </>
   )
+}
+
+function MeasureText() {
+  const measure = useMeasureFont()
+
+  useEffect(
+    () =>
+      void measure({
+        fontSize: 100,
+        letterSpacing: 0,
+        lineHeight: '120%',
+        text: 'hello world',
+        wordBreak: 'keep-all',
+      }).then(console.log),
+  )
+  return null
 }
 
 /**
