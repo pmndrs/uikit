@@ -1,5 +1,5 @@
 import { Environment, OrbitControls } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
 import { Root, Container, Image, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
 import { PlusCircle } from '@react-three/uikit-lucide'
@@ -14,16 +14,21 @@ import { listenNowAlbums, madeForYouAlbums } from './data/albums.js'
 import { Sidebar } from './components/sidebar.js'
 import { playlists } from './data/playlists.js'
 import { Menu } from './components/menu.js'
+import { create } from 'zustand'
 
 export default function App() {
   return (
-    <Canvas
-      flat
-      camera={{ position: [0, 0, 18], fov: 35 }}
-      style={{ height: '100dvh', touchAction: 'none' }}
-      gl={{ localClippingEnabled: true }}
-    >
-      {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
+    <>
+      <FrameCounter />
+      <Canvas
+        flat
+        frameloop="demand"
+        camera={{ position: [0, 0, 18], fov: 35 }}
+        style={{ height: '100dvh', touchAction: 'none' }}
+        gl={{ localClippingEnabled: true }}
+      >
+        <CountFrames />
+        {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
         <Defaults>
           <DialogAnchor>
             <MarketPage />
@@ -35,14 +40,15 @@ export default function App() {
         <TiltShift2 blur={0.25} />
       </EffectComposer>
       <OrbitControls makeDefault />*/}
-      <Fullscreen flexDirection="column">
-        <Defaults>
-          <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>
-            <MarketPage />
-          </DefaultProperties>
-        </Defaults>
-      </Fullscreen>
-    </Canvas>
+        <Fullscreen flexDirection="column">
+          <Defaults>
+            <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>
+              <MarketPage />
+            </DefaultProperties>
+          </Defaults>
+        </Fullscreen>
+      </Canvas>
+    </>
   )
 }
 
@@ -119,5 +125,33 @@ export function MarketPage() {
         </Container>
       </Container>
     </Container>
+  )
+}
+
+const useFrameCounter = create(() => 0)
+
+function CountFrames() {
+  useFrame(() => useFrameCounter.setState(useFrameCounter.getState() + 1))
+  return null
+}
+
+function FrameCounter() {
+  const counter = useFrameCounter()
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: 'black',
+        fontSize: '2rem',
+        padding: '0.5rem 1rem',
+        color: 'white',
+        fontFamily: 'sans-serif',
+        zIndex: 100,
+      }}
+    >
+      {counter}
+    </div>
   )
 }

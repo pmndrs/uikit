@@ -10,12 +10,13 @@ import {
   useRef,
 } from 'react'
 import { Image } from './image.js'
-import { Texture, VideoTexture } from 'three'
+import { SRGBColorSpace, Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
 import { VideoProperties as BaseVideoProperties, ImageProperties } from '@pmndrs/uikit'
-import { updateVideoElement } from '@pmndrs/uikit/internals'
+import { setupVideoElementInvalidation, updateVideoElement } from '@pmndrs/uikit/internals'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ComponentInternals } from './ref.js'
+import { useThree } from '@react-three/fiber'
 
 const VideoContext = createContext<HTMLVideoElement | undefined>(undefined)
 
@@ -40,32 +41,36 @@ export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => 
   (props: VideoProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])
-    const video = useMemo(() => document.createElement('video'), [])
+
+    const providedHtmlElement = props.src instanceof HTMLVideoElement ? props.src : undefined
+
+    const element = useMemo(() => providedHtmlElement ?? document.createElement('video'), [providedHtmlElement])
+
+    const invalidate = useThree((s) => s.invalidate)
+    useEffect(() => setupVideoElementInvalidation(element, invalidate), [element, invalidate])
+
+    updateVideoElement(element, props)
+
     useEffect(() => {
-      if (!props.autoplay) {
-        return
-      }
-      document.body.append(video)
-      return () => video.remove()
-    }, [props.autoplay, video])
-    const { src, autoplay, volume, preservesPitch, playbackRate, muted, loop } = props
-    updateVideoElement(video, src, autoplay, volume, preservesPitch, playbackRate, muted, loop)
-    useEffect(() => {
-      const updateAspectRatio = () => (aspectRatio.value = video.videoWidth / video.videoHeight)
+      const updateAspectRatio = () => (aspectRatio.value = element.videoWidth / element.videoHeight)
       updateAspectRatio()
-      video.addEventListener('resize', updateAspectRatio)
-      return () => video.removeEventListener('resize', updateAspectRatio)
-    }, [aspectRatio, video])
+      element.addEventListener('resize', updateAspectRatio)
+      return () => element.removeEventListener('resize', updateAspectRatio)
+    }, [aspectRatio, element])
+
     useEffect(() => {
-      const videoTexture = new VideoTexture(video)
+      const videoTexture = new VideoTexture(element)
+      videoTexture.colorSpace = SRGBColorSpace
       texture.value = videoTexture
       return () => videoTexture.dispose()
-    }, [texture, video])
+    }, [texture, element])
 
     const internalRef = useRef<ComponentInternals<ImageProperties>>(null)
-    useImperativeHandle(ref, () => ({ ...internalRef.current!, element: video }), [video])
+
+    useImperativeHandle(ref, () => ({ ...internalRef.current!, element: element }), [element])
+
     return (
-      <VideoContext.Provider value={video}>
+      <VideoContext.Provider value={element}>
         <Image aspectRatio={aspectRatio} {...props} ref={internalRef} src={texture} />
       </VideoContext.Provider>
     )

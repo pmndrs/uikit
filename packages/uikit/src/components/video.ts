@@ -1,7 +1,12 @@
 import { ImageProperties } from './image.js'
 
-export type VideoProperties = Omit<ImageProperties, 'src'> & {
-  src?: string | MediaStream
+export type VideoProperties = Omit<ImageProperties, 'src'> & InternalVideoProperties
+
+type InternalVideoProperties = {
+  /**
+   * when a HtmlVideoElement is provided to src, properties like `volume`, ... are not applied
+   */
+  src?: string | MediaStream | HTMLVideoElement
   volume?: number
   preservesPitch?: boolean
   playbackRate?: number
@@ -10,20 +15,17 @@ export type VideoProperties = Omit<ImageProperties, 'src'> & {
   autoplay?: boolean
 }
 
-/**
- * @requires that the element is attached to the dom if "autoplay" is active
- */
 export function updateVideoElement(
   element: HTMLVideoElement,
-  src: string | MediaStream | undefined,
-  autoplay = false,
-  volume = 1,
-  preservesPitch = true,
-  playbackRate = 1,
-  muted = false,
-  loop = false,
+  { src, autoplay, loop, muted, playbackRate, preservesPitch, volume }: InternalVideoProperties,
 ) {
+  if (src instanceof HTMLElement) {
+    return
+  }
+
   if (autoplay) {
+    element.remove()
+    document.body.append(element)
     element.style.position = 'absolute'
     element.style.width = '1px'
     element.style.zIndex = '-1000'
@@ -48,4 +50,14 @@ export function updateVideoElement(
   } else {
     element.srcObject = src
   }
+}
+
+export function setupVideoElementInvalidation(element: HTMLVideoElement, invalidate: () => void) {
+  let requestId: number
+  const callback = () => {
+    invalidate()
+    requestId = element.requestVideoFrameCallback(callback)
+  }
+  requestId = element.requestVideoFrameCallback(callback)
+  return () => element.cancelVideoFrameCallback(requestId)
 }
