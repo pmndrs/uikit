@@ -135,8 +135,15 @@ export function computedScrollHandlers(
     const [x, y] = scrollPosition.value
     const [maxX, maxY] = maxScrollPosition.value
 
-    deltaX += outsideDistance(x, 0, maxX ?? 0) * -0.3
-    deltaY += outsideDistance(y, 0, maxY ?? 0) * -0.3
+    const outsideDistanceX = outsideDistance(x, 0, maxX ?? 0)
+    const outsideDistanceY = outsideDistance(y, 0, maxY ?? 0)
+
+    if (Math.abs(outsideDistanceX) > 1 || Math.abs(outsideDistanceY) > 1) {
+      root.requestFrame()
+    }
+
+    deltaX += outsideDistanceX * -0.3
+    deltaY += outsideDistanceY * -0.3
 
     deltaX += scrollVelocity.x * delta
     deltaY += scrollVelocity.y * delta

@@ -21,7 +21,6 @@ import {
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
-// import { Video } from '../../../packages/kits/default/src/video.js'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
@@ -34,10 +33,7 @@ export default function App() {
   const videoRef = useRef<HTMLVideoElement | undefined>()
   const [videoel, setVideoEl] = useState<HTMLVideoElement | undefined>()
 
-  useEffect(() => {
-    console.log('videoRef', videoRef.current)
-    setVideoEl(videoRef.current)
-  }, [videoRef.current])
+  useEffect(() => setVideoEl(videoRef.current), [])
 
   return (
     <>
