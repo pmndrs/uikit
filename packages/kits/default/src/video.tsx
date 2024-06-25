@@ -38,23 +38,16 @@ export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => 
     const moving = useMemo(() => signal(false), [])
     const handlers = useMemo<EventHandlers>(() => {
       let timeoutRef: NodeJS.Timeout | undefined
-      const cancelTimeout = () => {
-        if (timeoutRef == null) {
-          return
+      const onInteract = () => {
+        moving.value = true
+        if (timeoutRef != null) {
+          clearTimeout(timeoutRef)
         }
-        clearTimeout(timeoutRef)
-        timeoutRef = undefined
+        timeoutRef = setTimeout(() => (moving.value = false), 2000)
       }
       return {
-        onPointerMove: () => {
-          moving.value = true
-          cancelTimeout()
-          timeoutRef = setTimeout(() => (moving.value = false), 2000)
-        },
-        onPointerOut: () => {
-          moving.value = false
-          cancelTimeout
-        },
+        onPointerMove: onInteract,
+        onPointerDown: onInteract,
       }
     }, [moving])
     return (
