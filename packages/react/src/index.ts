@@ -1,4 +1,4 @@
-export { FontFamilyProvider, useMeasureFont } from './font.js'
+export { FontFamilyProvider, useMeasureText } from './font.js'
 export { useRootSize } from './responsive.js'
 export {
   basedOnPreferredColorScheme,

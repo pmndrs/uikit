@@ -36,7 +36,7 @@ export function useFontFamilies(): FontFamilies | undefined {
 /**
  * @returns a function that measure the text and returns the width and height if the font is already loaded. Else undefined
  */
-export function useMeasureFont(fontFamily?: string, fontWeight?: FontWeight) {
+export function useMeasureText(fontFamily?: string, fontWeight?: FontWeight) {
   const fontFamilies = useFontFamilies()
   const propertiesSignal = useMemo(() => signal<MergedProperties>(new MergedProperties()), [])
   propertiesSignal.value = new MergedProperties()

@@ -18,7 +18,7 @@ import {
   ImageProperties,
   canvasInputProps,
   Video,
-  useMeasureFont,
+  useMeasureText,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
@@ -303,7 +303,7 @@ export default function App() {
 }
 
 function MeasureText() {
-  const measure = useMeasureFont()
+  const measure = useMeasureText()
 
   useEffect(
     () =>
