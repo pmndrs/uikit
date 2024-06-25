@@ -1,7 +1,7 @@
 import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { reversePainterSortStable, Container, Fullscreen, Image, Text, Svg, Content } from '@pmndrs/uikit'
 import { Delete } from '@pmndrs/uikit-lucide'
-import { GLTFLoader } from 'three/examples/jsm/Addons.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // init
 
