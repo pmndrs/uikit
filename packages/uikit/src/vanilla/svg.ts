@@ -13,6 +13,8 @@ export class Svg extends Parent {
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
+  public internals!: ReturnType<typeof createSvg>
+
   constructor(properties?: SvgProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.matrixAutoUpdate = false
@@ -25,14 +27,14 @@ export class Svg extends Parent {
         this.contextSignal.value = undefined
         return
       }
-      const internals = createSvg(
+      const internals = (this.internals = createSvg(
         parentContext,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
         { current: this },
         { current: this.childrenContainer },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
 

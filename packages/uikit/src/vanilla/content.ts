@@ -1,12 +1,12 @@
 import { Object3D, Object3DEventMap } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, EventMap, bindHandlers } from './utils.js'
+import { createParentContextSignal, setupParentContextSignal, EventMap, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { ContentProperties, createContent } from '../components/index.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Content extends Object3D<EventMap & { childadded: {}; childremoved: {} }> {
+export class Content extends Component {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly contentContainer: Object3D
   private readonly styleSignal: Signal<ContentProperties | undefined> = signal(undefined)
@@ -15,6 +15,8 @@ export class Content extends Object3D<EventMap & { childadded: {}; childremoved:
   private readonly contentSubscriptions: Subscriptions = []
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
+
+  public internals!: ReturnType<typeof createContent>
 
   constructor(properties?: ContentProperties, defaultProperties?: AllOptionalProperties) {
     super()
@@ -32,7 +34,7 @@ export class Content extends Object3D<EventMap & { childadded: {}; childremoved:
       if (parentContext == null) {
         return
       }
-      const internals = createContent(
+      const internals = (this.internals = createContent(
         parentContext,
         this.styleSignal,
         this.propertiesSignal,
@@ -43,7 +45,7 @@ export class Content extends Object3D<EventMap & { childadded: {}; childremoved:
         {
           current: this.contentContainer,
         },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
 
       //setup events

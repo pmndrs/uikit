@@ -13,6 +13,8 @@ export class Container extends Parent {
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
+  public internals!: ReturnType<typeof createContainer>
+
   constructor(properties?: ContainerProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.matrixAutoUpdate = false
@@ -25,14 +27,14 @@ export class Container extends Parent {
         this.contextSignal.value = undefined
         return
       }
-      const internals = createContainer(
+      const internals = (this.internals = createContainer(
         parentContext,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
         { current: this },
         { current: this.childrenContainer },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
 

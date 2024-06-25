@@ -1,12 +1,12 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
+import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Text extends Object3D {
+export class Text extends Component {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<TextProperties | undefined>
@@ -14,6 +14,8 @@ export class Text extends Object3D {
   private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
+
+  public internals!: ReturnType<typeof createText>
 
   constructor(
     text: string | Signal<string> | Array<string | Signal<string>> = '',
@@ -32,7 +34,7 @@ export class Text extends Object3D {
       if (parentContext == null) {
         return
       }
-      const internals = createText(
+      const internals = (this.internals = createText(
         parentContext,
         this.textSignal,
         parentContext.fontFamiliesSignal,
@@ -40,7 +42,7 @@ export class Text extends Object3D {
         this.propertiesSignal,
         this.defaultPropertiesSignal,
         { current: this },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
 
       super.add(internals.interactionPanel)

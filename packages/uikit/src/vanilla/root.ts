@@ -15,6 +15,7 @@ export class Root extends Parent {
   private readonly onFrameSet = new Set<(delta: number) => void>()
   private readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
   private readonly pixelSizeSignal: Signal<ReadonlySignal<number | undefined> | number | undefined>
+  public internals!: ReturnType<typeof createRoot>
 
   constructor(
     camera: Signal<Camera | undefined> | (() => Camera) | Camera,
@@ -43,7 +44,7 @@ export class Root extends Parent {
         }
         getCamera = () => cam
       }
-      const internals = createRoot(
+      const internals = (this.internals = createRoot(
         computed(() => readReactive(this.pixelSizeSignal.value) ?? DEFAULT_PIXEL_SIZE),
         this.styleSignal,
         this.propertiesSignal,
@@ -55,7 +56,7 @@ export class Root extends Parent {
         this.onFrameSet,
         requestRender,
         requestFrame,
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: this.fontFamiliesSignal })
       super.add(internals.interactionPanel)

@@ -33,7 +33,9 @@ export function setupParentContextSignal(
   container.addEventListener('removed', () => (parentContextSignal.value = undefined))
 }
 
-export class Parent extends Object3D<EventMap> {
+export class Component extends Object3D<EventMap & { childadded: {}; childremoved: {} }> {}
+
+export class Parent extends Component {
   readonly contextSignal: Signal<
     | (ParentContext & {
         fontFamiliesSignal: Signal<FontFamilies | undefined>
@@ -52,12 +54,16 @@ export class Parent extends Object3D<EventMap> {
     const objectsLength = objects.length
     for (let i = 0; i < objectsLength; i++) {
       const object = objects[i]
-      this.childrenContainer.add(object)
+      if (object instanceof Component) {
+        this.childrenContainer.add(object)
+      } else {
+        super.add(object)
+      }
     }
     return this
   }
 
-  addAt(object: Object3D, index: number): this {
+  addAt(object: Component, index: number): this {
     object.removeFromParent()
     object.parent = this.childrenContainer
     this.childrenContainer.children.splice(index, 0, object)
@@ -72,7 +78,11 @@ export class Parent extends Object3D<EventMap> {
     const objectsLength = objects.length
     for (let i = 0; i < objectsLength; i++) {
       const object = objects[i]
-      this.childrenContainer.remove(object)
+      if (object instanceof Component) {
+        this.childrenContainer.remove(object)
+      } else {
+        super.remove(object)
+      }
     }
     return this
   }

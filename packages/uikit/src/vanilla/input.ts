@@ -1,18 +1,20 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
+import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { InputProperties, createInput } from '../components/input.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Input extends Object3D {
+export class Input extends Component {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<InputProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<InputProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
+
+  public internals!: ReturnType<typeof createInput>
 
   constructor(properties?: InputProperties, defaultProperties?: AllOptionalProperties) {
     super()
@@ -26,14 +28,14 @@ export class Input extends Object3D {
       if (parentContext == null) {
         return
       }
-      const internals = createInput(
+      const internals = (this.internals = createInput(
         parentContext,
         parentContext.fontFamiliesSignal,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
         { current: this },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
 
       //setup events

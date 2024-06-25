@@ -14,6 +14,8 @@ export class Image extends Parent {
   protected readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
+  public internals!: ReturnType<typeof createImage>
+
   constructor(properties?: ImageProperties, defaultProperties?: AllOptionalProperties) {
     super()
     setupParentContextSignal(this.parentContextSignal, this)
@@ -26,14 +28,14 @@ export class Image extends Parent {
       if (parentContext == null) {
         return
       }
-      const internals = createImage(
+      const internals = (this.internals = createImage(
         parentContext,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
         { current: this },
         { current: this.childrenContainer },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
       this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
       super.add(internals.interactionPanel)

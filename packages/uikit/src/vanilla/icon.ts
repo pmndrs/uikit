@@ -1,18 +1,20 @@
 import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
+import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { IconProperties, createIcon } from '../components/icon.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Icon extends Object3D {
+export class Icon extends Component {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<IconProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<IconProperties | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
+
+  public internals!: ReturnType<typeof createIcon>
 
   constructor(
     text: string,
@@ -31,7 +33,7 @@ export class Icon extends Object3D {
       if (parentContext == null) {
         return
       }
-      const internals = createIcon(
+      const internals = (this.internals = createIcon(
         parentContext,
         text,
         svgWidth,
@@ -40,7 +42,7 @@ export class Icon extends Object3D {
         this.propertiesSignal,
         this.defaultPropertiesSignal,
         { current: this },
-      )
+      ))
       this.mergedProperties = internals.mergedProperties
 
       super.add(internals.interactionPanel)
