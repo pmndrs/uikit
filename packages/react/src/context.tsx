@@ -11,4 +11,9 @@ export function useParent(): ParentContext {
   return parent
 }
 
+export function useParentOptional(): ParentContext {
+  const parent = useContext(ParentContext)
+  return parent
+}
+
 export const ParentProvider = ParentContext.Provider
