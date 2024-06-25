@@ -1,4 +1,4 @@
-import { Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Sphere, Vector2, Vector3 } from 'three'
+import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
@@ -26,9 +26,19 @@ declare module 'three' {
   }
 }
 
+const scaleHelper = new Vector3()
+
+function isSingularMatrix(matrix: Matrix4) {
+  scaleHelper.setFromMatrixScale(matrix)
+  return scaleHelper.x === 0 || scaleHelper.y === 0 || scaleHelper.z === 0
+}
+
 export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
     const matrixWorld = mesh.matrixWorld
+    if (isSingularMatrix(matrixWorld)) {
+      return
+    }
     planeHelper.constant = 0
     planeHelper.normal.set(0, 0, 1)
     planeHelper.applyMatrix4(matrixWorld)
@@ -81,6 +91,9 @@ export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], und
 export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
   return (raycaster, intersects) => {
     const matrixWorld = mesh.matrixWorld
+    if (isSingularMatrix(matrixWorld)) {
+      return
+    }
     planeHelper.constant = 0
     planeHelper.normal.set(0, 0, 1)
     planeHelper.applyMatrix4(matrixWorld)
