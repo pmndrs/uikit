@@ -183,18 +183,18 @@ export function computedScrollHandlers(
     if (!isScrollable.value) {
       return undefined
     }
-    const onPointerFinish = ({ nativeEvent }: ThreeEvent<PointerEvent>) => {
-      if (!downPointerMap.delete(nativeEvent.pointerId) || downPointerMap.size > 0 || scrollPosition.value == null) {
+    const onPointerFinish = ({ pointerId }: ThreeEvent<PointerEvent>) => {
+      if (!downPointerMap.delete(pointerId) || downPointerMap.size > 0 || scrollPosition.value == null) {
         return
       }
       //only request a render if the last pointer that was dragging stopped dragging and this panel is actually scrollable
       root.requestRender()
     }
     return {
-      onPointerDown: ({ nativeEvent, point }) => {
-        let interaction = downPointerMap.get(nativeEvent.pointerId)
+      onPointerDown: ({ pointerId, point }) => {
+        let interaction = downPointerMap.get(pointerId)
         if (interaction == null) {
-          downPointerMap.set(nativeEvent.pointerId, (interaction = { timestamp: 0, point: new Vector3() }))
+          downPointerMap.set(pointerId, (interaction = { timestamp: 0, point: new Vector3() }))
         }
         interaction.timestamp = performance.now() / 1000
         object.current!.worldToLocal(interaction.point.copy(point))
@@ -203,7 +203,7 @@ export function computedScrollHandlers(
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
-        const prevInteraction = downPointerMap.get(event.nativeEvent.pointerId)
+        const prevInteraction = downPointerMap.get(event.pointerId)
 
         if (prevInteraction == null) {
           return

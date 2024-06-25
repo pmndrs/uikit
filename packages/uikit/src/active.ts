@@ -31,16 +31,16 @@ export function addActiveHandlers(
     activeSignal.value.length = 0
     return
   }
-  const onLeave = ({ nativeEvent }: ThreeEvent<PointerEvent>) => {
-    activeSignal.value = activeSignal.value.filter((id) => id != nativeEvent.pointerId)
+  const onLeave = ({ pointerId }: ThreeEvent<PointerEvent>) => {
+    activeSignal.value = activeSignal.value.filter((id) => id != pointerId)
     if (activeSignal.value.length > 0) {
       return
     }
     properties?.onActiveChange?.(false)
     style?.onActiveChange?.(false)
   }
-  addHandler('onPointerDown', target, ({ nativeEvent }) => {
-    activeSignal.value = [nativeEvent.pointerId, ...activeSignal.value]
+  addHandler('onPointerDown', target, ({ pointerId }) => {
+    activeSignal.value = [pointerId, ...activeSignal.value]
     if (activeSignal.value.length != 1) {
       return
     }

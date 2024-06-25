@@ -1,11 +1,11 @@
-import { Intersection, Object3D } from 'three'
+import { Intersection } from 'three'
 
 export type ThreeEvent<TSourceEvent> = Intersection & {
   nativeEvent: TSourceEvent
   defaultPrevented?: boolean
   stopped?: boolean
   stopPropagation?: () => void
-}
+} & (TSourceEvent extends { pointerId: number } ? { pointerId: number } : {})
 
 export type KeyToEvent<K extends keyof EventHandlers> = Parameters<Required<EventHandlers>[K]>[0]
 

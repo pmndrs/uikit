@@ -11,7 +11,7 @@ The vanilla version of uikit allows to build user interfaces with plain Three.js
 The vanilla version of uikit (`@pmndrs/uikit`) is decoupled from react. Therefore features such providing defaults via context is not available. Furthermore, no event system is available out of the box. For interactivity, such as hover effects, developers have to attach their own event system by emitting pointer events to the UI elements:
 
 ```js
-uiElement.dispatchEvent({ type: 'pointerover', target: uiElement, nativeEvent: { pointerId: 1 } })
+uiElement.dispatchEvent({ type: 'pointerover', target: uiElement, { pointerId: 1 })
 ```
 
 Aside from interactivity and contexts, every feature is available.

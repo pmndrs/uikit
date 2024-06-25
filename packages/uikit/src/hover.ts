@@ -38,8 +38,8 @@ export function addHoverHandlers(
     hoveredSignal.value.length = 0
     return
   }
-  addHandler('onPointerOver', target, ({ nativeEvent }) => {
-    hoveredSignal.value = [nativeEvent.pointerId, ...hoveredSignal.value]
+  addHandler('onPointerOver', target, ({ pointerId }) => {
+    hoveredSignal.value = [pointerId, ...hoveredSignal.value]
     if (hoveredSignal.value.length === 1) {
       properties?.onHoverChange?.(true)
       style?.onHoverChange?.(true)
@@ -48,8 +48,8 @@ export function addHoverHandlers(
       setCursorType(hoveredSignal, cursor)
     }
   })
-  addHandler('onPointerOut', target, ({ nativeEvent }) => {
-    hoveredSignal.value = hoveredSignal.value.filter((id) => id != nativeEvent.pointerId)
+  addHandler('onPointerOut', target, ({ pointerId }) => {
+    hoveredSignal.value = hoveredSignal.value.filter((id) => id != pointerId)
     if (hoveredSignal.value.length === 0) {
       properties?.onHoverChange?.(false)
       style?.onHoverChange?.(false)
