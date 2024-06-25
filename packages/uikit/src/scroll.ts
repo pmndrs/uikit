@@ -200,12 +200,7 @@ export function computedScrollHandlers(
         object.current!.worldToLocal(interaction.point.copy(point))
       },
       onPointerUp: onPointerFinish,
-      onPointerOut: (e: ThreeEvent<PointerEvent>) => {
-        if (e.object != interactionPanel) {
-          return
-        }
-        onPointerFinish(e)
-      },
+      onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
         const prevInteraction = downPointerMap.get(event.nativeEvent.pointerId)
