@@ -1,12 +1,23 @@
-import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Fullscreen, Image, Text, Svg, Content } from '@pmndrs/uikit'
+import {
+  AmbientLight,
+  Intersection,
+  Mesh,
+  PerspectiveCamera,
+  Scene,
+  Sphere,
+  SphereGeometry,
+  Vector3,
+  WebGLRenderer,
+} from 'three'
+import { reversePainterSortStable, Container, Fullscreen, Image, Text, Svg, Content, Root } from '@pmndrs/uikit'
 import { Delete } from '@pmndrs/uikit-lucide'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 // init
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
-camera.position.z = 10
+camera.position.z = 5
 
 const scene = new Scene()
 scene.add(new AmbientLight(undefined, 2))
@@ -14,10 +25,18 @@ scene.add(camera)
 
 const canvas = document.getElementById('root') as HTMLCanvasElement
 
+const controls = new OrbitControls(camera, canvas)
+
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
+const position = new Vector3(0, 0, 0.199)
+const sphere = new Sphere(position, 0.2)
+const sphereMesh = new Mesh(new SphereGeometry(0.2))
+sphereMesh.position.copy(position)
+scene.add(sphereMesh)
+
 //UI
-const root = new Fullscreen(renderer, undefined, {
+const root = new Root(camera, renderer, {
   flexDirection: 'row',
   gap: 30,
   width: 1000,
@@ -27,7 +46,14 @@ const root = new Fullscreen(renderer, undefined, {
   backgroundColor: 'red',
   overflow: 'scroll',
 })
-camera.add(root)
+scene.add(root)
+
+setTimeout(() => {
+  const intersections: Array<Intersection> = []
+  root.internals.interactionPanel.spherecast?.(sphere, intersections)
+  console.log(intersections)
+}, 1000)
+
 const c = new Content({ flexShrink: 0, height: 100, backgroundColor: 'black' })
 const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => c.add(gltf.scene))
@@ -66,7 +92,6 @@ function updateSize() {
   renderer.setPixelRatio(window.devicePixelRatio)
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
-  root.updateSize()
 }
 
 updateSize()
@@ -79,6 +104,7 @@ function animation(time: number) {
   const delta = prev == null ? 0 : time - prev
   prev = time
 
+  controls.update(delta)
   root.update(delta)
 
   renderer.render(scene, camera)

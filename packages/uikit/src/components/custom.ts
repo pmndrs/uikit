@@ -24,7 +24,7 @@ import { Listeners, setupLayoutListeners, setupClippedListeners } from '../liste
 import { Object3DRef, ParentContext } from '../context.js'
 import { FrontSide, Material, Mesh } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
-import { ShadowProperties, makeClippedRaycast } from '../panel/index.js'
+import { ShadowProperties, makeClippedCast } from '../panel/index.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -106,13 +106,7 @@ export function createCustomContainer(
         }),
       )
     }
-    mesh.raycast = makeClippedRaycast(
-      mesh,
-      mesh.raycast,
-      parentContext.root.object,
-      parentContext.clippingRect,
-      orderInfo,
-    )
+    mesh.raycast = makeClippedCast(mesh, mesh.raycast, parentContext.root.object, parentContext.clippingRect, orderInfo)
     setupRenderOrder(mesh, parentContext.root, orderInfo)
     subscriptions.push(
       effect(() => {

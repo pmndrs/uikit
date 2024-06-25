@@ -21,7 +21,7 @@ import {
   keepAspectRatioPropertyTransformer,
 } from './utils.js'
 import { Initializers, Subscriptions, fitNormalizedContentInside } from '../utils.js'
-import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { createActivePropertyTransfomers } from '../active.js'
@@ -187,7 +187,7 @@ function createIconGroup(
       geometry.computeBoundingBox()
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedRaycast(
+      mesh.raycast = makeClippedCast(
         mesh,
         mesh.raycast,
         parentContext.root.object,

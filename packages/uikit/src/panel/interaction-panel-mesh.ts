@@ -1,4 +1,4 @@
-import { Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Vector2, Vector3 } from 'three'
+import { Intersection, Mesh, Object3D, Object3DEventMap, Plane, Raycaster, Sphere, Vector2, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
@@ -20,8 +20,66 @@ const sides: Array<Plane> = [
 
 const distancesHelper = [0, 0, 0, 0]
 
+declare module 'three' {
+  interface Object3D {
+    spherecast?(sphere: Sphere, intersects: Array<Intersection>): void
+  }
+}
+
+export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], undefined> {
+  return (sphere, intersects) => {
+    const matrixWorld = mesh.matrixWorld
+    planeHelper.constant = 0
+    planeHelper.normal.set(0, 0, 1)
+    planeHelper.applyMatrix4(matrixWorld)
+
+    planeHelper.projectPoint(sphere.center, vectorHelper)
+
+    if (vectorHelper.distanceToSquared(sphere.center) > sphere.radius * sphere.radius) {
+      return
+    }
+
+    const normal = planeHelper.normal.clone()
+
+    for (let i = 0; i < 4; i++) {
+      const side = sides[i]
+      planeHelper.copy(side).applyMatrix4(matrixWorld)
+
+      let distance = planeHelper.distanceToPoint(vectorHelper)
+      if (distance < 0) {
+        if (Math.abs(distance) > sphere.radius) {
+          return
+        }
+        //clamp point
+        planeHelper.projectPoint(vectorHelper, vectorHelper)
+        distance = 0
+      }
+      distancesHelper[i] = distance
+    }
+
+    const distance = sphere.center.distanceTo(vectorHelper)
+
+    if (distance > sphere.radius) {
+      return
+    }
+
+    console.log(distancesHelper)
+
+    intersects.push({
+      distance,
+      object: mesh,
+      point: vectorHelper.clone(),
+      uv: new Vector2(
+        distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
+        distancesHelper[3] / (distancesHelper[2] + distancesHelper[3]),
+      ),
+      normal,
+    })
+  }
+}
+
 export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
-  return (raycaster: Raycaster, intersects: Array<Intersection<Object3D<Object3DEventMap>>>) => {
+  return (raycaster, intersects) => {
     const matrixWorld = mesh.matrixWorld
     planeHelper.constant = 0
     planeHelper.normal.set(0, 0, 1)
@@ -56,21 +114,21 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
   }
 }
 
-export function makeClippedRaycast(
+export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['spherecast'], undefined>>(
   mesh: Mesh,
-  fn: Mesh['raycast'],
+  fn: T,
   rootObject: Object3DRef,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
-): Mesh['raycast'] {
-  return (raycaster: Raycaster, intersects: Intersection<Object3D<Object3DEventMap>>[]) => {
+) {
+  return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
     const obj = rootObject instanceof Object3D ? rootObject : rootObject.current
     if (obj == null || orderInfo.value == null) {
       return
     }
     const { majorIndex, minorIndex, elementType } = orderInfo.value
     const oldLength = intersects.length
-    fn.call(mesh, raycaster, intersects)
+    ;(fn as any).call(mesh, raycaster, intersects)
     const clippingPlanes = clippingRect?.value?.planes
     const outerMatrixWorld = obj.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {

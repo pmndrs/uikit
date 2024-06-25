@@ -27,7 +27,7 @@ import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/i
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
-import { getDefaultPanelMaterialConfig, makeClippedRaycast } from '../panel/index.js'
+import { getDefaultPanelMaterialConfig, makeClippedCast } from '../panel/index.js'
 import { MergedProperties, computedInheritableProperty } from '../properties/index.js'
 import { KeepAspectRatioProperties } from './image.js'
 
@@ -215,7 +215,7 @@ function createMeasureContent(
         setupRenderOrder(object, root, orderInfo)
         object.material.clippingPlanes = clippingPlanes
         object.material.needsUpdate = true
-        object.raycast = makeClippedRaycast(object, object.raycast, root.object, parentClippingRect, orderInfo)
+        object.raycast = makeClippedCast(object, object.raycast, root.object, parentClippingRect, orderInfo)
       }
     })
     const parent = content.parent

@@ -30,7 +30,7 @@ import {
   loadResourceWithParams,
 } from './utils.js'
 import { ColorRepresentation, Initializers, fitNormalizedContentInside, readReactive } from '../utils.js'
-import { makeClippedRaycast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { createActivePropertyTransfomers } from '../active.js'
@@ -299,7 +299,7 @@ async function loadSvg(
       box3Helper.union(geometry.boundingBox!)
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedRaycast(mesh, mesh.raycast, root.object, clippedRect, orderInfo)
+      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.object, clippedRect, orderInfo)
       setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1

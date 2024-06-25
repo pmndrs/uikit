@@ -50,7 +50,7 @@ import {
 import { MergedProperties } from '../properties/merged.js'
 import { Initializers, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
-import { makeClippedRaycast, makePanelRaycast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast, makePanelRaycast, makePanelSpherecast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { computedInheritableProperty } from '../properties/utils.js'
@@ -261,7 +261,8 @@ function createImageMesh(
     root,
     initializers,
   )
-  mesh.raycast = makeClippedRaycast(mesh, makePanelRaycast(mesh), root.object, parentContext.clippingRect, orderInfo)
+  mesh.raycast = makeClippedCast(mesh, makePanelRaycast(mesh), root.object, parentContext.clippingRect, orderInfo)
+  mesh.spherecast = makeClippedCast(mesh, makePanelSpherecast(mesh), root.object, parentContext.clippingRect, orderInfo)
   setupRenderOrder(mesh, root, orderInfo)
   const objectFit = computedInheritableProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(() =>

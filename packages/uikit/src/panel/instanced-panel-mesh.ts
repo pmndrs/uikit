@@ -2,8 +2,8 @@ import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere, Vector2
 import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
 import { Signal, effect } from '@preact/signals-core'
-import { Initializers, Subscriptions } from '../utils.js'
-import { makeClippedRaycast, makePanelRaycast } from './interaction-panel-mesh.js'
+import { Initializers } from '../utils.js'
+import { makeClippedCast, makePanelRaycast, makePanelSpherecast } from './interaction-panel-mesh.js'
 import { OrderInfo } from '../order.js'
 import { ClippingRect } from '../clipping.js'
 import { RootContext } from '../context.js'
@@ -17,7 +17,14 @@ export function createInteractionPanel(
 ): Mesh {
   const panel = new Mesh(panelGeometry)
   panel.matrixAutoUpdate = false
-  panel.raycast = makeClippedRaycast(panel, makePanelRaycast(panel), rootContext.object, parentClippingRect, orderInfo)
+  panel.raycast = makeClippedCast(panel, makePanelRaycast(panel), rootContext.object, parentClippingRect, orderInfo)
+  panel.spherecast = makeClippedCast(
+    panel,
+    makePanelSpherecast(panel),
+    rootContext.object,
+    parentClippingRect,
+    orderInfo,
+  )
   panel.visible = false
   initializers.push(() =>
     effect(() => {
