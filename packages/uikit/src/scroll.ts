@@ -1,7 +1,7 @@
 import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
-import { Matrix4, Object3D, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
-import { FlexNode, FlexNodeState, Inset } from './flex/node.js'
-import { ColorRepresentation, Initializers, Subscriptions, computedBorderInset } from './utils.js'
+import { Matrix4, Mesh, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
+import { FlexNodeState, Inset } from './flex/node.js'
+import { ColorRepresentation, Initializers, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
@@ -74,6 +74,7 @@ export function computedScrollHandlers(
   anyAncestorScrollable: Signal<readonly [boolean, boolean]> | undefined,
   { scrollable, maxScrollPosition }: FlexNodeState,
   object: Object3DRef,
+  interactionPanel: Mesh,
   listeners: Signal<ScrollListeners | undefined>,
   root: Pick<RootContext, 'onFrameSet' | 'requestRender' | 'pixelSize' | 'requestFrame'>,
   initializers: Initializers,
@@ -199,7 +200,12 @@ export function computedScrollHandlers(
         object.current!.worldToLocal(interaction.point.copy(point))
       },
       onPointerUp: onPointerFinish,
-      onPointerLeave: onPointerFinish,
+      onPointerOut: (e: ThreeEvent<PointerEvent>) => {
+        if (e.object != interactionPanel) {
+          return
+        }
+        onPointerFinish(e)
+      },
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
         const prevInteraction = downPointerMap.get(event.nativeEvent.pointerId)

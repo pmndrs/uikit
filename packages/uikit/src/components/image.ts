@@ -167,11 +167,22 @@ export function createImage(
     parentContext.root.panelGroupManager,
     initializers,
   )
+  const interactionPanel = createImageMesh(
+    mergedProperties,
+    texture,
+    parentContext,
+    flexState,
+    orderInfo,
+    parentContext.root,
+    isVisible,
+    initializers,
+  )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentContext.anyAncestorScrollable,
     flexState,
     object,
+    interactionPanel,
     properties,
     parentContext.root,
     initializers,
@@ -187,16 +198,7 @@ export function createImage(
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     initializers,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
-    interactionPanel: createImageMesh(
-      mergedProperties,
-      texture,
-      parentContext,
-      flexState,
-      orderInfo,
-      parentContext.root,
-      isVisible,
-      initializers,
-    ),
+    interactionPanel,
     clippingRect: computedClippingRect(
       globalMatrix,
       flexState,

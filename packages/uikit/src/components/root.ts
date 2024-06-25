@@ -185,16 +185,6 @@ export function createRoot(
     initializers,
   )
 
-  const scrollHandlers = computedScrollHandlers(
-    scrollPosition,
-    undefined,
-    flexState,
-    object,
-    properties,
-    ctx,
-    initializers,
-  )
-
   setupLayoutListeners(style, properties, flexState.size, initializers)
 
   const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
@@ -214,6 +204,18 @@ export function createRoot(
     size: flexState.size,
   })
 
+  const interactionPanel = createInteractionPanel(orderInfo, rootCtx, undefined, flexState.size, initializers)
+  const scrollHandlers = computedScrollHandlers(
+    scrollPosition,
+    undefined,
+    flexState,
+    object,
+    interactionPanel,
+    properties,
+    ctx,
+    initializers,
+  )
+
   return Object.assign(flexState, {
     scrollPosition,
     mergedProperties,
@@ -223,7 +225,7 @@ export function createRoot(
     node,
     orderInfo,
     initializers,
-    interactionPanel: createInteractionPanel(orderInfo, rootCtx, undefined, flexState.size, initializers),
+    interactionPanel,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     root: rootCtx,
   })

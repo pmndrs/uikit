@@ -168,11 +168,21 @@ export function createSvg(
     parentContext.root.panelGroupManager,
     initializers,
   )
+
+  const interactionPanel = createInteractionPanel(
+    orderInfo,
+    parentContext.root,
+    parentContext.clippingRect,
+    flexState.size,
+    initializers,
+  )
+
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentContext.anyAncestorScrollable,
     flexState,
     object,
+    interactionPanel,
     properties,
     parentContext.root,
     initializers,
@@ -199,13 +209,7 @@ export function createSvg(
     initializers,
     centerGroup,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
-    interactionPanel: createInteractionPanel(
-      orderInfo,
-      parentContext.root,
-      parentContext.clippingRect,
-      flexState.size,
-      initializers,
-    ),
+    interactionPanel,
   })
 }
 

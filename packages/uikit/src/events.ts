@@ -1,4 +1,4 @@
-import { Intersection } from 'three'
+import { Intersection, Object3D } from 'three'
 
 export type ThreeEvent<TSourceEvent> = Intersection & {
   nativeEvent: TSourceEvent

@@ -130,11 +130,19 @@ export function createContainer(
     parentContext.root.panelGroupManager,
     initializers,
   )
+  const interactionPanel = createInteractionPanel(
+    orderInfo,
+    parentContext.root,
+    parentContext.clippingRect,
+    flexState.size,
+    initializers,
+  )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentContext.anyAncestorScrollable,
     flexState,
     object,
+    interactionPanel,
     properties,
     parentContext.root,
     initializers,
@@ -158,13 +166,7 @@ export function createContainer(
     orderInfo,
     root: parentContext.root,
     scrollPosition,
-    interactionPanel: createInteractionPanel(
-      orderInfo,
-      parentContext.root,
-      parentContext.clippingRect,
-      flexState.size,
-      initializers,
-    ),
+    interactionPanel,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
     initializers,
   })
