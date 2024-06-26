@@ -370,6 +370,7 @@ export function createHtmlInputElement(
     const style = element.style
     style.setProperty('position', 'absolute')
     style.setProperty('left', '-1000vw')
+    style.setProperty('top', '0')
     style.setProperty('pointerEvents', 'none')
     style.setProperty('opacity', '0')
     element.addEventListener('input', () => {
