@@ -1,5 +1,5 @@
 import { AllOptionalProperties } from '../properties/default.js'
-import { Parent, createParentContextSignal, bindHandlers } from './utils.js'
+import { Parent, createParentContextSignal, bindHandlers, setupParentContextSignal } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { SvgProperties, createSvg } from '../components/svg.js'
@@ -18,6 +18,7 @@ export class Svg extends Parent {
   constructor(properties?: SvgProperties, defaultProperties?: AllOptionalProperties) {
     super()
     this.matrixAutoUpdate = false
+    setupParentContextSignal(this.parentContextSignal, this)
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
 
