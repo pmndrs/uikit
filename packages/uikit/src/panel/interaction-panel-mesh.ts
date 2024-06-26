@@ -73,8 +73,6 @@ export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], und
       return
     }
 
-    console.log(distancesHelper)
-
     intersects.push({
       distance,
       object: mesh,
