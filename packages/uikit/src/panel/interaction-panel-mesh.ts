@@ -49,8 +49,6 @@ export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], und
       return
     }
 
-    const normal = planeHelper.normal.clone()
-
     for (let i = 0; i < 4; i++) {
       const side = sides[i]
       planeHelper.copy(side).applyMatrix4(matrixWorld)
@@ -81,7 +79,7 @@ export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], und
         distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
         distancesHelper[3] / (distancesHelper[2] + distancesHelper[3]),
       ),
-      normal,
+      normal: new Vector3(0, 0, 1),
     })
   }
 }
@@ -102,8 +100,6 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
       return
     }
 
-    const normal = planeHelper.normal.clone()
-
     for (let i = 0; i < 4; i++) {
       const side = sides[i]
       planeHelper.copy(side).applyMatrix4(matrixWorld)
@@ -120,7 +116,7 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
         distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
         distancesHelper[3] / (distancesHelper[2] + distancesHelper[3]),
       ),
-      normal,
+      normal: new Vector3(0, 0, 1),
     })
   }
 }

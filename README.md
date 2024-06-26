@@ -87,6 +87,6 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 
 ## Sponsors 
 
-This project is support by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
+This project is supported by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
 
 ![Sponsors Overview](https://bbohlender.github.io/sponsors/screenshot.png)
