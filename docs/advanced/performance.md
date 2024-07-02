@@ -28,7 +28,7 @@ export function AnimateBackground() {
 }
 ```
 
-Setting executing `setStyle(undefined)` resets all changes back to the initial properties provided to the directly to the component.
+Setting executing `setStyle(undefined, true)` resets all changes back to the initial properties provided to the directly to the component.
 
 ### using signals
 

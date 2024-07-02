@@ -54,7 +54,7 @@ export type ComponentInternals<T = ContainerProperties> = {
   /**
    * set the styles of the element (the provided styles have a higher precedence then the element's properties)
    */
-  setStyle(style: T | undefined): void
+  setStyle(style: T | undefined, replace?: boolean): void
   /**
    * get the object last written to `setStyle`
    */
@@ -91,7 +91,8 @@ export function useComponentInternals<T, O = {}>(
     () => {
       const { scrollPosition, paddingInset, borderInset, relativeCenter, size, maxScrollPosition } = internals
       return {
-        setStyle: (style: T | undefined) => (styleSignal.value = style),
+        setStyle: (style: T | undefined, replace?: boolean) =>
+          (styleSignal.value = replace ? style : ({ ...styleSignal.value, ...style } as T)),
         getStyle: () => styleSignal.peek(),
         getComputedProperty: <K extends keyof T>(key: K) =>
           untracked(() => internals.mergedProperties.value.read<T[K] | undefined>(key as string, undefined)),

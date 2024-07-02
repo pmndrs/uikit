@@ -532,17 +532,17 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 
 Each component exposes the `ComponentInternals` when using a `ref`. The component internals provide you with access to
 
-| Property            | Explanation                                                                                                |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- |
-| borderInset         | a tuple containing the border sizes on all 4 sides `[top, right, bottom, left]`                            |
-| paddingInset        | a tuple containing the padding sizes on all 4 sides `[top, right, bottom, left]`                           |
-| center              | the offset between from the element's center to its parent's center                                        |
-| size                | the outer width/height of the element                                                                      |
-| interactionPanel    | the mesh added to the scene graph to capture events                                                        |
-| scrollPosition      | the x/y scroll position of the children when the element is scrollable                                     |
-| pixelSize           | the size of one pixel                                                                                      |
-| maxScrollPosition   | the maximum x/y scroll position, based on the size of the children                                         |
-| isClipped           | exploses whether the element is fully clipped by some ancestor                                             |
-| setStyle            | set the styles of the element (the provided styles have a higher precedence then the element's properties) |
-| getStyle            | get the object last written to `setStyle`                                                                  |
-| getComputedProperty | read the current value for any property (combines default properties, direct properties, and styles)       |
+| Property            | Explanation                                                                                                     |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| borderInset         | a tuple containing the border sizes on all 4 sides `[top, right, bottom, left]`                                 |
+| paddingInset        | a tuple containing the padding sizes on all 4 sides `[top, right, bottom, left]`                                |
+| center              | the offset between from the element's center to its parent's center                                             |
+| size                | the outer width/height of the element                                                                           |
+| interactionPanel    | the mesh added to the scene graph to capture events                                                             |
+| scrollPosition      | the x/y scroll position of the children when the element is scrollable                                          |
+| pixelSize           | the size of one pixel                                                                                           |
+| maxScrollPosition   | the maximum x/y scroll position, based on the size of the children                                              |
+| isClipped           | exploses whether the element is fully clipped by some ancestor                                                  |
+| setStyle            | modifies the styles of the element (the provided styles have a higher precedence then the element's properties) |
+| getStyle            | get the current style of the object                                                                       |
+| getComputedProperty | read the current value for any property (combines default properties, direct properties, and styles)            |

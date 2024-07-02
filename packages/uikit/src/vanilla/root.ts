@@ -89,8 +89,8 @@ export class Root extends Parent {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: RootProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: RootProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: (RootProperties & WithReactive<{ pixelSize?: number }>) | undefined) {

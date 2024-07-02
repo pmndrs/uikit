@@ -77,8 +77,8 @@ export class Fullscreen extends Root {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: FullscreenProperties | undefined): void {
-    super.setStyle(style)
+  setStyle(style: FullscreenProperties | undefined, replace?: boolean): void {
+    super.setStyle(style, replace)
   }
 
   setProperties(properties: FullscreenProperties | undefined): void {
