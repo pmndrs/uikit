@@ -1,5 +1,16 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Box3, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
+import {
+  Box3,
+  BufferGeometry,
+  Group,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Plane,
+  ShapeGeometry,
+  Vector3,
+} from 'three'
 import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
@@ -26,6 +37,7 @@ import {
   computedIsVisible,
   computedMergedProperties,
   createNode,
+  disposeGroup,
   keepAspectRatioPropertyTransformer,
   loadResourceWithParams,
 } from './utils.js'
@@ -143,6 +155,7 @@ export function createSvg(
   loadResourceWithParams(
     svgObject,
     loadSvg,
+    disposeGroup,
     initializers,
     src,
     parentContext.root,

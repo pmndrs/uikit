@@ -107,7 +107,7 @@ export function createImage(
   setupCursorCleanup(hoveredSignal, initializers)
 
   const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
-  loadResourceWithParams(texture, loadTextureImpl, initializers, src)
+  loadResourceWithParams(texture, loadTextureImpl, cleanupTexture, initializers, src)
 
   const textureAspectRatio = computed(() => {
     const tex = texture.value
@@ -354,7 +354,13 @@ function transformInsideBorder(
 
 const textureLoader = new TextureLoader()
 
-async function loadTextureImpl(src?: string | Texture) {
+function cleanupTexture(texture: (Texture & { disposable?: boolean }) | undefined): void {
+  if (texture?.disposable === true) {
+    texture.dispose()
+  }
+}
+
+async function loadTextureImpl(src?: string | Texture): Promise<(Texture & { disposable?: boolean }) | undefined> {
   if (src == null) {
     return Promise.resolve(undefined)
   }
@@ -365,7 +371,7 @@ async function loadTextureImpl(src?: string | Texture) {
     const texture = await textureLoader.loadAsync(src)
     texture.colorSpace = SRGBColorSpace
     texture.matrixAutoUpdate = false
-    return texture
+    return Object.assign(texture, { disposable: true })
   } catch (error) {
     console.error(error)
     return undefined

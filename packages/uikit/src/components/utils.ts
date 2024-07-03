@@ -1,5 +1,5 @@
 import { Signal, computed, effect } from '@preact/signals-core'
-import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { BufferGeometry, Color, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
 import { WithHover, addHoverHandlers } from '../hover.js'
@@ -15,6 +15,22 @@ import {
   PropertyTransformers,
   computedInheritableProperty,
 } from '../properties/index.js'
+
+export function disposeGroup(object: Object3D | undefined) {
+  object?.traverse((mesh) => {
+    if (!(mesh instanceof Mesh)) {
+      return
+    }
+
+    if (mesh.material instanceof Material) {
+      mesh.material.dispose()
+    }
+
+    if (mesh.geometry instanceof BufferGeometry) {
+      mesh.geometry.dispose()
+    }
+  })
+}
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -52,6 +68,7 @@ export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferr
 export function loadResourceWithParams<P, R, A extends Array<unknown>>(
   target: Signal<R | undefined>,
   fn: (param: P, ...additional: A) => Promise<R>,
+  cleanup: ((value: R) => void) | undefined,
   initializers: Initializers,
   param: Signal<P> | P,
   ...additionals: A
@@ -72,6 +89,15 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
         return () => (canceled = true)
       }),
     )
+    if (cleanup != null) {
+      subscriptions.push(() => {
+        const { value } = target
+        if (value == null) {
+          return
+        }
+        cleanup(value)
+      })
+    }
     return subscriptions
   })
 }
