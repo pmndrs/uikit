@@ -1,5 +1,6 @@
 import {
   AmbientLight,
+  BaseEvent,
   Intersection,
   Mesh,
   PerspectiveCamera,
@@ -9,7 +10,17 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three'
-import { reversePainterSortStable, Container, Fullscreen, Image, Text, Svg, Content, Root } from '@pmndrs/uikit'
+import {
+  reversePainterSortStable,
+  Container,
+  Fullscreen,
+  Image,
+  Text,
+  Svg,
+  Content,
+  Root,
+  ThreeEvent,
+} from '@pmndrs/uikit'
 import { Delete } from '@pmndrs/uikit-lucide'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -72,7 +83,16 @@ const x = new Container({
   justifyContent: 'center',
   onSizeChange: console.log,
 })
-setTimeout(() => x.dispatchEvent({ type: 'pointerover', target: x, pointerId: 1 } as any), 0)
+setTimeout(() => {
+  x.dispatchEvent({
+    type: 'pointerover',
+    distance: 0,
+    nativeEvent: {} as any,
+    object: x,
+    point: new Vector3(),
+    pointerId: -1,
+  })
+}, 0)
 const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,

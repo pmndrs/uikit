@@ -116,5 +116,7 @@ function keyToEventName(key: keyof EventHandlers) {
 }
 
 export type EventMap = Object3DEventMap & {
-  [Key in keyof EventHandlers as Lowercase<Key extends `on${infer K}` ? K : never>]: EventHandlers[Key]
+  [Key in keyof EventHandlers as Lowercase<Key extends `on${infer K}` ? K : never>]-?: Parameters<
+    Exclude<EventHandlers[Key], undefined>
+  >[0]
 }
