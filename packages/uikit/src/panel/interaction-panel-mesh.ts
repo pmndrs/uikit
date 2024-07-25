@@ -133,6 +133,14 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
   }
 }
 
+export function isInteractionPanel(object: Object3D) {
+  return 'isInteractionPanel' in object
+}
+
+/**
+ * clips the sphere / raycast
+ * also marks the mesh as a interaction panel
+ */
 export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['spherecast'], undefined>>(
   mesh: Mesh,
   fn: T,
@@ -140,6 +148,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
 ) {
+  Object.assign(mesh, { isInteractionPanel: true })
   return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
     const obj = rootObject instanceof Object3D ? rootObject : rootObject.current
     if (obj == null || orderInfo.value == null) {
