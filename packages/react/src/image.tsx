@@ -4,6 +4,7 @@ import {
   initialize,
   Subscriptions,
   unsubscribeSubscriptions,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
@@ -16,7 +17,7 @@ export type ImageProperties = BaseImageProperties &
   EventHandlers & {
     children?: ReactNode
     name?: string
-  }
+  } & PointerEventsProperties
 
 export const Image: (
   props: ImageProperties & RefAttributes<ComponentInternals<BaseImageProperties & EventHandlers>>,
@@ -50,7 +51,7 @@ export const Image: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers properties={properties} ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>

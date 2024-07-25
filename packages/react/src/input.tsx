@@ -10,6 +10,7 @@ import {
   createInput,
   initialize,
   unsubscribeSubscriptions,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ReadonlySignal, signal } from '@preact/signals-core'
@@ -18,7 +19,7 @@ import { useFontFamilies } from './font.js'
 export type InputInternals = ComponentInternals<BaseInputProperties & EventHandlers> & {
   current: ReadonlySignal<string>
   focus: () => void
-}
+} & PointerEventsProperties
 
 export type InputProperties = BaseInputProperties &
   EventHandlers & {
@@ -68,7 +69,7 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
     )
 
     return (
-      <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+      <AddHandlers allowSkippingChildren properties={properties} handlers={internals.handlers} ref={outerRef}>
         <primitive object={internals.interactionPanel} />
       </AddHandlers>
     )

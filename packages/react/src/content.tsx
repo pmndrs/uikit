@@ -3,7 +3,13 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
-import { createContent, initialize, Subscriptions, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
+import {
+  createContent,
+  initialize,
+  PointerEventsProperties,
+  Subscriptions,
+  unsubscribeSubscriptions,
+} from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ContentProperties as BaseContentProperties } from '../../uikit/dist/components/content.js'
 
@@ -11,7 +17,8 @@ export type ContentProperties = {
   name?: string
   children?: ReactNode
 } & BaseContentProperties &
-  EventHandlers
+  EventHandlers &
+  PointerEventsProperties
 
 export const Content: (
   props: ContentProperties & RefAttributes<ComponentInternals<BaseContentProperties & EventHandlers>>,
@@ -44,7 +51,7 @@ export const Content: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <ParentProvider value={undefined}>{properties.children}</ParentProvider>

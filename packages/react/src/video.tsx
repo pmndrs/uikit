@@ -13,7 +13,7 @@ import { Image } from './image.js'
 import { SRGBColorSpace, Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
 import { VideoProperties as BaseVideoProperties, ImageProperties } from '@pmndrs/uikit'
-import { setupVideoElementInvalidation, updateVideoElement } from '@pmndrs/uikit/internals'
+import { PointerEventsProperties, setupVideoElementInvalidation, updateVideoElement } from '@pmndrs/uikit/internals'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { ComponentInternals } from './ref.js'
 import { useThree } from '@react-three/fiber'
@@ -35,7 +35,7 @@ export type VideoInternals = ComponentInternals<Omit<ImageProperties, 'src'> & E
 export type VideoProperties = BaseVideoProperties &
   EventHandlers & {
     children?: ReactNode
-  }
+  } & PointerEventsProperties
 
 export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => ReactNode = forwardRef(
   (props: VideoProperties, ref) => {

@@ -1,5 +1,6 @@
 import {
   IconProperties as BaseIconProperties,
+  PointerEventsProperties,
   Subscriptions,
   createIcon,
   initialize,
@@ -19,7 +20,7 @@ export type IconProperties = BaseIconProperties &
     svgHeight: number
     children?: ReactNode
     name?: string
-  }
+  } & PointerEventsProperties
 
 export const Icon: (
   props: IconProperties & RefAttributes<ComponentInternals<Partial<BaseIconProperties & EventHandlers>>>,
@@ -53,7 +54,7 @@ export const Icon: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers properties={properties} ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <primitive object={internals.iconGroup} />
     </AddHandlers>

@@ -32,7 +32,7 @@ import {
   Viewport,
 } from '@react-three/fiber'
 import type { DomEvent, EventHandlers, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import type { ImageProperties } from '@pmndrs/uikit/internals'
+import type { ImageProperties, PointerEventsProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
 import { create } from 'zustand'
 
@@ -69,7 +69,7 @@ export type PortalProperties = {
 } & BasePortalProperties &
   EventHandlers & {
     children?: ReactNode
-  }
+  } & PointerEventsProperties
 
 export const Portal: (
   props: PortalProperties & RefAttributes<ComponentInternals<BasePortalProperties & EventHandlers>>,

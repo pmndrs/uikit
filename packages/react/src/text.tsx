@@ -10,6 +10,7 @@ import {
   Subscriptions,
   TextProperties as BaseTextProperties,
   unsubscribeSubscriptions,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, signal } from '@preact/signals-core'
@@ -19,7 +20,8 @@ export type TextProperties = {
   children: string | Array<string | Signal<string>> | Signal<string>
   name?: string
 } & BaseTextProperties &
-  EventHandlers
+  EventHandlers &
+  PointerEventsProperties
 
 export const Text: (
   props: TextProperties & RefAttributes<ComponentInternals<Partial<BaseTextProperties & EventHandlers>>>,
@@ -59,7 +61,7 @@ export const Text: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers allowSkippingChildren userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers allowSkippingChildren properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
     </AddHandlers>
   )

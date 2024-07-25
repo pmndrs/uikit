@@ -20,10 +20,22 @@ const sides: Array<Plane> = [
 
 const distancesHelper = [0, 0, 0, 0]
 
+export type AllowedPointerEventsType =
+  | 'all'
+  | ((poinerId: number, pointerType: string, pointerState: unknown) => boolean)
+  | { allow: string | Array<string> }
+  | { deny: string | Array<string> }
+
 declare module 'three' {
-  interface Object3D {
+  interface Object3D extends PointerEventsProperties {
     spherecast?(sphere: Sphere, intersects: Array<Intersection>): void
   }
+}
+
+export type PointerEventsProperties = {
+  pointerEvents?: 'none' | 'auto' | 'listener'
+  pointerEventsType?: AllowedPointerEventsType
+  pointerEventsOrder?: number
 }
 
 const scaleHelper = new Vector3()

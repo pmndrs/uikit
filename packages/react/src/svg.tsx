@@ -4,6 +4,7 @@ import {
   createSvg,
   initialize,
   unsubscribeSubscriptions,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
@@ -16,7 +17,7 @@ export type SvgProperties = BaseSvgProperties &
   EventHandlers & {
     children?: ReactNode
     name?: string
-  }
+  } & PointerEventsProperties
 
 export const Svg: (
   props: SvgProperties & RefAttributes<ComponentInternals<BaseSvgProperties & EventHandlers>>,
@@ -42,7 +43,7 @@ export const Svg: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers userHandlers={properties} ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers properties={properties} ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <primitive object={internals.centerGroup} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>

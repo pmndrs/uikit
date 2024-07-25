@@ -5,6 +5,7 @@ import { RootState, createPortal, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import {
   FullscreenProperties as BaseFullscreenProperties,
+  PointerEventsProperties,
   RootProperties,
   updateSizeFullscreen,
 } from '@pmndrs/uikit/internals'
@@ -14,7 +15,8 @@ export type FullscreenProperties = BaseFullscreenProperties & {
   children?: ReactNode
   attachCamera?: boolean
   distanceToCamera?: number
-} & EventHandlers
+} & EventHandlers &
+  PointerEventsProperties
 
 export const Fullscreen: (
   props: FullscreenProperties & RefAttributes<ComponentInternals<RootProperties & EventHandlers>>,

@@ -10,6 +10,7 @@ import {
   panelGeometry,
   Subscriptions,
   unsubscribeSubscriptions,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -19,7 +20,8 @@ export type CustomContainerProperties = {
   customDepthMaterial?: Material
   customDistanceMaterial?: Material
 } & BaseCustomContainerProperties &
-  EventHandlers
+  EventHandlers &
+  PointerEventsProperties
 
 export const CustomContainer: (
   props: CustomContainerProperties & RefAttributes<ComponentInternals<BaseCustomContainerProperties & EventHandlers>>,
@@ -55,7 +57,7 @@ export const CustomContainer: (
   }, [properties.name])
 
   return (
-    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <ParentProvider value={undefined}>
         <mesh
           ref={innerRef}

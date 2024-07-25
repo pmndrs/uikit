@@ -13,6 +13,7 @@ import {
   readReactive,
   reversePainterSortStable,
   unsubscribeSubscriptions,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
@@ -22,7 +23,8 @@ export type RootProperties = BaseRootProperties &
   WithReactive<{ pixelSize?: number }> & {
     children?: ReactNode
     name?: string
-  } & EventHandlers
+  } & EventHandlers &
+  PointerEventsProperties
 
 export const Root: (
   props: RootProperties & RefAttributes<ComponentInternals<BaseRootProperties & EventHandlers>>,
@@ -84,7 +86,7 @@ export const Root: (
   useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers properties={{ pointerEvents: 'auto', ...properties }} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>

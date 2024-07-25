@@ -9,6 +9,7 @@ import {
   unsubscribeSubscriptions,
   Subscriptions,
   initialize,
+  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -16,7 +17,8 @@ export type ContainerProperties = {
   name?: string
   children?: ReactNode
 } & BaseContainerProperties &
-  EventHandlers
+  EventHandlers &
+  PointerEventsProperties
 
 export const Container: (
   props: ContainerProperties & RefAttributes<ComponentInternals<BaseContainerProperties & EventHandlers>>,
@@ -49,7 +51,7 @@ export const Container: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers userHandlers={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>
