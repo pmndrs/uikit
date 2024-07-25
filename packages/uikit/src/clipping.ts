@@ -1,6 +1,6 @@
 import { Signal, computed } from '@preact/signals-core'
 import { Matrix4, Plane, Vector3 } from 'three'
-import type { Vector2Tuple } from 'three'
+import type { Box3, Line3, Matrix3, Sphere, Vector2Tuple } from 'three'
 import { Overflow } from 'yoga-layout/load'
 import { FlexNodeState } from './flex/node.js'
 import { RootContext } from './context.js'
@@ -185,29 +185,90 @@ export function createGlobalClippingPlanes(root: RootContext, clippingRect: Sign
 
 const helperPlane = new Plane()
 
-class RelativePlane extends Plane {
-  constructor(getLocalPlane: () => Plane | undefined, getGlobalMatrix: () => Matrix4 | undefined) {
-    super()
-    const computeIntoHelper = () => {
-      const localPlane = getLocalPlane()
-      const globalMatrix = getGlobalMatrix()
-      if (localPlane == null || globalMatrix == null) {
-        helperPlane.copy(NoClippingPlane)
-        return
-      }
-      helperPlane.copy(localPlane).applyMatrix4(globalMatrix)
+class RelativePlane implements Plane {
+  get normal(): Vector3 {
+    this.computeInto(helperPlane)
+    return helperPlane.normal
+  }
+  get constant(): number {
+    this.computeInto(helperPlane)
+    return helperPlane.constant
+  }
+  isPlane = true as const
+
+  constructor(
+    private getLocalPlane: () => Plane | undefined,
+    private getGlobalMatrix: () => Matrix4 | undefined,
+  ) {}
+
+  private computeInto(target: Plane): Plane {
+    const localPlane = this.getLocalPlane()
+    const globalMatrix = this.getGlobalMatrix()
+    if (localPlane == null || globalMatrix == null) {
+      return target.copy(NoClippingPlane)
     }
-    Object.assign(this, {
-      get normal(): Vector3 {
-        computeIntoHelper()
-        return helperPlane.normal
-      },
-      set normal(n: Vector3) {},
-      get constant(): number {
-        computeIntoHelper()
-        return helperPlane.constant
-      },
-      set constant(c: number) {},
-    })
+    return target.copy(localPlane).applyMatrix4(globalMatrix)
+  }
+
+  set(normal: Vector3, constant: number): Plane {
+    return this
+  }
+  setComponents(x: number, y: number, z: number, w: number): Plane {
+    return this
+  }
+  setFromNormalAndCoplanarPoint(normal: Vector3, point: Vector3): Plane {
+    return this
+  }
+  setFromCoplanarPoints(a: Vector3, b: Vector3, c: Vector3): Plane {
+    return this
+  }
+  clone(): this {
+    return this.computeInto(new Plane()) as this
+  }
+  copy(plane: Plane): this {
+    this.computeInto(plane)
+    return this
+  }
+  normalize(): Plane {
+    return this
+  }
+  negate(): Plane {
+    return this
+  }
+  distanceToPoint(point: Vector3): number {
+    return this.computeInto(helperPlane).distanceToPoint(point)
+  }
+  distanceToSphere(sphere: Sphere): number {
+    return this.computeInto(helperPlane).distanceToSphere(sphere)
+  }
+  projectPoint(point: Vector3, target: Vector3): Vector3 {
+    return this.computeInto(helperPlane).projectPoint(point, target)
+  }
+  intersectLine(line: Line3, target: Vector3): Vector3 | null {
+    return this.computeInto(helperPlane).intersectLine(line, target)
+  }
+  intersectsLine(line: Line3): boolean {
+    return this.computeInto(helperPlane).intersectsLine(line)
+  }
+  intersectsBox(box: Box3): boolean {
+    return this.computeInto(helperPlane).intersectsBox(box)
+  }
+  intersectsSphere(sphere: Sphere): boolean {
+    return this.computeInto(helperPlane).intersectsSphere(sphere)
+  }
+  coplanarPoint(target: Vector3): Vector3 {
+    return this.computeInto(helperPlane).coplanarPoint(target)
+  }
+  applyMatrix4(matrix: Matrix4, optionalNormalMatrix?: Matrix3): Plane {
+    return this
+  }
+  translate(offset: Vector3): Plane {
+    return this
+  }
+  equals(plane: Plane): boolean {
+    return this.computeInto(helperPlane).equals(plane)
+  }
+  isIntersectionLine(l: any) {
+    return this.computeInto(helperPlane).isIntersectionLine(l)
   }
 }
