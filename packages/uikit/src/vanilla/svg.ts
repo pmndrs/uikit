@@ -60,8 +60,8 @@ export class Svg extends Parent {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: SvgProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: SvgProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: SvgProperties | undefined) {

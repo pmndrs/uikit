@@ -58,8 +58,8 @@ export class Container extends Parent {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: ContainerProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: ContainerProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: ContainerProperties | undefined) {

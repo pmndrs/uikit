@@ -64,8 +64,8 @@ export class CustomContainer extends Component {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: CustomContainerProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: CustomContainerProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: CustomContainerProperties | undefined) {

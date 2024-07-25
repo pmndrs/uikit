@@ -57,8 +57,8 @@ export class Image extends Parent {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: ImageProperties | undefined) {
-    this.styleSignal.value = style
+  setStyle(style: ImageProperties | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
   }
 
   setProperties(properties: ImageProperties | undefined) {
