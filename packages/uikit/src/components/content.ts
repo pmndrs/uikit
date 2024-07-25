@@ -176,7 +176,7 @@ function createMeasureContent(
   contentContainerRef: Object3DRef,
   initializers: Initializers,
 ) {
-  const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect, initializers)
+  const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect)
   const depthAlign = computedInheritableProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
   const keepAspectRatio = computedInheritableProperty(propertiesSignal, 'keepAspectRatio', true)
   const measuredSize = new Vector3()

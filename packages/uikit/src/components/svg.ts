@@ -151,7 +151,7 @@ export function createSvg(
 
   const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
   const svgObject = signal<Object3D | undefined>(undefined)
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
+  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect)
   loadResourceWithParams(
     svgObject,
     loadSvg,

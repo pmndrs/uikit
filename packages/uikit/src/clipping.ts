@@ -175,34 +175,39 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
-export function createClippingPlanes() {
-  return
+export function createGlobalClippingPlanes(root: RootContext, clippingRect: Signal<ClippingRect | undefined>) {
+  const getGlobalMatrix = () => root.object.current?.matrixWorld
+  const planes = new Array(4)
+    .fill(undefined)
+    .map((_, i) => new RelativePlane(() => clippingRect?.value?.planes[i], getGlobalMatrix))
+  return planes
 }
 
-export function createGlobalClippingPlanes(
-  root: RootContext,
-  clippingRect: Signal<ClippingRect | undefined>,
-  initializers: Initializers,
-) {
-  const planes = [new Plane(), new Plane(), new Plane(), new Plane()]
-  const updateClippingPlanes = () => {
-    if (root.object.current == null) {
-      return
-    }
-    const localPlanes = clippingRect?.value?.planes
-    if (localPlanes == null) {
-      for (let i = 0; i < 4; i++) {
-        planes[i].copy(NoClippingPlane)
+const helperPlane = new Plane()
+
+class RelativePlane extends Plane {
+  constructor(getLocalPlane: () => Plane | undefined, getGlobalMatrix: () => Matrix4 | undefined) {
+    super()
+    const computeIntoHelper = () => {
+      const localPlane = getLocalPlane()
+      const globalMatrix = getGlobalMatrix()
+      if (localPlane == null || globalMatrix == null) {
+        helperPlane.copy(NoClippingPlane)
+        return
       }
-      return
+      helperPlane.copy(localPlane).applyMatrix4(globalMatrix)
     }
-    for (let i = 0; i < 4; i++) {
-      planes[i].copy(localPlanes[i]).applyMatrix4(root.object.current.matrixWorld)
-    }
+    Object.assign(this, {
+      get normal(): Vector3 {
+        computeIntoHelper()
+        return helperPlane.normal
+      },
+      set normal(n: Vector3) {},
+      get constant(): number {
+        computeIntoHelper()
+        return helperPlane.constant
+      },
+      set constant(c: number) {},
+    })
   }
-  initializers.push(() => {
-    root.onFrameSet.add(updateClippingPlanes)
-    return () => root.onFrameSet.delete(updateClippingPlanes)
-  })
-  return planes
 }

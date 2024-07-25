@@ -123,7 +123,7 @@ export function createIcon(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
+  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect)
   const iconGroup = createIconGroup(
     mergedProperties,
     text,

@@ -86,7 +86,7 @@ export function createCustomContainer(
 
   //instanced panel
   const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentContext.orderInfo)
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect, initializers)
+  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect)
 
   initializers.push((subscriptions) => {
     const mesh = meshRef.current

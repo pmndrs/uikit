@@ -244,7 +244,7 @@ function createImageMesh(
 ) {
   const mesh = new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry)
   mesh.matrixAutoUpdate = false
-  const clippingPlanes = createGlobalClippingPlanes(root, parentContext.clippingRect, initializers)
+  const clippingPlanes = createGlobalClippingPlanes(root, parentContext.clippingRect)
   const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
     propertiesSignal,
     flexState.borderInset,

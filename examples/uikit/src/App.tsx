@@ -1,6 +1,6 @@
 import { ComponentRef, StrictMode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Box, OrthographicCamera, RenderTexture } from '@react-three/drei'
+import { Box, OrbitControls, OrthographicCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
   DefaultProperties,
@@ -49,7 +49,8 @@ export default function App() {
         gl={{ localClippingEnabled: true }}
       >
         <MeasureText />
-        <OrthographicCamera makeDefault />
+        <OrbitControls />
+        <Box />
         <StrictMode>
           <FontFamilyProvider inter={{ normal: 'inter-normal.json' }}>
             <color attach="background" args={['black']} />
