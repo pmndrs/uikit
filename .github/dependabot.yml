@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Maintain dependencies for lucide.
+  - package-ecosystem: "npm"
+    directory: "packages/icons/lucide"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "08:00"
+      timezone: "America/New_York"
+    reviewers:
+      - "bbohlender"
+    groups:
+      development:
+        dependency-type: development
+        patterns:
+          - "*"
