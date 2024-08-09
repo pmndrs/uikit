@@ -1,6 +1,7 @@
 export { FontFamilyProvider, useMeasureText } from './font.js'
 export { useRootSize } from './responsive.js'
 export {
+  isInteractionPanel,
   basedOnPreferredColorScheme,
   setPreferredColorScheme,
   getPreferredColorScheme,
@@ -10,11 +11,11 @@ export {
   type MaterialClass,
   type ScrollListeners,
   type LayoutListeners,
-  type ViewportListeners,
+  type ClippedListeners,
   type Listeners,
   type AllOptionalProperties,
   type ColorRepresentation,
-} from '@pmndrs/uikit'
+} from '@pmndrs/uikit/internals'
 export { type DefaultPropertiesProperties, DefaultProperties } from './default.js'
 export type { ComponentInternals } from './ref.js'
 export * from './container.js'

@@ -9,7 +9,7 @@ export {
   type PreferredColorScheme,
 } from './dark.js'
 export type { MaterialClass } from './panel/panel-material.js'
-export type { Listeners, LayoutListeners, ScrollListeners, ClippedListeners as ViewportListeners } from './listeners.js'
+export type { Listeners, LayoutListeners, ScrollListeners, ClippedListeners } from './listeners.js'
 export type { AllOptionalProperties } from './properties/default.js'
 export type {
   ImageProperties,
