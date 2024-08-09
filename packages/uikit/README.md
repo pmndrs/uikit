@@ -33,24 +33,28 @@ const canvas = document.getElementById('root') as HTMLCanvasElement
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
-const root = new Root(camera, renderer, undefined, {
+const root = new Root(camera, renderer, {
     flexDirection: "row",
     padding: 10,
-    gap: 10
+    gap: 10,
+    width: 1000,
+    height: 500
 })
 scene.add(root)
-const c1 = new Container(root, {
+const c1 = new Container({
     flexGrow: 1,
     backgroundOpacity: 0.5,
     hover: { backgroundOpacity: 1 }
     backgroundColor: "red"
 })
-const c2 = new Container(root, {
+root.add(c1)
+const c2 = new Container({
     flexGrow: 1,
     backgroundOpacity: 0.5,
     hover: { backgroundOpacity: 1 },
     backgroundColor: "blue"
 })
+root.add(c2)
 
 renderer.setAnimationLoop(animation)
 renderer.localClippingEnabled = true
