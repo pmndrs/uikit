@@ -256,6 +256,7 @@ function ChildrenToFBO({
   let oldAutoClear
   let oldXrEnabled
   let oldIsPresenting
+  let oldRenderTarget
   useFrame((state) => {
     const currentFBO = fbo.peek()
     if (currentFBO == null) {
@@ -265,12 +266,13 @@ function ChildrenToFBO({
       oldAutoClear = state.gl.autoClear
       oldXrEnabled = state.gl.xr.enabled
       oldIsPresenting = state.gl.xr.isPresenting
+      oldRenderTarget = state.gl.getRenderTarget()
       state.gl.autoClear = true
       state.gl.xr.enabled = false
       state.gl.xr.isPresenting = false
       state.gl.setRenderTarget(currentFBO)
       state.gl.render(state.scene, state.camera)
-      state.gl.setRenderTarget(null)
+      state.gl.setRenderTarget(oldRenderTarget)
       state.gl.autoClear = oldAutoClear
       state.gl.xr.enabled = oldXrEnabled
       state.gl.xr.isPresenting = oldIsPresenting
