@@ -6,7 +6,15 @@ on:
       - main
 
 jobs:
-  deploy-static-files:
+  docs:
+    uses: pmndrs/docs/.github/workflows/build.yml@app-router
+    with:
+      mdx: './docs'
+      libname: 'uikit'
+      basePath: '/uikit/docs'
+      icon: '🎨'
+
+  examples:
     env:
       GOOGLE_FONTS_API_KEY: ${{ secrets.GOOGLE_FONTS_API_KEY }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -105,7 +113,6 @@ jobs:
           mkdir -p public/examples/lucide
           mkdir -p public/examples/market
           mkdir -p public/examples/auth
-          mkdir -p public/apps/html23
           cp -r ./examples/apfel/dist/* ./public/examples/apfel
           cp -r ./examples/card/dist/* ./public/examples/card
           cp -r ./examples/dashboard/dist/* ./public/examples/dashboard
@@ -113,27 +120,49 @@ jobs:
           cp -r ./examples/lucide/dist/* ./public/examples/lucide
           cp -r ./examples/market/dist/* ./public/examples/market
           cp -r ./examples/auth/dist/* ./public/examples/auth
-          cp -r ./apps/html23/redirect.html ./public/apps/html23/index.html
 
-      # Deploy to GH Pages
-      - name: Add no jekyll
-        run: touch public/.nojekyll
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          branch: gh-pages
-          folder: public
+          name: 'examples'
+          path: 'public/examples/'
 
       # Deploy Apps to Vercel
       - name: Pull Vercel Environment Information
         working-directory: ./apps/html23
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      
+
       - name: Build Project Artifacts
         working-directory: ./apps/html23
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      
+
       - name: Deploy Project Artifacts to Vercel
         working-directory: ./apps/html23
         run: vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - docs
+      - examples
+    steps:
+      - name: Download Examples Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: "examples"
+          path: "./examples"
+
+      - name: Download Docs Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: "github-pages"
+          path: "./docs"
+
+      - name: Add no jekyll
+        run: touch ./.nojekyll
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: .
