@@ -15,11 +15,9 @@ jobs:
       icon: '🎨'
       home_redirect: '/getting-started/introduction'
 
-  examples:
+  fonts:
     env:
       GOOGLE_FONTS_API_KEY: ${{ secrets.GOOGLE_FONTS_API_KEY }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     runs-on: ubuntu-latest
     steps:
       - name: Install Font Forge
@@ -96,6 +94,33 @@ jobs:
           cp ./packages/fonts/dist/* ./public/fonts
           cp ./packages/fonts/LICENSE public/fonts/LICENSE
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fonts
+          path: public/fonts
+
+  examples:
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
+
       # Examples
       - name: Building Examples
         run: |
@@ -123,8 +148,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 'examples'
-          path: 'public/examples/'
+          name: examples
+          path: public/examples
 
       # Deploy Apps to Vercel
       - name: Pull Vercel Environment Information
@@ -139,33 +164,52 @@ jobs:
         working-directory: ./apps/html23
         run: vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
 
-  deploy:
+  bundle-artifacts:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     needs:
       - docs
       - examples
+      - fonts
     steps:
-      - uses: actions/checkout@v4
+      - name: Download Fonts Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: fonts
+          path: ./fonts
 
       - name: Download Examples Artifiact
         uses: actions/download-artifact@v4
         with:
-          name: "examples"
-          path: "./examples"
+          name: examples
+          path: ./examples
 
       - name: Download Docs Artifiact
         uses: actions/download-artifact@v4
         with:
-          name: "github-pages"
-          path: "./docs"
+          name: github-pages
+          path: ./docs
 
-      - name: Add no jekyll
-        run: touch ./.nojekyll
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          branch: gh-pages
-          folder: .
+          name: deploy
+          path: .
+
+  deploy:
+    needs: bundle-artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: deploy
+          
