@@ -11,7 +11,7 @@ jobs:
     with:
       mdx: './docs'
       libname: 'uikit'
-      basePath: '/uikit/docs'
+      base_path: '/uikit/docs'
       icon: '🎨'
 
   examples:
