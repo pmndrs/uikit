@@ -20,8 +20,6 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Install Font Forge
         run: sudo apt-get install -y fontforge;
@@ -142,6 +140,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs:
       - docs
       - examples
