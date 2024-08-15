@@ -7,7 +7,7 @@ on:
 
 jobs:
   docs:
-    uses: pmndrs/docs/.github/workflows/build.yml@app-router
+    uses: pmndrs/docs/.github/workflows/build.yml@main
     with:
       mdx: './docs'
       libname: 'uikit'
