@@ -13,6 +13,7 @@ jobs:
       libname: 'uikit'
       base_path: '/uikit/docs'
       icon: '🎨'
+      home_redirect: '/getting-started/introduction'
 
   examples:
     env:
