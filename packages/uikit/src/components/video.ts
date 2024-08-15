@@ -15,6 +15,9 @@ type InternalVideoProperties = {
   autoplay?: boolean
 }
 
+/**
+ * @requires that the element is attached to the document and therefore should be hidden (position = 'absolute', width = '1px', zIndex = '-1000', top = '0px', left = '0px')
+ */
 export function updateVideoElement(
   element: HTMLVideoElement,
   { src, autoplay, loop, muted, playbackRate, preservesPitch, volume }: InternalVideoProperties,
@@ -23,15 +26,6 @@ export function updateVideoElement(
     return
   }
 
-  if (autoplay) {
-    element.remove()
-    document.body.append(element)
-    element.style.position = 'absolute'
-    element.style.width = '1px'
-    element.style.zIndex = '-1000'
-    element.style.top = '0px'
-    element.style.left = '0px'
-  }
   element.playsInline = true
   element.volume = volume ?? 1
   element.preservesPitch = preservesPitch ?? true

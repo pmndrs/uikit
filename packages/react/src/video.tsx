@@ -44,7 +44,27 @@ export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => 
 
     const providedHtmlElement = props.src instanceof HTMLVideoElement ? props.src : undefined
 
-    const element = useMemo(() => providedHtmlElement ?? document.createElement('video'), [providedHtmlElement])
+    const element = useMemo(() => {
+      if (providedHtmlElement != null) {
+        return providedHtmlElement
+      }
+      const result = document.createElement('video')
+      result.style.position = 'absolute'
+      result.style.width = '1px'
+      result.style.zIndex = '-1000'
+      result.style.top = '0px'
+      result.style.left = '0px'
+      return result
+    }, [providedHtmlElement])
+
+    const isElementProvided = props.src instanceof HTMLVideoElement
+    useEffect(() => {
+      if (isElementProvided) {
+        return
+      }
+      document.body.appendChild(element)
+      return () => element.remove()
+    }, [element, isElementProvided])
 
     const invalidate = useThree((s) => s.invalidate)
     useEffect(() => setupVideoElementInvalidation(element, invalidate), [element, invalidate])
