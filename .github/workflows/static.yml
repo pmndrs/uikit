@@ -189,11 +189,19 @@ jobs:
           name: github-pages
           path: ./docs
 
+
+      - name: Extract Docs
+        run: tar -xf ./docs/artifact.tar -C ./docs/
+
+      - name: Create deploy.tar
+        run: tar -cf deploy.tar ./*
+
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deploy
-          path: .
+          path: ./deploy.tar
 
   deploy:
     needs: bundle-artifacts
