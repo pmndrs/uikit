@@ -1,5 +1,5 @@
 import { ComponentRef, StrictMode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Box, OrbitControls, OrthographicCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import {
@@ -16,12 +16,12 @@ import {
   FontFamilyProvider,
   ComponentInternals,
   ImageProperties,
-  canvasInputProps,
   Video,
   useMeasureText,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
@@ -43,11 +43,12 @@ export default function App() {
         <source src="./video.mp4" />
       </video>
       <Canvas
-        {...canvasInputProps}
+        events={() => ({ enabled: false, priority: 0 })}
         frameloop="demand"
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}
       >
+        <SwitchToXRPointerEvents />
         <MeasureText />
         <OrbitControls />
         <Box />
@@ -349,3 +350,11 @@ function MeasureText() {
           </DefaultProperties>
         </Root>
  */
+
+export function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
+}

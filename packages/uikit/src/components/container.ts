@@ -34,6 +34,7 @@ import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Initializers } from '../utils.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { computedInheritableProperty } from '../internals.js'
 
 export type InheritableContainerProperties = WithClasses<
   WithConditionals<
@@ -119,6 +120,7 @@ export function createContainer(
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
   const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -128,6 +130,7 @@ export function createContainer(
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
+    scrollbarWidth,
     initializers,
   )
   const interactionPanel = createInteractionPanel(
@@ -142,7 +145,7 @@ export function createContainer(
     parentContext.anyAncestorScrollable,
     flexState,
     object,
-    interactionPanel,
+    scrollbarWidth,
     properties,
     parentContext.root,
     initializers,

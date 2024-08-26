@@ -53,6 +53,7 @@ import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { KeepAspectRatioProperties } from './image.js'
+import { computedInheritableProperty } from '../internals.js'
 
 export type InheritableSvgProperties = WithClasses<
   WithConditionals<
@@ -170,6 +171,7 @@ export function createSvg(
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
   const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -179,6 +181,7 @@ export function createSvg(
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
+    scrollbarWidth,
     initializers,
   )
 
@@ -195,7 +198,7 @@ export function createSvg(
     parentContext.anyAncestorScrollable,
     flexState,
     object,
-    interactionPanel,
+    scrollbarWidth,
     properties,
     parentContext.root,
     initializers,

@@ -156,6 +156,7 @@ export function createImage(
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
   const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -165,6 +166,7 @@ export function createImage(
     parentContext.clippingRect,
     orderInfo,
     parentContext.root.panelGroupManager,
+    scrollbarWidth,
     initializers,
   )
   const interactionPanel = createImageMesh(
@@ -182,7 +184,7 @@ export function createImage(
     parentContext.anyAncestorScrollable,
     flexState,
     object,
-    interactionPanel,
+    scrollbarWidth,
     properties,
     parentContext.root,
     initializers,

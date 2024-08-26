@@ -1,12 +1,11 @@
 import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
-import { Matrix4, Mesh, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
+import { Box2, Matrix4, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
 import { FlexNodeState, Inset } from './flex/node.js'
 import { ColorRepresentation, Initializers, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
-import { computedInheritableProperty } from './properties/utils.js'
 import { MergedProperties } from './properties/merged.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupManager, defaultPanelDependencies } from './panel/instanced-panel-group.js'
@@ -72,16 +71,20 @@ export function computedAnyAncestorScrollable(
 export function computedScrollHandlers(
   scrollPosition: Signal<Vector2Tuple | undefined>,
   anyAncestorScrollable: Signal<readonly [boolean, boolean]> | undefined,
-  { scrollable, maxScrollPosition }: FlexNodeState,
+  nodeState: FlexNodeState,
   object: Object3DRef,
-  interactionPanel: Mesh,
+  scrollbarWidth: Signal<number>,
   listeners: Signal<ScrollListeners | undefined>,
   root: Pick<RootContext, 'onFrameSet' | 'requestRender' | 'pixelSize' | 'requestFrame'>,
   initializers: Initializers,
 ) {
-  const isScrollable = computed(() => scrollable.value?.some((scrollable) => scrollable) ?? false)
+  const isScrollable = computed(() => nodeState.scrollable.value?.some((scrollable) => scrollable) ?? false)
 
-  const downPointerMap = new Map()
+  const downPointerMap = new Map<
+    number,
+    | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
+    | { type: 'scroll-panel'; localPoint: Vector3; timestamp: number }
+  >()
   const scrollVelocity = new Vector2()
 
   const scroll = (
@@ -102,7 +105,7 @@ export function computedScrollHandlers(
       deltaY = 0
     }
     const [x, y] = scrollPosition.value
-    const [maxX, maxY] = maxScrollPosition.value
+    const [maxX, maxY] = nodeState.maxScrollPosition.value
     let [newX, newY] = scrollPosition.value
     const [ancestorScrollableX, ancestorScrollableY] = anyAncestorScrollable?.value ?? [false, false]
     newX = computeScroll(x, maxX, deltaX, enableRubberBand && !ancestorScrollableX)
@@ -134,7 +137,7 @@ export function computedScrollHandlers(
     let deltaX = 0
     let deltaY = 0
     const [x, y] = scrollPosition.value
-    const [maxX, maxY] = maxScrollPosition.value
+    const [maxX, maxY] = nodeState.maxScrollPosition.value
 
     const outsideDistanceX = outsideDistance(x, 0, maxX ?? 0)
     const outsideDistanceY = outsideDistance(y, 0, maxY ?? 0)
@@ -183,7 +186,10 @@ export function computedScrollHandlers(
     if (!isScrollable.value) {
       return undefined
     }
-    const onPointerFinish = ({ pointerId }: ThreeEvent<PointerEvent>) => {
+    const onPointerFinish = ({ pointerId, object }: ThreeEvent<PointerEvent>) => {
+      if ('releasePointerCapture' in object && typeof object.releasePointerCapture === 'function') {
+        object.releasePointerCapture(pointerId)
+      }
       if (!downPointerMap.delete(pointerId) || downPointerMap.size > 0 || scrollPosition.value == null) {
         return
       }
@@ -191,36 +197,84 @@ export function computedScrollHandlers(
       root.requestRender()
     }
     return {
-      onPointerDown: ({ pointerId, point }) => {
-        let interaction = downPointerMap.get(pointerId)
-        if (interaction == null) {
-          downPointerMap.set(pointerId, (interaction = { timestamp: 0, point: new Vector3() }))
+      onPointerDown: ({ pointerId, point, nativeEvent, object: eventObject }) => {
+        const isMouseInteraction = nativeEvent.pointerType === 'mouse'
+        const localPoint = object.current!.worldToLocal(point.clone())
+
+        const scrollbarAxisIndex = !isMouseInteraction
+          ? undefined
+          : getIntersectedScrollbarIndex(
+              localPoint,
+              root.pixelSize.peek(),
+              scrollbarWidth.peek(),
+              nodeState.size.peek(),
+              nodeState.maxScrollPosition.peek(),
+              nodeState.borderInset.peek(),
+              scrollPosition.peek(),
+            )
+        if (scrollbarAxisIndex != null) {
+          if ('setPointerCapture' in eventObject && typeof eventObject.setPointerCapture === 'function') {
+            eventObject.setPointerCapture(pointerId)
+          }
+          downPointerMap.set(pointerId, {
+            type: 'scroll-bar',
+            localPoint,
+            axisIndex: scrollbarAxisIndex,
+          })
+          return
         }
-        interaction.timestamp = performance.now() / 1000
-        object.current!.worldToLocal(interaction.point.copy(point))
+
+        if (isMouseInteraction) {
+          return
+        }
+
+        if ('setPointerCapture' in eventObject && typeof eventObject.setPointerCapture === 'function') {
+          eventObject.setPointerCapture(pointerId)
+        }
+
+        downPointerMap.set(pointerId, {
+          type: 'scroll-panel',
+          timestamp: performance.now() / 1000,
+          localPoint,
+        })
       },
       onPointerUp: onPointerFinish,
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
+        if (event.defaultPrevented) {
+          return
+        }
         const prevInteraction = downPointerMap.get(event.pointerId)
-
         if (prevInteraction == null) {
           return
         }
         object.current!.worldToLocal(localPointHelper.copy(event.point))
-        distanceHelper.copy(localPointHelper).sub(prevInteraction.point).divideScalar(root.pixelSize.peek())
-        const timestamp = performance.now() / 1000
-        const deltaTime = timestamp - prevInteraction.timestamp
+        distanceHelper.copy(localPointHelper).sub(prevInteraction.localPoint)
+        distanceHelper.divideScalar(root.pixelSize.peek())
+        prevInteraction.localPoint.copy(localPointHelper)
 
-        prevInteraction.point.copy(localPointHelper)
-        prevInteraction.timestamp = timestamp
-
-        if (event.defaultPrevented) {
+        if (prevInteraction.type === 'scroll-bar') {
+          const size = nodeState.size.peek()
+          if (size == null) {
+            return
+          }
+          //convert distanceHelper to (drag delta) * maxScrollPosition
+          toScrollbarScrollDistance(
+            distanceHelper,
+            prevInteraction.axisIndex,
+            size,
+            nodeState.borderInset.peek(),
+            nodeState.maxScrollPosition.peek(),
+            scrollbarWidth.peek(),
+          )
+          scroll(event, distanceHelper.x, -distanceHelper.y, undefined, false)
           return
         }
-
+        const timestamp = performance.now() / 1000
+        const deltaTime = timestamp - prevInteraction.timestamp
         scroll(event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
+        prevInteraction.timestamp = timestamp
       },
       onWheel: (event) => {
         if (event.defaultPrevented) {
@@ -321,11 +375,10 @@ export function createScrollbars(
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   panelGroupManager: PanelGroupManager,
+  scrollbarWidth: Signal<number>,
   initializers: Initializers,
 ): void {
   const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, orderInfo)
-
-  const scrollbarWidth = computedInheritableProperty(propertiesSignal, 'scrollbarWidth', 10)
 
   const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
   createScrollbar(
@@ -382,7 +435,7 @@ function getScrollbarMaterialConfig() {
 
 function createScrollbar(
   propertiesSignal: Signal<MergedProperties>,
-  mainIndex: number,
+  primaryIndex: number,
   scrollPosition: Signal<Vector2Tuple>,
   flexState: FlexNodeState,
   globalMatrix: Signal<Matrix4 | undefined>,
@@ -396,7 +449,7 @@ function createScrollbar(
 ) {
   const scrollbarTransformation = computed(() =>
     computeScrollbarTransformation(
-      mainIndex,
+      primaryIndex,
       scrollbarWidth.value,
       flexState.size.value,
       flexState.maxScrollPosition.value,
@@ -426,49 +479,145 @@ function createScrollbar(
 }
 
 function computeScrollbarTransformation(
-  mainIndex: number,
-  otherScrollbarSize: number,
+  primaryAxisIndex: number,
+  secondaryScrollbarSize: number,
   size: Vector2Tuple | undefined,
-  maxScrollbarPosition: Partial<Vector2Tuple>,
+  maxScrollPosition: Partial<Vector2Tuple>,
   borderInset: Inset | undefined,
-  scrollPosition: Vector2Tuple,
+  scrollPosition: Vector2Tuple | undefined,
 ) {
   if (size == null || borderInset == null || scrollPosition == null) {
     return undefined
   }
 
-  const maxMainScrollbarPosition = maxScrollbarPosition[mainIndex]
-  if (maxMainScrollbarPosition == null) {
+  const primaryMaxScrollPosition = maxScrollPosition[primaryAxisIndex]
+  if (primaryMaxScrollPosition == null) {
     return undefined
   }
 
   const result: Vector4Tuple = [0, 0, 0, 0]
-  const invertedIndex = 1 - mainIndex
-  const mainSizeWithoutBorder = size[mainIndex] - borderInset[invertedIndex] - borderInset[invertedIndex + 2]
-  const mainScrollbarSize = Math.max(
-    otherScrollbarSize,
-    (mainSizeWithoutBorder * mainSizeWithoutBorder) / (maxMainScrollbarPosition + mainSizeWithoutBorder),
+  const endInsetIndex = 1 - primaryAxisIndex
+  const primarySizeWithoutBorder = size[primaryAxisIndex] - borderInset[endInsetIndex] - borderInset[endInsetIndex + 2]
+  const primaryScrollbarSize = computePrimaryScrollbarSize(
+    primarySizeWithoutBorder,
+    primaryMaxScrollPosition,
+    secondaryScrollbarSize,
   )
 
-  const maxScrollbarDistancance = mainSizeWithoutBorder - mainScrollbarSize
-  const mainScrollPosition = scrollPosition[mainIndex]
+  const primaryMaxScrollbarPosition = primarySizeWithoutBorder - primaryScrollbarSize
+  const primaryScrollPosition = scrollPosition[primaryAxisIndex]
 
   //position
-  result[mainIndex] =
-    size[mainIndex] * 0.5 -
-    mainScrollbarSize * 0.5 -
-    borderInset[(mainIndex + 3) % 4] -
-    maxScrollbarDistancance * clamp(mainScrollPosition / maxMainScrollbarPosition, 0, 1)
-  result[invertedIndex] = size[invertedIndex] * 0.5 - otherScrollbarSize * 0.5 - borderInset[invertedIndex + 1]
+  const invertedIndex = 1 - primaryAxisIndex
+  result[primaryAxisIndex] =
+    size[primaryAxisIndex] * 0.5 -
+    primaryScrollbarSize * 0.5 -
+    borderInset[(primaryAxisIndex + 3) % 4] -
+    primaryMaxScrollbarPosition * clamp(primaryScrollPosition / primaryMaxScrollPosition, 0, 1)
+  result[invertedIndex] = size[invertedIndex] * 0.5 - secondaryScrollbarSize * 0.5 - borderInset[invertedIndex + 1]
 
-  if (mainIndex === 0) {
+  if (primaryAxisIndex === 0) {
     result[0] *= -1
     result[1] *= -1
   }
 
   //size
-  result[mainIndex + 2] = mainScrollbarSize
-  result[invertedIndex + 2] = otherScrollbarSize
+  result[primaryAxisIndex + 2] = primaryScrollbarSize
+  result[endInsetIndex + 2] = secondaryScrollbarSize
 
   return result
+}
+
+function computePrimaryScrollbarSize(
+  primarySizeWithoutBorder: number,
+  primaryMaxScrollPosition: number,
+  secondaryScrollbarSize: number,
+) {
+  return Math.max(
+    secondaryScrollbarSize,
+    (primarySizeWithoutBorder * primarySizeWithoutBorder) / (primaryMaxScrollPosition + primarySizeWithoutBorder),
+  )
+}
+
+/**
+ * @param target contains the delta movement in pixels and will receive the delta scroll distance in pixels
+ */
+function toScrollbarScrollDistance(
+  target: Vector3,
+  primaryAxisIndex: number,
+  size: Vector2Tuple | undefined,
+  borderInset: Inset | undefined,
+  maxScrollPosition: Partial<Vector2Tuple>,
+  secondaryScrollbarSize: number,
+): void {
+  const primaryMaxScrollPosition = maxScrollPosition[primaryAxisIndex]
+  if (size == null || borderInset == null || primaryMaxScrollPosition == null) {
+    return
+  }
+
+  const delta = target.getComponent(primaryAxisIndex)
+  const primarySizeWithoutBorder =
+    size[primaryAxisIndex] - borderInset[1 - primaryAxisIndex] - borderInset[1 - primaryAxisIndex + 2]
+  const primaryScrollbarSize = computePrimaryScrollbarSize(
+    primarySizeWithoutBorder,
+    primaryMaxScrollPosition,
+    secondaryScrollbarSize,
+  )
+  const primaryMaxScrollbarPosition = primarySizeWithoutBorder - primaryScrollbarSize
+  target.setComponent(primaryAxisIndex, (delta / primaryMaxScrollbarPosition) * primaryMaxScrollPosition)
+  target.setComponent(1 - primaryAxisIndex, 0)
+  target.z = 0
+}
+
+const box2Helper = new Box2()
+const point2Helper = new Vector2()
+
+function getIntersectedScrollbarIndex(
+  point: Vector3,
+  pixelSize: number,
+  secondaryScrollbarSize: number,
+  size: Vector2Tuple | undefined,
+  maxScrollPosition: Partial<Vector2Tuple>,
+  borderInset: Inset | undefined,
+  scrollPosition: Vector2Tuple | undefined,
+): number | undefined {
+  if (size == null) {
+    return undefined
+  }
+  point2Helper.copy(point).divideScalar(pixelSize)
+  for (let i = 0; i < 2; i++) {
+    if (
+      intersectsScrollbar(point2Helper, i, secondaryScrollbarSize, size, maxScrollPosition, borderInset, scrollPosition)
+    ) {
+      return i
+    }
+  }
+  return undefined
+}
+
+const centerHelper = new Vector2()
+const sizeHelper = new Vector2()
+
+function intersectsScrollbar(
+  point: Vector2,
+  axisIndex: number,
+  secondaryScrollbarSize: number,
+  size: Vector2Tuple | undefined,
+  maxScrollPosition: Partial<Vector2Tuple>,
+  borderInset: Inset | undefined,
+  scrollPosition: Vector2Tuple | undefined,
+): boolean {
+  const result = computeScrollbarTransformation(
+    axisIndex,
+    secondaryScrollbarSize,
+    size,
+    maxScrollPosition,
+    borderInset,
+    scrollPosition,
+  )
+  if (result == null) {
+    return false
+  }
+  box2Helper.setFromCenterAndSize(centerHelper.fromArray(result, 0), sizeHelper.fromArray(result, 2))
+  return box2Helper.containsPoint(point)
 }

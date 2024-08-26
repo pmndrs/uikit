@@ -173,6 +173,7 @@ export function createRoot(
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, pixelSize, initializers)
   const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, identityMatrix, pixelSize)
+  const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
     scrollPosition,
@@ -182,6 +183,7 @@ export function createRoot(
     undefined,
     orderInfo,
     panelGroupManager,
+    scrollbarWidth,
     initializers,
   )
 
@@ -210,7 +212,7 @@ export function createRoot(
     undefined,
     flexState,
     object,
-    interactionPanel,
+    scrollbarWidth,
     properties,
     ctx,
     initializers,

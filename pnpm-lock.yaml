@@ -441,6 +441,9 @@ importers:
 
   examples/uikit:
     dependencies:
+      '@pmndrs/pointer-events':
+        specifier: ^6.2.1
+        version: 6.2.1
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
@@ -2723,6 +2726,10 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dev: true
+
+  /@pmndrs/pointer-events@6.2.1:
+    resolution: {integrity: sha512-wd4/Sab7qxLHY/NgITvJxKK0bd9efJaKefvP8rJEMskqULJ143eOunB64T62SmPOjuX3ES1mxUa5qPJPYmIBYQ==}
+    dev: false
 
   /@preact/signals-core@1.5.1:
     resolution: {integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==}
