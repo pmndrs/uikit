@@ -37,17 +37,17 @@ export function useFontFamilies(): FontFamilies | undefined {
  * @returns a function that measure the text and returns the width and height if the font is already loaded. Else undefined
  */
 export function useMeasureText(fontFamily?: string, fontWeight?: FontWeight) {
-  const fontFamilies = useFontFamilies()
   const propertiesSignal = useMemo(() => signal<MergedProperties>(new MergedProperties()), [])
   propertiesSignal.value = new MergedProperties()
   propertiesSignal.value.add('fontFamily', fontFamily)
   propertiesSignal.value.add('fontWeight', fontWeight)
-  const initializers = useMemo<Initializers>(() => [], [])
   const renderer = useThree((state) => state.gl)
-  const font = useMemo(
-    () => computedFont(propertiesSignal, signal(fontFamilies), renderer, initializers),
-    [fontFamilies, initializers, propertiesSignal, renderer],
-  )
+  const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
+  fontFamilies.value = useFontFamilies()
+  const { font, initializers } = useMemo(() => {
+    const initializers: Initializers = []
+    return { font: computedFont(propertiesSignal, fontFamilies, renderer, initializers), initializers }
+  }, [fontFamilies, propertiesSignal, renderer])
   useEffect(() => {
     const subscriptions: Subscriptions = []
     initialize(initializers, subscriptions)

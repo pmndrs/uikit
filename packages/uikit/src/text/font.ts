@@ -57,7 +57,7 @@ export function computedFont(
         typeof fontWeight.value === 'string' ? fontWeightNames[fontWeight.value] : fontWeight.value,
       )
       let canceled = false
-      loadCachedFont(url, renderer, (font) => (canceled ? undefined : (result.value = font)))
+      loadCachedFont(url, renderer, (font) => !canceled && (result.value = font))
       return () => (canceled = true)
     }),
   )
