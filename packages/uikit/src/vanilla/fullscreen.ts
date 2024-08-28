@@ -47,15 +47,15 @@ export class Fullscreen extends Root {
       }
       this.parentCameraSignal.value = this.parent
       this.distanceToCamera ??= this.parent.near + 0.1
-      this.updateSize()
+      this.update()
     })
     this.addEventListener('removed', () => (this.parentCameraSignal.value = undefined))
   }
 
   /**
-   * must be called when the screen size changes
+   * must be called when camera.fov, camera.top, camera.bottom, camera.right, camera.left, camera.zoom, camera.aspect changes
    */
-  updateSize() {
+  update() {
     const parentCamera = this.parentCameraSignal.peek()
     if (this.distanceToCamera == null || parentCamera == null) {
       return

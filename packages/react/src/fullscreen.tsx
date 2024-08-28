@@ -1,7 +1,7 @@
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo } from 'react'
 import { Root } from './root.js'
 import { batch, signal } from '@preact/signals-core'
-import { RootState, createPortal, useStore, useThree } from '@react-three/fiber'
+import { createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import {
   FullscreenProperties as BaseFullscreenProperties,
@@ -22,15 +22,19 @@ export const Fullscreen: (
   props: FullscreenProperties & RefAttributes<ComponentInternals<RootProperties & EventHandlers>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const store = useStore()
-  const [sizeX, sizeY, pixelSize] = useMemo(() => [signal<number>(1), signal<number>(1), signal<number>(1)], [])
   const camera = useThree((s) => s.camera)
   const distanceToCamera = properties.distanceToCamera ?? camera.near + 0.1
-  useEffect(() => {
-    const fn = ({ camera, size: { height } }: RootState) =>
-      batch(() => updateSizeFullscreen(sizeX, sizeY, pixelSize, distanceToCamera, camera, height))
-    fn(store.getState())
-    return store.subscribe(fn)
-  }, [pixelSize, sizeX, sizeY, store, distanceToCamera])
+  const [sizeX, sizeY, pixelSize] = useMemo(() => {
+    const sizeX = signal(1)
+    const sizeY = signal(1)
+    const pixelSize = signal(1)
+    updateSizeFullscreen(sizeX, sizeY, pixelSize, distanceToCamera, camera, store.getState().size.height)
+    return [sizeX, sizeY, pixelSize]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  useFrame(({ camera, size: { height } }) =>
+    batch(() => updateSizeFullscreen(sizeX, sizeY, pixelSize, distanceToCamera, camera, height)),
+  )
   const attachCamera = properties.attachCamera ?? true
   return (
     <>

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { useEffect, useState } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Fullscreen, Text, Container, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { Copy, Moon, Sun, SunMoon } from '@react-three/uikit-lucide'
 
@@ -9,7 +9,6 @@ import { Card } from '@/card.js'
 import { Separator } from '@/separator.js'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 import { DialogAnchor } from '@/dialog.js'
-import { XWebPointers, noEvents } from '@coconut-xr/xinteraction/react'
 import { TooltipDemo } from './components/tooltip.js'
 import { AccordionDemo } from './components/accordion.js'
 import { AlertDemo } from './components/alert.js'
@@ -33,6 +32,7 @@ import { ToggleGroupDemo } from './components/toggle-group.js'
 import InputDemo from './components/input.js'
 import TextareDemo from './components/textarea.js'
 import { VideoDemo } from './components/video.js'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 const componentPages = {
   accordion: AccordionDemo,
@@ -80,8 +80,12 @@ export default function App() {
   }
   const [pcs, updatePCS] = useState(() => getPreferredColorScheme())
   return (
-    <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
-      <XWebPointers />
+    <Canvas
+      events={() => ({ enabled: false, priority: 0 })}
+      style={{ height: '100dvh', touchAction: 'none' }}
+      gl={{ localClippingEnabled: true }}
+    >
+      <SwitchToXRPointerEvents />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
@@ -144,4 +148,12 @@ export default function App() {
       </Defaults>
     </Canvas>
   )
+}
+
+function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
 }

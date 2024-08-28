@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useEffect, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Container, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 
@@ -8,7 +8,6 @@ import { Button } from '@/button.js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card.js'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
 import { DialogAnchor } from '@/dialog.js'
-import { noEvents, XWebPointers } from '@coconut-xr/xinteraction/react'
 import { CalendarDateRangePicker } from './components/DateRangePicker.js'
 import { MainNav } from './components/MainNav.js'
 import { Overview } from './components/Overview.js'
@@ -16,6 +15,7 @@ import { RecentSales } from './components/RecentSales.js'
 import { TeamSwitcher } from './components/TeamSwitcher.js'
 import { UserNav } from './components/UserNav.js'
 import { create } from 'zustand'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 setPreferredColorScheme('light')
 
@@ -27,15 +27,16 @@ export default function App() {
     <>
       <FrameCounter />
       <Canvas
-        events={noEvents}
+        events={() => ({ enabled: false, priority: 0 })}
         frameloop="demand"
         flat
-        camera={{ position: [0, 0, 18], fov: 35 }}
+        camera={{ position: [0, 0, 18], fov: 35, zoom: 100 }}
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}
+        orthographic
       >
         <CountFrames />
-        <XWebPointers />
+        <SwitchToXRPointerEvents />
         <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
           <Defaults>
             <DialogAnchor>
@@ -258,4 +259,12 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
       </Container>
     </Container>
   )
+}
+
+function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
 }

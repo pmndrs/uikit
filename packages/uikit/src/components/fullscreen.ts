@@ -4,6 +4,9 @@ import type { RootProperties } from './root.js'
 
 export type FullscreenProperties = Omit<RootProperties, 'sizeX' | 'sizeY' | 'pixelSize' | 'anchorX' | 'anchorY'>
 
+/**
+ * must be called when camera.fov, camera.top, camera.bottom, camera.right, camera.left, camera.zoom, camera.aspect changes
+ */
 export function updateSizeFullscreen(
   sizeX: Signal<number>,
   sizeY: Signal<number>,
@@ -19,8 +22,8 @@ export function updateSizeFullscreen(
     sizeX.value = cameraHeight * camera.aspect
   }
   if (camera instanceof OrthographicCamera) {
-    const cameraHeight = camera.top - camera.bottom
-    const cameraWidth = camera.right - camera.left
+    const cameraHeight = (camera.top - camera.bottom) / camera.zoom
+    const cameraWidth = (camera.right - camera.left) / camera.zoom
     pixelSize.value = cameraHeight / screenHeight
     sizeY.value = cameraHeight
     sizeX.value = cameraWidth

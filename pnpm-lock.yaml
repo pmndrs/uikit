@@ -237,9 +237,9 @@ importers:
 
   examples/apfel:
     dependencies:
-      '@coconut-xr/xinteraction':
-        specifier: ^0.1.12
-        version: 0.1.12(@react-three/fiber@8.16.2)(react@18.3.1)(three@0.161.0)
+      '@pmndrs/pointer-events':
+        specifier: 6.2.1
+        version: 6.2.1
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
@@ -330,9 +330,9 @@ importers:
 
   examples/dashboard:
     dependencies:
-      '@coconut-xr/xinteraction':
-        specifier: ^0.1.12
-        version: 0.1.12(@react-three/fiber@8.16.2)(react@18.3.1)(three@0.161.0)
+      '@pmndrs/pointer-events':
+        specifier: 6.2.1
+        version: 6.2.1
       '@react-three/drei':
         specifier: ^9.96.1
         version: 9.96.1(@react-three/fiber@8.16.2)(@types/react@18.3.1)(@types/three@0.161.0)(react-dom@18.2.0)(react@18.3.1)(three@0.161.0)
@@ -360,9 +360,9 @@ importers:
 
   examples/default:
     dependencies:
-      '@coconut-xr/xinteraction':
-        specifier: ^0.1.12
-        version: 0.1.12(@react-three/fiber@8.16.2)(react@18.3.1)(three@0.161.0)
+      '@pmndrs/pointer-events':
+        specifier: 6.2.1
+        version: 6.2.1
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1

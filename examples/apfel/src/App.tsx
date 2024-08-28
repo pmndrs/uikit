@@ -1,12 +1,11 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Fullscreen, Text, Container } from '@react-three/uikit'
 import { Copy } from '@react-three/uikit-lucide'
-import { XWebPointers, noEvents } from '@coconut-xr/xinteraction/react'
 import { Card } from '@/card.js'
 import { Button } from '@/button.js'
 import { Tabs, TabsButton } from '@/tabs.js'
 import { Defaults } from '@/theme.js'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TextOnCard } from './components/card.js'
 import { CheckboxOnCard } from './components/checkbox.js'
 import { ButtonsOnCard } from './components/button.js'
@@ -17,6 +16,7 @@ import { TabBarWithText } from './components/tab-bar.js'
 import { ProgressBarsOnCard } from './components/progress.js'
 import { LoadingSpinnersOnCard } from './components/loading.js'
 import { InputsOnCard } from './components/input.js'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 const componentPages = {
   card: TextOnCard,
@@ -49,8 +49,12 @@ export default function App() {
   }
   const ComponentPage = componentPages[component]
   return (
-    <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
-      <XWebPointers />
+    <Canvas
+      events={() => ({ enabled: false, priority: 0 })}
+      style={{ height: '100dvh', touchAction: 'none' }}
+      gl={{ localClippingEnabled: true }}
+    >
+      <SwitchToXRPointerEvents />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
@@ -98,4 +102,12 @@ export default function App() {
       </Defaults>
     </Canvas>
   )
+}
+
+function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
 }

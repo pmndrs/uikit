@@ -1,7 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "@coconut-xr/xinteraction": "^0.1.12",
     "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/postprocessing": "^2.16.0",
@@ -12,7 +11,8 @@
     "@vitejs/plugin-basic-ssl": "^1.1.0",
     "maath": "^0.10.7",
     "r3f-perf": "^7.1.2",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@pmndrs/pointer-events": "6.2.1"
   },
   "scripts": {
     "dev": "vite --host",
