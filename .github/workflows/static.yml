@@ -7,9 +7,9 @@ on:
 
 jobs:
   docs:
-    uses: pmndrs/docs/.github/workflows/build.yml@v1
+    uses: pmndrs/docs/.github/workflows/build.yml@v2
     with:
-      mdx: './docs'
+      mdx: 'docs'
       libname: 'uikit'
       base_path: '/uikit/docs'
       icon: '🎨'
