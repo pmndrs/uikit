@@ -76,7 +76,7 @@ All components in uikit use flexbox properties to define the position and size i
 
 The `Container` componet is a basic UI component that allows wrapping children and rendering a Panel into the background. It corresponds to the HTML `div` element.
 
-```jsx
+```jsx showLineNumbers
 <Container backgroundColor="red">
   <Text>...</Text>
   <Image src="..." />
@@ -128,7 +128,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units. The `Root` component also allows to control the `renderOrder` and `depthTest` of the whole user interface.
 
-```jsx
+```jsx showLineNumbers
 <Root sizeX={2} sizeY={1} flexDirection="row">
   <Container flexGrow={1} backgroundColor="red" />
   <Container flexGrow={1} backgroundColor="green" />
@@ -153,7 +153,7 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 
 The `Fullscreen` component wraps the `Root` component and binds its content directly to the viewport based on the provided `distanceToCamera`. The `Fullscreen` component automatically sets the correct pixelSize, sizeX, and sizeY properties on the `Root` component so that pixel sizes align with the pixels of the screen. In addition, the `Fullscreen` component has all the properties of the `Container` component.
 
-```jsx
+```jsx showLineNumbers
 <Fullscreen flexDirection="row">
   <Container flexGrow={1} backgroundColor="red" />
   <Container flexGrow={1} backgroundColor="green" />
@@ -176,7 +176,7 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 
 The `Image` component has the same properties and functionalities as a `Container` component but allows you to render an image inside it. The `Image` component corresponds to the HTML `img` element. The `Image` component has the `src` property, which can take an URL or a three.js texture. The `Image` component automatically sets the `aspectRatio` property based on the `src` property. This behavior can be turned off through `keepAspectRatio={false}`. The `objectFit` property can also be used to `cover` or `fill` the image in case the aspect ratio cannot be preserved by the layout engine or was overwritten by the user.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Image src="example.jpg" width={100} />
 </Root>
@@ -197,7 +197,7 @@ The `Image` component has the same properties and functionalities as a `Containe
 
 The default image doesn't use react's suspense but rather loads the image silently. To explicitly control how the image behaves when loaded, use the `SuspendingImage` component. The component can be used to display a fallback component while the image is loading. It has the same properties as the `Image` component.
 
-```jsx
+```jsx showLineNumbers
 <Suspense fallback={
     <Container width={200} aspectRatio={1} alignItems="center" justifyContent="center">
       <LoadingSpinner/>
@@ -212,7 +212,7 @@ The default image doesn't use react's suspense but rather loads the image silent
 
 The `Portal` component uses the `Image` component under the hood to render its children into a render target, which is displayed on the surface of the `Portal` component. In contrast to the `Image` component, the `Portal` component doesn't have a default `aspectRatio` or an `src` property. The size of the portal is completly controlled through the flexbox properties, the resolution of the portal is equal to the size multiplied by the `dpr` property, which defaults to the system `dpr`.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Portal width={200} aspectRatio={1}>
     <mesh>
@@ -229,7 +229,7 @@ The `Video` component has the same properties and functionalities as a `Image` c
 
 To control playing the video the `Video` provide the html video element through a provide, that can be consumed by its children through `useVideoElement` to create video controls. Additionally, the html video element can be received from the parent of the `Video` using `ref.current.element`.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Video src="example.mp4" autoplay width={100} />
 </Root>
@@ -254,7 +254,7 @@ To control playing the video the `Video` provide the html video element through 
 
 The `Text` component allows you to render of text and is highly intertwined with the layout engine to allow the layout engine to measure and influence the text layout (e.g., how the text should be broken up). The `Text` component has several properties aligned with the CSS text properties such as `letterSpacing`, `lineHeight`, `fontSize`, `wordBreak`, `fontFamily`, and `fontWeight`. In addition, the `Text` component has all the properties available in the `Container` component.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Text fontWeight="bold">Hello World!</Text>
 </Root>
@@ -282,7 +282,7 @@ The `Text` component allows you to render of text and is highly intertwined with
 
 The `Input` component extends the `Text` component and allows the user to change the text through their preferred input device. The `Input` component has all the formatting capabilities as the `Text` element. Additionally, it allows specifying whether the `multiline` texts are allowed (similar to a textarea), whether the input is `disabled,` the current `value,` the `defaultValue,` an `onValueChange` listener, and the `tabIndex` to customize the tab order.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Input fontWeight="bold" defaultValue="Hello World" />
 </Root>
@@ -350,7 +350,7 @@ The `Input` component extends the `Text` component and allows the user to change
 
 The `Svg` component allows rendering an Svg file. The URL of the file is provided in the `src` property. Additionally, the `opacity`, `color`, and `panelMaterialClass` properties can be used to transform the appearance of the Svg, and all the `Container` properties are available for styling the background panel.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Svg src="..." width={100} />
 </Root>
@@ -372,7 +372,7 @@ The `Svg` component allows rendering an Svg file. The URL of the file is provide
 
 The `Icon` component only differs from the `SVG` component in how the SVG content is provided. The `Icon` component takes a `text` property, which must contain the source code of the SVG. This component helps to inline small SVG files in use cases such as icons. For example, this component is used to implement the uikit-lucide icon pack. When creating the component, the `svgWidth` and `svgHeight` properties must be provided since three.js currently doesn't respect the viewport defined in svg files.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Icon text="..." svgWidth={16} svgHeight={16} width={20} />
 </Root>
@@ -396,7 +396,7 @@ The `Icon` component only differs from the `SVG` component in how the SVG conten
 
 The `Content` component allows you to include any R3F/Three.js element into the layout. Since the children inside the `Content` component can be 3-dimensional objects, their alignment on the z-axis can be controlled with the `depthAlign` property. By default the content will preserve the aspect ratio of the 3D objects. In case the 3D objects should be sized independent from its aspect ratio, set `keepAspectRatio={false}`.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <Content width={100}>
     <Gltf src="...">
@@ -418,7 +418,7 @@ The `Content` component allows you to include any R3F/Three.js element into the 
 
 The `CustomContainer` component integrates a 2D panel with a custom material into the UI. The component is not instanced but provides complete control over the material of the panel.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <CustomContainer width={200} height={200}>
     <shaderMaterial fragmentShader="" vertexShader="" />
@@ -430,7 +430,7 @@ The `CustomContainer` component integrates a 2D panel with a custom material int
 
 The `DefaultProperties` component allows you to override the default properties for all children. HTML/CSS uses the concept of inheritance to change properties on all children. In uikit the `DefaultProperties` component can be used to achieve the same goal. In HTML/CSS, property inheritance is implicit; the `DefaultProperties` component allows explicit expression of what properties are inherited by its children.
 
-```jsx
+```jsx showLineNumbers
 <Root>
   <DefaultProperties color="red" fontWeight="bold">
     <Text>1</Text>
@@ -446,7 +446,7 @@ The `DefaultProperties` component allows you to override the default properties 
 
 The `FontFamilyProvider` component allows you to use the specified font families in all its children. The fonts must be compiled into an MSDF texture and a JSON containing glyph information, because uikit uses MSDF font rendering. More information on how to do this can be found [here](../tutorials/custom-fonts.md).
 
-```jsx
+```jsx showLineNumbers
 <FontFamilyProvider
   roboto={{
     light: 'url-to-json',
@@ -475,7 +475,7 @@ uikit allows you to declare properties that depend on the element's interaction 
 | 2xl    | when the width of the root element is bigger than 1536                     |
 | dark   | when the preferred color scheme is dark                                    |
 
-```jsx
+```jsx showLineNumbers
 <Fullscreen flexDirection="column" md={{ flexDirection: 'row' }}>
   <Container flexGrow={1} backgroundColor="red" />
   <Container flexGrow={1} backgroundColor="green" />
@@ -486,7 +486,7 @@ uikit allows you to declare properties that depend on the element's interaction 
 
 By default, uikit inherits the preferred color scheme from the browser. Developers and designers can use the preferred color scheme to support users' preference for dark and light modes. The preferred color scheme can be controlled using `setPreferredColorScheme` and `getPreferredColorScheme`. The function `basedOnPreferredColorScheme` lets you create themes containing colors that change depending on the preferred color scheme.
 
-```jsx
+```jsx showLineNumbers
 setPreferredColorScheme("light")
 
 const theme = basedOnPreferredColorScheme({

@@ -14,6 +14,8 @@ jobs:
       base_path: '/uikit/docs'
       icon: '🎨'
       home_redirect: '/getting-started/introduction'
+      github: 'https://github.com/pmndrs/uikit'
+      discord: 'https://discord.gg/poimandres'
 
   fonts:
     env:

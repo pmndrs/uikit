@@ -13,6 +13,7 @@ type InternalVideoProperties = {
   muted?: boolean
   loop?: boolean
   autoplay?: boolean
+  crossOrigin?: string
 }
 
 /**
@@ -20,7 +21,7 @@ type InternalVideoProperties = {
  */
 export function updateVideoElement(
   element: HTMLVideoElement,
-  { src, autoplay, loop, muted, playbackRate, preservesPitch, volume }: InternalVideoProperties,
+  { src, autoplay, loop, muted, playbackRate, preservesPitch, volume, crossOrigin }: InternalVideoProperties,
 ) {
   if (src instanceof HTMLElement) {
     return
@@ -33,6 +34,7 @@ export function updateVideoElement(
   element.muted = muted ?? false
   element.loop = loop ?? false
   element.autoplay = autoplay ?? false
+  element.crossOrigin = crossOrigin ?? null
   //update src
   if (src == null) {
     element.removeAttribute('src')

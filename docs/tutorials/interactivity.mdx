@@ -1,0 +1,50 @@
+---
+title: Interactivity
+description: How to make the UI elements interactive.
+nav: 5
+---
+
+Every UI component can receive the same events as [any other R3F element](https://docs.pmnd.rs/react-three-fiber/api/events). In addition to these event listeners, uikit provides properties such as `hover` and `active` for all components. These properties allow the element to overwrite other properties if it is hovered or clicked.
+
+The following example shows a Root element that is `black` by default turns `red` when the user hovers and is `green` as long as the user clicks on it.
+
+```jsx
+<Root
+  backgroundColor="black"
+  hover={{ backgroundColor: 'red' }}
+  active={{ backgroundColor: 'green' }}
+  sizeX={1}
+  sizeY={1}
+/>
+```
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { Root, Container } from "@react-three/uikit";
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <OrbitControls />
+      <Root
+        backgroundColor="black"
+        hover={{ backgroundColor: 'red' }}
+        active={{ backgroundColor: 'green' }}
+        sizeX={1}
+        sizeY={1}
+    />
+    </Canvas>
+  )
+}`}}
+/>

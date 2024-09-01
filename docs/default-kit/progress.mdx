@@ -1,0 +1,63 @@
+---
+title: Progress
+description: How to use the Progress component from the Default kit.
+nav: 28
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-default': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults, DialogAnchor } from "@react-three/uikit-default";
+import { useEffect, useState } from 'react'
+import { Progress } from "@react-three/uikit-default"
+
+function ProgressDemo() {
+  const [progress, setProgress] = useState(13)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setProgress(66), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return <Progress value={progress} width={200} />
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <DialogAnchor><ProgressDemo /></DialogAnchor>
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add default progress
+```

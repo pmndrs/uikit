@@ -1,0 +1,103 @@
+---
+title: Dialog
+description: How to use the Dialog component from the Default kit.
+nav: 25
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-default': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults, DialogAnchor } from "@react-three/uikit-default";
+import { Text, Container } from '@react-three/uikit'
+import { Button } from "@react-three/uikit-default"
+import { Label } from "@react-three/uikit-default"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@react-three/uikit-default"
+
+function DialogDemo() {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button variant="outline">
+          <Text>Edit Profile</Text>
+        </Button>
+      </DialogTrigger>
+      <DialogContent sm={{ maxWidth: 425 }}>
+        <DialogHeader>
+          <DialogTitle>
+            <Text>Edit profile</Text>
+          </DialogTitle>
+          <DialogDescription>
+            <Text>Make changes to your profile here. Click save when you're done.</Text>
+          </DialogDescription>
+        </DialogHeader>
+        <Container flexDirection="column" alignItems="center" gap={16} paddingY={16}>
+          <Container alignItems="center" gap={16}>
+            <Label>
+              <Text textAlign="right">Name</Text>
+            </Label>
+            {/*<Input defaultValue="Pedro Duarte" className="col-span-3" />*/}
+          </Container>
+          <Container alignItems="center" gap={16}>
+            <Label>
+              <Text textAlign="right">Username</Text>
+            </Label>
+            {/*<Input id="username" defaultValue="@peduarte" className="col-span-3" />*/}
+          </Container>
+        </Container>
+        <DialogFooter>
+          <Button>
+            <Text>Save changes</Text>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <DialogAnchor><DialogDemo /></DialogAnchor>
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add default dialog
+```

@@ -19,12 +19,6 @@ export function SlidersOnCard() {
         <Slider size="md" defaultValue={75} icon={<BoxSelect />} />
         <Slider size="lg" defaultValue={100} icon={<BoxSelect />} />
       </Container>
-      <Container flexDirection="column" gapRow={16} width={250}>
-        <Slider size="xs" defaultValue={25} disabled />
-        <Slider size="sm" defaultValue={50} disabled />
-        <Slider size="md" defaultValue={75} disabled icon={<BoxSelect />} />
-        <Slider size="lg" defaultValue={100} disabled icon={<BoxSelect />} />
-      </Container>
     </Card>
   )
 }

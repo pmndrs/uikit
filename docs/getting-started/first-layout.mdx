@@ -1,0 +1,68 @@
+---
+title: First Layout
+description: Build your first layout with uikit.
+nav: 1
+---
+
+The first step for building a layout is to install the dependencies.
+
+`npm i three @react-three/fiber @react-three/uikit @react-three/drei`
+
+> [!TIP]
+> The `@react-three/drei` dependency is not necessary but allows us to add `OrbitControls`.
+
+Next, we create the `index.jsx` file and import the necessary dependencies.
+
+```jsx showLineNumbers
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
+import { Root, Container } from '@react-three/uikit'
+```
+
+Now, we can start defining the actual layout. Every layout must start with a `Root` element (or an element that wraps the `Root` element, such as the `Fullscreen` component). In this example, the `Root` is of size 8 by 4 (three.js units). The `Root` has a horizontal (row) flex-direction, with 2 `Container` children, filling its width equally with a margin around them.
+
+More in-depth information on the Flexbox properties can be found [here](https://yogalayout.dev/docs/).
+
+```jsx {5-8} showLineNumbers=5
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <OrbitControls />
+      <Root backgroundColor="red" sizeX={8} sizeY={4} flexDirection="row">
+        <Container flexGrow={1} margin={32} backgroundColor="green" />
+        <Container flexGrow={1} margin={32} backgroundColor="blue" />
+      </Root>
+    </Canvas>
+  )
+}
+```
+
+The final result will look like this:
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { Root, Container } from "@react-three/uikit";
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <OrbitControls />
+      <Root backgroundColor="red" sizeX={8} sizeY={4} flexDirection="row">
+        <Container flexGrow={1} margin={32} backgroundColor="green" />
+        <Container flexGrow={1} margin={32} backgroundColor="blue" />
+      </Root>
+    </Canvas>
+  )
+}`}}
+/>

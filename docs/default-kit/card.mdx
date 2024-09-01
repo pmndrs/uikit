@@ -1,0 +1,128 @@
+---
+title: Card
+description: How to use the Card component from the Default kit.
+nav: 23
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-default': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults, DialogAnchor } from "@react-three/uikit-default";
+import { Text, Container } from '@react-three/uikit'
+import { BellRing, Check } from '@react-three/uikit-lucide'
+import { colors } from "@react-three/uikit-default"
+import { Button } from "@react-three/uikit-default"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@react-three/uikit-default"
+import { Switch } from "@react-three/uikit-default"
+
+const notifications = [
+  {
+    title: 'Your call has been confirmed.',
+    description: '1 hour ago',
+  },
+  {
+    title: 'You have a new message!',
+    description: '1 hour ago',
+  },
+  {
+    title: 'Your subscription is expiring soon!',
+    description: '2 hours ago',
+  },
+]
+
+function CardDemo() {
+  return (
+    <Card width={380}>
+      <CardHeader>
+        <CardTitle>
+          <Text>Notifications</Text>
+        </CardTitle>
+        <CardDescription>
+          <Text>You have 3 unread messages.</Text>
+        </CardDescription>
+      </CardHeader>
+      <CardContent flexDirection="column" gap={16}>
+        <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} borderWidth={1} padding={16}>
+          <BellRing />
+          <Container flexDirection="column" gap={4}>
+            <Text fontSize={14} lineHeight="100%">
+              Push Notifications
+            </Text>
+            <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+              Send notifications to device.
+            </Text>
+          </Container>
+          <Switch />
+        </Container>
+        <Container flexDirection="column">
+          {notifications.map((notification, index) => (
+            <Container
+              key={index}
+              marginBottom={index === notifications.length - 1 ? 0 : 16}
+              paddingBottom={index === notifications.length - 1 ? 0 : 16}
+              alignItems="flex-start"
+              flexDirection="row"
+              gap={17}
+            >
+              <Container height={8} width={8} transformTranslateY={4} borderRadius={1000} backgroundColor={0x0ea5e9} />
+              <Container flexDirection="column" gap={4}>
+                <Text fontSize={14} lineHeight="100%">
+                  {notification.title}
+                </Text>
+                <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+                  {notification.description}
+                </Text>
+              </Container>
+            </Container>
+          ))}
+        </Container>
+      </CardContent>
+      <CardFooter>
+        <Button flexDirection="row" width="100%">
+          <Check marginRight={8} height={16} width={16} />
+          <Text>Mark all as read</Text>
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <DialogAnchor><CardDemo /></DialogAnchor>
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add default card
+```

@@ -1,0 +1,64 @@
+---
+title: Progress
+description: How to use the Progress component from the Apfel kit.
+nav: 45
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-apfel': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults } from "@react-three/uikit-apfel";
+import { Card } from "@react-three/uikit-apfel"
+import { Progress } from "@react-three/uikit-apfel"
+
+function ProgressBarsOnCard() {
+  return (
+    <Card width={200} borderRadius={32} padding={16} flexDirection="column" gapRow={16}>
+      <Progress value={0} />
+      <Progress value={0.25} />
+      <Progress value={0.5} />
+      <Progress value={0.75} />
+      <Progress value={1} />
+    </Card>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <ProgressBarsOnCard />
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add apfel progress
+```

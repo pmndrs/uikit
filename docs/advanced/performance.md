@@ -1,7 +1,7 @@
 ---
 title: Performance
 description: Important considerations for building performant user interfaces with uikit.
-nav: 15
+nav: 12
 ---
 
 ## Avoid React Re-renders
@@ -12,7 +12,7 @@ When frequently changing properties of uikit components and especially when anim
 
 This approach is similar to html/css. The following code shows how to animate the background opacity on every frame without interfering with react.
 
-```jsx
+```jsx showLineNumbers
 import { Container } from '@react-three/uikit'
 import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
@@ -34,7 +34,7 @@ Setting executing `setStyle(undefined, true)` resets all changes back to the ini
 
 This approach is similar to react-spring and allows to modify the properties of a uikit component without any property diffing. The following code shows how to animate the background opacity on every frame without interfering with react.
 
-```jsx
+```jsx showLineNumbers
 import { Container } from '@react-three/uikit'
 import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'

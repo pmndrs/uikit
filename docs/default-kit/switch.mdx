@@ -1,0 +1,64 @@
+---
+title: Switch
+description: How to use the Switch component from the Default kit.
+nav: 33
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-default': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults, DialogAnchor } from "@react-three/uikit-default";
+import { Text, Container } from '@react-three/uikit'
+import { Label } from "@react-three/uikit-default"
+import { Switch } from "@react-three/uikit-default"
+
+function SwitchDemo() {
+  return (
+    <Container flexDirection="row" alignItems="center" gap={8}>
+      <Switch />
+      <Label>
+        <Text>Airplane Mode</Text>
+      </Label>
+    </Container>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <DialogAnchor><SwitchDemo /></DialogAnchor>
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add default switch
+```

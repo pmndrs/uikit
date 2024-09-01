@@ -33,7 +33,7 @@ export const Checkbox: (props: CheckboxProperties & RefAttributes<ComponentInter
                 borderColor: value ? colors.accent : colors.foreground,
               }
         }
-        borderOpacity={disabled ? 0.2 : value ? 1 : 0.5}
+        borderOpacity={0}
         justifyContent="center"
         alignItems="center"
         cursor={disabled ? undefined : 'pointer'}

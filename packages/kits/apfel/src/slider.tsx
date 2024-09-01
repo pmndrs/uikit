@@ -110,7 +110,7 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
         borderColor={colors.background}
         backgroundOpacity={0.4}
         positionType="relative"
-        borderOpacity={0.4}
+        borderOpacity={0}
         cursor={disabled ? undefined : 'pointer'}
         borderWidth={2}
         borderBend={-0.3}

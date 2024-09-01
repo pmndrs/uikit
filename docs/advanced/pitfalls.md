@@ -1,7 +1,7 @@
 ---
 title: Pitfalls
 description: Pitfalls to avoid when building userinterfaces with uikit
-nav: 14
+nav: 11
 ---
 
 ## Asynchronous Objects inside `Content`
@@ -13,7 +13,7 @@ The `Content` component measures its content when the component is created. If t
 <tr>
 <td>
 
-```jsx
+```jsx {2,4} showLineNumbers
 <Content>
     <Suspense>
         <Gltf src="...">
@@ -24,7 +24,7 @@ The `Content` component measures its content when the component is created. If t
 </td>
 <td>
 
-```jsx
+```jsx {1,5} showLineNumbers
 <Suspense>
     <Content>
         <Gltf src="...">

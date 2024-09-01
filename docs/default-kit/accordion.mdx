@@ -1,0 +1,86 @@
+---
+title: Accordion
+description: How to use the Accordion component from the Default kit.
+nav: 17
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-default': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults, DialogAnchor } from "@react-three/uikit-default";
+import { Text, Container } from '@react-three/uikit'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@react-three/uikit-default"
+
+//TODO: type="single" collapsible
+function AccordionDemo() {
+  return (
+    <Container flexDirection="column" width={300}>
+      <Accordion>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>
+            <Text>Is it accessible?</Text>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger>
+            <Text>Is it styled?</Text>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Text>Yes. It comes with default styles that matches the other components&apos; aesthetic.</Text>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-3">
+          <AccordionTrigger>
+            <Text>Is it animated?</Text>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Text>Yes. It&apos;s animated by default, but you can disable it if you prefer.</Text>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </Container>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <DialogAnchor><AccordionDemo /></DialogAnchor>
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add default accordion
+```

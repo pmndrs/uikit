@@ -1,0 +1,72 @@
+---
+title: Tab-bar
+description: How to use the Tab-bar component from the Apfel kit.
+nav: 47
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-apfel': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults } from "@react-three/uikit-apfel";
+import { Text } from '@react-three/uikit'
+import { BoxSelect } from '@react-three/uikit-lucide'
+import { TabBar, TabBarItem } from "@react-three/uikit-apfel"
+
+function TabBarWithText() {
+  return (
+    <TabBar defaultValue="1">
+      <TabBarItem value="1" icon={<BoxSelect />}>
+        <Text>Label</Text>
+      </TabBarItem>
+      <TabBarItem value="2" icon={<BoxSelect />}>
+        <Text>Label</Text>
+      </TabBarItem>
+      <TabBarItem value="3" icon={<BoxSelect />}>
+        <Text>Label</Text>
+      </TabBarItem>
+      <TabBarItem value="4" icon={<BoxSelect />}>
+        <Text>Label</Text>
+      </TabBarItem>
+    </TabBar>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <TabBarWithText />
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add apfel tab-bar
+```

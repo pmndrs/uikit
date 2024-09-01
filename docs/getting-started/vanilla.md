@@ -126,4 +126,3 @@ If you use vite (`npm i vite`), you can create a `index.html` file, add the foll
 ```
 
 The result should look like this
-![Screenshot of resulting project](./first-layout.png)

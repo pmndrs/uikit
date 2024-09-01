@@ -1,7 +1,7 @@
 ---
 title: Migration from Koestlich
 description: How to migrate a user interface from koestlich to uikit.
-nav: 16
+nav: 14
 ---
 
 This guide is intended for developers migrating their user interface from Koestlich to uikit. The migration involves several changes to properties and components to better align with uikit's design principles. Here's what you need to know:

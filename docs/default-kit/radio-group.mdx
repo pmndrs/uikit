@@ -1,0 +1,75 @@
+---
+title: Radio-group
+description: How to use the Radio-group component from the Default kit.
+nav: 29
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-default': 'latest',
+      '@react-three/drei': 'latest',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Defaults, DialogAnchor } from "@react-three/uikit-default";
+import { Text } from '@react-three/uikit'
+import { Label } from "@react-three/uikit-default"
+import { RadioGroup, RadioGroupItem } from "@react-three/uikit-default"
+
+function RadioGroupDemo() {
+  return (
+    <RadioGroup defaultValue="comfortable">
+      <RadioGroupItem value="default">
+        <Label>
+          <Text>Default</Text>
+        </Label>
+      </RadioGroupItem>
+      <RadioGroupItem value="comfortable">
+        <Label>
+          <Text>Comfortable</Text>
+        </Label>
+      </RadioGroupItem>
+      <RadioGroupItem value="compact">
+        <Label>
+          <Text>Compact</Text>
+        </Label>
+      </RadioGroupItem>
+    </RadioGroup>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Defaults>
+        <Fullscreen
+          overflow="scroll"
+          scrollbarColor="black"
+          backgroundColor="white"
+          dark={{ backgroundColor: "black" }}
+          flexDirection="column"
+          gap={32}
+          paddingX={32}
+          alignItems="center"
+          padding={32}
+        >
+          <DialogAnchor><RadioGroupDemo /></DialogAnchor>
+        </Fullscreen>
+      </Defaults>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+npx uikit component add default radio-group
+```

@@ -1,7 +1,7 @@
 ---
 title: Responsive
 description: How to make the ui elements responsive.
-nav: 9
+nav: 6
 ---
 
 Building responsive UIs in uikit is inspired by [responsiveness in tailwind](https://tailwindcss.com/docs/responsive-design). Using the concept of breakponts UI elements can be styled based on the size of the root element. These breakpoints are
@@ -11,7 +11,7 @@ Building responsive UIs in uikit is inspired by [responsiveness in tailwind](htt
 - `xl` (min root width: 1280px)
 - `2xl` (min root width: 1536px)
 
-```jsx
+```jsx showLineNumbers
 <Container
     flexDirection="column"
     md={{ flexDirection: "row" }}

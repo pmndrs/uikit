@@ -1,7 +1,7 @@
 ---
 title: Custom Fonts
 description: How to build, set up, and use custom fonts.
-nav: 13
+nav: 10
 ---
 
 The `Text` component enables rendering text using multi-channel signed distance functions (MSDF). By default, uikit provides the Inter font. A custom font can be converted from a `.ttf` file to an MSDF representation as a JSON and a corresponding texture using [msdf-bmfont-xml](https://www.npmjs.com/package/msdf-bmfont-xml).
@@ -39,11 +39,12 @@ example charset.txt:
  !\"#$%&'()*+,-./0123456789:;<=>?@ÄÖÜABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`äöüabcdefghijklmnopqrstuvwxyz{|}~ß§
 ```
 
-> **IMPORTANT:** Only a single texture file is supported by uikit, so make sure the generated texture is a single file. Otherwise adjust the texture by increasing the resolution or by decreasing the font size.
+> [!IMPORTANT]
+> Only a single texture file is supported by uikit, so make sure the generated texture is a single file. Otherwise adjust the texture by increasing the resolution or by decreasing the font size.
 
 #### Inlining the texture
 If you are using some kind of hashes in your filenames, you won't be able to use the separate texture. In that case you need to inline the texture in the `.json` file. Here's a sample script to do it:
-```ts
+```ts showLineNumbers
 import { writeFile } from "fs/promises";
 import generateBMFont from "msdf-bmfont-xml";
 
@@ -82,7 +83,7 @@ Lastly, we add the font family via the `FontFamilyProvider`. It's necessary to h
 
 Repeat the previous process for other weights, such as bold, to support different weights.
 
-```tsx
+```tsx showLineNumbers
 <FontFamilyProvider
   roboto={{
     medium: "url-to-medium.json",

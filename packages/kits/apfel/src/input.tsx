@@ -53,8 +53,8 @@ export const Input: (props: InputProperties & RefAttributes<ComponentInternals>)
         borderRadius={variant === 'pill' ? 22 : 12}
         backgroundColor="#444"
         backgroundOpacity={disabled ? 0.3 : 0.4}
-        borderOpacity={disabled ? 0.3 : 0.4}
-        hover={disabled ? undefined : { backgroundOpacity: 0.2, borderOpacity: 0.2 }}
+        borderOpacity={0}
+        hover={disabled ? undefined : { backgroundOpacity: 0.2 }}
         borderWidth={2}
         borderColor="#444"
         borderBend={disabled ? 0 : -0.3}

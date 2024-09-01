@@ -54,7 +54,7 @@ export const Tabs: (props: TabsProperties & RefAttributes<ComponentInternals>) =
           height={36}
           borderWidth={2}
           backgroundOpacity={opacity}
-          borderOpacity={opacity}
+          borderOpacity={0}
           backgroundColor={colors.background}
           borderColor={colors.background}
           borderBend={disabled ? 0 : -0.3}
@@ -96,7 +96,7 @@ export const TabsButton: (props: TabsButtonProperties & RefAttributes<ComponentI
         backgroundColor={colors.foreground}
         borderColor={colors.foreground}
         backgroundOpacity={selected ? 0.3 : 0}
-        borderOpacity={selected ? 0.3 : 0}
+        borderOpacity={0}
         borderWidth={2}
         borderRadius={16}
         borderBend={0.3}
