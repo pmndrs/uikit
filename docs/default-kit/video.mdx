@@ -22,7 +22,14 @@ import { Defaults, DialogAnchor } from "@react-three/uikit-default";
 import { Video } from "@react-three/uikit-default"
 
 function VideoDemo() {
-  return <Video src="example.mp4" controls width={500} />
+  return (
+    <Video
+      crossOrigin="anonymous"
+      src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      controls
+      width={500}
+    />
+  )
 }
 
 export default function App() {
