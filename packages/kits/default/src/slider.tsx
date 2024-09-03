@@ -37,7 +37,7 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
     onChange.current = onValueChange
     const hasProvidedValue = providedValue != null
     const handler = useMemo(() => {
-      let down: boolean = false
+      let downPointerId: number | undefined
       function setValue(e: ThreeEvent<PointerEvent>) {
         if (internalRef.current == null) {
           return
@@ -58,21 +58,24 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
       }
       return {
         onPointerDown(e) {
-          down = true
+          if (downPointerId != null) {
+            return
+          }
+          downPointerId = e.pointerId
           setValue(e)
           ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
         },
         onPointerMove(e) {
-          if (!down) {
+          if (downPointerId != e.pointerId) {
             return
           }
           setValue(e)
         },
         onPointerUp(e) {
-          if (!down) {
+          if (downPointerId == null) {
             return
           }
-          down = false
+          downPointerId = undefined
           e.stopPropagation()
         },
       } satisfies EventHandlers
