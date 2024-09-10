@@ -274,6 +274,14 @@ export function createInput(
     }
     selectionRange.value = [inputElement.selectionStart ?? 0, inputElement.selectionEnd ?? 0]
   }
+  const blur = () => {
+    const inputElement = element.peek()
+    if (inputElement == null) {
+      return
+    }
+    inputElement.blur()
+    selectionRange.value = undefined
+  }
   setupUpdateHasFocus(element, hasFocusSignal, initializers, (hasFocus: boolean) => {
     properties.peek()?.onFocusChange?.(hasFocus)
     style.peek()?.onFocusChange?.(hasFocus)
@@ -284,7 +292,8 @@ export function createInput(
     isClipped,
     mergedProperties,
     valueSignal,
-    focus: () => focus(),
+    focus,
+    blur,
     root: parentContext.root,
     element,
     node: nodeSignal,

@@ -19,6 +19,8 @@ import { useFontFamilies } from './font.js'
 export type InputInternals = ComponentInternals<BaseInputProperties & EventHandlers> & {
   current: ReadonlySignal<string>
   focus: () => void
+  blur: () => void
+  element: ReadonlySignal<HTMLInputElement | HTMLTextAreaElement | undefined>
 } & PointerEventsProperties
 
 export type InputProperties = BaseInputProperties &
@@ -63,8 +65,13 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
       internals,
       internals.interactionPanel,
       useMemo(
-        () => ({ focus: internals.focus, current: internals.valueSignal }),
-        [internals.focus, internals.valueSignal],
+        () => ({
+          focus: internals.focus,
+          blur: internals.blur,
+          current: internals.valueSignal,
+          element: internals.element,
+        }),
+        [internals.focus, internals.blur, internals.valueSignal, internals.element],
       ),
     )
 

@@ -1,4 +1,4 @@
-import { ComponentRef, StrictMode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { StrictMode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { Box, OrbitControls, OrthographicCamera, RenderTexture } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
@@ -18,6 +18,7 @@ import {
   ImageProperties,
   Video,
   useMeasureText,
+  InputInternals,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
@@ -30,9 +31,24 @@ export default function App() {
   const x = useMemo(() => signal<string | undefined>('red'), [])
   const t = useMemo(() => signal('X X\nX X'), [])
   const ref = useRef<ComponentInternals<ImageProperties>>(null)
-  const inputRef = useRef<ComponentRef<typeof Input>>(null)
+  const [input, setInput] = useState<InputInternals | null>(null)
   const videoRef = useRef<HTMLVideoElement | undefined>()
   const [videoel, setVideoEl] = useState<HTMLVideoElement | undefined>()
+
+  useEffect(() => {
+    const x = input?.element.peek()
+    if (x == null) {
+      return
+    }
+    const keydown = (e: Event) => {
+      if ('key' in e && e.key != 'Enter') {
+        return
+      }
+      x.blur()
+    }
+    x.addEventListener('keydown', keydown)
+    return () => x.removeEventListener('keydown', keydown)
+  }, [input])
 
   useEffect(() => setVideoEl(videoRef.current), [])
 
@@ -242,7 +258,7 @@ export default function App() {
                 <Container
                   width={100}
                   height={100}
-                  onClick={() => inputRef.current?.focus()}
+                  onClick={() => input?.focus()}
                   positionType="absolute"
                   positionBottom="100%"
                   positionRight="100%"
@@ -251,7 +267,7 @@ export default function App() {
                   backgroundColor="red"
                 ></Container>
                 <Input
-                  ref={inputRef}
+                  ref={setInput}
                   onFocusChange={(focus) => console.log('focus change', focus)}
                   backgroundColor="white"
                   width="100%"
