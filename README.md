@@ -64,8 +64,7 @@ Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getti
 - [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
 - [Common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls)
 - [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
-- [Theming components](https://docs.pmnd.rs/uikit/kits/theming)
-
+- [Theming components](https://docs.pmnd.rs/uikit/advanced/theming)
 
 ## Pre-styled component kits
 
@@ -76,7 +75,7 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 | <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
 | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
 | ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
-| [View All Components](https://docs.pmnd.rs/uikit/kits/default)                       | [View All Components](https://docs.pmnd.rs/uikit/kits/apfel)                     |
+| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)         | [View All Components](https://docs.pmnd.rs/uikit/apfel-kit/button)          |
 | `npx uikit component add default Button`                                             | `npx uikit component add apfel Button`                                           |
 
 ## Migration guides
@@ -85,7 +84,7 @@ We provide multiple kits containing **themable pre-styled components**. Inspired
 - from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)
 - from [Tailwind](https://docs.pmnd.rs/uikit/migration/from-tailwind)
 
-## Sponsors 
+## Sponsors
 
 This project is supported by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
 
