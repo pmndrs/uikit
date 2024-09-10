@@ -36,6 +36,7 @@ export default function App() {
   return (
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <OrbitControls />
+      <directionalLight position={[1,0,1]} intensity={10} />
       <Root>
         <Text
           backgroundColor="black"
