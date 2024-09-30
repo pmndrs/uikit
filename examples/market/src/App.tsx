@@ -2,7 +2,7 @@ import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
 import { Root, Container, Image, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
-import { PlusCircle } from '@react-three/uikit-lucide'
+import { CirclePlus } from '@react-three/uikit-lucide'
 import { Defaults, colors } from '@/theme.js'
 import { DialogAnchor } from '@/dialog.js'
 import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/tabs.js'
@@ -84,7 +84,7 @@ export function MarketPage() {
                 </TabsTrigger>
               </TabsList>
               <Button marginRight={16}>
-                <PlusCircle marginRight={8} height={16} width={16} />
+                <CirclePlus marginRight={8} height={16} width={16} />
                 <Text>Request Model</Text>
               </Button>
             </Container>

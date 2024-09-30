@@ -1,5 +1,5 @@
 import { ComponentInternals, Container, ContainerProperties, Text } from '@react-three/uikit'
-import { ChevronLeft, ChevronRight, MoreHorizontal } from '@react-three/uikit-lucide'
+import { ChevronLeft, ChevronRight, Ellipsis } from '@react-three/uikit-lucide'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
 
@@ -118,7 +118,7 @@ export const PaginationEllipsis: (
       ref={ref}
       {...props}
     >
-      <MoreHorizontal width={16} height={16} />
+      <Ellipsis width={16} height={16} />
     </Container>
   )
 })
