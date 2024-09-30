@@ -1,15 +1,5 @@
 import { Signal, computed, effect } from '@preact/signals-core'
-import {
-  ReactNode,
-  RefAttributes,
-  RefObject,
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { ReactNode, RefAttributes, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import {
   HalfFloatType,
   LinearFilter,
@@ -21,16 +11,7 @@ import {
   Vector3,
 } from 'three'
 import { Image } from './image.js'
-import {
-  InjectState,
-  RootState,
-  createPortal,
-  reconciler,
-  useFrame,
-  useStore,
-  context,
-  Viewport,
-} from '@react-three/fiber'
+import { InjectState, RootState, reconciler, useFrame, useStore, context } from '@react-three/fiber'
 import type { DomEvent, EventHandlers, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import type { ImageProperties, PointerEventsProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
@@ -171,6 +152,8 @@ export const Portal: (
           size: { width, height, top: 0, left: 0 },
           viewport: { ...previousRoot.getState().viewport, width, height, aspect: width / height },
         })
+        //we invalidate because we need to re-render the image's framebuffer now because it's size was changed
+        usePortalStore.getState().invalidate()
       })
       return () => {
         unsubscribeSetSize()
@@ -182,7 +165,7 @@ export const Portal: (
       <>
         {reconciler.createPortal(
           <context.Provider value={usePortalStore}>
-            <ChildrenToFBO renderPriority={renderPriority} frames={frames} fbo={fbo}>
+            <ChildrenToFBO renderPriority={renderPriority} frames={frames} fbo={fbo} imageRef={imageRef}>
               {children}
               {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
               <group onPointerOver={() => null} />
@@ -222,11 +205,13 @@ function ChildrenToFBO({
   renderPriority,
   children,
   fbo,
+  imageRef,
 }: {
   frames: number
   renderPriority: number
   children: ReactNode
   fbo: Signal<WebGLRenderTarget | undefined>
+  imageRef: RefObject<ComponentInternals>
 }) {
   const store = useStore()
 
@@ -259,7 +244,8 @@ function ChildrenToFBO({
   let oldRenderTarget
   useFrame((state) => {
     const currentFBO = fbo.peek()
-    if (currentFBO == null) {
+    //we only render if we have a framebuffer to write to and if the portal is not clipped
+    if (currentFBO == null || imageRef.current?.isClipped?.peek() != false) {
       return
     }
     if (frames === Infinity || count < frames) {
