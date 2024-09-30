@@ -27,7 +27,7 @@
     "./internals": "./dist/internals.js"
   },
   "scripts": {
-    "test": "mocha ./tests/flex.spec.ts",
+    "test": "mocha ./tests/*.spec.ts",
     "build": "node --loader ts-node/esm scripts/extract-core-component-properties.ts && tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",

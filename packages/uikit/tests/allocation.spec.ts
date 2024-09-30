@@ -16,14 +16,12 @@ function createSortedBuckets(data: Float32Array, buckets: Array<Bucket<Element>>
   const activateElement = (element: Element, bucket: Bucket<Element>, index: number) => {
     data[bucket.offset + index] = element.value
     element.index = index
-    console.log('activate', element.value, 'at', bucket.offset, '/', index, ':', ...data)
   }
   const setElementIndex = (element: Element, index: number) => {
     element.index = index
   }
   const copyBufferWithin = (targetIndex: number, startIndex: number, endIndex: number) => {
     data.copyWithin(targetIndex, startIndex, endIndex)
-    console.log('copy ', startIndex, '-', endIndex, 'to', targetIndex, ':', ...data)
   }
   return {
     add(value: number, bucketIndex: number): Element {

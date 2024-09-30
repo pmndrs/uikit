@@ -269,11 +269,17 @@ export class InstancedPanelGroup {
     if (this.elementCount > this.bufferElementSize) {
       //buffer is to small to host the current elements
       this.resize()
+      //we need to execute updateSortedBucketsAllocation after resize so that updateSortedBucketsAllocation has enough space to arrange all the elements
+      updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
     } else if (this.elementCount <= this.bufferElementSize / 3) {
+      //we need to execute updateSortedBucketsAllocation first, so we still have access to the elements in the space that will be removed by the resize
+      //TODO: this could be improved since now we are re-arraging in place and then copying. we could rearrange while copying. Not sure if faster though?
+      updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
       //buffer is at least 300% bigger than the needed space
       this.resize()
+    } else {
+      updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
     }
-    updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
     this.mesh!.count = this.elementCount
     this.mesh!.visible = true
   }
