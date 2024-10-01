@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { Mesh, MeshBasicMaterial } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
@@ -7,7 +7,7 @@ import { CustomContainerProperties, createCustomContainer } from '../components/
 import { panelGeometry } from '../panel/index.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class CustomContainer extends Component {
+export class CustomContainer<T = {}> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<CustomContainerProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<CustomContainerProperties | undefined>

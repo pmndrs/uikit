@@ -1,12 +1,12 @@
 import { Object3D, Object3DEventMap } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, EventMap, bindHandlers, Component } from './utils.js'
+import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { ContentProperties, createContent } from '../components/index.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Content extends Component {
+export class Content<T = {}> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly contentContainer: Object3D
   private readonly styleSignal: Signal<ContentProperties | undefined> = signal(undefined)

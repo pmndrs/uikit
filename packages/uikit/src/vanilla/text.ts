@@ -6,7 +6,7 @@ import { TextProperties, createText } from '../components/text.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Text extends Component {
+export class Text<T = {}> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<TextProperties | undefined>

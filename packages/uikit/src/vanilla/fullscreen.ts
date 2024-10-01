@@ -7,7 +7,7 @@ import { FontFamilies } from '../text/index.js'
 
 const vectorHelper = new Vector2()
 
-export class Fullscreen extends Root {
+export class Fullscreen<T = {}> extends Root<T> {
   private parentCameraSignal: Signal<PerspectiveCamera | OrthographicCamera | undefined>
   private readonly sizeX: Signal<number>
   private readonly sizeY: Signal<number>

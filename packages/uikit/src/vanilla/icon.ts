@@ -6,7 +6,7 @@ import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js
 import { IconProperties, createIcon } from '../components/icon.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Icon extends Component {
+export class Icon<T = {}> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<IconProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<IconProperties | undefined>

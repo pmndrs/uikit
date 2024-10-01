@@ -6,7 +6,7 @@ import { InputProperties, createInput } from '../components/input.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Input extends Component {
+export class Input<T = {}> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<InputProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<InputProperties | undefined>

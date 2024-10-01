@@ -5,7 +5,7 @@ import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js
 import { SvgProperties, createSvg } from '../components/svg.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Svg extends Parent {
+export class Svg<T = {}> extends Parent<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<SvgProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<SvgProperties | undefined>

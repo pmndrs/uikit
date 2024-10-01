@@ -9,7 +9,7 @@ import {
 } from '../components/index.js'
 import { AllOptionalProperties } from '../properties/index.js'
 
-export class Video extends Image {
+export class Video<T = {}> extends Image<T> {
   public element: HTMLVideoElement
   private readonly texture: VideoTexture
   private readonly aspectRatio: Signal<number>

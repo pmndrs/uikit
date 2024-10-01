@@ -5,7 +5,7 @@ import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js
 import { Parent, createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Container extends Parent {
+export class Container<T = {}> extends Parent<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<ContainerProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ContainerProperties | undefined>

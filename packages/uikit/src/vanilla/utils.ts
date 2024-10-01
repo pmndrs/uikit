@@ -33,9 +33,9 @@ export function setupParentContextSignal(
   container.addEventListener('removed', () => (parentContextSignal.value = undefined))
 }
 
-export class Component extends Object3D<EventMap & { childadded: {}; childremoved: {} }> {}
+export class Component<T = {}> extends Object3D<EventMap & { childadded: {}; childremoved: {} } & T> {}
 
-export class Parent extends Component {
+export class Parent<T = {}> extends Component<T> {
   readonly contextSignal: Signal<
     | (ParentContext & {
         fontFamiliesSignal: Signal<FontFamilies | undefined>

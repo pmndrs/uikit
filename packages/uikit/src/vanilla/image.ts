@@ -6,7 +6,7 @@ import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signa
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/index.js'
 
-export class Image extends Parent {
+export class Image<T = {}> extends Parent<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<ImageProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ImageProperties | undefined>

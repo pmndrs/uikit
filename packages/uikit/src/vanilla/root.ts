@@ -6,7 +6,7 @@ import { Parent, bindHandlers } from './utils.js'
 import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { FontFamilies } from '../text/index.js'
 
-export class Root extends Parent {
+export class Root<T = {}> extends Parent<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   protected readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<RootProperties | undefined>
