@@ -156,6 +156,7 @@ export function createContainer(
 
   return Object.assign(flexState, {
     isClipped,
+    isVisible,
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(

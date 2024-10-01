@@ -245,7 +245,7 @@ function ChildrenToFBO({
   useFrame((state) => {
     const currentFBO = fbo.peek()
     //we only render if we have a framebuffer to write to and if the portal is not clipped
-    if (currentFBO == null || imageRef.current?.isClipped?.peek() != false) {
+    if (currentFBO == null || imageRef.current?.isVisible?.peek() != true) {
       return
     }
     if (frames === Infinity || count < frames) {

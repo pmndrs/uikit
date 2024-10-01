@@ -142,6 +142,7 @@ export function createIcon(
 
   return Object.assign(flexState, {
     isClipped,
+    isVisible,
     mergedProperties,
     initializers,
     iconGroup,

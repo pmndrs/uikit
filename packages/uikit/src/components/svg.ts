@@ -210,6 +210,7 @@ export function createSvg(
   return Object.assign(flexState, {
     scrollPosition,
     isClipped,
+    isVisible,
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
     clippingRect: computedClippingRect(

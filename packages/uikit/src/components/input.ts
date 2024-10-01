@@ -290,6 +290,7 @@ export function createInput(
 
   return Object.assign(flexState, {
     isClipped,
+    isVisible,
     mergedProperties,
     valueSignal,
     focus,

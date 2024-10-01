@@ -132,6 +132,7 @@ export function createContent(
 
   return Object.assign(flexState, {
     isClipped,
+    isVisible,
     mergedProperties,
     remeasureContent: createMeasureContent(
       mergedProperties,

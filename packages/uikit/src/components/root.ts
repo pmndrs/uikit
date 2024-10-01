@@ -219,6 +219,7 @@ export function createRoot(
   )
 
   return Object.assign(flexState, {
+    isVisible,
     scrollPosition,
     mergedProperties,
     anyAncestorScrollable: flexState.scrollable,

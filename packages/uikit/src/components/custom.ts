@@ -144,6 +144,7 @@ export function createCustomContainer(
 
   return Object.assign(flexState, {
     isClipped,
+    isVisible,
     mergedProperties,
     root: parentContext.root,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),

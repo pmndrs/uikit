@@ -142,6 +142,7 @@ export function createText(
 
   return Object.assign(flexState, {
     isClipped,
+    isVisible,
     mergedProperties,
     interactionPanel: createInteractionPanel(
       backgroundOrderInfo,

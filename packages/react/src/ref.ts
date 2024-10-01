@@ -52,6 +52,10 @@ export type ComponentInternals<T = ContainerProperties> = {
    */
   isClipped?: ReadonlySignal<boolean>
   /**
+   * exploses whether the element is not fully clipped, has a size greater then 0, is not set to invisible, or display unequal to "none" by itself and all ancestors
+   */
+  isVisible: ReadonlySignal<boolean>
+  /**
    * set the styles of the element (the provided styles have a higher precedence then the element's properties)
    */
   setStyle(style: T | undefined, replace?: boolean): void
@@ -91,6 +95,7 @@ export function useComponentInternals<T, O = {}>(
     () => {
       const { scrollPosition, paddingInset, borderInset, relativeCenter, size, maxScrollPosition } = internals
       return {
+        isVisible: internals.isVisible,
         setStyle: (style: T | undefined, replace?: boolean) =>
           (styleSignal.value = replace ? style : ({ ...styleSignal.value, ...style } as T)),
         getStyle: () => styleSignal.peek(),
