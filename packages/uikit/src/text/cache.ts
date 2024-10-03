@@ -1,12 +1,16 @@
 import { TextureLoader, WebGLRenderer } from 'three'
 import { Font, FontInfo } from './font.js'
 
-const fontCache = new Map<string, Set<(font: Font) => void> | Font>()
+const fontCache = new Map<string | FontInfo, Set<(font: Font) => void> | Font>()
 
 const textureLoader = new TextureLoader()
 
-export function loadCachedFont(url: string, renderer: WebGLRenderer, onLoad: (font: Font) => void): void {
-  let entry = fontCache.get(url)
+export function loadCachedFont(
+  fontInfoOrUrl: string | FontInfo,
+  renderer: WebGLRenderer,
+  onLoad: (font: Font) => void,
+): void {
+  let entry = fontCache.get(fontInfoOrUrl)
   if (entry instanceof Set) {
     entry.add(onLoad)
     return
@@ -18,26 +22,29 @@ export function loadCachedFont(url: string, renderer: WebGLRenderer, onLoad: (fo
 
   const set = new Set<(font: Font) => void>()
   set.add(onLoad)
-  fontCache.set(url, set)
+  fontCache.set(fontInfoOrUrl, set)
 
-  loadFont(url, renderer)
+  loadFont(fontInfoOrUrl, renderer)
     .then((font) => {
       for (const fn of set) {
         fn(font)
       }
-      fontCache.set(url, font)
+      fontCache.set(fontInfoOrUrl, font)
     })
     .catch(console.error)
 }
 
-async function loadFont(url: string, renderer: WebGLRenderer): Promise<Font> {
-  const info: FontInfo = await (await fetch(url)).json()
+async function loadFont(fontInfoOrUrl: string | FontInfo, renderer: WebGLRenderer): Promise<Font> {
+  const info: FontInfo = typeof fontInfoOrUrl === 'object' ? fontInfoOrUrl : await (await fetch(fontInfoOrUrl)).json()
 
   if (info.pages.length !== 1) {
     throw new Error('only supporting exactly 1 page')
   }
 
-  const page = await textureLoader.loadAsync(new URL(info.pages[0], new URL(url, window.location.href)).href)
+  const page = await textureLoader.loadAsync(
+    new URL(info.pages[0], typeof fontInfoOrUrl === 'string' ? new URL(fontInfoOrUrl, window.location.href) : undefined)
+      .href,
+  )
 
   page.anisotropy = renderer.capabilities.getMaxAnisotropy()
   page.flipY = false

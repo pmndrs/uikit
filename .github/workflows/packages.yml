@@ -59,6 +59,10 @@ jobs:
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
 
+      - name: Deploy msdfonts Package
+        working-directory: ./packages/msdfonts
+        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+
       - name: Deploy Uikit Vanilla Package
         working-directory: ./packages/uikit
         run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}

@@ -1,7 +1,7 @@
 import {
   Font,
   FontFamilies,
-  FontFamilyUrls,
+  FontFamilyWeightMap,
   FontWeight,
   GlyphLayoutProperties,
   Initializers,
@@ -19,7 +19,7 @@ import { useContext, createContext, ReactNode, useCallback, useEffect, useMemo }
 const FontFamiliesContext = createContext<FontFamilies>(null as any)
 
 export function FontFamilyProvider<T extends string = never>(properties: {
-  [Key in T]: Key extends 'children' ? ReactNode : FontFamilyUrls
+  [Key in T]: Key extends 'children' ? ReactNode : FontFamilyWeightMap
 }) {
   let { children, ...fontFamilies } = properties as any
   const existinFontFamilyUrls = useContext(FontFamiliesContext)

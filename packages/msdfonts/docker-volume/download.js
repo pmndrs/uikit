@@ -1,6 +1,6 @@
-const https = require('https') // or 'https' for https:// URLs
-const http = require('http')
-const fs = require('fs')
+import https from 'https' // or 'https' for https:// URLs
+import http from 'http'
+import fs from 'fs'
 
 const [, , fontFamily, variant] = process.argv
 

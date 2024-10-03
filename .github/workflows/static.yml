@@ -41,51 +41,51 @@ jobs:
 
       # Fonts
       - name: Make Dist Dir
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: mkdir dist
 
       # Inter
       - name: Generate Inter Light
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: |
           node download.js "Inter" 300
           fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-light.ttf
           pnpm msdf-bmfont -f json inter-light.ttf -i charset.txt -m 256,512 -o dist/inter-light -s 48
 
       - name: Generate Inter Normal
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: |
           node download.js "Inter" 400
           fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-normal.ttf
           pnpm msdf-bmfont -f json inter-normal.ttf -i charset.txt -m 256,512 -o dist/inter-normal -s 48
 
       - name: Generate Inter Medium
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: |
           node download.js "Inter" 500
           fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-medium.ttf
           pnpm msdf-bmfont -f json inter-medium.ttf -i charset.txt -m 256,512 -o dist/inter-medium -s 48
 
       - name: Generate Inter Semi Bold
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: |
           node download.js "Inter" 600
           fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-semi-bold.ttf
           pnpm msdf-bmfont -f json inter-semi-bold.ttf -i charset.txt -m 256,512 -o dist/inter-semi-bold -s 48
 
       - name: Generate Inter Bold
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: |
           node download.js "Inter" 700
           fontforge -lang=ff -c 'Open($1); SelectAll(); RemoveOverlap(); Generate($2)' font.ttf inter-bold.ttf
           pnpm msdf-bmfont -f json inter-bold.ttf -i charset.txt -m 256,512 -o dist/inter-bold -s 48
 
       - name: Convert to Webp
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: pnpm sharp --lossless -i dist/*.png -o dist/ -f webp
 
       - name: Replace file png files
-        working-directory: ./packages/fonts
+        working-directory: ./packages/msdfonts/docker-volume
         run: |
           sed -i 's/png/webp/g' dist/*.json
           rm dist/*.png
@@ -93,8 +93,8 @@ jobs:
       - name: Copy font files
         run: |
           mkdir -p public/fonts
-          cp ./packages/fonts/dist/* ./public/fonts
-          cp ./packages/fonts/LICENSE public/fonts/LICENSE
+          cp ./packages/msdfonts/docker-volume/dist/* ./public/fonts
+          cp ./packages/msdfonts/LICENSE public/fonts/LICENSE
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

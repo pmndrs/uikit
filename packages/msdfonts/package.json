@@ -1,0 +1,23 @@
+{
+    "name": "@pmndrs/msdfonts",
+    "version": "0.0.0",
+    "description": "base64 msdf fonts distributed as npm package",
+    "files": [
+      "dist"
+    ],
+    "keywords": [
+      "fonts",
+      "uikit",
+      "icons",
+      "threejs",
+      "r3f",
+      "msdf"
+    ],
+    "author": "Bela Bohlender",
+    "scripts": {
+      "build": "tsc"
+    },
+    "type": "module",
+    "main": "dist/index.js"
+  }
+  

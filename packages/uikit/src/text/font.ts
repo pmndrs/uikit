@@ -4,10 +4,11 @@ import { MergedProperties } from '../properties/merged.js'
 import { Initializers } from '../utils.js'
 import { loadCachedFont } from './cache.js'
 import { computedInheritableProperty } from '../properties/index.js'
+import { inter } from '@pmndrs/msdfonts'
 
-export type FontFamilyUrls = Partial<Record<FontWeight, string>>
+export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>
 
-export type FontFamilies = Record<string, FontFamilyUrls>
+export type FontFamilies = Record<string, FontFamilyWeightMap>
 
 const fontWeightNames = {
   thin: 100,
@@ -27,13 +28,7 @@ export type FontWeight = keyof typeof fontWeightNames | number
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight }
 
 const defaultFontFamilyUrls: FontFamilies = {
-  inter: {
-    light: 'https://pmndrs.github.io/uikit/fonts/inter-light.json',
-    normal: 'https://pmndrs.github.io/uikit/fonts/inter-normal.json',
-    medium: 'https://pmndrs.github.io/uikit/fonts/inter-medium.json',
-    'semi-bold': 'https://pmndrs.github.io/uikit/fonts/inter-semi-bold.json',
-    bold: 'https://pmndrs.github.io/uikit/fonts/inter-bold.json',
-  },
+  inter,
 }
 
 export function computedFont(
@@ -64,9 +59,9 @@ export function computedFont(
   return result
 }
 
-function getMatchingFontUrl(fontFamily: FontFamilyUrls, weight: number): string {
+function getMatchingFontUrl(fontFamily: FontFamilyWeightMap, weight: number): string | FontInfo {
   let distance = Infinity
-  let result: string | undefined
+  let result: string | FontInfo | undefined
   for (const fontWeight in fontFamily) {
     const d = Math.abs(weight - getWeightNumber(fontWeight))
     if (d === 0) {
@@ -107,8 +102,8 @@ export type FontInfo = {
     stretchH: number
     smooth: number
     aa: number
-    padding: [number, number, number, number]
-    spacing: [number, number, number, number]
+    padding: Array<number>
+    spacing: Array<number>
     outline: number
   }
   common: {
@@ -142,15 +137,15 @@ export type GlyphInfo = {
   height: number
   x: number
   y: number
-  uvWidth: number
-  uvHeight: number
   xoffset: number
   yoffset: number
   xadvance: number
   chnl: number
-  uvX: number
-  uvY: number
   page: number
+  uvWidth?: number
+  uvHeight?: number
+  uvX?: number
+  uvY?: number
 }
 
 export class Font {
@@ -215,8 +210,8 @@ export class Font {
 }
 
 export function glyphIntoToUV(info: GlyphInfo, target: TypedArray, offset: number): void {
-  target[offset + 0] = info.uvX
-  target[offset + 1] = info.uvY + info.uvHeight
-  target[offset + 2] = info.uvWidth
-  target[offset + 3] = -info.uvHeight
+  target[offset + 0] = info.uvX!
+  target[offset + 1] = info.uvY! + info.uvHeight!
+  target[offset + 2] = info.uvWidth!
+  target[offset + 3] = -info.uvHeight!
 }
