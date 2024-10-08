@@ -1,7 +1,7 @@
 import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
-import { ParentProvider, useParent } from './context.js'
+import { ParentProvider, useParent, useParentOptional } from './context.js'
 import { AddHandlers, usePropertySignals } from './utilts.js'
 import {
   ContainerProperties as BaseContainerProperties,
@@ -12,6 +12,7 @@ import {
   PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
+import { Root } from './root.js'
 
 export type ContainerProperties = {
   name?: string
@@ -20,7 +21,7 @@ export type ContainerProperties = {
   EventHandlers &
   PointerEventsProperties
 
-export const Container: (
+const ContainerInner: (
   props: ContainerProperties & RefAttributes<ComponentInternals<BaseContainerProperties & EventHandlers>>,
 ) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
@@ -57,5 +58,20 @@ export const Container: (
         <ParentProvider value={internals}>{properties.children}</ParentProvider>
       </object3D>
     </AddHandlers>
+  )
+})
+
+export const Container: (
+  props: ContainerProperties & RefAttributes<ComponentInternals<BaseContainerProperties & EventHandlers>>,
+) => ReactNode = forwardRef((properties, ref) => {
+  const parent = useParentOptional()
+  if (parent) {
+    return <ContainerInner {...properties} ref={ref} />
+  }
+
+  return (
+    <Root>
+      <ContainerInner {...properties} ref={ref} />
+    </Root>
   )
 })
