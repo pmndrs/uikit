@@ -154,13 +154,13 @@ export function computedScrollHandlers(
 
     scrollVelocity.multiplyScalar(0.9) //damping scroll factor
 
-    if (Math.abs(scrollVelocity.x) < 10 /** px per second */) {
+    if (Math.abs(scrollVelocity.x) < 0.01 /** 10 px per second */) {
       scrollVelocity.x = 0
     } else {
       root.requestFrame()
     }
 
-    if (Math.abs(scrollVelocity.y) < 10 /** px per second */) {
+    if (Math.abs(scrollVelocity.y) < 0.01 /** 10 px per second */) {
       scrollVelocity.y = 0
     } else {
       root.requestFrame()
@@ -234,7 +234,7 @@ export function computedScrollHandlers(
 
         downPointerMap.set(pointerId, {
           type: 'scroll-panel',
-          timestamp: performance.now() / 1000,
+          timestamp: performance.now(),
           localPoint,
         })
       },
@@ -271,7 +271,7 @@ export function computedScrollHandlers(
           scroll(event, distanceHelper.x, -distanceHelper.y, undefined, false)
           return
         }
-        const timestamp = performance.now() / 1000
+        const timestamp = performance.now()
         const deltaTime = timestamp - prevInteraction.timestamp
         scroll(event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
         prevInteraction.timestamp = timestamp

@@ -78,7 +78,8 @@ export const Root: (
   useFrame((_, delta) => {
     whileOnFrameRef.current = true
     for (const onFrame of onFrameSet) {
-      onFrame(delta)
+      //delta must be provided in milliseconds, therefore multiply by 1000
+      onFrame(delta * 1000)
     }
     whileOnFrameRef.current = false
   })
