@@ -1,6 +1,3 @@
 {
-  "extends": "../../../.eslintrc",
-  "rules": {
-    "import/extensions": "off"
-  }
+  "extends": "../../../.eslintrc"
 }

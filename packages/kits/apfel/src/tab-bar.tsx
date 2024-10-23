@@ -10,7 +10,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { Card } from './card'
+import { Card } from './card.js'
 import { colors } from './theme.js'
 
 type TabBarContext = {
