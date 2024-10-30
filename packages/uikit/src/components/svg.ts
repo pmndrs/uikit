@@ -53,7 +53,7 @@ import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { KeepAspectRatioProperties } from './image.js'
-import { computedInheritableProperty } from '../internals.js'
+import { computedInheritableProperty, setupMatrixWorldUpdate } from '../internals.js'
 
 export type InheritableSvgProperties = WithClasses<
   WithConditionals<
@@ -84,7 +84,7 @@ export type SvgProperties = InheritableSvgProperties &
   }
 
 export function createSvg(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   style: Signal<SvgProperties | undefined>,
   properties: Signal<SvgProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -104,7 +104,7 @@ export function createSvg(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.size),
+      ...createResponsivePropertyTransformers(parentCtx.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -114,34 +114,29 @@ export function createSvg(
 
   const node = signal<FlexNode | undefined>(undefined)
   const flexState = createFlexNodeState()
-  createNode(node, flexState, parentContext, mergedProperties, object, true, initializers)
+  createNode(node, flexState, parentCtx, mergedProperties, object, true, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
       backgroundOrderInfo,
       groupDeps,
-      parentContext.root.panelGroupManager,
+      parentCtx.root.panelGroupManager,
       globalMatrix,
       flexState.size,
       undefined,
       flexState.borderInset,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
@@ -152,25 +147,25 @@ export function createSvg(
 
   const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
   const svgObject = signal<Object3D | undefined>(undefined)
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect)
+  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
   loadResourceWithParams(
     svgObject,
     loadSvg,
     disposeGroup,
     initializers,
     src,
-    parentContext.root,
+    parentCtx.root,
     clippingPlanes,
-    parentContext.clippingRect,
+    parentCtx.clippingRect,
     orderInfo,
     aspectRatio,
   )
-  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers, parentContext.root)
-  const centerGroup = createCenterGroup(parentContext.root, flexState, svgObject, aspectRatio, isVisible, initializers)
+  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers, parentCtx.root)
+  const centerGroup = createCenterGroup(parentCtx.root, flexState, svgObject, aspectRatio, isVisible, initializers)
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
-  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentCtx.root.pixelSize, initializers)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentCtx.root.pixelSize)
   const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
@@ -178,29 +173,32 @@ export function createSvg(
     flexState,
     globalMatrix,
     isVisible,
-    parentContext.clippingRect,
+    parentCtx.clippingRect,
     orderInfo,
-    parentContext.root.panelGroupManager,
+    parentCtx.root.panelGroupManager,
     scrollbarWidth,
     initializers,
   )
 
   const interactionPanel = createInteractionPanel(
     orderInfo,
-    parentContext.root,
-    parentContext.clippingRect,
+    parentCtx.root,
+    parentCtx.clippingRect,
     flexState.size,
+    globalMatrix,
     initializers,
   )
 
+  setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
+
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
-    parentContext.anyAncestorScrollable,
+    parentCtx.anyAncestorScrollable,
     flexState,
     object,
     scrollbarWidth,
     properties,
-    parentContext.root,
+    parentCtx.root,
     initializers,
   )
 
@@ -212,17 +210,12 @@ export function createSvg(
     isClipped,
     isVisible,
     mergedProperties,
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      flexState,
-      parentContext.root.pixelSize,
-      parentContext.clippingRect,
-    ),
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
+    clippingRect: computedClippingRect(globalMatrix, flexState, parentCtx.root.pixelSize, parentCtx.clippingRect),
     childrenMatrix,
     node,
     orderInfo,
-    root: parentContext.root,
+    root: parentCtx.root,
     initializers,
     centerGroup,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),

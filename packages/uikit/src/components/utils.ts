@@ -245,3 +245,64 @@ export function applyAppearancePropertiesToGroup(
     }),
   )
 }
+
+export function computeMatrixWorld(
+  target: Matrix4,
+  localMatrix: Matrix4 | undefined,
+  rootObjectRef: Object3DRef,
+  globalMatrixSignal: Signal<Matrix4 | undefined>,
+) {
+  const rootObject = rootObjectRef.current
+  const globalMatrix = globalMatrixSignal.peek()
+  if (rootObject == null || globalMatrix == null) {
+    return false
+  }
+  target.multiplyMatrices(rootObject.matrixWorld, globalMatrix)
+  if (localMatrix != null) {
+    target.multiply(localMatrix)
+  }
+  return true
+}
+
+export type UpdateMatrixWorldProperties = {
+  updateMatrixWorld?: boolean
+}
+
+export function setupMatrixWorldUpdate(
+  updateMatrixWorld: Signal<boolean> | true,
+  updateChildrenMatrixWorld: boolean,
+  objectRef: Object3DRef | Object3D,
+  rootContext: RootContext,
+  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  initializers: Initializers,
+  useOwnMatrix: boolean,
+): void {
+  initializers.push(() =>
+    effect(() => {
+      if (updateMatrixWorld != true && !updateMatrixWorld.value) {
+        return
+      }
+      const fn = () => {
+        const object = objectRef instanceof Object3D ? objectRef : objectRef.current
+        if (object == null) {
+          return
+        }
+        computeMatrixWorld(
+          object.matrixWorld,
+          useOwnMatrix ? object.matrix : undefined,
+          rootContext.object,
+          globalMatrixSignal,
+        )
+        if (!updateChildrenMatrixWorld) {
+          return
+        }
+        const length = object.children.length
+        for (let i = 0; i < length; i++) {
+          object.children[i].updateMatrixWorld(true)
+        }
+      }
+      rootContext.onUpdateMatrixWorldSet.add(fn)
+      return () => rootContext.onUpdateMatrixWorldSet.delete(fn)
+    }),
+  )
+}

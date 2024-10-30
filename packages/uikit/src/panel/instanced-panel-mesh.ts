@@ -1,4 +1,4 @@
-import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
+import { Box3, InstancedBufferAttribute, Matrix4, Mesh, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
 import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
 import { Signal, effect } from '@preact/signals-core'
@@ -13,14 +13,21 @@ export function createInteractionPanel(
   rootContext: RootContext,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   size: Signal<Vector2Tuple | undefined>,
+  panelMatrix: Signal<Matrix4 | undefined>,
   initializers: Initializers,
 ): Mesh {
   const panel = new Mesh(panelGeometry)
   panel.matrixAutoUpdate = false
-  panel.raycast = makeClippedCast(panel, makePanelRaycast(panel), rootContext.object, parentClippingRect, orderInfo)
+  panel.raycast = makeClippedCast(
+    panel,
+    makePanelRaycast(panel, rootContext.object, panelMatrix),
+    rootContext.object,
+    parentClippingRect,
+    orderInfo,
+  )
   panel.spherecast = makeClippedCast(
     panel,
-    makePanelSpherecast(panel),
+    makePanelSpherecast(panel, rootContext.object, panelMatrix),
     rootContext.object,
     parentClippingRect,
     orderInfo,

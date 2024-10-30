@@ -1,5 +1,6 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Plane,
@@ -37,6 +38,7 @@ import {
 } from '../scroll.js'
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import {
+  UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
@@ -46,6 +48,7 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
   loadResourceWithParams,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Initializers, readReactive, unsubscribeSubscriptions } from '../utils.js'
@@ -76,7 +79,8 @@ export type InheritableImageProperties = WithClasses<
           ScrollbarProperties &
           KeepAspectRatioProperties &
           ImageFitProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          UpdateMatrixWorldProperties
       >
     >
   >
@@ -93,7 +97,7 @@ export type KeepAspectRatioProperties = {
 export type ImageProperties = InheritableImageProperties & Listeners & WithReactive<{ src?: string | Texture }>
 
 export function createImage(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   style: Signal<ImageProperties | undefined>,
   properties: Signal<ImageProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -124,7 +128,7 @@ export function createImage(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.size),
+      ...createResponsivePropertyTransformers(parentCtx.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -134,28 +138,23 @@ export function createImage(
 
   const node = signal<FlexNode | undefined>(undefined)
   const flexState = createFlexNodeState()
-  createNode(node, flexState, parentContext, mergedProperties, object, true, initializers)
+  createNode(node, flexState, parentCtx, mergedProperties, object, true, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isHidden = computed(() => isClipped.value || texture.value == null)
 
   const isVisible = computedIsVisible(flexState, isHidden, mergedProperties)
 
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentContext.orderInfo)
+  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentCtx.orderInfo)
 
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
-  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentCtx.root.pixelSize, initializers)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentCtx.root.pixelSize)
   const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
@@ -163,32 +162,37 @@ export function createImage(
     flexState,
     globalMatrix,
     isVisible,
-    parentContext.clippingRect,
+    parentCtx.clippingRect,
     orderInfo,
-    parentContext.root.panelGroupManager,
+    parentCtx.root.panelGroupManager,
     scrollbarWidth,
     initializers,
   )
-  const interactionPanel = createImageMesh(
+  const imageMesh = createImageMesh(
     mergedProperties,
     texture,
-    parentContext,
+    globalMatrix,
+    parentCtx,
     flexState,
     orderInfo,
-    parentContext.root,
+    parentCtx.root,
     isVisible,
     initializers,
   )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
-    parentContext.anyAncestorScrollable,
+    parentCtx.anyAncestorScrollable,
     flexState,
     object,
     scrollbarWidth,
     properties,
-    parentContext.root,
+    parentCtx.root,
     initializers,
   )
+
+  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
+  setupMatrixWorldUpdate(true, false, imageMesh, parentCtx.root, globalMatrix, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -198,20 +202,15 @@ export function createImage(
     isClipped,
     isVisible,
     mergedProperties,
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
     initializers,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
-    interactionPanel,
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      flexState,
-      parentContext.root.pixelSize,
-      parentContext.clippingRect,
-    ),
+    interactionPanel: imageMesh,
+    clippingRect: computedClippingRect(globalMatrix, flexState, parentCtx.root.pixelSize, parentCtx.clippingRect),
     childrenMatrix,
     node,
     orderInfo,
-    root: parentContext.root,
+    root: parentCtx.root,
   })
 }
 
@@ -238,6 +237,7 @@ function getImageMaterialConfig() {
 function createImageMesh(
   propertiesSignal: Signal<MergedProperties>,
   textureSignal: Signal<Texture | undefined>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   parentContext: ParentContext,
   flexState: FlexNodeState,
   orderInfo: Signal<OrderInfo | undefined>,
@@ -264,8 +264,20 @@ function createImageMesh(
     root,
     initializers,
   )
-  mesh.raycast = makeClippedCast(mesh, makePanelRaycast(mesh), root.object, parentContext.clippingRect, orderInfo)
-  mesh.spherecast = makeClippedCast(mesh, makePanelSpherecast(mesh), root.object, parentContext.clippingRect, orderInfo)
+  mesh.raycast = makeClippedCast(
+    mesh,
+    makePanelRaycast(mesh, root.object, globalMatrix),
+    root.object,
+    parentContext.clippingRect,
+    orderInfo,
+  )
+  mesh.spherecast = makeClippedCast(
+    mesh,
+    makePanelSpherecast(mesh, root.object, globalMatrix),
+    root.object,
+    parentContext.clippingRect,
+    orderInfo,
+  )
   setupRenderOrder(mesh, root, orderInfo)
   const objectFit = computedInheritableProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(

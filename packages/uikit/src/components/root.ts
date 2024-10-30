@@ -22,11 +22,13 @@ import {
 import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
 import { Initializers, alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
 import {
+  UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
@@ -55,7 +57,8 @@ export type InheritableRootProperties = WithClasses<
             sizeY?: number
             anchorX?: keyof typeof alignmentXMap
             anchorY?: keyof typeof alignmentYMap
-          } & VisibilityProperties
+          } & VisibilityProperties &
+          UpdateMatrixWorldProperties
       >
     >
   >
@@ -192,6 +195,7 @@ export function createRoot(
   const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
+    onUpdateMatrixWorldSet: new Set<() => void>(),
     requestFrame,
     scrollPosition,
     requestCalculateLayout,
@@ -206,7 +210,35 @@ export function createRoot(
     size: flexState.size,
   })
 
-  const interactionPanel = createInteractionPanel(orderInfo, rootCtx, undefined, flexState.size, initializers)
+  const interactionPanel = createInteractionPanel(
+    orderInfo,
+    rootCtx,
+    undefined,
+    flexState.size,
+    rootMatrix,
+    initializers,
+  )
+
+  //setup matrix world updates
+  initializers.push(() => {
+    if (childrenContainer.current != null) {
+      childrenContainer.current.updateMatrixWorld = function () {
+        if (this.parent == null) {
+          this.matrixWorld.copy(this.matrix)
+        } else {
+          this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix)
+        }
+        for (const update of rootCtx.onUpdateMatrixWorldSet) {
+          update()
+        }
+      }
+    }
+    return () => {}
+  })
+
+  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, rootCtx, rootMatrix, initializers, true)
+
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     undefined,

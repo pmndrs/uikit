@@ -18,6 +18,7 @@ import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
+  UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
   computedGlobalMatrix,
@@ -25,6 +26,7 @@ import {
   computedIsVisible,
   computedMergedProperties,
   createNode,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { Initializers, readReactive } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -62,7 +64,8 @@ export type InheritableInputProperties = WithClasses<
             PanelGroupProperties &
             InstancedTextProperties &
             DisabledProperties &
-            VisibilityProperties
+            VisibilityProperties &
+            UpdateMatrixWorldProperties
         >
       >
     >
@@ -108,7 +111,7 @@ export type InputProperties = InheritableInputProperties &
   }
 
 export function createInput(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   fontFamilies: Signal<FontFamilies | undefined>,
   style: Signal<InputProperties | undefined>,
   properties: Signal<InputProperties | undefined>,
@@ -127,7 +130,7 @@ export function createInput(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.size),
+      ...createResponsivePropertyTransformers(parentCtx.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
       ...createFocusPropertyTransformers(hasFocusSignal),
@@ -143,34 +146,29 @@ export function createInput(
 
   const flexState = createFlexNodeState()
   const nodeSignal = signal<FlexNode | undefined>(undefined)
-  createNode(nodeSignal, flexState, parentContext, mergedProperties, object, false, initializers)
+  createNode(nodeSignal, flexState, parentCtx, mergedProperties, object, false, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
       backgroundOrderInfo,
       groupDeps,
-      parentContext.root.panelGroupManager,
+      parentCtx.root.panelGroupManager,
       globalMatrix,
       flexState.size,
       undefined,
       flexState.borderInset,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
@@ -187,8 +185,8 @@ export function createInput(
     caretPosition,
     isVisible,
     backgroundOrderInfo,
-    parentContext.clippingRect,
-    parentContext.root.panelGroupManager,
+    parentCtx.clippingRect,
+    parentCtx.root.panelGroupManager,
     initializers,
   )
   const selectionOrderInfo = createSelection(
@@ -197,12 +195,12 @@ export function createInput(
     selectionBoxes,
     isVisible,
     backgroundOrderInfo,
-    parentContext.clippingRect,
-    parentContext.root.panelGroupManager,
+    parentCtx.clippingRect,
+    parentCtx.root.panelGroupManager,
     initializers,
   )
 
-  const fontSignal = computedFont(mergedProperties, fontFamilies, parentContext.root.renderer, initializers)
+  const fontSignal = computedFont(mergedProperties, fontFamilies, parentCtx.root.renderer, initializers)
   const orderInfo = computedOrderInfo(
     undefined,
     ElementType.Text,
@@ -227,10 +225,10 @@ export function createInput(
     nodeSignal,
     flexState,
     isVisible,
-    parentContext.clippingRect,
+    parentCtx.clippingRect,
     orderInfo,
     fontSignal,
-    parentContext.root.gylphGroupManager,
+    parentCtx.root.gylphGroupManager,
     selectionRange,
     selectionBoxes,
     caretPosition,
@@ -239,6 +237,19 @@ export function createInput(
     multiline ? 'break-word' : 'keep-all',
   )
   initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
+
+  const interactionPanel = createInteractionPanel(
+    backgroundOrderInfo,
+    parentCtx.root,
+    parentCtx.clippingRect,
+    flexState.size,
+    globalMatrix,
+    initializers,
+  )
+
+  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -295,16 +306,10 @@ export function createInput(
     valueSignal,
     focus,
     blur,
-    root: parentContext.root,
+    root: parentCtx.root,
     element,
     node: nodeSignal,
-    interactionPanel: createInteractionPanel(
-      backgroundOrderInfo,
-      parentContext.root,
-      parentContext.clippingRect,
-      flexState.size,
-      initializers,
-    ),
+    interactionPanel,
     handlers: computedHandlers(
       style,
       properties,

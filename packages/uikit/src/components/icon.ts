@@ -19,6 +19,7 @@ import {
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { Initializers, Subscriptions, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
@@ -32,7 +33,7 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { AppearanceProperties } from './svg.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { darkPropertyTransformers } from '../dark.js'
-import { MergedProperties } from '../properties/index.js'
+import { computedInheritableProperty, MergedProperties } from '../properties/index.js'
 
 export type InheritableIconProperties = WithClasses<
   WithConditionals<
@@ -54,7 +55,7 @@ export type InheritableIconProperties = WithClasses<
 export type IconProperties = InheritableIconProperties & Listeners
 
 export function createIcon(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   text: string,
   svgWidth: number,
   svgHeight: number,
@@ -74,7 +75,7 @@ export function createIcon(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.size),
+      ...createResponsivePropertyTransformers(parentCtx.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -87,34 +88,29 @@ export function createIcon(
   )
 
   const flexState = createFlexNodeState()
-  createNode(undefined, flexState, parentContext, mergedProperties, object, true, initializers)
+  createNode(undefined, flexState, parentCtx, mergedProperties, object, true, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
       backgroundOrderInfo,
       groupDeps,
-      parentContext.root.panelGroupManager,
+      parentCtx.root.panelGroupManager,
       globalMatrix,
       flexState.size,
       undefined,
       flexState.borderInset,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
@@ -123,19 +119,21 @@ export function createIcon(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
 
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect)
+  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
   const iconGroup = createIconGroup(
     mergedProperties,
     text,
     svgWidth,
     svgHeight,
-    parentContext,
+    parentCtx,
     orderInfo,
     flexState,
     isVisible,
     clippingPlanes,
     initializers,
   )
+
+  setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -149,9 +147,10 @@ export function createIcon(
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     interactionPanel: createInteractionPanel(
       orderInfo,
-      parentContext.root,
-      parentContext.clippingRect,
+      parentCtx.root,
+      parentCtx.clippingRect,
       flexState.size,
+      globalMatrix,
       initializers,
     ),
   })

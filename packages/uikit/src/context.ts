@@ -15,7 +15,7 @@ export type ParentContext = Readonly<{
   root: RootContext
 }>
 
-export type Object3DRef = { current: Object3D | null }
+export type Object3DRef = { current?: Object3D | null }
 
 export type RootContext = WithCameraDistance &
   Readonly<{
@@ -27,6 +27,7 @@ export type RootContext = WithCameraDistance &
     renderOrder: Signal<number>
     depthTest: Signal<boolean>
     onFrameSet: Set<(delta: number) => void>
+    onUpdateMatrixWorldSet: Set<() => void>
     renderer: WebGLRenderer
     size: Signal<Vector2Tuple | undefined>
     requestRender: () => void

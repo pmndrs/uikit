@@ -32,6 +32,7 @@ import {
   createInstancedText,
 } from '../text/index.js'
 import { darkPropertyTransformers } from '../dark.js'
+import { computedInheritableProperty, setupMatrixWorldUpdate, UpdateMatrixWorldProperties } from '../internals.js'
 
 export type InheritableTextProperties = WithClasses<
   WithConditionals<
@@ -44,7 +45,8 @@ export type InheritableTextProperties = WithClasses<
           ScrollbarProperties &
           PanelGroupProperties &
           InstancedTextProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          UpdateMatrixWorldProperties
       >
     >
   >
@@ -53,7 +55,7 @@ export type InheritableTextProperties = WithClasses<
 export type TextProperties = InheritableTextProperties & Listeners
 
 export function createText(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
   style: Signal<TextProperties | undefined>,
@@ -68,48 +70,43 @@ export function createText(
 
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.size),
+    ...createResponsivePropertyTransformers(parentCtx.root.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   })
 
   const nodeSignal = signal<FlexNode | undefined>(undefined)
   const flexState = createFlexNodeState()
-  createNode(nodeSignal, flexState, parentContext, mergedProperties, object, false, initializers)
+  createNode(nodeSignal, flexState, parentCtx, mergedProperties, object, false, initializers)
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
       backgroundOrderInfo,
       groupDeps,
-      parentContext.root.panelGroupManager,
+      parentCtx.root.panelGroupManager,
       globalMatrix,
       flexState.size,
       undefined,
       flexState.borderInset,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
     ),
   )
 
-  const fontSignal = computedFont(mergedProperties, fontFamilies, parentContext.root.renderer, initializers)
+  const fontSignal = computedFont(mergedProperties, fontFamilies, parentCtx.root.renderer, initializers)
   const orderInfo = computedOrderInfo(
     undefined,
     ElementType.Text,
@@ -124,10 +121,10 @@ export function createText(
     nodeSignal,
     flexState,
     isVisible,
-    parentContext.clippingRect,
+    parentCtx.clippingRect,
     orderInfo,
     fontSignal,
-    parentContext.root.gylphGroupManager,
+    parentCtx.root.gylphGroupManager,
     undefined,
     undefined,
     undefined,
@@ -137,6 +134,19 @@ export function createText(
   )
   initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
 
+  const interactionPanel = createInteractionPanel(
+    backgroundOrderInfo,
+    parentCtx.root,
+    parentCtx.clippingRect,
+    flexState.size,
+    globalMatrix,
+    initializers,
+  )
+
+  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
+
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
@@ -144,13 +154,7 @@ export function createText(
     isClipped,
     isVisible,
     mergedProperties,
-    interactionPanel: createInteractionPanel(
-      backgroundOrderInfo,
-      parentContext.root,
-      parentContext.clippingRect,
-      flexState.size,
-      initializers,
-    ),
+    interactionPanel,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     initializers,
   })

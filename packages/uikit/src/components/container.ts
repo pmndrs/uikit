@@ -26,6 +26,7 @@ import {
   computedIsVisible,
   computedMergedProperties,
   createNode,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
@@ -34,7 +35,7 @@ import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Initializers } from '../utils.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
-import { computedInheritableProperty } from '../internals.js'
+import { computedInheritableProperty, UpdateMatrixWorldProperties } from '../internals.js'
 
 export type InheritableContainerProperties = WithClasses<
   WithConditionals<
@@ -46,7 +47,8 @@ export type InheritableContainerProperties = WithClasses<
           TransformProperties &
           ScrollbarProperties &
           PanelGroupProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          UpdateMatrixWorldProperties
       >
     >
   >
@@ -55,7 +57,7 @@ export type InheritableContainerProperties = WithClasses<
 export type ContainerProperties = InheritableContainerProperties & Listeners
 
 export function createContainer(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   style: Signal<ContainerProperties | undefined>,
   properties: Signal<ContainerProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -73,43 +75,38 @@ export function createContainer(
   //properties
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.size),
+    ...createResponsivePropertyTransformers(parentCtx.root.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   })
 
   //create node
-  createNode(node, flexState, parentContext, mergedProperties, object, false, initializers)
+  createNode(node, flexState, parentCtx, mergedProperties, object, false, initializers)
 
   //transform
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
 
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
       orderInfo,
       groupDeps,
-      parentContext.root.panelGroupManager,
+      parentCtx.root.panelGroupManager,
       globalMatrix,
       flexState.size,
       undefined,
       flexState.borderInset,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
@@ -118,8 +115,8 @@ export function createContainer(
 
   //scrolling:
   const scrollPosition = createScrollPosition()
-  applyScrollPosition(childrenContainer, scrollPosition, parentContext.root.pixelSize, initializers)
-  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentContext.root.pixelSize)
+  applyScrollPosition(childrenContainer, scrollPosition, parentCtx.root.pixelSize, initializers)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, parentCtx.root.pixelSize)
   const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
   createScrollbars(
     mergedProperties,
@@ -127,29 +124,34 @@ export function createContainer(
     flexState,
     globalMatrix,
     isVisible,
-    parentContext.clippingRect,
+    parentCtx.clippingRect,
     orderInfo,
-    parentContext.root.panelGroupManager,
+    parentCtx.root.panelGroupManager,
     scrollbarWidth,
     initializers,
   )
   const interactionPanel = createInteractionPanel(
     orderInfo,
-    parentContext.root,
-    parentContext.clippingRect,
+    parentCtx.root,
+    parentCtx.clippingRect,
     flexState.size,
+    globalMatrix,
     initializers,
   )
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
-    parentContext.anyAncestorScrollable,
+    parentCtx.anyAncestorScrollable,
     flexState,
     object,
     scrollbarWidth,
     properties,
-    parentContext.root,
+    parentCtx.root,
     initializers,
   )
+
+  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -158,17 +160,12 @@ export function createContainer(
     isClipped,
     isVisible,
     mergedProperties,
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentContext.anyAncestorScrollable),
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      flexState,
-      parentContext.root.pixelSize,
-      parentContext.clippingRect,
-    ),
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
+    clippingRect: computedClippingRect(globalMatrix, flexState, parentCtx.root.pixelSize, parentCtx.clippingRect),
     childrenMatrix,
     node,
     orderInfo,
-    root: parentContext.root,
+    root: parentCtx.root,
     scrollPosition,
     interactionPanel,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),

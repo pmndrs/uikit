@@ -18,6 +18,7 @@ import {
   computedIsVisible,
   computedMergedProperties,
   createNode,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -25,6 +26,7 @@ import { Object3DRef, ParentContext } from '../context.js'
 import { FrontSide, Material, Mesh } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
 import { ShadowProperties, makeClippedCast } from '../panel/index.js'
+import { computedInheritableProperty } from '../internals.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -45,7 +47,7 @@ export type InheritableCustomContainerProperties = WithClasses<
 export type CustomContainerProperties = InheritableCustomContainerProperties & Listeners
 
 export function createCustomContainer(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   style: Signal<CustomContainerProperties | undefined>,
   properties: Signal<CustomContainerProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -61,32 +63,27 @@ export function createCustomContainer(
   //properties
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
-    ...createResponsivePropertyTransformers(parentContext.root.size),
+    ...createResponsivePropertyTransformers(parentCtx.root.size),
     ...createHoverPropertyTransformers(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
   })
 
   //create node
   const flexState = createFlexNodeState()
-  createNode(undefined, flexState, parentContext, mergedProperties, object, true, initializers)
+  createNode(undefined, flexState, parentCtx, mergedProperties, object, true, initializers)
 
   //transform
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentContext.orderInfo)
-  const clippingPlanes = createGlobalClippingPlanes(parentContext.root, parentContext.clippingRect)
+  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentCtx.orderInfo)
+  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
 
   initializers.push((subscriptions) => {
     const mesh = meshRef.current
@@ -101,43 +98,45 @@ export function createCustomContainer(
       material.shadowSide = FrontSide
       subscriptions.push(() =>
         effect(() => {
-          material.depthTest = parentContext.root.depthTest.value
-          parentContext.root.requestRender()
+          material.depthTest = parentCtx.root.depthTest.value
+          parentCtx.root.requestRender()
         }),
       )
     }
-    mesh.raycast = makeClippedCast(mesh, mesh.raycast, parentContext.root.object, parentContext.clippingRect, orderInfo)
-    setupRenderOrder(mesh, parentContext.root, orderInfo)
+    mesh.raycast = makeClippedCast(mesh, mesh.raycast, parentCtx.root.object, parentCtx.clippingRect, orderInfo)
+    setupRenderOrder(mesh, parentCtx.root, orderInfo)
     subscriptions.push(
       effect(() => {
-        mesh.renderOrder = parentContext.root.renderOrder.value
-        parentContext.root.requestRender()
+        mesh.renderOrder = parentCtx.root.renderOrder.value
+        parentCtx.root.requestRender()
       }),
       effect(() => {
         mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false)
-        parentContext.root.requestRender()
+        parentCtx.root.requestRender()
       }),
       effect(() => {
         mesh.castShadow = mergedProperties.value.read('castShadow', false)
-        parentContext.root.requestRender()
+        parentCtx.root.requestRender()
       }),
       effect(() => {
         if (flexState.size.value == null) {
           return
         }
         const [width, height] = flexState.size.value
-        const pixelSize = parentContext.root.pixelSize.value
+        const pixelSize = parentCtx.root.pixelSize.value
         mesh.scale.set(width * pixelSize, height * pixelSize, 1)
         mesh.updateMatrix()
-        parentContext.root.requestRender()
+        parentCtx.root.requestRender()
       }),
       effect(() => {
         void (mesh.visible = isVisible.value)
-        parentContext.root.requestRender()
+        parentCtx.root.requestRender()
       }),
     )
     return subscriptions
   })
+
+  setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -146,7 +145,7 @@ export function createCustomContainer(
     isClipped,
     isVisible,
     mergedProperties,
-    root: parentContext.root,
+    root: parentCtx.root,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     initializers,
   })

@@ -1,8 +1,9 @@
-import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector3 } from 'three'
+import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2Tuple, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
-import { Object3DRef } from '../context.js'
+import { Object3DRef, RootContext } from '../context.js'
+import { computeMatrixWorld } from '../internals.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -39,21 +40,31 @@ export type PointerEventsProperties = {
 }
 
 const scaleHelper = new Vector3()
+const matrixHelper = new Matrix4()
 
 function isSingularMatrix(matrix: Matrix4) {
   scaleHelper.setFromMatrixScale(matrix)
   return scaleHelper.x === 0 || scaleHelper.y === 0 || scaleHelper.z === 0
 }
 
-export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], undefined> {
+export function makePanelSpherecast(
+  mesh: Object3D,
+  rootObjectRef: RootContext['object'],
+  globalMatrixSignal: Signal<Matrix4 | undefined>,
+): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
-    const matrixWorld = mesh.matrixWorld
-    if (isSingularMatrix(matrixWorld)) {
+    const rootObject = rootObjectRef.current
+    const globalMatrix = globalMatrixSignal.peek()
+    if (rootObject == null || globalMatrix == null) {
+      return
+    }
+    matrixHelper.multiplyMatrices(rootObject.matrixWorld, globalMatrix).multiply(mesh.matrix)
+    if (isSingularMatrix(matrixHelper)) {
       return
     }
     planeHelper.constant = 0
     planeHelper.normal.set(0, 0, 1)
-    planeHelper.applyMatrix4(matrixWorld)
+    planeHelper.applyMatrix4(matrixHelper)
 
     planeHelper.projectPoint(sphere.center, vectorHelper)
 
@@ -63,7 +74,7 @@ export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], und
 
     for (let i = 0; i < 4; i++) {
       const side = sides[i]
-      planeHelper.copy(side).applyMatrix4(matrixWorld)
+      planeHelper.copy(side).applyMatrix4(matrixHelper)
 
       let distance = planeHelper.distanceToPoint(vectorHelper)
       if (distance < 0) {
@@ -96,15 +107,21 @@ export function makePanelSpherecast(mesh: Mesh): Exclude<Mesh['spherecast'], und
   }
 }
 
-export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
+export function makePanelRaycast(
+  mesh: Object3D,
+  rootObjectRef: RootContext['object'],
+  globalMatrixSignal: Signal<Matrix4 | undefined>,
+): Mesh['raycast'] {
   return (raycaster, intersects) => {
-    const matrixWorld = mesh.matrixWorld
-    if (isSingularMatrix(matrixWorld)) {
+    if (
+      !computeMatrixWorld(matrixHelper, mesh.matrix, rootObjectRef, globalMatrixSignal) ||
+      isSingularMatrix(matrixHelper)
+    ) {
       return
     }
     planeHelper.constant = 0
     planeHelper.normal.set(0, 0, 1)
-    planeHelper.applyMatrix4(matrixWorld)
+    planeHelper.applyMatrix4(matrixHelper)
     if (
       planeHelper.distanceToPoint(raycaster.ray.origin) <= 0 ||
       raycaster.ray.intersectPlane(planeHelper, vectorHelper) == null
@@ -114,7 +131,7 @@ export function makePanelRaycast(mesh: Mesh): Mesh['raycast'] {
 
     for (let i = 0; i < 4; i++) {
       const side = sides[i]
-      planeHelper.copy(side).applyMatrix4(matrixWorld)
+      planeHelper.copy(side).applyMatrix4(matrixHelper)
       if ((distancesHelper[i] = planeHelper.distanceToPoint(vectorHelper)) < 0) {
         return
       }
@@ -144,21 +161,21 @@ export function isInteractionPanel(object: Object3D) {
 export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['spherecast'], undefined>>(
   mesh: Mesh,
   fn: T,
-  rootObject: Object3DRef,
+  rootObjectRef: Object3DRef,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
 ) {
   Object.assign(mesh, { isInteractionPanel: true })
   return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
-    const obj = rootObject instanceof Object3D ? rootObject : rootObject.current
-    if (obj == null || orderInfo.value == null) {
+    const rootObject = rootObjectRef instanceof Object3D ? rootObjectRef : rootObjectRef.current
+    if (rootObject == null || orderInfo.value == null) {
       return
     }
     const { majorIndex, minorIndex, elementType } = orderInfo.value
     const oldLength = intersects.length
     ;(fn as any).call(mesh, raycaster, intersects)
     const clippingPlanes = clippingRect?.value?.planes
-    const outerMatrixWorld = obj.matrixWorld
+    const rootMatrixWorld = rootObject.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]
       intersection.distance -=
@@ -169,7 +186,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
         continue
       }
       for (let ii = 0; ii < 4; ii++) {
-        planeHelper.copy(clippingPlanes[ii]).applyMatrix4(outerMatrixWorld)
+        planeHelper.copy(clippingPlanes[ii]).applyMatrix4(rootMatrixWorld)
         if (planeHelper.distanceToPoint(intersection.point) < 0) {
           intersects.splice(i, 1)
           continue outer

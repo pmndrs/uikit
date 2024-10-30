@@ -19,6 +19,7 @@ import {
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
+  setupMatrixWorldUpdate,
 } from './utils.js'
 import { Initializers, alignmentZMap } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -56,7 +57,7 @@ export type DepthAlignProperties = {
 export type ContentProperties = InheritableContentProperties & Listeners
 
 export function createContent(
-  parentContext: ParentContext,
+  parentCtx: ParentContext,
   style: Signal<ContentProperties | undefined>,
   properties: Signal<ContentProperties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
@@ -80,7 +81,7 @@ export function createContent(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentContext.root.size),
+      ...createResponsivePropertyTransformers(parentCtx.root.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -89,36 +90,31 @@ export function createContent(
   )
 
   //create node
-  createNode(undefined, flexState, parentContext, mergedProperties, object, true, initializers)
+  createNode(undefined, flexState, parentCtx, mergedProperties, object, true, initializers)
 
   //transform
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentContext.root.pixelSize)
-  applyTransform(parentContext.root, object, transformMatrix, initializers)
+  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  applyTransform(parentCtx.root, object, transformMatrix, initializers)
 
-  const globalMatrix = computedGlobalMatrix(parentContext.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(
-    parentContext.clippingRect,
-    globalMatrix,
-    flexState.size,
-    parentContext.root.pixelSize,
-  )
+  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundorderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentContext.orderInfo)
+  const backgroundorderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
       backgroundorderInfo,
       groupDeps,
-      parentContext.root.panelGroupManager,
+      parentCtx.root.panelGroupManager,
       globalMatrix,
       flexState.size,
       undefined,
       flexState.borderInset,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       getDefaultPanelMaterialConfig(),
       subscriptions,
@@ -126,6 +122,17 @@ export function createContent(
   )
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Object, undefined, backgroundorderInfo)
+
+  const interactionPanel = createInteractionPanel(
+    backgroundorderInfo,
+    parentCtx.root,
+    parentCtx.clippingRect,
+    flexState.size,
+    globalMatrix,
+    initializers,
+  )
+
+  setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -136,22 +143,16 @@ export function createContent(
     mergedProperties,
     remeasureContent: createMeasureContent(
       mergedProperties,
-      parentContext.root,
+      parentCtx.root,
       flexState,
-      parentContext.clippingRect,
+      parentCtx.clippingRect,
       isVisible,
       orderInfo,
       sizeSignal,
       contentContainerRef,
       initializers,
     ),
-    interactionPanel: createInteractionPanel(
-      backgroundorderInfo,
-      parentContext.root,
-      parentContext.clippingRect,
-      flexState.size,
-      initializers,
-    ),
+    interactionPanel,
     handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
     initializers,
   })
@@ -183,7 +184,7 @@ function createMeasureContent(
   const measuredSize = new Vector3()
   const measuredCenter = new Vector3()
   const updateRenderProperties = (
-    content: Object3D | null,
+    content: Object3D | null | undefined,
     visible: boolean,
     renderOrder: number,
     depthTest: boolean,
