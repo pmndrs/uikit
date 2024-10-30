@@ -268,48 +268,44 @@ function createImageMesh(
   mesh.spherecast = makeClippedCast(mesh, makePanelSpherecast(mesh), root.object, parentContext.clippingRect, orderInfo)
   setupRenderOrder(mesh, root, orderInfo)
   const objectFit = computedInheritableProperty(propertiesSignal, 'objectFit', defaultImageFit)
-  initializers.push(() =>
-    effect(() => {
-      const texture = textureSignal.value
-      if (texture == null || flexState.size.value == null || flexState.borderInset.value == null) {
-        return
-      }
-      texture.matrix.identity()
-      root.requestRender()
-
-      if (objectFit.value === 'fill' || texture == null) {
-        transformInsideBorder(flexState.borderInset, flexState.size, texture)
-        return
-      }
-
-      const { width: textureWidth, height: textureHeight } = texture.source.data as { width: number; height: number }
-      const textureRatio = textureWidth / textureHeight
-
-      const [width, height] = flexState.size.value
-      const [top, right, bottom, left] = flexState.borderInset.value
-      const boundsRatioValue = (width - left - right) / (height - top - bottom)
-
-      if (textureRatio > boundsRatioValue) {
-        texture.matrix
-          .translate(-(0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0)
-          .scale(boundsRatioValue / textureRatio, 1)
-      } else {
-        texture.matrix
-          .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
-          .scale(1, textureRatio / boundsRatioValue)
-      }
-      transformInsideBorder(flexState.borderInset, flexState.size, texture)
-    }),
-  )
-
-  initializers.push(() =>
-    effect(() => {
-      mesh.visible = isMeshVisible.value
-      parentContext.root.requestRender()
-    }),
-  )
-
   initializers.push(
+    () =>
+      effect(() => {
+        const texture = textureSignal.value
+        if (texture == null || flexState.size.value == null || flexState.borderInset.value == null) {
+          return
+        }
+        texture.matrix.identity()
+        root.requestRender()
+
+        if (objectFit.value === 'fill' || texture == null) {
+          transformInsideBorder(flexState.borderInset, flexState.size, texture)
+          return
+        }
+
+        const { width: textureWidth, height: textureHeight } = texture.source.data as { width: number; height: number }
+        const textureRatio = textureWidth / textureHeight
+
+        const [width, height] = flexState.size.value
+        const [top, right, bottom, left] = flexState.borderInset.value
+        const boundsRatioValue = (width - left - right) / (height - top - bottom)
+
+        if (textureRatio > boundsRatioValue) {
+          texture.matrix
+            .translate(-(0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0)
+            .scale(boundsRatioValue / textureRatio, 1)
+        } else {
+          texture.matrix
+            .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
+            .scale(1, textureRatio / boundsRatioValue)
+        }
+        transformInsideBorder(flexState.borderInset, flexState.size, texture)
+      }),
+    () =>
+      effect(() => {
+        mesh.visible = isMeshVisible.value
+        parentContext.root.requestRender()
+      }),
     () =>
       effect(() => {
         const map = textureSignal.value ?? null
@@ -405,10 +401,14 @@ function setupImageMaterials(
         const material = createPanelMaterial(panelMaterialClass.value, info)
         material.clippingPlanes = clippingPlanes
         target.material = material
-        return effect(() => {
+        const cleanupDepthTestEffect = effect(() => {
           material.depthTest = root.depthTest.value
           root.requestRender()
         })
+        return () => {
+          cleanupDepthTestEffect()
+          material.dispose()
+        }
       }),
       effect(() => {
         target.renderOrder = root.renderOrder.value

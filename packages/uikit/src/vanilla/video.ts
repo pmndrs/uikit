@@ -20,6 +20,7 @@ export class Video<T = {}> extends Image<T> {
     const element = props.src instanceof HTMLVideoElement ? props.src : document.createElement('video')
     updateVideoElement(element, props)
     const texture = new VideoTexture(element)
+    texture.needsUpdate = true
     const aspectRatio = signal<number>(1)
     super({ aspectRatio, ...props, src: texture }, defaultProperties)
 

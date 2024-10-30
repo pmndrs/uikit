@@ -1,5 +1,5 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { Color, Group, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
+import { BufferGeometry, Color, Group, Material, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
 import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
@@ -220,6 +220,14 @@ function createIconGroup(
         group.scale.divideScalar(svgHeight)
         group.updateMatrix()
         parentContext.root.requestRender()
+      }),
+    () => () =>
+      group.children.forEach((child) => {
+        if (!(child instanceof Mesh)) {
+          return
+        }
+        ;(child.geometry as BufferGeometry).dispose()
+        ;(child.material as Material).dispose()
       }),
     () =>
       effect(() => {

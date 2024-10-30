@@ -24,6 +24,7 @@ export class GlyphGroupManager {
         root.onFrameSet.add(onFrame)
         return () => root.onFrameSet.delete(onFrame)
       },
+      () => () => this.traverse((group) => group.destroy()),
       () =>
         effect(() => {
           const ro = renderOrder.value
@@ -275,6 +276,15 @@ export class InstancedGlyphGroup {
     setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
     this.object.current?.add(this.mesh)
+  }
+
+  destroy() {
+    if (this.mesh == null) {
+      return
+    }
+    this.object.current?.remove(this.mesh)
+    this.mesh.dispose()
+    this.instanceMaterial.dispose()
   }
 }
 

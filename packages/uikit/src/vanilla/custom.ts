@@ -14,6 +14,7 @@ export class CustomContainer<T = {}> extends Component<T> {
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
+  private readonly material = new MeshBasicMaterial()
 
   constructor(properties?: CustomContainerProperties, defaultProperties?: AllOptionalProperties) {
     super()
@@ -22,7 +23,7 @@ export class CustomContainer<T = {}> extends Component<T> {
     this.propertiesSignal = signal(properties)
     this.defaultPropertiesSignal = signal(defaultProperties)
 
-    const mesh = new Mesh(panelGeometry, new MeshBasicMaterial())
+    const mesh = new Mesh(panelGeometry, this.material)
     super.add(mesh)
 
     this.unsubscribe = effect(() => {
@@ -79,5 +80,6 @@ export class CustomContainer<T = {}> extends Component<T> {
   destroy() {
     this.parent?.remove(this)
     this.unsubscribe()
+    this.material.dispose()
   }
 }

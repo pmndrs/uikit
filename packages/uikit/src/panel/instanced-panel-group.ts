@@ -325,6 +325,12 @@ export class InstancedPanelGroup {
 
   destroy() {
     clearTimeout(this.nextUpdateTimeoutRef)
+    if (this.mesh == null) {
+      return
+    }
+    this.object.current?.remove(this.mesh)
+    this.mesh?.dispose()
+    this.instanceMaterial.dispose()
   }
 }
 

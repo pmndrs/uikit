@@ -65,6 +65,7 @@ export class InstancedPanelMesh extends Mesh {
 
   dispose() {
     this.dispatchEvent({ type: 'dispose' as keyof Object3DEventMap })
+    this.geometry.dispose()
   }
 
   copy(): this {

@@ -81,6 +81,7 @@ export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => 
     useEffect(() => {
       const videoTexture = new VideoTexture(element)
       videoTexture.colorSpace = SRGBColorSpace
+      videoTexture.needsUpdate = true
       texture.value = videoTexture
       return () => videoTexture.dispose()
     }, [texture, element])
