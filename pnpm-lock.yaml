@@ -423,6 +423,9 @@ importers:
 
   examples/performance:
     dependencies:
+      '@pmndrs/pointer-events':
+        specifier: ^6.2.19
+        version: 6.2.19
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.5.1
@@ -2705,6 +2708,10 @@ packages:
 
   /@pmndrs/pointer-events@6.2.1:
     resolution: {integrity: sha512-wd4/Sab7qxLHY/NgITvJxKK0bd9efJaKefvP8rJEMskqULJ143eOunB64T62SmPOjuX3ES1mxUa5qPJPYmIBYQ==}
+    dev: false
+
+  /@pmndrs/pointer-events@6.2.19:
+    resolution: {integrity: sha512-HYl8m7m8A5RC7ctoEeHkZjMzNrJzkWtQVLtyyzhvtNJJkBTxLKT3Y9eE/hAeBLw2vx4aV3tOlH0LLOau2t62mA==}
     dev: false
 
   /@preact/signals-core@1.5.1:

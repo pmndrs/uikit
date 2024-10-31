@@ -26,7 +26,9 @@ import {
   computedIsVisible,
   computedMergedProperties,
   createNode,
+  setupInteractableDecendant,
   setupMatrixWorldUpdate,
+  setupPointerEvents,
 } from './utils.js'
 import { Initializers, readReactive } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -246,6 +248,8 @@ export function createInput(
     globalMatrix,
     initializers,
   )
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)

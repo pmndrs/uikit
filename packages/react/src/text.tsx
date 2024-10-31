@@ -61,7 +61,7 @@ export const Text: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers allowSkippingChildren properties={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
     </AddHandlers>
   )

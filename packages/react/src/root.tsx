@@ -87,7 +87,7 @@ export const Root: (
   useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers properties={{ pointerEvents: 'auto', ...properties }} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <ParentProvider value={internals}>{properties.children}</ParentProvider>

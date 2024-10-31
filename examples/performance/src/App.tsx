@@ -1,14 +1,21 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { DefaultProperties, Container, Text, Root } from '@react-three/uikit'
 import { OrbitControls } from '@react-three/drei'
 import { Perf } from 'r3f-perf'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { useEffect } from 'react'
 
 //events={() => ({ enabled: false, priority: 0 })}
 
 export default function App() {
   return (
-    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+    <Canvas
+      events={() => ({ enabled: false, priority: 0 })}
+      style={{ height: '100dvh', touchAction: 'none' }}
+      gl={{ localClippingEnabled: true }}
+    >
       <color attach="background" args={['black']} />
+      <SwitchToXRPointerEvents />
       <OrbitControls />
       <Perf />
       <Root width={1920 * 2} positionType="relative">
@@ -32,4 +39,12 @@ export default function App() {
       </Root>
     </Canvas>
   )
+}
+
+function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
 }

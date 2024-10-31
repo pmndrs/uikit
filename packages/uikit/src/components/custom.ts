@@ -19,6 +19,8 @@ import {
   computedMergedProperties,
   createNode,
   setupMatrixWorldUpdate,
+  setupInteractableDecendant,
+  setupPointerEvents,
 } from './utils.js'
 import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -137,6 +139,9 @@ export function createCustomContainer(
   })
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
+
+  setupPointerEvents(mergedProperties, object, initializers)
+  setupInteractableDecendant(parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)

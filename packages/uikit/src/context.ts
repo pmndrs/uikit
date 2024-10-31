@@ -28,6 +28,7 @@ export type RootContext = WithCameraDistance &
     depthTest: Signal<boolean>
     onFrameSet: Set<(delta: number) => void>
     onUpdateMatrixWorldSet: Set<() => void>
+    interactableDescendants: Array<Object3D>
     renderer: WebGLRenderer
     size: Signal<Vector2Tuple | undefined>
     requestRender: () => void

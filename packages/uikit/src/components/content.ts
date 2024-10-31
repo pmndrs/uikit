@@ -19,7 +19,9 @@ import {
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
+  setupInteractableDecendant,
   setupMatrixWorldUpdate,
+  setupPointerEvents,
 } from './utils.js'
 import { Initializers, alignmentZMap } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -133,6 +135,8 @@ export function createContent(
   )
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
+  setupPointerEvents(mergedProperties, object, initializers)
+  setupInteractableDecendant(parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)

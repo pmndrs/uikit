@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@pmndrs/pointer-events": "^6.2.19",
     "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/uikit": "workspace:^",

@@ -19,7 +19,9 @@ import {
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
+  setupInteractableDecendant,
   setupMatrixWorldUpdate,
+  setupPointerEvents,
 } from './utils.js'
 import { Initializers, Subscriptions, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
@@ -134,6 +136,9 @@ export function createIcon(
   )
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
+
+  setupPointerEvents(mergedProperties, object, initializers)
+  setupInteractableDecendant(parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)

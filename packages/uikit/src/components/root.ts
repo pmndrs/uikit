@@ -28,11 +28,13 @@ import {
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
+  setupInteractableDecendant,
   setupMatrixWorldUpdate,
+  setupPointerEvents,
 } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
 import { computedOrderInfo, ElementType, WithCameraDistance } from '../order.js'
-import { Camera, Matrix4, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
+import { Camera, Matrix4, Object3D, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createActivePropertyTransfomers } from '../active.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
@@ -40,7 +42,7 @@ import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { computedInheritableProperty } from '../properties/index.js'
-import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
 
 export type InheritableRootProperties = WithClasses<
   WithConditionals<
@@ -58,7 +60,8 @@ export type InheritableRootProperties = WithClasses<
             anchorX?: keyof typeof alignmentXMap
             anchorY?: keyof typeof alignmentYMap
           } & VisibilityProperties &
-          UpdateMatrixWorldProperties
+          UpdateMatrixWorldProperties &
+          PointerEventsProperties
       >
     >
   >
@@ -89,7 +92,15 @@ export function createRoot(
   const rootSize = signal<Vector2Tuple>([0, 0])
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const initializers: Initializers = []
+  const interactableDescendants: Array<Object3D> = []
+  const initializers: Initializers = [
+    () => {
+      if (object.current != null) {
+        object.current.interactableDescendants = interactableDescendants
+      }
+      return () => {}
+    },
+  ]
   setupCursorCleanup(hoveredSignal, initializers)
   const mergedProperties = computedMergedProperties(
     style,
@@ -195,6 +206,7 @@ export function createRoot(
   const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
+    interactableDescendants,
     onUpdateMatrixWorldSet: new Set<() => void>(),
     requestFrame,
     scrollPosition,
@@ -218,6 +230,8 @@ export function createRoot(
     rootMatrix,
     initializers,
   )
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(rootCtx, interactionPanel, initializers)
 
   //setup matrix world updates
   initializers.push(() => {

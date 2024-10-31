@@ -15,6 +15,7 @@ import {
   PropertyTransformers,
   computedInheritableProperty,
 } from '../properties/index.js'
+import { PointerEventsProperties } from '../internals.js'
 
 export function disposeGroup(object: Object3D | undefined) {
   object?.traverse((mesh) => {
@@ -305,4 +306,60 @@ export function setupMatrixWorldUpdate(
       return () => rootContext.onUpdateMatrixWorldSet.delete(fn)
     }),
   )
+}
+
+export function setupPointerEvents(
+  mergedProperties: Signal<MergedProperties>,
+  targetRef: Object3D | Object3DRef,
+  initializers: Initializers,
+) {
+  const events = computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
+    mergedProperties,
+    'pointerEvents',
+    undefined,
+  )
+  const order = computedInheritableProperty<PointerEventsProperties['pointerEventsOrder']>(
+    mergedProperties,
+    'pointerEventsOrder',
+    undefined,
+  )
+  const type = computedInheritableProperty<PointerEventsProperties['pointerEventsType']>(
+    mergedProperties,
+    'pointerEventsType',
+    undefined,
+  )
+  initializers.push(() => {
+    const target = targetRef instanceof Object3D ? targetRef : targetRef.current
+    if (target == null) {
+      return () => {}
+    }
+    target.defaultPointerEvents = 'auto'
+    return effect(() => {
+      target.pointerEvents = events.value
+      target.pointerEventsOrder = order.value
+      target.pointerEventsType = type.value
+    })
+  })
+}
+
+export function setupInteractableDecendant(
+  rootContext: RootContext,
+  targetRef: Object3D | Object3DRef,
+  initializers: Initializers,
+) {
+  initializers.push(() => {
+    const descendants = rootContext.interactableDescendants
+    const target = targetRef instanceof Object3D ? targetRef : targetRef.current
+    if (descendants == null || target == null) {
+      return () => {}
+    }
+    descendants.push(target)
+    return () => {
+      const index = descendants.indexOf(target)
+      if (index === -1) {
+        return
+      }
+      descendants.splice(index, 1)
+    }
+  })
 }

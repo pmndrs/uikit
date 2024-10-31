@@ -3,7 +3,7 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
 import { Object3D } from 'three'
 import { useDefaultProperties } from './default.js'
-import { AllOptionalProperties, PointerEventsProperties, addHandler } from '@pmndrs/uikit/internals'
+import { AllOptionalProperties, addHandler } from '@pmndrs/uikit/internals'
 
 const eventHandlerKeys: Array<keyof EventHandlers> = [
   'onClick',
@@ -24,12 +24,11 @@ const eventHandlerKeys: Array<keyof EventHandlers> = [
 export const AddHandlers = forwardRef<
   Object3D,
   {
-    properties: EventHandlers & PointerEventsProperties
+    properties: EventHandlers
     handlers: Signal<EventHandlers>
     children?: ReactNode
-    allowSkippingChildren?: boolean
   }
->(({ handlers: handlersSignal, allowSkippingChildren, properties, children }, ref) => {
+>(({ handlers: handlersSignal, properties, children }, ref) => {
   const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.peek())
   useEffect(
     () =>
@@ -47,23 +46,10 @@ export const AddHandlers = forwardRef<
       const key = eventHandlerKeys[i]
       addHandler(key, result, properties[key])
     }
-    if (Object.keys(result).length === 0) {
-      return undefined
-    }
     return result
   }, [systemHandlers, properties])
-  if (allowSkippingChildren && handlers == null) {
-    return null
-  }
   return (
-    <object3D
-      pointerEvents={properties.pointerEvents}
-      pointerEventsOrder={properties.pointerEventsOrder}
-      pointerEventsType={properties.pointerEventsType}
-      ref={ref}
-      matrixAutoUpdate={false}
-      {...handlers}
-    >
+    <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
       {children}
     </object3D>
   )

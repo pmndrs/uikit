@@ -30,6 +30,9 @@ export type AllowedPointerEventsType =
 declare module 'three' {
   interface Object3D extends PointerEventsProperties {
     spherecast?(sphere: Sphere, intersects: Array<Intersection>): void
+    intersectChildren?: boolean
+    interactableDescendants?: Array<Object3D>
+    defaultPointerEvents?: PointerEventsProperties['pointerEvents']
   }
 }
 

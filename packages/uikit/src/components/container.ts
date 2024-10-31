@@ -35,7 +35,12 @@ import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Initializers } from '../utils.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
-import { computedInheritableProperty, UpdateMatrixWorldProperties } from '../internals.js'
+import {
+  computedInheritableProperty,
+  setupInteractableDecendant,
+  setupPointerEvents,
+  UpdateMatrixWorldProperties,
+} from '../internals.js'
 
 export type InheritableContainerProperties = WithClasses<
   WithConditionals<
@@ -138,6 +143,8 @@ export function createContainer(
     globalMatrix,
     initializers,
   )
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentCtx.anyAncestorScrollable,

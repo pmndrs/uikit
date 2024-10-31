@@ -76,7 +76,7 @@ export const Input: (props: InputProperties & RefAttributes<InputInternals>) => 
     )
 
     return (
-      <AddHandlers allowSkippingChildren properties={properties} handlers={internals.handlers} ref={outerRef}>
+      <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
         <primitive object={internals.interactionPanel} />
       </AddHandlers>
     )

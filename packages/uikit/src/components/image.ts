@@ -48,7 +48,9 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
   loadResourceWithParams,
+  setupInteractableDecendant,
   setupMatrixWorldUpdate,
+  setupPointerEvents,
 } from './utils.js'
 import { MergedProperties } from '../properties/merged.js'
 import { Initializers, readReactive, unsubscribeSubscriptions } from '../utils.js'
@@ -179,6 +181,8 @@ export function createImage(
     isVisible,
     initializers,
   )
+  setupPointerEvents(mergedProperties, imageMesh, initializers)
+  setupInteractableDecendant(parentCtx.root, imageMesh, initializers)
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentCtx.anyAncestorScrollable,

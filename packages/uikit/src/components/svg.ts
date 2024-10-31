@@ -53,7 +53,12 @@ import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { KeepAspectRatioProperties } from './image.js'
-import { computedInheritableProperty, setupMatrixWorldUpdate } from '../internals.js'
+import {
+  computedInheritableProperty,
+  setupInteractableDecendant,
+  setupMatrixWorldUpdate,
+  setupPointerEvents,
+} from '../internals.js'
 
 export type InheritableSvgProperties = WithClasses<
   WithConditionals<
@@ -188,8 +193,9 @@ export function createSvg(
     globalMatrix,
     initializers,
   )
-
-  setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
+  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  setupMatrixWorldUpdate(updateMatrixWorld, true, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
+  setupMatrixWorldUpdate(true, true, centerGroup, parentCtx.root, globalMatrix, initializers, true)
 
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
@@ -201,6 +207,11 @@ export function createSvg(
     parentCtx.root,
     initializers,
   )
+
+  setupPointerEvents(mergedProperties, centerGroup, initializers)
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(parentCtx.root, centerGroup, initializers)
+  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
