@@ -15,7 +15,7 @@ import { RecentSales } from './components/RecentSales.js'
 import { TeamSwitcher } from './components/TeamSwitcher.js'
 import { UserNav } from './components/UserNav.js'
 import { create } from 'zustand'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { noEvents, PointerEvents } from '@react-three/xr'
 
 setPreferredColorScheme('light')
 
@@ -27,7 +27,7 @@ export default function App() {
     <>
       <FrameCounter />
       <Canvas
-        events={() => ({ enabled: false, priority: 0 })}
+        events={noEvents}
         frameloop="demand"
         flat
         camera={{ position: [0, 0, 18], fov: 35, zoom: 100 }}
@@ -36,7 +36,7 @@ export default function App() {
         orthographic
       >
         <CountFrames />
-        <SwitchToXRPointerEvents />
+        <PointerEvents />
         <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
           <Defaults>
             <DialogAnchor>
@@ -259,12 +259,4 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
       </Container>
     </Container>
   )
-}
-
-function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
-  return null
 }

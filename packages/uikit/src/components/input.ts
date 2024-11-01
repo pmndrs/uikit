@@ -21,6 +21,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
+  computePointerEventsProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -248,8 +249,10 @@ export function createInput(
     globalMatrix,
     initializers,
   )
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
+
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, interactionPanel, initializers)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
@@ -304,6 +307,8 @@ export function createInput(
   const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     isClipped,
     isVisible,
     mergedProperties,

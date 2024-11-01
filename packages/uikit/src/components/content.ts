@@ -13,6 +13,7 @@ import { Signal, computed, effect, signal } from '@preact/signals-core'
 import {
   VisibilityProperties,
   WithConditionals,
+  computePointerEventsProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -135,13 +136,16 @@ export function createContent(
   )
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
-  setupPointerEvents(mergedProperties, object, initializers)
-  setupInteractableDecendant(parentCtx.root, object, initializers)
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, object, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     isClipped,
     isVisible,
     mergedProperties,

@@ -9,7 +9,7 @@
     "react-dom": "^18.2.0",
     "vite-plugin-mkcert": "^1.17.4",
     "zustand": "^4.4.7",
-    "@pmndrs/pointer-events": "6.2.1"
+    "@react-three/xr": "6.4.0"
   },
   "scripts": {
     "dev": "vite --host",

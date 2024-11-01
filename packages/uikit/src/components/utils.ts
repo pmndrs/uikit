@@ -250,15 +250,14 @@ export function applyAppearancePropertiesToGroup(
 export function computeMatrixWorld(
   target: Matrix4,
   localMatrix: Matrix4 | undefined,
-  rootObjectRef: Object3DRef,
+  rootObjectMatrixWorld: Matrix4,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
 ) {
-  const rootObject = rootObjectRef.current
   const globalMatrix = globalMatrixSignal.peek()
-  if (rootObject == null || globalMatrix == null) {
+  if (globalMatrix == null) {
     return false
   }
-  target.multiplyMatrices(rootObject.matrixWorld, globalMatrix)
+  target.multiplyMatrices(rootObjectMatrixWorld, globalMatrix)
   if (localMatrix != null) {
     target.multiply(localMatrix)
   }
@@ -285,13 +284,14 @@ export function setupMatrixWorldUpdate(
       }
       const fn = () => {
         const object = objectRef instanceof Object3D ? objectRef : objectRef.current
-        if (object == null) {
+        const rootObject = rootContext.object.current
+        if (object == null || rootObject == null) {
           return
         }
         computeMatrixWorld(
           object.matrixWorld,
           useOwnMatrix ? object.matrix : undefined,
-          rootContext.object,
+          rootObject.matrixWorld,
           globalMatrixSignal,
         )
         if (!updateChildrenMatrixWorld) {
@@ -308,26 +308,32 @@ export function setupMatrixWorldUpdate(
   )
 }
 
-export function setupPointerEvents(
-  mergedProperties: Signal<MergedProperties>,
-  targetRef: Object3D | Object3DRef,
-  initializers: Initializers,
-) {
-  const events = computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
+export type ComputedPointerEventsProperties = ReturnType<typeof computePointerEventsProperties>
+
+export function computePointerEventsProperties(mergedProperties: Signal<MergedProperties>) {
+  const pointerEvents = computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
     mergedProperties,
     'pointerEvents',
     undefined,
   )
-  const order = computedInheritableProperty<PointerEventsProperties['pointerEventsOrder']>(
+  const pointerEventsOrder = computedInheritableProperty<PointerEventsProperties['pointerEventsOrder']>(
     mergedProperties,
     'pointerEventsOrder',
     undefined,
   )
-  const type = computedInheritableProperty<PointerEventsProperties['pointerEventsType']>(
+  const pointerEventsType = computedInheritableProperty<PointerEventsProperties['pointerEventsType']>(
     mergedProperties,
     'pointerEventsType',
     undefined,
   )
+  return { pointerEvents, pointerEventsOrder, pointerEventsType }
+}
+
+export function setupPointerEvents(
+  properties: ComputedPointerEventsProperties,
+  targetRef: Object3D | Object3DRef,
+  initializers: Initializers,
+) {
   initializers.push(() => {
     const target = targetRef instanceof Object3D ? targetRef : targetRef.current
     if (target == null) {
@@ -335,31 +341,37 @@ export function setupPointerEvents(
     }
     target.defaultPointerEvents = 'auto'
     return effect(() => {
-      target.pointerEvents = events.value
-      target.pointerEventsOrder = order.value
-      target.pointerEventsType = type.value
+      target.pointerEvents = properties.pointerEvents.value
+      target.pointerEventsOrder = properties.pointerEventsOrder.value
+      target.pointerEventsType = properties.pointerEventsType.value
     })
   })
 }
 
 export function setupInteractableDecendant(
+  pointerEvents: ComputedPointerEventsProperties['pointerEvents'],
   rootContext: RootContext,
   targetRef: Object3D | Object3DRef,
   initializers: Initializers,
 ) {
-  initializers.push(() => {
-    const descendants = rootContext.interactableDescendants
-    const target = targetRef instanceof Object3D ? targetRef : targetRef.current
-    if (descendants == null || target == null) {
-      return () => {}
-    }
-    descendants.push(target)
-    return () => {
-      const index = descendants.indexOf(target)
-      if (index === -1) {
+  initializers.push(() =>
+    effect(() => {
+      if (pointerEvents.value === 'none') {
         return
       }
-      descendants.splice(index, 1)
-    }
-  })
+      const descendants = rootContext.interactableDescendants
+      const target = targetRef instanceof Object3D ? targetRef : targetRef.current
+      if (descendants == null || target == null) {
+        return
+      }
+      descendants.push(target)
+      return () => {
+        const index = descendants.indexOf(target)
+        if (index === -1) {
+          return
+        }
+        descendants.splice(index, 1)
+      }
+    }),
+  )
 }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
-import { Fullscreen, Text, Container, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
+import { useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { Fullscreen, Text, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { Copy, Moon, Sun, SunMoon } from '@react-three/uikit-lucide'
 
 import { Defaults, colors } from '@/theme.js'
@@ -32,7 +32,7 @@ import { ToggleGroupDemo } from './components/toggle-group.js'
 import InputDemo from './components/input.js'
 import TextareDemo from './components/textarea.js'
 import { VideoDemo } from './components/video.js'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { noEvents, PointerEvents } from '@react-three/xr'
 
 const componentPages = {
   accordion: AccordionDemo,
@@ -80,12 +80,8 @@ export default function App() {
   }
   const [pcs, updatePCS] = useState(() => getPreferredColorScheme())
   return (
-    <Canvas
-      events={() => ({ enabled: false, priority: 0 })}
-      style={{ height: '100dvh', touchAction: 'none' }}
-      gl={{ localClippingEnabled: true }}
-    >
-      <SwitchToXRPointerEvents />
+    <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+      <PointerEvents />
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
@@ -148,12 +144,4 @@ export default function App() {
       </Defaults>
     </Canvas>
   )
-}
-
-function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
-  return null
 }

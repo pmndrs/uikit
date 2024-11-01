@@ -55,6 +55,7 @@ import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMa
 import { KeepAspectRatioProperties } from './image.js'
 import {
   computedInheritableProperty,
+  computePointerEventsProperties,
   setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
@@ -208,15 +209,18 @@ export function createSvg(
     initializers,
   )
 
-  setupPointerEvents(mergedProperties, centerGroup, initializers)
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(parentCtx.root, centerGroup, initializers)
-  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, centerGroup, initializers)
+  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, centerGroup, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, interactionPanel, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     scrollPosition,
     isClipped,
     isVisible,

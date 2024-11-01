@@ -41,6 +41,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
+  computePointerEventsProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -55,7 +56,12 @@ import {
 import { MergedProperties } from '../properties/merged.js'
 import { Initializers, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
-import { makeClippedCast, makePanelRaycast, makePanelSpherecast } from '../panel/interaction-panel-mesh.js'
+import {
+  computedBoundingSphere,
+  makeClippedCast,
+  makePanelRaycast,
+  makePanelSpherecast,
+} from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { computedInheritableProperty } from '../properties/utils.js'
@@ -181,8 +187,10 @@ export function createImage(
     isVisible,
     initializers,
   )
-  setupPointerEvents(mergedProperties, imageMesh, initializers)
-  setupInteractableDecendant(parentCtx.root, imageMesh, initializers)
+
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, imageMesh, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, imageMesh, initializers)
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentCtx.anyAncestorScrollable,
@@ -202,6 +210,8 @@ export function createImage(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     scrollPosition,
     isClipped,
     isVisible,
@@ -268,20 +278,33 @@ function createImageMesh(
     root,
     initializers,
   )
-  mesh.raycast = makeClippedCast(
-    mesh,
-    makePanelRaycast(mesh, root.object, globalMatrix),
-    root.object,
-    parentContext.clippingRect,
-    orderInfo,
+  const boundingSphere = computedBoundingSphere(
+    parentContext.root.pixelSize,
+    globalMatrix,
+    flexState.size,
+    initializers,
   )
-  mesh.spherecast = makeClippedCast(
-    mesh,
-    makePanelSpherecast(mesh, root.object, globalMatrix),
-    root.object,
-    parentContext.clippingRect,
-    orderInfo,
-  )
+  initializers.push(() => {
+    const rootObjectMatrixWorld = root.object.current?.matrixWorld
+    if (rootObjectMatrixWorld != null) {
+      mesh.raycast = makeClippedCast(
+        mesh,
+        makePanelRaycast(rootObjectMatrixWorld, boundingSphere, globalMatrix, mesh),
+        root.object,
+        parentContext.clippingRect,
+        orderInfo,
+      )
+      mesh.spherecast = makeClippedCast(
+        mesh,
+        makePanelSpherecast(rootObjectMatrixWorld, boundingSphere, globalMatrix, mesh),
+        root.object,
+        parentContext.clippingRect,
+        orderInfo,
+      )
+    }
+    return () => {}
+  })
+
   setupRenderOrder(mesh, root, orderInfo)
   const objectFit = computedInheritableProperty(propertiesSignal, 'objectFit', defaultImageFit)
   initializers.push(

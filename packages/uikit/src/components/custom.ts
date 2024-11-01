@@ -28,7 +28,7 @@ import { Object3DRef, ParentContext } from '../context.js'
 import { FrontSide, Material, Mesh } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
 import { ShadowProperties, makeClippedCast } from '../panel/index.js'
-import { computedInheritableProperty } from '../internals.js'
+import { computePointerEventsProperties } from '../internals.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -140,13 +140,16 @@ export function createCustomContainer(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
-  setupPointerEvents(mergedProperties, object, initializers)
-  setupInteractableDecendant(parentCtx.root, object, initializers)
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, object, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     isClipped,
     isVisible,
     mergedProperties,

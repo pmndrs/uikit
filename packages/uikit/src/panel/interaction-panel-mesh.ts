@@ -1,9 +1,9 @@
-import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2Tuple, Vector3 } from 'three'
+import { Intersection, Matrix4, Mesh, Object3D, Plane, Ray, Sphere, Vector2, Vector2Tuple, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
-import { Signal } from '@preact/signals-core'
+import { effect, Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
 import { Object3DRef, RootContext } from '../context.js'
-import { computeMatrixWorld } from '../internals.js'
+import { computeMatrixWorld, Initializers } from '../internals.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -50,19 +50,23 @@ function isSingularMatrix(matrix: Matrix4) {
   return scaleHelper.x === 0 || scaleHelper.y === 0 || scaleHelper.z === 0
 }
 
+const sphereHelper = new Sphere()
+
 export function makePanelSpherecast(
-  mesh: Object3D,
-  rootObjectRef: RootContext['object'],
+  rootObjectMatrixWorld: Matrix4,
+  globalSphereWithLocalScale: Sphere,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
+  object: Object3D,
 ): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
-    const rootObject = rootObjectRef.current
-    const globalMatrix = globalMatrixSignal.peek()
-    if (rootObject == null || globalMatrix == null) {
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObjectMatrixWorld)
+    if (!sphereHelper.intersectsSphere(sphere)) {
       return
     }
-    matrixHelper.multiplyMatrices(rootObject.matrixWorld, globalMatrix).multiply(mesh.matrix)
-    if (isSingularMatrix(matrixHelper)) {
+    if (
+      isSingularMatrix(matrixHelper) ||
+      !computeMatrixWorld(matrixHelper, object.matrix, rootObjectMatrixWorld, globalMatrixSignal)
+    ) {
       return
     }
     planeHelper.constant = 0
@@ -99,7 +103,7 @@ export function makePanelSpherecast(
 
     intersects.push({
       distance,
-      object: mesh,
+      object,
       point: vectorHelper.clone(),
       uv: new Vector2(
         distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
@@ -110,14 +114,42 @@ export function makePanelSpherecast(
   }
 }
 
-export function makePanelRaycast(
-  mesh: Object3D,
-  rootObjectRef: RootContext['object'],
+export function computedBoundingSphere(
+  pixelSize: Signal<number>,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
+  size: Signal<Vector2Tuple | undefined>,
+  initializers: Initializers,
+) {
+  const sphere = new Sphere()
+  initializers.push(() =>
+    effect(() => {
+      const sizeValue = size.value
+      const globalMatrix = globalMatrixSignal.value
+      if (sizeValue == null || globalMatrix == null) {
+        return
+      }
+      sphere.center.set(0, 0, 0)
+      sphere.radius = 0.5
+      sphere.applyMatrix4(globalMatrix)
+      sphere.radius *= Math.max(...sizeValue) * pixelSize.value
+    }),
+  )
+  return sphere
+}
+
+export function makePanelRaycast(
+  rootObjectMatrixWorld: Matrix4,
+  globalSphereWithLocalScale: Sphere,
+  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  object: Object3D,
 ): Mesh['raycast'] {
   return (raycaster, intersects) => {
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObjectMatrixWorld)
+    if (!raycaster.ray.intersectsSphere(sphereHelper)) {
+      return
+    }
     if (
-      !computeMatrixWorld(matrixHelper, mesh.matrix, rootObjectRef, globalMatrixSignal) ||
+      !computeMatrixWorld(matrixHelper, object.matrix, rootObjectMatrixWorld, globalMatrixSignal) ||
       isSingularMatrix(matrixHelper)
     ) {
       return
@@ -125,10 +157,7 @@ export function makePanelRaycast(
     planeHelper.constant = 0
     planeHelper.normal.set(0, 0, 1)
     planeHelper.applyMatrix4(matrixHelper)
-    if (
-      planeHelper.distanceToPoint(raycaster.ray.origin) <= 0 ||
-      raycaster.ray.intersectPlane(planeHelper, vectorHelper) == null
-    ) {
+    if (raycaster.ray.intersectPlane(planeHelper, vectorHelper) == null) {
       return
     }
 
@@ -142,7 +171,7 @@ export function makePanelRaycast(
 
     intersects.push({
       distance: vectorHelper.distanceTo(raycaster.ray.origin),
-      object: mesh,
+      object,
       point: vectorHelper.clone(),
       uv: new Vector2(
         distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
@@ -166,25 +195,28 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
   fn: T,
   rootObjectRef: Object3DRef,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo | undefined>,
+  orderInfoSignal: Signal<OrderInfo | undefined>,
 ) {
   Object.assign(mesh, { isInteractionPanel: true })
   return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
-    const rootObject = rootObjectRef instanceof Object3D ? rootObjectRef : rootObjectRef.current
-    if (rootObject == null || orderInfo.value == null) {
-      return
-    }
-    const { majorIndex, minorIndex, elementType } = orderInfo.value
     const oldLength = intersects.length
     ;(fn as any).call(mesh, raycaster, intersects)
-    const clippingPlanes = clippingRect?.value?.planes
+    if (oldLength === intersects.length) {
+      return
+    }
+    const rootObject = rootObjectRef.current
+    const orderInfo = orderInfoSignal.peek()
+    if (rootObject == null || orderInfo == null) {
+      return
+    }
+    const clippingPlanes = clippingRect?.peek()?.planes
     const rootMatrixWorld = rootObject.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]
       intersection.distance -=
-        majorIndex * 0.01 +
-        elementType * 0.001 + //1-10
-        minorIndex * 0.00001 //1-100
+        orderInfo.majorIndex * 0.01 +
+        orderInfo.elementType * 0.001 + //1-10
+        orderInfo.minorIndex * 0.00001 //1-100
       if (clippingPlanes == null) {
         continue
       }

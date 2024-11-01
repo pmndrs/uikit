@@ -25,6 +25,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
+  computePointerEventsProperties,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
@@ -139,10 +140,10 @@ export function createRoot(
   })
 
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, pixelSize)
-  const rootMatrix = computedRootMatrix(mergedProperties, transformMatrix, flexState.size, pixelSize)
+  const globalMatrix = computedRootMatrix(mergedProperties, transformMatrix, flexState.size, pixelSize)
 
   //rootMatrix is automatically applied to everything, even the instanced things because everything is part of object
-  applyTransform(ctx, object, rootMatrix, initializers)
+  applyTransform(ctx, object, globalMatrix, initializers)
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
@@ -206,6 +207,8 @@ export function createRoot(
   const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
+    objectInvertedWorldMatrix: new Matrix4(),
+    rayInGlobalSpaceMap: new Map(),
     interactableDescendants,
     onUpdateMatrixWorldSet: new Set<() => void>(),
     requestFrame,
@@ -227,11 +230,13 @@ export function createRoot(
     rootCtx,
     undefined,
     flexState.size,
-    rootMatrix,
+    globalMatrix,
     initializers,
   )
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(rootCtx, interactionPanel, initializers)
+
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, rootCtx, interactionPanel, initializers)
 
   //setup matrix world updates
   initializers.push(() => {
@@ -251,7 +256,7 @@ export function createRoot(
   })
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
-  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, rootCtx, rootMatrix, initializers, true)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, rootCtx, globalMatrix, initializers, true)
 
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
@@ -265,6 +270,8 @@ export function createRoot(
   )
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     isVisible,
     scrollPosition,
     mergedProperties,

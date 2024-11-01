@@ -35,7 +35,11 @@ import {
   createInstancedText,
 } from '../text/index.js'
 import { darkPropertyTransformers } from '../dark.js'
-import { computedInheritableProperty, UpdateMatrixWorldProperties } from '../internals.js'
+import {
+  computedInheritableProperty,
+  computePointerEventsProperties,
+  UpdateMatrixWorldProperties,
+} from '../internals.js'
 
 export type InheritableTextProperties = WithClasses<
   WithConditionals<
@@ -145,8 +149,10 @@ export function createText(
     globalMatrix,
     initializers,
   )
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
+
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, interactionPanel, initializers)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
@@ -156,6 +162,8 @@ export function createText(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     isClipped,
     isVisible,
     mergedProperties,

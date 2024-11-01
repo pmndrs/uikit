@@ -7,7 +7,7 @@
     "@react-three/uikit-lucide": "workspace:^",
     "r3f-perf": "^7.1.2",
     "react-dom": "^18.2.0",
-    "@pmndrs/pointer-events": "6.2.1"
+    "@react-three/xr": "6.4.0"
   },
   "scripts": {
     "dev": "vite --host",

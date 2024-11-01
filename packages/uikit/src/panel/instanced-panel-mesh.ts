@@ -3,7 +3,12 @@ import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
 import { Signal, effect } from '@preact/signals-core'
 import { Initializers } from '../utils.js'
-import { makeClippedCast, makePanelRaycast, makePanelSpherecast } from './interaction-panel-mesh.js'
+import {
+  computedBoundingSphere,
+  makeClippedCast,
+  makePanelRaycast,
+  makePanelSpherecast,
+} from './interaction-panel-mesh.js'
 import { OrderInfo } from '../order.js'
 import { ClippingRect } from '../clipping.js'
 import { RootContext } from '../context.js'
@@ -13,25 +18,33 @@ export function createInteractionPanel(
   rootContext: RootContext,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   size: Signal<Vector2Tuple | undefined>,
-  panelMatrix: Signal<Matrix4 | undefined>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   initializers: Initializers,
 ): Mesh {
   const panel = new Mesh(panelGeometry)
   panel.matrixAutoUpdate = false
-  panel.raycast = makeClippedCast(
-    panel,
-    makePanelRaycast(panel, rootContext.object, panelMatrix),
-    rootContext.object,
-    parentClippingRect,
-    orderInfo,
-  )
-  panel.spherecast = makeClippedCast(
-    panel,
-    makePanelSpherecast(panel, rootContext.object, panelMatrix),
-    rootContext.object,
-    parentClippingRect,
-    orderInfo,
-  )
+  const boundingSphere = computedBoundingSphere(rootContext.pixelSize, globalMatrix, size, initializers)
+
+  initializers.push(() => {
+    const rootObject = rootContext.object.current
+    if (rootObject != null) {
+      panel.raycast = makeClippedCast(
+        panel,
+        makePanelRaycast(rootObject.matrixWorld, boundingSphere, globalMatrix, panel),
+        rootContext.object,
+        parentClippingRect,
+        orderInfo,
+      )
+      panel.spherecast = makeClippedCast(
+        panel,
+        makePanelSpherecast(rootObject.matrixWorld, boundingSphere, globalMatrix, panel),
+        rootContext.object,
+        parentClippingRect,
+        orderInfo,
+      )
+    }
+    return () => {}
+  })
   panel.visible = false
   initializers.push(() =>
     effect(() => {

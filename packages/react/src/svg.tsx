@@ -12,6 +12,7 @@ import { AddHandlers, usePropertySignals } from './utilts.js'
 import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { DefaultProperties } from './default.js'
 
 export type SvgProperties = BaseSvgProperties &
   EventHandlers & {
@@ -47,7 +48,9 @@ export const Svg: (
       <primitive object={internals.interactionPanel} />
       <primitive object={internals.centerGroup} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
-        <ParentProvider value={internals}>{properties.children}</ParentProvider>
+        <DefaultProperties {...internals.pointerEventsProperties}>
+          <ParentProvider value={internals}>{properties.children}</ParentProvider>
+        </DefaultProperties>
       </object3D>
     </AddHandlers>
   )

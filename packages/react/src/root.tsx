@@ -18,6 +18,7 @@ import {
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, computed, signal } from '@preact/signals-core'
+import { DefaultProperties } from './default.js'
 
 export type RootProperties = BaseRootProperties &
   WithReactive<{ pixelSize?: number }> & {
@@ -90,7 +91,9 @@ export const Root: (
     <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
-        <ParentProvider value={internals}>{properties.children}</ParentProvider>
+        <DefaultProperties {...internals.pointerEventsProperties}>
+          <ParentProvider value={internals}>{properties.children}</ParentProvider>
+        </DefaultProperties>
       </object3D>
     </AddHandlers>
   )

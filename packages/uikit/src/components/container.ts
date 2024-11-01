@@ -37,6 +37,7 @@ import { darkPropertyTransformers } from '../dark.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 import {
   computedInheritableProperty,
+  computePointerEventsProperties,
   setupInteractableDecendant,
   setupPointerEvents,
   UpdateMatrixWorldProperties,
@@ -143,8 +144,9 @@ export function createContainer(
     globalMatrix,
     initializers,
   )
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(parentCtx.root, interactionPanel, initializers)
+  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
+  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
+  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, interactionPanel, initializers)
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentCtx.anyAncestorScrollable,
@@ -164,6 +166,8 @@ export function createContainer(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    pointerEventsProperties,
+    globalMatrix,
     isClipped,
     isVisible,
     mergedProperties,
