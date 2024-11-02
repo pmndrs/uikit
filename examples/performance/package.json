@@ -1,7 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "@react-three/xr": "^6.4.0",
     "@preact/signals-core": "^1.5.1",
     "@react-three/drei": "^9.96.1",
     "@react-three/uikit": "workspace:^",

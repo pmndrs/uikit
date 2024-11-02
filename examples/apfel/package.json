@@ -11,8 +11,7 @@
     "@vitejs/plugin-basic-ssl": "^1.1.0",
     "maath": "^0.10.7",
     "r3f-perf": "^7.1.2",
-    "react-dom": "^18.2.0",
-    "@react-three/xr": "6.4.0"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "dev": "vite --host",

@@ -32,6 +32,7 @@
     "typescript": "^5.4.5",
     "typescript-json-schema": "^0.63.0",
     "vite": "^5.0.12",
-    "vercel": "^34.1.8"
+    "vercel": "^34.1.8",
+    "@react-three/xr": "6.4.1"
   }
 }
