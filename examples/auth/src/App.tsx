@@ -12,6 +12,7 @@ import { Defaults, colors } from '@/theme.js'
 import { Button } from '@/button.js'
 import { UserAuthForm } from './components/user-auth-form.js'
 import { Perf } from 'r3f-perf'
+import { noEvents, PointerEvents } from '@react-three/xr'
 
 setPreferredColorScheme('light')
 
@@ -23,8 +24,10 @@ export default function App() {
       camera={{ position: [0, 0, 18], fov: 35 }}
       style={{ height: '100dvh', touchAction: 'none' }}
       gl={{ localClippingEnabled: true }}
+      events={noEvents}
       {...canvasInputProps}
     >
+      <PointerEvents />
       <Perf />
       {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
         <Defaults>

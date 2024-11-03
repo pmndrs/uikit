@@ -1,25 +1,13 @@
-import { Intersection, Matrix4, Mesh, Object3D, Plane, Ray, Sphere, Vector2, Vector2Tuple, Vector3 } from 'three'
+import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2Tuple, Vector3 } from 'three'
 import { ClippingRect } from '../clipping.js'
 import { effect, Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
-import { Object3DRef, RootContext } from '../context.js'
+import { Object3DRef } from '../context.js'
 import { computeMatrixWorld, Initializers } from '../internals.js'
+import { clamp } from 'three/src/math/MathUtils.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
-
-const sides: Array<Plane> = [
-  //left
-  new Plane().setFromNormalAndCoplanarPoint(new Vector3(1, 0, 0), new Vector3(-0.5, 0, 0)),
-  //right
-  new Plane().setFromNormalAndCoplanarPoint(new Vector3(-1, 0, 0), new Vector3(0.5, 0, 0)),
-  //bottom
-  new Plane().setFromNormalAndCoplanarPoint(new Vector3(0, 1, 0), new Vector3(0, -0.5, 0)),
-  //top
-  new Plane().setFromNormalAndCoplanarPoint(new Vector3(0, -1, 0), new Vector3(0, 0.5, 0)),
-]
-
-const distancesHelper = [0, 0, 0, 0]
 
 export type AllowedPointerEventsType =
   | 'all'
@@ -42,15 +30,8 @@ export type PointerEventsProperties = {
   pointerEventsOrder?: number
 }
 
-const scaleHelper = new Vector3()
-const matrixHelper = new Matrix4()
-
-function isSingularMatrix(matrix: Matrix4) {
-  scaleHelper.setFromMatrixScale(matrix)
-  return scaleHelper.x === 0 || scaleHelper.y === 0 || scaleHelper.z === 0
-}
-
 const sphereHelper = new Sphere()
+const matrixHelper = new Matrix4()
 
 export function makePanelSpherecast(
   rootObjectMatrixWorld: Matrix4,
@@ -60,41 +41,20 @@ export function makePanelSpherecast(
 ): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
     sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObjectMatrixWorld)
-    if (!sphereHelper.intersectsSphere(sphere)) {
-      return
-    }
     if (
-      isSingularMatrix(matrixHelper) ||
-      !computeMatrixWorld(matrixHelper, object.matrix, rootObjectMatrixWorld, globalMatrixSignal)
+      !sphereHelper.intersectsSphere(sphere) ||
+      !computeMatrixWorld(object.matrixWorld, object.matrix, rootObjectMatrixWorld, globalMatrixSignal)
     ) {
       return
     }
-    planeHelper.constant = 0
-    planeHelper.normal.set(0, 0, 1)
-    planeHelper.applyMatrix4(matrixHelper)
+    vectorHelper.copy(sphere.center).applyMatrix4(matrixHelper.copy(object.matrixWorld).invert())
+    vectorHelper.x = clamp(vectorHelper.x, -0.5, 0.5)
+    vectorHelper.x = clamp(vectorHelper.y, -0.5, 0.5)
+    vectorHelper.z = 0
 
-    planeHelper.projectPoint(sphere.center, vectorHelper)
+    const uv = new Vector2(vectorHelper.x, vectorHelper.y)
 
-    if (vectorHelper.distanceToSquared(sphere.center) > sphere.radius * sphere.radius) {
-      return
-    }
-
-    for (let i = 0; i < 4; i++) {
-      const side = sides[i]
-      planeHelper.copy(side).applyMatrix4(matrixHelper)
-
-      let distance = planeHelper.distanceToPoint(vectorHelper)
-      if (distance < 0) {
-        if (Math.abs(distance) > sphere.radius) {
-          return
-        }
-        //clamp point
-        planeHelper.projectPoint(vectorHelper, vectorHelper)
-        distance = 0
-      }
-      distancesHelper[i] = distance
-    }
-
+    vectorHelper.applyMatrix4(object.matrixWorld)
     const distance = sphere.center.distanceTo(vectorHelper)
 
     if (distance > sphere.radius) {
@@ -105,13 +65,34 @@ export function makePanelSpherecast(
       distance,
       object,
       point: vectorHelper.clone(),
-      uv: new Vector2(
-        distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
-        distancesHelper[3] / (distancesHelper[2] + distancesHelper[3]),
-      ),
+      uv,
       normal: new Vector3(0, 0, 1),
     })
   }
+}
+
+export function makePanelRaycast(
+  raycast: Mesh['raycast'],
+  rootObjectMatrixWorld: Matrix4,
+  globalSphereWithLocalScale: Sphere,
+  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  object: Object3D,
+): Mesh['raycast'] {
+  return (raycaster, intersects) => {
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObjectMatrixWorld)
+    if (
+      !raycaster.ray.intersectsSphere(sphereHelper) ||
+      !computeMatrixWorld(object.matrixWorld, object.matrix, rootObjectMatrixWorld, globalMatrixSignal)
+    ) {
+      return
+    }
+
+    raycast(raycaster, intersects)
+  }
+}
+
+export function isInteractionPanel(object: Object3D) {
+  return 'isInteractionPanel' in object
 }
 
 export function computedBoundingSphere(
@@ -129,61 +110,13 @@ export function computedBoundingSphere(
         return
       }
       sphere.center.set(0, 0, 0)
-      sphere.radius = 0.5
+      const [w, h] = sizeValue
+      const maxDiameter = Math.sqrt(w * w + h * h)
+      sphere.radius = maxDiameter * 0.5 * pixelSize.value
       sphere.applyMatrix4(globalMatrix)
-      sphere.radius *= Math.max(...sizeValue) * pixelSize.value
     }),
   )
   return sphere
-}
-
-export function makePanelRaycast(
-  rootObjectMatrixWorld: Matrix4,
-  globalSphereWithLocalScale: Sphere,
-  globalMatrixSignal: Signal<Matrix4 | undefined>,
-  object: Object3D,
-): Mesh['raycast'] {
-  return (raycaster, intersects) => {
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObjectMatrixWorld)
-    if (!raycaster.ray.intersectsSphere(sphereHelper)) {
-      return
-    }
-    if (
-      !computeMatrixWorld(matrixHelper, object.matrix, rootObjectMatrixWorld, globalMatrixSignal) ||
-      isSingularMatrix(matrixHelper)
-    ) {
-      return
-    }
-    planeHelper.constant = 0
-    planeHelper.normal.set(0, 0, 1)
-    planeHelper.applyMatrix4(matrixHelper)
-    if (raycaster.ray.intersectPlane(planeHelper, vectorHelper) == null) {
-      return
-    }
-
-    for (let i = 0; i < 4; i++) {
-      const side = sides[i]
-      planeHelper.copy(side).applyMatrix4(matrixHelper)
-      if ((distancesHelper[i] = planeHelper.distanceToPoint(vectorHelper)) < 0) {
-        return
-      }
-    }
-
-    intersects.push({
-      distance: vectorHelper.distanceTo(raycaster.ray.origin),
-      object,
-      point: vectorHelper.clone(),
-      uv: new Vector2(
-        distancesHelper[0] / (distancesHelper[0] + distancesHelper[1]),
-        distancesHelper[3] / (distancesHelper[2] + distancesHelper[3]),
-      ),
-      normal: new Vector3(0, 0, 1),
-    })
-  }
-}
-
-export function isInteractionPanel(object: Object3D) {
-  return 'isInteractionPanel' in object
 }
 
 /**

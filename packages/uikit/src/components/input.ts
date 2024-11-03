@@ -36,7 +36,7 @@ import { Listeners, setupLayoutListeners, setupClippedListeners } from '../liste
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { EventHandlers } from '../events.js'
+import { EventHandlers, ThreeEvent } from '../events.js'
 import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
 import { CaretProperties, createCaret } from '../caret.js'
 import { SelectionBoxes, SelectionProperties, createSelection } from '../selection.js'
@@ -342,35 +342,44 @@ export function computedSelectionHandlers(
     if (disabled.value) {
       return undefined
     }
-    let startCharIndex: number | undefined
+    let dragState: { startCharIndex: number; pointerId: number } | undefined
+    const onPointerFinish = (e: ThreeEvent<PointerEvent>) => {
+      if (dragState == null || dragState.pointerId != e.pointerId) {
+        return
+      }
+      e.stopImmediatePropagation?.()
+      dragState = undefined
+    }
     return {
       onPointerDown: (e) => {
-        if (e.defaultPrevented || e.uv == null || instancedTextRef.current == null) {
+        if (dragState != null || e.defaultPrevented || e.uv == null || instancedTextRef.current == null) {
           return
         }
         cancelBlur(e.nativeEvent)
-        e.stopPropagation?.()
-        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
-        startCharIndex = charIndex
-
-        setTimeout(() => focus(charIndex, charIndex))
+        e.stopImmediatePropagation?.()
+        if ('setPointerCapture' in e.object && typeof e.object.setPointerCapture === 'function') {
+          e.object.setPointerCapture(e.pointerId)
+        }
+        const startCharIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
+        dragState = {
+          pointerId: e.pointerId,
+          startCharIndex,
+        }
+        setTimeout(() => focus(startCharIndex, startCharIndex))
       },
-      onPointerUp: (e) => {
-        startCharIndex = undefined
-      },
-      onPointerLeave: (e) => {
-        startCharIndex = undefined
-      },
+      onPointerUp: onPointerFinish,
+      onPointerLeave: onPointerFinish,
+      onPointerCancel: onPointerFinish,
       onPointerMove: (e) => {
-        if (startCharIndex == null || e.uv == null || instancedTextRef.current == null) {
+        if (dragState?.pointerId != e.pointerId || e.uv == null || instancedTextRef.current == null) {
           return
         }
-        e.stopPropagation?.()
+        e.stopImmediatePropagation?.()
         const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
 
-        const start = Math.min(startCharIndex, charIndex)
-        const end = Math.max(startCharIndex, charIndex)
-        const direction = startCharIndex < charIndex ? 'forward' : 'backward'
+        const start = Math.min(dragState.startCharIndex, charIndex)
+        const end = Math.max(dragState.startCharIndex, charIndex)
+        const direction = dragState.startCharIndex < charIndex ? 'forward' : 'backward'
 
         setTimeout(() => focus(start, end, direction))
       },
@@ -480,6 +489,6 @@ function uvToCharIndex(
   const [bTop, , , bLeft] = borderInset
   const [pTop, , , pLeft] = paddingInset
   const x = uv.x * width - bLeft - pLeft
-  const y = -uv.y * height + bTop + pTop
+  const y = (uv.y - 1) * height + bTop + pTop
   return instancedText.getCharIndex(x, y)
 }

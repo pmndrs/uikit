@@ -289,7 +289,7 @@ function createImageMesh(
     if (rootObjectMatrixWorld != null) {
       mesh.raycast = makeClippedCast(
         mesh,
-        makePanelRaycast(rootObjectMatrixWorld, boundingSphere, globalMatrix, mesh),
+        makePanelRaycast(mesh.raycast.bind(mesh), rootObjectMatrixWorld, boundingSphere, globalMatrix, mesh),
         root.object,
         parentContext.clippingRect,
         orderInfo,

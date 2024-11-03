@@ -186,57 +186,56 @@ export function computedScrollHandlers(
     if (!isScrollable.value) {
       return undefined
     }
-    const onPointerFinish = ({ pointerId, object }: ThreeEvent<PointerEvent>) => {
+    const onPointerFinish = (event: ThreeEvent<PointerEvent>) => {
       if ('releasePointerCapture' in object && typeof object.releasePointerCapture === 'function') {
-        object.releasePointerCapture(pointerId)
+        object.releasePointerCapture(event.pointerId)
       }
-      if (!downPointerMap.delete(pointerId) || downPointerMap.size > 0 || scrollPosition.value == null) {
+      if (!downPointerMap.delete(event.pointerId) || scrollPosition.value == null) {
+        return
+      }
+      event.stopImmediatePropagation?.()
+      if (downPointerMap.size > 0) {
         return
       }
       //only request a render if the last pointer that was dragging stopped dragging and this panel is actually scrollable
       root.requestRender()
     }
     return {
-      onPointerDown: ({ pointerId, point, nativeEvent, object: eventObject }) => {
-        const isMouseInteraction = nativeEvent.pointerType === 'mouse'
-        const localPoint = object.current!.worldToLocal(point.clone())
-
-        const scrollbarAxisIndex = !isMouseInteraction
-          ? undefined
-          : getIntersectedScrollbarIndex(
-              localPoint,
-              root.pixelSize.peek(),
-              scrollbarWidth.peek(),
-              nodeState.size.peek(),
-              nodeState.maxScrollPosition.peek(),
-              nodeState.borderInset.peek(),
-              scrollPosition.peek(),
-            )
-        if (scrollbarAxisIndex != null) {
-          if ('setPointerCapture' in eventObject && typeof eventObject.setPointerCapture === 'function') {
-            eventObject.setPointerCapture(pointerId)
-          }
-          downPointerMap.set(pointerId, {
-            type: 'scroll-bar',
-            localPoint,
-            axisIndex: scrollbarAxisIndex,
-          })
+      onPointerDown: (event) => {
+        if (event.nativeEvent.pointerType === 'mouse') {
           return
         }
+        event.stopImmediatePropagation?.()
+        const localPoint = object.current!.worldToLocal(event.point.clone())
 
-        if (isMouseInteraction) {
-          return
-        }
-
-        if ('setPointerCapture' in eventObject && typeof eventObject.setPointerCapture === 'function') {
-          eventObject.setPointerCapture(pointerId)
-        }
-
-        downPointerMap.set(pointerId, {
-          type: 'scroll-panel',
-          timestamp: performance.now(),
+        const scrollbarAxisIndex = getIntersectedScrollbarIndex(
           localPoint,
-        })
+          root.pixelSize.peek(),
+          scrollbarWidth.peek(),
+          nodeState.size.peek(),
+          nodeState.maxScrollPosition.peek(),
+          nodeState.borderInset.peek(),
+          scrollPosition.peek(),
+        )
+
+        if ('setPointerCapture' in event.object && typeof event.object.setPointerCapture === 'function') {
+          event.object.setPointerCapture(event.pointerId)
+        }
+
+        downPointerMap.set(
+          event.pointerId,
+          scrollbarAxisIndex != null
+            ? {
+                type: 'scroll-bar',
+                localPoint,
+                axisIndex: scrollbarAxisIndex,
+              }
+            : {
+                type: 'scroll-panel',
+                timestamp: performance.now(),
+                localPoint,
+              },
+        )
       },
       onPointerUp: onPointerFinish,
       onPointerLeave: onPointerFinish,
@@ -249,6 +248,7 @@ export function computedScrollHandlers(
         if (prevInteraction == null) {
           return
         }
+        event.stopImmediatePropagation?.()
         object.current!.worldToLocal(localPointHelper.copy(event.point))
         distanceHelper.copy(localPointHelper).sub(prevInteraction.localPoint)
         distanceHelper.divideScalar(root.pixelSize.peek())

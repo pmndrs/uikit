@@ -30,7 +30,7 @@ export function createInteractionPanel(
     if (rootObject != null) {
       panel.raycast = makeClippedCast(
         panel,
-        makePanelRaycast(rootObject.matrixWorld, boundingSphere, globalMatrix, panel),
+        makePanelRaycast(panel.raycast.bind(panel), rootObject.matrixWorld, boundingSphere, globalMatrix, panel),
         rootContext.object,
         parentClippingRect,
         orderInfo,

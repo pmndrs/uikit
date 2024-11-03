@@ -5,6 +5,7 @@ export type ThreeEvent<TSourceEvent> = Intersection & {
   defaultPrevented?: boolean
   stopped?: boolean
   stopPropagation?: () => void
+  stopImmediatePropagation?: () => void
 } & (TSourceEvent extends { pointerId: number } ? { pointerId: number } : {})
 
 export type KeyToEvent<K extends keyof EventHandlers> = Parameters<Required<EventHandlers>[K]>[0]
