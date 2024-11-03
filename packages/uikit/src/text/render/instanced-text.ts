@@ -153,7 +153,7 @@ export class InstancedText {
     ]
   }
 
-  public getCharIndex(x: number, y: number): number {
+  public getCharIndex(x: number, y: number, position: 'between' | 'on'): number {
     const layout = this.lastLayout
     if (layout == null) {
       return 0
@@ -175,7 +175,7 @@ export class InstancedText {
     let glyphsLength = glyphs.length
     for (let i = 0; i < glyphsLength; i++) {
       const entry = glyphs[i]
-      if (x < this.getGlyphX(entry, 0.5, whitespaceWidth) + layout.availableWidth / 2) {
+      if (x < this.getGlyphX(entry, position === 'between' ? 0.5 : 1, whitespaceWidth) + layout.availableWidth / 2) {
         return i + line.charIndexOffset
       }
     }

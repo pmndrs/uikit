@@ -16,7 +16,7 @@ import {
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
-import { Signal, computed, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
 import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
@@ -304,7 +304,7 @@ export function createInput(
     properties.peek()?.onFocusChange?.(hasFocus)
     style.peek()?.onFocusChange?.(hasFocus)
   })
-  const selectionHandlers = computedSelectionHandlers(flexState, instancedTextRef, focus, disabled)
+  const selectionHandlers = computedSelectionHandlers(type, valueSignal, flexState, instancedTextRef, focus, disabled)
 
   return Object.assign(flexState, {
     pointerEventsProperties,
@@ -332,7 +332,11 @@ export function createInput(
   })
 }
 
+const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })
+
 export function computedSelectionHandlers(
+  type: Signal<InputType>,
+  text: ReadonlySignal<string>,
   flexState: FlexNodeState,
   instancedTextRef: { current?: InstancedText },
   focus: (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => void,
@@ -360,22 +364,48 @@ export function computedSelectionHandlers(
         if ('setPointerCapture' in e.object && typeof e.object.setPointerCapture === 'function') {
           e.object.setPointerCapture(e.pointerId)
         }
-        const startCharIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
+        const startCharIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current, 'between')
         dragState = {
           pointerId: e.pointerId,
           startCharIndex,
         }
         setTimeout(() => focus(startCharIndex, startCharIndex))
       },
+      onDoubleClick: (e) => {
+        if (segmenter == null || e.defaultPrevented || e.uv == null || instancedTextRef.current == null) {
+          return
+        }
+        e.stopImmediatePropagation?.()
+        if (type.peek() === 'password') {
+          setTimeout(() => focus(0, text.peek().length, 'none'))
+          return
+        }
+        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current, 'on')
+        const segments = segmenter.segment(text.peek())
+        let segmentLengthSum = 0
+        for (const { segment } of segments) {
+          const segmentLength = segment.length
+          if (charIndex < segmentLengthSum + segmentLength) {
+            setTimeout(() => focus(segmentLengthSum, segmentLengthSum + segmentLength, 'none'))
+            break
+          }
+          segmentLengthSum += segmentLength
+        }
+      },
       onPointerUp: onPointerFinish,
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (e) => {
-        if (dragState?.pointerId != e.pointerId || e.uv == null || instancedTextRef.current == null) {
+        if (
+          dragState?.pointerId != e.pointerId ||
+          e.defaultPrevented ||
+          e.uv == null ||
+          instancedTextRef.current == null
+        ) {
           return
         }
         e.stopImmediatePropagation?.()
-        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current)
+        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current, 'between')
 
         const start = Math.min(dragState.startCharIndex, charIndex)
         const end = Math.max(dragState.startCharIndex, charIndex)
@@ -478,6 +508,7 @@ function uvToCharIndex(
   { size: s, borderInset: b, paddingInset: p }: FlexNodeState,
   uv: Vector2,
   instancedText: InstancedText,
+  position: 'between' | 'on',
 ): number {
   const size = s.peek()
   const borderInset = b.peek()
@@ -490,5 +521,5 @@ function uvToCharIndex(
   const [pTop, , , pLeft] = paddingInset
   const x = uv.x * width - bLeft - pLeft
   const y = (uv.y - 1) * height + bTop + pTop
-  return instancedText.getCharIndex(x, y)
+  return instancedText.getCharIndex(x, y, position)
 }
