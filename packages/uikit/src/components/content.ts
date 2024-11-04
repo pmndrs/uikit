@@ -214,6 +214,7 @@ function createMeasureContent(
       }
       object.material.depthTest = depthTest
       object.material.depthWrite = depthWrite
+      object.material.transparent = true
     })
     root.requestRender()
   }

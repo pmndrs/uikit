@@ -12,9 +12,10 @@ import {
   MergedProperties,
 } from '@pmndrs/uikit/internals'
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
-import { Vector2Tuple, Mesh } from 'three'
+import { Vector2Tuple, Mesh, Matrix4 } from 'three'
 
 export type ComponentInternals<T = ContainerProperties> = {
+  globalMatrix: ReadonlySignal<Matrix4 | undefined>
   /**
    * the size of one pixel
    */
@@ -93,7 +94,8 @@ export function useComponentInternals<T, O = {}>(
   useImperativeHandle(
     ref,
     () => {
-      const { scrollPosition, paddingInset, borderInset, relativeCenter, size, maxScrollPosition } = internals
+      const { scrollPosition, paddingInset, borderInset, globalMatrix, relativeCenter, size, maxScrollPosition } =
+        internals
       return {
         isVisible: internals.isVisible,
         setStyle: (style: T | undefined, replace?: boolean) =>
@@ -105,6 +107,7 @@ export function useComponentInternals<T, O = {}>(
         borderInset,
         paddingInset,
         center: relativeCenter,
+        globalMatrix,
         maxScrollPosition,
         size,
         interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,

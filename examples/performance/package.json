@@ -5,7 +5,8 @@
     "@react-three/drei": "^9.96.1",
     "@react-three/uikit": "workspace:^",
     "r3f-perf": "^7.2.1",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "suspend-react": "^0.1.3"
   },
   "scripts": {
     "dev": "vite --host"

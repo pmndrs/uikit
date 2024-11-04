@@ -35,3 +35,7 @@ The `Content` component measures its content when the component is created. If t
 </td>
 </tr>
 </table>
+
+## Non-Transparent Objects inside `Content`
+
+To render objects in the correct order, we are using a custom transparent object sorter. Therefore, all objects inside uikit must either be transparent or must write to the depth buffer and should have a small offset in the z-axis towards its parent.

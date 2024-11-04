@@ -262,8 +262,6 @@ export function createRoot(
     initializers,
   )
 
-  console.log(outgoingDefaultProperties)
-
   return Object.assign(flexState, {
     defaultProperties: outgoingDefaultProperties,
     globalMatrix,

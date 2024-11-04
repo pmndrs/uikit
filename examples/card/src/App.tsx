@@ -72,7 +72,7 @@ export function CardPage() {
         >
           <Content transformTranslateZ={1} padding={14} keepAspectRatio={false} width="100%" height={400}>
             <mesh geometry={cardGeometry}>
-              <MeshPortalMaterial>
+              <MeshPortalMaterial transparent>
                 <color attach="background" args={['white']} />
                 <ambientLight intensity={Math.PI} />
                 <Environment preset="city" />
