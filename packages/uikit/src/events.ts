@@ -2,8 +2,6 @@ import { Intersection } from 'three'
 
 export type ThreeEvent<TSourceEvent> = Intersection & {
   nativeEvent: TSourceEvent
-  defaultPrevented?: boolean
-  stopped?: boolean
   stopPropagation?: () => void
   stopImmediatePropagation?: () => void
 } & (TSourceEvent extends { pointerId: number } ? { pointerId: number } : {})

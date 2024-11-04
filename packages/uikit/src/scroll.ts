@@ -241,9 +241,6 @@ export function computedScrollHandlers(
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
-        if (event.defaultPrevented) {
-          return
-        }
         const prevInteraction = downPointerMap.get(event.pointerId)
         if (prevInteraction == null) {
           return
@@ -277,9 +274,6 @@ export function computedScrollHandlers(
         prevInteraction.timestamp = timestamp
       },
       onWheel: (event) => {
-        if (event.defaultPrevented) {
-          return
-        }
         const { nativeEvent } = event
         scroll(event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
       },

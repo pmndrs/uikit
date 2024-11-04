@@ -356,7 +356,7 @@ export function computedSelectionHandlers(
     }
     return {
       onPointerDown: (e) => {
-        if (dragState != null || e.defaultPrevented || e.uv == null || instancedTextRef.current == null) {
+        if (dragState != null || e.uv == null || instancedTextRef.current == null) {
           return
         }
         cancelBlur(e.nativeEvent)
@@ -372,7 +372,7 @@ export function computedSelectionHandlers(
         setTimeout(() => focus(startCharIndex, startCharIndex))
       },
       onDoubleClick: (e) => {
-        if (segmenter == null || e.defaultPrevented || e.uv == null || instancedTextRef.current == null) {
+        if (segmenter == null || e.uv == null || instancedTextRef.current == null) {
           return
         }
         e.stopImmediatePropagation?.()
@@ -396,12 +396,7 @@ export function computedSelectionHandlers(
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (e) => {
-        if (
-          dragState?.pointerId != e.pointerId ||
-          e.defaultPrevented ||
-          e.uv == null ||
-          instancedTextRef.current == null
-        ) {
+        if (dragState?.pointerId != e.pointerId || e.uv == null || instancedTextRef.current == null) {
           return
         }
         e.stopImmediatePropagation?.()
