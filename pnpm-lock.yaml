@@ -15,8 +15,8 @@ importers:
         specifier: ^8.16.2
         version: 8.16.2(react-dom@18.3.1)(react@18.3.1)(three@0.161.0)
       '@react-three/xr':
-        specifier: 6.4.3
-        version: 6.4.3(@react-three/fiber@8.16.2)(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(three@0.161.0)
+        specifier: 6.4.4
+        version: 6.4.4(@react-three/fiber@8.16.2)(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(three@0.161.0)
       '@types/chai':
         specifier: ^4.3.10
         version: 4.3.11
@@ -2753,17 +2753,17 @@ packages:
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dev: true
 
-  /@pmndrs/pointer-events@6.4.3:
-    resolution: {integrity: sha512-NRn3K6CvYurA084n4S7ua6/xz9EG+OwFMCIXRRCi2cW7PLv7xgS+1lBlTUzeCFeG1tITTRRYDYZatK1v26cNxQ==}
+  /@pmndrs/pointer-events@6.4.4:
+    resolution: {integrity: sha512-3FYlHBItoYgrDvyh/pzDbFfA5eu5ByF0IhqVquqRcG6RbiT97uCiyGqjlSKSGcqGaqTMdMNVH1NpwS9OiXdXLA==}
     dev: true
 
-  /@pmndrs/xr@6.4.3(@types/react@18.3.1)(react@18.3.1)(three@0.161.0):
-    resolution: {integrity: sha512-deTmIzx3g6IJVS4jCwzFY5orXSVpntlN3bpg49xBfWxASe6jOAmqryLfKGUmCD5bMRxFsxktVH7HuYm56JT3/g==}
+  /@pmndrs/xr@6.4.4(@types/react@18.3.1)(react@18.3.1)(three@0.161.0):
+    resolution: {integrity: sha512-SYSxrZ5+dCZYvWcGvPY97PuQk0v48zuCSBY7WQIuwrpvo+ZclGrGA02flZvhdIAqUXW2Z1YO0d0QsM4m6rH6Yg==}
     peerDependencies:
       three: '*'
     dependencies:
       '@iwer/devui': 0.2.1(iwer@1.0.4)
-      '@pmndrs/pointer-events': 6.4.3
+      '@pmndrs/pointer-events': 6.4.4
       iwer: 1.0.4
       meshline: 3.3.1(three@0.161.0)
       three: 0.161.0
@@ -3923,16 +3923,16 @@ packages:
       use-asset: 1.0.4(react@18.3.1)
     dev: false
 
-  /@react-three/xr@6.4.3(@react-three/fiber@8.16.2)(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(three@0.161.0):
-    resolution: {integrity: sha512-TKoKxDPNFIsCZqAD8qBZ2DRhAJUm4iPiWGeQeagb5Ole7nssRb7Mse5Hkc9XZ2/G+hodYfIHLiMJGP5wHGgPig==}
+  /@react-three/xr@6.4.4(@react-three/fiber@8.16.2)(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(three@0.161.0):
+    resolution: {integrity: sha512-50zIM8XY2okbpIrsIZYi9/4A7hcXW/bfV3Yojx/XyaIZBVylJDDD33KrVIRDBrC7+TGjTgHJFZE5+hnT0UBN5Q==}
     peerDependencies:
       '@react-three/fiber': '>=8'
       react: '>=18'
       react-dom: '>=18'
       three: '*'
     dependencies:
-      '@pmndrs/pointer-events': 6.4.3
-      '@pmndrs/xr': 6.4.3(@types/react@18.3.1)(react@18.3.1)(three@0.161.0)
+      '@pmndrs/pointer-events': 6.4.4
+      '@pmndrs/xr': 6.4.4(@types/react@18.3.1)(react@18.3.1)(three@0.161.0)
       '@react-three/fiber': 8.16.2(react-dom@18.3.1)(react@18.3.1)(three@0.161.0)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

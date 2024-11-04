@@ -48,7 +48,7 @@ export const Svg: (
       <primitive object={internals.interactionPanel} />
       <primitive object={internals.centerGroup} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
-        <DefaultProperties {...internals.pointerEventsProperties}>
+        <DefaultProperties {...internals.defaultProperties}>
           <ParentProvider value={internals}>{properties.children}</ParentProvider>
         </DefaultProperties>
       </object3D>

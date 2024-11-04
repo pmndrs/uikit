@@ -55,7 +55,7 @@ export const Image: (
     <AddHandlers properties={properties} ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
-        <DefaultProperties {...internals.pointerEventsProperties}>
+        <DefaultProperties {...internals.defaultProperties}>
           <ParentProvider value={internals}>{properties.children}</ParentProvider>
         </DefaultProperties>
       </object3D>

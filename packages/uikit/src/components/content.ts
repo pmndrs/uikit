@@ -9,11 +9,10 @@ import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
-import { Signal, computed, effect, signal } from '@preact/signals-core'
+import { Signal, computed, effect, signal, untracked } from '@preact/signals-core'
 import {
   VisibilityProperties,
   WithConditionals,
-  computePointerEventsProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -27,7 +26,11 @@ import {
 import { Initializers, alignmentZMap } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext, RootContext } from '../context.js'
-import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import {
+  PanelGroupProperties,
+  RenderProperties,
+  computedPanelGroupDependencies,
+} from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
@@ -47,7 +50,8 @@ export type InheritableContentProperties = WithClasses<
           PanelGroupProperties &
           DepthAlignProperties &
           KeepAspectRatioProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          RenderProperties
       >
     >
   >
@@ -136,15 +140,13 @@ export function createContent(
   )
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, object, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, object, initializers)
+  setupPointerEvents(mergedProperties, object, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    pointerEventsProperties,
     globalMatrix,
     isClipped,
     isVisible,
@@ -196,6 +198,7 @@ function createMeasureContent(
     visible: boolean,
     renderOrder: number,
     depthTest: boolean,
+    depthWrite: boolean,
   ) => {
     if (content == null) {
       return
@@ -210,6 +213,7 @@ function createMeasureContent(
         return
       }
       object.material.depthTest = depthTest
+      object.material.depthWrite = depthWrite
     })
     root.requestRender()
   }
@@ -243,11 +247,13 @@ function createMeasureContent(
   initializers.push(
     () =>
       effect(() => {
+        const properties = propertiesSignal.value
         updateRenderProperties(
           contentContainerRef.current,
           isVisible.value,
-          root.renderOrder.value,
-          root.depthTest.value,
+          properties.read('renderOrder', 0),
+          properties.read('depthTest', true),
+          properties.read('depthWrite', false),
         )
         root.requestRender()
       }),
@@ -302,11 +308,13 @@ function createMeasureContent(
     },
   )
   return () => {
+    const properties = propertiesSignal.peek()
     updateRenderProperties(
       contentContainerRef.current,
       isVisible.peek(),
-      root.renderOrder.peek(),
-      root.depthTest.peek(),
+      untracked(() => properties.read('renderOrder', 0)),
+      untracked(() => properties.read('depthTest', true)),
+      untracked(() => properties.read('depthWrite', false)),
     )
     measureContent()
   }

@@ -14,40 +14,50 @@ import { Signal, computed, effect } from '@preact/signals-core'
 import { MergedProperties } from '../properties/merged.js'
 import { Object3DRef, RootContext } from '../context.js'
 import { Initializers } from '../utils.js'
-import { computedInheritableProperty } from '../properties/index.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
   castShadow?: boolean
 }
 
+export type RenderProperties = {
+  depthWrite?: boolean
+  depthTest?: boolean
+  renderOrder?: number
+}
+
 export type PanelGroupProperties = {
   panelMaterialClass?: MaterialClass
-} & ShadowProperties
+} & ShadowProperties &
+  RenderProperties
 
 export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
-  const panelMaterialClass = computedInheritableProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
-  const castShadow = computedInheritableProperty(propertiesSignal, 'castShadow', false)
-  const receiveShadow = computedInheritableProperty(propertiesSignal, 'receiveShadow', false)
-  return computed<Required<PanelGroupProperties>>(() => ({
-    panelMaterialClass: panelMaterialClass.value,
-    castShadow: castShadow.value,
-    receiveShadow: receiveShadow.value,
-  }))
+  return computed<Required<PanelGroupProperties>>(() => {
+    const properties = propertiesSignal.value
+    return {
+      panelMaterialClass: properties.read('panelMaterialClass', MeshBasicMaterial),
+      castShadow: properties.read('castShadow', false),
+      receiveShadow: properties.read('receiveShadow', false),
+      depthWrite: properties.read('depthWrite', false),
+      depthTest: properties.read('depthTest', true),
+      renderOrder: properties.read('renderOrder', 0),
+    }
+  })
 }
 
 export const defaultPanelDependencies: Required<PanelGroupProperties> = {
   panelMaterialClass: MeshBasicMaterial,
   castShadow: false,
   receiveShadow: false,
+  depthWrite: false,
+  depthTest: true,
+  renderOrder: 0,
 }
 
 export class PanelGroupManager {
-  private map = new Map<MaterialClass, Map<number, InstancedPanelGroup>>()
+  private map = new Map<MaterialClass, Map<string, InstancedPanelGroup>>()
 
   constructor(
-    private renderOrder: Signal<number>,
-    private depthTest: Signal<boolean>,
     private pixelSize: Signal<number>,
     private root: WithCameraDistance & Pick<RootContext, 'onFrameSet' | 'requestRender'>,
     private object: Object3DRef,
@@ -60,18 +70,6 @@ export class PanelGroupManager {
         return () => root.onFrameSet.delete(onFrame)
       },
       () => () => this.traverse((group) => group.destroy()),
-      () =>
-        effect(() => {
-          const ro = renderOrder.value
-          this.traverse((group) => group.setRenderOrder(ro))
-          this.root.requestRender()
-        }),
-      () =>
-        effect(() => {
-          const dt = depthTest.value
-          this.traverse((group) => group.setDepthTest(dt))
-          this.root.requestRender()
-        }),
     )
   }
 
@@ -83,24 +81,25 @@ export class PanelGroupManager {
     }
   }
 
-  getGroup(
-    majorIndex: number,
-    { panelMaterialClass, receiveShadow, castShadow }: Required<PanelGroupProperties> = defaultPanelDependencies,
-  ) {
-    let groups = this.map.get(panelMaterialClass)
+  getGroup(majorIndex: number, properties: Required<PanelGroupProperties> = defaultPanelDependencies) {
+    let groups = this.map.get(properties.panelMaterialClass)
     if (groups == null) {
-      this.map.set(panelMaterialClass, (groups = new Map()))
+      this.map.set(properties.panelMaterialClass, (groups = new Map()))
     }
-    const key = (majorIndex << 2) + ((receiveShadow ? 1 : 0) << 1) + (castShadow ? 1 : 0)
+    const key = [
+      majorIndex,
+      properties.renderOrder,
+      properties.depthTest,
+      properties.depthWrite,
+      properties.receiveShadow,
+      properties.castShadow,
+    ].join(',')
     let panelGroup = groups.get(key)
     if (panelGroup == null) {
       groups.set(
         key,
         (panelGroup = new InstancedPanelGroup(
-          this.renderOrder.peek(),
-          this.depthTest.peek(),
           this.object,
-          panelMaterialClass,
           this.pixelSize,
           this.root,
           {
@@ -108,8 +107,7 @@ export class PanelGroupManager {
             majorIndex,
             minorIndex: 0,
           },
-          receiveShadow,
-          castShadow,
+          properties,
         )),
       )
     }
@@ -162,18 +160,15 @@ export class InstancedPanelGroup {
   }
 
   constructor(
-    private renderOrder: number,
-    depthTest: boolean,
     private readonly object: Object3DRef,
-    materialClass: MaterialClass,
     public readonly pixelSize: Signal<number>,
     public readonly root: WithCameraDistance & Pick<RootContext, 'requestRender'>,
     private readonly orderInfo: OrderInfo,
-    private readonly meshReceiveShadow: boolean,
-    private readonly meshCastShadow: boolean,
+    private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
-    this.instanceMaterial = createPanelMaterial(materialClass, { type: 'instanced' })
-    this.instanceMaterial.depthTest = depthTest
+    this.instanceMaterial = createPanelMaterial(panelGroupProperties.panelMaterialClass, { type: 'instanced' })
+    this.instanceMaterial.depthTest = panelGroupProperties.depthTest
+    this.instanceMaterial.depthWrite = panelGroupProperties.depthWrite
   }
 
   private updateCount(): void {
@@ -207,18 +202,6 @@ export class InstancedPanelGroup {
     clearTimeout(this.nextUpdateTimeoutRef)
     this.nextUpdateTimeoutRef = undefined
     this.root.requestRender()
-  }
-
-  setDepthTest(depthTest: boolean) {
-    this.instanceMaterial.depthTest = depthTest
-  }
-
-  setRenderOrder(renderOrder: number) {
-    this.renderOrder = renderOrder
-    if (this.mesh == null) {
-      return
-    }
-    this.mesh.renderOrder = renderOrder
   }
 
   insert(bucketIndex: number, panel: InstancedPanel): void {
@@ -315,11 +298,11 @@ export class InstancedPanelGroup {
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
-    this.mesh.renderOrder = this.renderOrder
+    this.mesh.renderOrder = this.panelGroupProperties.renderOrder
     setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial
-    this.mesh.receiveShadow = this.meshReceiveShadow
-    this.mesh.castShadow = this.meshCastShadow
+    this.mesh.receiveShadow = this.panelGroupProperties.receiveShadow
+    this.mesh.castShadow = this.panelGroupProperties.castShadow
     this.object.current?.add(this.mesh)
   }
 

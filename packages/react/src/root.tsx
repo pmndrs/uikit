@@ -91,7 +91,7 @@ export const Root: (
     <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
-        <DefaultProperties {...internals.pointerEventsProperties}>
+        <DefaultProperties {...internals.defaultProperties}>
           <ParentProvider value={internals}>{properties.children}</ParentProvider>
         </DefaultProperties>
       </object3D>

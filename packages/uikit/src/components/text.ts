@@ -37,7 +37,7 @@ import {
 import { darkPropertyTransformers } from '../dark.js'
 import {
   computedInheritableProperty,
-  computePointerEventsProperties,
+  computeOutgoingDefaultProperties,
   UpdateMatrixWorldProperties,
 } from '../internals.js'
 
@@ -150,9 +150,8 @@ export function createText(
     initializers,
   )
 
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, interactionPanel, initializers)
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, interactionPanel, initializers)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
@@ -162,7 +161,6 @@ export function createText(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    pointerEventsProperties,
     globalMatrix,
     isClipped,
     isVisible,

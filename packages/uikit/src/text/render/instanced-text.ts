@@ -1,8 +1,8 @@
-import { Signal, effect, signal, untracked } from '@preact/signals-core'
+import { Signal, effect, signal } from '@preact/signals-core'
 import { InstancedGlyph } from './instanced-glyph.js'
 import { Matrix4, Vector2Tuple, Vector3Tuple } from 'three'
 import { ClippingRect } from '../../clipping.js'
-import { ColorRepresentation, Initializers, Subscriptions, alignmentXMap, alignmentYMap } from '../../utils.js'
+import { ColorRepresentation, Initializers, alignmentXMap, alignmentYMap } from '../../utils.js'
 import {
   getGlyphLayoutHeight,
   getGlyphOffsetX,
@@ -92,7 +92,13 @@ export function createInstancedText(
           return
         }
         const instancedText = new InstancedText(
-          glyphGroupManager.getGroup(orderInfo.value.majorIndex, font),
+          glyphGroupManager.getGroup(
+            orderInfo.value.majorIndex,
+            properties.value.read('depthTest', true),
+            properties.value.read('depthWrite', false),
+            properties.value.read('renderOrder', 0),
+            font,
+          ),
           textAlign,
           verticalAlign,
           color,

@@ -13,7 +13,7 @@ import {
   VisibilityProperties,
   WithConditionals,
   applyAppearancePropertiesToGroup,
-  computePointerEventsProperties,
+  computeOutgoingDefaultProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -138,15 +138,13 @@ export function createIcon(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, object, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, object, initializers)
+  setupPointerEvents(mergedProperties, object, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    pointerEventsProperties,
     globalMatrix,
     isClipped,
     isVisible,
@@ -243,6 +241,6 @@ function createIconGroup(
         parentContext.root.requestRender()
       }),
   )
-  applyAppearancePropertiesToGroup(propertiesSignal, group, initializers, parentContext.root)
+  applyAppearancePropertiesToGroup(propertiesSignal, group, initializers)
   return group
 }

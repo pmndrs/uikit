@@ -41,7 +41,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computePointerEventsProperties,
+  computeOutgoingDefaultProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -188,9 +188,8 @@ export function createImage(
     initializers,
   )
 
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, imageMesh, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, imageMesh, initializers)
+  setupPointerEvents(mergedProperties, imageMesh, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, imageMesh, initializers)
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentCtx.anyAncestorScrollable,
@@ -210,7 +209,7 @@ export function createImage(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    pointerEventsProperties,
+    defaultProperties: computeOutgoingDefaultProperties(mergedProperties),
     globalMatrix,
     scrollPosition,
     isClipped,
@@ -270,6 +269,7 @@ function createImageMesh(
   )
   setupImageMaterials(
     propertiesSignal,
+    textureSignal,
     mesh,
     flexState.size,
     flexState.borderInset,
@@ -347,16 +347,6 @@ function createImageMesh(
       }),
     () =>
       effect(() => {
-        const map = textureSignal.value ?? null
-        if (mesh.material.map === map) {
-          return
-        }
-        mesh.material.map = map
-        mesh.material.needsUpdate = true
-        parentContext.root.requestRender()
-      }),
-    () =>
-      effect(() => {
         if (flexState.size.value == null) {
           return
         }
@@ -418,6 +408,7 @@ async function loadTextureImpl(src?: string | Texture): Promise<(Texture & { dis
 
 function setupImageMaterials(
   propertiesSignal: Signal<MergedProperties>,
+  textureSignal: Signal<Texture | undefined>,
   target: Mesh,
   size: Signal<Vector2Tuple | undefined>,
   borderInset: Signal<Inset | undefined>,
@@ -433,24 +424,34 @@ function setupImageMaterials(
   target.customDepthMaterial.clippingPlanes = clippingPlanes
   target.customDistanceMaterial.clippingPlanes = clippingPlanes
 
-  const panelMaterialClass = computedInheritableProperty(propertiesSignal, 'panelMaterialClass', MeshBasicMaterial)
   initializers.push((subscriptions) => {
     subscriptions.push(
       effect(() => {
-        const material = createPanelMaterial(panelMaterialClass.value, info)
+        const material = createPanelMaterial(propertiesSignal.value.read('panelMaterialClass', MeshBasicMaterial), info)
         material.clippingPlanes = clippingPlanes
         target.material = material
         const cleanupDepthTestEffect = effect(() => {
-          material.depthTest = root.depthTest.value
+          material.depthTest = propertiesSignal.value.read('depthTest', true)
+          root.requestRender()
+        })
+        const cleanupDepthWriteEffect = effect(() => {
+          material.depthWrite = propertiesSignal.value.read('depthWrite', false)
+          root.requestRender()
+        })
+        const cleanupTextureEffect = effect(() => {
+          ;(material as any).map = textureSignal.value ?? null
+          material.needsUpdate = true
           root.requestRender()
         })
         return () => {
+          cleanupTextureEffect()
+          cleanupDepthWriteEffect()
           cleanupDepthTestEffect()
           material.dispose()
         }
       }),
       effect(() => {
-        target.renderOrder = root.renderOrder.value
+        target.renderOrder = propertiesSignal.value.read('renderOrder', 0)
         root.requestRender()
       }),
       effect(() => {

@@ -55,7 +55,7 @@ import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMa
 import { KeepAspectRatioProperties } from './image.js'
 import {
   computedInheritableProperty,
-  computePointerEventsProperties,
+  computeOutgoingDefaultProperties,
   setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
@@ -166,7 +166,7 @@ export function createSvg(
     orderInfo,
     aspectRatio,
   )
-  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers, parentCtx.root)
+  applyAppearancePropertiesToGroup(mergedProperties, svgObject, initializers)
   const centerGroup = createCenterGroup(parentCtx.root, flexState, svgObject, aspectRatio, isVisible, initializers)
 
   const scrollPosition = createScrollPosition()
@@ -209,17 +209,17 @@ export function createSvg(
     initializers,
   )
 
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, centerGroup, initializers)
-  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, centerGroup, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, interactionPanel, initializers)
+  const outgoingDefaultProperties = computeOutgoingDefaultProperties(mergedProperties)
+  setupPointerEvents(mergedProperties, centerGroup, initializers)
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, centerGroup, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, interactionPanel, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    pointerEventsProperties,
+    defaultProperties: outgoingDefaultProperties,
     globalMatrix,
     scrollPosition,
     isClipped,

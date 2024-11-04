@@ -25,7 +25,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computePointerEventsProperties,
+  computeOutgoingDefaultProperties,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
@@ -54,8 +54,6 @@ export type InheritableRootProperties = WithClasses<
           PanelProperties &
           ScrollbarProperties &
           PanelGroupProperties & {
-            renderOrder?: number
-            depthTest?: boolean
             sizeX?: number
             sizeY?: number
             anchorX?: keyof typeof alignmentXMap
@@ -119,9 +117,6 @@ export function createRoot(
     },
   )
 
-  const renderOrder = computedInheritableProperty(mergedProperties, 'renderOrder', 0)
-  const depthTest = computedInheritableProperty(mergedProperties, 'depthTest', true)
-
   const ctx: WithCameraDistance & Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
     cameraDistance: 0,
     onFrameSet,
@@ -148,7 +143,7 @@ export function createRoot(
 
   const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
 
-  const panelGroupManager = new PanelGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
+  const panelGroupManager = new PanelGroupManager(pixelSize, ctx, object, initializers)
 
   const onCameraDistanceFrame = () => {
     if (object.current == null) {
@@ -204,7 +199,7 @@ export function createRoot(
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
 
-  const gylphGroupManager = new GlyphGroupManager(renderOrder, depthTest, pixelSize, ctx, object, initializers)
+  const gylphGroupManager = new GlyphGroupManager(pixelSize, ctx, object, initializers)
 
   const rootCtx: RootContext = Object.assign(ctx, {
     objectInvertedWorldMatrix: new Matrix4(),
@@ -219,8 +214,6 @@ export function createRoot(
     object,
     panelGroupManager,
     pixelSize,
-    renderOrder,
-    depthTest,
     renderer,
     size: flexState.size,
   })
@@ -234,9 +227,9 @@ export function createRoot(
     initializers,
   )
 
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, interactionPanel, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, rootCtx, interactionPanel, initializers)
+  const outgoingDefaultProperties = computeOutgoingDefaultProperties(mergedProperties)
+  setupPointerEvents(mergedProperties, interactionPanel, initializers)
+  setupInteractableDecendant(mergedProperties, rootCtx, interactionPanel, initializers)
 
   //setup matrix world updates
   initializers.push(() => {
@@ -269,8 +262,10 @@ export function createRoot(
     initializers,
   )
 
+  console.log(outgoingDefaultProperties)
+
   return Object.assign(flexState, {
-    pointerEventsProperties,
+    defaultProperties: outgoingDefaultProperties,
     globalMatrix,
     isVisible,
     scrollPosition,

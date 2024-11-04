@@ -1,4 +1,4 @@
-import { Signal, computed, effect } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
 import { BufferGeometry, Color, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
@@ -15,7 +15,7 @@ import {
   PropertyTransformers,
   computedInheritableProperty,
 } from '../properties/index.js'
-import { PointerEventsProperties } from '../internals.js'
+import { AllowedPointerEventsType, PointerEventsProperties } from '../internals.js'
 
 export function disposeGroup(object: Object3D | undefined) {
   object?.traverse((mesh) => {
@@ -221,27 +221,31 @@ export function applyAppearancePropertiesToGroup(
   propertiesSignal: Signal<MergedProperties>,
   group: Signal<Object3D | undefined> | Object3D,
   initializers: Initializers,
-  root: RootContext,
 ) {
-  const color = computedInheritableProperty<ColorRepresentation | undefined>(propertiesSignal, 'color', undefined)
-  const opacity = computedInheritableProperty(propertiesSignal, 'opacity', 1)
   initializers.push(() =>
     effect(() => {
+      const properties = propertiesSignal.value
+      const color = properties.read<ColorRepresentation | undefined>('color', undefined)
       let c: Color | undefined
-      if (Array.isArray(color.value)) {
-        c = colorHelper.setRGB(...color.value)
-      } else if (color.value != null) {
-        c = colorHelper.set(color.value)
+      if (Array.isArray(color)) {
+        c = colorHelper.setRGB(...color)
+      } else if (color != null) {
+        c = colorHelper.set(color)
       }
+      const opacity = properties.read('opacity', 1)
+      const depthTest = properties.read('depthTest', true)
+      const depthWrite = properties.read('depthWrite', false)
+      const renderOrder = properties.read('renderOrder', 0)
       readReactive(group)?.traverse((mesh) => {
         if (!(mesh instanceof Mesh)) {
           return
         }
-        mesh.renderOrder = root.renderOrder.value
+        mesh.renderOrder = renderOrder
         const material: MeshBasicMaterial = mesh.material
         material.color.copy(c ?? mesh.userData.color)
-        material.opacity = opacity.value
-        material.depthTest = root.depthTest.value
+        material.opacity = opacity
+        material.depthTest = depthTest
+        material.depthWrite = depthWrite
       })
     }),
   )
@@ -308,29 +312,40 @@ export function setupMatrixWorldUpdate(
   )
 }
 
-export type ComputedPointerEventsProperties = ReturnType<typeof computePointerEventsProperties>
+export function computeOutgoingDefaultProperties(propertiesSignal: Signal<MergedProperties>) {
+  return {
+    pointerEvents: computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
+      propertiesSignal,
+      'pointerEvents',
+      undefined,
+    ),
+    pointerEventsOrder: computedInheritableProperty<PointerEventsProperties['pointerEventsOrder']>(
+      propertiesSignal,
+      'pointerEventsOrder',
+      undefined,
+    ),
+    pointerEventsType: computedInheritableProperty<PointerEventsProperties['pointerEventsType']>(
+      propertiesSignal,
+      'pointerEventsType',
+      undefined,
+    ),
+    renderOrder: computedInheritableProperty(propertiesSignal, 'renderOrder', 0),
+    depthTest: computedInheritableProperty(propertiesSignal, 'depthTest', true),
+    depthWrite: computedInheritableProperty(propertiesSignal, 'depthWrite', false),
+  }
+}
 
-export function computePointerEventsProperties(mergedProperties: Signal<MergedProperties>) {
-  const pointerEvents = computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
-    mergedProperties,
-    'pointerEvents',
-    undefined,
-  )
-  const pointerEventsOrder = computedInheritableProperty<PointerEventsProperties['pointerEventsOrder']>(
-    mergedProperties,
-    'pointerEventsOrder',
-    undefined,
-  )
-  const pointerEventsType = computedInheritableProperty<PointerEventsProperties['pointerEventsType']>(
-    mergedProperties,
-    'pointerEventsType',
-    undefined,
-  )
-  return { pointerEvents, pointerEventsOrder, pointerEventsType }
+export type OutgoingDefaultProperties = {
+  renderOrder: ReadonlySignal<number>
+  depthTest: ReadonlySignal<boolean>
+  depthWrite: ReadonlySignal<boolean>
+  pointerEvents: ReadonlySignal<'none' | 'auto' | 'listener'>
+  pointerEventsType: ReadonlySignal<AllowedPointerEventsType>
+  pointerEventsOrder: ReadonlySignal<number>
 }
 
 export function setupPointerEvents(
-  properties: ComputedPointerEventsProperties,
+  propertiesSignal: Signal<MergedProperties>,
   targetRef: Object3D | Object3DRef,
   initializers: Initializers,
 ) {
@@ -339,24 +354,33 @@ export function setupPointerEvents(
     if (target == null) {
       return () => {}
     }
+    const properties = propertiesSignal.value
     target.defaultPointerEvents = 'auto'
     return effect(() => {
-      target.pointerEvents = properties.pointerEvents.value
-      target.pointerEventsOrder = properties.pointerEventsOrder.value
-      target.pointerEventsType = properties.pointerEventsType.value
+      target.pointerEvents = properties.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined)
+      target.pointerEventsOrder = properties.read<PointerEventsProperties['pointerEventsOrder']>(
+        'pointerEventsOrder',
+        undefined,
+      )
+      target.pointerEventsType = properties.read<PointerEventsProperties['pointerEventsType']>(
+        'pointerEventsType',
+        undefined,
+      )
     })
   })
 }
 
 export function setupInteractableDecendant(
-  pointerEvents: ComputedPointerEventsProperties['pointerEvents'],
+  propertiesSignal: Signal<MergedProperties>,
   rootContext: RootContext,
   targetRef: Object3D | Object3DRef,
   initializers: Initializers,
 ) {
   initializers.push(() =>
     effect(() => {
-      if (pointerEvents.value === 'none') {
+      if (
+        propertiesSignal.value.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined) === 'none'
+      ) {
         return
       }
       const descendants = rootContext.interactableDescendants

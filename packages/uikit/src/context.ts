@@ -24,8 +24,6 @@ export type RootContext = WithCameraDistance &
     gylphGroupManager: GlyphGroupManager
     panelGroupManager: PanelGroupManager
     pixelSize: Signal<number>
-    renderOrder: Signal<number>
-    depthTest: Signal<boolean>
     onFrameSet: Set<(delta: number) => void>
     onUpdateMatrixWorldSet: Set<() => void>
     interactableDescendants: Array<Object3D>

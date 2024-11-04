@@ -5,14 +5,12 @@ import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../../order.js'
 import { Object3DRef, RootContext } from '../../context.js'
-import { Signal, effect } from '@preact/signals-core'
+import { Signal } from '@preact/signals-core'
 import { Initializers } from '../../utils.js'
 
 export class GlyphGroupManager {
-  private map = new Map<Font, Map<number, InstancedGlyphGroup>>()
+  private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
-    private renderOrder: Signal<number>,
-    private depthTest: Signal<boolean>,
     private pixelSize: Signal<number>,
     private root: WithCameraDistance & Pick<RootContext, 'requestRender' | 'onFrameSet'>,
     private object: Object3DRef,
@@ -25,16 +23,6 @@ export class GlyphGroupManager {
         return () => root.onFrameSet.delete(onFrame)
       },
       () => () => this.traverse((group) => group.destroy()),
-      () =>
-        effect(() => {
-          const ro = renderOrder.value
-          this.traverse((group) => group.setRenderOrder(ro))
-        }),
-      () =>
-        effect(() => {
-          const dt = depthTest.value
-          this.traverse((group) => group.setDepthTest(dt))
-        }),
     )
   }
 
@@ -46,18 +34,17 @@ export class GlyphGroupManager {
     }
   }
 
-  getGroup(majorIndex: number, font: Font) {
+  getGroup(majorIndex: number, depthTest: boolean, depthWrite: boolean, renderOrder: number, font: Font) {
     let groups = this.map.get(font)
     if (groups == null) {
       this.map.set(font, (groups = new Map()))
     }
-    let glyphGroup = groups?.get(majorIndex)
+    const key = [majorIndex, depthTest, depthWrite, renderOrder].join(',')
+    let glyphGroup = groups?.get(key)
     if (glyphGroup == null) {
       groups.set(
-        majorIndex,
+        key,
         (glyphGroup = new InstancedGlyphGroup(
-          this.renderOrder.peek(),
-          this.depthTest.peek(),
           this.object,
           font,
           this.pixelSize,
@@ -67,6 +54,9 @@ export class GlyphGroupManager {
             elementType: ElementType.Text,
             minorIndex: 0,
           },
+          depthTest,
+          depthWrite,
+          renderOrder,
         )),
       )
     }
@@ -90,30 +80,18 @@ export class InstancedGlyphGroup {
   private timeTillDecimate?: number
 
   constructor(
-    private renderOrder: number,
-    depthTest: boolean,
     private object: Object3DRef,
     font: Font,
     public readonly pixelSize: Signal<number>,
     public readonly root: WithCameraDistance & Pick<RootContext, 'requestRender'>,
     private orderInfo: OrderInfo,
+    depthTest: boolean,
+    depthWrite: boolean,
+    private renderOrder: number,
   ) {
     this.instanceMaterial = new InstancedGlyphMaterial(font)
     this.instanceMaterial.depthTest = depthTest
-  }
-
-  setDepthTest(depthTest: boolean) {
-    this.instanceMaterial.depthTest = depthTest
-    this.root.requestRender()
-  }
-
-  setRenderOrder(renderOrder: number) {
-    this.renderOrder = renderOrder
-    if (this.mesh == null) {
-      return
-    }
-    this.mesh.renderOrder = renderOrder
-    this.root.requestRender()
+    this.instanceMaterial.depthWrite = depthWrite
   }
 
   requestActivate(glyph: InstancedGlyph): void {

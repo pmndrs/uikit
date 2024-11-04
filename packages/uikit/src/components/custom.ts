@@ -21,14 +21,14 @@ import {
   setupMatrixWorldUpdate,
   setupInteractableDecendant,
   setupPointerEvents,
+  computeOutgoingDefaultProperties,
 } from './utils.js'
 import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { FrontSide, Material, Mesh } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
-import { ShadowProperties, makeClippedCast } from '../panel/index.js'
-import { computePointerEventsProperties } from '../internals.js'
+import { RenderProperties, ShadowProperties, makeClippedCast } from '../panel/index.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -40,7 +40,8 @@ export type InheritableCustomContainerProperties = WithClasses<
           TransformProperties &
           ScrollbarProperties &
           ShadowProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          RenderProperties
       >
     >
   >
@@ -98,18 +99,24 @@ export function createCustomContainer(
       material.clippingPlanes = clippingPlanes
       material.needsUpdate = true
       material.shadowSide = FrontSide
-      subscriptions.push(() =>
-        effect(() => {
-          material.depthTest = parentCtx.root.depthTest.value
-          parentCtx.root.requestRender()
-        }),
+      subscriptions.push(
+        () =>
+          effect(() => {
+            material.depthTest = mergedProperties.value.read('depthTest', true)
+            parentCtx.root.requestRender()
+          }),
+        () =>
+          effect(() => {
+            material.depthWrite = mergedProperties.value.read('depthWrite', false)
+            parentCtx.root.requestRender()
+          }),
       )
     }
     mesh.raycast = makeClippedCast(mesh, mesh.raycast, parentCtx.root.object, parentCtx.clippingRect, orderInfo)
     setupRenderOrder(mesh, parentCtx.root, orderInfo)
     subscriptions.push(
       effect(() => {
-        mesh.renderOrder = parentCtx.root.renderOrder.value
+        mesh.renderOrder = mergedProperties.value.read('renderOrder', 0)
         parentCtx.root.requestRender()
       }),
       effect(() => {
@@ -140,15 +147,13 @@ export function createCustomContainer(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
-  const pointerEventsProperties = computePointerEventsProperties(mergedProperties)
-  setupPointerEvents(pointerEventsProperties, object, initializers)
-  setupInteractableDecendant(pointerEventsProperties.pointerEvents, parentCtx.root, object, initializers)
+  setupPointerEvents(mergedProperties, object, initializers)
+  setupInteractableDecendant(mergedProperties, parentCtx.root, object, initializers)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    pointerEventsProperties,
     globalMatrix,
     isClipped,
     isVisible,

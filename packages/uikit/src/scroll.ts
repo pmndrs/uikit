@@ -202,21 +202,25 @@ export function computedScrollHandlers(
     }
     return {
       onPointerDown: (event) => {
-        if (event.nativeEvent.pointerType === 'mouse') {
-          return
-        }
         event.stopImmediatePropagation?.()
         const localPoint = object.current!.worldToLocal(event.point.clone())
 
-        const scrollbarAxisIndex = getIntersectedScrollbarIndex(
-          localPoint,
-          root.pixelSize.peek(),
-          scrollbarWidth.peek(),
-          nodeState.size.peek(),
-          nodeState.maxScrollPosition.peek(),
-          nodeState.borderInset.peek(),
-          scrollPosition.peek(),
-        )
+        const scrollbarAxisIndex =
+          event.nativeEvent.pointerType != 'mouse'
+            ? undefined
+            : getIntersectedScrollbarIndex(
+                localPoint,
+                root.pixelSize.peek(),
+                scrollbarWidth.peek(),
+                nodeState.size.peek(),
+                nodeState.maxScrollPosition.peek(),
+                nodeState.borderInset.peek(),
+                scrollPosition.peek(),
+              )
+
+        if (event.nativeEvent.pointerType === 'mouse' && scrollbarAxisIndex == null) {
+          return
+        }
 
         if ('setPointerCapture' in event.object && typeof event.object.setPointerCapture === 'function') {
           event.object.setPointerCapture(event.pointerId)

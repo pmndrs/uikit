@@ -208,7 +208,6 @@ export function createPanelMaterial<T extends Constructor<Material>>(MaterialCla
   material.clipShadows = true
   material.transparent = true
   material.toneMapped = false
-  material.depthWrite = false
   material.shadowSide = FrontSide
   material.defines.USE_UV = ''
   material.defines.USE_TANGENT = ''

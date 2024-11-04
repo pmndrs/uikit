@@ -93,6 +93,9 @@ In addition to the flexbox properties, the container has properties for styling 
 | zIndexOffset                     | number              |
 | receiveShadow                    | boolean             |
 | castShadow                       | boolean             |
+| depthTest                        | boolean             |
+| depthWrite                       | boolean             |
+| renderOrder                      | number              |
 | backgroundColor                  | ColorRepresentation |
 | backgroundOpacity                | number              |
 | panelMaterialClass               | Material class      |
@@ -126,7 +129,7 @@ In addition to the flexbox properties, the container has properties for styling 
 
 ## Root
 
-Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units. The `Root` component also allows to control the `renderOrder` and `depthTest` of the whole user interface.
+Every layout needs to start with a `Root` component. The `Root` component has all the properties of a `Container` component. The `pixelSize` property of the `Root` component allows you to specify the relation of pixels inside the layout with the three.js units in the scene. The `anchorX` and `anchorY` properties allow you to specify where the `Root` component is anchored in relation to its position. The `sizeX` and `sizeY` properties can be used to give the layout a fixed size in three.js units.
 
 ```jsx showLineNumbers
 <Root sizeX={2} sizeY={1} flexDirection="row">
@@ -138,14 +141,12 @@ Every layout needs to start with a `Root` component. The `Root` component has al
 <details>
 <summary>View all properties specific to the `Root` component</summary>
 
-| Property    | Type                      |
-| ----------- | ------------------------- |
-| anchorX     | "left", "center", "right" |
-| anchorY     | "top", "center", "bottom" |
-| sizeX       | number                    |
-| sizeY       | number                    |
-| renderOrder | number                    |
-| depthTest   | boolean                   |
+| Property | Type                      |
+| -------- | ------------------------- |
+| anchorX  | "left", "center", "right" |
+| anchorY  | "top", "center", "bottom" |
+| sizeX    | number                    |
+| sizeY    | number                    |
 
 </details>
 
@@ -167,8 +168,6 @@ The `Fullscreen` component wraps the `Root` component and binds its content dire
 | ---------------- | ------- |
 | attachCamera     | boolean |
 | distanceToCamera | number  |
-| renderOrder      | number  |
-| depthTest        | boolean |
 
 </details>
 
@@ -544,5 +543,5 @@ Each component exposes the `ComponentInternals` when using a `ref`. The componen
 | maxScrollPosition   | the maximum x/y scroll position, based on the size of the children                                              |
 | isClipped           | exploses whether the element is fully clipped by some ancestor                                                  |
 | setStyle            | modifies the styles of the element (the provided styles have a higher precedence then the element's properties) |
-| getStyle            | get the current style of the object                                                                       |
+| getStyle            | get the current style of the object                                                                             |
 | getComputedProperty | read the current value for any property (combines default properties, direct properties, and styles)            |

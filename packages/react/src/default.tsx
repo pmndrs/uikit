@@ -16,6 +16,7 @@ export function DefaultProperties(properties: DefaultPropertiesProperties) {
     if (key === 'children') {
       continue
     }
+    //TODO: this is not correctly merged but rather overwritten
     const value = properties[key as keyof AllOptionalProperties]
     if (value == null) {
       continue
