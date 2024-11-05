@@ -212,8 +212,7 @@ export function computedScrollHandlers(
           event.nativeEvent.pointerType === 'mouse'
 
         const scrollbarAxisIndex = ponterIsMouse
-          ? undefined
-          : getIntersectedScrollbarIndex(
+          ? getIntersectedScrollbarIndex(
               localPoint,
               root.pixelSize.peek(),
               scrollbarWidth.peek(),
@@ -222,6 +221,7 @@ export function computedScrollHandlers(
               nodeState.borderInset.peek(),
               scrollPosition.peek(),
             )
+          : undefined
 
         if (ponterIsMouse && scrollbarAxisIndex == null) {
           return

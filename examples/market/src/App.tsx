@@ -15,6 +15,7 @@ import { Sidebar } from './components/sidebar.js'
 import { playlists } from './data/playlists.js'
 import { Menu } from './components/menu.js'
 import { create } from 'zustand'
+import { noEvents, PointerEvents } from '@react-three/xr'
 
 export default function App() {
   return (
@@ -22,11 +23,13 @@ export default function App() {
       <FrameCounter />
       <Canvas
         flat
+        events={noEvents}
         frameloop="demand"
         camera={{ position: [0, 0, 18], fov: 35 }}
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}
       >
+        <PointerEvents />
         <CountFrames />
         {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
         <Defaults>
