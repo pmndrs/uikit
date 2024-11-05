@@ -1,4 +1,4 @@
-import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
 import { BufferGeometry, Color, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { WithActive, addActiveHandlers } from '../active.js'
 import { WithPreferredColorScheme } from '../dark.js'
@@ -168,7 +168,16 @@ export function computedHandlers(
   })
 }
 
-export function addHandlers(target: EventHandlers, handlers: EventHandlers | undefined) {
+export function computeAnyAncestorsHaveListeners(
+  parentContext: ParentContext | undefined,
+  handlers: ReadonlySignal<EventHandlers>,
+) {
+  return computed(
+    () => (parentContext?.ancestorsHaveListeners.value ?? false) || Object.keys(handlers.value).length > 0,
+  )
+}
+
+export function addHandlers(target: EventHandlers, handlers: EventHandlers | undefined): void {
   for (const key in handlers) {
     addHandler(key as keyof EventHandlers, target, handlers[key as keyof EventHandlers])
   }
@@ -312,7 +321,7 @@ export function setupMatrixWorldUpdate(
   )
 }
 
-export function computeOutgoingDefaultProperties(propertiesSignal: Signal<MergedProperties>) {
+export function computeDefaultProperties(propertiesSignal: Signal<MergedProperties>) {
   return {
     pointerEvents: computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
       propertiesSignal,
@@ -346,56 +355,54 @@ export type OutgoingDefaultProperties = {
 
 export function setupPointerEvents(
   propertiesSignal: Signal<MergedProperties>,
-  targetRef: Object3D | Object3DRef,
-  initializers: Initializers,
-) {
-  initializers.push(() => {
-    const target = targetRef instanceof Object3D ? targetRef : targetRef.current
-    if (target == null) {
-      return () => {}
-    }
-    const properties = propertiesSignal.value
-    target.defaultPointerEvents = 'auto'
-    return effect(() => {
-      target.pointerEvents = properties.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined)
-      target.pointerEventsOrder = properties.read<PointerEventsProperties['pointerEventsOrder']>(
-        'pointerEventsOrder',
-        undefined,
-      )
-      target.pointerEventsType = properties.read<PointerEventsProperties['pointerEventsType']>(
-        'pointerEventsType',
-        undefined,
-      )
-    })
-  })
-}
-
-export function setupInteractableDecendant(
-  propertiesSignal: Signal<MergedProperties>,
+  ancestorsHaveListeners: ReadonlySignal<boolean>,
   rootContext: RootContext,
   targetRef: Object3D | Object3DRef,
   initializers: Initializers,
+  canHaveNonUikitChildren: boolean,
 ) {
-  initializers.push(() =>
-    effect(() => {
-      if (
-        propertiesSignal.value.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined) === 'none'
-      ) {
-        return
-      }
-      const descendants = rootContext.interactableDescendants
+  initializers.push(
+    () => {
       const target = targetRef instanceof Object3D ? targetRef : targetRef.current
-      if (descendants == null || target == null) {
-        return
+      if (target == null) {
+        return () => {}
       }
-      descendants.push(target)
-      return () => {
-        const index = descendants.indexOf(target)
-        if (index === -1) {
+      const properties = propertiesSignal.value
+      target.defaultPointerEvents = 'auto'
+      return effect(() => {
+        target.ancestorsHaveListeners = ancestorsHaveListeners.value
+        target.pointerEvents = properties.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined)
+        target.pointerEventsOrder = properties.read<PointerEventsProperties['pointerEventsOrder']>(
+          'pointerEventsOrder',
+          undefined,
+        )
+        target.pointerEventsType = properties.read<PointerEventsProperties['pointerEventsType']>(
+          'pointerEventsType',
+          undefined,
+        )
+      })
+    },
+    () =>
+      effect(() => {
+        if (
+          !canHaveNonUikitChildren &&
+          propertiesSignal.value.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined) === 'none'
+        ) {
           return
         }
-        descendants.splice(index, 1)
-      }
-    }),
+        const descendants = rootContext.interactableDescendants
+        const target = targetRef instanceof Object3D ? targetRef : targetRef.current
+        if (descendants == null || target == null) {
+          return
+        }
+        descendants.push(target)
+        return () => {
+          const index = descendants.indexOf(target)
+          if (index === -1) {
+            return
+          }
+          descendants.splice(index, 1)
+        }
+      }),
   )
 }

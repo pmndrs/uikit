@@ -36,9 +36,9 @@ import { Initializers } from '../utils.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 import {
+  computeAnyAncestorsHaveListeners,
   computedInheritableProperty,
-  computeOutgoingDefaultProperties,
-  setupInteractableDecendant,
+  computeDefaultProperties,
   setupPointerEvents,
   UpdateMatrixWorldProperties,
 } from '../internals.js'
@@ -66,7 +66,7 @@ export function createContainer(
   parentCtx: ParentContext,
   style: Signal<ContainerProperties | undefined>,
   properties: Signal<ContainerProperties | undefined>,
-  incommingDefaultProperties: Signal<AllOptionalProperties | undefined>,
+  defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
 ) {
@@ -79,7 +79,7 @@ export function createContainer(
   setupCursorCleanup(hoveredSignal, initializers)
 
   //properties
-  const mergedProperties = computedMergedProperties(style, properties, incommingDefaultProperties, {
+  const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
     ...createResponsivePropertyTransformers(parentCtx.root.size),
     ...createHoverPropertyTransformers(hoveredSignal),
@@ -136,16 +136,6 @@ export function createContainer(
     scrollbarWidth,
     initializers,
   )
-  const interactionPanel = createInteractionPanel(
-    orderInfo,
-    parentCtx.root,
-    parentCtx.clippingRect,
-    flexState.size,
-    globalMatrix,
-    initializers,
-  )
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, interactionPanel, initializers)
   const scrollHandlers = computedScrollHandlers(
     scrollPosition,
     parentCtx.anyAncestorScrollable,
@@ -157,6 +147,19 @@ export function createContainer(
     initializers,
   )
 
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+
+  const interactionPanel = createInteractionPanel(
+    orderInfo,
+    parentCtx.root,
+    parentCtx.clippingRect,
+    flexState.size,
+    globalMatrix,
+    initializers,
+  )
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
+
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
@@ -165,7 +168,8 @@ export function createContainer(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    defaultProperties: computeOutgoingDefaultProperties(mergedProperties),
+    ancestorsHaveListeners,
+    defaultProperties: computeDefaultProperties(mergedProperties),
     globalMatrix,
     isClipped,
     isVisible,
@@ -178,14 +182,7 @@ export function createContainer(
     root: parentCtx.root,
     scrollPosition,
     interactionPanel,
-    handlers: computedHandlers(
-      style,
-      properties,
-      incommingDefaultProperties,
-      hoveredSignal,
-      activeSignal,
-      scrollHandlers,
-    ),
+    handlers,
     initializers,
-  })
+  }) satisfies ParentContext
 }

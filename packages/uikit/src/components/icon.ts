@@ -1,8 +1,8 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { BufferGeometry, Color, Group, Material, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
+import { BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
 import { Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
-import { FlexNode, FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
+import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
 import { WithAllAliases } from '../properties/alias.js'
@@ -13,18 +13,17 @@ import {
   VisibilityProperties,
   WithConditionals,
   applyAppearancePropertiesToGroup,
-  computeOutgoingDefaultProperties,
+  computeAnyAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
-  setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
 } from './utils.js'
-import { Initializers, Subscriptions, fitNormalizedContentInside } from '../utils.js'
+import { Initializers, fitNormalizedContentInside } from '../utils.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -36,7 +35,7 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { AppearanceProperties } from './svg.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { darkPropertyTransformers } from '../dark.js'
-import { computedInheritableProperty, MergedProperties } from '../properties/index.js'
+import { MergedProperties } from '../properties/index.js'
 
 export type InheritableIconProperties = WithClasses<
   WithConditionals<
@@ -138,8 +137,9 @@ export function createIcon(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
-  setupPointerEvents(mergedProperties, object, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, object, initializers)
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, false)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -151,7 +151,7 @@ export function createIcon(
     mergedProperties,
     initializers,
     iconGroup,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers,
     interactionPanel: createInteractionPanel(
       orderInfo,
       parentCtx.root,

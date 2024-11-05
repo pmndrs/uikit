@@ -20,6 +20,7 @@ declare module 'three' {
     spherecast?(sphere: Sphere, intersects: Array<Intersection>): void
     intersectChildren?: boolean
     interactableDescendants?: Array<Object3D>
+    ancestorsHaveListeners?: boolean
     defaultPointerEvents?: PointerEventsProperties['pointerEvents']
   }
 }

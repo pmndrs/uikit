@@ -55,10 +55,10 @@ import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMa
 import { KeepAspectRatioProperties } from './image.js'
 import {
   computedInheritableProperty,
-  computeOutgoingDefaultProperties,
-  setupInteractableDecendant,
+  computeDefaultProperties,
   setupMatrixWorldUpdate,
   setupPointerEvents,
+  computeAnyAncestorsHaveListeners,
 } from '../internals.js'
 
 export type InheritableSvgProperties = WithClasses<
@@ -209,17 +209,17 @@ export function createSvg(
     initializers,
   )
 
-  const outgoingDefaultProperties = computeOutgoingDefaultProperties(mergedProperties)
-  setupPointerEvents(mergedProperties, centerGroup, initializers)
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, centerGroup, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, interactionPanel, initializers)
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(undefined, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, centerGroup, initializers, false)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    defaultProperties: outgoingDefaultProperties,
+    ancestorsHaveListeners,
+    defaultProperties: computeDefaultProperties(mergedProperties),
     globalMatrix,
     scrollPosition,
     isClipped,
@@ -233,9 +233,9 @@ export function createSvg(
     root: parentCtx.root,
     initializers,
     centerGroup,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers,
     interactionPanel,
-  })
+  }) satisfies ParentContext
 }
 
 function createCenterGroup(

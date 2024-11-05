@@ -41,7 +41,8 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computeOutgoingDefaultProperties,
+  computeAnyAncestorsHaveListeners,
+  computeDefaultProperties,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -49,7 +50,6 @@ import {
   createNode,
   keepAspectRatioPropertyTransformer,
   loadResourceWithParams,
-  setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
 } from './utils.js'
@@ -176,6 +176,17 @@ export function createImage(
     scrollbarWidth,
     initializers,
   )
+  const scrollHandlers = computedScrollHandlers(
+    scrollPosition,
+    parentCtx.anyAncestorScrollable,
+    flexState,
+    object,
+    scrollbarWidth,
+    properties,
+    parentCtx.root,
+    initializers,
+  )
+
   const imageMesh = createImageMesh(
     mergedProperties,
     texture,
@@ -188,18 +199,9 @@ export function createImage(
     initializers,
   )
 
-  setupPointerEvents(mergedProperties, imageMesh, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, imageMesh, initializers)
-  const scrollHandlers = computedScrollHandlers(
-    scrollPosition,
-    parentCtx.anyAncestorScrollable,
-    flexState,
-    object,
-    scrollbarWidth,
-    properties,
-    parentCtx.root,
-    initializers,
-  )
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, imageMesh, initializers, false)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
@@ -209,7 +211,8 @@ export function createImage(
   setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
-    defaultProperties: computeOutgoingDefaultProperties(mergedProperties),
+    ancestorsHaveListeners,
+    defaultProperties: computeDefaultProperties(mergedProperties),
     globalMatrix,
     scrollPosition,
     isClipped,
@@ -217,14 +220,14 @@ export function createImage(
     mergedProperties,
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
     initializers,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers,
     interactionPanel: imageMesh,
     clippingRect: computedClippingRect(globalMatrix, flexState, parentCtx.root.pixelSize, parentCtx.clippingRect),
     childrenMatrix,
     node,
     orderInfo,
     root: parentCtx.root,
-  })
+  }) satisfies ParentContext
 }
 
 let imageMaterialConfig: PanelMaterialConfig | undefined

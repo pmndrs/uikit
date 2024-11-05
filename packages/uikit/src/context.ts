@@ -9,6 +9,7 @@ import { FlexNode } from './flex/index.js'
 export type ParentContext = Readonly<{
   node: Signal<FlexNode | undefined>
   anyAncestorScrollable: Signal<readonly [boolean, boolean]>
+  ancestorsHaveListeners: Signal<boolean>
   clippingRect: Signal<ClippingRect | undefined>
   childrenMatrix: Signal<Matrix4 | undefined>
   orderInfo: Signal<OrderInfo | undefined>

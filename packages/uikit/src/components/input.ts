@@ -21,13 +21,12 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computeOutgoingDefaultProperties,
+  computeAnyAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
   createNode,
-  setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
 } from './utils.js'
@@ -250,9 +249,6 @@ export function createInput(
     initializers,
   )
 
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, interactionPanel, initializers)
-
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
@@ -305,6 +301,18 @@ export function createInput(
   })
   const selectionHandlers = computedSelectionHandlers(type, valueSignal, flexState, instancedTextRef, focus, disabled)
 
+  const handlers = computedHandlers(
+    style,
+    properties,
+    defaultProperties,
+    hoveredSignal,
+    activeSignal,
+    selectionHandlers,
+    'text',
+  )
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
+
   return Object.assign(flexState, {
     globalMatrix,
     isClipped,
@@ -317,15 +325,7 @@ export function createInput(
     element,
     node: nodeSignal,
     interactionPanel,
-    handlers: computedHandlers(
-      style,
-      properties,
-      defaultProperties,
-      hoveredSignal,
-      activeSignal,
-      selectionHandlers,
-      'text',
-    ),
+    handlers,
     initializers,
   })
 }

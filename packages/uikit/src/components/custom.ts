@@ -13,15 +13,14 @@ import { Signal, effect, signal } from '@preact/signals-core'
 import {
   VisibilityProperties,
   WithConditionals,
+  computeAnyAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
   createNode,
   setupMatrixWorldUpdate,
-  setupInteractableDecendant,
   setupPointerEvents,
-  computeOutgoingDefaultProperties,
 } from './utils.js'
 import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -147,8 +146,9 @@ export function createCustomContainer(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
-  setupPointerEvents(mergedProperties, object, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, object, initializers)
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -159,7 +159,7 @@ export function createCustomContainer(
     isVisible,
     mergedProperties,
     root: parentCtx.root,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers,
     initializers,
   })
 }

@@ -1,5 +1,5 @@
 import { Signal, computed, signal } from '@preact/signals-core'
-import { Object3DRef, RootContext } from '../context.js'
+import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { FlexNode, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { LayoutListeners, ScrollListeners, setupLayoutListeners } from '../listeners.js'
 import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
@@ -25,11 +25,11 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computeOutgoingDefaultProperties,
+  computeAnyAncestorsHaveListeners,
+  computeDefaultProperties,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
-  setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
 } from './utils.js'
@@ -227,10 +227,6 @@ export function createRoot(
     initializers,
   )
 
-  const outgoingDefaultProperties = computeOutgoingDefaultProperties(mergedProperties)
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(mergedProperties, rootCtx, interactionPanel, initializers)
-
   //setup matrix world updates
   initializers.push(() => {
     if (childrenContainer.current != null) {
@@ -262,8 +258,13 @@ export function createRoot(
     initializers,
   )
 
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(undefined, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, rootCtx, interactionPanel, initializers, false)
+
   return Object.assign(flexState, {
-    defaultProperties: outgoingDefaultProperties,
+    ancestorsHaveListeners,
+    defaultProperties: computeDefaultProperties(mergedProperties),
     globalMatrix,
     isVisible,
     scrollPosition,
@@ -275,9 +276,9 @@ export function createRoot(
     orderInfo,
     initializers,
     interactionPanel,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers),
+    handlers,
     root: rootCtx,
-  })
+  }) satisfies ParentContext
 }
 
 function createDeferredRequestLayoutCalculation(

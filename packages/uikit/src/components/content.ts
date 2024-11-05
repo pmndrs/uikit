@@ -13,13 +13,13 @@ import { Signal, computed, effect, signal, untracked } from '@preact/signals-cor
 import {
   VisibilityProperties,
   WithConditionals,
+  computeAnyAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
   createNode,
   keepAspectRatioPropertyTransformer,
-  setupInteractableDecendant,
   setupMatrixWorldUpdate,
   setupPointerEvents,
 } from './utils.js'
@@ -140,8 +140,10 @@ export function createContent(
   )
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
-  setupPointerEvents(mergedProperties, object, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, object, initializers)
+
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)
   setupClippedListeners(style, properties, isClipped, initializers)
@@ -163,7 +165,7 @@ export function createContent(
       initializers,
     ),
     interactionPanel,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers,
     initializers,
   })
 }

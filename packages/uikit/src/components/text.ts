@@ -18,7 +18,6 @@ import {
   computedIsVisible,
   computedMergedProperties,
   createNode,
-  setupInteractableDecendant,
   setupPointerEvents,
   setupMatrixWorldUpdate,
 } from './utils.js'
@@ -36,8 +35,8 @@ import {
 } from '../text/index.js'
 import { darkPropertyTransformers } from '../dark.js'
 import {
+  computeAnyAncestorsHaveListeners,
   computedInheritableProperty,
-  computeOutgoingDefaultProperties,
   UpdateMatrixWorldProperties,
 } from '../internals.js'
 
@@ -150,8 +149,9 @@ export function createText(
     initializers,
   )
 
-  setupPointerEvents(mergedProperties, interactionPanel, initializers)
-  setupInteractableDecendant(mergedProperties, parentCtx.root, interactionPanel, initializers)
+  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
+  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(undefined, handlers)
+  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
   setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
@@ -166,7 +166,7 @@ export function createText(
     isVisible,
     mergedProperties,
     interactionPanel,
-    handlers: computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal),
+    handlers,
     initializers,
   })
 }
