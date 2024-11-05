@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties } from '@react-three/uikit'
 import { useFrame } from '@react-three/fiber'
 import React, { ReactNode, RefAttributes, forwardRef, useMemo } from 'react'
 import { signal } from '@preact/signals-core'
@@ -18,7 +18,7 @@ export type LoadingProperties = ContainerProperties & {
   size?: Size
 }
 
-export const Loading: (props: LoadingProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Loading: (props: LoadingProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ size = 'md', ...props }, ref) => {
     const pillOpacities = useMemo(() => new Array(PILL_AMOUNT).fill(undefined).map(() => signal(0)), [])
 

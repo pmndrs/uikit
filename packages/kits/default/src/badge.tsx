@@ -1,7 +1,7 @@
 import {
-  ComponentInternals,
   Container,
   ContainerProperties,
+  ContainerRef,
   DefaultProperties,
   DefaultPropertiesProperties,
 } from '@react-three/uikit'
@@ -47,7 +47,7 @@ const badgeVariants = {
 
 export type BadgeProperties = ContainerProperties & { variant?: keyof typeof badgeVariants }
 
-export const Badge: (props: BadgeProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Badge: (props: BadgeProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, variant = 'default', hover, ...props }, ref) => {
     const {
       containerProps,

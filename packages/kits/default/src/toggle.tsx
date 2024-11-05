@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
 
@@ -30,7 +30,7 @@ export type ToggleProperties = ContainerProperties & {
   size?: keyof typeof toggleSizes
 }
 
-export const Toggle: (props: ToggleProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Toggle: (props: ToggleProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     {
       children,

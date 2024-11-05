@@ -21,7 +21,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -35,7 +35,7 @@ import { Listeners, setupLayoutListeners, setupClippedListeners } from '../liste
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { EventHandlers, ThreeEvent } from '../events.js'
+import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
 import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
 import { CaretProperties, createCaret } from '../caret.js'
 import { SelectionBoxes, SelectionProperties, createSelection } from '../selection.js'
@@ -49,7 +49,7 @@ import {
   createInstancedText,
 } from '../text/index.js'
 import { darkPropertyTransformers } from '../dark.js'
-import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
 
 export type InheritableInputProperties = WithClasses<
   WithFocus<
@@ -67,7 +67,8 @@ export type InheritableInputProperties = WithClasses<
             InstancedTextProperties &
             DisabledProperties &
             VisibilityProperties &
-            UpdateMatrixWorldProperties
+            UpdateMatrixWorldProperties &
+            PointerEventsProperties
         >
       >
     >
@@ -78,9 +79,9 @@ export type DisabledProperties = {
   disabled?: boolean
 }
 
-const cancelSet = new Set<PointerEvent>()
+const cancelSet = new Set<unknown>()
 
-function cancelBlur(event: PointerEvent) {
+function cancelBlur(event: unknown) {
   cancelSet.add(event)
 }
 
@@ -99,7 +100,7 @@ export const canvasInputProps = {
 
 export type InputType = 'text' | 'password'
 
-export type InputProperties = InheritableInputProperties &
+export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableInputProperties &
   Listeners & {
     onValueChange?: (value: string) => void
   } & WithReactive<{
@@ -110,13 +111,13 @@ export type InputProperties = InheritableInputProperties &
   }> & {
     multiline?: boolean
     defaultValue?: string
-  }
+  } & EventHandlers<EM>
 
-export function createInput(
+export function createInput<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
   fontFamilies: Signal<FontFamilies | undefined>,
-  style: Signal<InputProperties | undefined>,
-  properties: Signal<InputProperties | undefined>,
+  style: Signal<InputProperties<EM> | undefined>,
+  properties: Signal<InputProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -310,7 +311,7 @@ export function createInput(
     selectionHandlers,
     'text',
   )
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
 
   return Object.assign(flexState, {
@@ -345,7 +346,7 @@ export function computedSelectionHandlers(
       return undefined
     }
     let dragState: { startCharIndex: number; pointerId: number } | undefined
-    const onPointerFinish = (e: ThreeEvent<PointerEvent>) => {
+    const onPointerFinish = (e: ThreePointerEvent) => {
       if (dragState == null || dragState.pointerId != e.pointerId) {
         return
       }

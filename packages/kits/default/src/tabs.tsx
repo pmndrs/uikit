@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext, useMemo, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
 
@@ -14,7 +14,7 @@ export type TabsProperties = {
   children?: ReactNode
 } & ContainerProperties
 
-export const Tabs: (props: TabsProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Tabs: (props: TabsProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ value: providedValue, onValueChange, defaultValue, children, ...props }, ref) => {
     const [uncontrolled, setUncontrolled] = useState(defaultValue)
     const contextValue = useMemo(() => {
@@ -42,7 +42,7 @@ export const Tabs: (props: TabsProperties & RefAttributes<ComponentInternals>) =
 
 export type TabsListProperties = ContainerProperties
 
-export const TabsList: (props: TabsListProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const TabsList: (props: TabsListProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, ...props }, ref) => {
     return (
       <Container
@@ -64,7 +64,7 @@ export const TabsList: (props: TabsListProperties & RefAttributes<ComponentInter
 
 export type TabsTriggerProperties = ContainerProperties & { disabled?: boolean; value: string }
 
-export const TabsTrigger: (props: TabsTriggerProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const TabsTrigger: (props: TabsTriggerProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, value, disabled = false, ...props }, ref) => {
     const { setValue, value: current } = useContext(TabsContext)
     const active = value === current
@@ -100,7 +100,7 @@ export const TabsTrigger: (props: TabsTriggerProperties & RefAttributes<Componen
 
 export type TabsContentProperties = ContainerProperties & { value: string }
 
-export const TabsContent: (props: TabsContentProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const TabsContent: (props: TabsContentProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ value, ...props }, ref) => {
     const { value: current } = useContext(TabsContext)
     if (value != current) {

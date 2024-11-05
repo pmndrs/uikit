@@ -34,13 +34,15 @@ import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/i
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Initializers } from '../utils.js'
 import { darkPropertyTransformers } from '../dark.js'
-import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
 import {
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computedInheritableProperty,
   computeDefaultProperties,
   setupPointerEvents,
   UpdateMatrixWorldProperties,
+  EventHandlers,
+  ThreeEventMap,
 } from '../internals.js'
 
 export type InheritableContainerProperties = WithClasses<
@@ -54,18 +56,21 @@ export type InheritableContainerProperties = WithClasses<
           ScrollbarProperties &
           PanelGroupProperties &
           VisibilityProperties &
-          UpdateMatrixWorldProperties
+          UpdateMatrixWorldProperties &
+          PointerEventsProperties
       >
     >
   >
 >
 
-export type ContainerProperties = InheritableContainerProperties & Listeners
+export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableContainerProperties &
+  Listeners &
+  EventHandlers<EM>
 
-export function createContainer(
+export function createContainer<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  style: Signal<ContainerProperties | undefined>,
-  properties: Signal<ContainerProperties | undefined>,
+  style: Signal<ContainerProperties<EM> | undefined>,
+  properties: Signal<ContainerProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -148,7 +153,7 @@ export function createContainer(
   )
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
 
   const interactionPanel = createInteractionPanel(
     orderInfo,

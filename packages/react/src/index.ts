@@ -1,5 +1,6 @@
 export { FontFamilyProvider, useMeasureText } from './font.js'
 export { useRootSize } from './responsive.js'
+export type { R3FEventMap } from './utils.js'
 export {
   isInteractionPanel,
   basedOnPreferredColorScheme,

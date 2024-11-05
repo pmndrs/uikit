@@ -1,61 +1,54 @@
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
-import { AddHandlers, usePropertySignals } from './utilts.js'
-import {
-  createContent,
-  initialize,
-  PointerEventsProperties,
-  Subscriptions,
-  unsubscribeSubscriptions,
-} from '@pmndrs/uikit/internals'
+import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
+import { createContent, initialize, Subscriptions, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ContentProperties as BaseContentProperties } from '../../uikit/dist/components/content.js'
 
 export type ContentProperties = {
   name?: string
   children?: ReactNode
-} & BaseContentProperties &
-  EventHandlers &
-  PointerEventsProperties
+} & BaseContentProperties<R3FEventMap>
 
-export const Content: (
-  props: ContentProperties & RefAttributes<ComponentInternals<BaseContentProperties & EventHandlers>>,
-) => ReactNode = forwardRef((properties, ref) => {
-  const parent = useParent()
-  const outerRef = useRef<Object3D>(null)
-  const innerRef = useRef<Object3D>(null)
-  const propertySignals = usePropertySignals(properties)
-  const internals = useMemo(
-    () =>
-      createContent(
-        parent,
-        propertySignals.style,
-        propertySignals.properties,
-        propertySignals.default,
-        outerRef,
-        innerRef,
-      ),
-    [parent, propertySignals],
-  )
+export type ContentRef = ComponentInternals<BaseContentProperties<R3FEventMap>>
 
-  internals.interactionPanel.name = properties.name ?? ''
+export const Content: (props: ContentProperties & RefAttributes<ContentRef>) => ReactNode = forwardRef(
+  (properties, ref) => {
+    const parent = useParent()
+    const outerRef = useRef<Object3D>(null)
+    const innerRef = useRef<Object3D>(null)
+    const propertySignals = usePropertySignals(properties)
+    const internals = useMemo(
+      () =>
+        createContent<R3FEventMap>(
+          parent,
+          propertySignals.style,
+          propertySignals.properties,
+          propertySignals.default,
+          outerRef,
+          innerRef,
+        ),
+      [parent, propertySignals],
+    )
 
-  useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    internals.interactionPanel.name = properties.name ?? ''
 
-  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+    useEffect(() => {
+      const subscriptions: Subscriptions = []
+      initialize(internals.initializers, subscriptions)
+      return () => unsubscribeSubscriptions(subscriptions)
+    }, [internals])
 
-  return (
-    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
-      <primitive object={internals.interactionPanel} />
-      <object3D matrixAutoUpdate={false} ref={innerRef}>
-        <ParentProvider value={undefined}>{properties.children}</ParentProvider>
-      </object3D>
-    </AddHandlers>
-  )
-})
+    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+
+    return (
+      <AddHandlers handlers={internals.handlers} ref={outerRef}>
+        <primitive object={internals.interactionPanel} />
+        <object3D matrixAutoUpdate={false} ref={innerRef}>
+          <ParentProvider value={undefined}>{properties.children}</ParentProvider>
+        </object3D>
+      </AddHandlers>
+    )
+  },
+)

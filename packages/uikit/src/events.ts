@@ -1,25 +1,32 @@
 import { Intersection } from 'three'
 
-export type ThreeEvent<TSourceEvent> = Intersection & {
-  nativeEvent: TSourceEvent
+export type ThreeMouseEvent = Intersection & {
+  nativeEvent: unknown
   stopPropagation?: () => void
   stopImmediatePropagation?: () => void
-} & (TSourceEvent extends { pointerId: number } ? { pointerId: number } : {})
+}
 
-export type KeyToEvent<K extends keyof EventHandlers> = Parameters<Required<EventHandlers>[K]>[0]
+export type ThreePointerEvent = ThreeMouseEvent & { pointerId: number }
 
-export type EventHandlers = {
-  onClick?: (event: ThreeEvent<MouseEvent>) => void
-  onContextMenu?: (event: ThreeEvent<MouseEvent>) => void
-  onDoubleClick?: (event: ThreeEvent<MouseEvent>) => void
-  onPointerUp?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerDown?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerOver?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerOut?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerEnter?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerLeave?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerMove?: (event: ThreeEvent<PointerEvent>) => void
-  onPointerMissed?: (event: MouseEvent) => void
-  onPointerCancel?: (event: ThreeEvent<PointerEvent>) => void
-  onWheel?: (event: ThreeEvent<WheelEvent>) => void
+export type ThreeEventMap = {
+  mouse: ThreeMouseEvent
+  wheel: ThreeMouseEvent
+  pointer: ThreePointerEvent
+}
+
+export type EventHandlers<EM extends ThreeEventMap = ThreeEventMap> = {
+  onClick?: (event: EM['mouse']) => void
+  onContextMenu?: (event: EM['mouse']) => void
+  onDoubleClick?: (event: EM['mouse']) => void
+
+  onWheel?: (event: EM['wheel']) => void
+
+  onPointerUp?: (event: EM['pointer']) => void
+  onPointerDown?: (event: EM['pointer']) => void
+  onPointerOver?: (event: EM['pointer']) => void
+  onPointerOut?: (event: EM['pointer']) => void
+  onPointerEnter?: (event: EM['pointer']) => void
+  onPointerLeave?: (event: EM['pointer']) => void
+  onPointerMove?: (event: EM['pointer']) => void
+  onPointerCancel?: (event: EM['pointer']) => void
 }

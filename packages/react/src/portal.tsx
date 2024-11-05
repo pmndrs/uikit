@@ -12,10 +12,11 @@ import {
 } from 'three'
 import { Image } from './image.js'
 import { InjectState, RootState, reconciler, useFrame, useStore, context } from '@react-three/fiber'
-import type { DomEvent, EventHandlers, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import type { ImageProperties, PointerEventsProperties } from '@pmndrs/uikit/internals'
+import type { DomEvent, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import type { ImageProperties } from '@pmndrs/uikit/internals'
 import type { ComponentInternals } from './ref.js'
 import { create } from 'zustand'
+import { R3FEventMap } from './utils.js'
 
 // Keys that shouldn't be copied between R3F stores
 export const privateKeys = [
@@ -35,7 +36,7 @@ type Camera = THREE.OrthographicCamera | THREE.PerspectiveCamera
 const isOrthographicCamera = (def: Camera): def is THREE.OrthographicCamera =>
   def && (def as THREE.OrthographicCamera).isOrthographicCamera
 
-type BasePortalProperties = Omit<ImageProperties, 'src' | 'objectFit'>
+type BasePortalProperties = Omit<ImageProperties<R3FEventMap>, 'src' | 'objectFit'>
 
 export type PortalProperties = {
   frames?: number
@@ -47,14 +48,13 @@ export type PortalProperties = {
    */
   dpr?: number
   children?: ReactNode
-} & BasePortalProperties &
-  EventHandlers & {
+} & BasePortalProperties & {
     children?: ReactNode
-  } & PointerEventsProperties
+  }
 
-export const Portal: (
-  props: PortalProperties & RefAttributes<ComponentInternals<BasePortalProperties & EventHandlers>>,
-) => ReactNode = forwardRef(
+export type PortalRef = ComponentInternals<BasePortalProperties>
+
+export const Portal: (props: PortalProperties & RefAttributes<PortalRef>) => ReactNode = forwardRef(
   ({ children, dpr, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
     const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
     const imageRef = useRef<ComponentInternals<ImageProperties>>(null)

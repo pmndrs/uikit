@@ -11,7 +11,7 @@ import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-ma
 import { PanelGroupManager, defaultPanelDependencies } from './panel/instanced-panel-group.js'
 import { Object3DRef, RootContext } from './context.js'
 import { ScrollListeners } from './listeners.js'
-import { EventHandlers, ThreeEvent } from './events.js'
+import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
@@ -88,7 +88,7 @@ export function computedScrollHandlers(
   const scrollVelocity = new Vector2()
 
   const scroll = (
-    event: ThreeEvent<WheelEvent | PointerEvent> | undefined,
+    event: ThreePointerEvent | ThreeMouseEvent | undefined,
     deltaX: number,
     deltaY: number,
     deltaTime: number | undefined,
@@ -186,7 +186,7 @@ export function computedScrollHandlers(
     if (!isScrollable.value) {
       return undefined
     }
-    const onPointerFinish = (event: ThreeEvent<PointerEvent>) => {
+    const onPointerFinish = (event: ThreePointerEvent) => {
       if ('releasePointerCapture' in object && typeof object.releasePointerCapture === 'function') {
         object.releasePointerCapture(event.pointerId)
       }
@@ -205,20 +205,25 @@ export function computedScrollHandlers(
         event.stopImmediatePropagation?.()
         const localPoint = object.current!.worldToLocal(event.point.clone())
 
-        const scrollbarAxisIndex =
-          event.nativeEvent.pointerType != 'mouse'
-            ? undefined
-            : getIntersectedScrollbarIndex(
-                localPoint,
-                root.pixelSize.peek(),
-                scrollbarWidth.peek(),
-                nodeState.size.peek(),
-                nodeState.maxScrollPosition.peek(),
-                nodeState.borderInset.peek(),
-                scrollPosition.peek(),
-              )
+        const ponterIsMouse =
+          event.nativeEvent != null &&
+          typeof event.nativeEvent === 'object' &&
+          'pointerType' in event.nativeEvent &&
+          event.nativeEvent.pointerType === 'mouse'
 
-        if (event.nativeEvent.pointerType === 'mouse' && scrollbarAxisIndex == null) {
+        const scrollbarAxisIndex = ponterIsMouse
+          ? undefined
+          : getIntersectedScrollbarIndex(
+              localPoint,
+              root.pixelSize.peek(),
+              scrollbarWidth.peek(),
+              nodeState.size.peek(),
+              nodeState.maxScrollPosition.peek(),
+              nodeState.borderInset.peek(),
+              scrollPosition.peek(),
+            )
+
+        if (ponterIsMouse && scrollbarAxisIndex == null) {
           return
         }
 
@@ -279,6 +284,16 @@ export function computedScrollHandlers(
       },
       onWheel: (event) => {
         const { nativeEvent } = event
+        if (
+          nativeEvent == null ||
+          typeof nativeEvent != 'object' ||
+          !('deltaX' in nativeEvent) ||
+          typeof nativeEvent.deltaX != 'number' ||
+          !('deltaY' in nativeEvent) ||
+          typeof nativeEvent.deltaY != 'number'
+        ) {
+          return
+        }
         scroll(event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
       },
     }

@@ -15,13 +15,12 @@ import {
   DialogTriggerProperties,
   useCloseDialog,
 } from './dialog.js'
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import { borderRadius, colors } from './theme.js'
 export type AlertDialogOverlayProperties = DialogOverlayProperties
 
-export const AlertDialogOverlay: (
-  props: AlertDialogOverlayProperties & RefAttributes<ComponentInternals>,
-) => ReactNode = DialogOverlay
+export const AlertDialogOverlay: (props: AlertDialogOverlayProperties & RefAttributes<ContainerRef>) => ReactNode =
+  DialogOverlay
 
 export type AlertDialogProperties = DialogProperties
 
@@ -29,56 +28,54 @@ export const AlertDialog = Dialog
 
 export type AlertDialogTriggerProperties = DialogTriggerProperties
 
-export const AlertDialogTrigger: (
-  props: AlertDialogTriggerProperties & RefAttributes<ComponentInternals>,
-) => ReactNode = DialogTrigger
+export const AlertDialogTrigger: (props: AlertDialogTriggerProperties & RefAttributes<ContainerRef>) => ReactNode =
+  DialogTrigger
 
 export type AlertDialogContentProperties = ContainerProperties
 
-export const AlertDialogContent: (
-  props: AlertDialogContentProperties & RefAttributes<ComponentInternals>,
-) => ReactNode = forwardRef(({ onClick, sm, ...props }, ref) => {
-  const close = useCloseDialog()
-  return (
-    <DialogContentPrimitive>
-      <DialogOverlay
-        onClick={(e) => {
-          close()
-          e.stopPropagation()
-        }}
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Container
+export const AlertDialogContent: (props: AlertDialogContentProperties & RefAttributes<ContainerRef>) => ReactNode =
+  forwardRef(({ onClick, sm, ...props }, ref) => {
+    const close = useCloseDialog()
+    return (
+      <DialogContentPrimitive>
+        <DialogOverlay
           onClick={(e) => {
+            close()
             e.stopPropagation()
-            onClick?.(e)
           }}
-          positionType="relative"
-          flexDirection="column"
-          maxWidth={512}
-          width="100%"
-          gap={16}
-          borderWidth={1}
-          backgroundColor={colors.background}
-          padding={24}
-          sm={{ borderRadius: borderRadius.lg, ...sm }}
-          ref={ref}
-          {...props}
-        ></Container>
-      </DialogOverlay>
-    </DialogContentPrimitive>
-  )
-})
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Container
+            onClick={(e) => {
+              e.stopPropagation()
+              onClick?.(e)
+            }}
+            positionType="relative"
+            flexDirection="column"
+            maxWidth={512}
+            width="100%"
+            gap={16}
+            borderWidth={1}
+            backgroundColor={colors.background}
+            padding={24}
+            sm={{ borderRadius: borderRadius.lg, ...sm }}
+            ref={ref}
+            {...props}
+          ></Container>
+        </DialogOverlay>
+      </DialogContentPrimitive>
+    )
+  })
 
 export type AlertDialogHeaderProperties = DialogHeaderProperties
 
-export const AlertDialogHeader: (props: AlertDialogHeaderProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const AlertDialogHeader: (props: AlertDialogHeaderProperties & RefAttributes<ContainerRef>) => ReactNode =
   DialogHeader
 
 export type AlertDialogFooterProperties = DialogFooterProperties
 
-export const AlertDialogFooter: (props: AlertDialogFooterProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const AlertDialogFooter: (props: AlertDialogFooterProperties & RefAttributes<ContainerRef>) => ReactNode =
   DialogFooter
 
 export type AlertDialogTitleProperties = { children?: ReactNode }
@@ -93,7 +90,7 @@ export const AlertDialogDescription = DialogDescription
 
 export type AlertDialogActionProperties = ContainerProperties
 
-export const AlertDialogAction: (props: AlertDialogActionProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const AlertDialogAction: (props: AlertDialogActionProperties & RefAttributes<ContainerRef>) => ReactNode =
   forwardRef(({ children, onClick, ...props }, ref) => {
     const close = useCloseDialog()
     return (
@@ -135,7 +132,7 @@ export const AlertDialogAction: (props: AlertDialogActionProperties & RefAttribu
 
 export type AlertDialogCancelProperties = ContainerProperties
 
-export const AlertDialogCancel: (props: AlertDialogCancelProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const AlertDialogCancel: (props: AlertDialogCancelProperties & RefAttributes<ContainerRef>) => ReactNode =
   forwardRef(({ children, onClick, ...props }, ref) => {
     const close = useCloseDialog()
     return (

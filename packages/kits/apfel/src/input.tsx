@@ -7,7 +7,7 @@ import {
   Text,
   InputInternals,
   InputProperties as BaseInputProperties,
-  ComponentInternals,
+  ContainerRef,
 } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef, useMemo, useState } from 'react'
 
@@ -16,7 +16,7 @@ export type InputProperties = BaseInputProperties & { placeholder?: string; vari
 
 //TODO: increase hitbox size (by increasing the size of the InputImpl)
 
-export const Input: (props: InputProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     {
       variant = 'rect',

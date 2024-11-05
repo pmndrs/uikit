@@ -1,6 +1,5 @@
 import {
   IconProperties as BaseIconProperties,
-  PointerEventsProperties,
   Subscriptions,
   createIcon,
   initialize,
@@ -8,29 +7,27 @@ import {
 } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
-import { AddHandlers, usePropertySignals } from './utilts.js'
+import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import { useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
-import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 
-export type IconProperties = BaseIconProperties &
-  EventHandlers & {
-    text: string
-    svgWidth: number
-    svgHeight: number
-    children?: ReactNode
-    name?: string
-  } & PointerEventsProperties
+export type IconProperties = BaseIconProperties<R3FEventMap> & {
+  text: string
+  svgWidth: number
+  svgHeight: number
+  children?: ReactNode
+  name?: string
+}
 
-export const Icon: (
-  props: IconProperties & RefAttributes<ComponentInternals<Partial<BaseIconProperties & EventHandlers>>>,
-) => ReactNode = forwardRef((properties, ref) => {
+export type IconRef = ComponentInternals<Partial<BaseIconProperties<R3FEventMap>>>
+
+export const Icon: (props: IconProperties & RefAttributes<IconRef>) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
     () =>
-      createIcon(
+      createIcon<R3FEventMap>(
         parent,
         properties.text,
         properties.svgWidth,
@@ -54,7 +51,7 @@ export const Icon: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers properties={properties} ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <primitive object={internals.iconGroup} />
     </AddHandlers>

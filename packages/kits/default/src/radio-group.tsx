@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext, useMemo, useState } from 'react'
 import { colors } from './theme.js'
 
@@ -13,7 +13,7 @@ export type RadioGroupProperties = {
   defaultValue?: string
 } & ContainerProperties
 
-export const RadioGroup: (props: RadioGroupProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const RadioGroup: (props: RadioGroupProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ defaultValue, value: providedValue, onValueChange, children, ...props }, ref) => {
     const [uncontrolled, setUncontrolled] = useState(defaultValue)
     const contextValue = useMemo(() => {
@@ -41,8 +41,8 @@ export const RadioGroup: (props: RadioGroupProperties & RefAttributes<ComponentI
 
 export type RadioGroupItemProperties = ContainerProperties & { disabled?: boolean; value: string }
 
-export const RadioGroupItem: (props: RadioGroupItemProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ disabled = false, value, children, ...props }, ref) => {
+export const RadioGroupItem: (props: RadioGroupItemProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ disabled = false, value, children, ...props }, ref) => {
     const { value: current, setValue } = useContext(RadioGroupContext)
     return (
       <Container
@@ -77,4 +77,5 @@ export const RadioGroupItem: (props: RadioGroupItemProperties & RefAttributes<Co
         {children}
       </Container>
     )
-  })
+  },
+)

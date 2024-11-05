@@ -13,7 +13,7 @@ import { Signal, effect, signal } from '@preact/signals-core'
 import {
   VisibilityProperties,
   WithConditionals,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -27,7 +27,8 @@ import { Listeners, setupLayoutListeners, setupClippedListeners } from '../liste
 import { Object3DRef, ParentContext } from '../context.js'
 import { FrontSide, Material, Mesh } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
-import { RenderProperties, ShadowProperties, makeClippedCast } from '../panel/index.js'
+import { PointerEventsProperties, RenderProperties, ShadowProperties, makeClippedCast } from '../panel/index.js'
+import { EventHandlers, ThreeEventMap } from '../events.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -40,18 +41,21 @@ export type InheritableCustomContainerProperties = WithClasses<
           ScrollbarProperties &
           ShadowProperties &
           VisibilityProperties &
-          RenderProperties
+          RenderProperties &
+          PointerEventsProperties
       >
     >
   >
 >
 
-export type CustomContainerProperties = InheritableCustomContainerProperties & Listeners
+export type CustomContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableCustomContainerProperties &
+  Listeners &
+  EventHandlers<EM>
 
-export function createCustomContainer(
+export function createCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  style: Signal<CustomContainerProperties | undefined>,
-  properties: Signal<CustomContainerProperties | undefined>,
+  style: Signal<CustomContainerProperties<EM> | undefined>,
+  properties: Signal<CustomContainerProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   meshRef: { current?: Mesh | null },
@@ -147,7 +151,7 @@ export function createCustomContainer(
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)

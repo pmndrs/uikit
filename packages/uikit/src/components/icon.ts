@@ -1,6 +1,6 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, Plane, ShapeGeometry } from 'three'
-import { Listeners } from '../index.js'
+import { EventHandlers, Listeners } from '../index.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
@@ -13,7 +13,7 @@ import {
   VisibilityProperties,
   WithConditionals,
   applyAppearancePropertiesToGroup,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -24,7 +24,7 @@ import {
   setupPointerEvents,
 } from './utils.js'
 import { Initializers, fitNormalizedContentInside } from '../utils.js'
-import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast, PointerEventsProperties } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { createActivePropertyTransfomers } from '../active.js'
@@ -36,6 +36,7 @@ import { AppearanceProperties } from './svg.js'
 import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { MergedProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
 export type InheritableIconProperties = WithClasses<
   WithConditionals<
@@ -48,21 +49,24 @@ export type InheritableIconProperties = WithClasses<
           TransformProperties &
           PanelGroupProperties &
           ScrollbarProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          PointerEventsProperties
       >
     >
   >
 >
 
-export type IconProperties = InheritableIconProperties & Listeners
+export type IconProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableIconProperties &
+  Listeners &
+  EventHandlers<EM>
 
-export function createIcon(
+export function createIcon<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
   text: string,
   svgWidth: number,
   svgHeight: number,
-  style: Signal<IconProperties | undefined>,
-  properties: Signal<IconProperties | undefined>,
+  style: Signal<IconProperties<EM> | undefined>,
+  properties: Signal<IconProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -138,7 +142,7 @@ export function createIcon(
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, false)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)

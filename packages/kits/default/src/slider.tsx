@@ -1,4 +1,4 @@
-import { Container, ComponentInternals, ContainerProperties } from '@react-three/uikit'
+import { Container, ContainerRef, ContainerProperties } from '@react-three/uikit'
 import { colors } from './theme.js'
 import React, { ReactNode, RefAttributes, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events.js'
@@ -17,7 +17,7 @@ export type SliderProperties = {
   step?: number
 } & Omit<ContainerProperties, 'children'>
 
-export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     { disabled = false, value: providedValue, defaultValue, onValueChange, min = 0, max = 100, step = 1, ...props },
     ref,
@@ -32,7 +32,7 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
         }),
       [min, max, value],
     )
-    const internalRef = useRef<ComponentInternals<ContainerProperties>>(null)
+    const internalRef = useRef<ContainerRef>(null)
     const onChange = useRef(onValueChange)
     onChange.current = onValueChange
     const hasProvidedValue = providedValue != null

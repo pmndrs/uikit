@@ -1,11 +1,11 @@
-import { ComponentInternals, Container, ContainerProperties, Text } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, Text } from '@react-three/uikit'
 import { ChevronLeft, ChevronRight, Ellipsis } from '@react-three/uikit-lucide'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 export type PaginationProperties = ContainerProperties
 
-export const Pagination: (props: PaginationProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Pagination: (props: PaginationProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (props, ref) => {
     return <Container marginX="auto" flexDirection="row" width="100%" justifyContent="center" ref={ref} {...props} />
   },
@@ -13,16 +13,14 @@ export const Pagination: (props: PaginationProperties & RefAttributes<ComponentI
 
 export type PaginationContentProperties = ContainerProperties
 
-export const PaginationContent: (props: PaginationContentProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const PaginationContent: (props: PaginationContentProperties & RefAttributes<ContainerRef>) => ReactNode =
   forwardRef((props, ref) => {
     return <Container flexDirection="row" alignItems="center" gap={4} ref={ref} {...props} />
   })
 
 export type PaginationItemProperties = ContainerProperties
 
-export const PaginationItem: (
-  props: ContainerProperties & RefAttributes<ComponentInternals<ContainerProperties>>,
-) => ReactNode = Container
+export const PaginationItem: (props: ContainerProperties & RefAttributes<ContainerRef>) => ReactNode = Container
 
 const paginationVariants: {
   [Key in string]: {
@@ -59,8 +57,8 @@ export type PaginationLinkProperties = ContainerProperties & {
   isActive?: boolean
 }
 
-export const PaginationLink: (props: PaginationLinkProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ isActive = false, size = 'icon', hover, ...props }, ref) => {
+export const PaginationLink: (props: PaginationLinkProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ isActive = false, size = 'icon', hover, ...props }, ref) => {
     const { containerProps, containerHoverProps } = paginationVariants[isActive ? 'outline' : 'ghost']
     const sizeProps = paginationSizes[size]
     return (
@@ -76,50 +74,50 @@ export const PaginationLink: (props: PaginationLinkProperties & RefAttributes<Co
         {...props}
       />
     )
-  })
+  },
+)
 
 export type PaginationPreviousProperties = Omit<PaginationLinkProperties, 'children'>
 
-export const PaginationPrevious: (
-  props: PaginationPreviousProperties & RefAttributes<ComponentInternals>,
-) => ReactNode = forwardRef((props, ref) => {
-  return (
-    <PaginationLink flexDirection="row" size="default" gap={4} paddingLeft={10} ref={ref} {...props}>
-      <ChevronLeft width={16} height={16} />
-      <Text>Previous</Text>
-    </PaginationLink>
-  )
-})
+export const PaginationPrevious: (props: PaginationPreviousProperties & RefAttributes<ContainerRef>) => ReactNode =
+  forwardRef((props, ref) => {
+    return (
+      <PaginationLink flexDirection="row" size="default" gap={4} paddingLeft={10} ref={ref} {...props}>
+        <ChevronLeft width={16} height={16} />
+        <Text>Previous</Text>
+      </PaginationLink>
+    )
+  })
 
 export type PaginationNextProperties = Omit<PaginationLinkProperties, 'children'>
 
-export const PaginationNext: (props: PaginationNextProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef((props, ref) => {
+export const PaginationNext: (props: PaginationNextProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  (props, ref) => {
     return (
       <PaginationLink flexDirection="row" size="default" gap={4} paddingRight={10} ref={ref} {...props}>
         <Text>Next</Text>
         <ChevronRight width={16} height={16} />
       </PaginationLink>
     )
-  })
+  },
+)
 
 export type PaginationEllipsisProperties = Omit<PaginationLinkProperties, 'children'>
 
-export const PaginationEllipsis: (
-  props: PaginationEllipsisProperties & RefAttributes<ComponentInternals>,
-) => ReactNode = forwardRef((props, ref) => {
-  return (
-    <Container
-      flexDirection="row"
-      height={36}
-      width={36}
-      alignItems="center"
-      justifyContent="center"
-      ref={ref}
-      {...props}
-    >
-      <Ellipsis width={16} height={16} />
-    </Container>
-  )
-})
+export const PaginationEllipsis: (props: PaginationEllipsisProperties & RefAttributes<ContainerRef>) => ReactNode =
+  forwardRef((props, ref) => {
+    return (
+      <Container
+        flexDirection="row"
+        height={36}
+        width={36}
+        alignItems="center"
+        justifyContent="center"
+        ref={ref}
+        {...props}
+      >
+        <Ellipsis width={16} height={16} />
+      </Container>
+    )
+  })
 //<span className="sr-only">More pages</span>

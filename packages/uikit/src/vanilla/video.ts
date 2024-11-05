@@ -8,15 +8,16 @@ import {
   updateVideoElement,
 } from '../components/index.js'
 import { AllOptionalProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
-export class Video<T = {}> extends Image<T> {
+export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Image<T> {
   public element: HTMLVideoElement
   private readonly texture: VideoTexture
   private readonly aspectRatio: Signal<number>
   private readonly updateAspectRatio: () => void
   private unsubscribeInvalidate: () => void
 
-  constructor(props: VideoProperties = {}, defaultProperties?: AllOptionalProperties) {
+  constructor(props: VideoProperties<EM>, defaultProperties?: AllOptionalProperties) {
     const element = props.src instanceof HTMLVideoElement ? props.src : document.createElement('video')
     updateVideoElement(element, props)
     const texture = new VideoTexture(element)
@@ -40,7 +41,7 @@ export class Video<T = {}> extends Image<T> {
     this.element.addEventListener('resize', this.updateAspectRatio)
   }
 
-  setProperties(props: VideoProperties & ImageProperties): void {
+  setProperties(props: VideoProperties<EM> & ImageProperties<EM>): void {
     updateVideoElement(this.element, props)
     super.setProperties({
       aspectRatio: this.aspectRatio,

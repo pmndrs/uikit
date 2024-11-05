@@ -1,8 +1,8 @@
 import {
   AllOptionalProperties,
-  ComponentInternals,
   Container,
   ContainerProperties,
+  ContainerRef,
   DefaultProperties,
 } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
@@ -79,7 +79,7 @@ export type ButtonProperties = ContainerProperties & {
   disabled?: boolean
 }
 
-export const Button: (props: ButtonProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Button: (props: ButtonProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, variant = 'default', size = 'default', disabled = false, hover, ...props }, ref) => {
     const {
       containerProps,

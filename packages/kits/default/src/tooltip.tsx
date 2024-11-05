@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, {
   ReactNode,
   RefAttributes,
@@ -15,7 +15,7 @@ const TooltipContext = createContext<boolean>(null as any)
 
 export type TooltipProperties = ContainerProperties
 
-export const Tooltip: (props: TooltipProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Tooltip: (props: TooltipProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, ...props }, ref) => {
     const [open, setOpen] = useState(false)
     const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -61,15 +61,16 @@ export const Tooltip: (props: TooltipProperties & RefAttributes<ComponentInterna
 
 export type TooltipTriggerProperties = ContainerProperties
 
-export const TooltipTrigger: (props: TooltipTriggerProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef((props, ref) => {
+export const TooltipTrigger: (props: TooltipTriggerProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  (props, ref) => {
     return <Container alignSelf="stretch" ref={ref} {...props} />
-  })
+  },
+)
 
 export type TooltipContentProperties = ContainerProperties & { sideOffset?: number }
 
-export const TooltipContent: (props: TooltipContentProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ children, sideOffset = 4, ...props }, ref) => {
+export const TooltipContent: (props: TooltipContentProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ children, sideOffset = 4, ...props }, ref) => {
     const open = useContext(TooltipContext)
     if (!open) {
       return null
@@ -94,4 +95,5 @@ export const TooltipContent: (props: TooltipContentProperties & RefAttributes<Co
         </DefaultProperties>
       </Container>
     )
-  })
+  },
+)

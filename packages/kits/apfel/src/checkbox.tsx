@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties } from '@react-three/uikit'
 import { Check } from '@react-three/uikit-lucide'
 import React, { ReactNode, RefAttributes, forwardRef, useState } from 'react'
 import { colors } from './theme.js'
@@ -10,7 +10,7 @@ type CheckboxProperties = ContainerProperties & {
   onSelectedChange?(value: boolean): void
 }
 
-export const Checkbox: (props: CheckboxProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Checkbox: (props: CheckboxProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ selected, disabled = false, defaultSelected, onSelectedChange, ...props }, ref) => {
     const [internalValue, setInternalValue] = useState(defaultSelected ?? false)
     const value = selected != null ? selected : internalValue

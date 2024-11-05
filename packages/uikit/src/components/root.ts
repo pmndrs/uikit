@@ -25,7 +25,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computeDefaultProperties,
   computedHandlers,
   computedIsVisible,
@@ -44,6 +44,7 @@ import { createResponsivePropertyTransformers } from '../responsive.js'
 import { darkPropertyTransformers } from '../dark.js'
 import { computedInheritableProperty } from '../properties/index.js'
 import { getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
+import { EventHandlers, ThreeEventMap } from '../events.js'
 
 export type InheritableRootProperties = WithClasses<
   WithConditionals<
@@ -66,7 +67,10 @@ export type InheritableRootProperties = WithClasses<
   >
 >
 
-export type RootProperties = InheritableRootProperties & LayoutListeners & ScrollListeners
+export type RootProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableRootProperties &
+  LayoutListeners &
+  ScrollListeners &
+  EventHandlers<EM>
 
 export const DEFAULT_PIXEL_SIZE = 0.01
 
@@ -75,10 +79,10 @@ const planeHelper = new Plane()
 
 const identityMatrix = signal(new Matrix4())
 
-export function createRoot(
+export function createRoot<EM extends ThreeEventMap = ThreeEventMap>(
   pixelSize: Signal<number>,
-  style: Signal<RootProperties | undefined>,
-  properties: Signal<RootProperties | undefined>,
+  style: Signal<RootProperties<EM> | undefined>,
+  properties: Signal<RootProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -259,7 +263,7 @@ export function createRoot(
   )
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(undefined, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(undefined, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, rootCtx, interactionPanel, initializers, false)
 
   return Object.assign(flexState, {

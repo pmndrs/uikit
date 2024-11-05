@@ -1,8 +1,7 @@
 import { useFrame, useStore, useThree } from '@react-three/fiber'
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { ParentProvider } from './context.js'
-import { AddHandlers, usePropertySignals } from './utilts.js'
+import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
   DEFAULT_PIXEL_SIZE,
   RootProperties as BaseRootProperties,
@@ -13,23 +12,21 @@ import {
   readReactive,
   reversePainterSortStable,
   unsubscribeSubscriptions,
-  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, computed, signal } from '@preact/signals-core'
 import { DefaultProperties } from './default.js'
 
-export type RootProperties = BaseRootProperties &
+export type RootProperties = BaseRootProperties<R3FEventMap> &
   WithReactive<{ pixelSize?: number }> & {
     children?: ReactNode
     name?: string
-  } & EventHandlers &
-  PointerEventsProperties
+  }
 
-export const Root: (
-  props: RootProperties & RefAttributes<ComponentInternals<BaseRootProperties & EventHandlers>>,
-) => ReactNode = forwardRef((properties, ref) => {
+export type RootRef = ComponentInternals<BaseRootProperties<R3FEventMap>>
+
+export const Root: (props: RootProperties & RefAttributes<RootRef>) => ReactNode = forwardRef((properties, ref) => {
   const renderer = useThree((state) => state.gl)
   renderer.setTransparentSort(reversePainterSortStable)
   const store = useStore()
@@ -43,7 +40,7 @@ export const Root: (
   const invalidate = useThree((s) => s.invalidate)
   const internals = useMemo(
     () =>
-      createRoot(
+      createRoot<R3FEventMap>(
         computed(() => readReactive(pixelSizeSignal.value) ?? DEFAULT_PIXEL_SIZE),
         propertySignals.style,
         propertySignals.properties,
@@ -88,7 +85,7 @@ export const Root: (
   useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <DefaultProperties {...internals.defaultProperties}>

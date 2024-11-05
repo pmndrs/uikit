@@ -1,7 +1,7 @@
 import { Signal, effect } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
 import { Initializers } from './utils.js'
-import { ThreeEvent } from './events.js'
+import { ThreeMouseEvent, ThreePointerEvent } from './events.js'
 
 export type Listeners = ScrollListeners & LayoutListeners & ClippedListeners
 
@@ -18,7 +18,7 @@ export type ScrollListeners = {
     scrollX: number,
     scrollY: number,
     scrollPosition: Signal<Vector2Tuple | undefined>,
-    event?: ThreeEvent<WheelEvent | PointerEvent>,
+    event?: ThreePointerEvent | ThreeMouseEvent,
   ) => boolean | void
 }
 

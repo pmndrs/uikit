@@ -529,7 +529,7 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 
 ## Ref
 
-Each component exposes the `ComponentInternals` when using a `ref`. The component internals provide you with access to
+Each component exposes internal information when using a `ref`. For instance, the container component exposes internals of the type `ContainerRef`. The component internals provide you with access to
 
 | Property            | Explanation                                                                                                     |
 | ------------------- | --------------------------------------------------------------------------------------------------------------- |

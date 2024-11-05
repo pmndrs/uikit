@@ -1,5 +1,5 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
-import React, { ComponentPropsWithoutRef, ReactNode, RefAttributes, forwardRef } from 'react'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 export type MenubarMenuProperties = { children?: ReactNode }
@@ -10,7 +10,7 @@ export function MenubarMenu({ children }: MenubarMenuProperties) {
 
 export type MenubarProperties = ContainerProperties
 
-export const Menubar: (props: MenubarProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Menubar: (props: MenubarProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (props, ref) => {
     return (
       <Container
@@ -31,8 +31,8 @@ export const Menubar: (props: MenubarProperties & RefAttributes<ComponentInterna
 
 export type MenubarTriggerProperties = ContainerProperties
 
-export const MenubarTrigger: (props: MenubarTriggerProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ children, ...props }, ref) => {
+export const MenubarTrigger: (props: MenubarTriggerProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ children, ...props }, ref) => {
     //TODO: data-[state=open]:bg-accent data-[state=open]:text-accent-foreground
     return (
       <Container
@@ -51,7 +51,8 @@ export const MenubarTrigger: (props: MenubarTriggerProperties & RefAttributes<Co
         </DefaultProperties>
       </Container>
     )
-  })
+  },
+)
 /*
 const MenubarGroup = MenubarPrimitive.Group
 

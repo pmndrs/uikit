@@ -1,10 +1,10 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { GlassMaterial, colors } from './theme.js'
 
 export type CardProperties = ContainerProperties
 
-export const Card: (props: CardProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Card: (props: CardProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, ...props }, ref) => {
     return (
       <Container

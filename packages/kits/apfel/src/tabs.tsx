@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { Container, ContainerProperties, ContainerRef, DefaultProperties } from '@react-three/uikit'
 import React, {
   ReactNode,
   RefAttributes,
@@ -26,7 +26,7 @@ export type TabsProperties = ContainerProperties & {
   disabled?: boolean
 }
 
-export const Tabs: (props: TabsProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Tabs: (props: TabsProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ value, defaultValue, onValueChange, disabled, ...props }, ref) => {
     const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue)
     const currentValue = value != null ? value : internalValue
@@ -74,7 +74,7 @@ type TabsButtonProperties = ContainerProperties & {
   disabled?: boolean
 }
 
-export const TabsButton: (props: TabsButtonProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const TabsButton: (props: TabsButtonProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, value, disabled, ...props }, ref) => {
     const { value: currentValue, onValueChange, disabled: tabsDisabled } = useContext(TabsContext) as TabsContext
 

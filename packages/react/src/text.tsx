@@ -1,8 +1,7 @@
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { useParent } from './context.js'
-import { AddHandlers, usePropertySignals } from './utilts.js'
+import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
   createText,
   FontFamilies,
@@ -10,7 +9,6 @@ import {
   Subscriptions,
   TextProperties as BaseTextProperties,
   unsubscribeSubscriptions,
-  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, signal } from '@preact/signals-core'
@@ -19,13 +17,11 @@ import { useFontFamilies } from './font.js'
 export type TextProperties = {
   children: string | Array<string | Signal<string>> | Signal<string>
   name?: string
-} & BaseTextProperties &
-  EventHandlers &
-  PointerEventsProperties
+} & BaseTextProperties<R3FEventMap>
 
-export const Text: (
-  props: TextProperties & RefAttributes<ComponentInternals<Partial<BaseTextProperties & EventHandlers>>>,
-) => ReactNode = forwardRef((properties, ref) => {
+export type TextRef = ComponentInternals<Partial<BaseTextProperties<R3FEventMap>>>
+
+export const Text: (props: TextProperties & RefAttributes<TextRef>) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
@@ -38,7 +34,7 @@ export const Text: (
   fontFamilies.value = useFontFamilies()
   const internals = useMemo(
     () =>
-      createText(
+      createText<R3FEventMap>(
         parent,
         textSignal,
         fontFamilies,
@@ -61,7 +57,7 @@ export const Text: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers properties={properties} handlers={internals.handlers} ref={outerRef}>
+    <AddHandlers handlers={internals.handlers} ref={outerRef}>
       <primitive object={internals.interactionPanel} />
     </AddHandlers>
   )

@@ -1,15 +1,15 @@
-import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { IconProperties, createIcon } from '../components/icon.js'
 import { MergedProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
-export class Icon<T = {}> extends Component<T> {
+export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
-  private readonly styleSignal: Signal<IconProperties | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<IconProperties | undefined>
+  private readonly styleSignal: Signal<IconProperties<EM> | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<IconProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
@@ -20,7 +20,7 @@ export class Icon<T = {}> extends Component<T> {
     text: string,
     svgWidth: number,
     svgHeight: number,
-    properties?: IconProperties,
+    properties?: IconProperties<EM>,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -58,19 +58,19 @@ export class Icon<T = {}> extends Component<T> {
     })
   }
 
-  getComputedProperty<K extends keyof IconProperties>(key: K): IconProperties[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  getComputedProperty<K extends keyof IconProperties<EM>>(key: K): IconProperties<EM>[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
   }
 
-  getStyle(): undefined | Readonly<IconProperties> {
+  getStyle(): undefined | Readonly<IconProperties<EM>> {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: IconProperties | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
+  setStyle(style: IconProperties<EM> | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
   }
 
-  setProperties(properties: IconProperties | undefined) {
+  setProperties(properties: IconProperties<EM> | undefined) {
     this.propertiesSignal.value = properties
   }
 

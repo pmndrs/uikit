@@ -4,32 +4,29 @@ import {
   initialize,
   Subscriptions,
   unsubscribeSubscriptions,
-  PointerEventsProperties,
 } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
-import { AddHandlers, usePropertySignals } from './utilts.js'
+import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import { ParentProvider, useParent } from './context.js'
 import { ComponentInternals, useComponentInternals } from './ref.js'
-import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { DefaultProperties } from './default.js'
 
-export type ImageProperties = BaseImageProperties &
-  EventHandlers & {
-    children?: ReactNode
-    name?: string
-  } & PointerEventsProperties
+export type ImageProperties = BaseImageProperties<R3FEventMap> & {
+  children?: ReactNode
+  name?: string
+}
 
-export const Image: (
-  props: ImageProperties & RefAttributes<ComponentInternals<BaseImageProperties & EventHandlers>>,
-) => ReactNode = forwardRef((properties, ref) => {
+export type ImageRef = ComponentInternals<BaseImageProperties<R3FEventMap>>
+
+export const Image: (props: ImageProperties & RefAttributes<ImageRef>) => ReactNode = forwardRef((properties, ref) => {
   const parent = useParent()
   const outerRef = useRef<Object3D>(null)
   const innerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
     () =>
-      createImage(
+      createImage<R3FEventMap>(
         parent,
         propertySignals.style,
         propertySignals.properties,
@@ -52,7 +49,7 @@ export const Image: (
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
   return (
-    <AddHandlers properties={properties} ref={outerRef} handlers={internals.handlers}>
+    <AddHandlers ref={outerRef} handlers={internals.handlers}>
       <primitive object={internals.interactionPanel} />
       <object3D matrixAutoUpdate={false} ref={innerRef}>
         <DefaultProperties {...internals.defaultProperties}>

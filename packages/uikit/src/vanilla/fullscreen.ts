@@ -4,10 +4,11 @@ import { Signal, batch, signal } from '@preact/signals-core'
 import { FullscreenProperties, updateSizeFullscreen } from '../components/index.js'
 import { AllOptionalProperties } from '../properties/index.js'
 import { FontFamilies } from '../text/index.js'
+import { ThreeEventMap } from '../events.js'
 
 const vectorHelper = new Vector2()
 
-export class Fullscreen<T = {}> extends Root<T> {
+export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Root<T, EM> {
   private parentCameraSignal: Signal<PerspectiveCamera | OrthographicCamera | undefined>
   private readonly sizeX: Signal<number>
   private readonly sizeY: Signal<number>
@@ -17,7 +18,7 @@ export class Fullscreen<T = {}> extends Root<T> {
   constructor(
     private renderer: WebGLRenderer,
     private distanceToCamera?: number,
-    properties?: FullscreenProperties,
+    properties?: FullscreenProperties<EM>,
     defaultProperties?: AllOptionalProperties,
     fontFamilies?: FontFamilies,
     requestRender?: () => void,
@@ -73,15 +74,15 @@ export class Fullscreen<T = {}> extends Root<T> {
     })
   }
 
-  getStyle(): undefined | Readonly<FullscreenProperties> {
+  getStyle(): undefined | Readonly<FullscreenProperties<EM>> {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: FullscreenProperties | undefined, replace?: boolean): void {
+  setStyle(style: FullscreenProperties<EM> | undefined, replace?: boolean): void {
     super.setStyle(style, replace)
   }
 
-  setProperties(properties: FullscreenProperties | undefined): void {
+  setProperties(properties: FullscreenProperties<EM> | undefined): void {
     super.setProperties({
       ...properties,
       sizeX: this.sizeX,

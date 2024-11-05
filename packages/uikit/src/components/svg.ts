@@ -42,7 +42,7 @@ import {
   loadResourceWithParams,
 } from './utils.js'
 import { ColorRepresentation, Initializers, fitNormalizedContentInside, readReactive } from '../utils.js'
-import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast, PointerEventsProperties } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { createActivePropertyTransfomers } from '../active.js'
@@ -58,7 +58,9 @@ import {
   computeDefaultProperties,
   setupMatrixWorldUpdate,
   setupPointerEvents,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
+  EventHandlers,
+  ThreeEventMap,
 } from '../internals.js'
 
 export type InheritableSvgProperties = WithClasses<
@@ -73,7 +75,8 @@ export type InheritableSvgProperties = WithClasses<
           TransformProperties &
           PanelGroupProperties &
           ScrollbarProperties &
-          VisibilityProperties
+          VisibilityProperties &
+          PointerEventsProperties
       >
     >
   >
@@ -83,16 +86,16 @@ export type AppearanceProperties = {
   color?: ColorRepresentation
 }
 
-export type SvgProperties = InheritableSvgProperties &
+export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableSvgProperties &
   Listeners & {
     src?: Signal<string> | string
     keepAspectRatio?: boolean
-  }
+  } & EventHandlers<EM>
 
-export function createSvg(
+export function createSvg<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  style: Signal<SvgProperties | undefined>,
-  properties: Signal<SvgProperties | undefined>,
+  style: Signal<SvgProperties<EM> | undefined>,
+  properties: Signal<SvgProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -210,7 +213,7 @@ export function createSvg(
   )
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(undefined, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(undefined, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, centerGroup, initializers, false)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
 

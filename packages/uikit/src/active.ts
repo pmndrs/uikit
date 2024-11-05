@@ -1,7 +1,7 @@
 import { Signal } from '@preact/signals-core'
 import { AllOptionalProperties, Properties, WithClasses, traverseProperties } from './properties/default.js'
 import { createConditionalPropertyTranslator } from './utils.js'
-import { EventHandlers, ThreeEvent } from './events.js'
+import { EventHandlers, ThreePointerEvent } from './events.js'
 import { addHandler } from './components/index.js'
 
 export type WithActive<T> = T & {
@@ -31,7 +31,7 @@ export function addActiveHandlers(
     activeSignal.value.length = 0
     return
   }
-  const onLeave = ({ pointerId }: ThreeEvent<PointerEvent>) => {
+  const onLeave = ({ pointerId }: ThreePointerEvent) => {
     activeSignal.value = activeSignal.value.filter((id) => id != pointerId)
     if (activeSignal.value.length > 0) {
       return

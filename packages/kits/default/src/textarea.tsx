@@ -5,7 +5,7 @@ import {
   Text,
   InputInternals,
   InputProperties as BaseInputProperties,
-  ComponentInternals,
+  ContainerRef,
 } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef, useMemo, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
@@ -13,7 +13,7 @@ import { computed } from '@preact/signals-core'
 
 export type TextareaProperties = Omit<BaseInputProperties, 'multiline'> & { placeholder?: string }
 
-export const Textarea: (props: TextareaProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Textarea: (props: TextareaProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled, placeholder, type, ...props },
     ref,

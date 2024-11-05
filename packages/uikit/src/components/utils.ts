@@ -150,9 +150,24 @@ export const keepAspectRatioPropertyTransformer: PropertyTransformers = {
   },
 }
 
+const eventHandlerKeys: Array<keyof EventHandlers> = [
+  'onClick',
+  'onContextMenu',
+  'onDoubleClick',
+  'onPointerCancel',
+  'onPointerDown',
+  'onPointerEnter',
+  'onPointerLeave',
+  'onPointerMove',
+  'onPointerOut',
+  'onPointerOver',
+  'onPointerUp',
+  'onWheel',
+]
+
 export function computedHandlers(
   style: Signal<Properties | undefined>,
-  properties: Signal<Properties | undefined>,
+  propertiesSignal: Signal<Properties | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
@@ -161,14 +176,30 @@ export function computedHandlers(
 ) {
   return computed(() => {
     const handlers: EventHandlers = {}
+    const properties = propertiesSignal.value
+    if (properties != null) {
+      for (const key of eventHandlerKeys) {
+        const handler = properties[key]
+        if (handler != null) {
+          handlers[key] = handler as any
+        }
+      }
+    }
     addHandlers(handlers, dynamicHandlers?.value)
-    addHoverHandlers(handlers, style.value, properties.value, defaultProperties.value, hoveredSignal, defaultCursor)
-    addActiveHandlers(handlers, style.value, properties.value, defaultProperties.value, activeSignal)
+    addHoverHandlers(
+      handlers,
+      style.value,
+      propertiesSignal.value,
+      defaultProperties.value,
+      hoveredSignal,
+      defaultCursor,
+    )
+    addActiveHandlers(handlers, style.value, propertiesSignal.value, defaultProperties.value, activeSignal)
     return handlers
   })
 }
 
-export function computeAnyAncestorsHaveListeners(
+export function computeAncestorsHaveListeners(
   parentContext: ParentContext | undefined,
   handlers: ReadonlySignal<EventHandlers>,
 ) {

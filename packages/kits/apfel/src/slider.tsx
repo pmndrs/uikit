@@ -1,6 +1,6 @@
 import { ThreeEvent } from '@react-three/fiber'
 import type { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { Container, ContainerProperties, ContainerRef, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils.js'
@@ -29,7 +29,7 @@ export type SliderProperties = ContainerProperties & {
   icon?: ReactNode
 }
 
-export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     {
       value: providedValue,
@@ -47,7 +47,7 @@ export const Slider: (props: SliderProperties & RefAttributes<ComponentInternals
   ) => {
     const [uncontrolled, setUncontrolled] = useState(defaultValue)
     const value = providedValue ?? uncontrolled ?? 50
-    const internalRef = useRef<ComponentInternals<ContainerProperties>>(null)
+    const internalRef = useRef<ContainerRef>(null)
     const onChange = useRef(onValueChange)
     onChange.current = onValueChange
     const hasProvidedValue = providedValue != null

@@ -15,10 +15,10 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { Icon, ComponentInternals, IconProperties } from "@react-three/uikit";
+      import { Icon, IconRef, IconProperties } from "@react-three/uikit";
       import { forwardRef } from "react"; 
       const text = \`${svg}\`;
-      export const ${name}Icon = /*@__PURE__*/ forwardRef<ComponentInternals<IconProperties>, Omit<IconProperties, "text" | "svgWidth" | "svgHeight">>((props, ref) => {
+      export const ${name}Icon = /*@__PURE__*/ forwardRef<IconRef, Omit<IconProperties, "text" | "svgWidth" | "svgHeight">>((props, ref) => {
         return <Icon {...props} ref={ref} text={text} svgWidth={24} svgHeight={24} />
       })
       export const ${name} = ${name}Icon

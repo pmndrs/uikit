@@ -1,5 +1,5 @@
 export { canvasInputProps } from './components/input.js'
-export type { EventHandlers, ThreeEvent } from './events.js'
+export type { EventHandlers, ThreePointerEvent as ThreeEvent } from './events.js'
 export { reversePainterSortStable } from './order.js'
 export {
   basedOnPreferredColorScheme,

@@ -5,7 +5,7 @@ import {
   Text,
   InputInternals,
   InputProperties as BaseInputProperties,
-  ComponentInternals,
+  ContainerRef,
 } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef, useMemo, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
@@ -16,7 +16,7 @@ export type InputProperties = Omit<BaseInputProperties, 'multiline'> & { placeho
 //for getting the correct types for conversion
 type _InputProperties = InputProperties
 
-export const Input: (props: InputProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled, placeholder, type, ...props },
     ref,

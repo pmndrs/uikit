@@ -13,10 +13,10 @@ import { Image } from './image.js'
 import { SRGBColorSpace, Texture, VideoTexture } from 'three'
 import { signal } from '@preact/signals-core'
 import { VideoProperties as BaseVideoProperties, ImageProperties } from '@pmndrs/uikit'
-import { PointerEventsProperties, setupVideoElementInvalidation, updateVideoElement } from '@pmndrs/uikit/internals'
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { setupVideoElementInvalidation, updateVideoElement } from '@pmndrs/uikit/internals'
 import { ComponentInternals } from './ref.js'
 import { useThree } from '@react-three/fiber'
+import { R3FEventMap } from './utils.js'
 
 const VideoContext = createContext<HTMLVideoElement | undefined>(undefined)
 
@@ -28,16 +28,17 @@ export function useVideoElement(): HTMLVideoElement {
   return element
 }
 
-export type VideoInternals = ComponentInternals<Omit<ImageProperties, 'src'> & EventHandlers> & {
+export type VideoInternals = ComponentInternals<Omit<ImageProperties<R3FEventMap>, 'src'>> & {
   element: HTMLVideoElement
 }
 
-export type VideoProperties = BaseVideoProperties &
-  EventHandlers & {
-    children?: ReactNode
-  } & PointerEventsProperties
+export type VideoRef = VideoInternals
 
-export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => ReactNode = forwardRef(
+export type VideoProperties = BaseVideoProperties<R3FEventMap> & {
+  children?: ReactNode
+}
+
+export const Video: (props: VideoProperties & RefAttributes<VideoRef>) => ReactNode = forwardRef(
   (props: VideoProperties, ref) => {
     const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
     const aspectRatio = useMemo(() => signal<number>(1), [])

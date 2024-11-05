@@ -1,15 +1,15 @@
-import { Object3D } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
 import { TextProperties, createText } from '../components/text.js'
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { MergedProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
-export class Text<T = {}> extends Component<T> {
+export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
-  private readonly styleSignal: Signal<TextProperties | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<TextProperties | undefined>
+  private readonly styleSignal: Signal<TextProperties<EM> | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<TextProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
   private readonly parentContextSignal = createParentContextSignal()
@@ -19,7 +19,7 @@ export class Text<T = {}> extends Component<T> {
 
   constructor(
     text: string | Signal<string> | Array<string | Signal<string>> = '',
-    properties?: TextProperties,
+    properties?: TextProperties<EM>,
     defaultProperties?: AllOptionalProperties,
   ) {
     super()
@@ -60,19 +60,19 @@ export class Text<T = {}> extends Component<T> {
     this.textSignal.value = text
   }
 
-  getComputedProperty<K extends keyof TextProperties>(key: K): TextProperties[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  getComputedProperty<K extends keyof TextProperties<EM>>(key: K): TextProperties<EM>[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
   }
 
-  getStyle(): undefined | Readonly<TextProperties> {
+  getStyle(): undefined | Readonly<TextProperties<EM>> {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: TextProperties | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
+  setStyle(style: TextProperties<EM> | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
   }
 
-  setProperties(properties: TextProperties | undefined) {
+  setProperties(properties: TextProperties<EM> | undefined) {
     this.propertiesSignal.value = properties
   }
 

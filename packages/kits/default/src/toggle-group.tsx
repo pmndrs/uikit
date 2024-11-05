@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext, useState } from 'react'
 import { borderRadius, colors } from './theme.js'
 
@@ -32,7 +32,7 @@ export type ToggleGroupProperties = ContainerProperties & {
   size?: keyof typeof toggleSizes
 }
 
-export const ToggleGroup: (props: ToggleGroupProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const ToggleGroup: (props: ToggleGroupProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, size = 'default', variant = 'default', ...props }, ref) => {
     return (
       <Container flexDirection="row" alignItems="center" justifyContent="center" gap={4} ref={ref} {...props}>
@@ -49,7 +49,7 @@ export type ToggleGroupItemProperties = ContainerProperties & {
   onCheckedChange?(checked: boolean): void
 }
 
-export const ToggleGroupItem: (props: ToggleGroupItemProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const ToggleGroupItem: (props: ToggleGroupItemProperties & RefAttributes<ContainerRef>) => ReactNode =
   forwardRef(
     (
       { children, defaultChecked, checked: providedChecked, disabled = false, onCheckedChange, hover, ...props },

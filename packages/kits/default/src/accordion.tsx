@@ -1,5 +1,5 @@
 import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext, useState } from 'react'
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import { ChevronDown } from '@react-three/uikit-lucide'
 
 const AccordionContext = createContext<[string | undefined, (value: string | undefined) => void]>(null as any)
@@ -18,8 +18,8 @@ const AccordionItemContext = createContext<string>('')
 
 export type AccordionItemProperties = ContainerProperties & { value: string }
 
-export const AccordionItem: (props: RefAttributes<ComponentInternals> & AccordionItemProperties) => ReactNode =
-  forwardRef(({ children, ...props }, ref) => {
+export const AccordionItem: (props: RefAttributes<ContainerRef> & AccordionItemProperties) => ReactNode = forwardRef(
+  ({ children, ...props }, ref) => {
     const [value, setValue] = useContext(AccordionContext)
     const isSelected = props.value === value
     return (
@@ -34,11 +34,12 @@ export const AccordionItem: (props: RefAttributes<ComponentInternals> & Accordio
         <AccordionItemContext.Provider value={props.value}>{children}</AccordionItemContext.Provider>
       </Container>
     )
-  })
+  },
+)
 
 export type AccordionTriggerProperties = ContainerProperties
 
-export const AccordionTrigger: (props: RefAttributes<ComponentInternals> & AccordionTriggerProperties) => ReactNode =
+export const AccordionTrigger: (props: RefAttributes<ContainerRef> & AccordionTriggerProperties) => ReactNode =
   forwardRef(({ children, ...props }, ref) => {
     const itemValue = useContext(AccordionItemContext)
     const [value] = useContext(AccordionContext)
@@ -62,7 +63,7 @@ export const AccordionTrigger: (props: RefAttributes<ComponentInternals> & Accor
 
 export type AccordionContentProperties = ContainerProperties
 
-export const AccordionContent: (props: RefAttributes<ComponentInternals> & AccordionContentProperties) => ReactNode =
+export const AccordionContent: (props: RefAttributes<ContainerRef> & AccordionContentProperties) => ReactNode =
   forwardRef(({ children, ...props }, ref) => {
     const itemValue = useContext(AccordionItemContext)
     const [value] = useContext(AccordionContext)

@@ -10,7 +10,7 @@ import {
   TextureLoader,
   Vector2Tuple,
 } from 'three'
-import { Listeners } from '../index.js'
+import { EventHandlers, Listeners } from '../index.js'
 import { Object3DRef, ParentContext, RootContext } from '../context.js'
 import { FlexNode, FlexNodeState, Inset, YogaProperties, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
@@ -41,7 +41,7 @@ import {
   UpdateMatrixWorldProperties,
   VisibilityProperties,
   WithConditionals,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computeDefaultProperties,
   computedGlobalMatrix,
   computedHandlers,
@@ -61,6 +61,7 @@ import {
   makeClippedCast,
   makePanelRaycast,
   makePanelSpherecast,
+  PointerEventsProperties,
 } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, computedClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
@@ -70,6 +71,7 @@ import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { AppearanceProperties } from './svg.js'
 import { darkPropertyTransformers } from '../dark.js'
+import { ThreeEventMap } from '../events.js'
 
 export type ImageFit = 'cover' | 'fill'
 const defaultImageFit: ImageFit = 'fill'
@@ -88,7 +90,8 @@ export type InheritableImageProperties = WithClasses<
           KeepAspectRatioProperties &
           ImageFitProperties &
           VisibilityProperties &
-          UpdateMatrixWorldProperties
+          UpdateMatrixWorldProperties &
+          PointerEventsProperties
       >
     >
   >
@@ -102,12 +105,15 @@ export type KeepAspectRatioProperties = {
   keepAspectRatio?: boolean
 }
 
-export type ImageProperties = InheritableImageProperties & Listeners & WithReactive<{ src?: string | Texture }>
+export type ImageProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableImageProperties &
+  Listeners &
+  WithReactive<{ src?: string | Texture }> &
+  EventHandlers<EM>
 
-export function createImage(
+export function createImage<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  style: Signal<ImageProperties | undefined>,
-  properties: Signal<ImageProperties | undefined>,
+  style: Signal<ImageProperties<EM> | undefined>,
+  properties: Signal<ImageProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   childrenContainer: Object3DRef,
@@ -200,7 +206,7 @@ export function createImage(
   )
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, imageMesh, initializers, false)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)

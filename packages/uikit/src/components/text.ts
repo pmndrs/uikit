@@ -25,7 +25,7 @@ import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { Object3DRef, ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel, getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { createInteractionPanel, getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
 import {
   FontFamilies,
   InstancedTextProperties,
@@ -35,8 +35,10 @@ import {
 } from '../text/index.js'
 import { darkPropertyTransformers } from '../dark.js'
 import {
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computedInheritableProperty,
+  EventHandlers,
+  ThreeEventMap,
   UpdateMatrixWorldProperties,
 } from '../internals.js'
 
@@ -52,20 +54,23 @@ export type InheritableTextProperties = WithClasses<
           PanelGroupProperties &
           InstancedTextProperties &
           VisibilityProperties &
-          UpdateMatrixWorldProperties
+          UpdateMatrixWorldProperties &
+          PointerEventsProperties
       >
     >
   >
 >
 
-export type TextProperties = InheritableTextProperties & Listeners
+export type TextProperties<Em extends ThreeEventMap = ThreeEventMap> = InheritableTextProperties &
+  Listeners &
+  EventHandlers<Em>
 
-export function createText(
+export function createText<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
   textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
-  style: Signal<TextProperties | undefined>,
-  properties: Signal<TextProperties | undefined>,
+  style: Signal<TextProperties<EM> | undefined>,
+  properties: Signal<TextProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
 ) {
@@ -150,7 +155,7 @@ export function createText(
   )
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(undefined, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(undefined, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)

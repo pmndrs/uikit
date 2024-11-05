@@ -5,12 +5,13 @@ import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signa
 import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
 import { ContentProperties, createContent } from '../components/index.js'
 import { MergedProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
-export class Content<T = {}> extends Component<T> {
+export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly contentContainer: Object3D
-  private readonly styleSignal: Signal<ContentProperties | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<ContentProperties | undefined>
+  private readonly styleSignal: Signal<ContentProperties<EM> | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<ContentProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly contentSubscriptions: Subscriptions = []
   private readonly parentContextSignal = createParentContextSignal()
@@ -18,7 +19,7 @@ export class Content<T = {}> extends Component<T> {
 
   public internals!: ReturnType<typeof createContent>
 
-  constructor(properties?: ContentProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(properties?: ContentProperties<EM>, defaultProperties?: AllOptionalProperties) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
@@ -82,19 +83,19 @@ export class Content<T = {}> extends Component<T> {
     return this
   }
 
-  getComputedProperty<K extends keyof ContentProperties>(key: K): ContentProperties[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  getComputedProperty<K extends keyof ContentProperties<EM>>(key: K): ContentProperties<EM>[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
   }
 
-  getStyle(): undefined | Readonly<ContentProperties> {
+  getStyle(): undefined | Readonly<ContentProperties<EM>> {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: ContentProperties | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
+  setStyle(style: ContentProperties<EM> | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
   }
 
-  setProperties(properties: ContentProperties | undefined) {
+  setProperties(properties: ContentProperties<EM> | undefined) {
     this.propertiesSignal.value = properties
   }
 

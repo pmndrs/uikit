@@ -13,7 +13,7 @@ import { Signal, computed, effect, signal, untracked } from '@preact/signals-cor
 import {
   VisibilityProperties,
   WithConditionals,
-  computeAnyAncestorsHaveListeners,
+  computeAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
@@ -34,9 +34,10 @@ import {
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
-import { getDefaultPanelMaterialConfig, makeClippedCast } from '../panel/index.js'
+import { getDefaultPanelMaterialConfig, makeClippedCast, PointerEventsProperties } from '../panel/index.js'
 import { MergedProperties, computedInheritableProperty } from '../properties/index.js'
 import { KeepAspectRatioProperties } from './image.js'
+import { EventHandlers, ThreeEventMap } from '../events.js'
 
 export type InheritableContentProperties = WithClasses<
   WithConditionals<
@@ -51,7 +52,8 @@ export type InheritableContentProperties = WithClasses<
           DepthAlignProperties &
           KeepAspectRatioProperties &
           VisibilityProperties &
-          RenderProperties
+          RenderProperties &
+          PointerEventsProperties
       >
     >
   >
@@ -61,12 +63,14 @@ export type DepthAlignProperties = {
   depthAlign?: keyof typeof alignmentZMap
 }
 
-export type ContentProperties = InheritableContentProperties & Listeners
+export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableContentProperties &
+  Listeners &
+  EventHandlers<EM>
 
-export function createContent(
+export function createContent<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  style: Signal<ContentProperties | undefined>,
-  properties: Signal<ContentProperties | undefined>,
+  style: Signal<ContentProperties<EM> | undefined>,
+  properties: Signal<ContentProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3DRef,
   contentContainerRef: Object3DRef,
@@ -142,7 +146,7 @@ export function createContent(
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computeAnyAncestorsHaveListeners(parentCtx, handlers)
+  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
   setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, true)
 
   setupLayoutListeners(style, properties, flexState.size, initializers)

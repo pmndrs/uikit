@@ -1,9 +1,9 @@
-import { ComponentInternals, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 
 export type LabelProperties = { children?: ReactNode; disabled?: boolean }
 
-export const Label: (props: LabelProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Label: (props: LabelProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ disabled, ...props }, ref) => {
     return (
       <DefaultProperties

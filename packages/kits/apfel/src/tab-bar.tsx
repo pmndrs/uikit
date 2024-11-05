@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, {
   ReactNode,
   RefAttributes,
@@ -28,7 +28,7 @@ export type TabBarProperties = ContainerProperties & {
   onValueChange?(value: string): void
 }
 
-export const TabBar: (props: TabBarProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const TabBar: (props: TabBarProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ value: valueProp, defaultValue, onValueChange, ...props }, ref) => {
     const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue)
     const value = valueProp !== undefined ? valueProp : internalValue
@@ -82,7 +82,7 @@ export type TabBarItemProperties = ContainerProperties & {
   icon: ReactNode
 }
 
-export const TabBarItem: (props: TabBarItemProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const TabBarItem: (props: TabBarItemProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ value: tabValue, children, icon, ...props }, ref) => {
     const { isExpanded, value, setValue } = useContext(TabBarContext)!
     const isSelected = value === tabValue

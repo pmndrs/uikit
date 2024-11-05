@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { colors } from './theme.js'
 
@@ -6,7 +6,7 @@ export type ProgressProperties = ContainerProperties & {
   value?: number
 }
 
-export const Progress: (props: ProgressProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Progress: (props: ProgressProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ value = 0, ...props }, ref) => {
     return (
       <Container

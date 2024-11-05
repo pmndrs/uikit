@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef, useState } from 'react'
 import { colors } from './theme.js'
 
@@ -9,7 +9,7 @@ export type SwitchProperties = Omit<ContainerProperties, 'children'> & {
   onCheckedChange?(checked: boolean): void
 }
 
-export const Switch: (props: SwitchProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Switch: (props: SwitchProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ defaultChecked, checked: providedChecked, disabled = false, onCheckedChange, ...props }, ref) => {
     const [uncontrolled, setUncontrolled] = useState(defaultChecked ?? false)
     const checked = providedChecked ?? uncontrolled

@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, createContext, forwardRef, useContext } from 'react'
 import { colors } from './theme.js'
 
@@ -10,7 +10,7 @@ type ListProperties = ContainerProperties & {
   type?: Type
 }
 
-export const List: (props: ListProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const List: (props: ListProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ type = 'plain', ...props }, ref) => {
     return (
       <ListContext.Provider value={type}>
@@ -29,7 +29,7 @@ export type ListItemProperties = ContainerProperties & {
   isLast?: boolean
 }
 
-export const ListItem: (props: ListItemProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const ListItem: (props: ListItemProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, subtitle, selected, leadingAccessory, trailingAccessory, isFirst, isLast, ...props }, ref) => {
     const type = useContext(ListContext)
 

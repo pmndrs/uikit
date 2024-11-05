@@ -1,9 +1,9 @@
 import {
   AllOptionalProperties,
-  ComponentInternals,
   Container,
   ContainerProperties,
   DefaultProperties,
+  ContainerRef,
 } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
@@ -19,28 +19,26 @@ const alertVariants = {
 
 export type AlertProperties = ContainerProperties & { variant?: keyof typeof alertVariants }
 
-export const Alert: (props: AlertProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
-  (props, ref) => {
-    return (
-      <DefaultProperties {...alertVariants[props.variant ?? 'default']}>
-        <Container
-          flexDirection="column"
-          positionType="relative"
-          width="100%"
-          borderRadius={borderRadius.lg}
-          borderWidth={1}
-          padding={16}
-          ref={ref}
-          {...props}
-        />
-      </DefaultProperties>
-    )
-  },
-)
+export const Alert: (props: AlertProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef((props, ref) => {
+  return (
+    <DefaultProperties {...alertVariants[props.variant ?? 'default']}>
+      <Container
+        flexDirection="column"
+        positionType="relative"
+        width="100%"
+        borderRadius={borderRadius.lg}
+        borderWidth={1}
+        padding={16}
+        ref={ref}
+        {...props}
+      />
+    </DefaultProperties>
+  )
+})
 
 export type AlertIconProperties = ContainerProperties
 
-export const AlertIcon: (props: AlertIconProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const AlertIcon: (props: AlertIconProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (props, ref) => {
     return <Container positionLeft={16} positionTop={16} positionType="absolute" ref={ref} {...props} />
   },
@@ -48,7 +46,7 @@ export const AlertIcon: (props: AlertIconProperties & RefAttributes<ComponentInt
 
 export type AlertTitleProperties = ContainerProperties
 
-export const AlertTitle: (props: AlertTitleProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const AlertTitle: (props: AlertTitleProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, ...props }, ref) => {
     return (
       <Container marginBottom={4} padding={0} paddingLeft={28} ref={ref} {...props}>
@@ -62,7 +60,7 @@ export const AlertTitle: (props: AlertTitleProperties & RefAttributes<ComponentI
 
 export type AlertDescriptionProperties = ContainerProperties
 
-export const AlertDescription: (props: AlertDescriptionProperties & RefAttributes<ComponentInternals>) => ReactNode =
+export const AlertDescription: (props: AlertDescriptionProperties & RefAttributes<ContainerRef>) => ReactNode =
   forwardRef(({ children, ...props }, ref) => {
     return (
       <Container paddingLeft={28} ref={ref} {...props}>

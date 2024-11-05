@@ -1,6 +1,8 @@
+import { EventHandlers, ThreeEventMap } from '../events.js'
 import { ImageProperties } from './image.js'
 
-export type VideoProperties = Omit<ImageProperties, 'src'> & InternalVideoProperties
+export type VideoProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<ImageProperties<EM>, 'src'> &
+  InternalVideoProperties
 
 type InternalVideoProperties = {
   /**

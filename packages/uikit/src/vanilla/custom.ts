@@ -6,17 +6,18 @@ import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js
 import { CustomContainerProperties, createCustomContainer } from '../components/index.js'
 import { panelGeometry } from '../panel/index.js'
 import { MergedProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
-export class CustomContainer<T = {}> extends Component<T> {
+export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
-  private readonly styleSignal: Signal<CustomContainerProperties | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<CustomContainerProperties | undefined>
+  private readonly styleSignal: Signal<CustomContainerProperties<EM> | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<CustomContainerProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
   private readonly material = new MeshBasicMaterial()
 
-  constructor(properties?: CustomContainerProperties, defaultProperties?: AllOptionalProperties) {
+  constructor(properties?: CustomContainerProperties<EM>, defaultProperties?: AllOptionalProperties) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
@@ -57,19 +58,21 @@ export class CustomContainer<T = {}> extends Component<T> {
     })
   }
 
-  getComputedProperty<K extends keyof CustomContainerProperties>(key: K): CustomContainerProperties[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  getComputedProperty<K extends keyof CustomContainerProperties<EM>>(
+    key: K,
+  ): CustomContainerProperties<EM>[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
   }
 
-  getStyle(): undefined | Readonly<CustomContainerProperties> {
+  getStyle(): undefined | Readonly<CustomContainerProperties<EM>> {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: CustomContainerProperties | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
+  setStyle(style: CustomContainerProperties<EM> | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
   }
 
-  setProperties(properties: CustomContainerProperties | undefined) {
+  setProperties(properties: CustomContainerProperties<EM> | undefined) {
     this.propertiesSignal.value = properties
   }
 

@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { Container, ContainerProperties, ContainerRef, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { colors } from './theme.js'
 
@@ -61,7 +61,7 @@ export type ButtonProperties = ContainerProperties & {
   disabled?: boolean
 }
 
-export const Button: (props: ButtonProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Button: (props: ButtonProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, size = 'md', variant = 'rect', platter, selected, disabled, ...props }, ref) => {
     const { borderRadius, fontSize, height, padding, iconSize } =
       typeof size === 'number' ? getAribtrarySize(size) : sizes[size]

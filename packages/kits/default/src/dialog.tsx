@@ -1,4 +1,4 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { Container, ContainerProperties, ContainerRef, DefaultProperties } from '@react-three/uikit'
 import { borderRadius, colors } from './theme.js'
 import React, {
   ReactNode,
@@ -109,8 +109,8 @@ export function Dialog({ children, open: providedOpen, onOpenChange, defaultOpen
 
 export type DialogTriggerProperties = ContainerProperties
 
-export const DialogTrigger: (props: DialogTriggerProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ onClick, ...props }, ref) => {
+export const DialogTrigger: (props: DialogTriggerProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ onClick, ...props }, ref) => {
     const { setOpen } = useDialogContext()
     return (
       <Container
@@ -122,12 +122,13 @@ export const DialogTrigger: (props: DialogTriggerProperties & RefAttributes<Comp
         {...props}
       />
     )
-  })
+  },
+)
 
 export type DialogOverlayProperties = ContainerProperties
 
-export const DialogOverlay: (props: DialogOverlayProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef((props, ref) => {
+export const DialogOverlay: (props: DialogOverlayProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  (props, ref) => {
     return (
       <Container
         onPointerMove={(e) => e.stopPropagation()}
@@ -143,7 +144,8 @@ export const DialogOverlay: (props: DialogOverlayProperties & RefAttributes<Comp
         {...props}
       />
     )
-  })
+  },
+)
 
 export function useCloseDialog() {
   const { setOpen } = useDialogContext()
@@ -163,8 +165,8 @@ export function DialogContentPrimitive({ children }: DialogContentPrimitivePrope
 
 export type DialogContentProperties = ContainerProperties
 
-export const DialogContent: (props: DialogContentProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ children, sm, ...props }, ref) => {
+export const DialogContent: (props: DialogContentProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ children, sm, ...props }, ref) => {
     const close = useCloseDialog()
     return (
       <DialogContentPrimitive>
@@ -209,12 +211,13 @@ export const DialogContent: (props: DialogContentProperties & RefAttributes<Comp
         </DialogOverlay>
       </DialogContentPrimitive>
     )
-  })
+  },
+)
 
 export type DialogHeaderProperties = ContainerProperties
 
-export const DialogHeader: (props: DialogHeaderProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ children, ...props }, ref) => {
+export const DialogHeader: (props: DialogHeaderProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ children, ...props }, ref) => {
     return (
       <Container flexDirection="column" gap={6} ref={ref} {...props}>
         <DefaultProperties textAlign="center" sm={{ textAlign: 'left' }}>
@@ -222,12 +225,13 @@ export const DialogHeader: (props: DialogHeaderProperties & RefAttributes<Compon
         </DefaultProperties>
       </Container>
     )
-  })
+  },
+)
 
 export type DialogFooterProperties = ContainerProperties
 
-export const DialogFooter: (props: DialogFooterProperties & RefAttributes<ComponentInternals>) => ReactNode =
-  forwardRef(({ sm, ...props }, ref) => {
+export const DialogFooter: (props: DialogFooterProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
+  ({ sm, ...props }, ref) => {
     return (
       <Container
         flexDirection="column-reverse"
@@ -237,7 +241,8 @@ export const DialogFooter: (props: DialogFooterProperties & RefAttributes<Compon
         {...props}
       />
     )
-  })
+  },
+)
 
 export type DialogTitleProperties = { children?: ReactNode }
 

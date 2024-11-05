@@ -5,11 +5,12 @@ import { createRoot, DEFAULT_PIXEL_SIZE, RootProperties } from '../components/ro
 import { Parent, bindHandlers } from './utils.js'
 import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
 import { FontFamilies } from '../text/index.js'
+import { ThreeEventMap } from '../events.js'
 
-export class Root<T = {}> extends Parent<T> {
+export class Root<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
   private mergedProperties?: ReadonlySignal<MergedProperties>
-  protected readonly styleSignal: Signal<RootProperties | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<RootProperties | undefined>
+  protected readonly styleSignal: Signal<RootProperties<EM> | undefined> = signal(undefined)
+  private readonly propertiesSignal: Signal<RootProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly unsubscribe: () => void
   private readonly onFrameSet = new Set<(delta: number) => void>()
@@ -20,7 +21,7 @@ export class Root<T = {}> extends Parent<T> {
   constructor(
     camera: Signal<Camera | undefined> | (() => Camera) | Camera,
     renderer: WebGLRenderer,
-    properties?: RootProperties & WithReactive<{ pixelSize?: number }>,
+    properties?: RootProperties<EM> & WithReactive<{ pixelSize?: number }>,
     defaultProperties?: AllOptionalProperties,
     fontFamilies?: FontFamilies,
     requestRender?: () => void,
@@ -81,19 +82,19 @@ export class Root<T = {}> extends Parent<T> {
     this.fontFamiliesSignal.value = fontFamilies
   }
 
-  getComputedProperty<K extends keyof RootProperties>(key: K): RootProperties[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key, undefined))
+  getComputedProperty<K extends keyof RootProperties<EM>>(key: K): RootProperties<EM>[K] | undefined {
+    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
   }
 
-  getStyle(): undefined | Readonly<RootProperties> {
+  getStyle(): undefined | Readonly<RootProperties<EM>> {
     return this.styleSignal.peek()
   }
 
-  setStyle(style: RootProperties | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : { ...this.styleSignal.value, ...style }
+  setStyle(style: RootProperties<EM> | undefined, replace?: boolean) {
+    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
   }
 
-  setProperties(properties: (RootProperties & WithReactive<{ pixelSize?: number }>) | undefined) {
+  setProperties(properties: (RootProperties<EM> & WithReactive<{ pixelSize?: number }>) | undefined) {
     this.pixelSizeSignal.value = properties?.pixelSize ?? DEFAULT_PIXEL_SIZE
     this.propertiesSignal.value = properties
   }

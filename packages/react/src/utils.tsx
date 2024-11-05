@@ -1,53 +1,33 @@
 import { Signal, effect, signal } from '@preact/signals-core'
-import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/events'
+import { EventHandlers, ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events'
 import { ReactNode, forwardRef, useEffect, useMemo, useState } from 'react'
 import { Object3D } from 'three'
 import { useDefaultProperties } from './default.js'
-import { AllOptionalProperties, addHandler } from '@pmndrs/uikit/internals'
+import { AllOptionalProperties } from '@pmndrs/uikit/internals'
 
-const eventHandlerKeys: Array<keyof EventHandlers> = [
-  'onClick',
-  'onContextMenu',
-  'onDoubleClick',
-  'onPointerCancel',
-  'onPointerDown',
-  'onPointerEnter',
-  'onPointerLeave',
-  'onPointerMissed',
-  'onPointerMove',
-  'onPointerOut',
-  'onPointerOver',
-  'onPointerUp',
-  'onWheel',
-]
+export type R3FEventMap = {
+  mouse: ThreeEvent<MouseEvent>
+  wheel: ThreeEvent<WheelEvent>
+  pointer: ThreeEvent<PointerEvent>
+}
 
 export const AddHandlers = forwardRef<
   Object3D,
   {
-    properties: EventHandlers
     handlers: Signal<EventHandlers>
     children?: ReactNode
   }
->(({ handlers: handlersSignal, properties, children }, ref) => {
-  const [systemHandlers, setSystemHandlers] = useState(() => handlersSignal.peek())
+>(({ handlers: handlersSignal, children }, ref) => {
+  const [handlers, setHandlers] = useState(() => handlersSignal.peek())
   useEffect(
     () =>
       effect(() => {
         const handlers = handlersSignal.value
-        const ref = void setTimeout(() => setSystemHandlers(handlers), 0)
+        const ref = void setTimeout(() => setHandlers(handlers), 0)
         return () => clearTimeout(ref)
       }),
     [handlersSignal],
   )
-  const handlers = useMemo(() => {
-    const result: EventHandlers = { ...systemHandlers }
-    const keysLength = eventHandlerKeys.length
-    for (let i = 0; i < keysLength; i++) {
-      const key = eventHandlerKeys[i]
-      addHandler(key, result, properties[key])
-    }
-    return result
-  }, [systemHandlers, properties])
   return (
     <object3D ref={ref} matrixAutoUpdate={false} {...handlers}>
       {children}

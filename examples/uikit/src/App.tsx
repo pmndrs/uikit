@@ -14,11 +14,10 @@ import {
   SuspendingImage,
   Input,
   FontFamilyProvider,
-  ComponentInternals,
-  ImageProperties,
   Video,
   useMeasureText,
   InputInternals,
+  ImageRef,
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
@@ -31,7 +30,7 @@ export default function App() {
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])
   const t = useMemo(() => signal('X X\nX X'), [])
-  const ref = useRef<ComponentInternals<ImageProperties>>(null)
+  const ref = useRef<ImageRef>(null)
   const [input, setInput] = useState<InputInternals | null>(null)
   const videoRef = useRef<HTMLVideoElement | undefined>()
   const [videoel, setVideoEl] = useState<HTMLVideoElement | undefined>()

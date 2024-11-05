@@ -1,10 +1,10 @@
-import { ComponentInternals, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
+import { ContainerRef, Container, ContainerProperties, DefaultProperties } from '@react-three/uikit'
 import React, { ReactNode, RefAttributes, forwardRef } from 'react'
 import { borderRadius, colors } from './theme.js'
 
 export type CardProperties = ContainerProperties
 
-export const Card: (props: CardProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const Card: (props: CardProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ children, ...props }, ref) => {
     return (
       <Container
@@ -23,7 +23,7 @@ export const Card: (props: CardProperties & RefAttributes<ComponentInternals>) =
 
 export type CardHeaderProperties = ContainerProperties
 
-export const CardHeader: (props: CardHeaderProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const CardHeader: (props: CardHeaderProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (props, ref) => {
     return <Container padding={24} flexDirection="column" gap={6} ref={ref} {...props} />
   },
@@ -43,7 +43,7 @@ export function CardDescription(props: CardDescriptionProperties) {
 
 export type CardContentProperties = ContainerProperties
 
-export const CardContent: (props: CardContentProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const CardContent: (props: CardContentProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (props, ref) => {
     return <Container padding={24} paddingTop={0} ref={ref} {...props} />
   },
@@ -51,7 +51,7 @@ export const CardContent: (props: CardContentProperties & RefAttributes<Componen
 
 export type CardFooterProperties = ContainerProperties
 
-export const CardFooter: (props: CardFooterProperties & RefAttributes<ComponentInternals>) => ReactNode = forwardRef(
+export const CardFooter: (props: CardFooterProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (props, ref) => {
     return <Container flexDirection="row" alignItems="center" padding={24} paddingTop={0} ref={ref} {...props} />
   },

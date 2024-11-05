@@ -9,14 +9,15 @@ export type SuspendingImageProperties = ImageProperties & {
   children?: ReactNode
 }
 
+export type SuspendingImageRef = ComponentInternals<Omit<ImageProperties, 'src'>>
+
 /**
  * be aware that this component does not dispose the loaded texture
  */
-export const SuspendingImage: (
-  props: SuspendingImageProperties & RefAttributes<ComponentInternals<Omit<ImageProperties, 'src'>>>,
-) => ReactNode = forwardRef(({ src, ...props }, ref) => {
-  const texture = useLoader(TextureLoader, src)
-  texture.colorSpace = SRGBColorSpace
-  texture.matrixAutoUpdate = false
-  return <Image ref={ref} src={texture} {...props} />
-})
+export const SuspendingImage: (props: SuspendingImageProperties & RefAttributes<SuspendingImageRef>) => ReactNode =
+  forwardRef(({ src, ...props }, ref) => {
+    const texture = useLoader(TextureLoader, src)
+    texture.colorSpace = SRGBColorSpace
+    texture.matrixAutoUpdate = false
+    return <Image ref={ref} src={texture} {...props} />
+  })
