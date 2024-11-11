@@ -323,8 +323,10 @@ export function setMeasureFunc(node: Node, func: MeasureFunction | undefined) {
   node.setMeasureFunc((width, wMode, height, hMode) => {
     const result = func(width, wMode, height, hMode)
     return {
-      width: Math.ceil(result.width * PointScaleFactor + 1) / PointScaleFactor,
-      height: Math.ceil(result.height * PointScaleFactor + 1) / PointScaleFactor,
+      //why + 2? we use a offset of + 1 to prevent precision errors but + 1 causes the following issue in yoga with the default pixelSize of 0.01 therefore +2
+      //https://github.com/facebook/yoga/issues/1651
+      width: Math.ceil(result.width * PointScaleFactor + 2) / PointScaleFactor,
+      height: Math.ceil(result.height * PointScaleFactor + 2) / PointScaleFactor,
     }
   })
   node.markDirty()
