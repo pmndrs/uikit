@@ -4,8 +4,8 @@
   },
   "devDependencies": {
     "oslllo-svg-fixer": "^5.0.0",
-    "@types/node": "^22.7.0",
-    "lucide-static": "^0.446.0"
+    "@types/node": "^22.10.2",
+    "lucide-static": "^0.469.0"
   },
   "type": "module"
 }
