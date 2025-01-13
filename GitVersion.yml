@@ -3,5 +3,4 @@ branches:
   main:
     increment: None
   develop:
-    tag: beta
     increment: None
