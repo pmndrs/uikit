@@ -59,7 +59,6 @@ const defaultProperties = {
 }
 
 const container1 = new Container(
-    root,
     {
         flexGrow: 1,
         hover: { backgroundOpacity: 1 }
@@ -70,7 +69,6 @@ const container1 = new Container(
 root.add(container1)
 
 const container2 = new Container(
-    root,
     {
         flexGrow: 1,
         backgroundOpacity: 0.5,
@@ -126,3 +124,14 @@ If you use vite (`npm i vite`), you can create a `index.html` file, add the foll
 ```
 
 The result should look like this
+
+![Two containers in a row layout - one red and one blue with hover effects](./basic-example.gif)
+
+### Disposing
+
+Call `destroy()` on elements to free resources:
+
+```js
+root.destroy()
+```
+
