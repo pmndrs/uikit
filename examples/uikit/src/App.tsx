@@ -26,7 +26,7 @@ import { noEvents, PointerEvents } from '@react-three/xr'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(true)
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])
   const t = useMemo(() => signal('X X\nX X'), [])
@@ -58,12 +58,7 @@ export default function App() {
       <video style={{ display: 'none' }} ref={videoRef}>
         <source src="./video.mp4" />
       </video>
-      <Canvas
-        events={noEvents}
-        style={{ height: '100dvh', touchAction: 'none' }}
-        gl={{ localClippingEnabled: true }}
-        onClick={() => setShow((s) => !s)}
-      >
+      <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
         <PointerEvents />
         <MeasureText />
         <OrbitControls />

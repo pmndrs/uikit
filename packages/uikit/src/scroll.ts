@@ -174,9 +174,7 @@ export function computedScrollHandlers(
 
   initializers.push(() =>
     effect(() => {
-      if (!isScrollable.value) {
-        return
-      }
+      //this also needs to be executed when isScrollable is false since when the max scroll position is lower then the current scroll position, the onFrame callback will animate the scroll position back to 0
       root.onFrameSet.add(onFrame)
       return () => root.onFrameSet.delete(onFrame)
     }),
