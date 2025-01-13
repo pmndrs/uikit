@@ -266,17 +266,19 @@ export class InstancedText {
     textAlign: keyof typeof alignmentXMap | 'block',
   ): { lineIndex: number; x: number } {
     const linesLength = lines.length
-    for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
-      const line = lines[lineIndex]
-      if (charIndex >= line.charIndexOffset + line.charLength) {
-        continue
+    if (charIndex >= lines[0].charIndexOffset) {
+      for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
+        const line = lines[lineIndex]
+        if (charIndex >= line.charIndexOffset + line.charLength) {
+          continue
+        }
+        //line found
+        const glyphEntry = this.glyphLines[lineIndex][Math.max(charIndex - line.charIndexOffset, 0)]
+        return { lineIndex, x: this.getGlyphX(glyphEntry, start ? 0 : 1, whitespaceWidth) }
       }
-      //line found
-      const glyphEntry = this.glyphLines[lineIndex][Math.max(charIndex - line.charIndexOffset, 0)]
-      return { lineIndex, x: this.getGlyphX(glyphEntry, start ? 0 : 1, whitespaceWidth) }
     }
     const lastLine = lines[linesLength - 1]
-    if (lastLine.charLength === 0) {
+    if (lastLine.charLength === 0 || charIndex < lastLine.charIndexOffset) {
       return {
         lineIndex: linesLength - 1,
         x: getXOffset(availableWidth, lastLine.nonWhitespaceWidth, textAlign) - availableWidth / 2,
