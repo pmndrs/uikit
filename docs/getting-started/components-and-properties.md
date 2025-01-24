@@ -88,42 +88,45 @@ In addition to the flexbox properties, the container has properties for styling 
 <details>
 <summary>View all properties for styling the background panel</summary>
 
-| Property                         | Type                |
-| -------------------------------- | ------------------- |
-| zIndexOffset                     | number              |
-| receiveShadow                    | boolean             |
-| castShadow                       | boolean             |
-| depthTest                        | boolean             |
-| depthWrite                       | boolean             |
-| renderOrder                      | number              |
-| backgroundColor                  | ColorRepresentation |
-| backgroundOpacity                | number              |
-| panelMaterialClass               | Material class      |
-| borderOpacity                    | number              |
-| borderColor                      | ColorRepresentation |
-| borderRadius                     | number              |
-| borderLeftRadius                 | number              |
-| borderRightRadius                | number              |
-| borderTopRadius                  | number              |
-| borderBottomRadius               | number              |
-| borderTopLeftRadius              | number              |
-| borderTopRightRadius             | number              |
-| borderBottomRightRadius          | number              |
-| borderBottomLeftRadius           | number              |
-| borderBend                       | number              |
-| scrollbarPanelMaterialClass      | Material class      |
-| scrollbarBackgroundOpacity       | number              |
-| scrollbarBackgroundColor         | ColorRepresentation |
-| scrollbarWidth                   | number              |
-| scrollbarBorderRadius            | number              |
-| scrollbarBorderLeftRadius        | number              |
-| scrollbarBorderRightRadius       | number              |
-| scrollbarBorderTopRadius         | number              |
-| scrollbarBorderBottomRadius      | number              |
-| scrollbarBorderTopLeftRadius     | number              |
-| scrollbarBorderTopRightRadius    | number              |
-| scrollbarBorderBottomRightRadius | number              |
-| scrollbarBorderBottomLeftRadius  | number              |
+| Property                         | Type                                        |
+| -------------------------------- | ------------------------------------------- |
+| receiveShadow                    | boolean                                     |
+| castShadow                       | boolean                                     |
+| depthTest                        | boolean                                     |
+| depthWrite                       | boolean                                     |
+| renderOrder                      | number                                      |
+| backgroundColor                  | ColorRepresentation                         |
+| backgroundOpacity                | number                                      |
+| panelMaterialClass               | Material class                              |
+| borderOpacity                    | number                                      |
+| borderColor                      | ColorRepresentation                         |
+| borderRadius                     | number                                      |
+| borderLeftRadius                 | number                                      |
+| borderRightRadius                | number                                      |
+| borderTopRadius                  | number                                      |
+| borderBottomRadius               | number                                      |
+| borderTopLeftRadius              | number                                      |
+| borderTopRightRadius             | number                                      |
+| borderBottomRightRadius          | number                                      |
+| borderBottomLeftRadius           | number                                      |
+| borderBend                       | number                                      |
+| scrollbarPanelMaterialClass      | Material class                              |
+| scrollbarBackgroundOpacity       | number                                      |
+| scrollbarBackgroundColor         | ColorRepresentation                         |
+| scrollbarWidth                   | number                                      |
+| scrollbarBorderRadius            | number                                      |
+| scrollbarBorderLeftRadius        | number                                      |
+| scrollbarBorderRightRadius       | number                                      |
+| scrollbarBorderTopRadius         | number                                      |
+| scrollbarBorderBottomRadius      | number                                      |
+| scrollbarBorderTopLeftRadius     | number                                      |
+| scrollbarBorderTopRightRadius    | number                                      |
+| scrollbarBorderBottomRightRadius | number                                      |
+| scrollbarBorderBottomLeftRadius  | number                                      |
+| zIndexOffset                     | number or { minor?: number, major?: number } |
+
+**`zIndexOffset` Explanation:**  
+`zIndexOffset={1}` allows to manipulate the default order deduced from the UI hierachy, giving the developer the option to shift the order of specific elements backwards or forwards making them appear behind or infront of other elements. Note that sibling elements are treated as having the same UI hiearchy and are therefore not explicitly ordered. `zIndexOffset={1}` is the same as `zIndexOffset={{ major: 1 }}`.  While giving a major zIndexOffset causes more draw calls, a minor offset with `zIndexOffset={{ minor: 1 }}` causes no direct performance implications and allows to order sibling elements of the same type e.g. with two overlapping panels beeing siblings in the UI hiearchy.
 
 </details>
 
