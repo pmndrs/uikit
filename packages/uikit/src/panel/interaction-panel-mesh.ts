@@ -50,7 +50,7 @@ export function makePanelSpherecast(
     }
     vectorHelper.copy(sphere.center).applyMatrix4(matrixHelper.copy(object.matrixWorld).invert())
     vectorHelper.x = clamp(vectorHelper.x, -0.5, 0.5)
-    vectorHelper.x = clamp(vectorHelper.y, -0.5, 0.5)
+    vectorHelper.y = clamp(vectorHelper.y, -0.5, 0.5)
     vectorHelper.z = 0
 
     const uv = new Vector2(vectorHelper.x, vectorHelper.y)
