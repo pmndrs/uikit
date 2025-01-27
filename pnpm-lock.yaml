@@ -164,15 +164,6 @@ importers:
       '@react-three/postprocessing':
         specifier: ^2.16.2
         version: 2.19.1(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/three@0.161.0)(react@18.3.1)(three@0.168.0)
-      '@react-three/uikit':
-        specifier: ^0.8.6
-        version: 0.8.6(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.18)(react@18.3.1)(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
-      '@react-three/uikit-default':
-        specifier: ^0.8.6
-        version: 0.8.6(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.18)(react@18.3.1)(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
-      '@react-three/uikit-lucide':
-        specifier: ^0.8.6
-        version: 0.8.6(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.18)(react@18.3.1)(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       '@types/prismjs':
         specifier: ^1.26.3
         version: 1.26.5
@@ -221,9 +212,18 @@ importers:
       react-simple-code-editor:
         specifier: ^0.13.1
         version: 0.13.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      remote-pmndrs-uikit:
+        specifier: https://registry.npmjs.org/@pmndrs/uikit/-/uikit-0.8.6.tgz
+        version: '@pmndrs/uikit@0.8.6(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))'
       remote-react-three-uikit:
         specifier: https://registry.npmjs.org/@react-three/uikit/-/uikit-0.8.6.tgz
         version: '@react-three/uikit@0.8.6(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.18)(react@18.3.1)(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))'
+      remote-react-three-uikit-default:
+        specifier: https://registry.npmjs.org/@react-three/uikit-default/-/uikit-default-0.8.6.tgz
+        version: '@react-three/uikit-default@0.8.6(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.18)(react@18.3.1)(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))'
+      remote-react-three-uikit-lucide:
+        specifier: https://registry.npmjs.org/@react-three/uikit-lucide/-/uikit-lucide-0.8.6.tgz
+        version: '@react-three/uikit-lucide@0.8.6(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.18)(react@18.3.1)(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))'
       shadcn-ui:
         specifier: ^0.8.0
         version: 0.8.0(typescript@5.7.3)

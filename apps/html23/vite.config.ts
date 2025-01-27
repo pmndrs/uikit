@@ -10,6 +10,15 @@ export default defineConfig({
     alias: [
       { find: '@', replacement: path.resolve(__dirname, './src') },
       { find: '@react-three/uikit', replacement: path.resolve(__dirname, './node_modules/remote-react-three-uikit') },
+      {
+        find: '@react-three/uikit-default',
+        replacement: path.resolve(__dirname, './node_modules/remote-react-three-uikit-default'),
+      },
+      {
+        find: '@react-three/uikit-lucide',
+        replacement: path.resolve(__dirname, './node_modules/remote-react-three-uikit-lucide'),
+      },
+      { find: '@pmndrs/uikit/internals', replacement: path.resolve(__dirname, './node_modules/remote-pmndrs-uikit/dist/internals.js') },
     ],
     dedupe: ['@react-three/fiber', 'three'],
   },

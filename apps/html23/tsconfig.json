@@ -3,7 +3,8 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "@react-three/uikit": ["./node_modules/remote-react-three-uikit/*"]
         },
         "types": ["vite/client"]
     }
