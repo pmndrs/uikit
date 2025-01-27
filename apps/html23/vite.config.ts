@@ -13,7 +13,6 @@ export default defineConfig({
     dedupe: ['@react-three/fiber', 'three'],
   },
   optimizeDeps: {
-    include: ['@react-three/uikit-lucide', '@react-three/uikit-default', '@react-three/uikit'],
     esbuildOptions: {
       target: 'esnext',
     },

@@ -1,9 +1,10 @@
 {
   "type": "module",
   "devDependencies": {
+    "@react-three/drei": "rc",
     "@react-three/eslint-plugin": "^0.1.1",
     "@react-three/fiber": "rc",
-    "@react-three/drei": "rc",
+    "@react-three/xr": "^6.5.4",
     "@types/chai": "^4.3.10",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
@@ -33,8 +34,15 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-json-schema": "^0.65.1",
-    "vite": "^6.0.11",
     "vercel": "^34.1.8",
-    "@react-three/xr": "^6.5.4"
+    "vite": "^5.4.14"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "protobufjs",
+      "core-js",
+      "sharp"
+    ]
   }
 }

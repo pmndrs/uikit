@@ -11,7 +11,8 @@
     "react-dom": "^18",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@react-three/fiber": "^8.17.12"
+    "@react-three/fiber": "^8.17.12",
+    "@react-three/drei": "^9.121.4"
   },
   "scripts": {
     "dev": "vite --host",

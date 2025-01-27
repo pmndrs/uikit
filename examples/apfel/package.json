@@ -4,7 +4,6 @@
     "@preact/signals-core": "^1.5.1",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
-    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "maath": "^0.10.7"
   },
   "scripts": {
