@@ -7,9 +7,10 @@ import path from 'path'
 export default defineConfig({
   plugins: [react(), basicSsl()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      { find: '@react-three/uikit', replacement: path.resolve(__dirname, './node_modules/remote-react-three-uikit') },
+    ],
     dedupe: ['@react-three/fiber', 'three'],
   },
   optimizeDeps: {

@@ -2,6 +2,7 @@
   "name": "html23",
   "type": "module",
   "dependencies": {
+    "remote-react-three-uikit": "https://registry.npmjs.org/@react-three/uikit/-/uikit-0.8.6.tgz",
     "react": "^18",
     "react-dom": "^18",
     "@types/react": "^18",
