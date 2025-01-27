@@ -10,10 +10,7 @@ export default defineConfig({
   },
   base: '/uikit/examples/card/',
   resolve: {
-    alias: [
-      { find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default/src') },
-      { find: '@react-three/uikit', replacement: path.resolve(__dirname, '../../packages/react/src/index.ts') },
-    ],
+    alias: [{ find: '@', replacement: path.resolve(__dirname, '../../packages/kits/default/src') }],
     dedupe: ['@react-three/fiber', 'three'],
   },
 })
