@@ -2,7 +2,7 @@
 
 This project uses [semantic commits](https://conventionalcommits.org) and [semver](https://semver.org).
 
-To get started, make sure you have [Node](https://nodejs.org) and [PNPM](https://pnpm.io/) installed. Install dependencies, generate files, and build the libraries with:
+To get started, make sure you have [Node](https://nodejs.org) and [PNPM](https://pnpm.io/) verson 10 installed. Install dependencies, generate files, and build the libraries with:
 
 ```bash
 pnpm i
