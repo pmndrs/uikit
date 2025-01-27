@@ -90,8 +90,8 @@ export function computedOrderInfo(
 
     const offset = zIndexOffset?.value
 
-    const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
-    const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
+    const majorOffset = typeof offset === 'number' ? offset : (offset?.major ?? 0)
+    const minorOffset = typeof offset === 'number' ? 0 : (offset?.minor ?? 0)
 
     let majorIndex: number
     let minorIndex: number

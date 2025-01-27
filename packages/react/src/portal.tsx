@@ -181,7 +181,7 @@ export const Portal: (props: PortalProperties & RefAttributes<PortalRef>) => Rea
 )
 
 function uvCompute(
-  { current }: RefObject<ComponentInternals<ImageProperties>>,
+  { current }: RefObject<ComponentInternals<ImageProperties> | null>,
   event: DomEvent,
   state: RootState,
   previous?: RootState,
@@ -211,7 +211,7 @@ function ChildrenToFBO({
   renderPriority: number
   children: ReactNode
   fbo: Signal<WebGLRenderTarget | undefined>
-  imageRef: RefObject<ComponentInternals>
+  imageRef: RefObject<ComponentInternals | null>
 }) {
   const store = useStore()
 

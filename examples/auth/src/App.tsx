@@ -11,7 +11,6 @@ import {
 import { Defaults, colors } from '@/theme.js'
 import { Button } from '@/button.js'
 import { UserAuthForm } from './components/user-auth-form.js'
-import { Perf } from 'r3f-perf'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 setPreferredColorScheme('light')
@@ -28,7 +27,6 @@ export default function App() {
       {...canvasInputProps}
     >
       <PointerEvents />
-      <Perf />
       {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
         <Defaults>
           <DialogAnchor>

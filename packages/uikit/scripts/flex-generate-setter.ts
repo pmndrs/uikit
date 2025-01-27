@@ -65,7 +65,10 @@ async function main() {
   const setterFunctions: Array<[string, string]> = []
   for (const [propertyName, functionName] of properties) {
     const enumPrefix = enumsToPrefix[propertyName]
-    let convertFunction: (defaultValue: string | number | null, setter: (value?: string) => string) => string
+    let convertFunction: (
+      defaultValue: string | number | null,
+      setter: (value?: string | null, fnNameSuffix?: string) => string,
+    ) => string
     let types: Array<string>
     if (enumPrefix != null) {
       const enums = yogaKeys.filter(([key]) => key.startsWith(enumPrefix))
@@ -105,9 +108,13 @@ async function main() {
         types.push(`"auto"`)
       }
       convertFunction = (defaultValue, setter) => {
+        const prefix = autoUnit ? `if(input === "auto") { ${setter(null, 'Auto')}; return }\n` : ''
+        if (defaultValue == null || (typeof defaultValue === 'number' && isNaN(defaultValue))) {
+          return prefix + setter('input')
+        }
         const defaultValueString =
           defaultValue === null || isNaN(defaultValue as any) ? 'NaN' : JSON.stringify(defaultValue)
-        return setter(`input ?? ${defaultValueString}${propertyName === 'margin' ? ' as number' : ''}`)
+        return prefix + setter(`input ?? ${defaultValueString}${propertyName === 'margin' ? ' as number' : ''}`)
       }
     }
     if (propertiesWithEdge.has(propertyName)) {
@@ -115,15 +122,14 @@ async function main() {
       for (const [edgeKey, edge] of Object.entries(edgeMap)) {
         const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getBorder'](edge))
         const edgePropertyName = `${propertyName}${edgeKey}`
-        const edgeType = `Edge.${edgeKey}`
         setterFunctions.push([
           edgePropertyName,
-          `(node: Node, input: ${types.join(' | ')}) =>
+          `(node: Node, input: ${types.join(' | ')}) => {
               ${convertFunction(
                 defaultValue,
-                (value) => `
-                  node.set${functionName}(${edge} as ${edgeType}, ${value})`,
-              )}`,
+                (value, fnNameSuffix) =>
+                  `node.set${functionName}${fnNameSuffix ?? ''}(${edge}${value == null ? '' : `, ${value}`})`,
+              )}}`,
         ])
       }
     } else if (propertiesWithGutter.has(propertyName)) {
@@ -134,24 +140,24 @@ async function main() {
         const gutterType = `Gutter.${gutterKey}`
         setterFunctions.push([
           gutterPropertyName,
-          `(node: Node, input: ${types.join(' | ')}) =>
+          `(node: Node, input: ${types.join(' | ')}) => {
               ${convertFunction(
                 defaultValue,
-                (value) => `
-                  node.set${functionName}(${gutter} as ${gutterType}, ${value})`,
-              )}`,
+                (value, fnNameSuffix) => `
+                  node.set${functionName}${fnNameSuffix ?? ''}(${gutter} as ${gutterType}${value == null ? '' : `, ${value}`})`,
+              )}}`,
         ])
       }
     } else {
       const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getWidth']())
       setterFunctions.push([
         propertyName,
-        `(node: Node, input: ${types.join(' | ')}) =>
+        `(node: Node, input: ${types.join(' | ')}) => {
           ${convertFunction(
             defaultValue,
-            (value) => `
-              node.set${functionName}(${value})`,
-          )}`,
+            (value, fnNameSuffix) => `
+              node.set${functionName}${fnNameSuffix ?? ''}(${value == null ? '' : value})`,
+          )}}`,
       ])
     }
   }

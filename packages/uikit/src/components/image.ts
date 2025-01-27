@@ -486,8 +486,8 @@ function setupImageMaterials(
       data.set(imageMaterialConfig.defaultData)
 
       internalSubscriptions.push(
-        effect(() => size.value != null && data.set(size.value, 13)),
-        effect(() => borderInset.value != null && data.set(borderInset.value, 0)),
+        effect(() => void (size.value != null && data.set(size.value, 13))),
+        effect(() => void (borderInset.value != null && data.set(borderInset.value, 0))),
       )
       root.requestRender()
       return () => unsubscribeSubscriptions(internalSubscriptions)

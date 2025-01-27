@@ -21,7 +21,6 @@ import {
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
-import { Perf } from 'r3f-perf'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 export default function App() {
@@ -32,7 +31,7 @@ export default function App() {
   const t = useMemo(() => signal('X X\nX X'), [])
   const ref = useRef<ImageRef>(null)
   const [input, setInput] = useState<InputInternals | null>(null)
-  const videoRef = useRef<HTMLVideoElement | undefined>()
+  const videoRef = useRef<HTMLVideoElement | undefined>(undefined)
   const [videoel, setVideoEl] = useState<HTMLVideoElement | undefined>()
 
   useEffect(() => {
@@ -68,10 +67,9 @@ export default function App() {
             <color attach="background" args={['black']} />
             <ambientLight intensity={0.5} />
             <directionalLight intensity={10} position={[5, 1, 10]} />
-            <RenderTexture ref={(t) => (texture.value = t ?? undefined)}>
+            <RenderTexture ref={(t) => void (texture.value = t ?? undefined)}>
               <Box />
             </RenderTexture>
-            <Perf />
             {show && (
               <Fullscreen
                 renderOrder={10}

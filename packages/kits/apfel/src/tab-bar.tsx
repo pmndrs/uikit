@@ -49,7 +49,7 @@ export const TabBar: (props: TabBarProperties & RefAttributes<ContainerRef>) => 
       [isExpanded, value],
     )
 
-    const timeoutRef = useRef<number>()
+    const timeoutRef = useRef<number>(undefined)
 
     return (
       <TabBarContext.Provider value={context}>

@@ -1,12 +1,8 @@
 {
   "type": "module",
   "dependencies": {
-    "@react-three/drei": "^9.96.1",
-    "@react-three/postprocessing": "^2.16.0",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
-    "r3f-perf": "^7.1.2",
-    "react-dom": "^18.2.0",
     "zustand": "^4.5.2"
   },
   "scripts": {

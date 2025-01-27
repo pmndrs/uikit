@@ -1,10 +1,7 @@
-import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { EffectComposer, TiltShift2 } from '@react-three/postprocessing'
-import { Root, Container, Image, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
+import { Container, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
 import { CirclePlus } from '@react-three/uikit-lucide'
 import { Defaults, colors } from '@/theme.js'
-import { DialogAnchor } from '@/dialog.js'
 import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/tabs.js'
 import { Separator } from '@/separator.js'
 import { Button } from '@/button.js'
@@ -31,18 +28,6 @@ export default function App() {
       >
         <PointerEvents />
         <CountFrames />
-        {/*<Root backgroundColor={0xffffff} sizeX={8.34} sizeY={5.58} pixelSize={0.01}>
-        <Defaults>
-          <DialogAnchor>
-            <MarketPage />
-          </DialogAnchor>
-        </Defaults>
-      </Root>
-      <Environment background blur={1} preset="city" />
-      <EffectComposer>
-        <TiltShift2 blur={0.25} />
-      </EffectComposer>
-      <OrbitControls makeDefault />*/}
         <Fullscreen flexDirection="column">
           <Defaults>
             <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>

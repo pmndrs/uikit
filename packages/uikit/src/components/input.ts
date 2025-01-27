@@ -456,9 +456,9 @@ export function createHtmlInputElement(
         elementSignal.value = undefined
         element.remove()
       },
-      effect(() => (element.value = value.value)),
-      effect(() => (element.disabled = disabled.value)),
-      effect(() => (element.tabIndex = tabIndex.value)),
+      effect(() => void (element.value = value.value)),
+      effect(() => void (element.disabled = disabled.value)),
+      effect(() => void (element.tabIndex = tabIndex.value)),
       effect(() => element.setAttribute('type', type.value)),
     )
     return subscriptions

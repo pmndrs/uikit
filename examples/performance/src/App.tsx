@@ -1,7 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { DefaultProperties, Container, Text, Root, ComponentInternals } from '@react-three/uikit'
 import { OrbitControls } from '@react-three/drei'
-import { Perf } from 'r3f-perf'
 import { noEvents, PointerEvents } from '@react-three/xr'
 import { suspend } from 'suspend-react'
 import { useEffect, useMemo, useRef } from 'react'

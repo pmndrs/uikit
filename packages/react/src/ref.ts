@@ -88,34 +88,30 @@ export function useComponentInternals<T, O = {}>(
     scrollPosition?: Signal<Vector2Tuple>
     mergedProperties: Signal<MergedProperties>
   },
-  interactionPanel: Mesh | RefObject<Mesh>,
+  interactionPanel: Mesh | RefObject<Mesh | null>,
   additional?: O,
 ): void {
-  useImperativeHandle(
-    ref,
-    () => {
-      const { scrollPosition, paddingInset, borderInset, globalMatrix, relativeCenter, size, maxScrollPosition } =
-        internals
-      return {
-        isVisible: internals.isVisible,
-        setStyle: (style: T | undefined, replace?: boolean) =>
-          (styleSignal.value = replace ? style : ({ ...styleSignal.value, ...style } as T)),
-        getStyle: () => styleSignal.peek(),
-        getComputedProperty: <K extends keyof T>(key: K) =>
-          untracked(() => internals.mergedProperties.value.read<T[K] | undefined>(key as string, undefined)),
-        pixelSize,
-        borderInset,
-        paddingInset,
-        center: relativeCenter,
-        globalMatrix,
-        maxScrollPosition,
-        size,
-        interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
-        scrollPosition,
-        isClipped: internals.isClipped,
-        ...(additional as O),
-      }
-    },
-    [internals, pixelSize, interactionPanel, additional, styleSignal],
-  )
+  useImperativeHandle(ref, () => {
+    const { scrollPosition, paddingInset, borderInset, globalMatrix, relativeCenter, size, maxScrollPosition } =
+      internals
+    return {
+      isVisible: internals.isVisible,
+      setStyle: (style: T | undefined, replace?: boolean) =>
+        (styleSignal.value = replace ? style : ({ ...styleSignal.value, ...style } as T)),
+      getStyle: () => styleSignal.peek(),
+      getComputedProperty: <K extends keyof T>(key: K) =>
+        untracked(() => internals.mergedProperties.value.read<T[K] | undefined>(key as string, undefined)),
+      pixelSize,
+      borderInset,
+      paddingInset,
+      center: relativeCenter,
+      globalMatrix,
+      maxScrollPosition,
+      size,
+      interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
+      scrollPosition,
+      isClipped: internals.isClipped,
+      ...(additional as O),
+    }
+  }, [internals, pixelSize, interactionPanel, additional, styleSignal])
 }
