@@ -13,6 +13,7 @@ All components in uikit use flexbox properties to define the position and size i
 
 | Property            | Type                                                                                                        |
 | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| visibility          | "visible" , "hidden"                                                                                        |
 | margin              | number, Percentage, "auto"                                                                                  |
 | marginX             | number, Percentage, "auto"                                                                                  |
 | marginY             | number, Percentage, "auto"                                                                                  |
