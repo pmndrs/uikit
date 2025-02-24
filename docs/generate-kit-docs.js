@@ -25,10 +25,10 @@ nav: ${nav}
   customSetup={{
     dependencies: {
       'three': 'latest',
-      '@react-three/fiber': 'latest',
+      '@react-three/fiber': '<9',
       '@react-three/uikit': 'latest',
       '@react-three/uikit-${kit}': 'latest',
-      '@react-three/drei': 'latest',
+      '@react-three/drei': '<10',
     },
   }}
   files={{
