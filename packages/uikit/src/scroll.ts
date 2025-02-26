@@ -5,7 +5,7 @@ import { ColorRepresentation, Initializers, computedBorderInset } from './utils.
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
-import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
+import { ElementType, OrderInfo, ZIndexOffset, computedOrderInfo } from './order.js'
 import { MergedProperties } from './properties/merged.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupManager, defaultPanelDependencies } from './panel/instanced-panel-group.js'
@@ -362,6 +362,7 @@ export type ScrollbarBorderSizeProperties = {
 export type ScrollbarProperties = {
   scrollbarOpacity?: number
   scrollbarColor?: ColorRepresentation
+  scrollbarZIndexOffset?: ZIndexOffset
 } & ScrollbarWidthProperties &
   ScrollbarBorderSizeProperties & {
     [Key in Exclude<
@@ -389,7 +390,13 @@ export function createScrollbars(
   scrollbarWidth: Signal<number>,
   initializers: Initializers,
 ): void {
-  const scrollbarOrderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, orderInfo)
+  const scrollbarOrderInfo = computedOrderInfo(
+    undefined,
+    'scrollbarZIndexOffset',
+    ElementType.Panel,
+    defaultPanelDependencies,
+    orderInfo,
+  )
 
   const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
   createScrollbar(

@@ -81,7 +81,13 @@ export function createSelection(
     offset: Signal<Vector2Tuple>
     panelSubscriptions: Subscriptions
   }> = []
-  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, prevOrderInfo)
+  const orderInfo = computedOrderInfo(
+    undefined,
+    'zIndexOffset',
+    ElementType.Panel,
+    defaultPanelDependencies,
+    prevOrderInfo,
+  )
   const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
 
   initializers.push(

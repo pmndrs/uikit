@@ -145,7 +145,7 @@ export function createRoot<EM extends ThreeEventMap = ThreeEventMap>(
   applyTransform(ctx, object, globalMatrix, initializers)
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
 
-  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, groupDeps, undefined)
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, groupDeps, undefined)
 
   const panelGroupManager = new PanelGroupManager(pixelSize, ctx, object, initializers)
 

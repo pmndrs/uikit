@@ -164,7 +164,13 @@ export function createImage<EM extends ThreeEventMap = ThreeEventMap>(
 
   const isVisible = computedIsVisible(flexState, isHidden, mergedProperties)
 
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Image, undefined, parentCtx.orderInfo)
+  const orderInfo = computedOrderInfo(
+    mergedProperties,
+    'zIndexOffset',
+    ElementType.Image,
+    undefined,
+    parentCtx.orderInfo,
+  )
 
   const scrollPosition = createScrollPosition()
   applyScrollPosition(childrenContainer, scrollPosition, parentCtx.root.pixelSize, initializers)

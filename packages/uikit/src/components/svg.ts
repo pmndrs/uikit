@@ -134,7 +134,13 @@ export function createSvg<EM extends ThreeEventMap = ThreeEventMap>(
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(
+    mergedProperties,
+    'zIndexOffset',
+    ElementType.Panel,
+    groupDeps,
+    parentCtx.orderInfo,
+  )
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
@@ -152,7 +158,7 @@ export function createSvg<EM extends ThreeEventMap = ThreeEventMap>(
     ),
   )
 
-  const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Svg, undefined, backgroundOrderInfo)
 
   const src = computed(() => readReactive(style.value?.src) ?? readReactive(properties.value?.src))
   const svgObject = signal<Object3D | undefined>(undefined)

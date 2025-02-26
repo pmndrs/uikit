@@ -106,7 +106,13 @@ export function createContainer<EM extends ThreeEventMap = ThreeEventMap>(
 
   //instanced panel
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
+  const orderInfo = computedOrderInfo(
+    mergedProperties,
+    'zIndexOffset',
+    ElementType.Panel,
+    groupDeps,
+    parentCtx.orderInfo,
+  )
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,

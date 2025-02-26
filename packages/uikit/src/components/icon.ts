@@ -105,7 +105,13 @@ export function createIcon<EM extends ThreeEventMap = ThreeEventMap>(
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(
+    mergedProperties,
+    'zIndexOffset',
+    ElementType.Panel,
+    groupDeps,
+    parentCtx.orderInfo,
+  )
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
@@ -123,7 +129,7 @@ export function createIcon<EM extends ThreeEventMap = ThreeEventMap>(
     ),
   )
 
-  const orderInfo = computedOrderInfo(undefined, ElementType.Svg, undefined, backgroundOrderInfo)
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Svg, undefined, backgroundOrderInfo)
 
   const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
   const iconGroup = createIconGroup(

@@ -99,7 +99,13 @@ export function createText<EM extends ThreeEventMap = ThreeEventMap>(
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   const groupDeps = computedPanelGroupDependencies(mergedProperties)
-  const backgroundOrderInfo = computedOrderInfo(mergedProperties, ElementType.Panel, groupDeps, parentCtx.orderInfo)
+  const backgroundOrderInfo = computedOrderInfo(
+    mergedProperties,
+    'zIndexOffset',
+    ElementType.Panel,
+    groupDeps,
+    parentCtx.orderInfo,
+  )
   initializers.push((subscriptions) =>
     createInstancedPanel(
       mergedProperties,
@@ -120,6 +126,7 @@ export function createText<EM extends ThreeEventMap = ThreeEventMap>(
   const fontSignal = computedFont(mergedProperties, fontFamilies, parentCtx.root.renderer, initializers)
   const orderInfo = computedOrderInfo(
     undefined,
+    'zIndexOffset',
     ElementType.Text,
     computedGylphGroupDependencies(fontSignal),
     backgroundOrderInfo,

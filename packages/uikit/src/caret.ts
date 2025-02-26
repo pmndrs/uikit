@@ -73,7 +73,13 @@ export function createCaret(
   panelGroupManager: PanelGroupManager,
   initializers: Initializers,
 ) {
-  const orderInfo = computedOrderInfo(undefined, ElementType.Panel, defaultPanelDependencies, parentOrderInfo)
+  const orderInfo = computedOrderInfo(
+    undefined,
+    'zIndexOffset',
+    ElementType.Panel,
+    defaultPanelDependencies,
+    parentOrderInfo,
+  )
   const blinkingCaretPosition = signal<Vector3Tuple | undefined>(undefined)
   initializers.push(() =>
     effect(() => {

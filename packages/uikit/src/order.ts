@@ -70,6 +70,7 @@ export type ZIndexOffset = { major?: number; minor?: number } | number
 
 export function computedOrderInfo(
   propertiesSignal: Signal<MergedProperties> | undefined,
+  zIndexOffsetKey: string,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
   parentOrderInfoSignal: Signal<OrderInfo | undefined> | undefined,
@@ -77,7 +78,7 @@ export function computedOrderInfo(
   const zIndexOffset =
     propertiesSignal == null
       ? undefined
-      : computedInheritableProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
+      : computedInheritableProperty<ZIndexOffset | undefined>(propertiesSignal, zIndexOffsetKey, undefined)
   return computed(() => {
     let parentOrderInfo: OrderInfo | undefined
     if (parentOrderInfoSignal == null) {

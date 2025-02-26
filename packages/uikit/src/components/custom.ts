@@ -88,7 +88,13 @@ export function createCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
   //instanced panel
-  const orderInfo = computedOrderInfo(mergedProperties, ElementType.Custom, undefined, parentCtx.orderInfo)
+  const orderInfo = computedOrderInfo(
+    mergedProperties,
+    'zIndexOffset',
+    ElementType.Custom,
+    undefined,
+    parentCtx.orderInfo,
+  )
   const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
 
   initializers.push((subscriptions) => {
