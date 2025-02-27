@@ -47,7 +47,7 @@ export type OrderInfo = {
   instancedGroupDependencies?: Signal<Record<string, any>> | Record<string, any>
 }
 
-function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | undefined): number {
+export function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | undefined): number {
   if (o1 == null || o2 == null) {
     return 0
   }
