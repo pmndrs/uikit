@@ -37,8 +37,8 @@ import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/i
 import { createInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
 import { Vector2Tuple, Vector2, Vector3Tuple } from 'three'
-import { CaretProperties, createCaret } from '../caret.js'
-import { SelectionBoxes, SelectionProperties, createSelection } from '../selection.js'
+import { CaretProperties, CaretTransformation, createCaret } from '../caret.js'
+import { SelectionTransformation, SelectionProperties, createSelection } from '../selection.js'
 import { WithFocus, createFocusPropertyTransformers } from '../focus.js'
 import {
   FontFamilies,
@@ -185,13 +185,13 @@ export function createInput<EM extends ThreeEventMap = ThreeEventMap>(
   )
 
   const instancedTextRef: { current?: InstancedText } = {}
-  const selectionBoxes = signal<SelectionBoxes>([])
-  const caretPosition = signal<Vector3Tuple | undefined>(undefined)
+  const selectionTransformations = signal<Array<SelectionTransformation>>([])
+  const caretTransformation = signal<CaretTransformation | undefined>(undefined)
   const selectionRange = signal<Vector2Tuple | undefined>(undefined)
   createCaret(
     mergedProperties,
     globalMatrix,
-    caretPosition,
+    caretTransformation,
     isVisible,
     backgroundOrderInfo,
     parentCtx.clippingRect,
@@ -201,7 +201,7 @@ export function createInput<EM extends ThreeEventMap = ThreeEventMap>(
   const selectionOrderInfo = createSelection(
     mergedProperties,
     globalMatrix,
-    selectionBoxes,
+    selectionTransformations,
     isVisible,
     backgroundOrderInfo,
     parentCtx.clippingRect,
@@ -240,8 +240,8 @@ export function createInput<EM extends ThreeEventMap = ThreeEventMap>(
     fontSignal,
     parentCtx.root.gylphGroupManager,
     selectionRange,
-    selectionBoxes,
-    caretPosition,
+    selectionTransformations,
+    caretTransformation,
     instancedTextRef,
     initializers,
     multiline ? 'break-word' : 'keep-all',
@@ -335,6 +335,9 @@ export function createInput<EM extends ThreeEventMap = ThreeEventMap>(
     interactionPanel,
     handlers,
     initializers,
+    selectionRange,
+    caretTransformation,
+    selectionTransformations,
   })
 }
 

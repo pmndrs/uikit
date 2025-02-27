@@ -1,5 +1,5 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Matrix4, Vector3Tuple } from 'three'
+import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
 import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
 import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
@@ -11,6 +11,11 @@ import {
   defaultPanelDependencies,
 } from './panel/index.js'
 import { MergedProperties, computedInheritableProperty } from './properties/index.js'
+
+export type CaretTransformation = {
+  position: Vector2Tuple
+  height: number
+}
 
 export type CaretWidthProperties = {
   caretWidth?: number
@@ -66,7 +71,7 @@ function getCaretMaterialConfig() {
 export function createCaret(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
-  caretPosition: Signal<Vector3Tuple | undefined>,
+  caretTransformation: Signal<CaretTransformation | undefined>,
   isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
@@ -80,16 +85,16 @@ export function createCaret(
     defaultPanelDependencies,
     parentOrderInfo,
   )
-  const blinkingCaretPosition = signal<Vector3Tuple | undefined>(undefined)
+  const blinkingCaretTransformation = signal<CaretTransformation | undefined>(undefined)
   initializers.push(() =>
     effect(() => {
-      const pos = caretPosition.value
+      const pos = caretTransformation.value
       if (pos == null) {
-        blinkingCaretPosition.value = undefined
+        blinkingCaretTransformation.value = undefined
       }
-      blinkingCaretPosition.value = pos
+      blinkingCaretTransformation.value = pos
       const ref = setInterval(
-        () => (blinkingCaretPosition.value = blinkingCaretPosition.peek() == null ? pos : undefined),
+        () => (blinkingCaretTransformation.value = blinkingCaretTransformation.peek() == null ? pos : undefined),
         500,
       )
       return () => clearInterval(ref)
@@ -106,14 +111,14 @@ export function createCaret(
       panelGroupManager,
       matrix,
       computed(() => {
-        const size = blinkingCaretPosition.value
-        if (size == null) {
+        const height = blinkingCaretTransformation.value?.height
+        if (height == null) {
           return [0, 0]
         }
-        return [caretWidth.value, size[2]]
+        return [caretWidth.value, height]
       }),
       computed(() => {
-        const position = blinkingCaretPosition.value
+        const position = blinkingCaretTransformation.value?.position
         if (position == null) {
           return [0, 0]
         }

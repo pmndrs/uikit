@@ -26,3 +26,5 @@ export type {
 export * from './vanilla/index.js'
 export { htmlToCode } from './convert/html/index.js'
 export type { ColorRepresentation } from './utils.js'
+export type { CaretTransformation } from './caret.js'
+export type { SelectionTransformation } from './selection.js'

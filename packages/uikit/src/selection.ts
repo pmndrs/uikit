@@ -18,7 +18,7 @@ import {
 } from './panel/index.js'
 import { MergedProperties } from './properties/index.js'
 
-export type SelectionBoxes = Array<{ size: Vector2Tuple; position: Vector2Tuple }>
+export type SelectionTransformation = { size: Vector2Tuple; position: Vector2Tuple }
 
 export type SelectionBorderSizeProperties = {
   selectionBorderRightWidth?: number
@@ -69,7 +69,7 @@ function getSelectionMaterialConfig() {
 export function createSelection(
   propertiesSignal: Signal<MergedProperties>,
   matrix: Signal<Matrix4 | undefined>,
-  selectionBoxes: Signal<SelectionBoxes>,
+  selectionTransformations: Signal<Array<SelectionTransformation>>,
   isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
@@ -93,7 +93,7 @@ export function createSelection(
   initializers.push(
     () =>
       effect(() => {
-        const selections = selectionBoxes.value
+        const selections = selectionTransformations.value
         const selectionsLength = selections.length
         for (let i = 0; i < selectionsLength; i++) {
           let panelData = panels[i]

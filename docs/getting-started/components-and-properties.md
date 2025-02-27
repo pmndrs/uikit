@@ -291,6 +291,23 @@ The `Input` component extends the `Text` component and allows the user to change
 </Root>
 ```
 
+The `Input` component also exposes a ref that provides access to various properties and methods for controlling the input programmatically. This ref can be used to focus or blur the input, access the current value, and get information about the selection and caret position.
+
+<details>
+<summary>View all properties exposed in the Input ref</summary>
+
+| Property                 | Description                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| current                  | A signal containing the current value of the input               |
+| focus                    | Method to programmatically focus the input                       |
+| blur                     | Method to programmatically remove focus from the input           |
+| element                  | A signal containing the underlying HTML element                  |
+| selectionRange           | A signal containing the current selection range [start, end]     |
+| caretTransformation      | A signal containing information about the caret's transformation (position and height) |
+| selectionTransformations | A signal containing the transformations for all selection (boxes)  |
+
+</details>
+
 <details>
 <summary>View all properties specific to the `Input` component</summary>
 

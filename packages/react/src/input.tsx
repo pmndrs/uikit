@@ -1,5 +1,5 @@
 import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from 'react'
-import { Object3D } from 'three'
+import { Object3D, Vector2Tuple } from 'three'
 import { useParent } from './context.js'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
@@ -9,6 +9,8 @@ import {
   createInput,
   initialize,
   unsubscribeSubscriptions,
+  CaretTransformation,
+  SelectionTransformation,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ReadonlySignal, signal } from '@preact/signals-core'
@@ -21,6 +23,9 @@ export type InputInternals = ComponentInternals<BaseInputProperties<R3FEventMap>
   focus: () => void
   blur: () => void
   element: ReadonlySignal<HTMLInputElement | HTMLTextAreaElement | undefined>
+  selectionRange: ReadonlySignal<Vector2Tuple | undefined>
+  caretTransformation: ReadonlySignal<CaretTransformation | undefined>
+  selectionTransformations: ReadonlySignal<Array<SelectionTransformation>>
 }
 
 export type InputProperties = BaseInputProperties<R3FEventMap> & {
@@ -68,8 +73,19 @@ export const Input: (props: InputProperties & RefAttributes<InputRef>) => ReactN
         blur: internals.blur,
         current: internals.valueSignal,
         element: internals.element,
+        selectionRange: internals.selectionRange,
+        caretTransformation: internals.caretTransformation,
+        selectionTransformations: internals.selectionTransformations,
       }),
-      [internals.focus, internals.blur, internals.valueSignal, internals.element],
+      [
+        internals.focus,
+        internals.blur,
+        internals.valueSignal,
+        internals.element,
+        internals.caretTransformation,
+        internals.selectionRange,
+        internals.selectionTransformations,
+      ],
     ),
   )
 

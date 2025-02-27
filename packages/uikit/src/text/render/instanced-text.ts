@@ -12,11 +12,12 @@ import {
 } from '../utils.js'
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
-import { SelectionBoxes } from '../../selection.js'
+import { SelectionTransformation } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
 import { MergedProperties, computedInheritableProperty } from '../../properties/index.js'
 import { FlexNode, FlexNodeState } from '../../flex/index.js'
+import { CaretTransformation } from '../../caret.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'block'
@@ -43,8 +44,8 @@ export function createInstancedText(
   fontSignal: Signal<Font | undefined>,
   glyphGroupManager: GlyphGroupManager,
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
-  selectionBoxes: Signal<SelectionBoxes> | undefined,
-  caretPosition: Signal<Vector3Tuple | undefined> | undefined,
+  selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
+  caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
   initializers: Initializers,
   defaultWordBreak: GlyphLayoutProperties['wordBreak'],
@@ -108,8 +109,8 @@ export function createInstancedText(
           isVisible,
           parentClippingRect,
           selectionRange,
-          selectionBoxes,
-          caretPosition,
+          selectionTransformations,
+          caretTransformation,
         )
         if (instancedTextRef != null) {
           instancedTextRef.current = instancedText
@@ -121,7 +122,7 @@ export function createInstancedText(
   return customLayouting
 }
 
-const noSelectionBoxes: SelectionBoxes = []
+const noSelectionTransformations: Array<SelectionTransformation> = []
 
 export class InstancedText {
   private glyphLines: Array<Array<InstancedGlyph | number>> = []
@@ -142,8 +143,8 @@ export class InstancedText {
     isVisible: Signal<boolean>,
     private parentClippingRect: Signal<ClippingRect | undefined> | undefined,
     private selectionRange: Signal<Vector2Tuple | undefined> | undefined,
-    private selectionBoxes: Signal<SelectionBoxes> | undefined,
-    private caretPosition: Signal<Vector3Tuple | undefined> | undefined,
+    private selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
+    private caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   ) {
     this.unsubscribeInitialList = [
       effect(() => {
@@ -194,12 +195,12 @@ export class InstancedText {
     verticalAlign: keyof typeof alignmentYMap,
     textAlign: keyof typeof alignmentXMap | 'block',
   ): void {
-    if (this.caretPosition == null || this.selectionBoxes == null) {
+    if (this.caretTransformation == null || this.selectionTransformations == null) {
       return
     }
     if (range == null || layout == null || layout.lines.length === 0) {
-      this.caretPosition.value = undefined
-      this.selectionBoxes.value = noSelectionBoxes
+      this.caretTransformation.value = undefined
+      this.selectionTransformations.value = noSelectionTransformations
       return
     }
     const whitespaceWidth = layout.font.getGlyphInfo(' ').xadvance * layout.fontSize
@@ -212,39 +213,41 @@ export class InstancedText {
         lineIndex * getOffsetToNextLine(layout.lineHeight, layout.fontSize) +
         getGlyphOffsetY(layout.fontSize, layout.lineHeight)
       )
-      this.caretPosition.value = [x, y - layout.fontSize / 2, layout.fontSize]
-      this.selectionBoxes.value = []
+      this.caretTransformation.value = { position: [x, y - layout.fontSize / 2], height: layout.fontSize }
+      this.selectionTransformations.value = []
       return
     }
-    this.caretPosition.value = undefined
+    this.caretTransformation.value = undefined
     const start = this.getGlyphLineAndX(layout, startCharIndexIncl, true, whitespaceWidth, textAlign)
     const end = this.getGlyphLineAndX(layout, endCharIndexExcl - 1, false, whitespaceWidth, textAlign)
     if (start.lineIndex === end.lineIndex) {
-      this.selectionBoxes.value = [
-        this.computeSelectionBox(start.lineIndex, start.x, end.x, layout, verticalAlign, whitespaceWidth),
+      this.selectionTransformations.value = [
+        this.computeSelectionTransformation(start.lineIndex, start.x, end.x, layout, verticalAlign, whitespaceWidth),
       ]
       return
     }
-    const newSelectionBoxes: SelectionBoxes = [
-      this.computeSelectionBox(start.lineIndex, start.x, undefined, layout, verticalAlign, whitespaceWidth),
+    const newSelectionTransformations: Array<SelectionTransformation> = [
+      this.computeSelectionTransformation(start.lineIndex, start.x, undefined, layout, verticalAlign, whitespaceWidth),
     ]
     for (let i = start.lineIndex + 1; i < end.lineIndex; i++) {
-      newSelectionBoxes.push(this.computeSelectionBox(i, undefined, undefined, layout, verticalAlign, whitespaceWidth))
+      newSelectionTransformations.push(
+        this.computeSelectionTransformation(i, undefined, undefined, layout, verticalAlign, whitespaceWidth),
+      )
     }
-    newSelectionBoxes.push(
-      this.computeSelectionBox(end.lineIndex, undefined, end.x, layout, verticalAlign, whitespaceWidth),
+    newSelectionTransformations.push(
+      this.computeSelectionTransformation(end.lineIndex, undefined, end.x, layout, verticalAlign, whitespaceWidth),
     )
-    this.selectionBoxes.value = newSelectionBoxes
+    this.selectionTransformations.value = newSelectionTransformations
   }
 
-  private computeSelectionBox(
+  private computeSelectionTransformation(
     lineIndex: number,
     startX: number | undefined,
     endX: number | undefined,
     layout: GlyphLayout,
     verticalAlign: keyof typeof alignmentYMap,
     whitespaceWidth: number,
-  ): SelectionBoxes[number] {
+  ): SelectionTransformation {
     const lineGlyphs = this.glyphLines[lineIndex]
     if (startX == null) {
       startX = this.getGlyphX(lineGlyphs[0], 0, whitespaceWidth)

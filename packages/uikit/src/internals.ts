@@ -14,6 +14,8 @@ export * from './panel/index.js'
 export * from './scroll.js'
 export * from './components/index.js'
 export * from './convert/html/internals.js'
+export * from './caret.js'
+export * from './selection.js'
 
 export type * from './events.js'
 export type * from './context.js'
