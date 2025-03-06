@@ -1,15 +1,9 @@
-import { Signal, effect, signal } from '@preact/signals-core'
-import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
+import { Signal, signal } from '@preact/signals-core'
+import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
-import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
-import {
-  ColorRepresentation,
-  Initializers,
-  Subscriptions,
-  computedBorderInset,
-  unsubscribeSubscriptions,
-} from './utils.js'
+import { computedOrderInfo, ElementType, OrderInfo } from './order.js'
+import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
   PanelGroupManager,
   PanelMaterialConfig,
@@ -74,12 +68,12 @@ export function createSelection(
   prevOrderInfo: Signal<OrderInfo | undefined>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
-  initializers: Initializers,
+  abortSignal: AbortSignal,
 ) {
   const panels: Array<{
     size: Signal<Vector2Tuple>
     offset: Signal<Vector2Tuple>
-    panelSubscriptions: Subscriptions
+    abortController: AbortController
   }> = []
   const orderInfo = computedOrderInfo(
     undefined,
@@ -90,53 +84,50 @@ export function createSelection(
   )
   const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
 
-  initializers.push(
-    () =>
-      effect(() => {
-        const selections = selectionTransformations.value
-        const selectionsLength = selections.length
-        for (let i = 0; i < selectionsLength; i++) {
-          let panelData = panels[i]
-          if (panelData == null) {
-            const size = signal<Vector2Tuple>([0, 0])
-            const offset = signal<Vector2Tuple>([0, 0])
-            const panelSubscriptions: Subscriptions = []
-            createInstancedPanel(
-              propertiesSignal,
-              orderInfo,
-              undefined,
-              panelGroupManager,
-              matrix,
-              size,
-              offset,
-              borderInset,
-              parentClippingRect,
-              isVisible,
-              getSelectionMaterialConfig(),
-              panelSubscriptions,
-            )
-            panels[i] = panelData = {
-              panelSubscriptions,
-              offset,
-              size,
-            }
-          }
-          const selection = selections[i]
-          panelData.size.value = selection.size
-          panelData.offset.value = selection.position
+  abortableEffect(() => {
+    const selections = selectionTransformations.value
+    const selectionsLength = selections.length
+    for (let i = 0; i < selectionsLength; i++) {
+      let panelData = panels[i]
+      if (panelData == null) {
+        const size = signal<Vector2Tuple>([0, 0])
+        const offset = signal<Vector2Tuple>([0, 0])
+        const abortController = new AbortController()
+        setupInstancedPanel(
+          propertiesSignal,
+          orderInfo,
+          undefined,
+          panelGroupManager,
+          matrix,
+          size,
+          offset,
+          borderInset,
+          parentClippingRect,
+          isVisible,
+          getSelectionMaterialConfig(),
+          abortController.signal,
+        )
+        panels[i] = panelData = {
+          abortController,
+          offset,
+          size,
         }
-        const panelsLength = panels.length
-        for (let i = selectionsLength; i < panelsLength; i++) {
-          unsubscribeSubscriptions(panels[i].panelSubscriptions)
-        }
-        panels.length = selectionsLength
-      }),
-    () => () => {
-      const panelsLength = panels.length
-      for (let i = 0; i < panelsLength; i++) {
-        unsubscribeSubscriptions(panels[i].panelSubscriptions)
       }
-    },
-  )
+      const selection = selections[i]
+      panelData.size.value = selection.size
+      panelData.offset.value = selection.position
+    }
+    const panelsLength = panels.length
+    for (let i = selectionsLength; i < panelsLength; i++) {
+      panels[i].abortController.abort()
+    }
+    panels.length = selectionsLength
+  }, abortSignal)
+  abortSignal.addEventListener('abort', () => {
+    const panelsLength = panels.length
+    for (let i = 0; i < panelsLength; i++) {
+      panels[i].abortController.abort()
+    }
+  })
   return orderInfo
 }

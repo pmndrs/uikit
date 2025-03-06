@@ -1,4 +1,4 @@
-import { InstancedBufferAttribute, Material, DynamicDrawUsage, MeshBasicMaterial } from 'three'
+import { InstancedBufferAttribute, Material, DynamicDrawUsage, MeshBasicMaterial, Object3D } from 'three'
 import {
   Bucket,
   addToSortedBuckets,
@@ -10,10 +10,9 @@ import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../order.js'
-import { Signal, computed, effect } from '@preact/signals-core'
+import { Signal, computed } from '@preact/signals-core'
 import { MergedProperties } from '../properties/merged.js'
-import { Object3DRef, RootContext } from '../context.js'
-import { Initializers } from '../utils.js'
+import { RootContext } from '../context.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -58,19 +57,18 @@ export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<string, InstancedPanelGroup>>()
 
   constructor(
-    private pixelSize: Signal<number>,
-    private root: WithCameraDistance & Pick<RootContext, 'onFrameSet' | 'requestRender'>,
-    private object: Object3DRef,
-    initializers: Initializers,
-  ) {
-    initializers.push(
-      () => {
-        const onFrame = () => this.traverse((group) => group.onFrame())
-        root.onFrameSet.add(onFrame)
-        return () => root.onFrameSet.delete(onFrame)
-      },
-      () => () => this.traverse((group) => group.destroy()),
-    )
+    private readonly root: WithCameraDistance &
+      Pick<RootContext, 'onFrameSet' | 'requestFrame' | 'requestRender' | 'pixelSize'>,
+    private readonly objectRef: { current?: Object3D | null },
+  ) {}
+
+  init(abortSignal: AbortSignal) {
+    const onFrame = () => this.traverse((group) => group.onFrame())
+    this.root.onFrameSet.add(onFrame)
+    abortSignal.addEventListener('abort', () => {
+      this.root.onFrameSet.delete(onFrame)
+      this.traverse((group) => group.destroy())
+    })
   }
 
   private traverse(fn: (group: InstancedPanelGroup) => void) {
@@ -99,8 +97,7 @@ export class PanelGroupManager {
       groups.set(
         key,
         (panelGroup = new InstancedPanelGroup(
-          this.object,
-          this.pixelSize,
+          this.objectRef.current!,
           this.root,
           {
             elementType: ElementType.Panel,
@@ -160,9 +157,8 @@ export class InstancedPanelGroup {
   }
 
   constructor(
-    private readonly object: Object3DRef,
-    public readonly pixelSize: Signal<number>,
-    public readonly root: WithCameraDistance & Pick<RootContext, 'requestRender'>,
+    private readonly object: Object3D,
+    public readonly root: WithCameraDistance & Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
@@ -201,7 +197,7 @@ export class InstancedPanelGroup {
     this.nextUpdateTime = nextFrame
     clearTimeout(this.nextUpdateTimeoutRef)
     this.nextUpdateTimeoutRef = undefined
-    this.root.requestRender()
+    this.root.requestFrame()
   }
 
   insert(bucketIndex: number, panel: InstancedPanel): void {
@@ -227,9 +223,11 @@ export class InstancedPanelGroup {
         this.bufferCopyWithin,
       )
     ) {
+      //update count already requests a render
       this.updateCount()
       return
     }
+    this.root.requestRender()
     this.requestUpdate(1000) //request update in 1 second
   }
 
@@ -272,7 +270,7 @@ export class InstancedPanelGroup {
     this.bufferElementSize = Math.ceil(this.elementCount * 1.5)
     if (this.mesh != null) {
       this.mesh.dispose()
-      this.object.current?.remove(this.mesh)
+      this.object.remove(this.mesh)
     }
     resizeSortedBucketsSpace(this.buckets, oldBufferSize, this.bufferElementSize)
     const matrixArray = new Float32Array(this.bufferElementSize * 16)
@@ -303,7 +301,7 @@ export class InstancedPanelGroup {
     this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.panelGroupProperties.receiveShadow
     this.mesh.castShadow = this.panelGroupProperties.castShadow
-    this.object.current?.add(this.mesh)
+    this.object.add(this.mesh)
   }
 
   destroy() {
@@ -311,7 +309,7 @@ export class InstancedPanelGroup {
     if (this.mesh == null) {
       return
     }
-    this.object.current?.remove(this.mesh)
+    this.object.remove(this.mesh)
     this.mesh?.dispose()
     this.instanceMaterial.dispose()
   }

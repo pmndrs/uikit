@@ -19,8 +19,6 @@ import { noEvents, PointerEvents } from '@react-three/xr'
 
 setPreferredColorScheme('light')
 
-const useFrameCounter = create(() => 0)
-
 export default function App() {
   const [open, setOpen] = useState(false)
   return (
@@ -50,6 +48,8 @@ export default function App() {
     </>
   )
 }
+
+const useFrameCounter = create(() => 0)
 
 function CountFrames() {
   useFrame(() => useFrameCounter.setState(useFrameCounter.getState() + 1))

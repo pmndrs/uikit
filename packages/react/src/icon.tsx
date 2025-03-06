@@ -1,10 +1,4 @@
-import {
-  IconProperties as BaseIconProperties,
-  Subscriptions,
-  createIcon,
-  initialize,
-  unsubscribeSubscriptions,
-} from '@pmndrs/uikit/internals'
+import { IconProperties as BaseIconProperties, createIconState, setupIcon } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
@@ -27,7 +21,7 @@ export const Icon: (props: IconProperties & RefAttributes<IconRef>) => ReactNode
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
     () =>
-      createIcon<R3FEventMap>(
+      createIconState<R3FEventMap>(
         parent,
         properties.text,
         properties.svgWidth,
@@ -35,7 +29,6 @@ export const Icon: (props: IconProperties & RefAttributes<IconRef>) => ReactNode
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
-        outerRef,
       ),
     [parent, properties.svgHeight, properties.svgWidth, properties.text, propertySignals],
   )
@@ -43,10 +36,20 @@ export const Icon: (props: IconProperties & RefAttributes<IconRef>) => ReactNode
   internals.interactionPanel.name = properties.name ?? ''
 
   useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    if (outerRef.current == null) {
+      return
+    }
+    const abortController = new AbortController()
+    setupIcon<R3FEventMap>(
+      internals,
+      parent,
+      propertySignals.style,
+      propertySignals.properties,
+      outerRef.current,
+      abortController.signal,
+    )
+    return () => abortController.abort()
+  }, [parent, propertySignals, internals])
 
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 

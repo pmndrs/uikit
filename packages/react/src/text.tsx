@@ -2,14 +2,7 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { useParent } from './context.js'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
-import {
-  createText,
-  FontFamilies,
-  initialize,
-  Subscriptions,
-  TextProperties as BaseTextProperties,
-  unsubscribeSubscriptions,
-} from '@pmndrs/uikit/internals'
+import { FontFamilies, TextProperties as BaseTextProperties, createTextState, setupText } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
@@ -34,14 +27,13 @@ export const Text: (props: TextProperties & RefAttributes<TextRef>) => ReactNode
   fontFamilies.value = useFontFamilies()
   const internals = useMemo(
     () =>
-      createText<R3FEventMap>(
+      createTextState<R3FEventMap>(
         parent,
         textSignal,
         fontFamilies,
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
-        outerRef,
       ),
     [fontFamilies, parent, propertySignals, textSignal],
   )
@@ -49,10 +41,20 @@ export const Text: (props: TextProperties & RefAttributes<TextRef>) => ReactNode
   internals.interactionPanel.name = properties.name ?? ''
 
   useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    if (outerRef.current == null) {
+      return
+    }
+    const abortController = new AbortController()
+    setupText<R3FEventMap>(
+      internals,
+      parent,
+      propertySignals.style,
+      propertySignals.properties,
+      outerRef.current,
+      abortController.signal,
+    )
+    return () => abortController.abort()
+  }, [parent, propertySignals, internals])
 
   useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 

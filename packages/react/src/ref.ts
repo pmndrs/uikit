@@ -1,15 +1,17 @@
 import { ReadonlySignal, Signal, untracked } from '@preact/signals-core'
 import {
   Inset,
-  createContainer,
-  createImage,
-  createRoot,
-  createSvg,
-  createText,
-  createIcon,
-  createCustomContainer,
   ContainerProperties,
   MergedProperties,
+  createContainerState,
+  createCustomContainerState,
+  createIconState,
+  createTextState,
+  createSvgState,
+  createRootState,
+  createImageState,
+  createInputState,
+  createContentState,
 } from '@pmndrs/uikit/internals'
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh, Matrix4 } from 'three'
@@ -76,13 +78,15 @@ export function useComponentInternals<T, O = {}>(
   pixelSize: Signal<number>,
   styleSignal: Signal<T | undefined>,
   internals: ReturnType<
-    | typeof createContainer
-    | typeof createImage
-    | typeof createRoot
-    | typeof createSvg
-    | typeof createText
-    | typeof createIcon
-    | typeof createCustomContainer
+    | typeof createContainerState
+    | typeof createContentState
+    | typeof createImageState
+    | typeof createRootState
+    | typeof createSvgState
+    | typeof createTextState
+    | typeof createIconState
+    | typeof createInputState
+    | typeof createCustomContainerState
   > & {
     isClipped?: Signal<boolean>
     scrollPosition?: Signal<Vector2Tuple>

@@ -1,4 +1,4 @@
-import { Signal } from '@preact/signals-core'
+import { signal, Signal } from '@preact/signals-core'
 import { Matrix4, Object3D, Vector2Tuple, WebGLRenderer } from 'three'
 import { ClippingRect } from './clipping.js'
 import { OrderInfo, WithCameraDistance } from './order.js'
@@ -16,12 +16,10 @@ export type ParentContext = Readonly<{
   root: RootContext
 }>
 
-export type Object3DRef = { current?: Object3D | null }
-
 export type RootContext = WithCameraDistance &
   Readonly<{
     requestCalculateLayout: () => void
-    object: Object3DRef
+    objectRef: { current?: Object3D | null }
     gylphGroupManager: GlyphGroupManager
     panelGroupManager: PanelGroupManager
     pixelSize: Signal<number>

@@ -4,10 +4,8 @@ import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
   ContainerProperties as BaseContainerProperties,
-  createContainer,
-  unsubscribeSubscriptions,
-  Subscriptions,
-  initialize,
+  createContainerState,
+  setupContainer,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { DefaultProperties } from './default.js'
@@ -25,15 +23,15 @@ export const Container: (props: ContainerProperties & RefAttributes<ContainerRef
     const outerRef = useRef<Object3D>(null)
     const innerRef = useRef<Object3D>(null)
     const propertySignals = usePropertySignals(properties)
+
     const internals = useMemo(
       () =>
-        createContainer<R3FEventMap>(
+        createContainerState<R3FEventMap>(
           parent,
+          outerRef,
           propertySignals.style,
           propertySignals.properties,
           propertySignals.default,
-          outerRef,
-          innerRef,
         ),
       [parent, propertySignals],
     )
@@ -41,9 +39,20 @@ export const Container: (props: ContainerProperties & RefAttributes<ContainerRef
     internals.interactionPanel.name = properties.name ?? ''
 
     useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
+      if (outerRef.current == null || innerRef.current == null) {
+        return
+      }
+      const abortController = new AbortController()
+      setupContainer<R3FEventMap>(
+        internals,
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        outerRef.current,
+        innerRef.current,
+        abortController.signal,
+      )
+      return () => abortController.abort()
     }, [parent, propertySignals, internals])
 
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)

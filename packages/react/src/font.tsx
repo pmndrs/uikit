@@ -4,13 +4,9 @@ import {
   FontFamilyWeightMap,
   FontWeight,
   GlyphLayoutProperties,
-  Initializers,
   MergedProperties,
-  Subscriptions,
   computedFont,
-  initialize,
   measureGlyphLayout,
-  unsubscribeSubscriptions,
 } from '@pmndrs/uikit/internals'
 import { signal } from '@preact/signals-core'
 import { useThree } from '@react-three/fiber'
@@ -44,15 +40,10 @@ export function useMeasureText(fontFamily?: string, fontWeight?: FontWeight) {
   const renderer = useThree((state) => state.gl)
   const fontFamilies = useMemo(() => signal<FontFamilies | undefined>(undefined as any), [])
   fontFamilies.value = useFontFamilies()
-  const { font, initializers } = useMemo(() => {
-    const initializers: Initializers = []
-    return { font: computedFont(propertiesSignal, fontFamilies, renderer, initializers), initializers }
-  }, [fontFamilies, propertiesSignal, renderer])
-  useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [initializers])
+  const font = useMemo(
+    () => computedFont(propertiesSignal, fontFamilies, renderer),
+    [fontFamilies, propertiesSignal, renderer],
+  )
   return useCallback(
     async (properties: Omit<GlyphLayoutProperties, 'font'> & { availableWidth?: number }) => {
       let fontValue = font.peek()

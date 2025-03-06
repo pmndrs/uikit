@@ -2,9 +2,8 @@ import { forwardRef, ReactNode, RefAttributes, useEffect, useMemo, useRef } from
 import { Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
-import { createContent, initialize, Subscriptions, unsubscribeSubscriptions } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
-import { ContentProperties as BaseContentProperties } from '../../uikit/dist/components/content.js'
+import { ContentProperties as BaseContentProperties, createContentState, setupContent } from '@pmndrs/uikit/internals'
 
 export type ContentProperties = {
   name?: string
@@ -21,12 +20,11 @@ export const Content: (props: ContentProperties & RefAttributes<ContentRef>) => 
     const propertySignals = usePropertySignals(properties)
     const internals = useMemo(
       () =>
-        createContent<R3FEventMap>(
+        createContentState<R3FEventMap>(
           parent,
           propertySignals.style,
           propertySignals.properties,
           propertySignals.default,
-          outerRef,
           innerRef,
         ),
       [parent, propertySignals],
@@ -35,10 +33,21 @@ export const Content: (props: ContentProperties & RefAttributes<ContentRef>) => 
     internals.interactionPanel.name = properties.name ?? ''
 
     useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
-    }, [internals])
+      if (outerRef.current == null || innerRef.current == null) {
+        return
+      }
+      const abortController = new AbortController()
+      setupContent<R3FEventMap>(
+        internals,
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        outerRef.current,
+        innerRef.current,
+        abortController.signal,
+      )
+      return () => abortController.abort()
+    }, [internals, parent, propertySignals])
 
     useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
 
