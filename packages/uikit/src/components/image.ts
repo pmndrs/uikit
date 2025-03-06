@@ -26,6 +26,7 @@ import {
   panelGeometry,
   PanelProperties,
   PanelMaterialConfig,
+  computedPanelGroupDependencies,
 } from '../panel/index.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
@@ -181,6 +182,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
     isHidden,
     isVisible,
     orderInfo,
+    groupDeps: computedPanelGroupDependencies(mergedProperties),
     scrollPosition,
     scrollbarWidth,
     childrenMatrix,
@@ -199,12 +201,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
     handlers,
     ancestorsHaveListeners,
     interactionPanel: createImageMesh(globalMatrix, parentCtx, orderInfo, parentCtx.root),
-    clippingRect: computedClippingRect(
-      componentState.globalMatrix,
-      componentState,
-      parentCtx.root.pixelSize,
-      parentCtx.clippingRect,
-    ),
+    clippingRect: computedClippingRect(globalMatrix, componentState, parentCtx.root.pixelSize, parentCtx.clippingRect),
   }) satisfies ParentContext
 }
 
@@ -234,6 +231,7 @@ export function setupImage<EM extends ThreeEventMap = ThreeEventMap>(
     state.isVisible,
     parentCtx.clippingRect,
     state.orderInfo,
+    state.groupDeps,
     parentCtx.root.panelGroupManager,
     state.scrollbarWidth,
     abortSignal,
@@ -297,6 +295,7 @@ function createImageMesh(
   const mesh = Object.assign(new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry), {
     boundingSphere: new Sphere(),
   })
+  mesh.frustumCulled = false
   mesh.matrixAutoUpdate = false
   mesh.raycast = makeClippedCast(
     mesh,

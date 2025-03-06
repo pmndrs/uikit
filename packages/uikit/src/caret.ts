@@ -1,4 +1,4 @@
-import { Signal, computed, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
 import { computedOrderInfo, ElementType, OrderInfo } from './order.js'
@@ -6,9 +6,9 @@ import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
   PanelGroupManager,
+  PanelGroupProperties,
   PanelMaterialConfig,
   createPanelMaterialConfig,
-  defaultPanelDependencies,
 } from './panel/index.js'
 import { MergedProperties, computedInheritableProperty } from './properties/index.js'
 
@@ -74,17 +74,12 @@ export function createCaret(
   caretTransformation: Signal<CaretTransformation | undefined>,
   isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
+  parentGroupDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
   abortSignal: AbortSignal,
 ) {
-  const orderInfo = computedOrderInfo(
-    undefined,
-    'zIndexOffset',
-    ElementType.Panel,
-    defaultPanelDependencies,
-    parentOrderInfo,
-  )
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, parentGroupDeps, parentOrderInfo)
   const blinkingCaretTransformation = signal<CaretTransformation | undefined>(undefined)
   abortableEffect(() => {
     const pos = caretTransformation.value
@@ -104,7 +99,7 @@ export function createCaret(
   setupInstancedPanel(
     propertiesSignal,
     orderInfo,
-    undefined,
+    parentGroupDeps,
     panelGroupManager,
     matrix,
     computed(() => {

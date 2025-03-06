@@ -237,6 +237,7 @@ export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
     state.isVisible,
     parentCtx.clippingRect,
     state.orderInfo,
+    state.groupDeps,
     parentCtx.root.panelGroupManager,
     state.scrollbarWidth,
     abortSignal,

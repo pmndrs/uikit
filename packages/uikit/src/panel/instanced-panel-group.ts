@@ -44,15 +44,6 @@ export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedPr
   })
 }
 
-export const defaultPanelDependencies: Required<PanelGroupProperties> = {
-  panelMaterialClass: MeshBasicMaterial,
-  castShadow: false,
-  receiveShadow: false,
-  depthWrite: false,
-  depthTest: true,
-  renderOrder: 0,
-}
-
 export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<string, InstancedPanelGroup>>()
 
@@ -79,7 +70,7 @@ export class PanelGroupManager {
     }
   }
 
-  getGroup(majorIndex: number, properties: Required<PanelGroupProperties> = defaultPanelDependencies) {
+  getGroup(majorIndex: number, properties: Required<PanelGroupProperties>) {
     let groups = this.map.get(properties.panelMaterialClass)
     if (groups == null) {
       this.map.set(properties.panelMaterialClass, (groups = new Map()))

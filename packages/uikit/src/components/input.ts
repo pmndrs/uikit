@@ -151,12 +151,12 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
-  const groupDeps = computedPanelGroupDependencies(mergedProperties)
+  const backgroundGroupDeps = computedPanelGroupDependencies(mergedProperties)
   const backgroundOrderInfo = computedOrderInfo(
     mergedProperties,
     'zIndexOffset',
     ElementType.Panel,
-    groupDeps,
+    backgroundGroupDeps,
     parentCtx.orderInfo,
   )
 
@@ -230,7 +230,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     globalMatrix,
     isClipped,
     isVisible,
-    groupDeps,
+    backgroundGroupDeps,
     backgroundOrderInfo,
     orderInfo,
     selectionTransformations,
@@ -278,7 +278,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
   setupInstancedPanel(
     state.mergedProperties,
     state.backgroundOrderInfo,
-    state.groupDeps,
+    state.backgroundGroupDeps,
     parentCtx.root.panelGroupManager,
     state.globalMatrix,
     state.size,
@@ -296,6 +296,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
     state.caretTransformation,
     state.isVisible,
     state.backgroundOrderInfo,
+    state.backgroundGroupDeps,
     parentCtx.clippingRect,
     parentCtx.root.panelGroupManager,
     abortSignal,
@@ -307,6 +308,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
     state.selectionTransformations,
     state.isVisible,
     state.backgroundOrderInfo,
+    state.backgroundGroupDeps,
     parentCtx.clippingRect,
     parentCtx.root.panelGroupManager,
     abortSignal,

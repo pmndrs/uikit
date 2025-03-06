@@ -195,6 +195,7 @@ export function setupContent<EM extends ThreeEventMap = ThreeEventMap>(
   setupInteractionPanel(state.interactionPanel, state.root, state.globalMatrix, state.size, abortSignal)
 
   setupContentContainer(
+    state.remeasureContent,
     state.measuredSize,
     state.measuredCenter,
     state.mergedProperties,
@@ -209,6 +210,7 @@ export function setupContent<EM extends ThreeEventMap = ThreeEventMap>(
 const vectorHelper = new Vector3()
 
 function setupContentContainer(
+  measureContent: () => void,
   measuredSize: Vector3,
   measuredCenter: Vector3,
   propertiesSignal: Signal<MergedProperties>,
@@ -218,6 +220,7 @@ function setupContentContainer(
   contentContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
+  measureContent()
   const depthAlign = computedInheritableProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
   const keepAspectRatio = computedInheritableProperty(propertiesSignal, 'keepAspectRatio', true)
   abortableEffect(() => {
@@ -318,7 +321,6 @@ function createMeasureContent(
     box3Helper.getCenter(measuredCenter)
     root.requestRender()
   }
-  measureContent()
   return () => {
     const properties = propertiesSignal.peek()
     updateRenderProperties(

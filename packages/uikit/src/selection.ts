@@ -1,4 +1,4 @@
-import { Signal, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
@@ -6,9 +6,9 @@ import { computedOrderInfo, ElementType, OrderInfo } from './order.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
   PanelGroupManager,
+  PanelGroupProperties,
   PanelMaterialConfig,
   createPanelMaterialConfig,
-  defaultPanelDependencies,
 } from './panel/index.js'
 import { MergedProperties } from './properties/index.js'
 
@@ -66,6 +66,7 @@ export function createSelection(
   selectionTransformations: Signal<Array<SelectionTransformation>>,
   isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
+  prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
   abortSignal: AbortSignal,
@@ -75,13 +76,7 @@ export function createSelection(
     offset: Signal<Vector2Tuple>
     abortController: AbortController
   }> = []
-  const orderInfo = computedOrderInfo(
-    undefined,
-    'zIndexOffset',
-    ElementType.Panel,
-    defaultPanelDependencies,
-    prevOrderInfo,
-  )
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, prevPanelDeps, prevOrderInfo)
   const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
 
   abortableEffect(() => {
@@ -96,7 +91,7 @@ export function createSelection(
         setupInstancedPanel(
           propertiesSignal,
           orderInfo,
-          undefined,
+          prevPanelDeps,
           panelGroupManager,
           matrix,
           size,
@@ -129,5 +124,4 @@ export function createSelection(
       panels[i].abortController.abort()
     }
   })
-  return orderInfo
 }

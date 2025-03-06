@@ -8,7 +8,11 @@ import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js
 import { ElementType, OrderInfo, ZIndexOffset, computedOrderInfo } from './order.js'
 import { MergedProperties } from './properties/merged.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
-import { PanelGroupManager, defaultPanelDependencies } from './panel/instanced-panel-group.js'
+import {
+  computedPanelGroupDependencies,
+  PanelGroupManager,
+  PanelGroupProperties,
+} from './panel/instanced-panel-group.js'
 import { ParentContext, RootContext } from './context.js'
 import { ScrollListeners } from './listeners.js'
 import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
@@ -404,7 +408,8 @@ export function setupScrollbars(
   globalMatrix: Signal<Matrix4 | undefined>,
   isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo | undefined>,
+  prevOrderInfo: Signal<OrderInfo | undefined>,
+  prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
   scrollbarWidth: Signal<number>,
   abortSignal: AbortSignal,
@@ -413,8 +418,8 @@ export function setupScrollbars(
     undefined,
     'scrollbarZIndexOffset',
     ElementType.Panel,
-    defaultPanelDependencies,
-    orderInfo,
+    prevPanelDeps,
+    prevOrderInfo,
   )
 
   const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
@@ -427,6 +432,7 @@ export function setupScrollbars(
     isVisible,
     parentClippingRect,
     scrollbarOrderInfo,
+    prevPanelDeps,
     panelGroupManager,
     scrollbarWidth,
     borderInset,
@@ -441,6 +447,7 @@ export function setupScrollbars(
     isVisible,
     parentClippingRect,
     scrollbarOrderInfo,
+    prevPanelDeps,
     panelGroupManager,
     scrollbarWidth,
     borderInset,
@@ -479,6 +486,7 @@ function setupScrollbar(
   isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
+  groupDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
   scrollbarWidth: Signal<number>,
   borderSize: ReadonlySignal<Inset>,
@@ -500,7 +508,7 @@ function setupScrollbar(
   setupInstancedPanel(
     propertiesSignal,
     orderInfo,
-    undefined,
+    groupDeps,
     panelGroupManager,
     globalMatrix,
     scrollbarSize,

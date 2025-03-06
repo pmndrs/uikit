@@ -178,6 +178,7 @@ export function setupContainer<EM extends ThreeEventMap = ThreeEventMap>(
     state.isVisible,
     parentCtx.clippingRect,
     state.orderInfo,
+    state.groupDeps,
     state.root.panelGroupManager,
     state.scrollbarWidth,
     abortSignal,

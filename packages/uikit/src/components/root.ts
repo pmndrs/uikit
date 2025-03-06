@@ -18,6 +18,7 @@ import {
   computedScrollHandlers,
   createScrollState,
   setupScroll,
+  computedGlobalScrollMatrix,
 } from '../scroll.js'
 import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
 import { alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
@@ -78,8 +79,6 @@ export const DEFAULT_PIXEL_SIZE = 0.01
 const vectorHelper = new Vector3()
 const planeHelper = new Plane()
 
-const identityMatrix = signal(new Matrix4())
-
 export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
   objectRef: { current?: Object3D | null },
   pixelSize: Signal<number>,
@@ -130,7 +129,7 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const isVisible = computedIsVisible(flexState, undefined, mergedProperties)
   const scrollPosition = createScrollPosition()
-  const childrenMatrix = computed(() => identityMatrix.value)
+  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, pixelSize)
   const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
 
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
@@ -177,7 +176,7 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
   const ancestorsHaveListeners = computedAncestorsHaveListeners(undefined, handlers)
 
   return Object.assign(componentState, {
-    clippingRect: computedClippingRect(identityMatrix, componentState, ctx.pixelSize, undefined),
+    clippingRect: computedClippingRect(globalMatrix, componentState, ctx.pixelSize, undefined),
     handlers,
     ancestorsHaveListeners,
   }) satisfies ParentContext
@@ -217,7 +216,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
     state.orderInfo,
     state.groupDeps,
     state.root.panelGroupManager,
-    identityMatrix,
+    state.globalMatrix,
     state.size,
     undefined,
     state.borderInset,
@@ -232,10 +231,11 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
     state.mergedProperties,
     state.scrollPosition,
     state,
-    identityMatrix,
+    state.globalMatrix,
     state.isVisible,
     undefined,
     state.orderInfo,
+    state.groupDeps,
     state.root.panelGroupManager,
     state.scrollbarWidth,
     abortSignal,

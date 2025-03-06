@@ -25,7 +25,7 @@ export type PanelProperties = {
 export function setupInstancedPanel(
   propertiesSignal: Signal<MergedProperties>,
   orderInfo: Signal<OrderInfo | undefined>,
-  panelGroupDependencies: Signal<Required<PanelGroupProperties>> | undefined,
+  panelGroupDependencies: Signal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
   matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple | undefined>,
@@ -41,7 +41,7 @@ export function setupInstancedPanel(
       return
     }
     const innerAbortController = new AbortController()
-    const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies?.value)
+    const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
     new InstancedPanel(
       propertiesSignal,
       group,
