@@ -133,7 +133,13 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredList, pressedList, scrollHandlers)
   return Object.assign(componentState, {
-    interactionPanel: createInteractionPanel(orderInfo, parentCtx.root, parentCtx.clippingRect, globalMatrix),
+    interactionPanel: createInteractionPanel(
+      orderInfo,
+      parentCtx.root,
+      parentCtx.clippingRect,
+      globalMatrix,
+      flexState,
+    ),
     handlers,
     ancestorsHaveListeners: computedAncestorsHaveListeners(parentCtx, handlers),
   }) satisfies ParentContext

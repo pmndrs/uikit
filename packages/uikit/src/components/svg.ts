@@ -137,7 +137,13 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const componentState = Object.assign(flexState, {
     centerGroup: createCenterGroup(),
-    interactionPanel: createInteractionPanel(orderInfo, parentCtx.root, parentCtx.clippingRect, globalMatrix),
+    interactionPanel: createInteractionPanel(
+      orderInfo,
+      parentCtx.root,
+      parentCtx.clippingRect,
+      globalMatrix,
+      flexState,
+    ),
     scrollState: createScrollState(),
     hoveredSignal,
     activeSignal,
@@ -215,6 +221,7 @@ export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
     parentCtx.clippingRect,
     state.orderInfo,
     state.aspectRatio,
+    state,
   )
 
   applyAppearancePropertiesToGroup(state.mergedProperties, state.svgObject, abortSignal)
@@ -337,6 +344,7 @@ async function loadSvg(
   clippedRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   aspectRatio: Signal<number | undefined>,
+  flexState: FlexNodeState,
 ) {
   if (url == null) {
     return undefined
@@ -362,7 +370,7 @@ async function loadSvg(
       box3Helper.union(geometry.boundingBox!)
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.objectRef, clippedRect, orderInfo)
+      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.objectRef, clippedRect, orderInfo, flexState)
       setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1

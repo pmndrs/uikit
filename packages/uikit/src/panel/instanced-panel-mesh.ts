@@ -12,12 +12,14 @@ import {
 import { OrderInfo } from '../order.js'
 import { ClippingRect } from '../clipping.js'
 import { RootContext } from '../context.js'
+import { FlexNodeState } from '../internals.js'
 
 export function createInteractionPanel(
   orderInfo: Signal<OrderInfo | undefined>,
   rootContext: RootContext,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   globalMatrix: Signal<Matrix4 | undefined>,
+  flexState: FlexNodeState,
 ) {
   const boundingSphere = new Sphere()
   const panel = Object.assign(new Mesh(panelGeometry), { boundingSphere })
@@ -30,6 +32,7 @@ export function createInteractionPanel(
     rootContext.objectRef,
     parentClippingRect,
     orderInfo,
+    flexState,
   )
   panel.spherecast = makeClippedCast(
     panel,
@@ -37,6 +40,7 @@ export function createInteractionPanel(
     rootContext.objectRef,
     parentClippingRect,
     orderInfo,
+    flexState,
   )
   panel.visible = false
   return panel

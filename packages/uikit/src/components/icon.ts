@@ -129,8 +129,14 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
     text,
     svgWidth,
     svgHeight,
-    interactionPanel: createInteractionPanel(orderInfo, parentCtx.root, parentCtx.clippingRect, globalMatrix),
-    iconGroup: createIconGroup(text, parentCtx, orderInfo, clippingPlanes),
+    interactionPanel: createInteractionPanel(
+      orderInfo,
+      parentCtx.root,
+      parentCtx.clippingRect,
+      globalMatrix,
+      flexState,
+    ),
+    iconGroup: createIconGroup(flexState, text, parentCtx, orderInfo, clippingPlanes),
   })
 }
 
@@ -186,6 +192,7 @@ export function setupIcon<EM extends ThreeEventMap = ThreeEventMap>(
 const loader = new SVGLoader()
 
 function createIconGroup(
+  flexState: FlexNodeState,
   text: string,
   parentContext: ParentContext,
   orderInfo: Signal<OrderInfo | undefined>,
@@ -214,6 +221,7 @@ function createIconGroup(
         parentContext.root.objectRef,
         parentContext.clippingRect,
         orderInfo,
+        flexState,
       )
       setupRenderOrder(mesh, parentContext.root, orderInfo)
       mesh.userData.color = path.color

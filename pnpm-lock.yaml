@@ -324,6 +324,9 @@ importers:
 
   examples/dashboard:
     dependencies:
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.8.0
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react

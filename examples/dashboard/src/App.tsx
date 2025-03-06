@@ -16,6 +16,7 @@ import { TeamSwitcher } from './components/TeamSwitcher.js'
 import { UserNav } from './components/UserNav.js'
 import { create } from 'zustand'
 import { noEvents, PointerEvents } from '@react-three/xr'
+import { Highlighter } from './components/Highlighter.js'
 
 setPreferredColorScheme('light')
 
@@ -36,13 +37,15 @@ export default function App() {
         <CountFrames />
         <PointerEvents />
         <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
-          <Defaults>
-            <DialogAnchor>
-              <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
-                <DashboardPage open={open} setOpen={setOpen} />
-              </Container>
-            </DialogAnchor>
-          </Defaults>
+          <Highlighter>
+            <Defaults>
+              <DialogAnchor>
+                <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
+                  <DashboardPage open={open} setOpen={setOpen} />
+                </Container>
+              </DialogAnchor>
+            </Defaults>
+          </Highlighter>
         </Fullscreen>
       </Canvas>
     </>

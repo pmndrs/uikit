@@ -138,7 +138,14 @@ export function setupCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
     }, abortSignal)
   }
 
-  mesh.raycast = makeClippedCast(mesh, mesh.raycast, parentCtx.root.objectRef, parentCtx.clippingRect, state.orderInfo)
+  mesh.raycast = makeClippedCast(
+    mesh,
+    mesh.raycast,
+    parentCtx.root.objectRef,
+    parentCtx.clippingRect,
+    state.orderInfo,
+    state,
+  )
   setupRenderOrder(mesh, parentCtx.root, state.orderInfo)
 
   abortableEffect(() => {

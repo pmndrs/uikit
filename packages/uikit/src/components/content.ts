@@ -137,8 +137,15 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     ancestorsHaveListeners,
     transformMatrix,
     root: parentCtx.root,
-    interactionPanel: createInteractionPanel(backgroundOrderInfo, parentCtx.root, parentCtx.clippingRect, globalMatrix),
+    interactionPanel: createInteractionPanel(
+      backgroundOrderInfo,
+      parentCtx.root,
+      parentCtx.clippingRect,
+      globalMatrix,
+      flexState,
+    ),
     remeasureContent: createMeasureContent(
+      flexState,
       measuredSize,
       measuredCenter,
       mergedProperties,
@@ -284,6 +291,7 @@ const defaultDepthAlign: keyof typeof alignmentZMap = 'back'
  * normalizes the content so it has a height of 1
  */
 function createMeasureContent(
+  flexState: FlexNodeState,
   measuredSize: Vector3,
   measuredCenter: Vector3,
   propertiesSignal: Signal<MergedProperties>,
@@ -306,7 +314,14 @@ function createMeasureContent(
         setupRenderOrder(object, root, orderInfo)
         object.material.clippingPlanes = clippingPlanes
         object.material.needsUpdate = true
-        object.raycast = makeClippedCast(object, object.raycast, root.objectRef, parentClippingRect, orderInfo)
+        object.raycast = makeClippedCast(
+          object,
+          object.raycast,
+          root.objectRef,
+          parentClippingRect,
+          orderInfo,
+          flexState,
+        )
       }
     })
     const parent = contentContainer.parent

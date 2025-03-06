@@ -119,7 +119,13 @@ export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
 
   return Object.assign(flexState, {
-    interactionPanel: createInteractionPanel(backgroundOrderInfo, parentCtx.root, parentCtx.clippingRect, globalMatrix),
+    interactionPanel: createInteractionPanel(
+      backgroundOrderInfo,
+      parentCtx.root,
+      parentCtx.clippingRect,
+      globalMatrix,
+      flexState,
+    ),
     hoveredSignal,
     activeSignal,
     mergedProperties,

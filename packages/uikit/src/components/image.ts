@@ -200,7 +200,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
   return Object.assign(componentState, {
     handlers,
     ancestorsHaveListeners,
-    interactionPanel: createImageMesh(globalMatrix, parentCtx, orderInfo, parentCtx.root),
+    interactionPanel: createImageMesh(componentState, globalMatrix, parentCtx, orderInfo, parentCtx.root),
     clippingRect: computedClippingRect(globalMatrix, componentState, parentCtx.root.pixelSize, parentCtx.clippingRect),
   }) satisfies ParentContext
 }
@@ -287,6 +287,7 @@ function getImageMaterialConfig() {
 }
 
 function createImageMesh(
+  flexState: FlexNodeState,
   globalMatrix: Signal<Matrix4 | undefined>,
   parentContext: ParentContext,
   orderInfo: Signal<OrderInfo | undefined>,
@@ -303,6 +304,7 @@ function createImageMesh(
     root.objectRef,
     parentContext.clippingRect,
     orderInfo,
+    flexState,
   )
   mesh.spherecast = makeClippedCast(
     mesh,
@@ -310,6 +312,7 @@ function createImageMesh(
     root.objectRef,
     parentContext.clippingRect,
     orderInfo,
+    flexState,
   )
 
   setupRenderOrder(mesh, root, orderInfo)

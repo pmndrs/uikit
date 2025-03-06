@@ -2,7 +2,20 @@ import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2T
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
-import { abortableEffect, computeMatrixWorld } from '../internals.js'
+import {
+  abortableEffect,
+  computeMatrixWorld,
+  createContainerState,
+  createContentState,
+  createCustomContainerState,
+  createIconState,
+  createImageState,
+  createInputState,
+  createRootState,
+  createSvgState,
+  createTextState,
+  FlexNodeState,
+} from '../internals.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 
 const planeHelper = new Plane()
@@ -99,8 +112,20 @@ export function makePanelRaycast(
   }
 }
 
-export function isInteractionPanel(object: Object3D) {
-  return 'isInteractionPanel' in object
+export function isInteractionPanel(object: Object3D): object is Object3D & {
+  internals: ReturnType<
+    | typeof createContainerState
+    | typeof createContentState
+    | typeof createImageState
+    | typeof createRootState
+    | typeof createSvgState
+    | typeof createTextState
+    | typeof createIconState
+    | typeof createInputState
+    | typeof createCustomContainerState
+  >
+} {
+  return 'internals' in object
 }
 
 export function setupBoundingSphere(
@@ -134,8 +159,9 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
   rootObject: { current?: Object3D | null },
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfoSignal: Signal<OrderInfo | undefined>,
+  internals: FlexNodeState,
 ) {
-  Object.assign(mesh, { isInteractionPanel: true })
+  Object.assign(mesh, { internals })
   return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
     const oldLength = intersects.length
     ;(fn as any).call(mesh, raycaster, intersects)

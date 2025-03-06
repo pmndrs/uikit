@@ -148,7 +148,7 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
   }) satisfies RootContext
 
   const componentState = Object.assign(flexState, {
-    interactionPanel: createInteractionPanel(orderInfo, root, undefined, globalMatrix),
+    interactionPanel: createInteractionPanel(orderInfo, root, undefined, globalMatrix, flexState),
     root,
     scrollState: createScrollState(),
     anyAncestorScrollable: signal<[boolean, boolean]>([false, false]),
