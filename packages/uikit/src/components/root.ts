@@ -202,6 +202,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
   setupObjectTransform(state.root, object, state.globalMatrix, abortSignal)
 
   const onCameraDistanceFrame = () => {
+    state.root.reversePainterSortStableCache = undefined
     planeHelper.normal.set(0, 0, 1)
     planeHelper.constant = 0
     planeHelper.applyMatrix4(object.matrixWorld)

@@ -4,7 +4,7 @@ import { MergedProperties } from './properties/merged.js'
 import { computedInheritableProperty } from './properties/index.js'
 import { readReactive } from './utils.js'
 
-export type WithCameraDistance = { cameraDistance: number }
+export type WithCameraDistance = { cameraDistance: number; reversePainterSortStableCache?: number }
 
 export const cameraDistanceKey = Symbol('camera-distance-key')
 export const orderInfoKey = Symbol('order-info-key')
@@ -16,11 +16,21 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.renderOrder !== b.renderOrder) {
     return a.renderOrder - b.renderOrder
   }
-  const aDistanceRef = (a.object as any)[cameraDistanceKey] as WithCameraDistance
-  const bDistanceRef = (b.object as any)[cameraDistanceKey] as WithCameraDistance
+  let az = a.z
+  let bz = b.z
+  const aDistanceRef = (a.object as any)[cameraDistanceKey] as WithCameraDistance | undefined
+  const bDistanceRef = (b.object as any)[cameraDistanceKey] as WithCameraDistance | undefined
+  if (aDistanceRef != null) {
+    aDistanceRef.reversePainterSortStableCache ??= az
+    az = aDistanceRef.reversePainterSortStableCache
+  }
+  if (bDistanceRef != null) {
+    bDistanceRef.reversePainterSortStableCache ??= bz
+    bz = bDistanceRef.reversePainterSortStableCache
+  }
   if (aDistanceRef == null || bDistanceRef == null) {
     //default z comparison
-    return a.z !== b.z ? b.z - a.z : a.id - b.id
+    return az !== bz ? bz - az : a.id - b.id
   }
   if (aDistanceRef === bDistanceRef) {
     return compareOrderInfo((a.object as any)[orderInfoKey].value, (b.object as any)[orderInfoKey].value)
