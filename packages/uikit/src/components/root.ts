@@ -196,7 +196,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
   object.interactableDescendants = state.root.interactableDescendants
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  const node = setupNode(state, undefined, object, false, abortSignal)
+  const node = setupNode(state, undefined, object, true, abortSignal)
   state.root.requestCalculateLayout = createDeferredRequestLayoutCalculation(state.root, node, abortSignal)
 
   setupObjectTransform(state.root, object, state.globalMatrix, abortSignal)
