@@ -9,7 +9,7 @@ import {
 import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
-import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../order.js'
+import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../order.js'
 import { Signal, computed } from '@preact/signals-core'
 import { MergedProperties } from '../properties/merged.js'
 import { RootContext } from '../context.js'
@@ -48,7 +48,7 @@ export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<string, InstancedPanelGroup>>()
 
   constructor(
-    private readonly root: WithCameraDistance &
+    private readonly root: WithReversePainterSortStableCache &
       Pick<RootContext, 'onFrameSet' | 'requestFrame' | 'requestRender' | 'pixelSize'>,
     private readonly objectRef: { current?: Object3D | null },
   ) {}
@@ -149,7 +149,8 @@ export class InstancedPanelGroup {
 
   constructor(
     private readonly object: Object3D,
-    public readonly root: WithCameraDistance & Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
+    public readonly root: WithReversePainterSortStableCache &
+      Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {

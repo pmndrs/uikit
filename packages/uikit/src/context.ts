@@ -1,7 +1,7 @@
 import { signal, Signal } from '@preact/signals-core'
 import { Matrix4, Object3D, Vector2Tuple, WebGLRenderer } from 'three'
 import { ClippingRect } from './clipping.js'
-import { OrderInfo, WithCameraDistance } from './order.js'
+import { OrderInfo, WithReversePainterSortStableCache } from './order.js'
 import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
 import { PanelGroupManager } from './panel/instanced-panel-group.js'
 import { FlexNode } from './flex/index.js'
@@ -16,7 +16,7 @@ export type ParentContext = Readonly<{
   root: RootContext
 }>
 
-export type RootContext = WithCameraDistance &
+export type RootContext = WithReversePainterSortStableCache &
   Readonly<{
     requestCalculateLayout: () => void
     objectRef: { current?: Object3D | null }

@@ -3,13 +3,13 @@ import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
-import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../../order.js'
+import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../../order.js'
 import { RootContext } from '../../context.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
-    private readonly root: WithCameraDistance &
+    private readonly root: WithReversePainterSortStableCache &
       Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'>,
     private readonly objectRef: { current?: Object3D | null },
   ) {}
@@ -78,7 +78,8 @@ export class InstancedGlyphGroup {
   constructor(
     private objectRef: { current?: Object3D | null },
     font: Font,
-    public readonly root: WithCameraDistance & Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
+    public readonly root: WithReversePainterSortStableCache &
+      Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
     private orderInfo: OrderInfo,
     depthTest: boolean,
     depthWrite: boolean,

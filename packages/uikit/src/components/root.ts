@@ -36,7 +36,7 @@ import {
   setupNode,
 } from './utils.js'
 import { computedClippingRect } from '../clipping.js'
-import { ElementType, WithCameraDistance, computedOrderInfo } from '../order.js'
+import { ElementType, WithReversePainterSortStableCache, computedOrderInfo } from '../order.js'
 import { Camera, Matrix4, Object3D, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
 import { createActivePropertyTransfomers } from '../active.js'
@@ -112,8 +112,8 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
     },
   )
 
-  const ctx: WithCameraDistance & Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
-    cameraDistance: 0,
+  const ctx: WithReversePainterSortStableCache &
+    Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
     onFrameSet,
     requestRender,
     requestFrame,
@@ -201,16 +201,10 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
 
   setupObjectTransform(state.root, object, state.globalMatrix, abortSignal)
 
-  const onCameraDistanceFrame = () => {
-    state.root.reversePainterSortStableCache = undefined
-    planeHelper.normal.set(0, 0, 1)
-    planeHelper.constant = 0
-    planeHelper.applyMatrix4(object.matrixWorld)
-    vectorHelper.setFromMatrixPosition(state.getCamera().matrixWorld)
-    state.root.cameraDistance = planeHelper.distanceToPoint(vectorHelper)
-  }
-  state.root.onFrameSet.add(onCameraDistanceFrame)
-  abortSignal.addEventListener('abort', () => state.root.onFrameSet.delete(onCameraDistanceFrame))
+  const onFrame = () => void (state.root.reversePainterSortStableCache = undefined)
+
+  state.root.onFrameSet.add(onFrame)
+  abortSignal.addEventListener('abort', () => state.root.onFrameSet.delete(onFrame))
 
   setupInstancedPanel(
     state.mergedProperties,

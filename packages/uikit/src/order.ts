@@ -4,9 +4,9 @@ import { MergedProperties } from './properties/merged.js'
 import { computedInheritableProperty } from './properties/index.js'
 import { readReactive } from './utils.js'
 
-export type WithCameraDistance = { cameraDistance: number; reversePainterSortStableCache?: number }
+export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
 
-export const cameraDistanceKey = Symbol('camera-distance-key')
+export const reversePainterSortStableCacheKey = Symbol('reverse-painter-sort-stable-cache-key')
 export const orderInfoKey = Symbol('order-info-key')
 
 export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
@@ -18,8 +18,12 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   }
   let az = a.z
   let bz = b.z
-  const aDistanceRef = (a.object as any)[cameraDistanceKey] as WithCameraDistance | undefined
-  const bDistanceRef = (b.object as any)[cameraDistanceKey] as WithCameraDistance | undefined
+  const aDistanceRef = (a.object as any)[reversePainterSortStableCacheKey] as
+    | WithReversePainterSortStableCache
+    | undefined
+  const bDistanceRef = (b.object as any)[reversePainterSortStableCacheKey] as
+    | WithReversePainterSortStableCache
+    | undefined
   if (aDistanceRef != null) {
     aDistanceRef.reversePainterSortStableCache ??= az
     az = aDistanceRef.reversePainterSortStableCache
@@ -28,14 +32,11 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
     bDistanceRef.reversePainterSortStableCache ??= bz
     bz = bDistanceRef.reversePainterSortStableCache
   }
-  if (aDistanceRef == null || bDistanceRef == null) {
-    //default z comparison
-    return az !== bz ? bz - az : a.id - b.id
-  }
-  if (aDistanceRef === bDistanceRef) {
+  if (aDistanceRef != null && aDistanceRef === bDistanceRef) {
     return compareOrderInfo((a.object as any)[orderInfoKey].value, (b.object as any)[orderInfoKey].value)
   }
-  return bDistanceRef.cameraDistance - aDistanceRef.cameraDistance
+  //default z comparison
+  return az !== bz ? bz - az : a.id - b.id
 }
 
 //the following order tries to represent the most common element order of the respective element types (e.g. panels are most likely the background element)
@@ -163,10 +164,10 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
 
 export function setupRenderOrder<T>(
   result: T,
-  rootCameraDistance: WithCameraDistance,
+  rootCameraDistance: WithReversePainterSortStableCache,
   orderInfo: { value: OrderInfo | undefined },
 ): T {
-  ;(result as any)[cameraDistanceKey] = rootCameraDistance
+  ;(result as any)[reversePainterSortStableCacheKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo
   return result
 }
