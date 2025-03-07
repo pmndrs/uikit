@@ -66,7 +66,7 @@ export const Highlighter = forwardRef<ContainerRef, ContainerProperties>(
           positionType="absolute"
           positionLeft="50%"
           positionTop="50%"
-          zIndexOffset={Infinity}
+          zIndexOffset={20}
           borderColor="red"
           borderWidth={1}
         />
