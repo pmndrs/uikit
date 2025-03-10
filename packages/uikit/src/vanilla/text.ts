@@ -10,7 +10,7 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
   private readonly styleSignal: Signal<TextProperties<EM> | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<TextProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
+  private readonly textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 

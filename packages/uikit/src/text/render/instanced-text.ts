@@ -34,7 +34,7 @@ const defaulttextAlign: keyof typeof alignmentXMap | 'block' = 'left'
 
 export function createInstancedText(
   properties: Signal<MergedProperties>,
-  textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
+  textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
   matrix: Signal<Matrix4 | undefined>,
   node: Signal<FlexNode | undefined>,
   flexState: FlexNodeState,

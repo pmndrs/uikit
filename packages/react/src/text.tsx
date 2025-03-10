@@ -8,7 +8,7 @@ import { Signal, signal } from '@preact/signals-core'
 import { useFontFamilies } from './font.js'
 
 export type TextProperties = {
-  children: string | Array<string | Signal<string>> | Signal<string>
+  children: unknown | Array<unknown | Signal<unknown>> | Signal<unknown>
   name?: string
 } & BaseTextProperties<R3FEventMap>
 
@@ -19,7 +19,7 @@ export const Text: (props: TextProperties & RefAttributes<TextRef>) => ReactNode
   const outerRef = useRef<Object3D>(null)
   const propertySignals = usePropertySignals(properties)
   const textSignal = useMemo(
-    () => signal<string | Array<string | Signal<string>> | Signal<string>>(undefined as any),
+    () => signal<unknown | Array<unknown | Signal<unknown>> | Signal<unknown>>(undefined as any),
     [],
   )
   textSignal.value = properties.children

@@ -36,7 +36,7 @@ export type GlyphLayoutProperties = {
 export function computedCustomLayouting(
   properties: Signal<MergedProperties>,
   fontSignal: Signal<Font | undefined>,
-  textSignal: Signal<string | Signal<string> | Array<Signal<string> | string>>,
+  textSignal: Signal<unknown | Signal<unknown> | Array<Signal<unknown> | unknown>>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
   defaultWordBreak: GlyphLayoutProperties['wordBreak'],
 ) {
@@ -49,13 +49,18 @@ export function computedCustomLayouting(
     if (font == null) {
       return undefined
     }
-    const text = textSignal.value
+    const textsValue = textSignal.value
+    let text = Array.isArray(textsValue)
+      ? textsValue.map((t) => String(readReactive(t))).join('')
+      : String(readReactive(textsValue))
+    //TODO: tab should be intergrated into the text layouting algorithm
+    text = text.replaceAll('\t', ' '.repeat(4))
     const layoutProperties: GlyphLayoutProperties = {
       font,
       fontSize: fontSize.value,
       letterSpacing: letterSpacing.value,
       lineHeight: lineHeight.value,
-      text: Array.isArray(text) ? text.map((t) => readReactive(t)).join('') : readReactive(text),
+      text,
       wordBreak: wordBreak.value,
     }
     propertiesRef.current = layoutProperties

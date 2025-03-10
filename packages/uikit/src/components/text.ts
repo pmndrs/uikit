@@ -73,7 +73,7 @@ export type TextProperties<Em extends ThreeEventMap = ThreeEventMap> = Inheritab
 
 export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
+  textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
   style: Signal<TextProperties<EM> | undefined>,
   properties: Signal<TextProperties<EM> | undefined>,
