@@ -68,7 +68,8 @@ export type InheritableInputProperties = WithClasses<
             DisabledProperties &
             VisibilityProperties &
             UpdateMatrixWorldProperties &
-            PointerEventsProperties
+            PointerEventsProperties &
+            AutocompleteProperties
         >
       >
     >
@@ -77,6 +78,10 @@ export type InheritableInputProperties = WithClasses<
 
 export type DisabledProperties = {
   disabled?: boolean
+}
+
+export type AutocompleteProperties = {
+  autocomplete?: AutoFill
 }
 
 const cancelSet = new Set<unknown>()
@@ -363,6 +368,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
     state.type,
     state.disabled,
     computedNonInheritableProperty(style, properties, 'tabIndex', 0),
+    computedNonInheritableProperty<AutoFill>(style, properties, 'autocomplete', ''),
     abortSignal,
   )
 
@@ -507,6 +513,7 @@ function setupHtmlInputElement(
   type: Signal<InputType>,
   disabled: Signal<boolean>,
   tabIndex: Signal<number>,
+  autocomplete: Signal<AutoFill>,
   abortSignal: AbortSignal,
 ) {
   document.body.appendChild(element)
@@ -515,6 +522,7 @@ function setupHtmlInputElement(
   abortableEffect(() => void (element.value = value.value), abortSignal)
   abortableEffect(() => void (element.disabled = disabled.value), abortSignal)
   abortableEffect(() => void (element.tabIndex = tabIndex.value), abortSignal)
+  abortableEffect(() => void (element.autocomplete = autocomplete.value), abortSignal)
   abortableEffect(() => element.setAttribute('type', type.value), abortSignal)
 }
 
