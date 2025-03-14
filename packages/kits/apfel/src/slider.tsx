@@ -41,6 +41,9 @@ export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => 
       size = 'md',
       icon,
       disabled,
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
       ...props
     },
     ref,
@@ -71,17 +74,20 @@ export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => 
       }
       return {
         onPointerDown(e) {
+          onPointerDown?.(e)
           down = true
           setValue(e)
           ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
         },
         onPointerMove(e) {
+          onPointerMove?.(e)
           if (!down) {
             return
           }
           setValue(e)
         },
         onPointerUp(e) {
+          onPointerUp?.(e)
           if (!down) {
             return
           }
