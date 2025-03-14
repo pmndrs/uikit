@@ -83,7 +83,7 @@ export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => 
           onPointerMove?.(e)
           if (!down) {
             return
-          }          
+          }
           setValue(e)
         },
         onPointerUp(e) {
