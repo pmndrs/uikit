@@ -6,12 +6,18 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 const matrixHelper = new Matrix4()
 const quaternionHelper = new Quaternion()
 
+/**
+ * must be placed inside the root component of the ui
+ */
 export const Highlighter = forwardRef<ContainerRef, ContainerProperties>(
   ({ onPointerOver, onPointerLeave, children, ...props }, ref) => {
     const highlightRef = useRef<ContainerRef | null>(null)
+    //adding width and height 100% to the highligher container to make sure its filling its parent which is required for the highligher to work
     return (
       <Container
         ref={ref}
+        width="100%"
+        height="100%"
         {...props}
         onPointerOver={(e) => {
           if (!isInteractionPanel(e.object) || highlightRef.current == null) {
