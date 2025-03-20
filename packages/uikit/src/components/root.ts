@@ -91,10 +91,11 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
   requestRender: () => void,
   requestFrame: () => void,
 ) {
-  const rootSize = signal<Vector2Tuple>([0, 0])
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const interactableDescendants: Array<Object3D> = []
+
+  const flexState = createFlexNodeState()
 
   const mergedProperties = computedMergedProperties(
     style,
@@ -102,7 +103,7 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
     defaultProperties,
     {
       ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(rootSize),
+      ...createResponsivePropertyTransformers(flexState.size),
       ...createHoverPropertyTransformers(hoveredSignal),
       ...createActivePropertyTransfomers(activeSignal),
     },
@@ -120,7 +121,6 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
     pixelSize,
   }
 
-  const flexState = createFlexNodeState()
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, pixelSize)
   const globalMatrix = computedRootMatrix(mergedProperties, transformMatrix, flexState.size, pixelSize)
 
@@ -167,7 +167,6 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
     defaultProperties: computeDefaultProperties(mergedProperties),
     renderer,
     getCamera,
-    rootSize,
   })
 
   const scrollHandlers = computedScrollHandlers(componentState, properties, objectRef)
