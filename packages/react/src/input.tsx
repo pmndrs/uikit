@@ -71,7 +71,7 @@ export const Input: (props: InputProperties & RefAttributes<InputRef>) => ReactN
 
   useComponentInternals(
     ref,
-    parent.root.pixelSize,
+    parent.root,
     propertySignals.style,
     internals,
     internals.interactionPanel,

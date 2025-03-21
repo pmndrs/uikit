@@ -49,7 +49,7 @@ export const Content: (props: ContentProperties & RefAttributes<ContentRef>) => 
       return () => abortController.abort()
     }, [internals, parent, propertySignals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+    useComponentInternals(ref, parent.root, propertySignals.style, internals, internals.interactionPanel)
 
     return (
       <AddHandlers handlers={internals.handlers} ref={outerRef}>

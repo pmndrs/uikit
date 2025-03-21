@@ -88,7 +88,7 @@ export const Root: (props: RootProperties & RefAttributes<RootRef>) => ReactNode
     whileOnFrameRef.current = false
   })
 
-  useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, internals.root, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers handlers={internals.handlers} ref={outerRef}>

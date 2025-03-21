@@ -55,7 +55,7 @@ export const Container: (props: ContainerProperties & RefAttributes<ContainerRef
       return () => abortController.abort()
     }, [parent, propertySignals, internals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+    useComponentInternals(ref, parent.root, propertySignals.style, internals, internals.interactionPanel)
 
     return (
       <AddHandlers handlers={internals.handlers} ref={outerRef}>

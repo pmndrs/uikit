@@ -49,7 +49,7 @@ export const Svg: (props: SvgProperties & RefAttributes<SvgRef>) => ReactNode = 
     return () => abortController.abort()
   }, [parent, propertySignals, internals])
 
-  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers ref={outerRef} handlers={internals.handlers}>

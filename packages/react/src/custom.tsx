@@ -52,7 +52,7 @@ export const CustomContainer: (props: CustomContainerProperties & RefAttributes<
       return () => abortController.abort()
     }, [internals, parent, propertySignals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, innerRef)
+    useComponentInternals(ref, parent.root, propertySignals.style, internals, innerRef)
 
     useEffect(() => {
       if (innerRef.current == null) {
