@@ -12,7 +12,8 @@ import {
 import { OrderInfo } from '../order.js'
 import { ClippingRect } from '../clipping.js'
 import { RootContext } from '../context.js'
-import { FlexNodeState } from '../internals.js'
+import { FlexNodeState } from '../flex/node.js'
+import { Properties } from '../properties/index.js'
 
 export function createInteractionPanel(
   orderInfo: Signal<OrderInfo | undefined>,
@@ -47,19 +48,19 @@ export function createInteractionPanel(
 }
 
 export function setupInteractionPanel(
+  properties: Properties,
   panel: Mesh & { boundingSphere: Sphere },
-  rootContext: RootContext,
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple | undefined>,
   abortSignal: AbortSignal,
 ) {
-  setupBoundingSphere(panel.boundingSphere, rootContext.pixelSize, globalMatrix, size, abortSignal)
+  setupBoundingSphere(panel.boundingSphere, properties.getSignal('pixelSize'), globalMatrix, size, abortSignal)
   abortableEffect(() => {
     if (size.value == null) {
       return
     }
     const [width, height] = size.value
-    const pixelSize = rootContext.pixelSize.value
+    const pixelSize = properties.get('pixelSize')
     panel.scale.set(width * pixelSize, height * pixelSize, 1)
     panel.updateMatrix()
   }, abortSignal)

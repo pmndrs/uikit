@@ -1,15 +1,13 @@
-import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
+import { Signal, effect, signal } from '@preact/signals-core'
 import { IconProperties, createIconState, setupIcon } from '../components/icon.js'
-import { MergedProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
+import { ParentContext } from '../context.js'
+import { Layers } from '../properties/layers.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly styleSignal: Signal<IconProperties<EM> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<IconProperties<EM> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createIconState>
@@ -18,31 +16,21 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
     text: string,
     svgWidth: number,
     svgHeight: number,
-    properties?: IconProperties<EM>,
-    defaultProperties?: AllOptionalProperties,
+    private properties?: IconProperties<EM>,
   ) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
     this.unsubscribe = effect(() => {
       const parentContext = this.parentContextSignal.value?.value
       if (parentContext == null) {
         return
       }
       const abortController = new AbortController()
-      this.internals = createIconState(
-        parentContext,
-        text,
-        svgWidth,
-        svgHeight,
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-      )
+      this.internals = createIconState(parentContext, text, svgWidth, svgHeight)
+      this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupIcon(this.internals, parentContext, this.styleSignal, this.propertiesSignal, this, abortController.signal)
+      setupIcon(this.internals, parentContext, this, abortController.signal)
 
       super.add(this.internals.interactionPanel)
       super.add(this.internals.iconGroup)
@@ -55,27 +43,17 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
     })
   }
 
-  getComputedProperty<K extends keyof IconProperties<EM>>(key: K): IconProperties<EM>[K] | undefined {
-    return untracked(() => this.internals.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<IconProperties<EM>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: IconProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: IconProperties<EM> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: IconProperties<EM>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
   }

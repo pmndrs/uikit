@@ -1,8 +1,5 @@
 import { ReadonlySignal, computed, signal } from '@preact/signals-core'
-import { ColorRepresentation, createConditionalPropertyTranslator } from './utils.js'
-import { PropertyTransformers } from './properties/merged.js'
-
-export type WithPreferredColorScheme<T> = { dark?: T } & T
+import { ColorRepresentation } from './utils.js'
 
 const queryList = typeof matchMedia === 'undefined' ? undefined : matchMedia?.('(prefers-color-scheme: dark)')
 
@@ -33,10 +30,6 @@ export function getPreferredColorScheme() {
   return preferredColorScheme.peek()
 }
 
-export const darkPropertyTransformers: PropertyTransformers = {
-  dark: createConditionalPropertyTranslator(() => isDarkMode.value),
-}
-
 export function basedOnPreferredColorScheme<const T extends { [Key in string]: ColorRepresentation }>({
   dark,
   light,
@@ -46,7 +39,7 @@ export function basedOnPreferredColorScheme<const T extends { [Key in string]: C
 }) {
   const result = {} as { [Key in keyof T]: ReadonlySignal<ColorRepresentation> }
   for (const key in dark) {
-    result[key] = computed(() => (isDarkMode.value ? dark[key] : light[key]))
+    result[key] = computed<ColorRepresentation>(() => (isDarkMode.value ? dark[key]! : light[key]!))
   }
   return result
 }

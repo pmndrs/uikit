@@ -1,111 +1,82 @@
-import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/node.js'
-import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { FlexNodeState, createFlexNodeState } from '../flex/node.js'
+import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, createGlobalClippingPlanes, ClippingRect } from '../clipping.js'
-import { ScrollbarProperties } from '../scroll.js'
-import { WithAllAliases } from '../properties/alias.js'
-import { PanelProperties, setupInstancedPanel } from '../panel/instanced-panel.js'
-import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
-import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
-import { createResponsivePropertyTransformers } from '../responsive.js'
-import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { createActivePropertyTransfomers } from '../active.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { Signal, computed, signal, untracked } from '@preact/signals-core'
 import {
-  VisibilityProperties,
-  WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  computedMergedProperties,
   setupNode,
-  keepAspectRatioPropertyTransformer,
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
 } from './utils.js'
 import { abortableEffect, alignmentZMap } from '../utils.js'
-import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
+import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ParentContext, RootContext } from '../context.js'
-import {
-  PanelGroupProperties,
-  RenderProperties,
-  computedPanelGroupDependencies,
-} from '../panel/instanced-panel-group.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
-import { darkPropertyTransformers } from '../dark.js'
-import { getDefaultPanelMaterialConfig, makeClippedCast, PointerEventsProperties } from '../panel/index.js'
-import { MergedProperties, computedInheritableProperty } from '../properties/index.js'
-import { KeepAspectRatioProperties } from './image.js'
-import { EventHandlers, ThreeEventMap } from '../events.js'
+import { getDefaultPanelMaterialConfig, makeClippedCast } from '../panel/index.js'
+import { ThreeEventMap } from '../events.js'
+import { AllProperties, Properties } from '../properties/index.js'
+import { allAliases } from '../properties/alias.js'
+import { createConditionals } from '../properties/conditional.js'
 
-export type InheritableContentProperties = WithClasses<
-  WithConditionals<
-    WithAllAliases<
-      WithReactive<
-        YogaProperties &
-          PanelProperties &
-          ZIndexProperties &
-          TransformProperties &
-          ScrollbarProperties &
-          PanelGroupProperties &
-          DepthAlignProperties &
-          KeepAspectRatioProperties &
-          VisibilityProperties &
-          RenderProperties &
-          PointerEventsProperties
-      >
-    >
-  >
->
+export type ContentProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalContentProperties>
 
-export type DepthAlignProperties = {
+export type AdditionalContentProperties = {
   depthAlign?: keyof typeof alignmentZMap
+  keepAspectRatio?: boolean
 }
 
-export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableContentProperties &
-  Listeners &
-  EventHandlers<EM>
+const additionalContentDefaults = {
+  depthAlign: 'back',
+  keepAspectRatio: true,
+}
+
+type AdditionalContentDefaults = typeof additionalContentDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  style: Signal<ContentProperties<EM> | undefined>,
-  properties: Signal<ContentProperties<EM> | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
   contentContainerRef: { current?: Object3D | null },
 ) {
   const flexState = createFlexNodeState()
   const hoveredList = signal<Array<number>>([])
-  const pressedList = signal<Array<number>>([])
+  const activeList = signal<Array<number>>([])
 
   const sizeSignal = signal(new Vector3(1, 1, 1))
-  const aspectRatio = computed(() => sizeSignal.value.x / sizeSignal.value.y)
 
   //properties
-  const mergedProperties = computedMergedProperties(
-    style,
-    properties,
-    defaultProperties,
-    {
-      ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentCtx.root.size),
-      ...createHoverPropertyTransformers(hoveredList),
-      ...createActivePropertyTransfomers(pressedList),
-    },
-    keepAspectRatioPropertyTransformer,
-    (m) => m.add('aspectRatio', aspectRatio),
-  )
+  const properties: Properties<EM, AdditionalContentProperties, Partial<AdditionalContentDefaults>> = new Properties<
+    EM,
+    AdditionalContentProperties,
+    Partial<AdditionalContentDefaults>
+  >(allAliases, createConditionals(parentCtx.root.size, hoveredList, activeList), parentCtx.properties, {
+    aspectRatio: computed(() =>
+      properties.get('keepAspectRatio') ? sizeSignal.value.x / sizeSignal.value.y : undefined,
+    ),
+    ...additionalContentDefaults,
+  })
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  const transformMatrix = computedTransformMatrix(properties, flexState)
 
   const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
-  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
+  const isClipped = computedIsClipped(
+    parentCtx.clippingRect,
+    globalMatrix,
+    flexState.size,
+    properties.getSignal('pixelSize'),
+  )
+  const isVisible = computedIsVisible(flexState, isClipped, properties)
 
-  const groupDeps = computedPanelGroupDependencies(mergedProperties)
+  const groupDeps = computedPanelGroupDependencies(properties)
   const backgroundOrderInfo = computedOrderInfo(
-    mergedProperties,
+    properties,
     'zIndexOffset',
     ElementType.Panel,
     groupDeps,
@@ -114,7 +85,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Object, undefined, backgroundOrderInfo)
 
-  const handlers = computedHandlers(style, properties, defaultProperties, hoveredList, pressedList)
+  const handlers = computedHandlers(properties, hoveredList, activeList)
 
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
@@ -127,7 +98,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     globalMatrix,
     isClipped,
     isVisible,
-    mergedProperties,
+    properties,
     hoveredSignal: hoveredList,
     sizeSignal,
     orderInfo,
@@ -148,7 +119,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
       flexState,
       measuredSize,
       measuredCenter,
-      mergedProperties,
+      properties,
       parentCtx.root,
       parentCtx.clippingRect,
       isVisible,
@@ -159,11 +130,9 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
   })
 }
 
-export function setupContent<EM extends ThreeEventMap = ThreeEventMap>(
+export function setupContent(
   state: ReturnType<typeof createContentState>,
   parentCtx: ParentContext,
-  style: Signal<ContentProperties<EM> | undefined>,
-  properties: Signal<ContentProperties<EM> | undefined>,
   object: Object3D,
   contentContainer: Object3D,
   abortSignal: AbortSignal,
@@ -178,7 +147,7 @@ export function setupContent<EM extends ThreeEventMap = ThreeEventMap>(
 
   //instanced panel
   setupInstancedPanel(
-    state.mergedProperties,
+    state.properties,
     state.backgroundOrderInfo,
     state.groupDeps,
     parentCtx.root.panelGroupManager,
@@ -194,59 +163,40 @@ export function setupContent<EM extends ThreeEventMap = ThreeEventMap>(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, state.globalMatrix, false, abortSignal)
 
-  setupPointerEvents(state.mergedProperties, state.ancestorsHaveListeners, parentCtx.root, object, true, abortSignal)
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, parentCtx.root, object, true, abortSignal)
 
-  setupLayoutListeners(style, properties, state.size, abortSignal)
-  setupClippedListeners(style, properties, state.isClipped, abortSignal)
+  setupLayoutListeners(state.properties, state.size, abortSignal)
+  setupClippedListeners(state.properties, state.isClipped, abortSignal)
 
-  setupInteractionPanel(state.interactionPanel, state.root, state.globalMatrix, state.size, abortSignal)
+  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
 
-  setupContentContainer(
-    state.remeasureContent,
-    state.measuredSize,
-    state.measuredCenter,
-    state.mergedProperties,
-    state.root,
-    state,
-    state.isVisible,
-    contentContainer,
-    abortSignal,
-  )
+  setupContentContainer(state, contentContainer, abortSignal)
 }
 
 const vectorHelper = new Vector3()
 
-function setupContentContainer(
-  measureContent: () => void,
-  measuredSize: Vector3,
-  measuredCenter: Vector3,
-  propertiesSignal: Signal<MergedProperties>,
-  root: RootContext,
-  flexState: FlexNodeState,
-  isVisible: Signal<boolean>,
+function setupContentContainer<EM extends ThreeEventMap = ThreeEventMap>(
+  state: ReturnType<typeof createContentState>,
   contentContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
-  measureContent()
-  const depthAlign = computedInheritableProperty(propertiesSignal, 'depthAlign', defaultDepthAlign)
-  const keepAspectRatio = computedInheritableProperty(propertiesSignal, 'keepAspectRatio', true)
+  state.remeasureContent()
   abortableEffect(() => {
-    const properties = propertiesSignal.value
     updateRenderProperties(
       { current: contentContainer },
-      isVisible.value,
-      properties.read('renderOrder', 0),
-      properties.read('depthTest', true),
-      properties.read('depthWrite', false),
+      state.isVisible.value,
+      state.properties.get('renderOrder'),
+      state.properties.get('depthTest'),
+      state.properties.get('depthWrite'),
     )
-    root.requestRender()
+    state.root.requestRender()
   }, abortSignal)
   abortableEffect(() => {
     const {
       size: { value: size },
       paddingInset: { value: paddingInset },
       borderInset: { value: borderInset },
-    } = flexState
+    } = state
     if (size == null || paddingInset == null || borderInset == null) {
       return
     }
@@ -261,31 +211,31 @@ function setupContentContainer(
     const innerWidth = width - leftInset - rightInset
     const innerHeight = height - topInset - bottomInset
 
-    const pixelSize = root.pixelSize.value
+    const pixelSize = state.properties.get('pixelSize')
     contentContainer.scale
       .set(
         innerWidth * pixelSize,
         innerHeight * pixelSize,
-        keepAspectRatio.value ? (innerHeight * pixelSize * measuredSize.z) / measuredSize.y : measuredSize.z,
+        state.properties.get('keepAspectRatio')
+          ? (innerHeight * pixelSize * state.measuredSize.z) / state.measuredSize.y
+          : state.measuredSize.z,
       )
-      .divide(measuredSize)
+      .divide(state.measuredSize)
 
-    contentContainer.position.copy(measuredCenter).negate()
+    contentContainer.position.copy(state.measuredCenter).negate()
 
-    contentContainer.position.z -= alignmentZMap[depthAlign.value] * measuredSize.z
+    contentContainer.position.z -= alignmentZMap[state.properties.get('depthAlign')] * state.measuredSize.z
     contentContainer.position.multiply(contentContainer.scale)
     contentContainer.position.add(
       vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
     )
     contentContainer.updateMatrix()
-    root.requestRender()
+    state.root.requestRender()
   }, abortSignal)
 }
 
 const box3Helper = new Box3()
 const smallValue = new Vector3().setScalar(0.001)
-
-const defaultDepthAlign: keyof typeof alignmentZMap = 'back'
 
 /**
  * normalizes the content so it has a height of 1
@@ -294,7 +244,7 @@ function createMeasureContent(
   flexState: FlexNodeState,
   measuredSize: Vector3,
   measuredCenter: Vector3,
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   root: RootContext,
   parentClippingRect: Signal<ClippingRect | undefined>,
   isVisible: Signal<boolean>,
@@ -337,13 +287,12 @@ function createMeasureContent(
     root.requestRender()
   }
   return () => {
-    const properties = propertiesSignal.peek()
     updateRenderProperties(
       contentContainerRef,
       isVisible.peek(),
-      untracked(() => properties.read('renderOrder', 0)),
-      untracked(() => properties.read('depthTest', true)),
-      untracked(() => properties.read('depthWrite', false)),
+      properties.peek('renderOrder'),
+      properties.peek('depthTest'),
+      properties.peek('depthWrite'),
     )
     measureContent()
   }

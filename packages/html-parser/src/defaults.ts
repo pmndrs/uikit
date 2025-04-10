@@ -1,9 +1,8 @@
-import { ConversionComponentData } from './internals.js'
-
-export const htmlDefaults: Record<
+export const htmlElements: Record<
   string,
-  Partial<Omit<ConversionComponentData, 'hasProperty'>> & {
-    renderAs?: 'Image' | 'Input' | 'Video' | 'Icon' | 'Container' | 'Text'
+  {
+    convertTo?: 'input'
+    defaultProperties?: Record<string, any>
   }
 > = {
   h1: {
@@ -54,11 +53,11 @@ export const htmlDefaults: Record<
   ul: {
     defaultProperties: { flexDirection: 'column' },
   },
+  li: {},
   p: {
-    defaultProperties: {
-      //tailwind disables this marginY: 16
-    },
+    //tailwind disables this marginY: 16
   },
+  span: {},
   a: {
     //TODO: custom property converter href => onClick ...
     defaultProperties: {
@@ -66,21 +65,10 @@ export const htmlDefaults: Record<
       cursor: 'pointer',
     },
   },
-  img: {
-    renderAs: 'Image',
-  },
   button: { defaultProperties: { verticalAlign: 'middle', textAlign: 'center', cursor: 'pointer' } },
-  input: {
-    renderAs: 'Input',
-    children: 'none',
-  },
   textarea: {
-    renderAs: 'Input',
-    children: 'none',
+    convertTo: 'input',
     defaultProperties: { multiline: true },
-  },
-  video: {
-    renderAs: 'Video',
   },
 }
 //TBD select option

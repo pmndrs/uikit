@@ -10,9 +10,9 @@ import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../order.js'
-import { Signal, computed } from '@preact/signals-core'
-import { MergedProperties } from '../properties/merged.js'
+import { computed } from '@preact/signals-core'
 import { RootContext } from '../context.js'
+import { Properties } from '../properties/index.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -30,16 +30,15 @@ export type PanelGroupProperties = {
 } & ShadowProperties &
   RenderProperties
 
-export function computedPanelGroupDependencies(propertiesSignal: Signal<MergedProperties>) {
+export function computedPanelGroupDependencies(properties: Properties) {
   return computed<Required<PanelGroupProperties>>(() => {
-    const properties = propertiesSignal.value
     return {
-      panelMaterialClass: properties.read('panelMaterialClass', MeshBasicMaterial),
-      castShadow: properties.read('castShadow', false),
-      receiveShadow: properties.read('receiveShadow', false),
-      depthWrite: properties.read('depthWrite', false),
-      depthTest: properties.read('depthTest', true),
-      renderOrder: properties.read('renderOrder', 0),
+      panelMaterialClass: properties.get('panelMaterialClass') ?? MeshBasicMaterial,
+      castShadow: properties.get('castShadow') ?? false,
+      receiveShadow: properties.get('receiveShadow') ?? false,
+      depthWrite: properties.get('depthWrite') ?? false,
+      depthTest: properties.get('depthTest') ?? true,
+      renderOrder: properties.get('renderOrder') ?? 0,
     }
   })
 }
@@ -49,7 +48,7 @@ export class PanelGroupManager {
 
   constructor(
     private readonly root: WithReversePainterSortStableCache &
-      Pick<RootContext, 'onFrameSet' | 'requestFrame' | 'requestRender' | 'pixelSize'>,
+      Pick<RootContext, 'onFrameSet' | 'requestFrame' | 'requestRender'>,
     private readonly objectRef: { current?: Object3D | null },
   ) {}
 
@@ -149,8 +148,7 @@ export class InstancedPanelGroup {
 
   constructor(
     private readonly object: Object3D,
-    public readonly root: WithReversePainterSortStableCache &
-      Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
+    public readonly root: WithReversePainterSortStableCache & Pick<RootContext, 'requestFrame' | 'requestRender'>,
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
@@ -160,7 +158,7 @@ export class InstancedPanelGroup {
   }
 
   private updateCount(): void {
-    const lastBucket = this.buckets[this.buckets.length - 1]
+    const lastBucket = this.buckets[this.buckets.length - 1]!
     const count = lastBucket.offset + lastBucket.elements.length
     if (this.mesh == null) {
       return

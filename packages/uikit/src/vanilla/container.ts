@@ -1,24 +1,21 @@
 import { ContainerProperties, createContainerState, setupContainer } from '../components/container.js'
-import { AllOptionalProperties } from '../properties/default.js'
-import { Signal, effect, signal, untracked } from '@preact/signals-core'
-import { Parent, createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
+import { effect, signal, Signal } from '@preact/signals-core'
+import { Parent, setupParentContextSignal, bindHandlers } from './utils.js'
 import { ThreeEventMap } from '../events.js'
+import { Layers } from '../properties/layers.js'
+import { ParentContext } from '../context.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  private readonly styleSignal: Signal<ContainerProperties<EM> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<ContainerProperties<EM> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
-  public internals!: ReturnType<typeof createContainerState>
+  public internals!: ReturnType<typeof createContainerState<EM>>
 
-  constructor(properties?: ContainerProperties<EM>, defaultProperties?: AllOptionalProperties) {
+  constructor(private properties?: ContainerProperties<EM>) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
     this.unsubscribe = effect(() => {
       const parentContext = this.parentContextSignal.value?.value
       if (parentContext == null) {
@@ -26,25 +23,12 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
         return
       }
       const abortController = new AbortController()
-      this.internals = createContainerState(
-        parentContext,
-        {
-          current: this,
-        },
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-      )
-      setupContainer(
-        this.internals,
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this,
-        this.childrenContainer,
-        abortController.signal,
-      )
-      this.contextSignal.value = Object.assign(this.internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
+      this.internals = createContainerState<EM>(parentContext, {
+        current: this,
+      })
+      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      setupContainer(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
+      this.contextSignal.value = this.internals
 
       //setup events
       super.add(this.internals.interactionPanel)
@@ -56,27 +40,17 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     })
   }
 
-  getComputedProperty<K extends keyof ContainerProperties<EM>>(key: K): ContainerProperties<EM>[K] | undefined {
-    return untracked(() => this.internals.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<ContainerProperties<EM>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: ContainerProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: ContainerProperties<EM> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: ContainerProperties<EM>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
   }

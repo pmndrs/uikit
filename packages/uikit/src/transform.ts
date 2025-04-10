@@ -2,9 +2,8 @@ import { Signal, computed, effect } from '@preact/signals-core'
 import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
 import { FlexNodeState } from './flex/node.js'
 import { abortableEffect, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
-import { MergedProperties } from './properties/merged.js'
 import { RootContext } from './context.js'
-import { computedInheritableProperty } from './properties/index.js'
+import { Properties } from './properties/index.js'
 
 export type Percentage = `${number}%`
 
@@ -41,51 +40,51 @@ const defaultTransformOriginX: keyof typeof alignmentXMap = 'center'
 const defaultTransformOriginY: keyof typeof alignmentYMap = 'center'
 
 export function computedTransformMatrix(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   { relativeCenter, size }: FlexNodeState,
-  pixelSizeSignal: Signal<number>,
 ): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
   //B = bound transformation matrix
   //O = matrix to transform the origin for matrix T
   //T = transform matrix (translate, rotate, scale)
 
-  const tTX = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformTranslateX', 0)
-  const tTY = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformTranslateY', 0)
-  const tTZ = computedInheritableProperty(propertiesSignal, 'transformTranslateZ', 0)
-  const tRX = computedInheritableProperty(propertiesSignal, 'transformRotateX', 0)
-  const tRY = computedInheritableProperty(propertiesSignal, 'transformRotateY', 0)
-  const tRZ = computedInheritableProperty(propertiesSignal, 'transformRotateZ', 0)
-  const tSX = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformScaleX', 1)
-  const tSY = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformScaleY', 1)
-  const tSZ = computedInheritableProperty<Percentage | number>(propertiesSignal, 'transformScaleZ', 1)
-  const tOX = computedInheritableProperty(propertiesSignal, 'transformOriginX', defaultTransformOriginX)
-  const tOY = computedInheritableProperty(propertiesSignal, 'transformOriginY', defaultTransformOriginY)
-
   return computed(() => {
     if (relativeCenter.value == null) {
       return undefined
     }
     const [x, y] = relativeCenter.value
-    const pixelSize = pixelSizeSignal.value
+    const pixelSize = properties.get('pixelSize')
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
     let originCenter = true
 
-    if (tOX.value != 'center' || tOY.value != 'center') {
+    const tOX = properties.get('transformOriginX') ?? defaultTransformOriginX
+    const tOY = properties.get('transformOriginY') ?? defaultTransformOriginY
+
+    if (tOX != 'center' || tOY != 'center') {
       if (size.value == null) {
         return undefined
       }
       const [width, height] = size.value
       originCenter = false
-      originVector.set(-alignmentXMap[tOX.value] * width * pixelSize, -alignmentYMap[tOY.value] * height * pixelSize, 0)
+      originVector.set(-alignmentXMap[tOX] * width * pixelSize, -alignmentYMap[tOY] * height * pixelSize, 0)
       result.multiply(matrixHelper.makeTranslation(originVector))
       originVector.negate()
     }
 
-    const r: Vector3Tuple = [tRX.value, tRY.value, tRZ.value]
-    const t: Vector3Tuple = [translateToNumber(tTX.value, size, 0), -translateToNumber(tTY.value, size, 1), tTZ.value]
-    const s: Vector3Tuple = [scaleToNumber(tSX.value), scaleToNumber(tSY.value), scaleToNumber(tSZ.value)]
+    const tTX = properties.get('transformTranslateX') ?? 0
+    const tTY = properties.get('transformTranslateY') ?? 0
+    const tTZ = properties.get('transformTranslateZ') ?? 0
+    const tRX = properties.get('transformRotateX') ?? 0
+    const tRY = properties.get('transformRotateY') ?? 0
+    const tRZ = properties.get('transformRotateZ') ?? 0
+    const tSX = properties.get('transformScaleX') ?? 1
+    const tSY = properties.get('transformScaleY') ?? 1
+    const tSZ = properties.get('transformScaleZ') ?? 1
+
+    const r: Vector3Tuple = [tRX, tRY, tRZ]
+    const t: Vector3Tuple = [translateToNumber(tTX, size, 0), -translateToNumber(tTY, size, 1), tTZ]
+    const s: Vector3Tuple = [scaleToNumber(tSX), scaleToNumber(tSY), scaleToNumber(tSZ)]
     if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
       result.multiply(
         matrixHelper.compose(tHelper.fromArray(t).multiplyScalar(pixelSize), toQuaternion(r), sHelper.fromArray(s)),
@@ -108,7 +107,7 @@ function scaleToNumber(scale: number | Percentage) {
   if (result == null) {
     throw new Error(`invalid value "${scale}", expected number of percentage`)
   }
-  return parseFloat(result[1]) / 100
+  return parseFloat(result[1]!) / 100
 }
 
 function translateToNumber(translate: number | Percentage, size: Signal<Vector2Tuple | undefined>, sizeIndex: number) {
@@ -120,7 +119,7 @@ function translateToNumber(translate: number | Percentage, size: Signal<Vector2T
     throw new Error(`invalid value "${translate}", expected number of percentage`)
   }
   const sizeOnAxis = size.value?.[sizeIndex] ?? 0
-  return (sizeOnAxis * parseFloat(result[1])) / 100
+  return (sizeOnAxis * parseFloat(result[1]!)) / 100
 }
 
 export function setupObjectTransform(

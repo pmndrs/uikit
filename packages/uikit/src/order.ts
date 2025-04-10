@@ -1,8 +1,7 @@
 import { Signal, computed } from '@preact/signals-core'
 import { RenderItem } from 'three'
-import { MergedProperties } from './properties/merged.js'
-import { computedInheritableProperty } from './properties/index.js'
 import { readReactive } from './utils.js'
+import { Properties } from './properties/index.js'
 
 export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
 
@@ -80,16 +79,13 @@ export type ZIndexProperties = {
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
 export function computedOrderInfo(
-  propertiesSignal: Signal<MergedProperties> | undefined,
+  properties: Properties | undefined,
   zIndexOffsetKey: string,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
   parentOrderInfoSignal: Signal<OrderInfo | undefined> | undefined,
 ): Signal<OrderInfo | undefined> {
-  const zIndexOffset =
-    propertiesSignal == null
-      ? undefined
-      : computedInheritableProperty<ZIndexOffset | undefined>(propertiesSignal, zIndexOffsetKey, undefined)
+  const zIndexOffset = properties == null ? undefined : properties.getSignal(zIndexOffsetKey as any)
   return computed(() => {
     let parentOrderInfo: OrderInfo | undefined
     if (parentOrderInfoSignal == null) {

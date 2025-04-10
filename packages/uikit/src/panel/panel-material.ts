@@ -13,7 +13,7 @@ import {
 import { Constructor, setBorderRadius } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { ColorRepresentation } from '../utils.js'
-import { MergedProperties } from '../properties/index.js'
+import { Properties } from '../properties/index.js'
 import { Inset } from '../flex/index.js'
 
 export type MaterialClass = { new (...args: Array<any>): Material }
@@ -86,7 +86,7 @@ export function createPanelMaterialConfig(
     defaultData,
     setters,
     computedIsVisibile: (
-      propertiesSignal: Signal<MergedProperties>,
+      properties: Properties,
       borderInset: Signal<Inset | undefined>,
       size: Signal<Vector2Tuple | undefined>,
       isVisible: Signal<boolean>,
@@ -98,15 +98,15 @@ export function createPanelMaterialConfig(
         const borderOpacity =
           keys.borderOpacity == null
             ? defaults.borderOpacity
-            : propertiesSignal.value.read(keys.borderOpacity, defaults.borderOpacity)
+            : (properties.get(keys.borderOpacity as 'borderOpacity') ?? defaults.borderOpacity)
         const backgroundOpacity =
           keys.backgroundOpacity == null
             ? defaults.backgroundOpacity
-            : propertiesSignal.value.read(keys.backgroundOpacity, defaults.backgroundOpacity)
+            : (properties.get(keys.backgroundOpacity as 'backgroundOpacity') ?? defaults.backgroundOpacity)
         const backgroundColor =
           keys.backgroundColor == null
             ? defaults.backgroundColor
-            : propertiesSignal.value.read(keys.backgroundColor, defaults.backgroundColor)
+            : (properties.get(keys.backgroundColor as 'backgroundColor') ?? defaults.backgroundColor)
         const borderVisible = borderInset.value.some((s) => s > 0) && borderOpacity > 0
         const [width, height] = size.value
         const backgroundVisible =

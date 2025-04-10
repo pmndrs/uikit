@@ -13,12 +13,11 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { AllOptionalProperties, Icon } from '@pmndrs/uikit'
-      import { IconProperties } from '@pmndrs/uikit/internals'
+      import { IconProperties, Icon, ThreeEventMap } from '@pmndrs/uikit'
       const text = \`${svg}\`;
       export class ${name}Icon extends Icon {
-        constructor(properties?: IconProperties, defaultProperties?: AllOptionalProperties,) {
-          super(text, 24, 24, properties, defaultProperties)
+        constructor(properties?: IconProperties<ThreeEventMap>) {
+          super(text, 24, 24, properties)
         }
       }
       export const ${name} = ${name}Icon
@@ -36,7 +35,7 @@ async function main() {
 
 function getName(file: string): string {
   const name = file.slice(0, -4)
-  return name[0].toUpperCase() + name.slice(1).replace(/-./g, (x) => x[1].toUpperCase())
+  return name[0]!.toUpperCase() + name.slice(1).replace(/-./g, (x) => x[1]!.toUpperCase())
 }
 
 main()

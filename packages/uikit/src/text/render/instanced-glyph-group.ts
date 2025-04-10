@@ -10,7 +10,7 @@ export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
     private readonly root: WithReversePainterSortStableCache &
-      Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'>,
+      Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet'>,
     private readonly objectRef: { current?: Object3D | null },
   ) {}
 
@@ -78,8 +78,7 @@ export class InstancedGlyphGroup {
   constructor(
     private objectRef: { current?: Object3D | null },
     font: Font,
-    public readonly root: WithReversePainterSortStableCache &
-      Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
+    public readonly root: WithReversePainterSortStableCache & Pick<RootContext, 'requestFrame' | 'requestRender'>,
     private orderInfo: OrderInfo,
     depthTest: boolean,
     depthWrite: boolean,
@@ -189,7 +188,7 @@ export class InstancedGlyphGroup {
     const indexOffset = this.mesh!.count
     const requestedGlyphsLength = this.requestedGlyphs.length
     for (let i = 0; i < requestedGlyphsLength; i++) {
-      const glyph = this.requestedGlyphs[i]
+      const glyph = this.requestedGlyphs[i]!
       glyph.activate(indexOffset + i)
       this.glyphs[indexOffset + i] = glyph
     }
@@ -229,7 +228,7 @@ export class InstancedGlyphGroup {
       let afterPrevHoleIndex = 0
       let i = 0
       while (i < holesLength) {
-        const holeIndex = this.holeIndicies[i]
+        const holeIndex = this.holeIndicies[i]!
         copyBuffer(afterPrevHoleIndex - i, afterPrevHoleIndex, holeIndex, oldMesh, this.mesh)
         afterPrevHoleIndex = holeIndex + 1
         this.glyphs.splice(holeIndex - i, 1)
@@ -238,7 +237,7 @@ export class InstancedGlyphGroup {
       copyBuffer(afterPrevHoleIndex - i, afterPrevHoleIndex, oldMesh.count, oldMesh, this.mesh)
 
       if (this.holeIndicies.length > 0) {
-        for (let i = this.holeIndicies[0]; i < this.glyphs.length; i++) {
+        for (let i = this.holeIndicies[0]!; i < this.glyphs.length; i++) {
           this.glyphs[i]!.setIndex(i)
         }
       }

@@ -1,14 +1,13 @@
-import { Signal, signal, effect } from '@preact/signals-core'
+import { effect, Signal, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
 import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
 import { InstancedPanelGroup, PanelGroupManager, PanelGroupProperties } from './instanced-panel-group.js'
 import { abortableEffect, ColorRepresentation } from '../utils.js'
-import { MergedProperties } from '../properties/merged.js'
-import { setupImmediateProperties } from '../properties/immediate.js'
 import { OrderInfo } from '../order.js'
 import { PanelMaterialConfig } from './panel-material.js'
+import { Properties } from '../properties/index.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number
@@ -23,7 +22,7 @@ export type PanelProperties = {
 }
 
 export function setupInstancedPanel(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   orderInfo: Signal<OrderInfo | undefined>,
   panelGroupDependencies: Signal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
@@ -43,7 +42,7 @@ export function setupInstancedPanel(
     const innerAbortController = new AbortController()
     const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
     new InstancedPanel(
-      propertiesSignal,
+      properties,
       group,
       orderInfo.value.minorIndex,
       matrix,
@@ -72,8 +71,8 @@ export class InstancedPanel {
   private abortController?: AbortController
 
   constructor(
-    propertiesSignal: Signal<MergedProperties>,
-    private group: InstancedPanelGroup,
+    private readonly properties: Properties,
+    private readonly group: InstancedPanelGroup,
     private readonly minorIndex: number,
     private readonly matrix: Signal<Matrix4 | undefined>,
     private readonly size: Signal<Vector2Tuple | undefined>,
@@ -85,22 +84,32 @@ export class InstancedPanel {
     abortSignal: AbortSignal,
   ) {
     const setters = materialConfig.setters
-    setupImmediateProperties(
-      propertiesSignal,
-      this.active,
-      materialConfig.hasProperty,
-      (key, value) => {
-        const index = this.getIndexInBuffer()
-        if (index == null) {
+    abortableEffect(() => {
+      if (!isVisible.value) {
+        return
+      }
+      return properties.subscribePropertyKeys((key) => {
+        if (!materialConfig.hasProperty(key as string)) {
           return
         }
-        const { instanceData, instanceDataOnUpdate: instanceDataAddUpdateRange, root } = this.group
-        setters[key](instanceData.array, instanceData.itemSize * index, value, size, instanceDataAddUpdateRange)
-        root.requestRender()
-      },
-      abortSignal,
-    )
-    const isPanelVisible = materialConfig.computedIsVisibile(propertiesSignal, borderInset, size, isVisible)
+        abortableEffect(() => {
+          const index = this.getIndexInBuffer()
+          if (index == null) {
+            return
+          }
+          const { instanceData, instanceDataOnUpdate: instanceDataAddUpdateRange, root } = this.group
+          setters[key as string]!(
+            instanceData.array,
+            instanceData.itemSize * index,
+            properties.get(key as any),
+            size,
+            instanceDataAddUpdateRange,
+          )
+          root.requestRender()
+        }, abortSignal)
+      })
+    }, abortSignal)
+    const isPanelVisible = materialConfig.computedIsVisibile(properties, borderInset, size, isVisible)
     abortableEffect(() => {
       if (isPanelVisible.value) {
         this.requestShow()
@@ -108,7 +117,6 @@ export class InstancedPanel {
       }
       this.hide()
     }, abortSignal)
-    abortSignal.addEventListener('abort', () => this.hide())
   }
 
   setIndexInBucket(index: number): void {
@@ -137,7 +145,7 @@ export class InstancedPanel {
       }
       const arrayIndex = index * 16
       const [width, height] = this.size.value
-      const pixelSize = this.group.root.pixelSize.value
+      const pixelSize = this.properties.get('pixelSize')
       matrixHelper1.makeScale(width * pixelSize, height * pixelSize, 1)
       if (this.offset != null) {
         const [x, y] = this.offset.value

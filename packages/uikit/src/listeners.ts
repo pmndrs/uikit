@@ -1,9 +1,10 @@
-import { Signal, effect } from '@preact/signals-core'
+import { Signal } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
 import { ThreeMouseEvent, ThreePointerEvent } from './events.js'
 import { abortableEffect } from './utils.js'
+import { Properties } from './properties/index.js'
 
-export type Listeners = ScrollListeners & LayoutListeners & ClippedListeners
+export type Listeners = ScrollListeners & LayoutListeners & ClippedListeners & HoverListeners & ActiveListeners
 
 export type ScrollListeners = {
   /**
@@ -30,9 +31,15 @@ export type ClippedListeners = {
   onIsClippedChange?: (isClipped: boolean) => void
 }
 
+export type HoverListeners = {
+  onHoverChange?: (hover: boolean) => void
+}
+export type ActiveListeners = {
+  onActiveChange?: (active: boolean) => void
+}
+
 export function setupLayoutListeners(
-  l1: Signal<LayoutListeners | undefined>,
-  l2: Signal<LayoutListeners | undefined>,
+  properties: Properties,
   size: Signal<Vector2Tuple | undefined>,
   abortSignal: AbortSignal,
 ) {
@@ -41,14 +48,12 @@ export function setupLayoutListeners(
     if (s == null) {
       return
     }
-    l1.peek()?.onSizeChange?.(...s)
-    l2.peek()?.onSizeChange?.(...s)
+    properties.peek('onSizeChange')?.(...s)
   }, abortSignal)
 }
 
 export function setupClippedListeners(
-  l1: Signal<ClippedListeners | undefined>,
-  l2: Signal<ClippedListeners | undefined>,
+  properties: Properties,
   isClippedSignal: Signal<boolean>,
   abortSignal: AbortSignal,
 ) {
@@ -59,7 +64,6 @@ export function setupClippedListeners(
       first = false
       return
     }
-    l1.peek()?.onIsClippedChange?.(isClipped)
-    l2.peek()?.onIsClippedChange?.(isClipped)
+    properties.peek('onIsClippedChange')?.(isClipped)
   }, abortSignal)
 }

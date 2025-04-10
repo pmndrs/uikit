@@ -1,11 +1,10 @@
 import { Object3D, Vector2Tuple } from 'three'
-import { Signal, batch, effect, signal, untracked } from '@preact/signals-core'
+import { Signal, batch, signal } from '@preact/signals-core'
 import { Display, Edge, FlexDirection, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
 import { setter } from './setter.js'
-import { setupImmediateProperties } from '../properties/immediate.js'
-import { MergedProperties } from '../properties/merged.js'
 import { PointScaleFactor, createYogaNode } from './yoga.js'
 import { abortableEffect } from '../utils.js'
+import { Properties } from '../properties/index.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -53,8 +52,7 @@ export class FlexNode {
   private objectVisible = false
 
   constructor(
-    private state: FlexNodeState & { root: { requestCalculateLayout(): void } },
-    private readonly propertiesSignal: Signal<MergedProperties>,
+    private state: FlexNodeState & { root: { requestCalculateLayout(): void }; properties: Properties },
     private object: Object3D,
     private objectVisibileDefault: boolean,
     abortSignal: AbortSignal,
@@ -72,16 +70,20 @@ export class FlexNode {
         this.yogaNode?.free()
       }
     }, abortSignal)
-    setupImmediateProperties(
-      propertiesSignal,
-      this.active,
-      hasImmediateProperty,
-      (key: string, value: unknown) => {
-        setter[key as keyof typeof setter](this.yogaNode!, value as any)
-        this.state.root.requestCalculateLayout()
-      },
-      abortSignal,
-    )
+    abortableEffect(() => {
+      if (!this.active.value) {
+        return
+      }
+      return state.properties.subscribePropertyKeys((key) => {
+        if (!hasImmediateProperty(key as string)) {
+          return
+        }
+        abortableEffect(() => {
+          setter[key as keyof typeof setter](this.yogaNode!, state.properties.get(key as any) as any)
+          this.state.root.requestCalculateLayout()
+        }, abortSignal)
+      })
+    }, abortSignal)
   }
 
   setCustomLayouting(layouting: CustomLayouting | undefined) {
@@ -131,12 +133,9 @@ export class FlexNode {
     /** ---- START : adaptation of yoga's behavior to align more to the web behavior ---- */
     const parentDirectionVertical =
       parentDirection === FlexDirection.Column || parentDirection === FlexDirection.ColumnReverse
-    const properties = this.propertiesSignal.peek()
     if (
       this.customLayouting != null &&
-      untracked(() =>
-        properties.read<YogaProperties['minWidth']>(parentDirectionVertical ? 'minHeight' : 'minWidth', undefined),
-      ) === undefined
+      this.state.properties.peek(parentDirectionVertical ? 'minHeight' : 'minWidth') === undefined
     ) {
       this.yogaNode[parentDirectionVertical ? 'setMinHeight' : 'setMinWidth'](
         parentDirectionVertical ? this.customLayouting.minHeight : this.customLayouting.minWidth,
@@ -145,8 +144,8 @@ export class FlexNode {
 
     //see: https://codepen.io/Gettinqdown-Dev/pen/wvZLKBm
     //-> on the web if the parent has flexdireciton column, elements dont shrink below flexBasis
-    if (untracked(() => properties.read<YogaProperties['flexShrink']>('flexShrink', undefined)) == null) {
-      const hasHeight = untracked(() => properties.read<YogaProperties['height']>('height', undefined)) != null
+    if (this.state.properties.peek('flexShrink') == null) {
+      const hasHeight = this.state.properties.peek('height') != null
       this.yogaNode.setFlexShrink(hasHeight && parentDirectionVertical ? 0 : undefined)
     }
     /** ---- END ---- */
@@ -206,7 +205,7 @@ export class FlexNode {
     //recursively executing commit in children
     const childrenLength = this.children.length
     for (let i = 0; i < childrenLength; i++) {
-      this.children[i].commit(this.yogaNode.getFlexDirection())
+      this.children[i]!.commit(this.yogaNode.getFlexDirection())
     }
 
     this.objectVisible = this.objectVisibileDefault || this.children.some((child) => child.objectVisible)
@@ -228,6 +227,7 @@ export class FlexNode {
 
     const width = this.yogaNode.getComputedWidth()
     const height = this.yogaNode.getComputedHeight()
+    console.log(width, height)
     updateVector2Signal(this.state.size, width, height)
 
     parentWidth ??= width
@@ -260,7 +260,7 @@ export class FlexNode {
     let maxContentWidth = 0
     let maxContentHeight = 0
     for (let i = 0; i < childrenLength; i++) {
-      const [contentWidth, contentHeight] = this.children[i].updateMeasurements(displayed, width, height)
+      const [contentWidth, contentHeight] = this.children[i]!.updateMeasurements(displayed, width, height)
       maxContentWidth = Math.max(maxContentWidth, contentWidth)
       maxContentHeight = Math.max(maxContentHeight, contentHeight)
     }

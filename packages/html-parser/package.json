@@ -1,0 +1,33 @@
+{
+  "name": "@pmndrs/uikit-html-parser",
+  "version": "0.0.4",
+  "type": "module",
+  "dependencies": {
+    "inline-style-parser": "^0.2.4",
+    "node-html-parser": "^7.0.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "mocha ./test/*.spec.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "license": "MIT",
+  "author": "Bela Bohlender",
+  "homepage": "https://github.com/pmndrs/uikit",
+  "keywords": [
+    "r3f",
+    "3d",
+    "uikit",
+    "html",
+    "properties",
+    "three.js",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/uikit.git"
+  }
+}

@@ -14,7 +14,7 @@ export function assureBucketExists(buckets: Array<Bucket<unknown>>, bucketIndex:
     let offset = 0
     let missingSpace = 0
     if (buckets.length > 0) {
-      const prevBucket = buckets[buckets.length - 1]
+      const prevBucket = buckets[buckets.length - 1]!
       offset += prevBucket.offset + prevBucket.elements.length
       missingSpace = Math.min(0, prevBucket.missingSpace) //taking only the exceeding space
       prevBucket.missingSpace -= missingSpace
@@ -31,7 +31,7 @@ export function assureBucketExists(buckets: Array<Bucket<unknown>>, bucketIndex:
 export function resizeSortedBucketsSpace(buckets: Array<Bucket<unknown>>, oldSize: number, newSize: number): void {
   assureBucketExists(buckets, 0)
   //add new space to last bucket
-  const lastBucket = buckets[buckets.length - 1]
+  const lastBucket = buckets[buckets.length - 1]!
   lastBucket.missingSpace += oldSize - newSize
 }
 
@@ -45,7 +45,7 @@ export function addToSortedBuckets<E>(
   activateElement: (element: E, bucket: Bucket<E>, index: number) => void,
 ): boolean {
   assureBucketExists(buckets, bucketIndex)
-  const bucket = buckets[bucketIndex]
+  const bucket = buckets[bucketIndex]!
   bucket.missingSpace += 1
   if (bucket.missingSpace <= 0) {
     //bucket has still room at the end => just place the element there
@@ -74,7 +74,7 @@ export function removeFromSortedBuckets<E>(
   if (bucketIndex >= buckets.length) {
     throw new Error(`no bucket at index ${bucketIndex}`)
   }
-  const bucket = buckets[bucketIndex]
+  const bucket = buckets[bucketIndex]!
   bucket.missingSpace -= 1
   const addIndex = bucket.add.indexOf(element)
   if (addIndex != -1) {
@@ -99,7 +99,7 @@ export function removeFromSortedBuckets<E>(
     const startIndex = offset + lastIndexInBucket
     const targetIndex = offset + elementIndex
     bufferCopyWithin(targetIndex, startIndex, startIndex + 1)
-    const swapElement = bucket.elements[lastIndexInBucket]
+    const swapElement = bucket.elements[lastIndexInBucket]!
     bucket.elements[elementIndex] = swapElement
     setElementIndex(swapElement, elementIndex)
   }
@@ -115,9 +115,9 @@ export function removeFromSortedBuckets<E>(
   //we are at the last bucket => merge missing space with the previous bucket(s)
   let currentBucket = bucket
   while (currentBucket.elements.length === 0 && currentBucket.add.length == 0 && bucketIndex > 0) {
-    const prevBucket = buckets[bucketIndex - 1]
+    const prevBucket = buckets[bucketIndex - 1]!
     prevBucket.missingSpace += currentBucket.missingSpace
-    currentBucket = buckets[--bucketIndex]
+    currentBucket = buckets[--bucketIndex]!
   }
   buckets.length = bucketIndex + 1
 
@@ -135,7 +135,7 @@ export function updateSortedBucketsAllocation<E>(
   let bucketsLength = buckets.length
   let lastBucketWithElements = -1
   for (let i = 0; i < bucketsLength; i++) {
-    const bucket = buckets[i]
+    const bucket = buckets[i]!
     if (bucket.elements.length + bucket.add.length > 0) {
       //bucket will have more than 0 elements after this
       lastBucketWithElements = i
@@ -153,7 +153,7 @@ export function updateSortedBucketsAllocation<E>(
       //2 cases:
       //    1. one has space and the other needs space
       //    2. both have space
-      const otherBucket = buckets[ii]
+      const otherBucket = buckets[ii]!
       if (otherBucket.missingSpace === 0) {
         continue
       }
@@ -178,19 +178,19 @@ export function updateSortedBucketsAllocation<E>(
       }
     }
   }
-  const newLastBucket = buckets[lastBucketWithElements]
+  const newLastBucket = buckets[lastBucketWithElements]!
   for (let i = lastBucketWithElements + 1; i < bucketsLength; i++) {
-    newLastBucket.missingSpace += buckets[i].missingSpace
+    newLastBucket.missingSpace += buckets[i]!.missingSpace
   }
   bucketsLength = buckets.length = lastBucketWithElements + 1
 
   //add elements at the end of the elements of the buckets
   for (let i = 0; i < bucketsLength; i++) {
-    const bucket = buckets[i]
+    const bucket = buckets[i]!
     const { elements, add } = bucket
     const addLength = add.length
     for (let ii = 0; ii < addLength; ii++) {
-      const element = add[ii]
+      const element = add[ii]!
       activateElement(element, bucket, elements.length)
       elements.push(element)
     }
@@ -205,20 +205,20 @@ function shiftLeft(
   endIndexIncl: number,
   shiftBy: number,
 ): void {
-  const endBucket = buckets[endIndexIncl]
+  const endBucket = buckets[endIndexIncl]!
 
-  const startIndex = buckets[startIndexIncl + 1].offset
+  const startIndex = buckets[startIndexIncl + 1]!.offset
   //array shifting
   bufferCopyWithin(startIndex - shiftBy, startIndex, endBucket.offset + endBucket.elements.length)
 
   //updating delta and panel array
-  const startBucket = buckets[startIndexIncl]
+  const startBucket = buckets[startIndexIncl]!
   startBucket.missingSpace += shiftBy
   endBucket.missingSpace -= shiftBy
 
   //updating the offsets
   for (let i = startIndexIncl + 1; i <= endIndexIncl; i++) {
-    buckets[i].offset -= shiftBy
+    buckets[i]!.offset -= shiftBy
   }
 }
 
@@ -229,19 +229,19 @@ function shiftRight(
   endIndexIncl: number,
   shiftBy: number,
 ): void {
-  const endBucket = buckets[endIndexIncl]
+  const endBucket = buckets[endIndexIncl]!
 
-  const startIndex = buckets[startIndexIncl + 1].offset
+  const startIndex = buckets[startIndexIncl + 1]!.offset
   //array shifting
   bufferCopyWithin(startIndex + shiftBy, startIndex, endBucket.offset + endBucket.elements.length)
 
   //updating delta and panel array
-  const startBucket = buckets[startIndexIncl]
+  const startBucket = buckets[startIndexIncl]!
   startBucket.missingSpace -= shiftBy
   endBucket.missingSpace += shiftBy
 
   //updating the offsets
   for (let i = startIndexIncl + 1; i <= endIndexIncl; i++) {
-    buckets[i].offset += shiftBy
+    buckets[i]!.offset += shiftBy
   }
 }

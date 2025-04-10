@@ -28,7 +28,7 @@
   },
   "scripts": {
     "test": "mocha ./tests/*.spec.ts",
-    "build": "node --loader ts-node/esm scripts/extract-core-component-properties.ts && tsc -p ./tsconfig.build.json",
+    "build": "tsc -p ./tsconfig.build.json",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
@@ -44,6 +44,7 @@
     "node-html-parser": "^6.1.13",
     "tw-to-css": "^0.0.12",
     "yoga-layout": "^3.2.1",
-    "@pmndrs/msdfonts": "workspace:^"
+    "@pmndrs/msdfonts": "workspace:^",
+    "@pmndrs/uikit-pub-sub": "workspace:^"
   }
 }

@@ -1,88 +1,44 @@
-import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
-import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
+import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
+import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
-import { ScrollbarProperties } from '../scroll.js'
-import { WithAllAliases } from '../properties/alias.js'
-import { PanelProperties, setupInstancedPanel } from '../panel/instanced-panel.js'
-import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { allAliases } from '../properties/alias.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { AllProperties, Properties } from '../properties/index.js'
+import { computedOrderInfo, ElementType } from '../order.js'
+import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import {
-  AllOptionalProperties,
-  WithClasses,
-  WithReactive,
-  computedInheritableProperty,
-  computedNonInheritableProperty,
-  traverseProperties,
-} from '../properties/index.js'
-import { createResponsivePropertyTransformers } from '../responsive.js'
-import { computedOrderInfo, ElementType, ZIndexProperties } from '../order.js'
-import { createActivePropertyTransfomers } from '../active.js'
-import { ReadonlySignal, Signal, computed, effect, signal } from '@preact/signals-core'
-import {
-  UpdateMatrixWorldProperties,
-  VisibilityProperties,
-  WithConditionals,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  computedMergedProperties,
   setupNode,
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
 } from './utils.js'
-import { abortableEffect, readReactive } from '../utils.js'
-import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
+import { abortableEffect, ColorRepresentation, readReactive } from '../utils.js'
+import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ParentContext } from '../context.js'
-import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
-import { Vector2Tuple, Vector2, Vector3Tuple, Object3D } from 'three'
-import { CaretProperties, CaretTransformation, createCaret } from '../caret.js'
-import { SelectionTransformation, SelectionProperties, createSelection } from '../selection.js'
-import { WithFocus, createFocusPropertyTransformers } from '../focus.js'
+import { Vector2Tuple, Vector2, Object3D } from 'three'
+import { CaretTransformation, createCaret } from '../caret.js'
+import { SelectionTransformation, createSelection } from '../selection.js'
 import {
+  AdditionalTextDefaults,
+  AdditionalTextProperties,
   FontFamilies,
   InstancedText,
-  InstancedTextProperties,
+  WordBreak,
+  additionalTextDefaults,
   computedFont,
+  computedFontFamilies,
   computedGylphGroupDependencies,
   createInstancedText,
 } from '../text/index.js'
-import { darkPropertyTransformers } from '../dark.js'
-import { getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
-
-export type InheritableInputProperties = WithClasses<
-  WithFocus<
-    WithConditionals<
-      WithAllAliases<
-        WithReactive<
-          YogaProperties &
-            PanelProperties &
-            ZIndexProperties &
-            TransformProperties &
-            ScrollbarProperties &
-            CaretProperties &
-            SelectionProperties &
-            PanelGroupProperties &
-            InstancedTextProperties &
-            DisabledProperties &
-            VisibilityProperties &
-            UpdateMatrixWorldProperties &
-            PointerEventsProperties &
-            AutocompleteProperties
-        >
-      >
-    >
-  >
->
-
-export type DisabledProperties = {
-  disabled?: boolean
-}
-
-export type AutocompleteProperties = {
-  autocomplete?: AutoFill
-}
+import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { createConditionals } from '../properties/conditional.js'
 
 const cancelSet = new Set<unknown>()
 
@@ -103,62 +59,71 @@ export const canvasInputProps = {
   },
 }
 
+export type InputProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalInputProperties>
+
 export type InputType = 'text' | 'password'
 
-export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableInputProperties &
-  Listeners & {
-    onValueChange?: (value: string) => void
-  } & WithReactive<{
-    type?: InputType
-    value?: string
-    tabIndex?: number
-    disabled?: boolean
-  }> & {
-    multiline?: boolean
-    defaultValue?: string
-  } & EventHandlers<EM>
+export type AdditionalInputProperties = {
+  html?: Omit<HTMLInputElement, 'value' | 'disabled' | 'type'>
+  defaultValue?: string
+  value?: string
+  disabled?: boolean
+  type: InputType
+  onValueChange?: (value: string) => void
+  onFocusChange?: (focus: boolean) => void
+} & AdditionalTextProperties
+
+const additionalInputDefaults = {
+  type: 'text',
+  disabled: false,
+  ...additionalTextDefaults,
+}
+
+export type AdditionalInputDefaults = typeof additionalInputDefaults & {
+  wordBreak: WordBreak
+  caretOpacity: Signal<number>
+  caretColor: Signal<ColorRepresentation>
+}
 
 export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  fontFamilies: Signal<FontFamilies | undefined>,
-  style: Signal<InputProperties<EM> | undefined>,
-  properties: Signal<InputProperties<EM> | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
+  multiline: boolean,
 ) {
   const flexState = createFlexNodeState()
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const hasFocusSignal = signal<boolean>(false)
 
-  const mergedProperties = computedMergedProperties(
-    style,
-    properties,
-    defaultProperties,
+  const properties: Properties<EM, AdditionalInputProperties, AdditionalInputDefaults> = new Properties<
+    EM,
+    AdditionalInputProperties,
+    AdditionalInputDefaults
+  >(
+    allAliases,
+    createConditionals(parentCtx.root.size, hoveredSignal, activeSignal, hasFocusSignal),
+    parentCtx.properties,
     {
-      ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentCtx.root.size),
-      ...createHoverPropertyTransformers(hoveredSignal),
-      ...createActivePropertyTransfomers(activeSignal),
-      ...createFocusPropertyTransformers(hasFocusSignal),
-    },
-    undefined,
-    (m) => {
-      traverseProperties(style.value, properties.value, defaultProperties.value, (p) => {
-        m.add('caretOpacity', p.opacity)
-        m.add('caretColor', p.color)
-      })
+      wordBreak: multiline ? 'break-word' : 'keep-all',
+      caretOpacity: computed(() => properties.get('opacity')),
+      caretColor: computed(() => properties.get('color') ?? 0),
+      ...additionalInputDefaults,
     },
   )
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
+  const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
-  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
-  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
+  const isClipped = computedIsClipped(
+    parentCtx.clippingRect,
+    globalMatrix,
+    flexState.size,
+    properties.getSignal('pixelSize'),
+  )
+  const isVisible = computedIsVisible(flexState, isClipped, properties)
 
-  const backgroundGroupDeps = computedPanelGroupDependencies(mergedProperties)
+  const backgroundGroupDeps = computedPanelGroupDependencies(properties)
   const backgroundOrderInfo = computedOrderInfo(
-    mergedProperties,
+    properties,
     'zIndexOffset',
     ElementType.Panel,
     backgroundGroupDeps,
@@ -169,7 +134,8 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   const caretTransformation = signal<CaretTransformation | undefined>(undefined)
   const selectionRange = signal<Vector2Tuple | undefined>(undefined)
 
-  const fontSignal = computedFont(mergedProperties, fontFamilies, parentCtx.root.renderer)
+  const fontFamilies = computedFontFamilies(properties, parentCtx)
+  const fontSignal = computedFont(properties, fontFamilies, parentCtx.root.renderer)
   const orderInfo = computedOrderInfo(
     undefined,
     'zIndexOffset',
@@ -178,21 +144,15 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     backgroundOrderInfo,
   )
 
-  const defaultValue = style.peek()?.defaultValue ?? properties.peek()?.defaultValue
-  const writeValue =
-    style.peek()?.value == null && properties.peek()?.value == null ? signal(defaultValue ?? '') : undefined
+  const writeValue = signal<string | undefined>(undefined)
 
   const valueSignal = computed(
-    () => writeValue?.value ?? readReactive(style.value?.value) ?? readReactive(properties.value?.value) ?? '',
+    () => properties.get('value') ?? writeValue.value ?? properties.get('defaultValue') ?? '',
   )
 
-  const type = computedNonInheritableProperty<InputType>(style, properties, 'type', 'text')
   const displayValueSignal = computed(() =>
-    type.value === 'text' ? valueSignal.value : '*'.repeat(valueSignal.value.length ?? 0),
+    properties.get('type') === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value,
   )
-
-  const disabled = computedNonInheritableProperty(style, properties, 'disabled', false)
-  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
 
   const instancedTextRef: { current?: InstancedText } = {}
 
@@ -206,24 +166,20 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     selectionRange.value = [element.selectionStart ?? 0, element.selectionEnd ?? 0]
   }
 
-  const selectionHandlers = computedSelectionHandlers(type, valueSignal, flexState, instancedTextRef, focus, disabled)
-
-  const multiline = style.peek()?.multiline ?? properties.peek()?.multiline ?? false
+  const selectionHandlers = computedSelectionHandlers(properties, valueSignal, flexState, instancedTextRef, focus)
 
   const element = createHtmlInputElement(
     selectionRange,
     (newValue) => {
-      if (writeValue != null) {
+      if (properties.peek('value') == null) {
         writeValue.value = newValue
       }
-      style.peek()?.onValueChange?.(newValue)
-      properties.peek()?.onValueChange?.(newValue)
+      properties.peek('onValueChange')?.(newValue)
     },
     multiline,
   )
 
   return Object.assign(flexState, {
-    multiline,
     element,
     instancedTextRef,
     interactionPanel: createInteractionPanel(
@@ -236,7 +192,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     hoveredSignal,
     activeSignal,
     hasFocusSignal,
-    mergedProperties,
+    properties,
     transformMatrix,
     globalMatrix,
     isClipped,
@@ -250,20 +206,9 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     fontSignal,
     valueSignal,
     writeValue,
-    type,
     displayValueSignal,
-    disabled,
-    updateMatrixWorld,
     root: parentCtx.root,
-    handlers: computedHandlers(
-      style,
-      properties,
-      defaultProperties,
-      hoveredSignal,
-      activeSignal,
-      selectionHandlers,
-      'text',
-    ),
+    handlers: computedHandlers(properties, hoveredSignal, activeSignal, selectionHandlers, 'text'),
     focus,
     blur() {
       element.blur()
@@ -272,12 +217,9 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   })
 }
 
-export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
+export function setupInput(
   state: ReturnType<typeof createInputState>,
   parentCtx: ParentContext,
-  style: Signal<InputProperties<EM> | undefined>,
-  properties: Signal<InputProperties<EM> | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
   object: Object3D,
   abortSignal: AbortSignal,
 ) {
@@ -287,7 +229,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
   setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
 
   setupInstancedPanel(
-    state.mergedProperties,
+    state.properties,
     state.backgroundOrderInfo,
     state.backgroundGroupDeps,
     parentCtx.root.panelGroupManager,
@@ -302,7 +244,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
   )
 
   createCaret(
-    state.mergedProperties,
+    state.properties,
     state.globalMatrix,
     state.caretTransformation,
     state.isVisible,
@@ -314,7 +256,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
   )
 
   createSelection(
-    state.mergedProperties,
+    state.properties,
     state.globalMatrix,
     state.selectionTransformations,
     state.isVisible,
@@ -326,7 +268,7 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
   )
 
   const customLayouting = createInstancedText(
-    state.mergedProperties,
+    state.properties,
     state.displayValueSignal,
     state.globalMatrix,
     state.node,
@@ -340,17 +282,17 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
     state.selectionTransformations,
     state.caretTransformation,
     state.instancedTextRef,
-    state.multiline ? 'break-word' : 'keep-all',
     abortSignal,
   )
 
   abortableEffect(() => state.node.value?.setCustomLayouting(customLayouting.value), abortSignal)
 
-  setupInteractionPanel(state.interactionPanel, state.root, state.globalMatrix, state.size, abortSignal)
+  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
 
-  setupMatrixWorldUpdate(state.updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
+  const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
+  setupMatrixWorldUpdate(updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
   setupMatrixWorldUpdate(
-    state.updateMatrixWorld,
+    updateMatrixWorld,
     false,
     state.interactionPanel,
     state.root,
@@ -359,32 +301,23 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
     abortSignal,
   )
 
-  setupLayoutListeners(style, properties, state.size, abortSignal)
-  setupClippedListeners(style, properties, state.isClipped, abortSignal)
+  setupLayoutListeners(state.properties, state.size, abortSignal)
+  setupClippedListeners(state.properties, state.isClipped, abortSignal)
 
-  setupHtmlInputElement(
-    state.element,
-    state.valueSignal,
-    state.type,
-    state.disabled,
-    computedNonInheritableProperty(style, properties, 'tabIndex', 0),
-    computedNonInheritableProperty<AutoFill>(style, properties, 'autocomplete', ''),
-    abortSignal,
-  )
+  setupHtmlInputElement(state.properties, state.element, state.valueSignal, abortSignal)
 
   setupUpdateHasFocus(
     state.element,
     state.hasFocusSignal,
     (hasFocus) => {
-      properties.peek()?.onFocusChange?.(hasFocus)
-      style.peek()?.onFocusChange?.(hasFocus)
+      state.properties.peek('onFocusChange')?.(hasFocus)
     },
     abortSignal,
   )
 
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, state.handlers)
   setupPointerEvents(
-    state.mergedProperties,
+    state.properties,
     ancestorsHaveListeners,
     parentCtx.root,
     state.interactionPanel,
@@ -396,15 +329,14 @@ export function setupInput<EM extends ThreeEventMap = ThreeEventMap>(
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })
 
 export function computedSelectionHandlers(
-  type: Signal<InputType>,
+  properties: Properties<ThreeEventMap, AdditionalInputProperties, AdditionalInputDefaults>,
   text: ReadonlySignal<string>,
   flexState: FlexNodeState,
   instancedTextRef: { current?: InstancedText },
   focus: (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => void,
-  disabled: Signal<boolean>,
 ) {
   return computed<EventHandlers | undefined>(() => {
-    if (disabled.value) {
+    if (properties.get('disabled')) {
       return undefined
     }
     let dragState: { startCharIndex: number; pointerId: number } | undefined
@@ -437,7 +369,7 @@ export function computedSelectionHandlers(
           return
         }
         e.stopImmediatePropagation?.()
-        if (type.peek() === 'password') {
+        if (properties.peek('type') === 'password') {
           setTimeout(() => focus(0, text.peek().length, 'none'))
           return
         }
@@ -508,22 +440,20 @@ export function createHtmlInputElement(
 }
 
 function setupHtmlInputElement(
+  properties: Properties<ThreeEventMap, AdditionalInputProperties, AdditionalInputDefaults>,
   element: HTMLInputElement | HTMLTextAreaElement,
   value: Signal<string>,
-  type: Signal<InputType>,
-  disabled: Signal<boolean>,
-  tabIndex: Signal<number>,
-  autocomplete: Signal<AutoFill>,
   abortSignal: AbortSignal,
 ) {
   document.body.appendChild(element)
 
   abortSignal.addEventListener('abort', () => element.remove())
   abortableEffect(() => void (element.value = value.value), abortSignal)
-  abortableEffect(() => void (element.disabled = disabled.value), abortSignal)
-  abortableEffect(() => void (element.tabIndex = tabIndex.value), abortSignal)
-  abortableEffect(() => void (element.autocomplete = autocomplete.value), abortSignal)
-  abortableEffect(() => element.setAttribute('type', type.value), abortSignal)
+  abortableEffect(() => {
+    properties.get('html')
+    //TODO: apply properties
+  }, abortSignal)
+  abortableEffect(() => element.setAttribute('type', properties.get('type')), abortSignal)
 }
 
 function setupUpdateHasFocus(

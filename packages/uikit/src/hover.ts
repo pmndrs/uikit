@@ -1,15 +1,8 @@
 import { Signal } from '@preact/signals-core'
-import { createConditionalPropertyTranslator } from './utils.js'
-import { PropertyTransformers } from './properties/merged.js'
 import { EventHandlers } from './events.js'
 import { addHandler } from './components/index.js'
-import { AllOptionalProperties, traverseProperties } from './properties/index.js'
+import { Properties } from './properties/index.js'
 
-export type WithHover<T> = T & {
-  cursor?: string
-  hover?: T
-  onHoverChange?: (hover: boolean) => void
-}
 export type HoverEventHandlers = Pick<EventHandlers, 'onPointerOver' | 'onPointerOut'>
 
 export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, abortSignal: AbortSignal) {
@@ -17,32 +10,27 @@ export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, abortSi
   abortSignal.addEventListener('abort', () => unsetCursorType(hoveredSignal))
 }
 
+/**
+ * must be executed inside effect/computed
+ */
 export function addHoverHandlers(
   target: EventHandlers,
-  style: WithHover<{}> | undefined,
-  properties: WithHover<{}> | undefined,
-  defaultProperties: AllOptionalProperties | undefined,
+  properties: Properties,
   hoveredSignal: Signal<Array<number>>,
+  hasHoverConditionalProperties: Signal<boolean>,
   defaultCursor?: string,
 ): void {
-  let hoverPropertiesExist = false
-  traverseProperties(style, properties, defaultProperties, (p) => {
-    if ('hover' in p) {
-      hoverPropertiesExist = true
-    }
-  })
-
-  const cursor = style?.cursor ?? properties?.cursor ?? defaultCursor
-  if (!hoverPropertiesExist && style?.onHoverChange == null && properties?.onHoverChange == null && cursor == null) {
-    //no need to listen to hover
+  const cursor = properties.get('cursor') ?? defaultCursor
+  const onHoverChange = properties.get('onHoverChange')
+  if (!hasHoverConditionalProperties.value && onHoverChange == null && cursor == null) {
+    //no need to trigger a "push" by writing to .value because nobody should listen to hoveredSignal anyways
     hoveredSignal.value.length = 0
     return
   }
   addHandler('onPointerOver', target, ({ pointerId }) => {
     hoveredSignal.value = [pointerId, ...hoveredSignal.value]
     if (hoveredSignal.value.length === 1) {
-      properties?.onHoverChange?.(true)
-      style?.onHoverChange?.(true)
+      onHoverChange?.(true)
     }
     if (cursor != null) {
       setCursorType(hoveredSignal, cursor)
@@ -51,17 +39,10 @@ export function addHoverHandlers(
   addHandler('onPointerOut', target, ({ pointerId }) => {
     hoveredSignal.value = hoveredSignal.value.filter((id) => id != pointerId)
     if (hoveredSignal.value.length === 0) {
-      properties?.onHoverChange?.(false)
-      style?.onHoverChange?.(false)
+      onHoverChange?.(false)
     }
     unsetCursorType(hoveredSignal)
   })
-}
-
-export function createHoverPropertyTransformers(hoveredSignal: Signal<Array<number>>): PropertyTransformers {
-  return {
-    hover: createConditionalPropertyTranslator(() => hoveredSignal.value.length > 0),
-  }
 }
 
 const cursorRefStack: Array<unknown> = []

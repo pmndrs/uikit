@@ -1,18 +1,10 @@
 import { Signal, computed, signal } from '@preact/signals-core'
 import { ParentContext, RootContext } from '../context.js'
-import { FlexNode, YogaProperties, createFlexNodeState } from '../flex/index.js'
-import { LayoutListeners, ScrollListeners, setupLayoutListeners } from '../listeners.js'
-import { PanelProperties, setupInstancedPanel } from '../panel/instanced-panel.js'
+import { FlexNode, createFlexNodeState } from '../flex/index.js'
+import { setupLayoutListeners } from '../listeners.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { PanelGroupManager, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import {
-  PanelGroupManager,
-  PanelGroupProperties,
-  computedPanelGroupDependencies,
-} from '../panel/instanced-panel-group.js'
-import { WithAllAliases } from '../properties/alias.js'
-import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
-import { MergedProperties, PropertyTransformers } from '../properties/merged.js'
-import {
-  ScrollbarProperties,
   createScrollPosition,
   setupScrollbars,
   computedScrollHandlers,
@@ -20,16 +12,11 @@ import {
   setupScroll,
   computedGlobalScrollMatrix,
 } from '../scroll.js'
-import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
 import { alignmentXMap, alignmentYMap, readReactive } from '../utils.js'
 import {
-  UpdateMatrixWorldProperties,
-  VisibilityProperties,
-  WithConditionals,
-  computeDefaultProperties,
   computedHandlers,
   computedIsVisible,
-  computedMergedProperties,
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
@@ -39,52 +26,19 @@ import { computedClippingRect } from '../clipping.js'
 import { ElementType, WithReversePainterSortStableCache, computedOrderInfo } from '../order.js'
 import { Camera, Matrix4, Object3D, Plane, Vector2Tuple, Vector3, WebGLRenderer } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
-import { createActivePropertyTransfomers } from '../active.js'
-import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { createResponsivePropertyTransformers } from '../responsive.js'
-import { darkPropertyTransformers } from '../dark.js'
-import { computedInheritableProperty } from '../properties/index.js'
-import { getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
-import { EventHandlers, ThreeEventMap } from '../events.js'
+import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { ThreeEventMap } from '../events.js'
+import { AllProperties, Properties } from '../properties/index.js'
+import { allAliases } from '../properties/alias.js'
+import { createConditionals } from '../properties/conditional.js'
+import { setupCursorCleanup } from '../hover.js'
+import { computedFontFamilies } from '../text/font.js'
 
-export type InheritableRootProperties = WithClasses<
-  WithConditionals<
-    WithAllAliases<
-      WithReactive<
-        YogaProperties &
-          TransformProperties &
-          PanelProperties &
-          ScrollbarProperties &
-          PanelGroupProperties & {
-            sizeX?: number
-            sizeY?: number
-            anchorX?: keyof typeof alignmentXMap
-            anchorY?: keyof typeof alignmentYMap
-          } & VisibilityProperties &
-          UpdateMatrixWorldProperties &
-          PointerEventsProperties
-      >
-    >
-  >
->
-
-export type RootProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableRootProperties &
-  LayoutListeners &
-  ScrollListeners &
-  EventHandlers<EM>
-
-export const DEFAULT_PIXEL_SIZE = 0.01
-
-const vectorHelper = new Vector3()
-const planeHelper = new Plane()
+export type RootProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
 export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
   objectRef: { current?: Object3D | null },
-  pixelSize: Signal<number>,
-  style: Signal<RootProperties<EM> | undefined>,
-  properties: Signal<RootProperties<EM> | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
   getCamera: () => Camera,
   renderer: WebGLRenderer,
   onFrameSet: Set<(delta: number) => void>,
@@ -97,42 +51,28 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const flexState = createFlexNodeState()
 
-  const mergedProperties = computedMergedProperties(
-    style,
-    properties,
-    defaultProperties,
-    {
-      ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(flexState.size),
-      ...createHoverPropertyTransformers(hoveredSignal),
-      ...createActivePropertyTransfomers(activeSignal),
-    },
-    {
-      ...createSizeTranslator(pixelSize, 'sizeX', 'width'),
-      ...createSizeTranslator(pixelSize, 'sizeY', 'height'),
-    },
+  const properties = new Properties<EM, {}, {}>(
+    allAliases,
+    createConditionals(flexState.size, hoveredSignal, activeSignal),
+    undefined,
+    {},
   )
 
-  const ctx: WithReversePainterSortStableCache &
-    Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'> = {
+  const ctx: WithReversePainterSortStableCache & Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet'> = {
     onFrameSet,
     requestRender,
     requestFrame,
-    pixelSize,
   }
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, pixelSize)
-  const globalMatrix = computedRootMatrix(mergedProperties, transformMatrix, flexState.size, pixelSize)
+  const transformMatrix = computedTransformMatrix(properties, flexState)
+  const globalMatrix = computedRootMatrix(properties, transformMatrix, flexState.size)
 
-  const groupDeps = computedPanelGroupDependencies(mergedProperties)
+  const groupDeps = computedPanelGroupDependencies(properties)
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, groupDeps, undefined)
 
-  const isVisible = computedIsVisible(flexState, undefined, mergedProperties)
+  const isVisible = computedIsVisible(flexState, undefined, properties)
   const scrollPosition = createScrollPosition()
-  const childrenMatrix = computedGlobalScrollMatrix(scrollPosition, globalMatrix, pixelSize)
-  const scrollbarWidth = computedInheritableProperty(mergedProperties, 'scrollbarWidth', 10)
-
-  const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
+  const childrenMatrix = computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix)
 
   const root = Object.assign(ctx, {
     objectInvertedWorldMatrix: new Matrix4(),
@@ -154,7 +94,7 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
     anyAncestorScrollable: signal<[boolean, boolean]>([false, false]),
     hoveredSignal,
     activeSignal,
-    mergedProperties,
+    properties,
     transformMatrix,
     globalMatrix,
     groupDeps,
@@ -162,29 +102,26 @@ export function createRootState<EM extends ThreeEventMap = ThreeEventMap>(
     isVisible,
     scrollPosition,
     childrenMatrix,
-    scrollbarWidth,
-    updateMatrixWorld,
-    defaultProperties: computeDefaultProperties(mergedProperties),
     renderer,
     getCamera,
   })
 
-  const scrollHandlers = computedScrollHandlers(componentState, properties, objectRef)
+  const scrollHandlers = computedScrollHandlers(componentState, objectRef)
 
-  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal, scrollHandlers)
+  const handlers = computedHandlers(properties, hoveredSignal, activeSignal, scrollHandlers)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(undefined, handlers)
 
   return Object.assign(componentState, {
-    clippingRect: computedClippingRect(globalMatrix, componentState, ctx.pixelSize, undefined),
+    properties,
+    clippingRect: computedClippingRect(globalMatrix, componentState, properties.getSignal('pixelSize'), undefined),
     handlers,
     ancestorsHaveListeners,
+    fontFamilies: computedFontFamilies(properties, undefined),
   }) satisfies ParentContext
 }
 
 export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
   state: ReturnType<typeof createRootState>,
-  style: Signal<RootProperties<EM> | undefined>,
-  properties: Signal<RootProperties<EM> | undefined>,
   object: Object3D,
   childrenContainer: Object3D,
   abortSignal: AbortSignal,
@@ -206,7 +143,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
   abortSignal.addEventListener('abort', () => state.root.onFrameSet.delete(onFrame))
 
   setupInstancedPanel(
-    state.mergedProperties,
+    state.properties,
     state.orderInfo,
     state.groupDeps,
     state.root.panelGroupManager,
@@ -220,9 +157,9 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
     abortSignal,
   )
 
-  setupScroll(state, properties, state.root.pixelSize, childrenContainer, abortSignal)
+  setupScroll(state, childrenContainer, abortSignal)
   setupScrollbars(
-    state.mergedProperties,
+    state.properties,
     state.scrollPosition,
     state,
     state.globalMatrix,
@@ -231,13 +168,12 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
     state.orderInfo,
     state.groupDeps,
     state.root.panelGroupManager,
-    state.scrollbarWidth,
     abortSignal,
   )
 
-  setupLayoutListeners(style, properties, state.size, abortSignal)
+  setupLayoutListeners(state.properties, state.size, abortSignal)
 
-  setupInteractionPanel(state.interactionPanel, state.root, state.globalMatrix, state.size, abortSignal)
+  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
 
   childrenContainer.updateMatrixWorld = function () {
     if (this.parent == null) {
@@ -251,7 +187,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
   }
 
   setupMatrixWorldUpdate(
-    state.updateMatrixWorld,
+    state.properties.getSignal('updateMatrixWorld'),
     false,
     state.interactionPanel,
     state.root,
@@ -260,7 +196,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
     abortSignal,
   )
   setupPointerEvents(
-    state.mergedProperties,
+    state.properties,
     state.ancestorsHaveListeners,
     state.root,
     state.interactionPanel,
@@ -290,51 +226,25 @@ function createDeferredRequestLayoutCalculation(
   }
 }
 
-function createSizeTranslator(pixelSize: Signal<number>, key: 'sizeX' | 'sizeY', to: string): PropertyTransformers {
-  const map = new Map<unknown, Signal<number | undefined>>()
-  return {
-    [key]: (value: unknown, target: MergedProperties) => {
-      let entry = map.get(value)
-      if (entry == null) {
-        map.set(
-          value,
-          (entry = computed(() => {
-            const s = readReactive(value) as number | undefined
-            if (s == null) {
-              return undefined
-            }
-            return s / pixelSize.value
-          })),
-        )
-      }
-      target.add(to, entry)
-    },
-  }
-}
 const matrixHelper = new Matrix4()
 
-const defaultAnchorX: keyof typeof alignmentXMap = 'center'
-const defaultAnchorY: keyof typeof alignmentYMap = 'center'
-
 function computedRootMatrix(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   matrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple | undefined>,
-  pixelSize: Signal<number>,
 ) {
-  const anchorX = computedInheritableProperty(propertiesSignal, 'anchorX', defaultAnchorX)
-  const anchorY = computedInheritableProperty(propertiesSignal, 'anchorY', defaultAnchorY)
   return computed(() => {
     if (size.value == null) {
       return undefined
     }
     const [width, height] = size.value
+    const pixelSize = properties.get('pixelSize')
     return matrix.value
       ?.clone()
       .premultiply(
         matrixHelper.makeTranslation(
-          alignmentXMap[anchorX.value] * width * pixelSize.value,
-          alignmentYMap[anchorY.value] * height * pixelSize.value,
+          alignmentXMap[properties.get('anchorX')] * width * pixelSize,
+          alignmentYMap[properties.get('anchorY')] * height * pixelSize,
           0,
         ),
       )

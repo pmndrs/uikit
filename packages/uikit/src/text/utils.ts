@@ -20,7 +20,7 @@ function lineHeightToAbsolute(lineHeight: GlyphLayoutProperties['lineHeight'], f
   if (result == null) {
     throw new Error(`invalid line height "${lineHeight}"`)
   }
-  return (fontSize * parseFloat(result[1])) / 100
+  return (fontSize * parseFloat(result[1]!)) / 100
 }
 
 export function getGlyphOffsetY(

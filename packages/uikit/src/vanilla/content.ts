@@ -1,28 +1,28 @@
 import { Object3D, Object3DEventMap } from 'three'
-import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { ContentProperties, setupContent, createContentState } from '../components/index.js'
-import { MergedProperties } from '../properties/index.js'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
+import { Signal, effect, signal, untracked } from '@preact/signals-core'
+import {
+  setupContent,
+  createContentState,
+  ContentProperties,
+  AdditionalContentProperties,
+} from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
+import { ParentContext } from '../context.js'
+import { Layers } from '../properties/layers.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly contentContainer: Object3D
-  private readonly styleSignal: Signal<ContentProperties<EM> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<ContentProperties<EM> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createContentState>
 
-  constructor(properties?: ContentProperties<EM>, defaultProperties?: AllOptionalProperties) {
+  constructor(private properties?: ContentProperties<EM>) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
     //setting up the threejs elements
     this.contentContainer = new Object3D()
     this.contentContainer.matrixAutoUpdate = false
@@ -34,26 +34,12 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
         return
       }
       const abortController = new AbortController()
-      const state = createContentState(
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-        { current: this.contentContainer },
-      )
+      const state = createContentState(parentContext, { current: this.contentContainer })
+      state.properties.setLayer(Layers.Imperative, this.properties)
       this.internals = state
-      this.mergedProperties = state.mergedProperties
 
       //setup content with state
-      setupContent(
-        state,
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this,
-        this.contentContainer,
-        abortController.signal,
-      )
+      setupContent(state, parentContext, this, this.contentContainer, abortController.signal)
 
       //setup events
       super.add(this.internals.interactionPanel)
@@ -72,7 +58,7 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
   add(...objects: Object3D<Object3DEventMap>[]): this {
     const objectsLength = objects.length
     for (let i = 0; i < objectsLength; i++) {
-      const object = objects[i]
+      const object = objects[i]!
       this.contentContainer.add(object)
     }
     return this
@@ -81,33 +67,23 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
   remove(...objects: Array<Object3D>): this {
     const objectsLength = objects.length
     for (let i = 0; i < objectsLength; i++) {
-      const object = objects[i]
+      const object = objects[i]!
       this.contentContainer.remove(object)
     }
     return this
   }
 
-  getComputedProperty<K extends keyof ContentProperties<EM>>(key: K): ContentProperties<EM>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys | keyof AdditionalContentProperties>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<ContentProperties<EM>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: ContentProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: ContentProperties<EM> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: ContentProperties<EM>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
   }

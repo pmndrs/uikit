@@ -15,25 +15,27 @@ import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLay
 import { SelectionTransformation } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
-import { MergedProperties, computedInheritableProperty } from '../../properties/index.js'
 import { FlexNode, FlexNodeState } from '../../flex/index.js'
 import { CaretTransformation } from '../../caret.js'
+import { Properties } from '../../properties/index.js'
+import { ThreeEventMap } from '../../events.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'block'
+}
+
+export type AdditionalTextProperties = {
   verticalAlign?: keyof typeof alignmentYMap
 }
 
-export type TextAppearanceProperties = {
-  color?: ColorRepresentation
-  opacity?: number
-}
+export const additionalTextDefaults = {
+  verticalAlign: 'middle',
+} as const
 
-const defaultVerticalAlign: keyof typeof alignmentYMap = 'middle'
-const defaulttextAlign: keyof typeof alignmentXMap | 'block' = 'left'
+export type AdditionalTextDefaults = typeof additionalTextDefaults
 
 export function createInstancedText(
-  properties: Signal<MergedProperties>,
+  properties: Properties<ThreeEventMap, AdditionalTextProperties, AdditionalTextDefaults>,
   textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
   matrix: Signal<Matrix4 | undefined>,
   node: Signal<FlexNode | undefined>,
@@ -47,22 +49,11 @@ export function createInstancedText(
   selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
   caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
-  defaultWordBreak: GlyphLayoutProperties['wordBreak'],
   abortSignal: AbortSignal,
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
-  const customLayouting = computedCustomLayouting(
-    properties,
-    fontSignal,
-    textSignal,
-    layoutPropertiesRef,
-    defaultWordBreak,
-  )
-  const verticalAlign = computedInheritableProperty(properties, 'verticalAlign', defaultVerticalAlign)
-  const textAlign = computedInheritableProperty(properties, 'textAlign', defaulttextAlign)
-  const color = computedInheritableProperty(properties, 'color', 0x0)
-  const opacity = computedInheritableProperty(properties, 'opacity', 1)
+  const customLayouting = computedCustomLayouting(properties, fontSignal, textSignal, layoutPropertiesRef)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
   abortableEffect(
@@ -94,15 +85,12 @@ export function createInstancedText(
     const instancedText = new InstancedText(
       glyphGroupManager.getGroup(
         orderInfo.value.majorIndex,
-        properties.value.read('depthTest', true),
-        properties.value.read('depthWrite', false),
-        properties.value.read('renderOrder', 0),
+        properties.get('depthTest'),
+        properties.get('depthWrite'),
+        properties.get('renderOrder'),
         font,
       ),
-      textAlign,
-      verticalAlign,
-      color,
-      opacity,
+      properties,
       layoutSignal,
       matrix,
       isVisible,
@@ -132,10 +120,7 @@ export class InstancedText {
 
   constructor(
     private group: InstancedGlyphGroup,
-    private textAlign: Signal<keyof typeof alignmentXMap | 'block'>,
-    private verticalAlign: Signal<keyof typeof alignmentYMap>,
-    private color: Signal<ColorRepresentation>,
-    private opacity: Signal<number>,
+    private properties: Properties<ThreeEventMap, AdditionalTextProperties, AdditionalTextDefaults>,
     private layoutSignal: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
     isVisible: Signal<boolean>,
@@ -146,14 +131,19 @@ export class InstancedText {
   ) {
     this.unsubscribeInitialList = [
       effect(() => {
-        if (!isVisible.value || opacity.value < 0.01) {
+        if (!isVisible.value || this.properties.get('opacity') < 0.01) {
           this.hide()
           return
         }
         this.show()
       }),
       effect(() =>
-        this.updateSelectionBoxes(this.lastLayout, selectionRange?.value, verticalAlign.peek(), textAlign.peek()),
+        this.updateSelectionBoxes(
+          this.lastLayout,
+          selectionRange?.value,
+          properties.peek('verticalAlign'),
+          properties.peek('textAlign'),
+        ),
       ),
     ]
   }
@@ -163,23 +153,23 @@ export class InstancedText {
     if (layout == null) {
       return 0
     }
-    y -= -getYOffset(layout, this.verticalAlign.peek())
+    y -= -getYOffset(layout, this.properties.peek('verticalAlign'))
     const lineIndex = Math.floor(y / -getOffsetToNextLine(layout.lineHeight, layout.fontSize))
     const lines = layout.lines
     if (lineIndex < 0 || lines.length === 0) {
       return 0
     }
     if (lineIndex >= lines.length) {
-      const lastLine = lines[lines.length - 1]
+      const lastLine = lines[lines.length - 1]!
       return lastLine.charIndexOffset + lastLine.charLength + 1
     }
 
-    const line = lines[lineIndex]
+    const line = lines[lineIndex]!
     const whitespaceWidth = layout.font.getGlyphInfo(' ').xadvance * layout.fontSize
-    const glyphs = this.glyphLines[lineIndex]
+    const glyphs = this.glyphLines[lineIndex]!
     let glyphsLength = glyphs.length
     for (let i = 0; i < glyphsLength; i++) {
-      const entry = glyphs[i]
+      const entry = glyphs[i]!
       if (x < this.getGlyphX(entry, position === 'between' ? 0.5 : 1, whitespaceWidth) + layout.availableWidth / 2) {
         return i + line.charIndexOffset
       }
@@ -246,12 +236,12 @@ export class InstancedText {
     verticalAlign: keyof typeof alignmentYMap,
     whitespaceWidth: number,
   ): SelectionTransformation {
-    const lineGlyphs = this.glyphLines[lineIndex]
+    const lineGlyphs = this.glyphLines[lineIndex]!
     if (startX == null) {
-      startX = this.getGlyphX(lineGlyphs[0], 0, whitespaceWidth)
+      startX = this.getGlyphX(lineGlyphs[0]!, 0, whitespaceWidth)
     }
     if (endX == null) {
-      endX = this.getGlyphX(lineGlyphs[lineGlyphs.length - 1], 1, whitespaceWidth)
+      endX = this.getGlyphX(lineGlyphs[lineGlyphs.length - 1]!, 1, whitespaceWidth)
     }
     const height = getOffsetToNextLine(layout.lineHeight, layout.fontSize)
     const y = -(getYOffset(layout, verticalAlign) - layout.availableHeight / 2 + lineIndex * height)
@@ -267,25 +257,25 @@ export class InstancedText {
     textAlign: keyof typeof alignmentXMap | 'block',
   ): { lineIndex: number; x: number } {
     const linesLength = lines.length
-    if (charIndex >= lines[0].charIndexOffset) {
+    if (charIndex >= lines[0]!.charIndexOffset) {
       for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
-        const line = lines[lineIndex]
+        const line = lines[lineIndex]!
         if (charIndex >= line.charIndexOffset + line.charLength) {
           continue
         }
         //line found
-        const glyphEntry = this.glyphLines[lineIndex][Math.max(charIndex - line.charIndexOffset, 0)]
+        const glyphEntry = this.glyphLines[lineIndex]![Math.max(charIndex - line.charIndexOffset, 0)]!
         return { lineIndex, x: this.getGlyphX(glyphEntry, start ? 0 : 1, whitespaceWidth) }
       }
     }
-    const lastLine = lines[linesLength - 1]
+    const lastLine = lines[linesLength - 1]!
     if (lastLine.charLength === 0 || charIndex < lastLine.charIndexOffset) {
       return {
         lineIndex: linesLength - 1,
         x: getXOffset(availableWidth, lastLine.nonWhitespaceWidth, textAlign) - availableWidth / 2,
       }
     }
-    const lastGlyphEntry = this.glyphLines[linesLength - 1][lastLine.charLength - 1]
+    const lastGlyphEntry = this.glyphLines[linesLength - 1]![lastLine.charLength - 1]!
     return { lineIndex: linesLength - 1, x: this.getGlyphX(lastGlyphEntry, 1, whitespaceWidth) }
   }
 
@@ -314,11 +304,11 @@ export class InstancedText {
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateClippingRect(clippingRect))
       }),
       effect(() => {
-        const color = this.color.value
-        traverseGlyphs(this.glyphLines, (glyph) => glyph.updateColor(color))
+        const color = this.properties.get('color')
+        traverseGlyphs(this.glyphLines, (glyph) => glyph.updateColor(color ?? 0))
       }),
       effect(() => {
-        const opacity = this.opacity.value
+        const opacity = this.properties.get('opacity')
         traverseGlyphs(this.glyphLines, (glyph) => glyph.updateOpacity(opacity))
       }),
       effect(() => {
@@ -328,10 +318,10 @@ export class InstancedText {
         }
         const { text, font, lines, letterSpacing = 0, fontSize = 16, lineHeight = 1.2, availableWidth } = layout
 
-        let y = getYOffset(layout, this.verticalAlign.value) - layout.availableHeight / 2
+        let y = getYOffset(layout, this.properties.get('verticalAlign')) - layout.availableHeight / 2
 
         const linesLength = lines.length
-        const pixelSize = this.group.root.pixelSize.value
+        const pixelSize = this.properties.get('pixelSize')
         for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
           if (lineIndex === this.glyphLines.length) {
             this.glyphLines.push([])
@@ -343,14 +333,15 @@ export class InstancedText {
             charIndexOffset: firstNonWhitespaceCharIndex,
             nonWhitespaceCharLength,
             charLength,
-          } = lines[lineIndex]
+          } = lines[lineIndex]!
 
+          const textAlign = this.properties.get('textAlign')
           let offsetPerWhitespace =
-            this.textAlign.value === 'block' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
-          let x = getXOffset(availableWidth, nonWhitespaceWidth, this.textAlign.value) - availableWidth / 2
+            textAlign === 'block' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
+          let x = getXOffset(availableWidth, nonWhitespaceWidth, textAlign) - availableWidth / 2
 
           let prevGlyphId: number | undefined
-          const glyphs = this.glyphLines[lineIndex]
+          const glyphs = this.glyphLines[lineIndex]!
 
           for (
             let charIndex = firstNonWhitespaceCharIndex;
@@ -358,7 +349,7 @@ export class InstancedText {
             charIndex++
           ) {
             const glyphIndex = charIndex - firstNonWhitespaceCharIndex
-            const char = text[charIndex]
+            const char = text[charIndex]!
             const glyphInfo = font.getGlyphInfo(char)
             if (char === ' ' || charIndex > nonWhitespaceCharLength + firstNonWhitespaceCharIndex) {
               prevGlyphId = glyphInfo.id
@@ -385,8 +376,8 @@ export class InstancedText {
               glyphs[glyphIndex] = glyph = new InstancedGlyph(
                 this.group,
                 this.matrix.peek(),
-                this.color.peek(),
-                this.opacity.peek(),
+                this.properties.peek('color') ?? 0,
+                this.properties.peek('opacity'),
                 this.parentClippingRect?.peek(),
               )
             }
@@ -408,7 +399,7 @@ export class InstancedText {
           const glyphsLength = glyphs.length
           const newGlyphsLength = charLength
           for (let ii = newGlyphsLength; ii < glyphsLength; ii++) {
-            const glyph = glyphs[ii]
+            const glyph = glyphs[ii]!
             if (typeof glyph === 'number') {
               continue
             }
@@ -420,7 +411,12 @@ export class InstancedText {
         traverseGlyphs(this.glyphLines, (glyph) => glyph.hide(), linesLength)
         this.glyphLines.length = linesLength
         this.lastLayout = layout
-        this.updateSelectionBoxes(layout, this.selectionRange?.peek(), this.verticalAlign.value, this.textAlign.value)
+        this.updateSelectionBoxes(
+          layout,
+          this.selectionRange?.peek(),
+          this.properties.get('verticalAlign'),
+          this.properties.get('textAlign'),
+        )
       }),
     )
   }
@@ -431,7 +427,7 @@ export class InstancedText {
       return
     }
     for (let i = 0; i < unsubscribeListLength; i++) {
-      this.unsubscribeShowList[i]()
+      this.unsubscribeShowList[i]!()
     }
     this.unsubscribeShowList.length = 0
     traverseGlyphs(this.glyphLines, (glyph) => glyph.hide())
@@ -442,7 +438,7 @@ export class InstancedText {
     this.glyphLines.length = 0
     const length = this.unsubscribeInitialList.length
     for (let i = 0; i < length; i++) {
-      this.unsubscribeInitialList[i]()
+      this.unsubscribeInitialList[i]!()
     }
   }
 }
@@ -481,10 +477,10 @@ function traverseGlyphs(
 ): void {
   const glyphLinesLength = glyphLines.length
   for (let i = offset; i < glyphLinesLength; i++) {
-    const glyphs = glyphLines[i]
+    const glyphs = glyphLines[i]!
     const glyphsLength = glyphs.length
     for (let ii = 0; ii < glyphsLength; ii++) {
-      const glyph = glyphs[ii]
+      const glyph = glyphs[ii]!
       if (typeof glyph == 'number') {
         continue
       }

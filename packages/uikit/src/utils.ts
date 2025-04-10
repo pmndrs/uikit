@@ -1,8 +1,7 @@
 import { computed, effect, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple, Vector3 } from 'three'
 import { Inset } from './flex/node.js'
-import { MergedProperties } from './properties/merged.js'
-import { computedInheritableProperty } from './properties/index.js'
+import { Properties } from './properties/index.js'
 
 export const percentageRegex = /(-?\d+(?:\.\d+)?)%/
 
@@ -58,30 +57,6 @@ export function readReactive<T>(value: T | Signal<T>): T {
   return value instanceof Signal ? value.value : value
 }
 
-export function createConditionalPropertyTranslator(condition: () => boolean) {
-  const signalMap = new Map<unknown, Signal<unknown>>()
-  return (properties: unknown, merged: MergedProperties) => {
-    if (typeof properties != 'object') {
-      throw new Error(`Invalid properties "${properties}"`)
-    }
-    for (const key in properties) {
-      const value = properties[key as never]
-      if (value === undefined) {
-        return
-      }
-      let result = signalMap.get(value)
-      if (result == null) {
-        signalMap.set(value, (result = computed(() => (condition() ? readReactive(value) : undefined))))
-      }
-      merged.add(key, result)
-    }
-  }
-}
-
-export function computedBorderInset(
-  propertiesSignal: Signal<MergedProperties>,
-  keys: ReadonlyArray<string>,
-): Signal<Inset> {
-  const sizes = keys.map((key) => computedInheritableProperty(propertiesSignal, key, 0))
-  return computed(() => sizes.map((size) => size.value) as Inset)
+export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {
+  return computed(() => keys.map((key) => properties.get(key as any) ?? 0) as Inset)
 }

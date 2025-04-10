@@ -1,26 +1,21 @@
-import { AllOptionalProperties } from '../properties/default.js'
-import { Parent, createParentContextSignal, bindHandlers, setupParentContextSignal } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { SvgProperties, createSvgState, setupSvg } from '../components/index.js'
-import { MergedProperties } from '../properties/index.js'
+import { Parent, bindHandlers, setupParentContextSignal } from './utils.js'
+import { Signal, effect, signal } from '@preact/signals-core'
+import { AdditionalSvgProperties, createSvgState, setupSvg, SvgProperties } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
+import { ParentContext } from '../context.js'
+import { Layers } from '../properties/layers.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
-  private readonly styleSignal: Signal<SvgProperties<EM> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<SvgProperties<EM> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createSvgState>
 
-  constructor(properties?: SvgProperties<EM>, defaultProperties?: AllOptionalProperties) {
+  constructor(private properties?: SvgProperties<EM>) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
 
     this.unsubscribe = effect(() => {
       const parentContext = this.parentContextSignal.value?.value
@@ -29,24 +24,10 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Paren
         return
       }
       const abortController = new AbortController()
-      this.internals = createSvgState(
-        parentContext,
-        { current: this },
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-      )
-      setupSvg(
-        this.internals,
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this,
-        this.childrenContainer,
-        abortController.signal,
-      )
-      this.mergedProperties = this.internals.mergedProperties
-      this.contextSignal.value = Object.assign(this.internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
+      this.internals = createSvgState(parentContext, { current: this })
+      setupSvg(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
+      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.contextSignal.value = this.internals
 
       super.add(this.internals.interactionPanel)
       super.add(this.internals.centerGroup)
@@ -59,27 +40,17 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Paren
     })
   }
 
-  getComputedProperty<K extends keyof SvgProperties<EM>>(key: K): SvgProperties<EM>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys | keyof AdditionalSvgProperties>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<SvgProperties<EM>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: SvgProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: SvgProperties<EM> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: SvgProperties<EM>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
   }

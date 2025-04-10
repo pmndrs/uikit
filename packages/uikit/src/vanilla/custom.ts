@@ -1,29 +1,25 @@
 import { Mesh, MeshBasicMaterial } from 'three'
-import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { CustomContainerProperties, createCustomContainerState, setupCustomContainer } from '../components/index.js'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
+import { Signal, effect, signal } from '@preact/signals-core'
+import { createCustomContainerState, CustomContainerProperties, setupCustomContainer } from '../components/index.js'
 import { panelGeometry } from '../panel/index.js'
-import { MergedProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
+import { ParentContext } from '../context.js'
+import { Layers } from '../properties/layers.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly styleSignal: Signal<CustomContainerProperties<EM> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<CustomContainerProperties<EM> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
   private readonly material = new MeshBasicMaterial()
 
   public internals!: ReturnType<typeof createCustomContainerState>
 
-  constructor(properties?: CustomContainerProperties<EM>, defaultProperties?: AllOptionalProperties) {
+  constructor(private properties?: CustomContainerProperties<EM>) {
     super()
     //TODO make the container the mesh
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
 
     const mesh = new Mesh(panelGeometry, this.material)
     super.add(mesh)
@@ -34,22 +30,10 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
         return
       }
       const abortController = new AbortController()
-      this.internals = createCustomContainerState(
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-      )
+      this.internals = createCustomContainerState(parentContext)
+      this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupCustomContainer(
-        this.internals,
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this,
-        mesh,
-        abortController.signal,
-      )
+      setupCustomContainer(this.internals, parentContext, this, mesh, abortController.signal)
 
       //setup events
       bindHandlers(this.internals.handlers, this, abortController.signal)
@@ -60,29 +44,17 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
     })
   }
 
-  getComputedProperty<K extends keyof CustomContainerProperties<EM>>(
-    key: K,
-  ): CustomContainerProperties<EM>[K] | undefined {
-    return untracked(() => this.internals.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<CustomContainerProperties<EM>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: CustomContainerProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: CustomContainerProperties<EM> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: CustomContainerProperties<EM>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
     this.material.dispose()

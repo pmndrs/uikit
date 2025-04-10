@@ -2,8 +2,8 @@ import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2T
 import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
+import { clamp } from 'three/src/math/MathUtils.js'
 import {
-  abortableEffect,
   computeMatrixWorld,
   createContainerState,
   createContentState,
@@ -14,9 +14,9 @@ import {
   createRootState,
   createSvgState,
   createTextState,
-  FlexNodeState,
-} from '../internals.js'
-import { clamp } from 'three/src/math/MathUtils.js'
+} from '../components/index.js'
+import { FlexNodeState } from '../flex/node.js'
+import { abortableEffect } from '../utils.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -175,7 +175,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
     const clippingPlanes = clippingRect?.peek()?.planes
     const rootMatrixWorld = rootObject.current.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
-      const intersection = intersects[i]
+      const intersection = intersects[i]!
       intersection.distance -=
         orderInfo.majorIndex * 0.01 +
         orderInfo.elementType * 0.001 + //1-10
@@ -184,7 +184,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
         continue
       }
       for (let ii = 0; ii < 4; ii++) {
-        planeHelper.copy(clippingPlanes[ii]).applyMatrix4(rootMatrixWorld)
+        planeHelper.copy(clippingPlanes[ii]!).applyMatrix4(rootMatrixWorld)
         if (planeHelper.distanceToPoint(intersection.point) < 0) {
           intersects.splice(i, 1)
           continue outer

@@ -1,53 +1,50 @@
-import { EventHandlers, ThreeEventMap } from '../events.js'
-import { ImageProperties } from './image.js'
+/*import { ThreeEventMap } from '../events.js'
+import { AllProperties, Properties } from '../properties/index.js'
+import { abortableEffect } from '../utils.js'
+import type { createImageState, ImageFit } from './image.js'
 
-export type VideoProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<ImageProperties<EM>, 'src'> &
-  InternalVideoProperties
+export type VideoProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalVideoProperties>
 
-type InternalVideoProperties = {
-  /**
-   * when a HtmlVideoElement is provided to src, properties like `volume`, ... are not applied
-   */
-  src?: string | MediaStream | HTMLVideoElement
-  volume?: number
-  preservesPitch?: boolean
-  playbackRate?: number
-  muted?: boolean
-  loop?: boolean
-  autoplay?: boolean
-  crossOrigin?: string
+export type AdditionalVideoProperties = {
+  objectFit?: ImageFit
+  keepAspectRatio?: boolean
+  src: HTMLVideoElement['src'] | HTMLVideoElement['srcObject']
+  html: Omit<HTMLVideoElement, 'src' | 'playsInline' | 'style'>
 }
 
 /**
  * @requires that the element is attached to the document and therefore should be hidden (position = 'absolute', width = '1px', zIndex = '-1000', top = '0px', left = '0px')
- */
+ *
 export function updateVideoElement(
   element: HTMLVideoElement,
-  { src, autoplay, loop, muted, playbackRate, preservesPitch, volume, crossOrigin }: InternalVideoProperties,
+  properties: ReturnType<typeof createImageState>['properties'],
+  abortSignal: AbortSignal,
 ) {
-  if (src instanceof HTMLElement) {
-    return
-  }
+  abortableEffect(() => {
+    if (src instanceof HTMLElement) {
+      return
+    }
 
-  element.playsInline = true
-  element.volume = volume ?? 1
-  element.preservesPitch = preservesPitch ?? true
-  element.playbackRate = playbackRate ?? 1
-  element.muted = muted ?? false
-  element.loop = loop ?? false
-  element.autoplay = autoplay ?? false
-  element.crossOrigin = crossOrigin ?? null
-  //update src
-  if (src == null) {
-    element.removeAttribute('src')
-    element.removeAttribute('srcObject')
-    return
-  }
-  if (typeof src === 'string') {
-    element.src = src
-  } else {
-    element.srcObject = src
-  }
+    element.playsInline = true
+    element.volume = volume ?? 1
+    element.preservesPitch = preservesPitch ?? true
+    element.playbackRate = playbackRate ?? 1
+    element.muted = muted ?? false
+    element.loop = loop ?? false
+    element.autoplay = autoplay ?? false
+    element.crossOrigin = crossOrigin ?? null
+    //update src
+    if (src == null) {
+      element.removeAttribute('src')
+      element.removeAttribute('srcObject')
+      return
+    }
+    if (typeof src === 'string') {
+      element.src = src
+    } else {
+      element.srcObject = src
+    }
+  }, abortSignal)
 }
 
 export function setupVideoElementInvalidation(element: HTMLVideoElement, invalidate: () => void) {
@@ -59,3 +56,4 @@ export function setupVideoElementInvalidation(element: HTMLVideoElement, invalid
   requestId = element.requestVideoFrameCallback(callback)
   return () => element.cancelVideoFrameCallback(requestId)
 }
+*/

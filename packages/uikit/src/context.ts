@@ -1,10 +1,12 @@
-import { signal, Signal } from '@preact/signals-core'
+import { Signal } from '@preact/signals-core'
 import { Matrix4, Object3D, Vector2Tuple, WebGLRenderer } from 'three'
 import { ClippingRect } from './clipping.js'
 import { OrderInfo, WithReversePainterSortStableCache } from './order.js'
 import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
 import { PanelGroupManager } from './panel/instanced-panel-group.js'
 import { FlexNode } from './flex/index.js'
+import { Properties } from './properties/index.js'
+import { FontFamilies } from './text/font.js'
 
 export type ParentContext = Readonly<{
   node: Signal<FlexNode | undefined>
@@ -14,6 +16,8 @@ export type ParentContext = Readonly<{
   childrenMatrix: Signal<Matrix4 | undefined>
   orderInfo: Signal<OrderInfo | undefined>
   root: RootContext
+  properties: Properties
+  fontFamilies: Signal<FontFamilies | undefined>
 }>
 
 export type RootContext = WithReversePainterSortStableCache &
@@ -22,7 +26,6 @@ export type RootContext = WithReversePainterSortStableCache &
     objectRef: { current?: Object3D | null }
     gylphGroupManager: GlyphGroupManager
     panelGroupManager: PanelGroupManager
-    pixelSize: Signal<number>
     onFrameSet: Set<(delta: number) => void>
     onUpdateMatrixWorldSet: Set<() => void>
     interactableDescendants: Array<Object3D>

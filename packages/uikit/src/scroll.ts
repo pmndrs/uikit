@@ -6,16 +6,12 @@ import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
 import { ElementType, OrderInfo, ZIndexOffset, computedOrderInfo } from './order.js'
-import { MergedProperties } from './properties/merged.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
-import {
-  computedPanelGroupDependencies,
-  PanelGroupManager,
-  PanelGroupProperties,
-} from './panel/instanced-panel-group.js'
-import { ParentContext, RootContext } from './context.js'
+import { PanelGroupManager, PanelGroupProperties } from './panel/instanced-panel-group.js'
+import { ParentContext } from './context.js'
 import { ScrollListeners } from './listeners.js'
 import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
+import { Properties } from './properties/index.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
@@ -30,9 +26,9 @@ export function createScrollPosition() {
 }
 
 export function computedGlobalScrollMatrix(
+  properties: Properties,
   scrollPosition: Signal<Vector2Tuple>,
   globalMatrix: Signal<Matrix4 | undefined>,
-  pixelSizeSignal: Signal<number>,
 ) {
   return computed(() => {
     const global = globalMatrix.value
@@ -40,7 +36,7 @@ export function computedGlobalScrollMatrix(
       return undefined
     }
     const [scrollX, scrollY] = scrollPosition.value
-    const pixelSize = pixelSizeSignal.value
+    const pixelSize = properties.get('pixelSize')
     return new Matrix4().makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0).premultiply(global)
   })
 }
@@ -70,6 +66,7 @@ export function createScrollState() {
 }
 
 export type ScrollableComponentState = {
+  properties: Properties
   scrollPosition: ReturnType<typeof createScrollPosition>
   anyAncestorScrollable: ParentContext['anyAncestorScrollable']
   root: ParentContext['root']
@@ -77,15 +74,10 @@ export type ScrollableComponentState = {
   scrollable: FlexNodeState['scrollable']
   size: FlexNodeState['size']
   borderInset: FlexNodeState['borderInset']
-  scrollbarWidth: ReadonlySignal<number>
   scrollState: ReturnType<typeof createScrollState>
 }
 
-export function computedScrollHandlers(
-  state: ScrollableComponentState,
-  listeners: Signal<ScrollListeners | undefined>,
-  objectRef: { current?: Object3D | null },
-) {
+export function computedScrollHandlers(state: ScrollableComponentState, objectRef: { current?: Object3D | null }) {
   const isScrollable = computed(() => state.scrollable.value?.some((scrollable) => scrollable) ?? false)
 
   return computed<ScrollEventHandlers | undefined>(() => {
@@ -127,8 +119,8 @@ export function computedScrollHandlers(
         const scrollbarAxisIndex = ponterIsMouse
           ? getIntersectedScrollbarIndex(
               localPoint,
-              state.root.pixelSize.peek(),
-              state.scrollbarWidth.peek(),
+              state.properties.peek('pixelSize'),
+              state.properties.peek('scrollbarWidth'),
               state.size.peek(),
               state.maxScrollPosition.peek(),
               state.borderInset.peek(),
@@ -170,7 +162,7 @@ export function computedScrollHandlers(
         event.stopImmediatePropagation?.()
         objectRef.current.worldToLocal(localPointHelper.copy(event.point))
         distanceHelper.copy(localPointHelper).sub(prevInteraction.localPoint)
-        distanceHelper.divideScalar(state.root.pixelSize.peek())
+        distanceHelper.divideScalar(state.properties.peek('pixelSize'))
         prevInteraction.localPoint.copy(localPointHelper)
 
         if (prevInteraction.type === 'scroll-bar') {
@@ -185,14 +177,14 @@ export function computedScrollHandlers(
             size,
             state.borderInset.peek(),
             state.maxScrollPosition.peek(),
-            state.scrollbarWidth.peek(),
+            state.properties.peek('scrollbarWidth'),
           )
-          scroll(state, listeners, event, distanceHelper.x, -distanceHelper.y, undefined, false)
+          scroll(state, event, distanceHelper.x, -distanceHelper.y, undefined, false)
           return
         }
         const timestamp = performance.now()
         const deltaTime = timestamp - prevInteraction.timestamp
-        scroll(state, listeners, event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
+        scroll(state, event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
         prevInteraction.timestamp = timestamp
       },
       onWheel: (event) => {
@@ -207,7 +199,7 @@ export function computedScrollHandlers(
         ) {
           return
         }
-        scroll(state, listeners, event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
+        scroll(state, event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
       },
     }
   })
@@ -215,7 +207,6 @@ export function computedScrollHandlers(
 
 function scroll(
   state: ScrollableComponentState,
-  listeners: Signal<ScrollListeners | undefined>,
   event: ThreePointerEvent | ThreeMouseEvent | undefined,
   deltaX: number,
   deltaY: number,
@@ -250,20 +241,14 @@ function scroll(
       wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
     )
   }
-  const preventScroll = listeners.peek()?.onScroll?.(newX, newY, state.scrollPosition, event)
+  const preventScroll = state.properties.peek('onScroll')?.(newX, newY, state.scrollPosition, event)
   if (preventScroll === false || (x === newX && y === newY)) {
     return
   }
   state.scrollPosition.value = [newX, newY]
 }
 
-export function setupScroll(
-  state: ScrollableComponentState,
-  listeners: Signal<ScrollListeners | undefined>,
-  pixelSizeSignal: Signal<number>,
-  object: Object3D,
-  abortSignal: AbortSignal,
-) {
+export function setupScroll(state: ScrollableComponentState, object: Object3D, abortSignal: AbortSignal) {
   const onFrame = (delta: number) => {
     if (state.scrollState.downPointerMap.size > 0 || state.scrollPosition.value == null) {
       return
@@ -304,7 +289,7 @@ export function setupScroll(
     if (deltaX === 0 && deltaY === 0) {
       return
     }
-    scroll(state, listeners, undefined, deltaX, deltaY, undefined, true)
+    scroll(state, undefined, deltaX, deltaY, undefined, true)
   }
 
   abortableEffect(() => {
@@ -315,7 +300,7 @@ export function setupScroll(
 
   abortableEffect(() => {
     const [scrollX, scrollY] = state.scrollPosition.value
-    const pixelSize = pixelSizeSignal.value
+    const pixelSize = state.properties.get('pixelSize')
     object.position.set(-scrollX * pixelSize, scrollY * pixelSize, 0)
     object.updateMatrix()
   }, abortSignal)
@@ -371,11 +356,11 @@ function outsideDistance(value: number, min: number, max: number): number {
   return 0
 }
 
-export type ScrollbarWidthProperties = {
+type ScrollbarWidthProperties = {
   scrollbarWidth?: number
 }
 
-export type ScrollbarBorderSizeProperties = {
+type ScrollbarBorderSizeProperties = {
   scrollbarBorderRightWidth?: number
   scrollbarBorderTopWidth?: number
   scrollbarBorderLeftWidth?: number
@@ -402,7 +387,7 @@ const scrollbarBorderPropertyKeys = [
 ] as const
 
 export function setupScrollbars(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   scrollPosition: Signal<Vector2Tuple>,
   flexState: FlexNodeState,
   globalMatrix: Signal<Matrix4 | undefined>,
@@ -411,7 +396,6 @@ export function setupScrollbars(
   prevOrderInfo: Signal<OrderInfo | undefined>,
   prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
-  scrollbarWidth: Signal<number>,
   abortSignal: AbortSignal,
 ): void {
   const scrollbarOrderInfo = computedOrderInfo(
@@ -422,9 +406,9 @@ export function setupScrollbars(
     prevOrderInfo,
   )
 
-  const borderInset = computedBorderInset(propertiesSignal, scrollbarBorderPropertyKeys)
+  const borderInset = computedBorderInset(properties, scrollbarBorderPropertyKeys)
   setupScrollbar(
-    propertiesSignal,
+    properties,
     0,
     scrollPosition,
     flexState,
@@ -434,12 +418,11 @@ export function setupScrollbars(
     scrollbarOrderInfo,
     prevPanelDeps,
     panelGroupManager,
-    scrollbarWidth,
     borderInset,
     abortSignal,
   )
   setupScrollbar(
-    propertiesSignal,
+    properties,
     1,
     scrollPosition,
     flexState,
@@ -449,7 +432,6 @@ export function setupScrollbars(
     scrollbarOrderInfo,
     prevPanelDeps,
     panelGroupManager,
-    scrollbarWidth,
     borderInset,
     abortSignal,
   )
@@ -478,7 +460,7 @@ function getScrollbarMaterialConfig() {
 }
 
 function setupScrollbar(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   primaryIndex: number,
   scrollPosition: Signal<Vector2Tuple>,
   flexState: FlexNodeState,
@@ -488,14 +470,13 @@ function setupScrollbar(
   orderInfo: Signal<OrderInfo | undefined>,
   groupDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
-  scrollbarWidth: Signal<number>,
   borderSize: ReadonlySignal<Inset>,
   abortSignal: AbortSignal,
 ) {
   const scrollbarTransformation = computed(() =>
     computeScrollbarTransformation(
       primaryIndex,
-      scrollbarWidth.value,
+      properties.get('scrollbarWidth'),
       flexState.size.value,
       flexState.maxScrollPosition.value,
       flexState.borderInset.value,
@@ -506,7 +487,7 @@ function setupScrollbar(
   const scrollbarSize = computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple)
 
   setupInstancedPanel(
-    propertiesSignal,
+    properties,
     orderInfo,
     groupDeps,
     panelGroupManager,
@@ -540,7 +521,8 @@ function computeScrollbarTransformation(
 
   const result: Vector4Tuple = [0, 0, 0, 0]
   const endInsetIndex = 1 - primaryAxisIndex
-  const primarySizeWithoutBorder = size[primaryAxisIndex] - borderInset[endInsetIndex] - borderInset[endInsetIndex + 2]
+  const primarySizeWithoutBorder =
+    size[primaryAxisIndex]! - borderInset[endInsetIndex]! - borderInset[endInsetIndex + 2]!
   const primaryScrollbarSize = computePrimaryScrollbarSize(
     primarySizeWithoutBorder,
     primaryMaxScrollPosition,
@@ -548,16 +530,16 @@ function computeScrollbarTransformation(
   )
 
   const primaryMaxScrollbarPosition = primarySizeWithoutBorder - primaryScrollbarSize
-  const primaryScrollPosition = scrollPosition[primaryAxisIndex]
+  const primaryScrollPosition = scrollPosition[primaryAxisIndex]!
 
   //position
   const invertedIndex = 1 - primaryAxisIndex
   result[primaryAxisIndex] =
-    size[primaryAxisIndex] * 0.5 -
+    size[primaryAxisIndex]! * 0.5 -
     primaryScrollbarSize * 0.5 -
-    borderInset[(primaryAxisIndex + 3) % 4] -
+    borderInset[(primaryAxisIndex + 3) % 4]! -
     primaryMaxScrollbarPosition * clamp(primaryScrollPosition / primaryMaxScrollPosition, 0, 1)
-  result[invertedIndex] = size[invertedIndex] * 0.5 - secondaryScrollbarSize * 0.5 - borderInset[invertedIndex + 1]
+  result[invertedIndex] = size[invertedIndex]! * 0.5 - secondaryScrollbarSize * 0.5 - borderInset[invertedIndex + 1]!
 
   if (primaryAxisIndex === 0) {
     result[0] *= -1
@@ -600,7 +582,7 @@ function toScrollbarScrollDistance(
 
   const delta = target.getComponent(primaryAxisIndex)
   const primarySizeWithoutBorder =
-    size[primaryAxisIndex] - borderInset[1 - primaryAxisIndex] - borderInset[1 - primaryAxisIndex + 2]
+    size[primaryAxisIndex]! - borderInset[1 - primaryAxisIndex]! - borderInset[1 - primaryAxisIndex + 2]!
   const primaryScrollbarSize = computePrimaryScrollbarSize(
     primarySizeWithoutBorder,
     primaryMaxScrollPosition,

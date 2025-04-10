@@ -1,19 +1,17 @@
-type Aliases = Readonly<Record<string, ReadonlyArray<string> | undefined>>
+export type AddAliases<T, A extends Aliases> = GetAliases<T, A> & T
 
-export type WithAliases<T, A extends Record<string, ReadonlyArray<unknown>>> = T & {
+export type GetAliases<T, A extends Aliases> = {
   [K in keyof A as A[K][number] extends keyof T ? K : never]?: A[K][number] extends keyof T ? T[A[K][number]] : never
 }
 
-export type WithAllAliases<T> = WithAliases<T, AllAliases>
+export type Aliases = Record<string, ReadonlyArray<string>>
 
-const borderAliases = {
+export type AddAllAliases<T> = AddAliases<T, AllAliases>
+
+const flexAliases = {
   borderWidth: ['borderBottomWidth', 'borderTopWidth', 'borderLeftWidth', 'borderRightWidth'],
   borderXWidth: ['borderLeftWidth', 'borderRightWidth'],
   borderYWidth: ['borderTopWidth', 'borderBottomWidth'],
-} as const satisfies Aliases
-
-const flexAliases = {
-  ...borderAliases,
   inset: ['positionTop', 'positionLeft', 'positionRight', 'positionBottom'],
   padding: ['paddingBottom', 'paddingTop', 'paddingLeft', 'paddingRight'],
   paddingX: ['paddingLeft', 'paddingRight'],

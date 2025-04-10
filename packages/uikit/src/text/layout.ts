@@ -2,11 +2,10 @@ import { BreakallWrapper, NowrapWrapper, WordWrapper } from './wrapper/index.js'
 import { Font } from './font.js'
 import { getGlyphLayoutHeight } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
-import { MeasureFunction, MeasureMode } from 'yoga-layout/load'
-import { MergedProperties } from '../properties/merged.js'
+import { MeasureMode } from 'yoga-layout/load'
 import { readReactive } from '../utils.js'
-import { computedInheritableProperty } from '../properties/index.js'
-import { CustomLayouting } from '../internals.js'
+import { Properties } from '../properties/index.js'
+import { CustomLayouting } from '../flex/index.js'
 
 export type GlyphLayoutLine = {
   charIndexOffset: number
@@ -24,26 +23,23 @@ export type GlyphLayout = {
 
 export type GlyphProperties = Partial<Omit<GlyphLayoutProperties, 'text' | 'font'>>
 
+export type WordBreak = keyof typeof wrappers
+
 export type GlyphLayoutProperties = {
   text: string
   font: Font
   letterSpacing: number
   lineHeight: number | `${number}%`
   fontSize: number
-  wordBreak: keyof typeof wrappers
+  wordBreak: WordBreak
 }
 
 export function computedCustomLayouting(
-  properties: Signal<MergedProperties>,
+  properties: Properties,
   fontSignal: Signal<Font | undefined>,
   textSignal: Signal<unknown | Signal<unknown> | Array<Signal<unknown> | unknown>>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
-  defaultWordBreak: GlyphLayoutProperties['wordBreak'],
 ) {
-  const fontSize = computedInheritableProperty(properties, 'fontSize', 16)
-  const letterSpacing = computedInheritableProperty(properties, 'letterSpacing', 0)
-  const lineHeight = computedInheritableProperty<number | `${number}%`>(properties, 'lineHeight', '120%')
-  const wordBreak = computedInheritableProperty(properties, 'wordBreak', defaultWordBreak)
   return computed<CustomLayouting | undefined>(() => {
     const font = fontSignal.value
     if (font == null) {
@@ -57,11 +53,11 @@ export function computedCustomLayouting(
     text = text.replaceAll('\t', ' '.repeat(4))
     const layoutProperties: GlyphLayoutProperties = {
       font,
-      fontSize: fontSize.value,
-      letterSpacing: letterSpacing.value,
-      lineHeight: lineHeight.value,
+      fontSize: properties.get('fontSize'),
+      letterSpacing: properties.get('letterSpacing'),
+      lineHeight: properties.get('lineHeight'),
       text,
-      wordBreak: wordBreak.value,
+      wordBreak: properties.get('wordBreak'),
     }
     propertiesRef.current = layoutProperties
 

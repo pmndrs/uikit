@@ -13,9 +13,6 @@ import { computed } from '@preact/signals-core'
 
 export type InputProperties = Omit<BaseInputProperties, 'multiline'> & { placeholder?: string }
 
-//for getting the correct types for conversion
-type _InputProperties = InputProperties
-
 export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
     {

@@ -1,0 +1,209 @@
+import { batch, effect, Signal, untracked } from '@preact/signals-core'
+
+type PropertyState = { layerIndex: number; cleanup?: () => void; signal: Signal<any> }
+
+export type GetSignal<T> = T extends Signal<infer K> ? K : T
+
+export type NotUndefined<T> = T extends undefined ? never : T
+
+export class PropertiesPubSub<In, Out, Defaults> {
+  private propertyStateMap = {} as Record<keyof Out, PropertyState>
+  private propertiesLayers: Array<Record<keyof Out, any> | undefined> = []
+  private propertyKeys: Array<keyof Out>
+
+  private propertyKeySubscriptions = new Set<(key: keyof Out) => void>()
+
+  constructor(
+    private readonly apply: <K1 extends keyof In>(
+      key: K1,
+      value: In[K1],
+      set: <K2 extends keyof Out>(key: K2, value: Out[K2]) => void,
+      layerIndex: number,
+    ) => void,
+    private readonly defaults: Defaults,
+    private readonly onLayerCleared?: (layerIndex: number) => void,
+  ) {
+    this.propertyKeys = Array.from(Object.keys(defaults as object)) as Array<keyof Out>
+  }
+
+  /**
+   * allows to subcribe to all the current and new property keys
+   * @param callback is called immediately for all the current property keys
+   */
+  subscribePropertyKeys(callback: (key: string | symbol | number) => void): () => void {
+    for (const key of this.propertyKeys) {
+      callback(key)
+    }
+    this.propertyKeySubscriptions.add(callback)
+    return () => this.propertyKeySubscriptions.delete(callback)
+  }
+
+  clearLayer(index: number): void {
+    const layer = this.propertiesLayers[index]
+    if (layer == null) {
+      return
+    }
+    batch(() => this.clearProvidedLayer(layer, index))
+  }
+
+  private clearProvidedLayer(layer: Record<keyof Out, any>, index: number) {
+    this.propertiesLayers[index] = undefined
+    for (const key in layer) {
+      const value = layer[key]
+      if (value === undefined) {
+        continue
+      }
+      const propertyState = this.propertyStateMap[key]
+      if (propertyState == null) {
+        //no one is reading
+        continue
+      }
+      propertyState.cleanup?.()
+      propertyState.cleanup = undefined
+      if (propertyState.layerIndex != index) {
+        //we have not published the value from this layer
+        continue
+      }
+      this.update(key, propertyState)
+    }
+    this.onLayerCleared?.(index)
+  }
+
+  setLayer(index: number, value: In | undefined) {
+    batch(() => {
+      let layer = this.propertiesLayers[index]
+      if (layer != null) {
+        this.clearProvidedLayer(layer, index)
+      } else {
+        this.propertiesLayers[index] = layer = {} as Record<keyof Out, any>
+      }
+      if (value === undefined) {
+        return
+      }
+      const entries = Object.entries(value as any)
+      for (const [key, value] of entries) {
+        this.apply(key as keyof In, value as In[keyof In], this.setProperty.bind(this, layer, index), index)
+      }
+    })
+  }
+
+  get<K extends keyof Out & string>(key: K) {
+    return this.getSignal(key).value
+  }
+
+  getSignal<K extends keyof Out>(
+    key: K,
+  ): Signal<K extends keyof Defaults ? NotUndefined<GetSignal<Out[K]>> : GetSignal<Out[K]> | undefined> {
+    let propertyState = this.propertyStateMap[key]
+    if (propertyState == null) {
+      this.propertyStateMap[key] = propertyState = {
+        signal: new Signal(),
+        layerIndex: null as any, //will be set by update immediately
+      }
+      this.update(key, propertyState)
+    }
+    return propertyState.signal
+  }
+
+  peek<K extends keyof Out>(
+    key: K,
+  ): K extends keyof Defaults ? NotUndefined<GetSignal<Out[K]>> : GetSignal<Out[K]> | undefined {
+    let propertyState = this.propertyStateMap[key]
+    if (propertyState != null) {
+      return propertyState.signal.peek()
+    }
+    const defaultValue = this.defaults[key as unknown as keyof Defaults]
+    const [result] = untracked(() => selectLayerValue(0, this.propertiesLayers, key, defaultValue)!)
+    return result
+  }
+
+  set<K extends keyof In>(layerIndex: number, key: K, value: In[K]): void {
+    let propertiesLayer = this.propertiesLayers[layerIndex]
+    if (propertiesLayer == null) {
+      this.propertiesLayers[layerIndex] = propertiesLayer = {} as Record<keyof Out, any>
+    }
+    this.apply(key, value, this.setProperty.bind(this, propertiesLayer, layerIndex), layerIndex)
+  }
+
+  private setProperty(propertiesLayer: Record<keyof Out, any>, layerIndex: number, key: keyof Out, value: any) {
+    if (!this.propertyKeys.includes(key)) {
+      this.propertyKeys.push(key)
+      for (const callback of this.propertyKeySubscriptions) {
+        callback(key)
+      }
+    }
+    if (propertiesLayer[key] === value) {
+      //unchanged
+      return
+    }
+    propertiesLayer[key] = value
+    const propertyState = this.propertyStateMap[key]
+    if (propertyState == null) {
+      //no one listens
+      return
+    }
+    if (propertyState.layerIndex != null && layerIndex > propertyState.layerIndex) {
+      //current value has higher prescedence
+      return
+    }
+    this.update(key, propertyState)
+  }
+
+  private update(key: keyof Out, target: PropertyState): void {
+    target.cleanup?.()
+    target.cleanup = undefined
+    const defaultValue = this.defaults[key as unknown as keyof Defaults]
+    const result = selectLayerValue(
+      0,
+      this.propertiesLayers,
+      key,
+      defaultValue,
+      (layerIndex) =>
+        (target.cleanup = effect(() => {
+          const [value, index] = selectLayerValue(layerIndex, this.propertiesLayers, key, defaultValue)!
+          target.signal.value = value
+          target.layerIndex = index
+        })),
+    )!
+    if (result == null) {
+      return
+    }
+    const [value, index] = result
+    target.signal.value = value
+    target.layerIndex = index
+  }
+
+  destroy() {
+    for (const key in this.propertyStateMap) {
+      this.propertyStateMap[key].cleanup?.()
+    }
+    this.propertyStateMap = {} as Record<keyof Out, PropertyState>
+    this.propertyKeySubscriptions.clear()
+  }
+}
+
+function selectLayerValue(
+  startLayerIndex: number,
+  propertiesLayers: Array<Record<string, any> | undefined>,
+  key: any,
+  defaultValue: any,
+  onSignal?: (layerIndex: number) => void,
+): [value: any, layerIndex: number] | undefined {
+  const length = propertiesLayers.length
+  let value: any = undefined
+  let layerIndex = startLayerIndex
+  for (; layerIndex <= length; layerIndex++) {
+    value = layerIndex === length ? defaultValue : propertiesLayers[layerIndex]?.[key]
+    if (typeof value === 'object' && value instanceof Signal) {
+      if (onSignal != null) {
+        onSignal(layerIndex)
+        return undefined
+      }
+      value = value.value
+    }
+    if (value !== undefined) {
+      break
+    }
+  }
+  return [value, layerIndex]
+}

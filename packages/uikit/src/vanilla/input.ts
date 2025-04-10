@@ -1,26 +1,24 @@
-import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { InputProperties, createInputState, setupInput } from '../components/input.js'
-import { MergedProperties } from '../properties/index.js'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
+import { effect, Signal, signal } from '@preact/signals-core'
+import { AdditionalInputProperties, InputProperties, createInputState, setupInput } from '../components/input.js'
 import { ThreeEventMap } from '../events.js'
+import { ParentContext } from '../context.js'
+import { Layers } from '../properties/layers.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
-  private readonly styleSignal: Signal<InputProperties<Em> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<InputProperties<Em> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createInputState>
 
-  constructor(properties?: InputProperties<Em>, defaultProperties?: AllOptionalProperties) {
+  constructor(
+    multiline: boolean,
+    private properties?: InputProperties<Em>,
+  ) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
 
     this.unsubscribe = effect(() => {
       const parentContext = this.parentContextSignal.value?.value
@@ -28,25 +26,11 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
         return
       }
       const abortController = new AbortController()
-      this.internals = createInputState(
-        parentContext,
-        parentContext.fontFamiliesSignal,
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-      )
+      this.internals = createInputState(parentContext, multiline)
+      this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupInput(
-        this.internals,
-        parentContext,
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-        this,
-        abortController.signal,
-      )
+      setupInput(this.internals, parentContext, this, abortController.signal)
 
-      this.mergedProperties = this.internals.mergedProperties
       super.add(this.internals.interactionPanel)
       bindHandlers(this.internals.handlers, this, abortController.signal)
 
@@ -57,27 +41,17 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
     })
   }
 
-  getComputedProperty<K extends keyof InputProperties<Em>>(key: K): InputProperties<Em>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys | keyof AdditionalInputProperties>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<InputProperties<Em>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: InputProperties<Em> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: InputProperties<Em> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: InputProperties<Em>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
   }

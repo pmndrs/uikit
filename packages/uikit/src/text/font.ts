@@ -1,10 +1,10 @@
-import { Signal, effect, signal } from '@preact/signals-core'
+import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray, WebGLRenderer } from 'three'
-import { MergedProperties } from '../properties/merged.js'
 import { loadCachedFont } from './cache.js'
-import { computedInheritableProperty } from '../properties/index.js'
+import { Properties } from '../properties/index.js'
+import { ParentContext } from '../context.js'
 import { inter } from '@pmndrs/msdfonts'
-import { abortableEffect } from '../utils.js'
+import { InteractiveObject3D } from 'three/examples/jsm/Addons.js'
 
 export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>
 
@@ -25,29 +25,43 @@ const fontWeightNames = {
 
 export type FontWeight = keyof typeof fontWeightNames | number
 
-export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight }
+export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight; fontFamilies?: FontFamilies }
 
-const defaultFontFamilyUrls: FontFamilies = {
+const defaultFontFamiles: FontFamilies = {
   inter,
 }
 
+export function computedFontFamilies(properties: Properties, parentContext: ParentContext | undefined) {
+  return computed(() => {
+    const currentFontFamilies = properties.get('fontFamilies')
+    const inheritedFontFamilies = parentContext?.fontFamilies.value
+    if (inheritedFontFamilies == null) {
+      return currentFontFamilies
+    }
+    if (currentFontFamilies == null) {
+      return inheritedFontFamilies
+    }
+    return {
+      ...inheritedFontFamilies,
+      ...currentFontFamilies,
+    }
+  })
+}
+
 export function computedFont(
-  properties: Signal<MergedProperties>,
-  fontFamiliesSignal: Signal<FontFamilies | undefined> | undefined,
+  properties: Properties,
+  fontFamiliesSignal: Signal<FontFamilies | undefined>,
   renderer: WebGLRenderer,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
-  const fontFamily = computedInheritableProperty<string | undefined>(properties, 'fontFamily', undefined)
-  const fontWeight = computedInheritableProperty<FontWeight>(properties, 'fontWeight', 'normal')
   effect(() => {
-    const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
-    let resolvedFontFamily = fontFamily.value
-    if (resolvedFontFamily == null) {
-      resolvedFontFamily = Object.keys(fontFamilies)[0]
-    }
+    const fontWeight = properties.get('fontWeight')
+    let fontFamily = properties.get('fontFamily')
+    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
+    fontFamily ??= Object.keys(fontFamilies)[0]!
     const url = getMatchingFontUrl(
-      fontFamilies[resolvedFontFamily],
-      typeof fontWeight.value === 'string' ? fontWeightNames[fontWeight.value] : fontWeight.value,
+      fontFamilies[fontFamily as keyof FontFamilies]!,
+      typeof fontWeight === 'string' ? fontWeightNames[fontWeight] : fontWeight,
     )
     loadCachedFont(url, renderer, (font) => (result.value = font))
   })

@@ -28,9 +28,6 @@ import { EventHandlers } from '@react-three/fiber/dist/declarations/src/core/eve
 
 export type VideoProperties = { controls?: boolean } & BaseVideoProperties
 
-//for getting the correct types for conversion
-type _VideoProperties = VideoProperties
-
 const movingContext = createContext<Signal<boolean> | undefined>(undefined)
 
 export const Video: (props: VideoProperties & RefAttributes<VideoInternals>) => ReactNode = forwardRef(

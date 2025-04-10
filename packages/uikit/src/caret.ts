@@ -10,18 +10,18 @@ import {
   PanelMaterialConfig,
   createPanelMaterialConfig,
 } from './panel/index.js'
-import { MergedProperties, computedInheritableProperty } from './properties/index.js'
+import { Properties } from './properties/index.js'
 
 export type CaretTransformation = {
   position: Vector2Tuple
   height: number
 }
 
-export type CaretWidthProperties = {
+type CaretWidthProperties = {
   caretWidth?: number
 }
 
-export type CaretBorderSizeProperties = {
+type CaretBorderSizeProperties = {
   caretBorderRightWidth?: number
   caretBorderTopWidth?: number
   caretBorderLeftWidth?: number
@@ -69,7 +69,7 @@ function getCaretMaterialConfig() {
 }
 
 export function createCaret(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   matrix: Signal<Matrix4 | undefined>,
   caretTransformation: Signal<CaretTransformation | undefined>,
   isVisible: Signal<boolean>,
@@ -93,11 +93,10 @@ export function createCaret(
     )
     return () => clearInterval(ref)
   }, abortSignal)
-  const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
-  const caretWidth = computedInheritableProperty(propertiesSignal, 'caretWidth', 1.5)
+  const borderInset = computedBorderInset(properties, caretBorderKeys)
 
   setupInstancedPanel(
-    propertiesSignal,
+    properties,
     orderInfo,
     parentGroupDeps,
     panelGroupManager,
@@ -107,14 +106,14 @@ export function createCaret(
       if (height == null) {
         return [0, 0]
       }
-      return [caretWidth.value, height]
+      return [properties.get('caretWidth'), height]
     }),
     computed(() => {
       const position = blinkingCaretTransformation.value?.position
       if (position == null) {
         return [0, 0]
       }
-      return [position[0] - caretWidth.value / 2, position[1]]
+      return [position[0] - properties.get('caretWidth') / 2, position[1]]
     }),
     borderInset,
     parentClippingRect,

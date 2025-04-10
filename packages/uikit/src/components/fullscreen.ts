@@ -1,12 +1,9 @@
 import type { Signal } from '@preact/signals-core'
 import { Camera, OrthographicCamera, PerspectiveCamera } from 'three'
-import type { RootProperties } from './root.js'
 import { ThreeEventMap } from '../events.js'
+import { AllProperties } from '../properties/index.js'
 
-export type FullscreenProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
-  RootProperties<EM>,
-  'sizeX' | 'sizeY' | 'pixelSize' | 'anchorX' | 'anchorY'
->
+export type FullscreenProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
 /**
  * must be called when camera.fov, camera.top, camera.bottom, camera.right, camera.left, camera.zoom, camera.aspect changes

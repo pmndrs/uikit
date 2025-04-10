@@ -10,7 +10,7 @@ import {
   PanelMaterialConfig,
   createPanelMaterialConfig,
 } from './panel/index.js'
-import { MergedProperties } from './properties/index.js'
+import { Properties } from './properties/index.js'
 
 export type SelectionTransformation = { size: Vector2Tuple; position: Vector2Tuple }
 
@@ -61,7 +61,7 @@ function getSelectionMaterialConfig() {
 }
 
 export function createSelection(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   matrix: Signal<Matrix4 | undefined>,
   selectionTransformations: Signal<Array<SelectionTransformation>>,
   isVisible: Signal<boolean>,
@@ -77,7 +77,7 @@ export function createSelection(
     abortController: AbortController
   }> = []
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, prevPanelDeps, prevOrderInfo)
-  const borderInset = computedBorderInset(propertiesSignal, selectionBorderKeys)
+  const borderInset = computedBorderInset(properties, selectionBorderKeys)
 
   abortableEffect(() => {
     const selections = selectionTransformations.value
@@ -89,7 +89,7 @@ export function createSelection(
         const offset = signal<Vector2Tuple>([0, 0])
         const abortController = new AbortController()
         setupInstancedPanel(
-          propertiesSignal,
+          properties,
           orderInfo,
           prevPanelDeps,
           panelGroupManager,
@@ -108,20 +108,20 @@ export function createSelection(
           size,
         }
       }
-      const selection = selections[i]
+      const selection = selections[i]!
       panelData.size.value = selection.size
       panelData.offset.value = selection.position
     }
     const panelsLength = panels.length
     for (let i = selectionsLength; i < panelsLength; i++) {
-      panels[i].abortController.abort()
+      panels[i]!.abortController.abort()
     }
     panels.length = selectionsLength
   }, abortSignal)
   abortSignal.addEventListener('abort', () => {
     const panelsLength = panels.length
     for (let i = 0; i < panelsLength; i++) {
-      panels[i].abortController.abort()
+      panels[i]!.abortController.abort()
     }
   })
 }

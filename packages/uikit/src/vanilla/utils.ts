@@ -8,20 +8,8 @@ import { abortableEffect } from '../utils.js'
 const _addedEvent = { type: 'added' as const }
 const _childaddedEvent = { type: 'childadded' as const, child: null as any }
 
-export function createParentContextSignal() {
-  return signal<
-    | Signal<
-        | (ParentContext & {
-            fontFamiliesSignal: Signal<FontFamilies | undefined>
-          })
-        | undefined
-      >
-    | undefined
-  >(undefined)
-}
-
 export function setupParentContextSignal(
-  parentContextSignal: ReturnType<typeof createParentContextSignal>,
+  parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined>,
   container: Object3D,
 ) {
   container.addEventListener('added', () => {
@@ -36,12 +24,7 @@ export function setupParentContextSignal(
 export class Component<T = {}> extends Object3D<EventMap & { childadded: {}; childremoved: {} } & T> {}
 
 export class Parent<T = {}> extends Component<T> {
-  readonly contextSignal: Signal<
-    | (ParentContext & {
-        fontFamiliesSignal: Signal<FontFamilies | undefined>
-      })
-    | undefined
-  > = signal(undefined)
+  readonly contextSignal: Signal<ParentContext | undefined> = signal(undefined)
   protected readonly childrenContainer = new Object3D<{ childadded: {}; childremoved: {} } & Object3DEventMap>()
 
   constructor() {
@@ -53,7 +36,7 @@ export class Parent<T = {}> extends Component<T> {
   add(...objects: Array<Object3D>): this {
     const objectsLength = objects.length
     for (let i = 0; i < objectsLength; i++) {
-      const object = objects[i]
+      const object = objects[i]!
       if (object instanceof Component) {
         this.childrenContainer.add(object)
       } else {
@@ -77,7 +60,7 @@ export class Parent<T = {}> extends Component<T> {
   remove(...objects: Array<Object3D>): this {
     const objectsLength = objects.length
     for (let i = 0; i < objectsLength; i++) {
-      const object = objects[i]
+      const object = objects[i]!
       if (object instanceof Component) {
         this.childrenContainer.remove(object)
       } else {

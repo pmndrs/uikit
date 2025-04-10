@@ -1,104 +1,71 @@
 import { Signal, signal } from '@preact/signals-core'
 import { BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry } from 'three'
-import { EventHandlers, Listeners } from '../index.js'
 import { ParentContext } from '../context.js'
-import { FlexNodeState, YogaProperties, createFlexNodeState } from '../flex/index.js'
-import { ElementType, OrderInfo, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { PanelProperties, setupInstancedPanel } from '../panel/instanced-panel.js'
-import { WithAllAliases } from '../properties/alias.js'
-import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
-import { ScrollbarProperties } from '../scroll.js'
-import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
+import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
 import {
-  VisibilityProperties,
-  WithConditionals,
   applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  computedMergedProperties,
   setupNode,
-  keepAspectRatioPropertyTransformer,
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
 } from './utils.js'
 import { abortableEffect, fitNormalizedContentInside } from '../utils.js'
-import { makeClippedCast, PointerEventsProperties } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { createActivePropertyTransfomers } from '../active.js'
-import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { createResponsivePropertyTransformers } from '../responsive.js'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { AppearanceProperties } from './svg.js'
-import { PanelGroupProperties, computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
-import { darkPropertyTransformers } from '../dark.js'
-import { MergedProperties } from '../properties/index.js'
+import { computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { ThreeEventMap } from '../events.js'
+import { setupCursorCleanup } from '../hover.js'
+import { AllProperties, Properties } from '../properties/index.js'
+import { allAliases } from '../properties/alias.js'
+import { createConditionals } from '../properties/conditional.js'
 
-export type InheritableIconProperties = WithClasses<
-  WithConditionals<
-    WithAllAliases<
-      WithReactive<
-        YogaProperties &
-          ZIndexProperties &
-          PanelProperties &
-          AppearanceProperties &
-          TransformProperties &
-          PanelGroupProperties &
-          ScrollbarProperties &
-          VisibilityProperties &
-          PointerEventsProperties
-      >
-    >
-  >
->
-
-export type IconProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableIconProperties &
-  Listeners &
-  EventHandlers<EM>
+export type IconProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
 export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
   text: string,
   svgWidth: number,
   svgHeight: number,
-  style: Signal<IconProperties<EM> | undefined>,
-  properties: Signal<IconProperties<EM> | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
 ) {
   const flexState = createFlexNodeState()
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
-  const mergedProperties = computedMergedProperties(
-    style,
-    properties,
-    defaultProperties,
+  const properties = new Properties<EM>(
+    allAliases,
+    createConditionals(parentCtx.root.size, hoveredSignal, activeSignal),
+    parentCtx.properties,
     {
-      ...darkPropertyTransformers,
-      ...createResponsivePropertyTransformers(parentCtx.root.size),
-      ...createHoverPropertyTransformers(hoveredSignal),
-      ...createActivePropertyTransfomers(activeSignal),
-    },
-    keepAspectRatioPropertyTransformer,
-    (m) => {
-      m.add('aspectRatio', svgWidth / svgHeight)
-      m.add('width', svgWidth)
-      m.add('height', svgHeight)
+      aspectRatio: svgWidth / svgHeight,
+      width: svgWidth,
+      height: svgHeight,
     },
   )
 
-  const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
-  const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
-  const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
+  console.log(properties)
 
-  const groupDeps = computedPanelGroupDependencies(mergedProperties)
+  const transformMatrix = computedTransformMatrix(properties, flexState)
+  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const isClipped = computedIsClipped(
+    parentCtx.clippingRect,
+    globalMatrix,
+    flexState.size,
+    properties.getSignal('pixelSize'),
+  )
+  const isVisible = computedIsVisible(flexState, isClipped, properties)
+
+  const groupDeps = computedPanelGroupDependencies(properties)
   const backgroundOrderInfo = computedOrderInfo(
-    mergedProperties,
+    properties,
     'zIndexOffset',
     ElementType.Panel,
     groupDeps,
@@ -107,7 +74,7 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Svg, undefined, backgroundOrderInfo)
 
-  const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
+  const handlers = computedHandlers(properties, hoveredSignal, activeSignal)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
   const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
@@ -116,7 +83,7 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
     root: parentCtx.root,
     hoveredSignal,
     activeSignal,
-    mergedProperties,
+    properties: properties,
     transformMatrix,
     globalMatrix,
     isClipped,
@@ -140,11 +107,9 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
   })
 }
 
-export function setupIcon<EM extends ThreeEventMap = ThreeEventMap>(
+export function setupIcon(
   state: ReturnType<typeof createIconState>,
   parentCtx: ParentContext,
-  style: Signal<IconProperties<EM> | undefined>,
-  properties: Signal<IconProperties<EM> | undefined>,
   object: Object3D,
   abortSignal: AbortSignal,
 ) {
@@ -154,7 +119,7 @@ export function setupIcon<EM extends ThreeEventMap = ThreeEventMap>(
   setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
 
   setupInstancedPanel(
-    state.mergedProperties,
+    state.properties,
     state.backgroundOrderInfo,
     state.groupDeps,
     parentCtx.root.panelGroupManager,
@@ -170,7 +135,7 @@ export function setupIcon<EM extends ThreeEventMap = ThreeEventMap>(
 
   setupIconGroup(
     state.iconGroup,
-    state.mergedProperties,
+    state.properties,
     state.svgWidth,
     state.svgHeight,
     parentCtx,
@@ -181,12 +146,12 @@ export function setupIcon<EM extends ThreeEventMap = ThreeEventMap>(
 
   setupMatrixWorldUpdate(true, true, object, parentCtx.root, state.globalMatrix, false, abortSignal)
 
-  setupPointerEvents(state.mergedProperties, state.ancestorsHaveListeners, parentCtx.root, object, false, abortSignal)
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, parentCtx.root, object, false, abortSignal)
 
-  setupLayoutListeners(style, properties, state.size, abortSignal)
-  setupClippedListeners(style, properties, state.isClipped, abortSignal)
+  setupLayoutListeners(state.properties, state.size, abortSignal)
+  setupClippedListeners(state.properties, state.isClipped, abortSignal)
 
-  setupInteractionPanel(state.interactionPanel, state.root, state.globalMatrix, state.size, abortSignal)
+  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
 }
 
 const loader = new SVGLoader()
@@ -235,7 +200,7 @@ function createIconGroup(
 
 function setupIconGroup(
   group: Group,
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   svgWidth: number,
   svgHeight: number,
   parentContext: ParentContext,
@@ -251,7 +216,7 @@ function setupIconGroup(
       flexState.size,
       flexState.paddingInset,
       flexState.borderInset,
-      parentContext.root.pixelSize.value,
+      properties.get('pixelSize'),
       aspectRatio,
     )
     group.position.x -= (group.scale.x * aspectRatio) / 2
@@ -273,5 +238,5 @@ function setupIconGroup(
     group.visible = isVisible.value
     parentContext.root.requestRender()
   }, abortSignal)
-  applyAppearancePropertiesToGroup(propertiesSignal, group, abortSignal)
+  applyAppearancePropertiesToGroup(properties, group, abortSignal)
 }

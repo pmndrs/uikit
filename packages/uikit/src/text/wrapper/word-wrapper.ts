@@ -18,7 +18,7 @@ export const WordWrapper: GlyphWrapper = (
   let position = 0
   let whitespaces = 0
   for (; charIndex < text.length; charIndex++) {
-    const char = text[charIndex]
+    const char = text[charIndex]!
     if (char === '\n') {
       target.charLength = charIndex - firstIndex + 1
       break

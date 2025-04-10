@@ -1,31 +1,25 @@
-import { AllOptionalProperties } from '../properties/default.js'
-import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { TextProperties, createTextState, setupText } from '../components/text.js'
-import { MergedProperties } from '../properties/index.js'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
+import { Signal, effect, signal } from '@preact/signals-core'
+import { createTextState, setupText, TextProperties } from '../components/text.js'
 import { ThreeEventMap } from '../events.js'
+import { ParentContext } from '../context.js'
+import { Layers } from '../properties/layers.js'
+import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
-  private readonly styleSignal: Signal<TextProperties<EM> | undefined> = signal(undefined)
-  private readonly propertiesSignal: Signal<TextProperties<EM> | undefined>
-  private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   private readonly textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>
-  private readonly parentContextSignal = createParentContextSignal()
+  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createTextState>
 
   constructor(
     text: string | Signal<string> | Array<string | Signal<string>> = '',
-    properties?: TextProperties<EM>,
-    defaultProperties?: AllOptionalProperties,
+    private properties?: TextProperties<EM>,
   ) {
     super()
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
-    this.propertiesSignal = signal(properties)
-    this.defaultPropertiesSignal = signal(defaultProperties)
     this.textSignal = signal(text)
 
     this.unsubscribe = effect(() => {
@@ -34,18 +28,11 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
         return
       }
       const abortController = new AbortController()
-      const state = createTextState(
-        parentContext,
-        this.textSignal,
-        parentContext.fontFamiliesSignal,
-        this.styleSignal,
-        this.propertiesSignal,
-        this.defaultPropertiesSignal,
-      )
+      const state = createTextState(parentContext, this.textSignal)
       this.internals = state
-      this.mergedProperties = state.mergedProperties
+      this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupText(state, parentContext, this.styleSignal, this.propertiesSignal, this, abortController.signal)
+      setupText(state, parentContext, this, abortController.signal)
 
       super.add(this.internals.interactionPanel)
       bindHandlers(state.handlers, this, abortController.signal)
@@ -60,27 +47,17 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
     this.textSignal.value = text
   }
 
-  getComputedProperty<K extends keyof TextProperties<EM>>(key: K): TextProperties<EM>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
+    return this.internals.properties.peek(key)
   }
 
-  getStyle(): undefined | Readonly<TextProperties<EM>> {
-    return this.styleSignal.peek()
-  }
-
-  setStyle(style: TextProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
-  }
-
-  setProperties(properties: TextProperties<EM> | undefined) {
-    this.propertiesSignal.value = properties
-  }
-
-  setDefaultProperties(properties: AllOptionalProperties) {
-    this.defaultPropertiesSignal.value = properties
+  setProperties(properties?: TextProperties<EM>) {
+    this.properties = properties
+    this.internals.properties.setLayer(Layers.Imperative, properties)
   }
 
   destroy() {
+    this.internals.properties.destroy()
     this.parent?.remove(this)
     this.unsubscribe()
   }

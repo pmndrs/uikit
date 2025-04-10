@@ -15,7 +15,7 @@ export function createPanelGeometry() {
   const array = new Float32Array(4 * position.count)
   const tangent = [1, 0, 0, 1]
   for (let i = 0; i < array.length; i++) {
-    array[i] = tangent[i % 4]
+    array[i] = tangent[i % 4]!
   }
   geometry.setAttribute('tangent', new BufferAttribute(array, 4))
   return geometry
@@ -37,7 +37,7 @@ export function setBorderRadius(
   height: number,
 ) {
   data[indexInData] = setComponentInFloat(
-    data[indexInData],
+    data[indexInData]!,
     indexInFloat,
     clamp(Math.ceil(((value ?? 0) / height) * 100), 0, 49),
   )

@@ -42,8 +42,10 @@ async function loadFont(fontInfoOrUrl: string | FontInfo, renderer: WebGLRendere
   }
 
   const page = await textureLoader.loadAsync(
-    new URL(info.pages[0], typeof fontInfoOrUrl === 'string' ? new URL(fontInfoOrUrl, window.location.href) : undefined)
-      .href,
+    new URL(
+      info.pages[0]!,
+      typeof fontInfoOrUrl === 'string' ? new URL(fontInfoOrUrl, window.location.href) : undefined,
+    ).href,
   )
 
   page.anisotropy = renderer.capabilities.getMaxAnisotropy()

@@ -1,0 +1,30 @@
+{
+  "name": "@pmndrs/uikit-pub-sub",
+  "type": "module",
+  "dependencies": {
+    "@preact/signals-core": "^1.8.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "mocha ./test/*.spec.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "author": "Bela Bohlender",
+  "homepage": "https://github.com/pmndrs/uikit",
+  "keywords": [
+    "r3f",
+    "3d",
+    "uikit",
+    "properties",
+    "three.js",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/uikit.git"
+  }
+}

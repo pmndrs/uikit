@@ -1,21 +1,13 @@
-import { ReadonlySignal, Signal, computed, effect } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
 import { BufferGeometry, Color, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
-import { WithActive, addActiveHandlers } from '../active.js'
-import { WithPreferredColorScheme } from '../dark.js'
-import { WithHover, addHoverHandlers } from '../hover.js'
-import { WithResponsive } from '../responsive.js'
-import { abortableEffect, ColorRepresentation, readReactive } from '../utils.js'
+import { addActiveHandlers } from '../active.js'
+import { addHoverHandlers } from '../hover.js'
+import { abortableEffect, readReactive } from '../utils.js'
 import { FlexNode, FlexNodeState } from '../flex/index.js'
 import { ParentContext, RootContext } from '../context.js'
 import { EventHandlers } from '../events.js'
-import {
-  AllOptionalProperties,
-  MergedProperties,
-  Properties,
-  PropertyTransformers,
-  computedInheritableProperty,
-} from '../properties/index.js'
-import { AllowedPointerEventsType, PointerEventsProperties } from '../internals.js'
+import { Properties } from '../properties/index.js'
+import { AllowedPointerEventsType } from '../panel/interaction-panel-mesh.js'
 
 export function disposeGroup(object: Object3D | undefined) {
   object?.traverse((mesh) => {
@@ -54,17 +46,15 @@ export type VisibilityProperties = {
 export function computedIsVisible(
   flexState: FlexNodeState,
   isClipped: Signal<boolean> | undefined,
-  mergedProperties: Signal<MergedProperties>,
+  properties: Properties,
 ) {
   return computed(
     () =>
       flexState.displayed.value &&
       (isClipped == null || !isClipped?.value) &&
-      mergedProperties.value.read<VisibilityProperties['visibility']>('visibility', 'visible') === 'visible',
+      properties.get('visibility') === 'visible',
   )
 }
-
-export type WithConditionals<T> = WithHover<T> & WithResponsive<T> & WithPreferredColorScheme<T> & WithActive<T>
 
 export function loadResourceWithParams<P, R, A extends Array<unknown>>(
   target: Signal<R | undefined>,
@@ -101,14 +91,14 @@ export function setupNode(
   state: FlexNodeState & {
     root: RootContext
     node: Signal<FlexNode | undefined>
-    mergedProperties: Signal<MergedProperties>
+    properties: Properties
   },
   parentContext: ParentContext | undefined,
   object: Object3D,
   objectVisibleDefault: boolean,
   abortSignal: AbortSignal,
 ) {
-  const node = new FlexNode(state, state.mergedProperties, object, objectVisibleDefault, abortSignal)
+  const node = new FlexNode(state, object, objectVisibleDefault, abortSignal)
   if (parentContext != null) {
     abortableEffect(() => {
       const { value: parentNode } = parentContext.node
@@ -120,18 +110,6 @@ export function setupNode(
     }, abortSignal)
   }
   return (state.node.value = node)
-}
-
-const signalMap = new Map<unknown, Signal<undefined | null>>()
-export const keepAspectRatioPropertyTransformer: PropertyTransformers = {
-  keepAspectRatio: (value, target) => {
-    let signal = signalMap.get(value)
-    if (signal == null) {
-      //if keep aspect ratio is "false" => we write "null" => which overrides the previous properties and returns null
-      signalMap.set(value, (signal = computed(() => (readReactive(value) === false ? null : undefined))))
-    }
-    target.add('aspectRatio', signal)
-  },
 }
 
 const eventHandlerKeys: Array<keyof EventHandlers> = [
@@ -150,9 +128,7 @@ const eventHandlerKeys: Array<keyof EventHandlers> = [
 ]
 
 export function computedHandlers(
-  style: Signal<Properties | undefined>,
-  propertiesSignal: Signal<Properties | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
+  properties: Properties,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
   dynamicHandlers?: Signal<EventHandlers | undefined>,
@@ -160,25 +136,15 @@ export function computedHandlers(
 ) {
   return computed(() => {
     const handlers: EventHandlers = {}
-    const properties = propertiesSignal.value
-    if (properties != null) {
-      for (const key of eventHandlerKeys) {
-        const handler = properties[key]
-        if (handler != null) {
-          handlers[key] = handler as any
-        }
+    for (const key of eventHandlerKeys) {
+      const handler = properties.get(key as keyof EventHandlers)
+      if (handler != null) {
+        handlers[key] = handler as any
       }
     }
     addHandlers(handlers, dynamicHandlers?.value)
-    addHoverHandlers(
-      handlers,
-      style.value,
-      propertiesSignal.value,
-      defaultProperties.value,
-      hoveredSignal,
-      defaultCursor,
-    )
-    addActiveHandlers(handlers, style.value, propertiesSignal.value, defaultProperties.value, activeSignal)
+    addHoverHandlers(handlers, properties, hoveredSignal, properties.conditionals.hover.anyLayers, defaultCursor)
+    addActiveHandlers(handlers, properties, activeSignal, properties.conditionals.active.anyLayers)
     return handlers
   })
 }
@@ -220,51 +186,35 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
   }) as T[K]
 }
 
-export function computedMergedProperties(
-  style: Signal<Properties | undefined>,
-  properties: Signal<Properties | undefined>,
-  defaultProperties: Signal<AllOptionalProperties | undefined>,
-  postTransformers: PropertyTransformers,
-  preTransformers?: PropertyTransformers,
-  onInit?: (merged: MergedProperties) => void,
-) {
-  return computed(() => {
-    const merged = new MergedProperties(preTransformers)
-    onInit?.(merged)
-    merged.addAll(style.value, properties.value, defaultProperties.value, postTransformers)
-    return merged
-  })
-}
-
 const colorHelper = new Color()
 
 /**
  * @requires that each mesh inside the group has its default color stored inside object.userData.color
  */
 export function applyAppearancePropertiesToGroup(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   group: Signal<Object3D | undefined> | Object3D,
   abortSignal: AbortSignal,
 ) {
   abortableEffect(() => {
-    const properties = propertiesSignal.value
-    const color = properties.read<ColorRepresentation | undefined>('color', undefined)
+    const color = properties.get('color')
     let c: Color | undefined
     if (Array.isArray(color)) {
       c = colorHelper.setRGB(...color)
     } else if (color != null) {
       c = colorHelper.set(color)
     }
-    const opacity = properties.read('opacity', 1)
-    const depthTest = properties.read('depthTest', true)
-    const depthWrite = properties.read('depthWrite', false)
-    const renderOrder = properties.read('renderOrder', 0)
+    const opacity = properties.get('opacity')
+    const depthTest = properties.get('depthTest')
+    const depthWrite = properties.get('depthWrite')
+    const renderOrder = properties.get('renderOrder')
     readReactive(group)?.traverse((mesh) => {
       if (!(mesh instanceof Mesh)) {
         return
       }
       mesh.renderOrder = renderOrder
       const material: MeshBasicMaterial = mesh.material
+      console.log(c, mesh.userData.color)
       material.color.copy(c ?? mesh.userData.color)
       material.opacity = opacity
       material.depthTest = depthTest
@@ -323,35 +273,12 @@ export function setupMatrixWorldUpdate(
       }
       const length = object.children.length
       for (let i = 0; i < length; i++) {
-        object.children[i].updateMatrixWorld(true)
+        object.children[i]!.updateMatrixWorld(true)
       }
     }
     rootContext.onUpdateMatrixWorldSet.add(onFrame)
     return () => rootContext.onUpdateMatrixWorldSet.delete(onFrame)
   }, abortSignal)
-}
-
-export function computeDefaultProperties(propertiesSignal: Signal<MergedProperties>) {
-  return {
-    pointerEvents: computedInheritableProperty<PointerEventsProperties['pointerEvents']>(
-      propertiesSignal,
-      'pointerEvents',
-      undefined,
-    ),
-    pointerEventsOrder: computedInheritableProperty<PointerEventsProperties['pointerEventsOrder']>(
-      propertiesSignal,
-      'pointerEventsOrder',
-      undefined,
-    ),
-    pointerEventsType: computedInheritableProperty<PointerEventsProperties['pointerEventsType']>(
-      propertiesSignal,
-      'pointerEventsType',
-      undefined,
-    ),
-    renderOrder: computedInheritableProperty(propertiesSignal, 'renderOrder', 0),
-    depthTest: computedInheritableProperty(propertiesSignal, 'depthTest', true),
-    depthWrite: computedInheritableProperty(propertiesSignal, 'depthWrite', false),
-  }
 }
 
 export type OutgoingDefaultProperties = {
@@ -364,7 +291,7 @@ export type OutgoingDefaultProperties = {
 }
 
 export function setupPointerEvents(
-  propertiesSignal: Signal<MergedProperties>,
+  properties: Properties,
   ancestorsHaveListeners: ReadonlySignal<boolean>,
   rootContext: RootContext,
   target: Object3D,
@@ -374,25 +301,15 @@ export function setupPointerEvents(
   if (target == null) {
     return
   }
-  const properties = propertiesSignal.value
   target.defaultPointerEvents = 'auto'
   abortableEffect(() => {
     target.ancestorsHaveListeners = ancestorsHaveListeners.value
-    target.pointerEvents = properties.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined)
-    target.pointerEventsOrder = properties.read<PointerEventsProperties['pointerEventsOrder']>(
-      'pointerEventsOrder',
-      undefined,
-    )
-    target.pointerEventsType = properties.read<PointerEventsProperties['pointerEventsType']>(
-      'pointerEventsType',
-      undefined,
-    )
+    target.pointerEvents = properties.get('pointerEvents')
+    target.pointerEventsOrder = properties.get('pointerEventsOrder')
+    target.pointerEventsType = properties.get('pointerEventsType')
   }, abortSignal)
   abortableEffect(() => {
-    if (
-      !canHaveNonUikitChildren &&
-      propertiesSignal.value.read<PointerEventsProperties['pointerEvents']>('pointerEvents', undefined) === 'none'
-    ) {
+    if (!canHaveNonUikitChildren && properties.get('pointerEvents') === 'none') {
       return
     }
     const descendants = rootContext.interactableDescendants
