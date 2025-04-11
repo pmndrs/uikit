@@ -51,8 +51,6 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
     },
   )
 
-  console.log(properties)
-
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
   const isClipped = computedIsClipped(

@@ -214,7 +214,6 @@ export function applyAppearancePropertiesToGroup(
       }
       mesh.renderOrder = renderOrder
       const material: MeshBasicMaterial = mesh.material
-      console.log(c, mesh.userData.color)
       material.color.copy(c ?? mesh.userData.color)
       material.opacity = opacity
       material.depthTest = depthTest

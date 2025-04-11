@@ -64,26 +64,14 @@ describe('html parser', () => {
         properties: {},
         children: [
           {
-            type: 'container',
-            children: [
-              {
-                type: 'text',
-                properties: {},
-                text: 'Hello',
-              },
-            ],
+            type: 'text',
             properties: {},
+            text: 'Hello',
           },
           {
-            type: 'container',
-            children: [
-              {
-                type: 'text',
-                properties: {},
-                text: 'World',
-              },
-            ],
+            type: 'text',
             properties: {},
+            text: 'World',
           },
         ],
       })
@@ -94,14 +82,8 @@ describe('html parser', () => {
     it('should parse h1-h6 with correct default properties', () => {
       const h1Result = parse('<h1>Title</h1>')
       expect(h1Result).to.deep.equal({
-        type: 'container',
-        children: [
-          {
-            type: 'text',
-            properties: {},
-            text: 'Title',
-          },
-        ],
+        type: 'text',
+        text: 'Title',
         properties: {
           fontSize: 32,
           fontWeight: 'bold',
@@ -110,14 +92,8 @@ describe('html parser', () => {
 
       const h6Result = parse('<h6>Small Title</h6>')
       expect(h6Result).to.deep.equal({
-        type: 'container',
-        children: [
-          {
-            type: 'text',
-            properties: {},
-            text: 'Small Title',
-          },
-        ],
+        type: 'text',
+        text: 'Small Title',
         properties: {
           fontSize: 10.67,
           fontWeight: 'bold',
@@ -131,14 +107,8 @@ describe('html parser', () => {
         type: 'container',
         children: [
           {
-            type: 'container',
-            children: [
-              {
-                type: 'text',
-                properties: {},
-                text: 'Item',
-              },
-            ],
+            type: 'text',
+            text: 'Item',
             properties: {},
           },
         ],
@@ -152,14 +122,9 @@ describe('html parser', () => {
         type: 'container',
         children: [
           {
-            type: 'container',
-            children: [
-              {
-                type: 'text',
-                properties: {},
-                text: 'Item',
-              },
-            ],
+            type: 'text',
+
+            text: 'Item',
             properties: {},
           },
         ],
@@ -172,14 +137,8 @@ describe('html parser', () => {
     it('should parse anchor with correct default properties', () => {
       const result = parse('<a href="https://example.com">Link</a>')
       expect(result).to.deep.equal({
-        type: 'container',
-        children: [
-          {
-            type: 'text',
-            properties: {},
-            text: 'Link',
-          },
-        ],
+        type: 'text',
+        text: 'Link',
         properties: {
           href: 'https://example.com',
           cursor: 'pointer',
@@ -190,14 +149,8 @@ describe('html parser', () => {
     it('should parse button with correct default properties', () => {
       const result = parse('<button>Click me</button>')
       expect(result).to.deep.equal({
-        type: 'container',
-        children: [
-          {
-            type: 'text',
-            properties: {},
-            text: 'Click me',
-          },
-        ],
+        type: 'text',
+        text: 'Click me',
         properties: {
           verticalAlign: 'middle',
           textAlign: 'center',

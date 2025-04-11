@@ -227,7 +227,6 @@ export class FlexNode {
 
     const width = this.yogaNode.getComputedWidth()
     const height = this.yogaNode.getComputedHeight()
-    console.log(width, height)
     updateVector2Signal(this.state.size, width, height)
 
     parentWidth ??= width

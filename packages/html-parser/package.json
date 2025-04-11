@@ -1,6 +1,6 @@
 {
   "name": "@pmndrs/uikit-html-parser",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "module",
   "dependencies": {
     "inline-style-parser": "^0.2.4",

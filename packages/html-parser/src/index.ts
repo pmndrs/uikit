@@ -62,6 +62,13 @@ function toUikitElementJson(element: Node, config: ParseConfig | undefined): Ele
         text: element.outerHTML,
       }
     case 'div':
+      if (element.childNodes.length === 1 && element.childNodes[0] instanceof TextNode) {
+        return {
+          type: 'text',
+          properties,
+          text: element.childNodes[0].innerText.trim(),
+        }
+      }
       return {
         type: 'container',
         children: element.childNodes
