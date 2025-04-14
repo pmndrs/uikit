@@ -4,7 +4,6 @@ import type { Box3, Line3, Matrix3, Sphere, Vector2Tuple } from 'three'
 import { Overflow } from 'yoga-layout/load'
 import { FlexNodeState } from './flex/node.js'
 import { RootContext } from './context.js'
-import { Initializers } from './utils.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -176,7 +175,7 @@ for (let i = 0; i < 4; i++) {
 }
 
 export function createGlobalClippingPlanes(root: RootContext, clippingRect: Signal<ClippingRect | undefined>) {
-  const getGlobalMatrix = () => root.object.current?.matrixWorld
+  const getGlobalMatrix = () => root.objectRef.current?.matrixWorld
   const planes = new Array(4)
     .fill(undefined)
     .map((_, i) => new RelativePlane(() => clippingRect?.value?.planes[i], getGlobalMatrix))

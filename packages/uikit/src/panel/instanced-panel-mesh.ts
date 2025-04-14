@@ -1,10 +1,10 @@
 import { Box3, InstancedBufferAttribute, Matrix4, Mesh, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
 import { createPanelGeometry, panelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
-import { Signal, effect } from '@preact/signals-core'
-import { Initializers } from '../utils.js'
+import { Signal } from '@preact/signals-core'
+import { abortableEffect } from '../utils.js'
 import {
-  computedBoundingSphere,
+  setupBoundingSphere,
   makeClippedCast,
   makePanelRaycast,
   makePanelSpherecast,
@@ -12,52 +12,57 @@ import {
 import { OrderInfo } from '../order.js'
 import { ClippingRect } from '../clipping.js'
 import { RootContext } from '../context.js'
+import { FlexNodeState } from '../internals.js'
 
 export function createInteractionPanel(
   orderInfo: Signal<OrderInfo | undefined>,
   rootContext: RootContext,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  size: Signal<Vector2Tuple | undefined>,
   globalMatrix: Signal<Matrix4 | undefined>,
-  initializers: Initializers,
-): Mesh {
-  const panel = new Mesh(panelGeometry)
+  flexState: FlexNodeState,
+) {
+  const boundingSphere = new Sphere()
+  const panel = Object.assign(new Mesh(panelGeometry), { boundingSphere })
   panel.matrixAutoUpdate = false
-  const boundingSphere = computedBoundingSphere(rootContext.pixelSize, globalMatrix, size, initializers)
 
-  initializers.push(() => {
-    const rootObject = rootContext.object.current
-    if (rootObject != null) {
-      panel.raycast = makeClippedCast(
-        panel,
-        makePanelRaycast(panel.raycast.bind(panel), rootObject.matrixWorld, boundingSphere, globalMatrix, panel),
-        rootContext.object,
-        parentClippingRect,
-        orderInfo,
-      )
-      panel.spherecast = makeClippedCast(
-        panel,
-        makePanelSpherecast(rootObject.matrixWorld, boundingSphere, globalMatrix, panel),
-        rootContext.object,
-        parentClippingRect,
-        orderInfo,
-      )
-    }
-    return () => {}
-  })
-  panel.visible = false
-  initializers.push(() =>
-    effect(() => {
-      if (size.value == null) {
-        return
-      }
-      const [width, height] = size.value
-      const pixelSize = rootContext.pixelSize.value
-      panel.scale.set(width * pixelSize, height * pixelSize, 1)
-      panel.updateMatrix()
-    }),
+  const rootObjectRef = rootContext.objectRef
+  panel.raycast = makeClippedCast(
+    panel,
+    makePanelRaycast(panel.raycast.bind(panel), rootObjectRef, boundingSphere, globalMatrix, panel),
+    rootContext.objectRef,
+    parentClippingRect,
+    orderInfo,
+    flexState,
   )
+  panel.spherecast = makeClippedCast(
+    panel,
+    makePanelSpherecast(rootObjectRef, boundingSphere, globalMatrix, panel),
+    rootContext.objectRef,
+    parentClippingRect,
+    orderInfo,
+    flexState,
+  )
+  panel.visible = false
   return panel
+}
+
+export function setupInteractionPanel(
+  panel: Mesh & { boundingSphere: Sphere },
+  rootContext: RootContext,
+  globalMatrix: Signal<Matrix4 | undefined>,
+  size: Signal<Vector2Tuple | undefined>,
+  abortSignal: AbortSignal,
+) {
+  setupBoundingSphere(panel.boundingSphere, rootContext.pixelSize, globalMatrix, size, abortSignal)
+  abortableEffect(() => {
+    if (size.value == null) {
+      return
+    }
+    const [width, height] = size.value
+    const pixelSize = rootContext.pixelSize.value
+    panel.scale.set(width * pixelSize, height * pixelSize, 1)
+    panel.updateMatrix()
+  }, abortSignal)
 }
 
 export class InstancedPanelMesh extends Mesh {

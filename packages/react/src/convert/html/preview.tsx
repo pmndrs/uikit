@@ -29,14 +29,24 @@ export function PreviewHtml({
   children,
   colorMap,
   customHook,
+  componentMap,
 }: {
   children: string
   colorMap?: ConversionColorMap
   customHook?: CustomHook
   wrapperComponent?: ComponentType<{}>
+  componentMap?: ConversionComponentMap
 }) {
   const { classes, element } = useMemo(() => parseHtml(children, colorMap), [children, colorMap])
-  return <PreviewParsedHtml classes={classes} element={element} colorMap={colorMap} customHook={customHook} />
+  return (
+    <PreviewParsedHtml
+      componentMap={componentMap}
+      classes={classes}
+      element={element}
+      colorMap={colorMap}
+      customHook={customHook}
+    />
+  )
 }
 
 export function PreviewParsedHtml({

@@ -35,7 +35,7 @@ export default function App() {
   const [videoel, setVideoEl] = useState<HTMLVideoElement | undefined>()
 
   useEffect(() => {
-    const x = input?.element.peek()
+    const x = input?.element
     if (x == null) {
       return
     }

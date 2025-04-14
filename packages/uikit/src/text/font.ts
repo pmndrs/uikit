@@ -1,10 +1,10 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray, WebGLRenderer } from 'three'
 import { MergedProperties } from '../properties/merged.js'
-import { Initializers } from '../utils.js'
 import { loadCachedFont } from './cache.js'
 import { computedInheritableProperty } from '../properties/index.js'
 import { inter } from '@pmndrs/msdfonts'
+import { abortableEffect } from '../utils.js'
 
 export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>
 
@@ -35,27 +35,22 @@ export function computedFont(
   properties: Signal<MergedProperties>,
   fontFamiliesSignal: Signal<FontFamilies | undefined> | undefined,
   renderer: WebGLRenderer,
-  initializers: Initializers,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
   const fontFamily = computedInheritableProperty<string | undefined>(properties, 'fontFamily', undefined)
   const fontWeight = computedInheritableProperty<FontWeight>(properties, 'fontWeight', 'normal')
-  initializers.push(() =>
-    effect(() => {
-      const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
-      let resolvedFontFamily = fontFamily.value
-      if (resolvedFontFamily == null) {
-        resolvedFontFamily = Object.keys(fontFamilies)[0]
-      }
-      const url = getMatchingFontUrl(
-        fontFamilies[resolvedFontFamily],
-        typeof fontWeight.value === 'string' ? fontWeightNames[fontWeight.value] : fontWeight.value,
-      )
-      let canceled = false
-      loadCachedFont(url, renderer, (font) => !canceled && (result.value = font))
-      return () => (canceled = true)
-    }),
-  )
+  effect(() => {
+    const fontFamilies = fontFamiliesSignal?.value ?? defaultFontFamilyUrls
+    let resolvedFontFamily = fontFamily.value
+    if (resolvedFontFamily == null) {
+      resolvedFontFamily = Object.keys(fontFamilies)[0]
+    }
+    const url = getMatchingFontUrl(
+      fontFamilies[resolvedFontFamily],
+      typeof fontWeight.value === 'string' ? fontWeightNames[fontWeight.value] : fontWeight.value,
+    )
+    loadCachedFont(url, renderer, (font) => (result.value = font))
+  })
   return result
 }
 

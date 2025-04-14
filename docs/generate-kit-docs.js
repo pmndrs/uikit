@@ -62,7 +62,7 @@ export default function App() {
 />
 
 \`\`\`bash
-npx uikit component add ${kit} ${component}
+import { ${capitalize(component)} } from "@react-three/uikit-${kit}";
 \`\`\``
 }
 

@@ -1,10 +1,4 @@
-import {
-  createImage,
-  ImageProperties as BaseImageProperties,
-  initialize,
-  Subscriptions,
-  unsubscribeSubscriptions,
-} from '@pmndrs/uikit/internals'
+import { ImageProperties as BaseImageProperties, createImageState, setupImage } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
@@ -26,27 +20,36 @@ export const Image: (props: ImageProperties & RefAttributes<ImageRef>) => ReactN
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
     () =>
-      createImage<R3FEventMap>(
+      createImageState<R3FEventMap>(
         parent,
+        outerRef,
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
-        outerRef,
-        innerRef,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [parent, propertySignals],
   )
 
   internals.interactionPanel.name = properties.name ?? ''
 
   useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    if (outerRef.current == null || innerRef.current == null) {
+      return
+    }
+    const abortController = new AbortController()
+    setupImage<R3FEventMap>(
+      internals,
+      parent,
+      propertySignals.style,
+      propertySignals.properties,
+      outerRef.current,
+      innerRef.current,
+      abortController.signal,
+    )
+    return () => abortController.abort()
+  }, [parent, propertySignals, internals])
 
-  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers ref={outerRef} handlers={internals.handlers}>

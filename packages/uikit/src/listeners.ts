@@ -1,7 +1,7 @@
 import { Signal, effect } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
-import { Initializers } from './utils.js'
 import { ThreeMouseEvent, ThreePointerEvent } from './events.js'
+import { abortableEffect } from './utils.js'
 
 export type Listeners = ScrollListeners & LayoutListeners & ClippedListeners
 
@@ -34,36 +34,32 @@ export function setupLayoutListeners(
   l1: Signal<LayoutListeners | undefined>,
   l2: Signal<LayoutListeners | undefined>,
   size: Signal<Vector2Tuple | undefined>,
-  initializers: Initializers,
+  abortSignal: AbortSignal,
 ) {
-  initializers.push(() =>
-    effect(() => {
-      const s = size.value
-      if (s == null) {
-        return
-      }
-      l1.peek()?.onSizeChange?.(...s)
-      l2.peek()?.onSizeChange?.(...s)
-    }),
-  )
+  abortableEffect(() => {
+    const s = size.value
+    if (s == null) {
+      return
+    }
+    l1.peek()?.onSizeChange?.(...s)
+    l2.peek()?.onSizeChange?.(...s)
+  }, abortSignal)
 }
 
 export function setupClippedListeners(
   l1: Signal<ClippedListeners | undefined>,
   l2: Signal<ClippedListeners | undefined>,
   isClippedSignal: Signal<boolean>,
-  initializers: Initializers,
+  abortSignal: AbortSignal,
 ) {
   let first = true
-  initializers.push(() =>
-    effect(() => {
-      const isClipped = isClippedSignal.value
-      if (first) {
-        first = false
-        return
-      }
-      l1.peek()?.onIsClippedChange?.(isClipped)
-      l2.peek()?.onIsClippedChange?.(isClipped)
-    }),
-  )
+  abortableEffect(() => {
+    const isClipped = isClippedSignal.value
+    if (first) {
+      first = false
+      return
+    }
+    l1.peek()?.onIsClippedChange?.(isClipped)
+    l2.peek()?.onIsClippedChange?.(isClipped)
+  }, abortSignal)
 }

@@ -4,31 +4,31 @@ import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
-import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
+import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
 import { ElementType, ZIndexProperties, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { Signal, signal } from '@preact/signals-core'
 import {
   VisibilityProperties,
   WithConditionals,
-  computeAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
-  createNode,
+  setupNode,
   setupMatrixWorldUpdate,
   setupPointerEvents,
+  computedAncestorsHaveListeners,
 } from './utils.js'
-import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { Object3DRef, ParentContext } from '../context.js'
-import { FrontSide, Material, Mesh } from 'three'
+import { ParentContext } from '../context.js'
+import { FrontSide, Material, Mesh, Object3D } from 'three'
 import { darkPropertyTransformers } from '../dark.js'
 import { PointerEventsProperties, RenderProperties, ShadowProperties, makeClippedCast } from '../panel/index.js'
 import { EventHandlers, ThreeEventMap } from '../events.js'
+import { abortableEffect } from '../utils.js'
 
 export type InheritableCustomContainerProperties = WithClasses<
   WithConditionals<
@@ -52,19 +52,15 @@ export type CustomContainerProperties<EM extends ThreeEventMap = ThreeEventMap> 
   Listeners &
   EventHandlers<EM>
 
-export function createCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
+export function createCustomContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
   style: Signal<CustomContainerProperties<EM> | undefined>,
   properties: Signal<CustomContainerProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
-  object: Object3DRef,
-  meshRef: { current?: Mesh | null },
 ) {
+  const flexState = createFlexNodeState()
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const initializers: Initializers = []
-
-  setupCursorCleanup(hoveredSignal, initializers)
 
   //properties
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
@@ -74,20 +70,12 @@ export function createCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
     ...createActivePropertyTransfomers(activeSignal),
   })
 
-  //create node
-  const flexState = createFlexNodeState()
-  createNode(undefined, flexState, parentCtx, mergedProperties, object, true, initializers)
-
-  //transform
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
-  applyTransform(parentCtx.root, object, transformMatrix, initializers)
-
   const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
   const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
   const isVisible = computedIsVisible(flexState, isClipped, mergedProperties)
 
-  //instanced panel
   const orderInfo = computedOrderInfo(
     mergedProperties,
     'zIndexOffset',
@@ -95,81 +83,102 @@ export function createCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
     undefined,
     parentCtx.orderInfo,
   )
-  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
-
-  initializers.push((subscriptions) => {
-    const mesh = meshRef.current
-    if (mesh == null) {
-      return subscriptions
-    }
-    mesh.matrixAutoUpdate = false
-    if (mesh.material instanceof Material) {
-      const material = mesh.material
-      material.clippingPlanes = clippingPlanes
-      material.needsUpdate = true
-      material.shadowSide = FrontSide
-      subscriptions.push(
-        () =>
-          effect(() => {
-            material.depthTest = mergedProperties.value.read('depthTest', true)
-            parentCtx.root.requestRender()
-          }),
-        () =>
-          effect(() => {
-            material.depthWrite = mergedProperties.value.read('depthWrite', false)
-            parentCtx.root.requestRender()
-          }),
-      )
-    }
-    mesh.raycast = makeClippedCast(mesh, mesh.raycast, parentCtx.root.object, parentCtx.clippingRect, orderInfo)
-    setupRenderOrder(mesh, parentCtx.root, orderInfo)
-    subscriptions.push(
-      effect(() => {
-        mesh.renderOrder = mergedProperties.value.read('renderOrder', 0)
-        parentCtx.root.requestRender()
-      }),
-      effect(() => {
-        mesh.receiveShadow = mergedProperties.value.read('receiveShadow', false)
-        parentCtx.root.requestRender()
-      }),
-      effect(() => {
-        mesh.castShadow = mergedProperties.value.read('castShadow', false)
-        parentCtx.root.requestRender()
-      }),
-      effect(() => {
-        if (flexState.size.value == null) {
-          return
-        }
-        const [width, height] = flexState.size.value
-        const pixelSize = parentCtx.root.pixelSize.value
-        mesh.scale.set(width * pixelSize, height * pixelSize, 1)
-        mesh.updateMatrix()
-        parentCtx.root.requestRender()
-      }),
-      effect(() => {
-        void (mesh.visible = isVisible.value)
-        parentCtx.root.requestRender()
-      }),
-    )
-    return subscriptions
-  })
-
-  setupMatrixWorldUpdate(true, true, object, parentCtx.root, globalMatrix, initializers, false)
 
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computeAncestorsHaveListeners(parentCtx, handlers)
-  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, object, initializers, true)
-
-  setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupClippedListeners(style, properties, isClipped, initializers)
+  const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
   return Object.assign(flexState, {
+    hoveredSignal,
+    activeSignal,
+    mergedProperties,
+    transformMatrix,
     globalMatrix,
     isClipped,
     isVisible,
-    mergedProperties,
-    root: parentCtx.root,
+    orderInfo,
     handlers,
-    initializers,
+    ancestorsHaveListeners,
+    root: parentCtx.root,
   })
+}
+
+export function setupCustomContainer<EM extends ThreeEventMap = ThreeEventMap>(
+  state: ReturnType<typeof createCustomContainerState>,
+  parentCtx: ParentContext,
+  style: Signal<CustomContainerProperties<EM> | undefined>,
+  properties: Signal<CustomContainerProperties<EM> | undefined>,
+  object: Object3D,
+  mesh: Mesh,
+  abortSignal: AbortSignal,
+) {
+  setupCursorCleanup(state.hoveredSignal, abortSignal)
+
+  //create node
+  setupNode(state, parentCtx, object, true, abortSignal)
+
+  //transform
+  setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
+
+  //setup mesh
+  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
+
+  mesh.matrixAutoUpdate = false
+  if (mesh.material instanceof Material) {
+    const material = mesh.material
+    material.clippingPlanes = clippingPlanes
+    material.needsUpdate = true
+    material.shadowSide = FrontSide
+    abortableEffect(() => {
+      material.depthTest = state.mergedProperties.value.read('depthTest', true)
+      parentCtx.root.requestRender()
+    }, abortSignal)
+    abortableEffect(() => {
+      material.depthWrite = state.mergedProperties.value.read('depthWrite', false)
+      parentCtx.root.requestRender()
+    }, abortSignal)
+  }
+
+  mesh.raycast = makeClippedCast(
+    mesh,
+    mesh.raycast,
+    parentCtx.root.objectRef,
+    parentCtx.clippingRect,
+    state.orderInfo,
+    state,
+  )
+  setupRenderOrder(mesh, parentCtx.root, state.orderInfo)
+
+  abortableEffect(() => {
+    mesh.renderOrder = state.mergedProperties.value.read('renderOrder', 0)
+    parentCtx.root.requestRender()
+  }, abortSignal)
+  abortableEffect(() => {
+    mesh.receiveShadow = state.mergedProperties.value.read('receiveShadow', false)
+    parentCtx.root.requestRender()
+  }, abortSignal)
+  abortableEffect(() => {
+    mesh.castShadow = state.mergedProperties.value.read('castShadow', false)
+    parentCtx.root.requestRender()
+  }, abortSignal)
+  abortableEffect(() => {
+    if (state.size.value == null) {
+      return
+    }
+    const [width, height] = state.size.value
+    const pixelSize = parentCtx.root.pixelSize.value
+    mesh.scale.set(width * pixelSize, height * pixelSize, 1)
+    mesh.updateMatrix()
+    parentCtx.root.requestRender()
+  }, abortSignal)
+  abortableEffect(() => {
+    void (mesh.visible = state.isVisible.value)
+    parentCtx.root.requestRender()
+  }, abortSignal)
+
+  setupMatrixWorldUpdate(true, true, object, parentCtx.root, state.globalMatrix, false, abortSignal)
+
+  setupPointerEvents(state.mergedProperties, state.ancestorsHaveListeners, parentCtx.root, object, true, abortSignal)
+
+  setupLayoutListeners(style, properties, state.size, abortSignal)
+  setupClippedListeners(style, properties, state.isClipped, abortSignal)
 }

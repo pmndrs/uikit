@@ -1,14 +1,14 @@
-import { Signal, computed, effect, signal } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
-import { ElementType, OrderInfo, computedOrderInfo } from './order.js'
-import { PanelProperties, createInstancedPanel } from './panel/instanced-panel.js'
-import { ColorRepresentation, Initializers, computedBorderInset } from './utils.js'
+import { computedOrderInfo, ElementType, OrderInfo } from './order.js'
+import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
+import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
   PanelGroupManager,
+  PanelGroupProperties,
   PanelMaterialConfig,
   createPanelMaterialConfig,
-  defaultPanelDependencies,
 } from './panel/index.js'
 import { MergedProperties, computedInheritableProperty } from './properties/index.js'
 
@@ -74,61 +74,52 @@ export function createCaret(
   caretTransformation: Signal<CaretTransformation | undefined>,
   isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
+  parentGroupDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   panelGroupManager: PanelGroupManager,
-  initializers: Initializers,
+  abortSignal: AbortSignal,
 ) {
-  const orderInfo = computedOrderInfo(
-    undefined,
-    'zIndexOffset',
-    ElementType.Panel,
-    defaultPanelDependencies,
-    parentOrderInfo,
-  )
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, parentGroupDeps, parentOrderInfo)
   const blinkingCaretTransformation = signal<CaretTransformation | undefined>(undefined)
-  initializers.push(() =>
-    effect(() => {
-      const pos = caretTransformation.value
-      if (pos == null) {
-        blinkingCaretTransformation.value = undefined
-      }
-      blinkingCaretTransformation.value = pos
-      const ref = setInterval(
-        () => (blinkingCaretTransformation.value = blinkingCaretTransformation.peek() == null ? pos : undefined),
-        500,
-      )
-      return () => clearInterval(ref)
-    }),
-  )
+  abortableEffect(() => {
+    const pos = caretTransformation.value
+    if (pos == null) {
+      blinkingCaretTransformation.value = undefined
+    }
+    blinkingCaretTransformation.value = pos
+    const ref = setInterval(
+      () => (blinkingCaretTransformation.value = blinkingCaretTransformation.peek() == null ? pos : undefined),
+      500,
+    )
+    return () => clearInterval(ref)
+  }, abortSignal)
   const borderInset = computedBorderInset(propertiesSignal, caretBorderKeys)
   const caretWidth = computedInheritableProperty(propertiesSignal, 'caretWidth', 1.5)
 
-  initializers.push((subscriptions) =>
-    createInstancedPanel(
-      propertiesSignal,
-      orderInfo,
-      undefined,
-      panelGroupManager,
-      matrix,
-      computed(() => {
-        const height = blinkingCaretTransformation.value?.height
-        if (height == null) {
-          return [0, 0]
-        }
-        return [caretWidth.value, height]
-      }),
-      computed(() => {
-        const position = blinkingCaretTransformation.value?.position
-        if (position == null) {
-          return [0, 0]
-        }
-        return [position[0] - caretWidth.value / 2, position[1]]
-      }),
-      borderInset,
-      parentClippingRect,
-      isVisible,
-      getCaretMaterialConfig(),
-      subscriptions,
-    ),
+  setupInstancedPanel(
+    propertiesSignal,
+    orderInfo,
+    parentGroupDeps,
+    panelGroupManager,
+    matrix,
+    computed(() => {
+      const height = blinkingCaretTransformation.value?.height
+      if (height == null) {
+        return [0, 0]
+      }
+      return [caretWidth.value, height]
+    }),
+    computed(() => {
+      const position = blinkingCaretTransformation.value?.position
+      if (position == null) {
+        return [0, 0]
+      }
+      return [position[0] - caretWidth.value / 2, position[1]]
+    }),
+    borderInset,
+    parentClippingRect,
+    isVisible,
+    getCaretMaterialConfig(),
+    abortSignal,
   )
 }

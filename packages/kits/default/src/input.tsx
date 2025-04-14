@@ -18,7 +18,18 @@ type _InputProperties = InputProperties
 
 export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   (
-    { panelMaterialClass, value, defaultValue, onValueChange, tabIndex, disabled, placeholder, type, ...props },
+    {
+      autocomplete,
+      panelMaterialClass,
+      value,
+      defaultValue,
+      onValueChange,
+      tabIndex,
+      disabled,
+      placeholder,
+      type,
+      ...props
+    },
     ref,
   ) => {
     const [internal, setInternal] = useState<InputInternals | null>(null)
@@ -43,6 +54,7 @@ export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => Re
         >
           <InputImpl
             ref={setInternal}
+            autocomplete={autocomplete}
             borderRadius={borderRadius.md}
             backgroundColor={colors.background}
             borderColor={colors.input}

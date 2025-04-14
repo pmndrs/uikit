@@ -1,6 +1,6 @@
 import { Signal, effect, untracked } from '@preact/signals-core'
 import { MergedProperties } from './merged.js'
-import type { Subscriptions } from '../utils.js'
+import { abortableEffect } from '../utils.js'
 
 type PropertySubscriptions = Record<string, () => void>
 
@@ -9,7 +9,7 @@ export function setupImmediateProperties(
   activeSignal: Signal<boolean>,
   hasProperty: (key: string) => boolean,
   setProperty: (key: string, value: unknown) => void,
-  subscriptions: Subscriptions,
+  abortSignal: AbortSignal,
 ): void {
   let active = false
   let currentProperties: MergedProperties | undefined
@@ -17,30 +17,28 @@ export function setupImmediateProperties(
 
   //the following 2 effects are seperated so that the cleanup call only happens when active changes from true to false
   //or everything is cleaned up because the component is destroyed
-  subscriptions.push(
-    effect(() => {
-      const newProperties = propertiesSignal.value
-      if (active) {
-        applyProperties(hasProperty, newProperties, currentProperties, propertySubscriptions, setProperty)
-      }
-      currentProperties = newProperties
-    }),
-    effect(() => {
-      active = activeSignal.value
-      if (!active) {
-        return
-      }
-      if (currentProperties == null) {
-        return
-      }
-      //(re-)write all current properties since the object is (re-)activiated it might not have its values set
-      applyProperties(hasProperty, currentProperties, undefined, propertySubscriptions, setProperty)
-      return () => {
-        unsubscribeProperties(propertySubscriptions)
-        propertySubscriptions = {}
-      }
-    }),
-  )
+  abortableEffect(() => {
+    const newProperties = propertiesSignal.value
+    if (active) {
+      applyProperties(hasProperty, newProperties, currentProperties, propertySubscriptions, setProperty)
+    }
+    currentProperties = newProperties
+  }, abortSignal)
+  abortableEffect(() => {
+    active = activeSignal.value
+    if (!active) {
+      return
+    }
+    if (currentProperties == null) {
+      return
+    }
+    //(re-)write all current properties since the object is (re-)activiated it might not have its values set
+    applyProperties(hasProperty, currentProperties, undefined, propertySubscriptions, setProperty)
+    return () => {
+      unsubscribeProperties(propertySubscriptions)
+      propertySubscriptions = {}
+    }
+  }, abortSignal)
 }
 
 function applyProperties(

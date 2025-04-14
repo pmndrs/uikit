@@ -3,12 +3,10 @@ import { Material, Mesh, Object3D } from 'three'
 import { ParentProvider, useParent } from './context.js'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
-  createCustomContainer,
   CustomContainerProperties as BaseCustomContainerProperties,
-  initialize,
+  createCustomContainerState,
   panelGeometry,
-  Subscriptions,
-  unsubscribeSubscriptions,
+  setupCustomContainer,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 
@@ -29,28 +27,38 @@ export const CustomContainer: (props: CustomContainerProperties & RefAttributes<
     const propertySignals = usePropertySignals(properties)
     const internals = useMemo(
       () =>
-        createCustomContainer<R3FEventMap>(
+        createCustomContainerState<R3FEventMap>(
           parent,
           propertySignals.style,
           propertySignals.properties,
           propertySignals.default,
-          outerRef,
-          innerRef,
         ),
       [parent, propertySignals],
     )
     useEffect(() => {
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      return () => unsubscribeSubscriptions(subscriptions)
-    }, [internals])
+      if (outerRef.current == null || innerRef.current == null) {
+        return
+      }
+      const abortController = new AbortController()
+      setupCustomContainer<R3FEventMap>(
+        internals,
+        parent,
+        propertySignals.style,
+        propertySignals.properties,
+        outerRef.current,
+        innerRef.current,
+        abortController.signal,
+      )
+      return () => abortController.abort()
+    }, [internals, parent, propertySignals])
 
-    useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, innerRef)
+    useComponentInternals(ref, parent.root, propertySignals.style, internals, innerRef)
 
     useEffect(() => {
-      if (innerRef.current && properties.name) {
-        innerRef.current.name = properties.name
+      if (innerRef.current == null) {
+        return
       }
+      innerRef.current.name = properties.name ?? ''
     }, [properties.name])
 
     return (

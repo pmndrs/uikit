@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "@preact/signals-core": "^1.5.1",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
     "vite-plugin-mkcert": "^1.17.4",

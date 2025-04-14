@@ -1,15 +1,15 @@
-import { FlexNode, YogaProperties, createFlexNodeState } from '../flex/node.js'
+import { YogaProperties, createFlexNodeState } from '../flex/node.js'
 import { createHoverPropertyTransformers, setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { WithAllAliases } from '../properties/alias.js'
-import { PanelProperties, createInstancedPanel } from '../panel/instanced-panel.js'
-import { TransformProperties, applyTransform, computedTransformMatrix } from '../transform.js'
+import { PanelProperties, setupInstancedPanel } from '../panel/instanced-panel.js'
+import { TransformProperties, setupObjectTransform, computedTransformMatrix } from '../transform.js'
 import { AllOptionalProperties, WithClasses, WithReactive } from '../properties/default.js'
 import { createResponsivePropertyTransformers } from '../responsive.js'
-import { ElementType, ZIndexProperties, computedOrderInfo } from '../order.js'
+import { computedOrderInfo, ElementType, ZIndexProperties } from '../order.js'
 import { createActivePropertyTransfomers } from '../active.js'
-import { Signal, effect, signal } from '@preact/signals-core'
+import { Signal, signal } from '@preact/signals-core'
 import {
   VisibilityProperties,
   WithConditionals,
@@ -17,15 +17,19 @@ import {
   computedHandlers,
   computedIsVisible,
   computedMergedProperties,
-  createNode,
+  setupNode,
   setupPointerEvents,
   setupMatrixWorldUpdate,
 } from './utils.js'
-import { Initializers } from '../utils.js'
 import { Listeners, setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { Object3DRef, ParentContext } from '../context.js'
+import { ParentContext } from '../context.js'
 import { PanelGroupProperties, computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel, getDefaultPanelMaterialConfig, PointerEventsProperties } from '../panel/index.js'
+import {
+  createInteractionPanel,
+  getDefaultPanelMaterialConfig,
+  PointerEventsProperties,
+  setupInteractionPanel,
+} from '../panel/index.js'
 import {
   FontFamilies,
   InstancedTextProperties,
@@ -35,12 +39,14 @@ import {
 } from '../text/index.js'
 import { darkPropertyTransformers } from '../dark.js'
 import {
-  computeAncestorsHaveListeners,
+  abortableEffect,
+  computedAncestorsHaveListeners,
   computedInheritableProperty,
   EventHandlers,
   ThreeEventMap,
   UpdateMatrixWorldProperties,
 } from '../internals.js'
+import { Object3D } from 'three'
 
 export type InheritableTextProperties = WithClasses<
   WithConditionals<
@@ -65,19 +71,17 @@ export type TextProperties<Em extends ThreeEventMap = ThreeEventMap> = Inheritab
   Listeners &
   EventHandlers<Em>
 
-export function createText<EM extends ThreeEventMap = ThreeEventMap>(
+export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
   parentCtx: ParentContext,
-  textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
+  textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
   fontFamilies: Signal<FontFamilies | undefined> | undefined,
   style: Signal<TextProperties<EM> | undefined>,
   properties: Signal<TextProperties<EM> | undefined>,
   defaultProperties: Signal<AllOptionalProperties | undefined>,
-  object: Object3DRef,
 ) {
+  const flexState = createFlexNodeState()
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
-  const initializers: Initializers = []
-  setupCursorCleanup(hoveredSignal, initializers)
 
   const mergedProperties = computedMergedProperties(style, properties, defaultProperties, {
     ...darkPropertyTransformers,
@@ -86,13 +90,7 @@ export function createText<EM extends ThreeEventMap = ThreeEventMap>(
     ...createActivePropertyTransfomers(activeSignal),
   })
 
-  const nodeSignal = signal<FlexNode | undefined>(undefined)
-  const flexState = createFlexNodeState()
-  createNode(nodeSignal, flexState, parentCtx, mergedProperties, object, false, initializers)
-
   const transformMatrix = computedTransformMatrix(mergedProperties, flexState, parentCtx.root.pixelSize)
-  applyTransform(parentCtx.root, object, transformMatrix, initializers)
-
   const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
 
   const isClipped = computedIsClipped(parentCtx.clippingRect, globalMatrix, flexState.size, parentCtx.root.pixelSize)
@@ -106,24 +104,8 @@ export function createText<EM extends ThreeEventMap = ThreeEventMap>(
     groupDeps,
     parentCtx.orderInfo,
   )
-  initializers.push((subscriptions) =>
-    createInstancedPanel(
-      mergedProperties,
-      backgroundOrderInfo,
-      groupDeps,
-      parentCtx.root.panelGroupManager,
-      globalMatrix,
-      flexState.size,
-      undefined,
-      flexState.borderInset,
-      parentCtx.clippingRect,
-      isVisible,
-      getDefaultPanelMaterialConfig(),
-      subscriptions,
-    ),
-  )
 
-  const fontSignal = computedFont(mergedProperties, fontFamilies, parentCtx.root.renderer, initializers)
+  const fontSignal = computedFont(mergedProperties, fontFamilies, parentCtx.root.renderer)
   const orderInfo = computedOrderInfo(
     undefined,
     'zIndexOffset',
@@ -132,53 +114,107 @@ export function createText<EM extends ThreeEventMap = ThreeEventMap>(
     backgroundOrderInfo,
   )
 
-  const customLayouting = createInstancedText(
-    mergedProperties,
-    textSignal,
-    globalMatrix,
-    nodeSignal,
-    flexState,
-    isVisible,
-    parentCtx.clippingRect,
-    orderInfo,
-    fontSignal,
-    parentCtx.root.gylphGroupManager,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    initializers,
-    'break-word',
-  )
-  initializers.push(() => effect(() => nodeSignal.value?.setCustomLayouting(customLayouting.value)))
-
-  const interactionPanel = createInteractionPanel(
-    backgroundOrderInfo,
-    parentCtx.root,
-    parentCtx.clippingRect,
-    flexState.size,
-    globalMatrix,
-    initializers,
-  )
-
   const handlers = computedHandlers(style, properties, defaultProperties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computeAncestorsHaveListeners(undefined, handlers)
-  setupPointerEvents(mergedProperties, ancestorsHaveListeners, parentCtx.root, interactionPanel, initializers, false)
-
+  const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
   const updateMatrixWorld = computedInheritableProperty(mergedProperties, 'updateMatrixWorld', false)
-  setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, globalMatrix, initializers, false)
-  setupMatrixWorldUpdate(updateMatrixWorld, false, interactionPanel, parentCtx.root, globalMatrix, initializers, true)
-
-  setupLayoutListeners(style, properties, flexState.size, initializers)
-  setupClippedListeners(style, properties, isClipped, initializers)
 
   return Object.assign(flexState, {
+    interactionPanel: createInteractionPanel(
+      backgroundOrderInfo,
+      parentCtx.root,
+      parentCtx.clippingRect,
+      globalMatrix,
+      flexState,
+    ),
+    hoveredSignal,
+    activeSignal,
+    mergedProperties,
+    transformMatrix,
     globalMatrix,
     isClipped,
     isVisible,
-    mergedProperties,
-    interactionPanel,
+    groupDeps,
+    backgroundOrderInfo,
+    fontSignal,
+    orderInfo,
     handlers,
-    initializers,
+    ancestorsHaveListeners,
+    updateMatrixWorld,
+    textSignal,
+    root: parentCtx.root,
   })
+}
+
+export function setupText<EM extends ThreeEventMap = ThreeEventMap>(
+  state: ReturnType<typeof createTextState>,
+  parentCtx: ParentContext,
+  style: Signal<TextProperties<EM> | undefined>,
+  properties: Signal<TextProperties<EM> | undefined>,
+  object: Object3D,
+  abortSignal: AbortSignal,
+) {
+  setupCursorCleanup(state.hoveredSignal, abortSignal)
+
+  setupNode(state, parentCtx, object, false, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+
+  setupInstancedPanel(
+    state.mergedProperties,
+    state.backgroundOrderInfo,
+    state.groupDeps,
+    state.root.panelGroupManager,
+    state.globalMatrix,
+    state.size,
+    undefined,
+    state.borderInset,
+    parentCtx.clippingRect,
+    state.isVisible,
+    getDefaultPanelMaterialConfig(),
+    abortSignal,
+  )
+
+  const customLayouting = createInstancedText(
+    state.mergedProperties,
+    state.textSignal,
+    state.globalMatrix,
+    state.node,
+    state,
+    state.isVisible,
+    parentCtx.clippingRect,
+    state.orderInfo,
+    state.fontSignal,
+    state.root.gylphGroupManager,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    'break-word',
+    abortSignal,
+  )
+  abortableEffect(() => state.node.value?.setCustomLayouting(customLayouting.value), abortSignal)
+
+  setupInteractionPanel(state.interactionPanel, state.root, state.globalMatrix, state.size, abortSignal)
+
+  setupPointerEvents(
+    state.mergedProperties,
+    state.ancestorsHaveListeners,
+    state.root,
+    state.interactionPanel,
+    false,
+    abortSignal,
+  )
+
+  setupMatrixWorldUpdate(state.updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
+  setupMatrixWorldUpdate(
+    state.updateMatrixWorld,
+    false,
+    state.interactionPanel,
+    state.root,
+    state.globalMatrix,
+    true,
+    abortSignal,
+  )
+
+  setupLayoutListeners(style, properties, state.size, abortSignal)
+  setupClippedListeners(style, properties, state.isClipped, abortSignal)
 }

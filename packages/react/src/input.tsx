@@ -5,12 +5,10 @@ import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
   FontFamilies,
   InputProperties as BaseInputProperties,
-  Subscriptions,
-  createInput,
-  initialize,
-  unsubscribeSubscriptions,
   CaretTransformation,
   SelectionTransformation,
+  setupInput,
+  createInputState,
 } from '@pmndrs/uikit/internals'
 import { ComponentInternals, useComponentInternals } from './ref.js'
 import { ReadonlySignal, signal } from '@preact/signals-core'
@@ -22,7 +20,7 @@ export type InputInternals = ComponentInternals<BaseInputProperties<R3FEventMap>
   current: ReadonlySignal<string>
   focus: () => void
   blur: () => void
-  element: ReadonlySignal<HTMLInputElement | HTMLTextAreaElement | undefined>
+  element: HTMLInputElement | HTMLTextAreaElement
   selectionRange: ReadonlySignal<Vector2Tuple | undefined>
   caretTransformation: ReadonlySignal<CaretTransformation | undefined>
   selectionTransformations: ReadonlySignal<Array<SelectionTransformation>>
@@ -41,13 +39,12 @@ export const Input: (props: InputProperties & RefAttributes<InputRef>) => ReactN
   //allows to not get a eslint error because of dependencies (we deliberatly never update this ref)
   const internals = useMemo(
     () =>
-      createInput<R3FEventMap>(
+      createInputState<R3FEventMap>(
         parent,
         fontFamilies,
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
-        outerRef,
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -56,14 +53,25 @@ export const Input: (props: InputProperties & RefAttributes<InputRef>) => ReactN
   internals.interactionPanel.name = properties.name ?? ''
 
   useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    if (outerRef.current == null) {
+      return
+    }
+    const abortController = new AbortController()
+    setupInput<R3FEventMap>(
+      internals,
+      parent,
+      propertySignals.style,
+      propertySignals.properties,
+      propertySignals.default,
+      outerRef.current,
+      abortController.signal,
+    )
+    return () => abortController.abort()
+  }, [parent, propertySignals, internals])
 
   useComponentInternals(
     ref,
-    parent.root.pixelSize,
+    parent.root,
     propertySignals.style,
     internals,
     internals.interactionPanel,
