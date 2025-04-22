@@ -7,23 +7,26 @@ import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  protected readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  protected readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> =
+    signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createImageState>
 
   constructor(private properties?: ImageProperties<EM>) {
     super()
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
     this.matrixAutoUpdate = false
 
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
+        this.contextSignal.value = undefined
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createImageState(parentContext, { current: this })
+      this.internals = createImageState({ current: this }, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
       setupImage(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
       this.contextSignal.value = this.internals

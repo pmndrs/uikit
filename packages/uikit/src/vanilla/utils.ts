@@ -9,22 +9,33 @@ const _addedEvent = { type: 'added' as const }
 const _childaddedEvent = { type: 'childadded' as const, child: null as any }
 
 export function setupParentContextSignal(
-  parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined>,
+  parentContextSignal: Signal<Signal<ParentContext | undefined> | null | undefined>,
   container: Object3D,
 ) {
   container.addEventListener('added', () => {
     if (!(container.parent?.parent instanceof Parent)) {
-      throw new Error(`uikit objects can only be added to uikit parent elements (e.g. Container, Root, ...)`)
+      parentContextSignal.value = null
+      return
     }
     parentContextSignal.value = container.parent.parent.contextSignal
   })
   container.addEventListener('removed', () => (parentContextSignal.value = undefined))
 }
 
-export class Component<T = {}> extends Object3D<EventMap & { childadded: {}; childremoved: {} } & T> {}
+export class Component<T = {}> extends Object3D<EventMap & { childadded: {}; childremoved: {} } & T> {
+  readonly contextSignal: Signal<ParentContext | undefined> = signal(undefined)
+  update(delta: number) {
+    const context = this.contextSignal.peek()
+    if (context == null) {
+      return
+    }
+    for (const onFrame of context.root.onFrameSet) {
+      onFrame(delta)
+    }
+  }
+}
 
 export class Parent<T = {}> extends Component<T> {
-  readonly contextSignal: Signal<ParentContext | undefined> = signal(undefined)
   protected readonly childrenContainer = new Object3D<{ childadded: {}; childremoved: {} } & Object3DEventMap>()
 
   constructor() {

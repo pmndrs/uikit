@@ -1,9 +1,9 @@
-import { Signal, computed, effect } from '@preact/signals-core'
+import { Signal, computed } from '@preact/signals-core'
 import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
 import { FlexNodeState } from './flex/node.js'
 import { abortableEffect, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
-import { RootContext } from './context.js'
 import { Properties } from './properties/index.js'
+import { RootContext } from './components/index.js'
 
 export type Percentage = `${number}%`
 
@@ -134,6 +134,6 @@ export function setupObjectTransform(
       return
     }
     object.matrix.copy(transformMatrix.value)
-    root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
 }

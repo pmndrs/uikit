@@ -27,23 +27,27 @@ import { setupCursorCleanup } from '../hover.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
+import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './index.js'
 
 export type IconProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
 export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
   text: string,
   svgWidth: number,
   svgHeight: number,
+  objectRef: { current?: Object3D | null },
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
   const properties = new Properties<EM>(
     allAliases,
-    createConditionals(parentCtx.root.size, hoveredSignal, activeSignal),
-    parentCtx.properties,
+    createConditionals(rootContext.root.size, hoveredSignal, activeSignal),
+    parentCtx?.properties,
     {
       aspectRatio: svgWidth / svgHeight,
       width: svgWidth,
@@ -52,9 +56,12 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
   )
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -67,7 +74,7 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
     'zIndexOffset',
     ElementType.Panel,
     groupDeps,
-    parentCtx.orderInfo,
+    parentCtx?.orderInfo,
   )
 
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Svg, undefined, backgroundOrderInfo)
@@ -75,10 +82,9 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
   const handlers = computedHandlers(properties, hoveredSignal, activeSignal)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
-  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
+  const clippingPlanes = createGlobalClippingPlanes(rootContext.root, parentCtx?.clippingRect)
 
-  return Object.assign(flexState, {
-    root: parentCtx.root,
+  return Object.assign(flexState, rootContext, {
     hoveredSignal,
     activeSignal,
     properties: properties,
@@ -96,36 +102,37 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
     svgHeight,
     interactionPanel: createInteractionPanel(
       orderInfo,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      rootContext.root,
+      parentCtx?.clippingRect,
       globalMatrix,
       flexState,
     ),
-    iconGroup: createIconGroup(flexState, text, parentCtx, orderInfo, clippingPlanes),
+    iconGroup: createIconGroup(rootContext.root, flexState, text, parentCtx, orderInfo, clippingPlanes),
   })
 }
 
 export function setupIcon(
   state: ReturnType<typeof createIconState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, undefined, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   setupNode(state, parentCtx, object, true, abortSignal)
-  setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
 
   setupInstancedPanel(
     state.properties,
     state.backgroundOrderInfo,
     state.groupDeps,
-    parentCtx.root.panelGroupManager,
+    state.root.panelGroupManager,
     state.globalMatrix,
     state.size,
     undefined,
     state.borderInset,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.isVisible,
     getDefaultPanelMaterialConfig(),
     abortSignal,
@@ -136,15 +143,15 @@ export function setupIcon(
     state.properties,
     state.svgWidth,
     state.svgHeight,
-    parentCtx,
+    state.root,
     state,
     state.isVisible,
     abortSignal,
   )
 
-  setupMatrixWorldUpdate(true, true, object, parentCtx.root, state.globalMatrix, false, abortSignal)
+  setupMatrixWorldUpdate(true, true, object, state.root, state.globalMatrix, false, abortSignal)
 
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, parentCtx.root, object, false, abortSignal)
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, object, false, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
@@ -155,11 +162,12 @@ export function setupIcon(
 const loader = new SVGLoader()
 
 function createIconGroup(
+  root: RootContext,
   flexState: FlexNodeState,
   text: string,
-  parentContext: ParentContext,
+  parentContext: ParentContext | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
-  clippingPlanes: Array<Plane>,
+  clippingPlanes: Array<Plane> | null,
 ): Group {
   const group = new Group()
   group.matrixAutoUpdate = false
@@ -181,12 +189,12 @@ function createIconGroup(
       mesh.raycast = makeClippedCast(
         mesh,
         mesh.raycast,
-        parentContext.root.objectRef,
-        parentContext.clippingRect,
+        root.objectRef,
+        parentContext?.clippingRect,
         orderInfo,
         flexState,
       )
-      setupRenderOrder(mesh, parentContext.root, orderInfo)
+      setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1
       mesh.updateMatrix()
@@ -201,7 +209,7 @@ function setupIconGroup(
   properties: Properties,
   svgWidth: number,
   svgHeight: number,
-  parentContext: ParentContext,
+  root: RootContext,
   flexState: FlexNodeState,
   isVisible: Signal<boolean>,
   abortSignal: AbortSignal,
@@ -221,7 +229,7 @@ function setupIconGroup(
     group.position.y += group.scale.x / 2
     group.scale.divideScalar(svgHeight)
     group.updateMatrix()
-    parentContext.root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
   abortSignal.addEventListener('abort', () =>
     group.children.forEach((child) => {
@@ -234,7 +242,7 @@ function setupIconGroup(
   )
   abortableEffect(() => {
     group.visible = isVisible.value
-    parentContext.root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
   applyAppearancePropertiesToGroup(properties, group, abortSignal)
 }

@@ -51,7 +51,6 @@ export function computedFontFamilies(properties: Properties, parentContext: Pare
 export function computedFont(
   properties: Properties,
   fontFamiliesSignal: Signal<FontFamilies | undefined>,
-  renderer: WebGLRenderer,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
   effect(() => {
@@ -63,7 +62,7 @@ export function computedFont(
       fontFamilies[fontFamily as keyof FontFamilies]!,
       typeof fontWeight === 'string' ? fontWeightNames[fontWeight] : fontWeight,
     )
-    loadCachedFont(url, renderer, (font) => (result.value = font))
+    loadCachedFont(url, (font) => (result.value = font))
   })
   return result
 }

@@ -105,7 +105,7 @@ export class InstancedPanel {
             size,
             instanceDataAddUpdateRange,
           )
-          root.requestRender()
+          root.requestRender?.()
         }, abortSignal)
       })
     }, abortSignal)
@@ -156,7 +156,7 @@ export class InstancedPanel {
       matrixHelper1.toArray(instanceMatrix.array, arrayIndex)
       instanceMatrix.addUpdateRange(arrayIndex, 16)
       instanceMatrix.needsUpdate = true
-      root.requestRender()
+      root.requestRender?.()
     }, this.abortController.signal)
     abortableEffect(() => {
       const index = this.getIndexInBuffer()
@@ -171,7 +171,7 @@ export class InstancedPanel {
       array[bufferIndex + 1] = height
       instanceData.addUpdateRange(bufferIndex, 2)
       instanceData.needsUpdate = true
-      root.requestRender()
+      root.requestRender?.()
     }, this.abortController.signal)
     abortableEffect(() => {
       const index = this.getIndexInBuffer()
@@ -183,7 +183,7 @@ export class InstancedPanel {
       instanceData.array.set(this.borderInset.value, offset)
       instanceData.addUpdateRange(offset, 4)
       instanceData.needsUpdate = true
-      root.requestRender()
+      root.requestRender?.()
     }, this.abortController.signal),
       abortableEffect(() => {
         const index = this.getIndexInBuffer()
@@ -200,7 +200,7 @@ export class InstancedPanel {
         }
         instanceClipping.addUpdateRange(offset, 16)
         instanceClipping.needsUpdate = true
-        root.requestRender()
+        root.requestRender?.()
       }, this.abortController.signal)
   }
 

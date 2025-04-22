@@ -9,7 +9,8 @@ import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
 export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
+    signal(undefined)
   private readonly unsubscribe: () => void
   private readonly material = new MeshBasicMaterial()
 
@@ -19,18 +20,19 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
     super()
     //TODO make the container the mesh
     this.matrixAutoUpdate = false
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
 
     const mesh = new Mesh(panelGeometry, this.material)
     super.add(mesh)
 
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createCustomContainerState(parentContext)
+      this.internals = createCustomContainerState({ current: this }, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
       setupCustomContainer(this.internals, parentContext, this, mesh, abortController.signal)

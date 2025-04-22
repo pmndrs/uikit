@@ -1,14 +1,14 @@
 import { Signal } from '@preact/signals-core'
-import { Matrix4, Object3D, Vector2Tuple, WebGLRenderer } from 'three'
+import { Matrix4 } from 'three'
 import { ClippingRect } from './clipping.js'
-import { OrderInfo, WithReversePainterSortStableCache } from './order.js'
-import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
-import { PanelGroupManager } from './panel/instanced-panel-group.js'
+import { OrderInfo } from './order.js'
 import { FlexNode } from './flex/index.js'
 import { Properties } from './properties/index.js'
 import { FontFamilies } from './text/font.js'
+import { RootContext } from './components/root.js'
 
 export type ParentContext = Readonly<{
+  isRoot: boolean
   node: Signal<FlexNode | undefined>
   anyAncestorScrollable: Signal<readonly [boolean, boolean]>
   ancestorsHaveListeners: Signal<boolean>
@@ -19,18 +19,3 @@ export type ParentContext = Readonly<{
   properties: Properties
   fontFamilies: Signal<FontFamilies | undefined>
 }>
-
-export type RootContext = WithReversePainterSortStableCache &
-  Readonly<{
-    requestCalculateLayout: () => void
-    objectRef: { current?: Object3D | null }
-    gylphGroupManager: GlyphGroupManager
-    panelGroupManager: PanelGroupManager
-    onFrameSet: Set<(delta: number) => void>
-    onUpdateMatrixWorldSet: Set<() => void>
-    interactableDescendants: Array<Object3D>
-    renderer: WebGLRenderer
-    size: Signal<Vector2Tuple | undefined>
-    requestRender: () => void
-    requestFrame: () => void
-  }>

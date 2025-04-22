@@ -7,7 +7,7 @@ import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createInputState>
@@ -18,15 +18,16 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
   ) {
     super()
     this.matrixAutoUpdate = false
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
 
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createInputState(parentContext, multiline)
+      this.internals = createInputState({ current: this }, multiline, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
       setupInput(this.internals, parentContext, this, abortController.signal)

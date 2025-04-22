@@ -9,7 +9,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three'
-import { reversePainterSortStable, Container, Image, Text, Svg, Content, Root } from '@pmndrs/uikit'
+import { reversePainterSortStable, Container, Image, Text, Svg, Content } from '@pmndrs/uikit'
 import { Delete } from '@pmndrs/uikit-lucide'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -36,7 +36,7 @@ sphereMesh.position.copy(position)
 scene.add(sphereMesh)
 
 //UI
-const root = new Root(camera, renderer, {
+const root = new Container({
   flexDirection: 'row',
   gap: 30,
   width: 1000,

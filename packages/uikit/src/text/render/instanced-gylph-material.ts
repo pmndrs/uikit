@@ -9,7 +9,8 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
       toneMapped: false,
     })
 
-    this.onBeforeCompile = (parameters) => {
+    this.onBeforeCompile = (parameters, renderer) => {
+      font.page.anisotropy = renderer.capabilities.getMaxAnisotropy()
       parameters.uniforms.fontPage = { value: font.page }
       parameters.uniforms.pageSize = { value: [font.pageWidth, font.pageHeight] }
       parameters.uniforms.distanceRange = { value: font.distanceRange }

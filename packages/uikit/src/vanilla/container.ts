@@ -7,7 +7,8 @@ import { ParentContext } from '../context.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
+    signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createContainerState<EM>>
@@ -15,17 +16,21 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
   constructor(private properties?: ContainerProperties<EM>) {
     super()
     this.matrixAutoUpdate = false
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
         this.contextSignal.value = undefined
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createContainerState<EM>(parentContext, {
-        current: this,
-      })
+      this.internals = createContainerState<EM>(
+        {
+          current: this,
+        },
+        parentContext,
+      )
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
       setupContainer(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
       this.contextSignal.value = this.internals

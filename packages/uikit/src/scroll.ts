@@ -100,7 +100,7 @@ export function computedScrollHandlers(state: ScrollableComponentState, objectRe
         return
       }
       //only request a render if the last pointer that was dragging stopped dragging and this panel is actually scrollable
-      state.root.requestRender()
+      state.root.requestRender?.()
     }
     return {
       onPointerDown: (event) => {
@@ -263,7 +263,7 @@ export function setupScroll(state: ScrollableComponentState, object: Object3D, a
     const outsideDistanceY = outsideDistance(y, 0, maxY ?? 0)
 
     if (Math.abs(outsideDistanceX) > 1 || Math.abs(outsideDistanceY) > 1) {
-      state.root.requestFrame()
+      state.root.requestFrame?.()
     }
 
     deltaX += outsideDistanceX * -0.3
@@ -277,13 +277,13 @@ export function setupScroll(state: ScrollableComponentState, object: Object3D, a
     if (Math.abs(state.scrollState.scrollVelocity.x) < 0.01 /** 10 px per second */) {
       state.scrollState.scrollVelocity.x = 0
     } else {
-      state.root.requestFrame()
+      state.root.requestFrame?.()
     }
 
     if (Math.abs(state.scrollState.scrollVelocity.y) < 0.01 /** 10 px per second */) {
       state.scrollState.scrollVelocity.y = 0
     } else {
-      state.root.requestFrame()
+      state.root.requestFrame?.()
     }
 
     if (deltaX === 0 && deltaY === 0) {

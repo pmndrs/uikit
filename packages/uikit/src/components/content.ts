@@ -16,7 +16,7 @@ import {
 } from './utils.js'
 import { abortableEffect, alignmentZMap } from '../utils.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { ParentContext, RootContext } from '../context.js'
+import { ParentContext } from '../context.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
@@ -25,6 +25,7 @@ import { ThreeEventMap } from '../events.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
+import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './root.js'
 
 export type ContentProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalContentProperties>
 
@@ -41,10 +42,13 @@ const additionalContentDefaults = {
 type AdditionalContentDefaults = typeof additionalContentDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
+  objectRef: { current?: Object3D | null },
   contentContainerRef: { current?: Object3D | null },
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const hoveredList = signal<Array<number>>([])
   const activeList = signal<Array<number>>([])
 
@@ -55,7 +59,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     EM,
     AdditionalContentProperties,
     Partial<AdditionalContentDefaults>
-  >(allAliases, createConditionals(parentCtx.root.size, hoveredList, activeList), parentCtx.properties, {
+  >(allAliases, createConditionals(rootContext.root.size, hoveredList, activeList), parentCtx?.properties, {
     aspectRatio: computed(() =>
       properties.get('keepAspectRatio') ? sizeSignal.value.x / sizeSignal.value.y : undefined,
     ),
@@ -64,10 +68,13 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
 
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
 
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -80,7 +87,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     'zIndexOffset',
     ElementType.Panel,
     groupDeps,
-    parentCtx.orderInfo,
+    parentCtx?.orderInfo,
   )
 
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Object, undefined, backgroundOrderInfo)
@@ -92,7 +99,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
   const measuredSize = new Vector3()
   const measuredCenter = new Vector3()
 
-  return Object.assign(flexState, {
+  return Object.assign(flexState, rootContext, {
     measuredSize,
     measuredCenter,
     globalMatrix,
@@ -107,11 +114,10 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     handlers,
     ancestorsHaveListeners,
     transformMatrix,
-    root: parentCtx.root,
     interactionPanel: createInteractionPanel(
       backgroundOrderInfo,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      rootContext.root,
+      parentCtx?.clippingRect,
       globalMatrix,
       flexState,
     ),
@@ -120,8 +126,8 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
       measuredSize,
       measuredCenter,
       properties,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      rootContext.root,
+      parentCtx?.clippingRect,
       isVisible,
       orderInfo,
       sizeSignal,
@@ -132,38 +138,39 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
 
 export function setupContent(
   state: ReturnType<typeof createContentState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   contentContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, contentContainer, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   //create node
   setupNode(state, parentCtx, object, true, abortSignal)
 
   //transform
-  setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
 
   //instanced panel
   setupInstancedPanel(
     state.properties,
     state.backgroundOrderInfo,
     state.groupDeps,
-    parentCtx.root.panelGroupManager,
+    state.root.panelGroupManager,
     state.globalMatrix,
     state.size,
     undefined,
     state.borderInset,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.isVisible,
     getDefaultPanelMaterialConfig(),
     abortSignal,
   )
 
-  setupMatrixWorldUpdate(true, true, object, parentCtx.root, state.globalMatrix, false, abortSignal)
+  setupMatrixWorldUpdate(true, true, object, state.root, state.globalMatrix, false, abortSignal)
 
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, parentCtx.root, object, true, abortSignal)
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, object, true, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
@@ -189,7 +196,7 @@ function setupContentContainer<EM extends ThreeEventMap = ThreeEventMap>(
       state.properties.get('depthTest'),
       state.properties.get('depthWrite'),
     )
-    state.root.requestRender()
+    state.root.requestRender?.()
   }, abortSignal)
   abortableEffect(() => {
     const {
@@ -230,7 +237,7 @@ function setupContentContainer<EM extends ThreeEventMap = ThreeEventMap>(
       vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
     )
     contentContainer.updateMatrix()
-    state.root.requestRender()
+    state.root.requestRender?.()
   }, abortSignal)
 }
 
@@ -246,7 +253,7 @@ function createMeasureContent(
   measuredCenter: Vector3,
   properties: Properties,
   root: RootContext,
-  parentClippingRect: Signal<ClippingRect | undefined>,
+  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   isVisible: Signal<boolean>,
   orderInfo: Signal<OrderInfo | undefined>,
   sizeSignal: Signal<Vector3>,
@@ -284,7 +291,7 @@ function createMeasureContent(
       contentContainer.parent = parent
     }
     box3Helper.getCenter(measuredCenter)
-    root.requestRender()
+    root.requestRender?.()
   }
   return () => {
     updateRenderProperties(

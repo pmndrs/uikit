@@ -12,7 +12,7 @@ import {
   TextureLoader,
   Vector2Tuple,
 } from 'three'
-import { ParentContext, RootContext } from '../context.js'
+import { ParentContext } from '../context.js'
 import { FlexNodeState, Inset, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
 import {
@@ -59,6 +59,7 @@ import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedFontFamilies } from '../text/font.js'
+import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './index.js'
 
 export type ImageProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalImageProperties>
 
@@ -78,10 +79,12 @@ const additionalImageDefaults = {
 export type AdditionalImageDefaults = typeof additionalImageDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
   objectRef: { current?: Object3D | null },
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const texture = signal<Texture | undefined>(undefined)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
@@ -90,7 +93,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
     EM,
     AdditionalImageProperties,
     Partial<AdditionalImageDefaults>
-  >(allAliases, createConditionals(parentCtx.root.size, hoveredSignal, activeSignal), parentCtx.properties, {
+  >(allAliases, createConditionals(rootContext.root.size, hoveredSignal, activeSignal), parentCtx?.properties, {
     aspectRatio: computed(() => {
       if (!properties.get('keepAspectRatio')) {
         return undefined
@@ -106,10 +109,13 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
   })
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
 
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -117,12 +123,12 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
   const isHidden = computed(() => isClipped.value || texture.value == null)
   const isVisible = computedIsVisible(flexState, isHidden, properties)
 
-  const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Image, undefined, parentCtx.orderInfo)
+  const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Image, undefined, parentCtx?.orderInfo)
 
   const scrollPosition = createScrollPosition()
   const childrenMatrix = computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix)
 
-  const componentState = Object.assign(flexState, {
+  const componentState = Object.assign(flexState, rootContext, {
     texture,
     hoveredSignal,
     activeSignal,
@@ -137,8 +143,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
     scrollPosition,
     childrenMatrix,
     scrollState: createScrollState(),
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
-    root: parentCtx.root,
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx?.anyAncestorScrollable),
   })
 
   const scrollHandlers = computedScrollHandlers(componentState, objectRef)
@@ -150,29 +155,30 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
     handlers,
     ancestorsHaveListeners,
     fontFamilies: computedFontFamilies(properties, parentCtx),
-    interactionPanel: createImageMesh(componentState, globalMatrix, parentCtx, orderInfo, parentCtx.root),
+    interactionPanel: createImageMesh(componentState, globalMatrix, parentCtx, orderInfo, rootContext.root),
     clippingRect: computedClippingRect(
       globalMatrix,
       componentState,
       properties.getSignal('pixelSize'),
-      parentCtx.clippingRect,
+      parentCtx?.clippingRect,
     ),
   }) satisfies ParentContext
 }
 
-export function setupImage<EM extends ThreeEventMap = ThreeEventMap>(
+export function setupImage(
   state: ReturnType<typeof createImageState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   childrenContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, childrenContainer, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   loadResourceWithParams(state.texture, loadTextureImpl, cleanupTexture, abortSignal, state.properties.getSignal('src'))
 
   setupNode(state, parentCtx, object, true, abortSignal)
-  setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
 
   setupScroll(state, childrenContainer, abortSignal)
 
@@ -182,25 +188,25 @@ export function setupImage<EM extends ThreeEventMap = ThreeEventMap>(
     state,
     state.globalMatrix,
     state.isVisible,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.orderInfo,
     state.groupDeps,
-    parentCtx.root.panelGroupManager,
+    state.root.panelGroupManager,
     abortSignal,
   )
 
   setupPointerEvents(
     state.properties,
     state.ancestorsHaveListeners,
-    parentCtx.root,
+    state.root,
     state.interactionPanel,
     false,
     abortSignal,
   )
 
   const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
-  setupMatrixWorldUpdate(updateMatrixWorld, false, object, parentCtx.root, state.globalMatrix, false, abortSignal)
-  setupMatrixWorldUpdate(true, false, state.interactionPanel, parentCtx.root, state.globalMatrix, true, abortSignal)
+  setupMatrixWorldUpdate(updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
+  setupMatrixWorldUpdate(true, false, state.interactionPanel, state.root, state.globalMatrix, true, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
@@ -241,7 +247,7 @@ function getImageMaterialConfig() {
 function createImageMesh(
   flexState: FlexNodeState,
   globalMatrix: Signal<Matrix4 | undefined>,
-  parentContext: ParentContext,
+  parentContext: ParentContext | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   root: RootContext,
 ) {
@@ -254,7 +260,7 @@ function createImageMesh(
     mesh,
     makePanelRaycast(mesh.raycast.bind(mesh), root.objectRef, mesh.boundingSphere, globalMatrix, mesh),
     root.objectRef,
-    parentContext.clippingRect,
+    parentContext?.clippingRect,
     orderInfo,
     flexState,
   )
@@ -262,7 +268,7 @@ function createImageMesh(
     mesh,
     makePanelSpherecast(root.objectRef, mesh.boundingSphere, globalMatrix, mesh),
     root.objectRef,
-    parentContext.clippingRect,
+    parentContext?.clippingRect,
     orderInfo,
     flexState,
   )
@@ -276,13 +282,13 @@ function setupImageMesh(
   properties: Properties<ThreeEventMap, AdditionalImageProperties, Partial<AdditionalImageDefaults>>,
   textureSignal: Signal<Texture | undefined>,
   globalMatrix: Signal<Matrix4 | undefined>,
-  parentContext: ParentContext,
+  parentContext: ParentContext | undefined,
   flexState: FlexNodeState,
   root: RootContext,
   isVisible: Signal<boolean>,
   abortSignal: AbortSignal,
 ) {
-  const clippingPlanes = createGlobalClippingPlanes(root, parentContext.clippingRect)
+  const clippingPlanes = createGlobalClippingPlanes(root, parentContext?.clippingRect)
   const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
     properties,
     flexState.borderInset,
@@ -308,7 +314,7 @@ function setupImageMesh(
       return
     }
     texture.matrix.identity()
-    root.requestRender()
+    root.requestRender?.()
 
     if (properties.get('objectFit') === 'fill' || texture == null) {
       transformInsideBorder(flexState.borderInset, flexState.size, texture)
@@ -335,7 +341,7 @@ function setupImageMesh(
   }, abortSignal)
   abortableEffect(() => {
     mesh.visible = isMeshVisible.value
-    parentContext.root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
   abortableEffect(() => {
     if (flexState.size.value == null) {
@@ -345,7 +351,7 @@ function setupImageMesh(
     const pixelSize = properties.get('pixelSize')
     mesh.scale.set(width * pixelSize, height * pixelSize, 1)
     mesh.updateMatrix()
-    parentContext.root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
 }
 
@@ -402,7 +408,7 @@ function setupImageMaterials(
   size: Signal<Vector2Tuple | undefined>,
   borderInset: Signal<Inset | undefined>,
   isVisible: Signal<boolean>,
-  clippingPlanes: Array<Plane>,
+  clippingPlanes: Array<Plane> | null,
   root: RootContext,
   abortSignal: AbortSignal,
 ) {
@@ -419,16 +425,16 @@ function setupImageMaterials(
     target.material = material
     const cleanupDepthTestEffect = effect(() => {
       material.depthTest = properties.get('depthTest')
-      root.requestRender()
+      root.requestRender?.()
     })
     const cleanupDepthWriteEffect = effect(() => {
       material.depthWrite = properties.get('depthWrite')
-      root.requestRender()
+      root.requestRender?.()
     })
     const cleanupTextureEffect = effect(() => {
       ;(material as any).map = textureSignal.value ?? null
       material.needsUpdate = true
-      root.requestRender()
+      root.requestRender?.()
     })
     return () => {
       cleanupTextureEffect()
@@ -439,15 +445,15 @@ function setupImageMaterials(
   }, abortSignal)
   abortableEffect(() => {
     target.renderOrder = properties.get('renderOrder')
-    root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
   abortableEffect(() => {
     target.castShadow = properties.get('castShadow')
-    root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
   abortableEffect(() => {
     target.receiveShadow = properties.get('receiveShadow')
-    root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
 
   const imageMaterialConfig = getImageMaterialConfig()
@@ -464,7 +470,7 @@ function setupImageMaterials(
       () => void (borderInset.value != null && data.set(borderInset.value, 0)),
       innerAbortController.signal,
     )
-    root.requestRender()
+    root.requestRender?.()
     return () => innerAbortController.abort()
   }, abortSignal)
   const setters = imageMaterialConfig.setters
@@ -478,7 +484,7 @@ function setupImageMaterials(
       }
       abortableEffect(() => {
         setters[key as any]!(data, 0, properties.get(key as any), size, undefined)
-        root.requestRender()
+        root.requestRender?.()
       }, abortSignal)
     })
   }, abortSignal)

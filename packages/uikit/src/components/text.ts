@@ -34,29 +34,36 @@ import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { abortableEffect } from '../utils.js'
+import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
 
 export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
 export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
+  objectRef: { current?: Object3D | null },
   textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
   const properties = new Properties<EM, AdditionalTextProperties, AdditionalTextDefaults>(
     allAliases,
-    createConditionals(parentCtx.root.size, hoveredSignal, activeSignal),
-    parentCtx.properties,
+    createConditionals(rootContext.root.size, hoveredSignal, activeSignal),
+    parentCtx?.properties,
     additionalTextDefaults,
   )
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
 
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -69,12 +76,12 @@ export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
     'zIndexOffset',
     ElementType.Panel,
     groupDeps,
-    parentCtx.orderInfo,
+    parentCtx?.orderInfo,
   )
 
   const fontFamilies = computedFontFamilies(properties, parentCtx)
 
-  const fontSignal = computedFont(properties, fontFamilies, parentCtx.root.renderer)
+  const fontSignal = computedFont(properties, fontFamilies)
   const orderInfo = computedOrderInfo(
     undefined,
     'zIndexOffset',
@@ -86,11 +93,11 @@ export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
   const handlers = computedHandlers(properties, hoveredSignal, activeSignal)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
-  return Object.assign(flexState, {
+  return Object.assign(flexState, rootContext, {
     interactionPanel: createInteractionPanel(
       backgroundOrderInfo,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      rootContext.root,
+      parentCtx?.clippingRect,
       globalMatrix,
       flexState,
     ),
@@ -108,16 +115,16 @@ export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
     handlers,
     ancestorsHaveListeners,
     textSignal,
-    root: parentCtx.root,
   })
 }
 
-export function setupText<EM extends ThreeEventMap = ThreeEventMap>(
+export function setupText(
   state: ReturnType<typeof createTextState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, undefined, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   setupNode(state, parentCtx, object, false, abortSignal)
@@ -132,7 +139,7 @@ export function setupText<EM extends ThreeEventMap = ThreeEventMap>(
     state.size,
     undefined,
     state.borderInset,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.isVisible,
     getDefaultPanelMaterialConfig(),
     abortSignal,
@@ -145,7 +152,7 @@ export function setupText<EM extends ThreeEventMap = ThreeEventMap>(
     state.node,
     state,
     state.isVisible,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.orderInfo,
     state.fontSignal,
     state.root.gylphGroupManager,

@@ -39,6 +39,7 @@ import {
 } from '../text/index.js'
 import { getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { createConditionals } from '../properties/conditional.js'
+import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './index.js'
 
 const cancelSet = new Set<unknown>()
 
@@ -86,10 +87,13 @@ export type AdditionalInputDefaults = typeof additionalInputDefaults & {
 }
 
 export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
+  objectRef: { current?: Object3D | null },
   multiline: boolean,
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const hasFocusSignal = signal<boolean>(false)
@@ -100,8 +104,8 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     AdditionalInputDefaults
   >(
     allAliases,
-    createConditionals(parentCtx.root.size, hoveredSignal, activeSignal, hasFocusSignal),
-    parentCtx.properties,
+    createConditionals(rootContext.root.size, hoveredSignal, activeSignal, hasFocusSignal),
+    parentCtx?.properties,
     {
       wordBreak: multiline ? 'break-word' : 'keep-all',
       caretOpacity: computed(() => properties.get('opacity')),
@@ -111,10 +115,13 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   )
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
 
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -127,7 +134,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     'zIndexOffset',
     ElementType.Panel,
     backgroundGroupDeps,
-    parentCtx.orderInfo,
+    parentCtx?.orderInfo,
   )
 
   const selectionTransformations = signal<Array<SelectionTransformation>>([])
@@ -135,7 +142,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   const selectionRange = signal<Vector2Tuple | undefined>(undefined)
 
   const fontFamilies = computedFontFamilies(properties, parentCtx)
-  const fontSignal = computedFont(properties, fontFamilies, parentCtx.root.renderer)
+  const fontSignal = computedFont(properties, fontFamilies)
   const orderInfo = computedOrderInfo(
     undefined,
     'zIndexOffset',
@@ -179,13 +186,13 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     multiline,
   )
 
-  return Object.assign(flexState, {
+  return Object.assign(flexState, rootContext, {
     element,
     instancedTextRef,
     interactionPanel: createInteractionPanel(
       backgroundOrderInfo,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      rootContext.root,
+      parentCtx?.clippingRect,
       globalMatrix,
       flexState,
     ),
@@ -207,7 +214,6 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     valueSignal,
     writeValue,
     displayValueSignal,
-    root: parentCtx.root,
     handlers: computedHandlers(properties, hoveredSignal, activeSignal, selectionHandlers, 'text'),
     focus,
     blur() {
@@ -219,25 +225,26 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
 
 export function setupInput(
   state: ReturnType<typeof createInputState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, undefined, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   setupNode(state, parentCtx, object, false, abortSignal)
-  setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
 
   setupInstancedPanel(
     state.properties,
     state.backgroundOrderInfo,
     state.backgroundGroupDeps,
-    parentCtx.root.panelGroupManager,
+    state.root.panelGroupManager,
     state.globalMatrix,
     state.size,
     undefined,
     state.borderInset,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.isVisible,
     getDefaultPanelMaterialConfig(),
     abortSignal,
@@ -250,8 +257,8 @@ export function setupInput(
     state.isVisible,
     state.backgroundOrderInfo,
     state.backgroundGroupDeps,
-    parentCtx.clippingRect,
-    parentCtx.root.panelGroupManager,
+    parentCtx?.clippingRect,
+    state.root.panelGroupManager,
     abortSignal,
   )
 
@@ -262,8 +269,8 @@ export function setupInput(
     state.isVisible,
     state.backgroundOrderInfo,
     state.backgroundGroupDeps,
-    parentCtx.clippingRect,
-    parentCtx.root.panelGroupManager,
+    parentCtx?.clippingRect,
+    state.root.panelGroupManager,
     abortSignal,
   )
 
@@ -274,10 +281,10 @@ export function setupInput(
     state.node,
     state,
     state.isVisible,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.orderInfo,
     state.fontSignal,
-    parentCtx.root.gylphGroupManager,
+    state.root.gylphGroupManager,
     state.selectionRange,
     state.selectionTransformations,
     state.caretTransformation,
@@ -316,14 +323,7 @@ export function setupInput(
   )
 
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, state.handlers)
-  setupPointerEvents(
-    state.properties,
-    ancestorsHaveListeners,
-    parentCtx.root,
-    state.interactionPanel,
-    false,
-    abortSignal,
-  )
+  setupPointerEvents(state.properties, ancestorsHaveListeners, state.root, state.interactionPanel, false, abortSignal)
 }
 
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })

@@ -34,32 +34,38 @@ import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { ThreeEventMap } from '../events.js'
 import { computedFontFamilies } from '../text/font.js'
+import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
 export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
   objectRef: { current?: Object3D | null },
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const hoveredList = signal<Array<number>>([])
   const activeList = signal<Array<number>>([])
 
   //properties
   const properties = new Properties<EM, {}, {}>(
     allAliases,
-    createConditionals(parentCtx.root.size, hoveredList, activeList),
-    parentCtx.properties,
+    createConditionals(rootContext.root.size, hoveredList, activeList),
+    parentCtx?.properties,
     {},
   )
 
   //transform
   const transformMatrix = computedTransformMatrix(properties, flexState)
 
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
 
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -71,9 +77,9 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   const groupDeps = computedPanelGroupDependencies(properties)
   const scrollPosition = createScrollPosition()
 
-  const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Panel, groupDeps, parentCtx.orderInfo)
+  const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Panel, groupDeps, parentCtx?.orderInfo)
 
-  const componentState = Object.assign(flexState, {
+  const componentState = Object.assign(flexState, rootContext, {
     scrollState: createScrollState(),
     properties,
     transformMatrix,
@@ -84,15 +90,14 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
     scrollPosition,
     groupDeps,
     orderInfo,
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx?.anyAncestorScrollable),
     clippingRect: computedClippingRect(
       globalMatrix,
       flexState,
       properties.getSignal('pixelSize'),
-      parentCtx.clippingRect,
+      parentCtx?.clippingRect,
     ),
     childrenMatrix: computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix),
-    root: parentCtx.root,
   })
 
   const scrollHandlers = computedScrollHandlers(componentState, objectRef)
@@ -101,8 +106,8 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   return Object.assign(componentState, {
     interactionPanel: createInteractionPanel(
       orderInfo,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      componentState.root,
+      parentCtx?.clippingRect,
       globalMatrix,
       flexState,
     ),
@@ -114,11 +119,13 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
 
 export function setupContainer(
   state: ReturnType<typeof createContainerState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   childrenContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, childrenContainer, abortSignal)
+
   setupNode(state, parentCtx, object, false, abortSignal)
 
   setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
@@ -133,7 +140,7 @@ export function setupContainer(
     state.size,
     undefined,
     state.borderInset,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.isVisible,
     getDefaultPanelMaterialConfig(),
     abortSignal,
@@ -147,7 +154,7 @@ export function setupContainer(
     state,
     state.globalMatrix,
     state.isVisible,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.orderInfo,
     state.groupDeps,
     state.root.panelGroupManager,

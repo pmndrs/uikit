@@ -4,7 +4,7 @@ import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../../order.js'
-import { RootContext } from '../../context.js'
+import { RootContext } from '../../components/index.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
@@ -95,14 +95,14 @@ export class InstancedGlyphGroup {
       //inserting into existing hole
       this.glyphs[holeIndex] = glyph
       glyph.activate(holeIndex)
-      this.root.requestRender()
+      this.root.requestRender?.()
       return
     }
 
     if (this.mesh == null || this.mesh.count >= this.instanceMatrix.count) {
       //requesting insert because no space available
       this.requestedGlyphs.push(glyph)
-      this.root.requestFrame()
+      this.root.requestFrame?.()
       return
     }
 
@@ -111,7 +111,7 @@ export class InstancedGlyphGroup {
     this.glyphs[index] = glyph
     glyph.activate(index)
     this.mesh.count += 1
-    this.root.requestRender()
+    this.root.requestRender?.()
     return
   }
 
@@ -127,7 +127,7 @@ export class InstancedGlyphGroup {
     }
 
     //can directly request render because we don't need "onFrame" to handle delete
-    this.root.requestRender()
+    this.root.requestRender?.()
 
     const replacement = this.requestedGlyphs.shift()
     if (replacement != null) {

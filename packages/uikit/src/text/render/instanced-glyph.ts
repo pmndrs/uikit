@@ -92,7 +92,7 @@ export class InstancedGlyph {
     }
     instanceClipping.addUpdateRange(offset, 16)
     instanceClipping.needsUpdate = true
-    root.requestRender()
+    root.requestRender?.()
   }
 
   updateColor(color: ColorRepresentation): void {
@@ -105,7 +105,7 @@ export class InstancedGlyph {
     writeColor(instanceRGBA.array, offset, color, undefined)
     instanceRGBA.addUpdateRange(offset, 3)
     instanceRGBA.needsUpdate = true
-    root.requestRender()
+    root.requestRender?.()
   }
 
   updateOpacity(opacity: number): void {
@@ -118,7 +118,7 @@ export class InstancedGlyph {
     instanceRGBA.array[bufferIndex] = opacity
     instanceRGBA.addUpdateRange(bufferIndex, 1)
     instanceRGBA.needsUpdate = true
-    root.requestRender()
+    root.requestRender?.()
   }
 
   updateGlyphAndTransformation(glyphInfo: GlyphInfo, x: number, y: number, fontSize: number, pixelSize: number): void {
@@ -159,7 +159,7 @@ export class InstancedGlyph {
     glyphIntoToUV(this.glyphInfo, instanceUV.array, offset)
     instanceUV.addUpdateRange(offset, 4)
     instanceUV.needsUpdate = true
-    root.requestRender()
+    root.requestRender?.()
   }
 
   private writeUpdatedMatrix(): void {
@@ -181,6 +181,6 @@ export class InstancedGlyph {
       .premultiply(this.baseMatrix)
     helperMatrix1.toArray(instanceMatrix.array, offset)
     instanceMatrix.needsUpdate = true
-    root.requestRender()
+    root.requestRender?.()
   }
 }

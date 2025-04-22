@@ -1,6 +1,6 @@
 import { Signal, computed, signal } from '@preact/signals-core'
 import { Box3, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
-import { ParentContext, RootContext } from '../context.js'
+import { ParentContext } from '../context.js'
 import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
@@ -39,6 +39,7 @@ import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { computedFontFamilies } from '../text/font.js'
+import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './root.js'
 
 export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalSvgProperties>
 
@@ -54,10 +55,12 @@ const additionalSvgDefaults = {
 export type AdditionalSvgDefaults = typeof additionalSvgDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
-  parentCtx: ParentContext,
   objectRef: { current?: Object3D | null },
+  parentCtx?: ParentContext,
+  renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
+  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const aspectRatio = signal<number | undefined>(undefined)
@@ -67,16 +70,19 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
     EM,
     AdditionalSvgProperties,
     Partial<AdditionalSvgDefaults>
-  >(allAliases, createConditionals(parentCtx.root.size, hoveredSignal, activeSignal), parentCtx.properties, {
+  >(allAliases, createConditionals(rootContext.root.size, hoveredSignal, activeSignal), parentCtx?.properties, {
     ...additionalSvgDefaults,
     aspectRatio: computed(() => (properties.get('keepAspectRatio') ? aspectRatio.value : undefined)),
   })
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(parentCtx.childrenMatrix, transformMatrix)
+  const globalMatrix = computedGlobalMatrix(
+    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    transformMatrix,
+  )
 
   const isClipped = computedIsClipped(
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     globalMatrix,
     flexState.size,
     properties.getSignal('pixelSize'),
@@ -89,7 +95,7 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
     'zIndexOffset',
     ElementType.Panel,
     groupDeps,
-    parentCtx.orderInfo,
+    parentCtx?.orderInfo,
   )
 
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Svg, undefined, backgroundOrderInfo)
@@ -97,12 +103,12 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
   const scrollPosition = createScrollPosition()
   const childrenMatrix = computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix)
 
-  const componentState = Object.assign(flexState, {
+  const componentState = Object.assign(flexState, rootContext, {
     centerGroup: createCenterGroup(),
     interactionPanel: createInteractionPanel(
       orderInfo,
-      parentCtx.root,
-      parentCtx.clippingRect,
+      rootContext.root,
+      parentCtx?.clippingRect,
       globalMatrix,
       flexState,
     ),
@@ -125,10 +131,9 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
       globalMatrix,
       flexState,
       properties.getSignal('pixelSize'),
-      parentCtx.clippingRect,
+      parentCtx?.clippingRect,
     ),
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx.anyAncestorScrollable),
-    root: parentCtx.root,
+    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx?.anyAncestorScrollable),
   })
 
   const scrollHandlers = computedScrollHandlers(componentState, objectRef)
@@ -143,34 +148,35 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
   }) satisfies ParentContext
 }
 
-export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
+export function setupSvg(
   state: ReturnType<typeof createSvgState>,
-  parentCtx: ParentContext,
+  parentCtx: ParentContext | undefined,
   object: Object3D,
   childrenContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
+  setupRootContext(state, object, childrenContainer, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   setupNode(state, parentCtx, object, true, abortSignal)
-  setupObjectTransform(parentCtx.root, object, state.transformMatrix, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
 
   setupInstancedPanel(
     state.properties,
     state.backgroundOrderInfo,
     state.groupDeps,
-    parentCtx.root.panelGroupManager,
+    state.root.panelGroupManager,
     state.globalMatrix,
     state.size,
     undefined,
     state.borderInset,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.isVisible,
     getDefaultPanelMaterialConfig(),
     abortSignal,
   )
 
-  const clippingPlanes = createGlobalClippingPlanes(parentCtx.root, parentCtx.clippingRect)
+  const clippingPlanes = createGlobalClippingPlanes(state.root, parentCtx?.clippingRect)
 
   loadResourceWithParams(
     state.svgObject,
@@ -178,9 +184,9 @@ export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
     disposeGroup,
     abortSignal,
     state.properties.getSignal('src'),
-    parentCtx.root,
+    state.root,
     clippingPlanes,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.orderInfo,
     state.aspectRatio,
     state,
@@ -190,7 +196,7 @@ export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
   setupCenterGroup(
     state.properties,
     state.centerGroup,
-    parentCtx.root,
+    state.root,
     state,
     state.svgObject,
     state.aspectRatio,
@@ -205,10 +211,10 @@ export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
     state,
     state.globalMatrix,
     state.isVisible,
-    parentCtx.clippingRect,
+    parentCtx?.clippingRect,
     state.orderInfo,
     state.groupDeps,
-    parentCtx.root.panelGroupManager,
+    state.root.panelGroupManager,
     abortSignal,
   )
 
@@ -218,25 +224,18 @@ export function setupSvg<EM extends ThreeEventMap = ThreeEventMap>(
     state.properties.getSignal('updateMatrixWorld'),
     true,
     state.interactionPanel,
-    parentCtx.root,
+    state.root,
     state.globalMatrix,
     true,
     abortSignal,
   )
-  setupMatrixWorldUpdate(true, true, state.centerGroup, parentCtx.root, state.globalMatrix, true, abortSignal)
+  setupMatrixWorldUpdate(true, true, state.centerGroup, state.root, state.globalMatrix, true, abortSignal)
 
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.centerGroup, false, abortSignal)
   setupPointerEvents(
     state.properties,
     state.ancestorsHaveListeners,
-    parentCtx.root,
-    state.centerGroup,
-    false,
-    abortSignal,
-  )
-  setupPointerEvents(
-    state.properties,
-    state.ancestorsHaveListeners,
-    parentCtx.root,
+    state.root,
     state.interactionPanel,
     false,
     abortSignal,
@@ -273,7 +272,7 @@ function setupCenterGroup(
       aspectRatio.value ?? 1,
     )
     centerGroup.updateMatrix()
-    root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
   abortableEffect(() => {
     const object = svgObject.value
@@ -281,15 +280,15 @@ function setupCenterGroup(
       return
     }
     centerGroup.add(object)
-    root.requestRender()
+    root.requestRender?.()
     return () => {
       centerGroup.remove(object)
-      root.requestRender()
+      root.requestRender?.()
     }
   }, abortSignal)
   abortableEffect(() => {
     void (centerGroup.visible = svgObject.value != null && isVisible.value)
-    root.requestRender()
+    root.requestRender?.()
   }, abortSignal)
 }
 
@@ -303,7 +302,7 @@ const svgCache = new Map<string, SVGResult>()
 async function loadSvg(
   url: string | undefined,
   root: RootContext,
-  clippingPlanes: Array<Plane>,
+  clippingPlanes: Array<Plane> | null,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
   aspectRatio: Signal<number | undefined>,

@@ -1,12 +1,12 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
-import { Root } from './root.js'
 import { Signal, batch, signal } from '@preact/signals-core'
 import { FullscreenProperties, updateSizeFullscreen } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
+import { Container } from './container.js'
 
 const vectorHelper = new Vector2()
 
-export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Root<T, EM> {
+export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   private parentCameraSignal: Signal<PerspectiveCamera | OrthographicCamera | undefined>
   private readonly sizeX: Signal<number>
   private readonly sizeY: Signal<number>
@@ -17,21 +17,13 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     private renderer: WebGLRenderer,
     private distanceToCamera?: number,
     properties?: FullscreenProperties<EM>,
-    requestRender?: () => void,
-    requestFrame?: () => void,
   ) {
     const sizeX = signal(0)
     const sizeY = signal(0)
     const pixelSize = signal(0)
     const transformTranslateZ = signal(0)
     const parentCameraSignal = signal<PerspectiveCamera | OrthographicCamera | undefined>(undefined)
-    super(
-      parentCameraSignal,
-      renderer,
-      { ...properties, sizeX, sizeY, pixelSize, transformTranslateZ },
-      requestRender,
-      requestFrame,
-    )
+    super({ ...properties, sizeX, sizeY, pixelSize, transformTranslateZ })
     this.matrixAutoUpdate = false
     this.parentCameraSignal = parentCameraSignal
     this.sizeX = sizeX

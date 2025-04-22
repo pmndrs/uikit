@@ -7,7 +7,7 @@ import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createSvgState>
@@ -15,16 +15,17 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Paren
   constructor(private properties?: SvgProperties<EM>) {
     super()
     this.matrixAutoUpdate = false
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
 
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
         this.contextSignal.value = undefined
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createSvgState(parentContext, { current: this })
+      this.internals = createSvgState({ current: this }, parentContext)
       setupSvg(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
       this.contextSignal.value = this.internals

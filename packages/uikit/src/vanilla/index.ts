@@ -1,5 +1,4 @@
 export * from './container.js'
-export * from './root.js'
 export * from './image.js'
 export * from './text.js'
 export * from './svg.js'

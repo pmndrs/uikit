@@ -7,7 +7,7 @@ import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createIconState>
@@ -20,14 +20,15 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
   ) {
     super()
     this.matrixAutoUpdate = false
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createIconState(parentContext, text, svgWidth, svgHeight)
+      this.internals = createIconState(text, svgWidth, svgHeight, { current: this }, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
       setupIcon(this.internals, parentContext, this, abortController.signal)

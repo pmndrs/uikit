@@ -3,7 +3,7 @@ import { Matrix4, Plane, Vector3 } from 'three'
 import type { Box3, Line3, Matrix3, Sphere, Vector2Tuple } from 'three'
 import { Overflow } from 'yoga-layout/load'
 import { FlexNodeState } from './flex/node.js'
-import { RootContext } from './context.js'
+import { RootContext } from './components/root.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -101,11 +101,14 @@ export function computedIsClipped(
   pixelSizeSignal: Signal<number>,
 ): Signal<boolean> {
   return computed(() => {
+    if (parentClippingRect == null) {
+      return false
+    }
     if (size.value == null) {
       return true
     }
     const global = globalMatrix.value
-    const rect = parentClippingRect?.value
+    const rect = parentClippingRect.value
     if (rect == null || global == null) {
       return false
     }
@@ -174,7 +177,13 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
-export function createGlobalClippingPlanes(root: RootContext, clippingRect: Signal<ClippingRect | undefined>) {
+export function createGlobalClippingPlanes(
+  root: RootContext,
+  clippingRect: Signal<ClippingRect | undefined> | undefined,
+) {
+  if (clippingRect == null) {
+    return null
+  }
   const getGlobalMatrix = () => root.objectRef.current?.matrixWorld
   const planes = new Array(4)
     .fill(undefined)

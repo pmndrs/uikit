@@ -11,7 +11,6 @@ import {
   createIconState,
   createImageState,
   createInputState,
-  createRootState,
   createSvgState,
   createTextState,
 } from '../components/index.js'
@@ -117,7 +116,6 @@ export function isInteractionPanel(object: Object3D): object is Object3D & {
     | typeof createContainerState
     | typeof createContentState
     | typeof createImageState
-    | typeof createRootState
     | typeof createSvgState
     | typeof createTextState
     | typeof createIconState

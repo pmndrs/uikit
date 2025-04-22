@@ -11,8 +11,8 @@ import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../order.js'
 import { computed } from '@preact/signals-core'
-import { RootContext } from '../context.js'
 import { Properties } from '../properties/index.js'
+import { RootContext } from '../components/index.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -165,7 +165,7 @@ export class InstancedPanelGroup {
     }
     this.mesh.count = count
     this.mesh.visible = count > 0
-    this.root.requestRender()
+    this.root.requestRender?.()
   }
 
   private requestUpdate(time: number): void {
@@ -187,7 +187,7 @@ export class InstancedPanelGroup {
     this.nextUpdateTime = nextFrame
     clearTimeout(this.nextUpdateTimeoutRef)
     this.nextUpdateTimeoutRef = undefined
-    this.root.requestFrame()
+    this.root.requestFrame?.()
   }
 
   insert(bucketIndex: number, panel: InstancedPanel): void {
@@ -217,7 +217,7 @@ export class InstancedPanelGroup {
       this.updateCount()
       return
     }
-    this.root.requestRender()
+    this.root.requestRender?.()
     this.requestUpdate(1000) //request update in 1 second
   }
 

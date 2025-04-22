@@ -14,7 +14,8 @@ import { UikitPropertyKeys } from '../properties/index.js'
 
 export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private readonly contentContainer: Object3D
-  private readonly parentContextSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
+  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
+    signal(undefined)
   private readonly unsubscribe: () => void
 
   public internals!: ReturnType<typeof createContentState>
@@ -22,19 +23,20 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
   constructor(private properties?: ContentProperties<EM>) {
     super()
     this.matrixAutoUpdate = false
-    setupParentContextSignal(this.parentContextSignal, this)
+    setupParentContextSignal(this.parentContextSignalSignal, this)
     //setting up the threejs elements
     this.contentContainer = new Object3D()
     this.contentContainer.matrixAutoUpdate = false
     super.add(this.contentContainer)
 
     this.unsubscribe = effect(() => {
-      const parentContext = this.parentContextSignal.value?.value
-      if (parentContext == null) {
+      const parentContextSignal = this.parentContextSignalSignal.value
+      if (parentContextSignal === undefined) {
         return
       }
+      const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      const state = createContentState(parentContext, { current: this.contentContainer })
+      const state = createContentState({ current: this }, { current: this.contentContainer }, parentContext)
       state.properties.setLayer(Layers.Imperative, this.properties)
       this.internals = state
 

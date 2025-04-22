@@ -11,13 +11,13 @@ import {
 } from './interaction-panel-mesh.js'
 import { OrderInfo } from '../order.js'
 import { ClippingRect } from '../clipping.js'
-import { RootContext } from '../context.js'
 import { FlexNodeState } from '../flex/node.js'
 import { Properties } from '../properties/index.js'
+import { RootContext } from '../components/root.js'
 
 export function createInteractionPanel(
   orderInfo: Signal<OrderInfo | undefined>,
-  rootContext: RootContext,
+  root: RootContext,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   globalMatrix: Signal<Matrix4 | undefined>,
   flexState: FlexNodeState,
@@ -26,11 +26,11 @@ export function createInteractionPanel(
   const panel = Object.assign(new Mesh(panelGeometry), { boundingSphere })
   panel.matrixAutoUpdate = false
 
-  const rootObjectRef = rootContext.objectRef
+  const rootObjectRef = root.objectRef
   panel.raycast = makeClippedCast(
     panel,
     makePanelRaycast(panel.raycast.bind(panel), rootObjectRef, boundingSphere, globalMatrix, panel),
-    rootContext.objectRef,
+    root.objectRef,
     parentClippingRect,
     orderInfo,
     flexState,
@@ -38,7 +38,7 @@ export function createInteractionPanel(
   panel.spherecast = makeClippedCast(
     panel,
     makePanelSpherecast(rootObjectRef, boundingSphere, globalMatrix, panel),
-    rootContext.objectRef,
+    root.objectRef,
     parentClippingRect,
     orderInfo,
     flexState,

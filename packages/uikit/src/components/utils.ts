@@ -4,10 +4,11 @@ import { addActiveHandlers } from '../active.js'
 import { addHoverHandlers } from '../hover.js'
 import { abortableEffect, readReactive } from '../utils.js'
 import { FlexNode, FlexNodeState } from '../flex/index.js'
-import { ParentContext, RootContext } from '../context.js'
+import { ParentContext } from '../context.js'
 import { EventHandlers } from '../events.js'
 import { Properties } from '../properties/index.js'
 import { AllowedPointerEventsType } from '../panel/interaction-panel-mesh.js'
+import { RootContext } from './root.js'
 
 export function disposeGroup(object: Object3D | undefined) {
   object?.traverse((mesh) => {
