@@ -115,13 +115,13 @@ export type CustomElementJson = {
   type: 'custom'
   name: string
   kit: string
-  children: Array<ElementJson>
+  children: ReadonlyArray<ElementJson>
   properties: Record<string, any>
 }
 
 export type ContainerElementJson = {
   type: 'container'
-  children: Array<ElementJson>
+  children: ReadonlyArray<ElementJson>
   properties: Record<string, any>
 }
 
