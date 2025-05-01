@@ -58,6 +58,12 @@ export const Video: (props: VideoProperties & RefAttributes<VideoRef>) => ReactN
       return result
     }, [providedHtmlElement])
 
+    useEffect(() => {
+      if (typeof props.src === 'string') {
+        element.src = props.src
+      }
+    }, [element, props.src])
+
     const isElementProvided = props.src instanceof HTMLVideoElement
     useEffect(() => {
       if (isElementProvided) {
