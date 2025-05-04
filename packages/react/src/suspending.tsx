@@ -1,10 +1,11 @@
-import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo } from 'react'
+import { ReactNode, RefAttributes, forwardRef } from 'react'
 import { Image, ImageProperties } from './image.js'
 import { useLoader } from '@react-three/fiber'
 import { SRGBColorSpace, TextureLoader } from 'three'
 import { ComponentInternals } from './ref.js'
 import { Video, VideoProperties, VideoRef } from './video.js'
 import { suspend } from 'suspend-react'
+import { updateVideoElement } from '@pmndrs/uikit/internals'
 
 export type SuspendingImageProperties = ImageProperties & {
   src: string
@@ -34,6 +35,7 @@ const loadVideoElementSymbol = Symbol('load-video-element')
 export const SuspendingVideo: (props: SuspendingVideoProperties & RefAttributes<VideoRef>) => ReactNode = forwardRef(
   ({ src, ...props }, ref) => {
     const element = suspend(loadVideoElement, [src, loadVideoElementSymbol])
+    updateVideoElement(element, props)
     return <Video ref={ref} src={element} {...props} />
   },
 )
