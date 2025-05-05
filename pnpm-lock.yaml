@@ -406,8 +406,8 @@ importers:
   packages/icons/lucide:
     devDependencies:
       lucide-static:
-        specifier: ^0.446.0
-        version: 0.446.0
+        specifier: ^0.507.0
+        version: 0.507.0
       oslllo-svg-fixer:
         specifier: ^5.0.0
         version: 5.0.0
@@ -4620,8 +4620,8 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
 
-  lucide-static@0.446.0:
-    resolution: {integrity: sha512-u9IkgI8k7qk738A9rt+JlENM5Sz/18EaEfqTfMEhXy2Sjq1uJA2I1WacVn6wJPXNHzrFpI5BCSmi1GtnGhsVwA==}
+  lucide-static@0.507.0:
+    resolution: {integrity: sha512-aB4j4zCh2hIGPNFywjhhUl7wpJoN9F/csjQ3oHka9EHCkAoAqmLsTyfAcLMZext9K5PqtqzjPk1qkWe9LoWIjA==}
 
   maath@0.10.8:
     resolution: {integrity: sha512-tRvbDF0Pgqz+9XUa4jjfgAQ8/aPKmQdWXilFu2tMy4GWj4NOsx99HlULO4IeREfbO3a0sA145DZYyvXPkybm0g==}
@@ -11148,7 +11148,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  lucide-static@0.446.0: {}
+  lucide-static@0.507.0: {}
 
   maath@0.10.8(@types/three@0.161.0)(three@0.161.0):
     dependencies:
