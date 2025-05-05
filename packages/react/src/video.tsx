@@ -76,7 +76,9 @@ export const Video: (props: VideoProperties & RefAttributes<VideoRef>) => ReactN
     const invalidate = useThree((s) => s.invalidate)
     useEffect(() => setupVideoElementInvalidation(element, invalidate), [element, invalidate])
 
-    updateVideoElement(element, props)
+    if (!(props.src instanceof HTMLVideoElement)) {
+      updateVideoElement(element, props)
+    }
 
     useEffect(() => {
       const updateAspectRatio = () => (aspectRatio.value = element.videoWidth / element.videoHeight)

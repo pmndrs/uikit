@@ -19,7 +19,9 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Ima
 
   constructor(props: VideoProperties<EM>, defaultProperties?: AllOptionalProperties) {
     const element = props.src instanceof HTMLVideoElement ? props.src : document.createElement('video')
-    updateVideoElement(element, props)
+    if (!(props.src instanceof HTMLVideoElement)) {
+      updateVideoElement(element, props)
+    }
     const texture = new VideoTexture(element)
     texture.needsUpdate = true
     const aspectRatio = signal<number>(1)
@@ -42,7 +44,9 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Ima
   }
 
   setProperties(props: VideoProperties<EM> & ImageProperties<EM>): void {
-    updateVideoElement(this.element, props)
+    if (!(props.src instanceof HTMLVideoElement)) {
+      updateVideoElement(this.element, props)
+    }
     super.setProperties({
       aspectRatio: this.aspectRatio,
       ...props,
