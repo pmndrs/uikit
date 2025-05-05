@@ -1,8 +1,7 @@
 import { Text, Container } from '@react-three/uikit'
-import { BoxSelect, ChevronRight, Info } from '@react-three/uikit-lucide'
+import { ChevronRight } from '@react-three/uikit-lucide'
 import { Card } from '@/card.js'
 import { List, ListItem } from '@/list.js'
-import { Button } from '@/button.js'
 
 export function ListsOnCard() {
   return (

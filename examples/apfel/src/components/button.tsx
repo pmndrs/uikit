@@ -1,7 +1,7 @@
 import { Container, Text } from '@react-three/uikit'
 import { Card } from '@/card.js'
 import { Button } from '@/button.js'
-import { BoxSelect } from '@react-three/uikit-lucide'
+import { SquareDashed } from '@react-three/uikit-lucide'
 
 export function ButtonsOnCard() {
   return (
@@ -9,7 +9,7 @@ export function ButtonsOnCard() {
       <Card borderRadius={32} padding={16}>
         <Container flexDirection="column" justifyContent="space-between" alignItems="center" gapRow={16}>
           <Button variant="icon" size="xs">
-            <BoxSelect />
+            <SquareDashed />
           </Button>
           <Button variant="rect" size="sm" platter>
             <Text>Label</Text>

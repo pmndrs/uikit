@@ -1,5 +1,5 @@
 import { Text } from '@react-three/uikit'
-import { BoxSelect } from '@react-three/uikit-lucide'
+import { SquareDashed } from '@react-three/uikit-lucide'
 import { Card } from '@/card.js'
 import { Tabs, TabsButton } from '@/tabs.js'
 

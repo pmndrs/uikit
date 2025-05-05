@@ -1,5 +1,5 @@
 import { Container } from '@react-three/uikit'
-import { BoxSelect } from '@react-three/uikit-lucide'
+import { SquareDashed } from '@react-three/uikit-lucide'
 import { Card } from '@/card.js'
 import { Slider } from '@/slider.js'
 
@@ -16,8 +16,8 @@ export function SlidersOnCard() {
       <Container flexDirection="column" gapRow={16} width={250}>
         <Slider size="xs" defaultValue={25} />
         <Slider size="sm" defaultValue={50} />
-        <Slider size="md" defaultValue={75} icon={<BoxSelect />} />
-        <Slider size="lg" defaultValue={100} icon={<BoxSelect />} />
+        <Slider size="md" defaultValue={75} icon={<SquareDashed />} />
+        <Slider size="lg" defaultValue={100} icon={<SquareDashed />} />
       </Container>
     </Card>
   )
