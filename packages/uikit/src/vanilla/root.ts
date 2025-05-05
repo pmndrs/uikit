@@ -1,14 +1,13 @@
-import { Camera, WebGLRenderer } from 'three'
+import { Camera, Object3D, WebGLRenderer } from 'three'
 import { ReadonlySignal, Signal, computed, effect, signal, untracked } from '@preact/signals-core'
 import { AllOptionalProperties, MergedProperties, WithReactive } from '../properties/index.js'
-import { createRoot, DEFAULT_PIXEL_SIZE, RootProperties } from '../components/root.js'
+import { createRootState, setupRoot, DEFAULT_PIXEL_SIZE, RootProperties } from '../components/root.js'
 import { Parent, bindHandlers } from './utils.js'
-import { Subscriptions, initialize, readReactive, unsubscribeSubscriptions } from '../utils.js'
+import { readReactive } from '../utils.js'
 import { FontFamilies } from '../text/index.js'
 import { ThreeEventMap } from '../events.js'
 
 export class Root<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
   protected readonly styleSignal: Signal<RootProperties<EM> | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<RootProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -16,7 +15,7 @@ export class Root<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Pare
   private readonly onFrameSet = new Set<(delta: number) => void>()
   private readonly fontFamiliesSignal: Signal<FontFamilies | undefined>
   private readonly pixelSizeSignal: Signal<ReadonlySignal<number | undefined> | number | undefined>
-  public internals!: ReturnType<typeof createRoot>
+  public internals!: ReturnType<typeof createRootState>
 
   constructor(
     camera: Signal<Camera | undefined> | (() => Camera) | Camera,
@@ -45,29 +44,37 @@ export class Root<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Pare
         }
         getCamera = () => cam
       }
-      const internals = (this.internals = createRoot(
+      const abortController = new AbortController()
+      const objectRef = { current: this as Object3D }
+      this.internals = createRootState(
+        objectRef,
         computed(() => readReactive(this.pixelSizeSignal.value) ?? DEFAULT_PIXEL_SIZE),
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
-        { current: this },
-        { current: this.childrenContainer },
         getCamera,
         renderer,
         this.onFrameSet,
-        requestRender,
-        requestFrame,
-      ))
-      this.mergedProperties = internals.mergedProperties
-      this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: this.fontFamiliesSignal })
-      super.add(internals.interactionPanel)
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      bindHandlers(internals.handlers, this, subscriptions)
+        requestRender ?? (() => {}),
+        requestFrame ?? (() => {}),
+      )
+      this.contextSignal.value = Object.assign(this.internals, { fontFamiliesSignal: this.fontFamiliesSignal })
+      super.add(this.internals.interactionPanel)
+
+      setupRoot(
+        this.internals,
+        this.styleSignal,
+        this.propertiesSignal,
+        this,
+        this.childrenContainer,
+        abortController.signal,
+      )
+
+      bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
         this.onFrameSet.clear()
-        this.remove(internals.interactionPanel)
-        unsubscribeSubscriptions(subscriptions)
+        this.remove(this.internals.interactionPanel)
+        abortController.abort()
       }
     })
   }
@@ -83,7 +90,7 @@ export class Root<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Pare
   }
 
   getComputedProperty<K extends keyof RootProperties<EM>>(key: K): RootProperties<EM>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+    return untracked(() => this.internals.mergedProperties?.value.read(key as string, undefined))
   }
 
   getStyle(): undefined | Readonly<RootProperties<EM>> {
@@ -91,7 +98,7 @@ export class Root<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Pare
   }
 
   setStyle(style: RootProperties<EM> | undefined, replace?: boolean) {
-    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.value, ...style } as any)
+    this.styleSignal.value = replace ? style : ({ ...this.styleSignal.peek(), ...style } as any)
   }
 
   setProperties(properties: (RootProperties<EM> & WithReactive<{ pixelSize?: number }>) | undefined) {

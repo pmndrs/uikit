@@ -4,9 +4,9 @@ import { MergedProperties } from './properties/merged.js'
 import { computedInheritableProperty } from './properties/index.js'
 import { readReactive } from './utils.js'
 
-export type WithCameraDistance = { cameraDistance: number }
+export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
 
-export const cameraDistanceKey = Symbol('camera-distance-key')
+export const reversePainterSortStableCacheKey = Symbol('reverse-painter-sort-stable-cache-key')
 export const orderInfoKey = Symbol('order-info-key')
 
 export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
@@ -16,16 +16,27 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   if (a.renderOrder !== b.renderOrder) {
     return a.renderOrder - b.renderOrder
   }
-  const aDistanceRef = (a.object as any)[cameraDistanceKey] as WithCameraDistance
-  const bDistanceRef = (b.object as any)[cameraDistanceKey] as WithCameraDistance
-  if (aDistanceRef == null || bDistanceRef == null) {
-    //default z comparison
-    return a.z !== b.z ? b.z - a.z : a.id - b.id
+  let az = a.z
+  let bz = b.z
+  const aDistanceRef = (a.object as any)[reversePainterSortStableCacheKey] as
+    | WithReversePainterSortStableCache
+    | undefined
+  const bDistanceRef = (b.object as any)[reversePainterSortStableCacheKey] as
+    | WithReversePainterSortStableCache
+    | undefined
+  if (aDistanceRef != null) {
+    aDistanceRef.reversePainterSortStableCache ??= az
+    az = aDistanceRef.reversePainterSortStableCache
   }
-  if (aDistanceRef === bDistanceRef) {
+  if (bDistanceRef != null) {
+    bDistanceRef.reversePainterSortStableCache ??= bz
+    bz = bDistanceRef.reversePainterSortStableCache
+  }
+  if (aDistanceRef != null && aDistanceRef === bDistanceRef) {
     return compareOrderInfo((a.object as any)[orderInfoKey].value, (b.object as any)[orderInfoKey].value)
   }
-  return bDistanceRef.cameraDistance - aDistanceRef.cameraDistance
+  //default z comparison
+  return az !== bz ? bz - az : a.id - b.id
 }
 
 //the following order tries to represent the most common element order of the respective element types (e.g. panels are most likely the background element)
@@ -47,7 +58,7 @@ export type OrderInfo = {
   instancedGroupDependencies?: Signal<Record<string, any>> | Record<string, any>
 }
 
-function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | undefined): number {
+export function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | undefined): number {
   if (o1 == null || o2 == null) {
     return 0
   }
@@ -70,6 +81,7 @@ export type ZIndexOffset = { major?: number; minor?: number } | number
 
 export function computedOrderInfo(
   propertiesSignal: Signal<MergedProperties> | undefined,
+  zIndexOffsetKey: string,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
   parentOrderInfoSignal: Signal<OrderInfo | undefined> | undefined,
@@ -77,7 +89,7 @@ export function computedOrderInfo(
   const zIndexOffset =
     propertiesSignal == null
       ? undefined
-      : computedInheritableProperty<ZIndexOffset | undefined>(propertiesSignal, 'zIndexOffset', undefined)
+      : computedInheritableProperty<ZIndexOffset | undefined>(propertiesSignal, zIndexOffsetKey, undefined)
   return computed(() => {
     let parentOrderInfo: OrderInfo | undefined
     if (parentOrderInfoSignal == null) {
@@ -90,8 +102,8 @@ export function computedOrderInfo(
 
     const offset = zIndexOffset?.value
 
-    const majorOffset = typeof offset === 'number' ? offset : offset?.major ?? 0
-    const minorOffset = typeof offset === 'number' ? 0 : offset?.minor ?? 0
+    const majorOffset = typeof offset === 'number' ? offset : (offset?.major ?? 0)
+    const minorOffset = typeof offset === 'number' ? 0 : (offset?.minor ?? 0)
 
     let majorIndex: number
     let minorIndex: number
@@ -152,10 +164,10 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
 
 export function setupRenderOrder<T>(
   result: T,
-  rootCameraDistance: WithCameraDistance,
+  rootCameraDistance: WithReversePainterSortStableCache,
   orderInfo: { value: OrderInfo | undefined },
 ): T {
-  ;(result as any)[cameraDistanceKey] = rootCameraDistance
+  ;(result as any)[reversePainterSortStableCacheKey] = rootCameraDistance
   ;(result as any)[orderInfoKey] = orderInfo
   return result
 }

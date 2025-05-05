@@ -1,23 +1,36 @@
 import { ReadonlySignal, Signal, untracked } from '@preact/signals-core'
 import {
   Inset,
-  createContainer,
-  createImage,
-  createRoot,
-  createSvg,
-  createText,
-  createIcon,
-  createCustomContainer,
   ContainerProperties,
   MergedProperties,
+  createContainerState,
+  createCustomContainerState,
+  createIconState,
+  createTextState,
+  createSvgState,
+  createRootState,
+  createImageState,
+  createInputState,
+  createContentState,
+  RootContext,
 } from '@pmndrs/uikit/internals'
 import { ForwardedRef, RefObject, useImperativeHandle } from 'react'
 import { Vector2Tuple, Mesh, Matrix4 } from 'three'
 
+export { RootContext } from '@pmndrs/uikit/internals'
+
 export type ComponentInternals<T = ContainerProperties> = {
+  /**
+   * the ui's root object giving access to its size and the pixelSize
+   */
+  root: Pick<RootContext, 'pixelSize' | 'size'>
+  /**
+   * matrix in relation to the root uikit element
+   */
   globalMatrix: ReadonlySignal<Matrix4 | undefined>
   /**
    * the size of one pixel
+   * @deprecated use root.pixelSize
    */
   pixelSize: ReadonlySignal<number>
   /**
@@ -73,49 +86,48 @@ export type ComponentInternals<T = ContainerProperties> = {
 
 export function useComponentInternals<T, O = {}>(
   ref: ForwardedRef<ComponentInternals<T> & O>,
-  pixelSize: Signal<number>,
+  root: RootContext,
   styleSignal: Signal<T | undefined>,
   internals: ReturnType<
-    | typeof createContainer
-    | typeof createImage
-    | typeof createRoot
-    | typeof createSvg
-    | typeof createText
-    | typeof createIcon
-    | typeof createCustomContainer
+    | typeof createContainerState
+    | typeof createContentState
+    | typeof createImageState
+    | typeof createRootState
+    | typeof createSvgState
+    | typeof createTextState
+    | typeof createIconState
+    | typeof createInputState
+    | typeof createCustomContainerState
   > & {
     isClipped?: Signal<boolean>
     scrollPosition?: Signal<Vector2Tuple>
     mergedProperties: Signal<MergedProperties>
   },
-  interactionPanel: Mesh | RefObject<Mesh>,
+  interactionPanel: Mesh | RefObject<Mesh | null>,
   additional?: O,
 ): void {
-  useImperativeHandle(
-    ref,
-    () => {
-      const { scrollPosition, paddingInset, borderInset, globalMatrix, relativeCenter, size, maxScrollPosition } =
-        internals
-      return {
-        isVisible: internals.isVisible,
-        setStyle: (style: T | undefined, replace?: boolean) =>
-          (styleSignal.value = replace ? style : ({ ...styleSignal.value, ...style } as T)),
-        getStyle: () => styleSignal.peek(),
-        getComputedProperty: <K extends keyof T>(key: K) =>
-          untracked(() => internals.mergedProperties.value.read<T[K] | undefined>(key as string, undefined)),
-        pixelSize,
-        borderInset,
-        paddingInset,
-        center: relativeCenter,
-        globalMatrix,
-        maxScrollPosition,
-        size,
-        interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
-        scrollPosition,
-        isClipped: internals.isClipped,
-        ...(additional as O),
-      }
-    },
-    [internals, pixelSize, interactionPanel, additional, styleSignal],
-  )
+  useImperativeHandle(ref, () => {
+    const { scrollPosition, paddingInset, borderInset, globalMatrix, relativeCenter, size, maxScrollPosition } =
+      internals
+    return {
+      isVisible: internals.isVisible,
+      setStyle: (style: T | undefined, replace?: boolean) =>
+        (styleSignal.value = replace ? style : ({ ...styleSignal.value, ...style } as T)),
+      getStyle: () => styleSignal.peek(),
+      getComputedProperty: <K extends keyof T>(key: K) =>
+        untracked(() => internals.mergedProperties.value.read<T[K] | undefined>(key as string, undefined)),
+      pixelSize: root.pixelSize,
+      root,
+      borderInset,
+      paddingInset,
+      center: relativeCenter,
+      globalMatrix,
+      maxScrollPosition,
+      size,
+      interactionPanel: interactionPanel instanceof Mesh ? interactionPanel : interactionPanel.current!,
+      scrollPosition,
+      isClipped: internals.isClipped,
+      ...(additional as O),
+    }
+  }, [internals, root, interactionPanel, additional, styleSignal])
 }

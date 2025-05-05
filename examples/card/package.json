@@ -2,15 +2,17 @@
   "type": "module",
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
-    "@react-three/drei": "^9.96.1",
-    "@react-three/postprocessing": "^2.16.0",
     "@react-three/rapier": "^1.3.0",
-    "@react-three/uikit": "workspace:^",
-    "@react-three/uikit-lucide": "workspace:^",
+    "remote-react-three-uikit": "https://registry.npmjs.org/@react-three/uikit/-/uikit-0.8.6.tgz",
+    "@react-three/uikit-lucide": "^0.8.6",
     "@splinetool/r3f-spline": "^1.0.2",
     "maath": "^0.10.7",
-    "r3f-perf": "^7.1.2",
-    "react-dom": "^18.2.0"
+    "react": "^18",
+    "react-dom": "^18",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@react-three/fiber": "^8.17.12",
+    "@react-three/drei": "^9.121.4"
   },
   "scripts": {
     "dev": "vite --host",

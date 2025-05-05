@@ -3,14 +3,14 @@ import { combine, persist } from 'zustand/middleware'
 import { themes } from './themes.js'
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { ConversionNode, setPreferredColorScheme } from '@react-three/uikit'
-import { useEffect, useRef, useState } from 'react'
-import { parseHtml } from '../../../packages/uikit/dist/convert/html/internals.js'
 import z from 'zod'
 import { baseBorderRadius, themeName } from '@react-three/uikit-default'
 import { compress, decompress } from 'brotli-compress'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, getDoc, doc, setDoc, addDoc, collection } from 'firebase/firestore'
+import { getFirestore, getDoc, doc, addDoc, collection } from 'firebase/firestore'
 import CardExample from './examples/card.json'
+//@ts-ignore
+import { parseHtml } from '@pmndrs/uikit/internals'
 
 export type UiState = {
   showEditor?: boolean

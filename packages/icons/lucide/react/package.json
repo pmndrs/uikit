@@ -21,8 +21,5 @@
   "main": "dist/index.js",
   "dependencies": {
     "@react-three/uikit": "workspace:^"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0"
   }
 }

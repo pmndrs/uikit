@@ -9,10 +9,10 @@ nav: 45
   customSetup={{
     dependencies: {
       'three': 'latest',
-      '@react-three/fiber': 'latest',
+      '@react-three/fiber': '<9',
       '@react-three/uikit': 'latest',
       '@react-three/uikit-apfel': 'latest',
-      '@react-three/drei': 'latest',
+      '@react-three/drei': '<10',
     },
   }}
   files={{
@@ -60,5 +60,5 @@ export default function App() {
 />
 
 ```bash
-npx uikit component add apfel progress
+import { Progress } from "@react-three/uikit-apfel";
 ```

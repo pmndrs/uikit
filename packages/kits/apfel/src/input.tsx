@@ -30,6 +30,7 @@ export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => Re
       tabIndex,
       disabled,
       type,
+      autocomplete,
       ...props
     },
     ref,
@@ -79,6 +80,7 @@ export const Input: (props: InputProperties & RefAttributes<ContainerRef>) => Re
             )}
             <InputImpl
               ref={setInternal}
+              autocomplete={autocomplete}
               height="100%"
               width="100%"
               verticalAlign="center"

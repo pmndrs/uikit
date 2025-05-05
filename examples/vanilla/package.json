@@ -2,8 +2,7 @@
   "type": "module",
   "dependencies": {
     "@pmndrs/uikit": "workspace:^",
-    "@pmndrs/uikit-lucide": "workspace:^",
-    "react-dom": "^18.2.0"
+    "@pmndrs/uikit-lucide": "workspace:^"
   },
   "scripts": {
     "dev": "vite --host"

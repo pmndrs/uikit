@@ -1,9 +1,9 @@
-import { Signal, signal, effect } from '@preact/signals-core'
-import { Subscriptions } from '../utils.js'
+import { Signal, signal } from '@preact/signals-core'
 import { EventHandlers } from '../events.js'
 import { Object3D, Object3DEventMap } from 'three'
 import { ParentContext } from '../context.js'
 import { FontFamilies } from '../text/index.js'
+import { abortableEffect } from '../utils.js'
 
 const _addedEvent = { type: 'added' as const }
 const _childaddedEvent = { type: 'childadded' as const, child: null as any }
@@ -88,27 +88,21 @@ export class Parent<T = {}> extends Component<T> {
   }
 }
 
-export function bindHandlers(
-  handlers: Signal<EventHandlers>,
-  container: Object3D<EventMap>,
-  subscriptions: Subscriptions,
-) {
-  subscriptions.push(
-    effect(() => {
-      const { value } = handlers
+export function bindHandlers(handlers: Signal<EventHandlers>, container: Object3D<EventMap>, abortSignal: AbortSignal) {
+  abortableEffect(() => {
+    const { value } = handlers
+    for (const key in value) {
+      container.addEventListener(keyToEventName(key as keyof EventHandlers), value[key as keyof EventHandlers] as any)
+    }
+    return () => {
       for (const key in value) {
-        container.addEventListener(keyToEventName(key as keyof EventHandlers), value[key as keyof EventHandlers] as any)
+        container.removeEventListener(
+          keyToEventName(key as keyof EventHandlers),
+          value[key as keyof EventHandlers] as any,
+        )
       }
-      return () => {
-        for (const key in value) {
-          container.removeEventListener(
-            keyToEventName(key as keyof EventHandlers),
-            value[key as keyof EventHandlers] as any,
-          )
-        }
-      }
-    }),
-  )
+    }
+  }, abortSignal)
 }
 
 function keyToEventName(key: keyof EventHandlers) {

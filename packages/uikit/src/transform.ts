@@ -1,9 +1,9 @@
 import { Signal, computed, effect } from '@preact/signals-core'
-import { Euler, Matrix4, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
+import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
 import { FlexNodeState } from './flex/node.js'
-import { Initializers, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
+import { abortableEffect, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
 import { MergedProperties } from './properties/merged.js'
-import { Object3DRef, RootContext } from './context.js'
+import { RootContext } from './context.js'
 import { computedInheritableProperty } from './properties/index.js'
 
 export type Percentage = `${number}%`
@@ -123,20 +123,18 @@ function translateToNumber(translate: number | Percentage, size: Signal<Vector2T
   return (sizeOnAxis * parseFloat(result[1])) / 100
 }
 
-export function applyTransform(
+export function setupObjectTransform(
   root: Pick<RootContext, 'requestRender'>,
-  object: Object3DRef,
+  object: Object3D,
   transformMatrix: Signal<Matrix4 | undefined>,
-  initializers: Initializers,
+  abortSignal: AbortSignal,
 ) {
-  initializers.push(() =>
-    effect(() => {
-      if (transformMatrix.value == null) {
-        object.current?.matrix.elements.fill(0)
-        return
-      }
-      object.current?.matrix.copy(transformMatrix.value)
-      root.requestRender()
-    }),
-  )
+  abortableEffect(() => {
+    if (transformMatrix.value == null) {
+      object.matrix.elements.fill(0)
+      return
+    }
+    object.matrix.copy(transformMatrix.value)
+    root.requestRender()
+  }, abortSignal)
 }

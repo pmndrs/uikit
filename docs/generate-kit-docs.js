@@ -25,10 +25,10 @@ nav: ${nav}
   customSetup={{
     dependencies: {
       'three': 'latest',
-      '@react-three/fiber': 'latest',
+      '@react-three/fiber': '<9',
       '@react-three/uikit': 'latest',
       '@react-three/uikit-${kit}': 'latest',
-      '@react-three/drei': 'latest',
+      '@react-three/drei': '<10',
     },
   }}
   files={{
@@ -62,7 +62,7 @@ export default function App() {
 />
 
 \`\`\`bash
-npx uikit component add ${kit} ${component}
+import { ${capitalize(component)} } from "@react-three/uikit-${kit}";
 \`\`\``
 }
 

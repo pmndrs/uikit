@@ -1,20 +1,17 @@
-import { ImageProperties, createImage } from '../components/image.js'
+import { createImageState, ImageProperties, setupImage } from '../components/image.js'
 import { AllOptionalProperties } from '../properties/default.js'
 import { Parent, createParentContextSignal, setupParentContextSignal, bindHandlers } from './utils.js'
-import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
-import { MergedProperties } from '../properties/index.js'
+import { Signal, effect, signal, untracked } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 
 export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<ImageProperties<EM> | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ImageProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
   protected readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  public internals!: ReturnType<typeof createImage>
+  public internals!: ReturnType<typeof createImageState>
 
   constructor(properties?: ImageProperties<EM>, defaultProperties?: AllOptionalProperties) {
     super()
@@ -28,29 +25,35 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Par
       if (parentContext == null) {
         return
       }
-      const internals = (this.internals = createImage(
+      const abortController = new AbortController()
+      this.internals = createImageState(
         parentContext,
+        { current: this },
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
-        { current: this },
-        { current: this.childrenContainer },
-      ))
-      this.mergedProperties = internals.mergedProperties
-      this.contextSignal.value = Object.assign(internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
-      super.add(internals.interactionPanel)
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      bindHandlers(internals.handlers, this, subscriptions)
+      )
+      setupImage(
+        this.internals,
+        parentContext,
+        this.styleSignal,
+        this.propertiesSignal,
+        this,
+        this.childrenContainer,
+        abortController.signal,
+      )
+      this.contextSignal.value = Object.assign(this.internals, { fontFamiliesSignal: parentContext.fontFamiliesSignal })
+      super.add(this.internals.interactionPanel)
+      bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
-        this.remove(internals.interactionPanel)
-        unsubscribeSubscriptions(subscriptions)
+        this.remove(this.internals.interactionPanel)
+        abortController.abort()
       }
     })
   }
 
   getComputedProperty<K extends keyof ImageProperties<EM>>(key: K): ImageProperties<EM>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+    return untracked(() => this.internals.mergedProperties?.value.read(key as string, undefined))
   }
 
   getStyle(): undefined | Readonly<ImageProperties<EM>> {

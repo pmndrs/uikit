@@ -53,7 +53,7 @@ export function Sidebar({
           <Container flexDirection="column" gap={4}>
             <Button variant="ghost" justifyContent="flex-start">
               <Star marginRight={8} width={16} height={16} />
-              <Text>Favorits</Text>
+              <Text>Favorites</Text>
             </Button>
             <Button variant="ghost" justifyContent="flex-start">
               <Package marginRight={8} width={16} height={16} />
@@ -75,7 +75,7 @@ export function Sidebar({
         </Container>
         <Container flexDirection="column" paddingY={8}>
           <Text paddingX={28} fontSize={18} lineHeight={28} fontWeight="semi-bold" letterSpacing={-0.4}>
-            Favorits
+            Favorites
           </Text>
           <Container paddingX={4} flexDirection="column" gap={4} padding={8}>
             {playlists?.map((playlist, i) => (

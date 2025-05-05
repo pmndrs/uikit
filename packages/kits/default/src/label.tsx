@@ -1,19 +1,16 @@
-import { ContainerRef, DefaultProperties } from '@react-three/uikit'
-import React, { ReactNode, RefAttributes, forwardRef } from 'react'
+import { DefaultProperties } from '@react-three/uikit'
+import React, { ReactNode } from 'react'
 
 export type LabelProperties = { children?: ReactNode; disabled?: boolean }
 
-export const Label: (props: LabelProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
-  ({ disabled, ...props }, ref) => {
-    return (
-      <DefaultProperties
-        fontWeight="medium"
-        fontSize={14}
-        lineHeight="100%"
-        opacity={disabled ? 0.7 : undefined}
-        ref={ref}
-        {...props}
-      />
-    )
-  },
-)
+export function Label({ disabled, ...props }: LabelProperties) {
+  return (
+    <DefaultProperties
+      fontWeight="medium"
+      fontSize={14}
+      lineHeight="100%"
+      opacity={disabled ? 0.7 : undefined}
+      {...props}
+    />
+  )
+}

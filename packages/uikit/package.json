@@ -43,10 +43,7 @@
     "inline-style-parser": "^0.2.3",
     "node-html-parser": "^6.1.13",
     "tw-to-css": "^0.0.12",
-    "yoga-layout": "^3.0.4",
+    "yoga-layout": "^3.2.1",
     "@pmndrs/msdfonts": "workspace:^"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0"
   }
 }

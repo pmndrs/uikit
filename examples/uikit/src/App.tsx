@@ -21,22 +21,21 @@ import {
 } from '@react-three/uikit'
 import { Texture } from 'three'
 import { Skeleton } from '../../../packages/kits/default/src/skeleton.js'
-import { Perf } from 'r3f-perf'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(true)
   const s = useMemo(() => signal(5), [])
   const x = useMemo(() => signal<string | undefined>('red'), [])
   const t = useMemo(() => signal('X X\nX X'), [])
   const ref = useRef<ImageRef>(null)
   const [input, setInput] = useState<InputInternals | null>(null)
-  const videoRef = useRef<HTMLVideoElement | undefined>()
+  const videoRef = useRef<HTMLVideoElement | undefined>(undefined)
   const [videoel, setVideoEl] = useState<HTMLVideoElement | undefined>()
 
   useEffect(() => {
-    const x = input?.element.peek()
+    const x = input?.element
     if (x == null) {
       return
     }
@@ -58,12 +57,7 @@ export default function App() {
       <video style={{ display: 'none' }} ref={videoRef}>
         <source src="./video.mp4" />
       </video>
-      <Canvas
-        events={noEvents}
-        style={{ height: '100dvh', touchAction: 'none' }}
-        gl={{ localClippingEnabled: true }}
-        onClick={() => setShow((s) => !s)}
-      >
+      <Canvas events={noEvents} style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
         <PointerEvents />
         <MeasureText />
         <OrbitControls />
@@ -73,10 +67,9 @@ export default function App() {
             <color attach="background" args={['black']} />
             <ambientLight intensity={0.5} />
             <directionalLight intensity={10} position={[5, 1, 10]} />
-            <RenderTexture ref={(t) => (texture.value = t ?? undefined)}>
+            <RenderTexture ref={(t) => void (texture.value = t ?? undefined)}>
               <Box />
             </RenderTexture>
-            <Perf />
             {show && (
               <Fullscreen
                 renderOrder={10}

@@ -31,12 +31,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
-          version: 8
+          version: 10
           run_install: true
 
       # Fonts
@@ -115,12 +115,12 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
-          version: 8
+          version: 10
           run_install: true
 
       # Examples
@@ -156,15 +156,15 @@ jobs:
       # Deploy Apps to Vercel
       - name: Pull Vercel Environment Information
         working-directory: ./apps/html23
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         working-directory: ./apps/html23
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts to Vercel
         working-directory: ./apps/html23
-        run: vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
 
   bundle-artifacts:
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-import { computed, Signal } from '@preact/signals-core'
+import { computed, effect, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple, Vector3 } from 'three'
 import { Inset } from './flex/node.js'
 import { MergedProperties } from './properties/merged.js'
@@ -8,27 +8,12 @@ export const percentageRegex = /(-?\d+(?:\.\d+)?)%/
 
 export type ColorRepresentation = Color | string | number | Vector3Tuple
 
-export type Initializers = Array<(subscriptions: Subscriptions) => Subscriptions | (() => void)>
-
-export type Subscriptions = Array<() => void>
-
-export function unsubscribeSubscriptions(subscriptions: Subscriptions): void {
-  const length = subscriptions.length
-  for (let i = 0; i < length; i++) {
-    subscriptions[i]()
+export function abortableEffect(fn: Parameters<typeof effect>[0], abortSignal: AbortSignal): void {
+  if (abortSignal.aborted) {
+    return
   }
-  subscriptions.length = 0
-}
-
-export function initialize(inits: Initializers, subscriptions: Subscriptions) {
-  const length = inits.length
-  for (let i = 0; i < length; i++) {
-    const unsubscribe = inits[i](subscriptions)
-    if (Array.isArray(unsubscribe)) {
-      continue
-    }
-    subscriptions.push(unsubscribe)
-  }
+  const unsubscribe = effect(fn)
+  abortSignal.addEventListener('abort', unsubscribe)
 }
 
 export const alignmentXMap = { left: 0.5, center: 0, middle: 0, right: -0.5 }

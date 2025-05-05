@@ -1,8 +1,8 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { InstancedGlyph } from './instanced-glyph.js'
-import { Matrix4, Vector2Tuple, Vector3Tuple } from 'three'
+import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from '../../clipping.js'
-import { ColorRepresentation, Initializers, alignmentXMap, alignmentYMap } from '../../utils.js'
+import { ColorRepresentation, abortableEffect, alignmentXMap, alignmentYMap } from '../../utils.js'
 import {
   getGlyphLayoutHeight,
   getGlyphOffsetX,
@@ -12,11 +12,12 @@ import {
 } from '../utils.js'
 import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
-import { SelectionBoxes } from '../../selection.js'
+import { SelectionTransformation } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
 import { MergedProperties, computedInheritableProperty } from '../../properties/index.js'
 import { FlexNode, FlexNodeState } from '../../flex/index.js'
+import { CaretTransformation } from '../../caret.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'block'
@@ -33,9 +34,9 @@ const defaulttextAlign: keyof typeof alignmentXMap | 'block' = 'left'
 
 export function createInstancedText(
   properties: Signal<MergedProperties>,
-  textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>,
+  textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
   matrix: Signal<Matrix4 | undefined>,
-  nodeSignal: Signal<FlexNode | undefined>,
+  node: Signal<FlexNode | undefined>,
   flexState: FlexNodeState,
   isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
@@ -43,11 +44,11 @@ export function createInstancedText(
   fontSignal: Signal<Font | undefined>,
   glyphGroupManager: GlyphGroupManager,
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
-  selectionBoxes: Signal<SelectionBoxes> | undefined,
-  caretPosition: Signal<Vector3Tuple | undefined> | undefined,
+  selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
+  caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
-  initializers: Initializers,
   defaultWordBreak: GlyphLayoutProperties['wordBreak'],
+  abortSignal: AbortSignal,
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
@@ -64,64 +65,62 @@ export function createInstancedText(
   const opacity = computedInheritableProperty(properties, 'opacity', 1)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
-  initializers.push(
+  abortableEffect(
     () =>
-      effect(() =>
-        nodeSignal.value?.addLayoutChangeListener(() => {
-          const layoutProperties = layoutPropertiesRef.current
-          const {
-            size: { value: size },
-            paddingInset: { value: paddingInset },
-            borderInset: { value: borderInset },
-          } = flexState
-          if (layoutProperties == null || size == null || paddingInset == null || borderInset == null) {
-            return
-          }
-          const [width, height] = size
-          const [pTop, pRight, pBottom, pLeft] = paddingInset
-          const [bTop, bRight, bBottom, bLeft] = borderInset
-          const actualWidth = width - pRight - pLeft - bRight - bLeft
-          const actualheight = height - pTop - pBottom - bTop - bBottom
-          layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
-        }),
-      ),
-    () =>
-      effect(() => {
-        const font = fontSignal.value
-        if (font == null || orderInfo.value == null) {
+      node.value?.addLayoutChangeListener(() => {
+        const layoutProperties = layoutPropertiesRef.current
+        const {
+          size: { value: size },
+          paddingInset: { value: paddingInset },
+          borderInset: { value: borderInset },
+        } = flexState
+        if (layoutProperties == null || size == null || paddingInset == null || borderInset == null) {
           return
         }
-        const instancedText = new InstancedText(
-          glyphGroupManager.getGroup(
-            orderInfo.value.majorIndex,
-            properties.value.read('depthTest', true),
-            properties.value.read('depthWrite', false),
-            properties.value.read('renderOrder', 0),
-            font,
-          ),
-          textAlign,
-          verticalAlign,
-          color,
-          opacity,
-          layoutSignal,
-          matrix,
-          isVisible,
-          parentClippingRect,
-          selectionRange,
-          selectionBoxes,
-          caretPosition,
-        )
-        if (instancedTextRef != null) {
-          instancedTextRef.current = instancedText
-        }
-        return () => instancedText.destroy()
+        const [width, height] = size
+        const [pTop, pRight, pBottom, pLeft] = paddingInset
+        const [bTop, bRight, bBottom, bLeft] = borderInset
+        const actualWidth = width - pRight - pLeft - bRight - bLeft
+        const actualheight = height - pTop - pBottom - bTop - bBottom
+        layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
       }),
+    abortSignal,
   )
+  abortableEffect(() => {
+    const font = fontSignal.value
+    if (font == null || orderInfo.value == null) {
+      return
+    }
+    const instancedText = new InstancedText(
+      glyphGroupManager.getGroup(
+        orderInfo.value.majorIndex,
+        properties.value.read('depthTest', true),
+        properties.value.read('depthWrite', false),
+        properties.value.read('renderOrder', 0),
+        font,
+      ),
+      textAlign,
+      verticalAlign,
+      color,
+      opacity,
+      layoutSignal,
+      matrix,
+      isVisible,
+      parentClippingRect,
+      selectionRange,
+      selectionTransformations,
+      caretTransformation,
+    )
+    if (instancedTextRef != null) {
+      instancedTextRef.current = instancedText
+    }
+    return () => instancedText.destroy()
+  }, abortSignal)
 
   return customLayouting
 }
 
-const noSelectionBoxes: SelectionBoxes = []
+const noSelectionTransformations: Array<SelectionTransformation> = []
 
 export class InstancedText {
   private glyphLines: Array<Array<InstancedGlyph | number>> = []
@@ -142,8 +141,8 @@ export class InstancedText {
     isVisible: Signal<boolean>,
     private parentClippingRect: Signal<ClippingRect | undefined> | undefined,
     private selectionRange: Signal<Vector2Tuple | undefined> | undefined,
-    private selectionBoxes: Signal<SelectionBoxes> | undefined,
-    private caretPosition: Signal<Vector3Tuple | undefined> | undefined,
+    private selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
+    private caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   ) {
     this.unsubscribeInitialList = [
       effect(() => {
@@ -194,12 +193,12 @@ export class InstancedText {
     verticalAlign: keyof typeof alignmentYMap,
     textAlign: keyof typeof alignmentXMap | 'block',
   ): void {
-    if (this.caretPosition == null || this.selectionBoxes == null) {
+    if (this.caretTransformation == null || this.selectionTransformations == null) {
       return
     }
     if (range == null || layout == null || layout.lines.length === 0) {
-      this.caretPosition.value = undefined
-      this.selectionBoxes.value = noSelectionBoxes
+      this.caretTransformation.value = undefined
+      this.selectionTransformations.value = noSelectionTransformations
       return
     }
     const whitespaceWidth = layout.font.getGlyphInfo(' ').xadvance * layout.fontSize
@@ -212,39 +211,41 @@ export class InstancedText {
         lineIndex * getOffsetToNextLine(layout.lineHeight, layout.fontSize) +
         getGlyphOffsetY(layout.fontSize, layout.lineHeight)
       )
-      this.caretPosition.value = [x, y - layout.fontSize / 2, layout.fontSize]
-      this.selectionBoxes.value = []
+      this.caretTransformation.value = { position: [x, y - layout.fontSize / 2], height: layout.fontSize }
+      this.selectionTransformations.value = []
       return
     }
-    this.caretPosition.value = undefined
+    this.caretTransformation.value = undefined
     const start = this.getGlyphLineAndX(layout, startCharIndexIncl, true, whitespaceWidth, textAlign)
     const end = this.getGlyphLineAndX(layout, endCharIndexExcl - 1, false, whitespaceWidth, textAlign)
     if (start.lineIndex === end.lineIndex) {
-      this.selectionBoxes.value = [
-        this.computeSelectionBox(start.lineIndex, start.x, end.x, layout, verticalAlign, whitespaceWidth),
+      this.selectionTransformations.value = [
+        this.computeSelectionTransformation(start.lineIndex, start.x, end.x, layout, verticalAlign, whitespaceWidth),
       ]
       return
     }
-    const newSelectionBoxes: SelectionBoxes = [
-      this.computeSelectionBox(start.lineIndex, start.x, undefined, layout, verticalAlign, whitespaceWidth),
+    const newSelectionTransformations: Array<SelectionTransformation> = [
+      this.computeSelectionTransformation(start.lineIndex, start.x, undefined, layout, verticalAlign, whitespaceWidth),
     ]
     for (let i = start.lineIndex + 1; i < end.lineIndex; i++) {
-      newSelectionBoxes.push(this.computeSelectionBox(i, undefined, undefined, layout, verticalAlign, whitespaceWidth))
+      newSelectionTransformations.push(
+        this.computeSelectionTransformation(i, undefined, undefined, layout, verticalAlign, whitespaceWidth),
+      )
     }
-    newSelectionBoxes.push(
-      this.computeSelectionBox(end.lineIndex, undefined, end.x, layout, verticalAlign, whitespaceWidth),
+    newSelectionTransformations.push(
+      this.computeSelectionTransformation(end.lineIndex, undefined, end.x, layout, verticalAlign, whitespaceWidth),
     )
-    this.selectionBoxes.value = newSelectionBoxes
+    this.selectionTransformations.value = newSelectionTransformations
   }
 
-  private computeSelectionBox(
+  private computeSelectionTransformation(
     lineIndex: number,
     startX: number | undefined,
     endX: number | undefined,
     layout: GlyphLayout,
     verticalAlign: keyof typeof alignmentYMap,
     whitespaceWidth: number,
-  ): SelectionBoxes[number] {
+  ): SelectionTransformation {
     const lineGlyphs = this.glyphLines[lineIndex]
     if (startX == null) {
       startX = this.getGlyphX(lineGlyphs[0], 0, whitespaceWidth)
@@ -266,17 +267,19 @@ export class InstancedText {
     textAlign: keyof typeof alignmentXMap | 'block',
   ): { lineIndex: number; x: number } {
     const linesLength = lines.length
-    for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
-      const line = lines[lineIndex]
-      if (charIndex >= line.charIndexOffset + line.charLength) {
-        continue
+    if (charIndex >= lines[0].charIndexOffset) {
+      for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
+        const line = lines[lineIndex]
+        if (charIndex >= line.charIndexOffset + line.charLength) {
+          continue
+        }
+        //line found
+        const glyphEntry = this.glyphLines[lineIndex][Math.max(charIndex - line.charIndexOffset, 0)]
+        return { lineIndex, x: this.getGlyphX(glyphEntry, start ? 0 : 1, whitespaceWidth) }
       }
-      //line found
-      const glyphEntry = this.glyphLines[lineIndex][Math.max(charIndex - line.charIndexOffset, 0)]
-      return { lineIndex, x: this.getGlyphX(glyphEntry, start ? 0 : 1, whitespaceWidth) }
     }
     const lastLine = lines[linesLength - 1]
-    if (lastLine.charLength === 0) {
+    if (lastLine.charLength === 0 || charIndex < lastLine.charIndexOffset) {
       return {
         lineIndex: linesLength - 1,
         x: getXOffset(availableWidth, lastLine.nonWhitespaceWidth, textAlign) - availableWidth / 2,
@@ -328,7 +331,7 @@ export class InstancedText {
         let y = getYOffset(layout, this.verticalAlign.value) - layout.availableHeight / 2
 
         const linesLength = lines.length
-        const pixelSize = this.group.pixelSize.value
+        const pixelSize = this.group.root.pixelSize.value
         for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
           if (lineIndex === this.glyphLines.length) {
             this.glyphLines.push([])

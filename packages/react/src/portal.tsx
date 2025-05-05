@@ -9,6 +9,7 @@ import {
   Raycaster,
   Vector2,
   Vector3,
+  OrthographicCamera,
 } from 'three'
 import { Image } from './image.js'
 import { InjectState, RootState, reconciler, useFrame, useStore, context } from '@react-three/fiber'
@@ -32,9 +33,9 @@ export const privateKeys = [
   'viewport',
 ]
 
-type Camera = THREE.OrthographicCamera | THREE.PerspectiveCamera
-const isOrthographicCamera = (def: Camera): def is THREE.OrthographicCamera =>
-  def && (def as THREE.OrthographicCamera).isOrthographicCamera
+type Camera = OrthographicCamera | PerspectiveCamera
+const isOrthographicCamera = (def: Camera): def is OrthographicCamera =>
+  def && (def as OrthographicCamera).isOrthographicCamera
 
 type BasePortalProperties = Omit<ImageProperties<R3FEventMap>, 'src' | 'objectFit'>
 
@@ -181,7 +182,7 @@ export const Portal: (props: PortalProperties & RefAttributes<PortalRef>) => Rea
 )
 
 function uvCompute(
-  { current }: RefObject<ComponentInternals<ImageProperties>>,
+  { current }: RefObject<ComponentInternals<ImageProperties> | null>,
   event: DomEvent,
   state: RootState,
   previous?: RootState,
@@ -211,7 +212,7 @@ function ChildrenToFBO({
   renderPriority: number
   children: ReactNode
   fbo: Signal<WebGLRenderTarget | undefined>
-  imageRef: RefObject<ComponentInternals>
+  imageRef: RefObject<ComponentInternals | null>
 }) {
   const store = useStore()
 

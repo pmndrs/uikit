@@ -1,8 +1,7 @@
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { TextProperties, createText } from '../components/text.js'
-import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
+import { TextProperties, createTextState, setupText } from '../components/text.js'
 import { MergedProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 
@@ -11,11 +10,11 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
   private readonly styleSignal: Signal<TextProperties<EM> | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<TextProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly textSignal: Signal<string | Signal<string> | Array<string | Signal<string>>>
+  private readonly textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  public internals!: ReturnType<typeof createText>
+  public internals!: ReturnType<typeof createTextState>
 
   constructor(
     text: string | Signal<string> | Array<string | Signal<string>> = '',
@@ -34,24 +33,25 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       if (parentContext == null) {
         return
       }
-      const internals = (this.internals = createText(
+      const abortController = new AbortController()
+      const state = createTextState(
         parentContext,
         this.textSignal,
         parentContext.fontFamiliesSignal,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
-        { current: this },
-      ))
-      this.mergedProperties = internals.mergedProperties
+      )
+      this.internals = state
+      this.mergedProperties = state.mergedProperties
 
-      super.add(internals.interactionPanel)
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      bindHandlers(internals.handlers, this, subscriptions)
+      setupText(state, parentContext, this.styleSignal, this.propertiesSignal, this, abortController.signal)
+
+      super.add(this.internals.interactionPanel)
+      bindHandlers(state.handlers, this, abortController.signal)
       return () => {
-        this.remove(internals.interactionPanel)
-        unsubscribeSubscriptions(subscriptions)
+        this.remove(this.internals.interactionPanel)
+        abortController.abort()
       }
     })
   }

@@ -2,14 +2,12 @@ import { Mesh, MeshBasicMaterial } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
-import { CustomContainerProperties, createCustomContainer } from '../components/index.js'
+import { CustomContainerProperties, createCustomContainerState, setupCustomContainer } from '../components/index.js'
 import { panelGeometry } from '../panel/index.js'
 import { MergedProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 
 export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private mergedProperties?: ReadonlySignal<MergedProperties>
   private readonly styleSignal: Signal<CustomContainerProperties<EM> | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<CustomContainerProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
@@ -17,8 +15,11 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
   private readonly unsubscribe: () => void
   private readonly material = new MeshBasicMaterial()
 
+  public internals!: ReturnType<typeof createCustomContainerState>
+
   constructor(properties?: CustomContainerProperties<EM>, defaultProperties?: AllOptionalProperties) {
     super()
+    //TODO make the container the mesh
     this.matrixAutoUpdate = false
     setupParentContextSignal(this.parentContextSignal, this)
     this.propertiesSignal = signal(properties)
@@ -32,28 +33,29 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       if (parentContext == null) {
         return
       }
-      const internals = createCustomContainer(
+      const abortController = new AbortController()
+      this.internals = createCustomContainerState(
         parentContext,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
-        {
-          current: this,
-        },
-        {
-          current: mesh,
-        },
       )
-      this.mergedProperties = internals.mergedProperties
+
+      setupCustomContainer(
+        this.internals,
+        parentContext,
+        this.styleSignal,
+        this.propertiesSignal,
+        this,
+        mesh,
+        abortController.signal,
+      )
 
       //setup events
-      //TODO make the container the mesh
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      bindHandlers(internals.handlers, this, subscriptions)
+      bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
         this.remove(mesh)
-        unsubscribeSubscriptions(subscriptions)
+        abortController.abort()
       }
     })
   }
@@ -61,7 +63,7 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
   getComputedProperty<K extends keyof CustomContainerProperties<EM>>(
     key: K,
   ): CustomContainerProperties<EM>[K] | undefined {
-    return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
+    return untracked(() => this.internals.mergedProperties?.value.read(key as string, undefined))
   }
 
   getStyle(): undefined | Readonly<CustomContainerProperties<EM>> {

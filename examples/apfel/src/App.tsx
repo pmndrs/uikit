@@ -85,10 +85,14 @@ export default function App() {
 
           <Card flexShrink={0} padding={8} flexDirection="row" gap={8} alignItems="center">
             <Text backgroundColor="black" padding={8} borderRadius={16} marginLeft={8}>
-              npx uikit component add apfel {component}
+              import {'{'} {`${component[0].toUpperCase()}${component.slice(1)}`} {'}'} from "@react-three/uikit-apfel";
             </Text>
             <Button
-              onClick={() => navigator.clipboard.writeText(`npx uikit component add apfel ${component}`)}
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  `import { ${component[0].toUpperCase()}${component.slice(1)} } from "@react-three/uikit-apfel"`,
+                )
+              }
               variant="icon"
             >
               <Copy />

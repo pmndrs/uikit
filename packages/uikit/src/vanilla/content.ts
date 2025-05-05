@@ -2,8 +2,7 @@ import { Object3D, Object3DEventMap } from 'three'
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
-import { ContentProperties, createContent } from '../components/index.js'
+import { ContentProperties, setupContent, createContentState } from '../components/index.js'
 import { MergedProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 
@@ -13,11 +12,10 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
   private readonly styleSignal: Signal<ContentProperties<EM> | undefined> = signal(undefined)
   private readonly propertiesSignal: Signal<ContentProperties<EM> | undefined>
   private readonly defaultPropertiesSignal: Signal<AllOptionalProperties | undefined>
-  private readonly contentSubscriptions: Subscriptions = []
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  public internals!: ReturnType<typeof createContent>
+  public internals!: ReturnType<typeof createContentState>
 
   constructor(properties?: ContentProperties<EM>, defaultProperties?: AllOptionalProperties) {
     super()
@@ -35,32 +33,38 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
       if (parentContext == null) {
         return
       }
-      const internals = (this.internals = createContent(
+      const abortController = new AbortController()
+      const state = createContentState(
         parentContext,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
-        {
-          current: this,
-        },
-        {
-          current: this.contentContainer,
-        },
-      ))
-      this.mergedProperties = internals.mergedProperties
+        { current: this.contentContainer },
+      )
+      this.internals = state
+      this.mergedProperties = state.mergedProperties
+
+      //setup content with state
+      setupContent(
+        state,
+        parentContext,
+        this.styleSignal,
+        this.propertiesSignal,
+        this,
+        this.contentContainer,
+        abortController.signal,
+      )
 
       //setup events
-      super.add(internals.interactionPanel)
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      bindHandlers(internals.handlers, this, subscriptions)
-      this.addEventListener('childadded', internals.remeasureContent)
-      this.addEventListener('childremoved', internals.remeasureContent)
+      super.add(this.internals.interactionPanel)
+      bindHandlers(state.handlers, this, abortController.signal)
+      this.addEventListener('childadded', state.remeasureContent)
+      this.addEventListener('childremoved', state.remeasureContent)
       return () => {
-        this.remove(internals.interactionPanel)
-        unsubscribeSubscriptions(subscriptions)
-        this.removeEventListener('childadded', internals.remeasureContent)
-        this.removeEventListener('childremoved', internals.remeasureContent)
+        this.remove(this.internals.interactionPanel)
+        abortController.abort()
+        this.removeEventListener('childadded', state.remeasureContent)
+        this.removeEventListener('childremoved', state.remeasureContent)
       }
     })
   }
@@ -105,7 +109,6 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
 
   destroy() {
     this.parent?.remove(this)
-    unsubscribeSubscriptions(this.contentSubscriptions)
     this.unsubscribe()
   }
 }

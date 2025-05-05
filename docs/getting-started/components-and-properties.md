@@ -13,6 +13,7 @@ All components in uikit use flexbox properties to define the position and size i
 
 | Property            | Type                                                                                                        |
 | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| visibility          | "visible" , "hidden"                                                                                        |
 | margin              | number, Percentage, "auto"                                                                                  |
 | marginX             | number, Percentage, "auto"                                                                                  |
 | marginY             | number, Percentage, "auto"                                                                                  |
@@ -88,42 +89,45 @@ In addition to the flexbox properties, the container has properties for styling 
 <details>
 <summary>View all properties for styling the background panel</summary>
 
-| Property                         | Type                |
-| -------------------------------- | ------------------- |
-| zIndexOffset                     | number              |
-| receiveShadow                    | boolean             |
-| castShadow                       | boolean             |
-| depthTest                        | boolean             |
-| depthWrite                       | boolean             |
-| renderOrder                      | number              |
-| backgroundColor                  | ColorRepresentation |
-| backgroundOpacity                | number              |
-| panelMaterialClass               | Material class      |
-| borderOpacity                    | number              |
-| borderColor                      | ColorRepresentation |
-| borderRadius                     | number              |
-| borderLeftRadius                 | number              |
-| borderRightRadius                | number              |
-| borderTopRadius                  | number              |
-| borderBottomRadius               | number              |
-| borderTopLeftRadius              | number              |
-| borderTopRightRadius             | number              |
-| borderBottomRightRadius          | number              |
-| borderBottomLeftRadius           | number              |
-| borderBend                       | number              |
-| scrollbarPanelMaterialClass      | Material class      |
-| scrollbarBackgroundOpacity       | number              |
-| scrollbarBackgroundColor         | ColorRepresentation |
-| scrollbarWidth                   | number              |
-| scrollbarBorderRadius            | number              |
-| scrollbarBorderLeftRadius        | number              |
-| scrollbarBorderRightRadius       | number              |
-| scrollbarBorderTopRadius         | number              |
-| scrollbarBorderBottomRadius      | number              |
-| scrollbarBorderTopLeftRadius     | number              |
-| scrollbarBorderTopRightRadius    | number              |
-| scrollbarBorderBottomRightRadius | number              |
-| scrollbarBorderBottomLeftRadius  | number              |
+| Property                         | Type                                           |
+| -------------------------------- | ---------------------------------------------- |
+| receiveShadow                    | boolean                                        |
+| castShadow                       | boolean                                        |
+| depthTest                        | boolean                                        |
+| depthWrite                       | boolean                                        |
+| renderOrder                      | number                                         |
+| backgroundColor                  | ColorRepresentation                            |
+| backgroundOpacity                | number                                         |
+| panelMaterialClass               | Material class                                 |
+| borderOpacity                    | number                                         |
+| borderColor                      | ColorRepresentation                            |
+| borderRadius                     | number                                         |
+| borderLeftRadius                 | number                                         |
+| borderRightRadius                | number                                         |
+| borderTopRadius                  | number                                         |
+| borderBottomRadius               | number                                         |
+| borderTopLeftRadius              | number                                         |
+| borderTopRightRadius             | number                                         |
+| borderBottomRightRadius          | number                                         |
+| borderBottomLeftRadius           | number                                         |
+| borderBend                       | number                                         |
+| scrollbarPanelMaterialClass      | Material class                                 |
+| scrollbarBackgroundOpacity       | number                                         |
+| scrollbarBackgroundColor         | ColorRepresentation                            |
+| scrollbarWidth                   | number                                         |
+| scrollbarBorderRadius            | number                                         |
+| scrollbarBorderLeftRadius        | number                                         |
+| scrollbarBorderRightRadius       | number                                         |
+| scrollbarBorderTopRadius         | number                                         |
+| scrollbarBorderBottomRadius      | number                                         |
+| scrollbarBorderTopLeftRadius     | number                                         |
+| scrollbarBorderTopRightRadius    | number                                         |
+| scrollbarBorderBottomRightRadius | number                                         |
+| scrollbarBorderBottomLeftRadius  | number                                         |
+| zIndexOffset                     | number or `{ minor?: number, major?: number }` |
+
+**`zIndexOffset` Explanation:**  
+`zIndexOffset={1}` allows to manipulate the default order deduced from the UI hierachy, giving the developer the option to shift the order of specific elements backwards or forwards making them appear behind or infront of other elements. Note that sibling elements are treated as having the same UI hiearchy and are therefore not explicitly ordered. `zIndexOffset={1}` is the same as `zIndexOffset={{ major: 1 }}`. While giving a major zIndexOffset causes more draw calls, a minor offset with `zIndexOffset={{ minor: 1 }}` causes no direct performance implications and allows to order sibling elements of the same type e.g. with two overlapping panels beeing siblings in the UI hiearchy.
 
 </details>
 
@@ -286,6 +290,23 @@ The `Input` component extends the `Text` component and allows the user to change
   <Input fontWeight="bold" defaultValue="Hello World" />
 </Root>
 ```
+
+The `Input` component also exposes a ref that provides access to various properties and methods for controlling the input programmatically. This ref can be used to focus or blur the input, access the current value, and get information about the selection and caret position.
+
+<details>
+<summary>View all properties exposed in the Input ref</summary>
+
+| Property                 | Description                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| current                  | A signal containing the current value of the input               |
+| focus                    | Method to programmatically focus the input                       |
+| blur                     | Method to programmatically remove focus from the input           |
+| element                  | A signal containing the underlying HTML element                  |
+| selectionRange           | A signal containing the current selection range [start, end]     |
+| caretTransformation      | A signal containing information about the caret's transformation (position and height) |
+| selectionTransformations | A signal containing the transformations for all selection (boxes)  |
+
+</details>
 
 <details>
 <summary>View all properties specific to the `Input` component</summary>

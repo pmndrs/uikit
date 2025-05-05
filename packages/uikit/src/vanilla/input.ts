@@ -1,8 +1,7 @@
 import { AllOptionalProperties } from '../properties/default.js'
 import { createParentContextSignal, setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ReadonlySignal, Signal, effect, signal, untracked } from '@preact/signals-core'
-import { InputProperties, createInput } from '../components/input.js'
-import { Subscriptions, initialize, unsubscribeSubscriptions } from '../utils.js'
+import { InputProperties, createInputState, setupInput } from '../components/input.js'
 import { MergedProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 
@@ -14,7 +13,7 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
   private readonly parentContextSignal = createParentContextSignal()
   private readonly unsubscribe: () => void
 
-  public internals!: ReturnType<typeof createInput>
+  public internals!: ReturnType<typeof createInputState>
 
   constructor(properties?: InputProperties<Em>, defaultProperties?: AllOptionalProperties) {
     super()
@@ -28,24 +27,32 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
       if (parentContext == null) {
         return
       }
-      const internals = (this.internals = createInput(
+      const abortController = new AbortController()
+      this.internals = createInputState(
         parentContext,
         parentContext.fontFamiliesSignal,
         this.styleSignal,
         this.propertiesSignal,
         this.defaultPropertiesSignal,
-        { current: this },
-      ))
-      this.mergedProperties = internals.mergedProperties
+      )
 
-      //setup events
-      super.add(internals.interactionPanel)
-      const subscriptions: Subscriptions = []
-      initialize(internals.initializers, subscriptions)
-      bindHandlers(internals.handlers, this, subscriptions)
+      setupInput(
+        this.internals,
+        parentContext,
+        this.styleSignal,
+        this.propertiesSignal,
+        this.defaultPropertiesSignal,
+        this,
+        abortController.signal,
+      )
+
+      this.mergedProperties = this.internals.mergedProperties
+      super.add(this.internals.interactionPanel)
+      bindHandlers(this.internals.handlers, this, abortController.signal)
+
       return () => {
-        this.remove(internals.interactionPanel)
-        unsubscribeSubscriptions(subscriptions)
+        this.remove(this.internals.interactionPanel)
+        abortController.abort()
       }
     })
   }
@@ -54,7 +61,7 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
     return untracked(() => this.mergedProperties?.value.read(key as string, undefined))
   }
 
-  getStyle(): undefined | Readonly<InputProperties> {
+  getStyle(): undefined | Readonly<InputProperties<Em>> {
     return this.styleSignal.peek()
   }
 

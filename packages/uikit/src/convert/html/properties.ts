@@ -225,7 +225,7 @@ export function convertProperty(
       return value != 'false'
     }
     if (type === 'string') {
-      return typeof value === 'string' ? applyCustomColor(value, colorMap) ?? value : undefined
+      return typeof value === 'string' ? (applyCustomColor(value, colorMap) ?? value) : undefined
     }
     if (type === 'percentage') {
       return typeof value === 'string' && percentageRegex.test(value) ? value : undefined

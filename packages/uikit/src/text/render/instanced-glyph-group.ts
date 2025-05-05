@@ -1,29 +1,26 @@
-import { DynamicDrawUsage, InstancedBufferAttribute, Material, TypedArray } from 'three'
+import { DynamicDrawUsage, InstancedBufferAttribute, Material, Object3D, TypedArray } from 'three'
 import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
-import { ElementType, OrderInfo, WithCameraDistance, setupRenderOrder } from '../../order.js'
-import { Object3DRef, RootContext } from '../../context.js'
-import { Signal } from '@preact/signals-core'
-import { Initializers } from '../../utils.js'
+import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../../order.js'
+import { RootContext } from '../../context.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
-    private pixelSize: Signal<number>,
-    private root: WithCameraDistance & Pick<RootContext, 'requestRender' | 'onFrameSet'>,
-    private object: Object3DRef,
-    initializers: Initializers,
-  ) {
-    initializers.push(
-      () => {
-        const onFrame = (delta: number) => this.traverse((group) => group.onFrame(delta))
-        root.onFrameSet.add(onFrame)
-        return () => root.onFrameSet.delete(onFrame)
-      },
-      () => () => this.traverse((group) => group.destroy()),
-    )
+    private readonly root: WithReversePainterSortStableCache &
+      Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet' | 'pixelSize'>,
+    private readonly objectRef: { current?: Object3D | null },
+  ) {}
+
+  init(abortSignal: AbortSignal) {
+    const onFrame = (delta: number) => this.traverse((group) => group.onFrame(delta))
+    this.root.onFrameSet.add(onFrame)
+    abortSignal.addEventListener('abort', () => {
+      this.root.onFrameSet.delete(onFrame)
+      this.traverse((group) => group.destroy())
+    })
   }
 
   private traverse(fn: (group: InstancedGlyphGroup) => void) {
@@ -45,9 +42,8 @@ export class GlyphGroupManager {
       groups.set(
         key,
         (glyphGroup = new InstancedGlyphGroup(
-          this.object,
+          this.objectRef,
           font,
-          this.pixelSize,
           this.root,
           {
             majorIndex,
@@ -80,10 +76,10 @@ export class InstancedGlyphGroup {
   private timeTillDecimate?: number
 
   constructor(
-    private object: Object3DRef,
+    private objectRef: { current?: Object3D | null },
     font: Font,
-    public readonly pixelSize: Signal<number>,
-    public readonly root: WithCameraDistance & Pick<RootContext, 'requestRender'>,
+    public readonly root: WithReversePainterSortStableCache &
+      Pick<RootContext, 'requestFrame' | 'requestRender' | 'pixelSize'>,
     private orderInfo: OrderInfo,
     depthTest: boolean,
     depthWrite: boolean,
@@ -96,17 +92,18 @@ export class InstancedGlyphGroup {
 
   requestActivate(glyph: InstancedGlyph): void {
     const holeIndex = this.holeIndicies.shift()
-    this.root.requestRender()
     if (holeIndex != null) {
       //inserting into existing hole
       this.glyphs[holeIndex] = glyph
       glyph.activate(holeIndex)
+      this.root.requestRender()
       return
     }
 
     if (this.mesh == null || this.mesh.count >= this.instanceMatrix.count) {
       //requesting insert because no space available
       this.requestedGlyphs.push(glyph)
+      this.root.requestFrame()
       return
     }
 
@@ -115,6 +112,7 @@ export class InstancedGlyphGroup {
     this.glyphs[index] = glyph
     glyph.activate(index)
     this.mesh.count += 1
+    this.root.requestRender()
     return
   }
 
@@ -129,6 +127,7 @@ export class InstancedGlyphGroup {
       return
     }
 
+    //can directly request render because we don't need "onFrame" to handle delete
     this.root.requestRender()
 
     const replacement = this.requestedGlyphs.shift()
@@ -246,21 +245,21 @@ export class InstancedGlyphGroup {
       this.holeIndicies.length = 0
 
       //destroying the old mesh
-      this.object.current?.remove(oldMesh)
+      this.objectRef.current?.remove(oldMesh)
       oldMesh.dispose()
     }
 
     //finalizing the new mesh
     setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
-    this.object.current?.add(this.mesh)
+    this.objectRef.current?.add(this.mesh)
   }
 
   destroy() {
     if (this.mesh == null) {
       return
     }
-    this.object.current?.remove(this.mesh)
+    this.objectRef.current?.remove(this.mesh)
     this.mesh.dispose()
     this.instanceMaterial.dispose()
   }

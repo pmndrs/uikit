@@ -1,12 +1,11 @@
 import { Object3D, Vector2Tuple } from 'three'
-import { Signal, batch, computed, effect, signal, untracked } from '@preact/signals-core'
+import { Signal, batch, effect, signal, untracked } from '@preact/signals-core'
 import { Display, Edge, FlexDirection, MeasureFunction, Node, Overflow } from 'yoga-layout/load'
 import { setter } from './setter.js'
-import { Subscriptions } from '../utils.js'
 import { setupImmediateProperties } from '../properties/immediate.js'
 import { MergedProperties } from '../properties/merged.js'
-import { Object3DRef } from '../context.js'
 import { PointScaleFactor, createYogaNode } from './yoga.js'
+import { abortableEffect } from '../utils.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -30,14 +29,14 @@ function hasImmediateProperty(key: string): boolean {
 export type FlexNodeState = ReturnType<typeof createFlexNodeState>
 
 export function createFlexNodeState() {
-  const scrollable = signal<[boolean, boolean]>([false, false])
   return {
+    node: signal<FlexNode | undefined>(),
     size: signal<Vector2Tuple | undefined>(undefined),
     relativeCenter: signal<Vector2Tuple | undefined>(undefined),
     borderInset: signal<Inset | undefined>(undefined),
     overflow: signal<Overflow>(Overflow.Visible),
     displayed: signal<boolean>(false),
-    scrollable,
+    scrollable: signal<[boolean, boolean]>([false, false]),
     paddingInset: signal<Inset | undefined>(undefined),
     maxScrollPosition: signal<Partial<Vector2Tuple>>([undefined, undefined]),
   }
@@ -54,37 +53,34 @@ export class FlexNode {
   private objectVisible = false
 
   constructor(
-    private state: FlexNodeState,
+    private state: FlexNodeState & { root: { requestCalculateLayout(): void } },
     private readonly propertiesSignal: Signal<MergedProperties>,
-    private readonly requestCalculateLayout: () => void,
-    private object: Object3DRef,
+    private object: Object3D,
     private objectVisibileDefault: boolean,
-    subscriptions: Subscriptions,
+    abortSignal: AbortSignal,
   ) {
-    subscriptions.push(
-      effect(() => {
-        const yogaNode = createYogaNode()
-        if (yogaNode == null) {
-          return
-        }
-        this.yogaNode = yogaNode
-        this.active.value = true
-        this.updateMeasureFunction()
-        return () => {
-          this.yogaNode?.getParent()?.removeChild(this.yogaNode)
-          this.yogaNode?.free()
-        }
-      }),
-    )
+    abortableEffect(() => {
+      const yogaNode = createYogaNode()
+      if (yogaNode == null) {
+        return
+      }
+      this.yogaNode = yogaNode
+      this.active.value = true
+      this.updateMeasureFunction()
+      return () => {
+        this.yogaNode?.getParent()?.removeChild(this.yogaNode)
+        this.yogaNode?.free()
+      }
+    }, abortSignal)
     setupImmediateProperties(
       propertiesSignal,
       this.active,
       hasImmediateProperty,
       (key: string, value: unknown) => {
         setter[key as keyof typeof setter](this.yogaNode!, value as any)
-        this.requestCalculateLayout()
+        this.state.root.requestCalculateLayout()
       },
-      subscriptions,
+      abortSignal,
     )
   }
 
@@ -98,7 +94,7 @@ export class FlexNode {
       return
     }
     setMeasureFunc(this.yogaNode!, this.customLayouting.measure)
-    this.requestCalculateLayout()
+    this.state.root.requestCalculateLayout()
   }
 
   /**
@@ -115,7 +111,7 @@ export class FlexNode {
 
   addChild(node: FlexNode): void {
     this.children.push(node)
-    this.requestCalculateLayout()
+    this.state.root.requestCalculateLayout()
   }
 
   removeChild(node: FlexNode): void {
@@ -124,7 +120,7 @@ export class FlexNode {
       return
     }
     this.children.splice(i, 1)
-    this.requestCalculateLayout()
+    this.state.root.requestCalculateLayout()
   }
 
   commit(parentDirection: FlexDirection): void {
@@ -158,15 +154,12 @@ export class FlexNode {
     //commiting the children
     let groupChildren: Array<Object3D> | undefined
     this.children.sort((child1, child2) => {
-      groupChildren ??= child1.object.current?.parent?.children
+      groupChildren ??= child1.object.parent?.children
       if (groupChildren == null) {
         return 0
       }
-      const group1 = child1.object.current
-      const group2 = child2.object.current
-      if (group1 == null || group2 == null) {
-        return 0
-      }
+      const group1 = child1.object
+      const group2 = child2.object
       const i1 = groupChildren.indexOf(group1)
       if (i1 === -1) {
         throw new Error(`parent mismatch`)
@@ -217,9 +210,7 @@ export class FlexNode {
     }
 
     this.objectVisible = this.objectVisibileDefault || this.children.some((child) => child.objectVisible)
-    if (this.object.current != null) {
-      this.object.current.visible = this.objectVisible
-    }
+    this.object.visible = this.objectVisible
   }
 
   updateMeasurements(

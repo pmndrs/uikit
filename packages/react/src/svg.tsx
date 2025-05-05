@@ -1,10 +1,4 @@
-import {
-  Subscriptions,
-  SvgProperties as BaseSvgProperties,
-  createSvg,
-  initialize,
-  unsubscribeSubscriptions,
-} from '@pmndrs/uikit/internals'
+import { SvgProperties as BaseSvgProperties, createSvgState, setupSvg } from '@pmndrs/uikit/internals'
 import { ReactNode, RefAttributes, forwardRef, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
@@ -26,13 +20,12 @@ export const Svg: (props: SvgProperties & RefAttributes<SvgRef>) => ReactNode = 
   const propertySignals = usePropertySignals(properties)
   const internals = useMemo(
     () =>
-      createSvg<R3FEventMap>(
+      createSvgState<R3FEventMap>(
         parent,
+        outerRef,
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
-        outerRef,
-        innerRef,
       ),
     [parent, propertySignals],
   )
@@ -40,12 +33,23 @@ export const Svg: (props: SvgProperties & RefAttributes<SvgRef>) => ReactNode = 
   internals.interactionPanel.name = properties.name ?? ''
 
   useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    if (outerRef.current == null || innerRef.current == null) {
+      return
+    }
+    const abortController = new AbortController()
+    setupSvg<R3FEventMap>(
+      internals,
+      parent,
+      propertySignals.style,
+      propertySignals.properties,
+      outerRef.current,
+      innerRef.current,
+      abortController.signal,
+    )
+    return () => abortController.abort()
+  }, [parent, propertySignals, internals])
 
-  useComponentInternals(ref, parent.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, parent.root, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers ref={outerRef} handlers={internals.handlers}>

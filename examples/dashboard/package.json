@@ -1,12 +1,9 @@
 {
   "type": "module",
   "dependencies": {
-    "@react-three/drei": "^9.96.1",
-    "@react-three/postprocessing": "^2.16.0",
+    "@preact/signals-core": "^1.5.1",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
-    "r3f-perf": "^7.1.2",
-    "react-dom": "^18.2.0",
     "vite-plugin-mkcert": "^1.17.4",
     "zustand": "^4.4.7"
   },

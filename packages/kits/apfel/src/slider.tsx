@@ -41,6 +41,9 @@ export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => 
       size = 'md',
       icon,
       disabled,
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
       ...props
     },
     ref,
@@ -51,6 +54,12 @@ export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => 
     const onChange = useRef(onValueChange)
     onChange.current = onValueChange
     const hasProvidedValue = providedValue != null
+    const onPointerDownRef = useRef(onPointerDown)
+    onPointerDownRef.current = onPointerDown
+    const onPointerUpRef = useRef(onPointerUp)
+    onPointerUpRef.current = onPointerUp
+    const onPointerMoveRef = useRef(onPointerMove)
+    onPointerMoveRef.current = onPointerMove
     const handler = useMemo(() => {
       let down: boolean = false
       function setValue(e: ThreeEvent<PointerEvent>) {
@@ -71,17 +80,20 @@ export const Slider: (props: SliderProperties & RefAttributes<ContainerRef>) => 
       }
       return {
         onPointerDown(e) {
+          onPointerDownRef.current?.(e)
           down = true
           setValue(e)
           ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
         },
         onPointerMove(e) {
+          onPointerMoveRef.current?.(e)
           if (!down) {
             return
           }
           setValue(e)
         },
         onPointerUp(e) {
+          onPointerUpRef.current?.(e)
           if (!down) {
             return
           }

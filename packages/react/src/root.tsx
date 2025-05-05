@@ -5,13 +5,11 @@ import { AddHandlers, R3FEventMap, usePropertySignals } from './utils.js'
 import {
   DEFAULT_PIXEL_SIZE,
   RootProperties as BaseRootProperties,
-  Subscriptions,
   WithReactive,
-  createRoot,
-  initialize,
   readReactive,
   reversePainterSortStable,
-  unsubscribeSubscriptions,
+  createRootState,
+  setupRoot,
 } from '@pmndrs/uikit/internals'
 import { Object3D } from 'three'
 import { ComponentInternals, useComponentInternals } from './ref.js'
@@ -40,13 +38,12 @@ export const Root: (props: RootProperties & RefAttributes<RootRef>) => ReactNode
   const invalidate = useThree((s) => s.invalidate)
   const internals = useMemo(
     () =>
-      createRoot<R3FEventMap>(
+      createRootState<R3FEventMap>(
+        outerRef,
         computed(() => readReactive(pixelSizeSignal.value) ?? DEFAULT_PIXEL_SIZE),
         propertySignals.style,
         propertySignals.properties,
         propertySignals.default,
-        outerRef,
-        innerRef,
         () => store.getState().camera,
         renderer,
         onFrameSet,
@@ -61,17 +58,26 @@ export const Root: (props: RootProperties & RefAttributes<RootRef>) => ReactNode
         //requestFrame = invalidate, because invalidate always causes another frame
         invalidate,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [invalidate],
+    [invalidate, onFrameSet, pixelSizeSignal, propertySignals, renderer, store],
   )
 
   internals.interactionPanel.name = properties.name ?? ''
 
   useEffect(() => {
-    const subscriptions: Subscriptions = []
-    initialize(internals.initializers, subscriptions)
-    return () => unsubscribeSubscriptions(subscriptions)
-  }, [internals])
+    if (outerRef.current == null || innerRef.current == null) {
+      return
+    }
+    const abortController = new AbortController()
+    setupRoot<R3FEventMap>(
+      internals,
+      propertySignals.style,
+      propertySignals.properties,
+      outerRef.current,
+      innerRef.current,
+      abortController.signal,
+    )
+    return () => abortController.abort()
+  }, [propertySignals, internals])
 
   useFrame((_, delta) => {
     whileOnFrameRef.current = true
@@ -82,7 +88,7 @@ export const Root: (props: RootProperties & RefAttributes<RootRef>) => ReactNode
     whileOnFrameRef.current = false
   })
 
-  useComponentInternals(ref, internals.root.pixelSize, propertySignals.style, internals, internals.interactionPanel)
+  useComponentInternals(ref, internals.root, propertySignals.style, internals, internals.interactionPanel)
 
   return (
     <AddHandlers handlers={internals.handlers} ref={outerRef}>

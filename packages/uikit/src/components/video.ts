@@ -25,10 +25,6 @@ export function updateVideoElement(
   element: HTMLVideoElement,
   { src, autoplay, loop, muted, playbackRate, preservesPitch, volume, crossOrigin }: InternalVideoProperties,
 ) {
-  if (src instanceof HTMLElement) {
-    return
-  }
-
   element.playsInline = true
   element.volume = volume ?? 1
   element.preservesPitch = preservesPitch ?? true
@@ -45,7 +41,7 @@ export function updateVideoElement(
   }
   if (typeof src === 'string') {
     element.src = src
-  } else {
+  } else if (src instanceof MediaStream) {
     element.srcObject = src
   }
 }
