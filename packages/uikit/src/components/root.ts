@@ -74,7 +74,7 @@ export type RootProperties<EM extends ThreeEventMap = ThreeEventMap> = Inheritab
   ScrollListeners &
   EventHandlers<EM>
 
-export const DEFAULT_PIXEL_SIZE = 0.01
+export const DEFAULT_PIXEL_SIZE = 0.002
 
 const vectorHelper = new Vector3()
 const planeHelper = new Plane()
