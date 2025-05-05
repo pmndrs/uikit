@@ -198,7 +198,7 @@ export function setupRoot<EM extends ThreeEventMap = ThreeEventMap>(
   const node = setupNode(state, undefined, object, true, abortSignal)
   state.root.requestCalculateLayout = createDeferredRequestLayoutCalculation(state.root, node, abortSignal)
 
-  setupObjectTransform(state.root, object, state.globalMatrix, abortSignal)
+  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
 
   const onFrame = () => void (state.root.reversePainterSortStableCache = undefined)
 
