@@ -2,9 +2,9 @@ import { FlexNodeState, createFlexNodeState } from '../flex/node.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, createGlobalClippingPlanes, ClippingRect } from '../clipping.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { computedTransformMatrix } from '../transform.js'
 import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { Signal, computed, signal, untracked } from '@preact/signals-core'
+import { Signal, computed, signal } from '@preact/signals-core'
 import {
   computedGlobalMatrix,
   computedHandlers,
@@ -13,19 +13,25 @@ import {
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
+  buildRaycasting,
 } from './utils.js'
 import { abortableEffect, alignmentZMap } from '../utils.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ParentContext } from '../context.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
-import { getDefaultPanelMaterialConfig, makeClippedCast } from '../panel/index.js'
+import {
+  computedPanelMatrix,
+  getDefaultPanelMaterialConfig,
+  makeClippedCast,
+  setupBoundingSphere,
+} from '../panel/index.js'
 import { ThreeEventMap } from '../events.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './root.js'
+import { Component } from '../vanilla/utils.js'
 
 export type ContentProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalContentProperties>
 
@@ -42,13 +48,12 @@ const additionalContentDefaults = {
 type AdditionalContentDefaults = typeof additionalContentDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
-  objectRef: { current?: Object3D | null },
-  contentContainerRef: { current?: Object3D | null },
+  object: Component,
   parentCtx?: ParentContext,
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
+  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredList = signal<Array<number>>([])
   const activeList = signal<Array<number>>([])
 
@@ -99,7 +104,11 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
   const measuredSize = new Vector3()
   const measuredCenter = new Vector3()
 
+  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+
   return Object.assign(flexState, rootContext, {
+    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
+    object,
     measuredSize,
     measuredCenter,
     globalMatrix,
@@ -114,13 +123,6 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     handlers,
     ancestorsHaveListeners,
     transformMatrix,
-    interactionPanel: createInteractionPanel(
-      backgroundOrderInfo,
-      rootContext.root,
-      parentCtx?.clippingRect,
-      globalMatrix,
-      flexState,
-    ),
     remeasureContent: createMeasureContent(
       flexState,
       measuredSize,
@@ -131,7 +133,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
       isVisible,
       orderInfo,
       sizeSignal,
-      contentContainerRef,
+      object,
     ),
   })
 }
@@ -139,18 +141,13 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
 export function setupContent(
   state: ReturnType<typeof createContentState>,
   parentCtx: ParentContext | undefined,
-  object: Object3D,
-  contentContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, object, contentContainer, abortSignal)
+  setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   //create node
-  setupNode(state, parentCtx, object, true, abortSignal)
-
-  //transform
-  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+  setupNode(state, parentCtx, state.object, true, abortSignal)
 
   //instanced panel
   setupInstancedPanel(
@@ -158,9 +155,8 @@ export function setupContent(
     state.backgroundOrderInfo,
     state.groupDeps,
     state.root.panelGroupManager,
-    state.globalMatrix,
+    state.panelMatrix,
     state.size,
-    undefined,
     state.borderInset,
     parentCtx?.clippingRect,
     state.isVisible,
@@ -168,29 +164,44 @@ export function setupContent(
     abortSignal,
   )
 
-  setupMatrixWorldUpdate(true, true, object, state.root, state.globalMatrix, false, abortSignal)
+  setupMatrixWorldUpdate(
+    true,
+    true,
+    state.properties,
+    state.size,
+    state.object,
+    state.root,
+    state.globalMatrix,
+    abortSignal,
+  )
 
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, object, true, abortSignal)
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, true, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
 
-  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
+  setupBoundingSphere(
+    state.object.boundingSphere,
+    state.properties.getSignal('pixelSize'),
+    state.globalMatrix,
+    state.size,
+    abortSignal,
+  )
 
-  setupContentContainer(state, contentContainer, abortSignal)
+  setupContentContainer(state, state.object, abortSignal)
 }
 
 const vectorHelper = new Vector3()
 
-function setupContentContainer<EM extends ThreeEventMap = ThreeEventMap>(
+function setupContentContainer(
   state: ReturnType<typeof createContentState>,
-  contentContainer: Object3D,
+  object: Object3D,
   abortSignal: AbortSignal,
 ) {
   state.remeasureContent()
   abortableEffect(() => {
     updateRenderProperties(
-      { current: contentContainer },
+      object,
       state.isVisible.value,
       state.properties.get('renderOrder'),
       state.properties.get('depthTest'),
@@ -219,7 +230,9 @@ function setupContentContainer<EM extends ThreeEventMap = ThreeEventMap>(
     const innerHeight = height - topInset - bottomInset
 
     const pixelSize = state.properties.get('pixelSize')
-    contentContainer.scale
+
+    //TODO: integrate this into the object transformation computation
+    object.scale
       .set(
         innerWidth * pixelSize,
         innerHeight * pixelSize,
@@ -229,14 +242,14 @@ function setupContentContainer<EM extends ThreeEventMap = ThreeEventMap>(
       )
       .divide(state.measuredSize)
 
-    contentContainer.position.copy(state.measuredCenter).negate()
+    object.position.copy(state.measuredCenter).negate()
 
-    contentContainer.position.z -= alignmentZMap[state.properties.get('depthAlign')] * state.measuredSize.z
-    contentContainer.position.multiply(contentContainer.scale)
-    contentContainer.position.add(
+    object.position.z -= alignmentZMap[state.properties.get('depthAlign')] * state.measuredSize.z
+    object.position.multiply(object.scale)
+    object.position.add(
       vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
     )
-    contentContainer.updateMatrix()
+    object.updateMatrix()
     state.root.requestRender?.()
   }, abortSignal)
 }
@@ -257,45 +270,34 @@ function createMeasureContent(
   isVisible: Signal<boolean>,
   orderInfo: Signal<OrderInfo | undefined>,
   sizeSignal: Signal<Vector3>,
-  contentContainerRef: { current?: Object3D | null },
+  object: Object3D,
 ) {
   const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect)
 
   const measureContent = () => {
-    const contentContainer = contentContainerRef.current
-    if (contentContainer == null) {
-      return
-    }
-    contentContainer.traverse((object) => {
-      if (object instanceof Mesh) {
-        setupRenderOrder(object, root, orderInfo)
-        object.material.clippingPlanes = clippingPlanes
-        object.material.needsUpdate = true
-        object.raycast = makeClippedCast(
-          object,
-          object.raycast,
-          root.objectRef,
-          parentClippingRect,
-          orderInfo,
-          flexState,
-        )
+    object.traverse((child) => {
+      if (child instanceof Mesh) {
+        setupRenderOrder(child, root, orderInfo)
+        child.material.clippingPlanes = clippingPlanes
+        child.material.needsUpdate = true
+        child.raycast = makeClippedCast(child, child.raycast, root.object, parentClippingRect, orderInfo, flexState)
       }
     })
-    const parent = contentContainer.parent
-    contentContainer.parent = null
-    box3Helper.setFromObject(contentContainer)
+    const parent = object.parent
+    object.parent = null
+    box3Helper.setFromObject(object)
     box3Helper.getSize(measuredSize).max(smallValue)
     sizeSignal.value = measuredSize
 
     if (parent != null) {
-      contentContainer.parent = parent
+      object.parent = parent
     }
     box3Helper.getCenter(measuredCenter)
     root.requestRender?.()
   }
   return () => {
     updateRenderProperties(
-      contentContainerRef,
+      object,
       isVisible.peek(),
       properties.peek('renderOrder'),
       properties.peek('depthTest'),
@@ -306,27 +308,23 @@ function createMeasureContent(
 }
 
 function updateRenderProperties(
-  contentContainerRef: { current?: Object3D | null },
+  object: Object3D,
   visible: boolean,
   renderOrder: number,
   depthTest: boolean,
   depthWrite: boolean,
 ) {
-  const contentContainer = contentContainerRef.current
-  if (contentContainer == null) {
-    return
-  }
-  contentContainer.visible = visible
-  contentContainer.traverse((object) => {
-    if (!(object instanceof Mesh)) {
+  object.visible = visible
+  object.traverse((child) => {
+    if (!(child instanceof Mesh)) {
       return
     }
-    object.renderOrder = renderOrder
-    if (!(object.material instanceof Material)) {
+    child.renderOrder = renderOrder
+    if (!(child.material instanceof Material)) {
       return
     }
-    object.material.depthTest = depthTest
-    object.material.depthWrite = depthWrite
-    object.material.transparent = true
+    child.material.depthTest = depthTest
+    child.material.depthWrite = depthWrite
+    child.material.transparent = true
   })
 }

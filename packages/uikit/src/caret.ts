@@ -8,6 +8,7 @@ import {
   PanelGroupManager,
   PanelGroupProperties,
   PanelMaterialConfig,
+  computedPanelMatrix,
   createPanelMaterialConfig,
 } from './panel/index.js'
 import { Properties } from './properties/index.js'
@@ -70,7 +71,7 @@ function getCaretMaterialConfig() {
 
 export function createCaret(
   properties: Properties,
-  matrix: Signal<Matrix4 | undefined>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   caretTransformation: Signal<CaretTransformation | undefined>,
   isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
@@ -95,26 +96,30 @@ export function createCaret(
   }, abortSignal)
   const borderInset = computedBorderInset(properties, caretBorderKeys)
 
+  const panelSize = computed<Vector2Tuple>(() => {
+    const height = blinkingCaretTransformation.value?.height
+    if (height == null) {
+      return [0, 0]
+    }
+    return [properties.get('caretWidth'), height]
+  })
+  const panelOffset = computed<Vector2Tuple>(() => {
+    const position = blinkingCaretTransformation.value?.position
+    if (position == null) {
+      return [0, 0]
+    }
+    return [position[0] - properties.get('caretWidth') / 2, position[1]]
+  })
+
+  const panelMatrix = computedPanelMatrix(properties, globalMatrix, panelSize, panelOffset)
+
   setupInstancedPanel(
     properties,
     orderInfo,
     parentGroupDeps,
     panelGroupManager,
-    matrix,
-    computed(() => {
-      const height = blinkingCaretTransformation.value?.height
-      if (height == null) {
-        return [0, 0]
-      }
-      return [properties.get('caretWidth'), height]
-    }),
-    computed(() => {
-      const position = blinkingCaretTransformation.value?.position
-      if (position == null) {
-        return [0, 0]
-      }
-      return [position[0] - properties.get('caretWidth') / 2, position[1]]
-    }),
+    panelMatrix,
+    panelSize,
     borderInset,
     parentClippingRect,
     isVisible,

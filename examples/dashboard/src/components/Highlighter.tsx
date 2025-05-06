@@ -20,7 +20,7 @@ export const Highlighter = forwardRef<ContainerRef, ContainerProperties>(
         height="100%"
         {...props}
         onPointerOver={(e) => {
-          if (!isInteractionPanel(e.object) || highlightRef.current == null) {
+          if ((!e.object) instanceof Component || highlightRef.current == null) {
             return
           }
           const {

@@ -184,10 +184,10 @@ export function createGlobalClippingPlanes(
   if (clippingRect == null) {
     return null
   }
-  const getGlobalMatrix = () => root.objectRef.current?.matrixWorld
+  const getGlobalMatrix = () => root.object.matrixWorld
   const planes = new Array(4)
     .fill(undefined)
-    .map((_, i) => new RelativePlane(() => clippingRect?.value?.planes[i], getGlobalMatrix))
+    .map<Plane>((_, i) => new RelativePlane(() => clippingRect?.value?.planes[i], getGlobalMatrix))
   return planes
 }
 

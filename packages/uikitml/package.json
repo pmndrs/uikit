@@ -1,5 +1,5 @@
 {
-  "name": "@pmndrs/uikit-html-parser",
+  "name": "@pmndrs/uikitml",
   "version": "0.0.6",
   "type": "module",
   "dependencies": {

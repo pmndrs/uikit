@@ -21,10 +21,9 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
-  "exports": {
-    ".": "./dist/index.js",
-    "./internals": "./dist/internals.js"
+  "main": "src/index.ts",
+  "publishConfig": {
+    "main": "dist/index.js"
   },
   "scripts": {
     "test": "mocha ./tests/*.spec.ts",

@@ -1,12 +1,12 @@
 import { ContainerProperties, createContainerState, setupContainer } from '../components/container.js'
 import { effect, signal, Signal } from '@preact/signals-core'
-import { Parent, setupParentContextSignal, bindHandlers } from './utils.js'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { ThreeEventMap } from '../events.js'
 import { Layers } from '../properties/layers.js'
 import { ParentContext } from '../context.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
-export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
+export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
     signal(undefined)
   private readonly unsubscribe: () => void
@@ -15,7 +15,7 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
   constructor(private properties?: ContainerProperties<EM>) {
     super()
-    this.matrixAutoUpdate = false
+    this.material.visible = false
     setupParentContextSignal(this.parentContextSignalSignal, this)
     this.unsubscribe = effect(() => {
       const parentContextSignal = this.parentContextSignalSignal.value
@@ -25,21 +25,14 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
       }
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createContainerState<EM>(
-        {
-          current: this,
-        },
-        parentContext,
-      )
+      this.internals = createContainerState<EM>(this, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
-      setupContainer(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
+      setupContainer(this.internals, parentContext, abortController.signal)
       this.contextSignal.value = this.internals
 
       //setup events
-      super.add(this.internals.interactionPanel)
       bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
-        this.remove(this.internals.interactionPanel)
         abortController.abort()
       }
     })

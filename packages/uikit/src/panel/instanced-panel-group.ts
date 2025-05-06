@@ -49,7 +49,7 @@ export class PanelGroupManager {
   constructor(
     private readonly root: WithReversePainterSortStableCache &
       Pick<RootContext, 'onFrameSet' | 'requestFrame' | 'requestRender'>,
-    private readonly objectRef: { current?: Object3D | null },
+    private readonly object: Object3D,
   ) {}
 
   init(abortSignal: AbortSignal) {
@@ -87,7 +87,7 @@ export class PanelGroupManager {
       groups.set(
         key,
         (panelGroup = new InstancedPanelGroup(
-          this.objectRef.current!,
+          this.object,
           this.root,
           {
             elementType: ElementType.Panel,

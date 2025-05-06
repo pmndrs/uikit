@@ -1,4 +1,4 @@
-import { effect, Signal, signal } from '@preact/signals-core'
+import { computed, effect, Signal, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
 import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
@@ -26,9 +26,8 @@ export function setupInstancedPanel(
   orderInfo: Signal<OrderInfo | undefined>,
   panelGroupDependencies: Signal<Required<PanelGroupProperties>>,
   panelGroupManager: PanelGroupManager,
-  matrix: Signal<Matrix4 | undefined>,
+  panelMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple | undefined>,
-  offset: Signal<Vector2Tuple> | undefined,
   borderInset: Signal<Inset | undefined>,
   clippingRect: Signal<ClippingRect | undefined> | undefined,
   isVisible: Signal<boolean>,
@@ -45,9 +44,8 @@ export function setupInstancedPanel(
       properties,
       group,
       orderInfo.value.minorIndex,
-      matrix,
+      panelMatrix,
       size,
-      offset,
       borderInset,
       clippingRect,
       isVisible,
@@ -58,8 +56,31 @@ export function setupInstancedPanel(
   }, abortSignal)
 }
 
-const matrixHelper1 = new Matrix4()
-const matrixHelper2 = new Matrix4()
+const matrixHelper = new Matrix4()
+
+export function computedPanelMatrix(
+  properties: Properties,
+  matrixSignal: Signal<Matrix4 | undefined>,
+  sizeSignal: Signal<Vector2Tuple | undefined>,
+  offsetSignal?: Signal<Vector2Tuple>,
+) {
+  return computed(() => {
+    const size = sizeSignal.value
+    const matrix = matrixSignal.value
+    if (size == null || matrix == null) {
+      return undefined
+    }
+    const [width, height] = size
+    const pixelSize = properties.get('pixelSize')
+    const result = new Matrix4()
+    result.makeScale(width * pixelSize, height * pixelSize, 1)
+    if (offsetSignal != null) {
+      const [x, y] = offsetSignal.value
+      result.premultiply(matrixHelper.makeTranslation(x * pixelSize, y * pixelSize, 0))
+    }
+    return result.premultiply(matrix)
+  })
+}
 
 export class InstancedPanel {
   private indexInBucket?: number
@@ -71,12 +92,11 @@ export class InstancedPanel {
   private abortController?: AbortController
 
   constructor(
-    private readonly properties: Properties,
+    properties: Properties,
     private readonly group: InstancedPanelGroup,
     private readonly minorIndex: number,
     private readonly matrix: Signal<Matrix4 | undefined>,
     private readonly size: Signal<Vector2Tuple | undefined>,
-    private readonly offset: Signal<Vector2Tuple> | undefined,
     private readonly borderInset: Signal<Inset | undefined>,
     private readonly clippingRect: Signal<ClippingRect | undefined> | undefined,
     isVisible: Signal<boolean>,
@@ -136,7 +156,7 @@ export class InstancedPanel {
     this.active.value = true
     this.abortController = new AbortController()
     abortableEffect(() => {
-      if (this.matrix.value == null || this.size.value == null) {
+      if (this.matrix.value == null) {
         return
       }
       const index = this.getIndexInBuffer()
@@ -144,16 +164,8 @@ export class InstancedPanel {
         return
       }
       const arrayIndex = index * 16
-      const [width, height] = this.size.value
-      const pixelSize = this.properties.get('pixelSize')
-      matrixHelper1.makeScale(width * pixelSize, height * pixelSize, 1)
-      if (this.offset != null) {
-        const [x, y] = this.offset.value
-        matrixHelper1.premultiply(matrixHelper2.makeTranslation(x * pixelSize, y * pixelSize, 0))
-      }
-      matrixHelper1.premultiply(this.matrix.value)
       const { instanceMatrix, root } = this.group
-      matrixHelper1.toArray(instanceMatrix.array, arrayIndex)
+      this.matrix.value.toArray(instanceMatrix.array, arrayIndex)
       instanceMatrix.addUpdateRange(arrayIndex, 16)
       instanceMatrix.needsUpdate = true
       root.requestRender?.()

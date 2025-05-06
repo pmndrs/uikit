@@ -18,7 +18,7 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
     private properties?: TextProperties<EM>,
   ) {
     super()
-    this.matrixAutoUpdate = false
+    this.material.visible = false
     setupParentContextSignal(this.parentContextSignalSignal, this)
     this.textSignal = signal(text)
 
@@ -29,16 +29,14 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       }
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      const state = createTextState({ current: this }, this.textSignal, parentContext)
+      const state = createTextState(this, this.textSignal, parentContext)
       this.internals = state
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupText(state, parentContext, this, abortController.signal)
+      setupText(state, parentContext, abortController.signal)
 
-      super.add(this.internals.interactionPanel)
       bindHandlers(state.handlers, this, abortController.signal)
       return () => {
-        this.remove(this.internals.interactionPanel)
         abortController.abort()
       }
     })

@@ -209,7 +209,6 @@ export class FlexNode {
     }
 
     this.objectVisible = this.objectVisibileDefault || this.children.some((child) => child.objectVisible)
-    this.object.visible = this.objectVisible
   }
 
   updateMeasurements(

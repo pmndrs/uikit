@@ -17,7 +17,7 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
     private properties?: InputProperties<Em>,
   ) {
     super()
-    this.matrixAutoUpdate = false
+    this.material.visible = false
     setupParentContextSignal(this.parentContextSignalSignal, this)
 
     this.unsubscribe = effect(() => {
@@ -27,16 +27,14 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
       }
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createInputState({ current: this }, multiline, parentContext)
+      this.internals = createInputState(this, multiline, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupInput(this.internals, parentContext, this, abortController.signal)
+      setupInput(this.internals, parentContext, abortController.signal)
 
-      super.add(this.internals.interactionPanel)
       bindHandlers(this.internals.handlers, this, abortController.signal)
 
       return () => {
-        this.remove(this.internals.interactionPanel)
         abortController.abort()
       }
     })

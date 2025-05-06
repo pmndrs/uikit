@@ -1,13 +1,13 @@
 import { AdditionalImageProperties, createImageState, ImageProperties, setupImage } from '../components/image.js'
-import { Parent, setupParentContextSignal, bindHandlers } from './utils.js'
+import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 
-export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Parent<T> {
-  protected readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> =
+export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
+  protected readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
     signal(undefined)
   private readonly unsubscribe: () => void
 
@@ -16,8 +16,6 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Par
   constructor(private properties?: ImageProperties<EM>) {
     super()
     setupParentContextSignal(this.parentContextSignalSignal, this)
-    this.matrixAutoUpdate = false
-
     this.unsubscribe = effect(() => {
       const parentContextSignal = this.parentContextSignalSignal.value
       if (parentContextSignal === undefined) {
@@ -26,14 +24,12 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Par
       }
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createImageState({ current: this }, parentContext)
+      this.internals = createImageState(this, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
-      setupImage(this.internals, parentContext, this, this.childrenContainer, abortController.signal)
+      setupImage(this.internals, parentContext, abortController.signal)
       this.contextSignal.value = this.internals
-      super.add(this.internals.interactionPanel)
       bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
-        this.remove(this.internals.interactionPanel)
         abortController.abort()
       }
     })

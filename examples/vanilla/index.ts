@@ -50,17 +50,25 @@ scene.add(root)
 
 setTimeout(() => {
   const intersections: Array<Intersection> = []
-  root.internals.interactionPanel.spherecast?.(sphere, intersections)
+  root.spherecast?.(sphere, intersections)
   console.log(intersections)
 }, 1000)
 
 const c = new Content({ flexShrink: 0, height: 100, backgroundColor: 'black' })
 const loader = new GLTFLoader()
-loader.load('example.glb', (gltf) => c.add(gltf.scene))
+loader.load('example.glb', (gltf) => {
+  c.add(gltf.scene)
+})
 const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
 const svg = new Svg({ src: 'example.svg', width: 100, height: 100, flexShrink: 0 })
 const text = new Text('Hello World', { fontSize: 40, flexShrink: 0 })
-const a = new Container({ flexShrink: 0, alignSelf: 'stretch', flexGrow: 1, backgroundColor: 'blue' })
+const a = new Container({
+  flexShrink: 0,
+  alignSelf: 'stretch',
+  height: 100,
+  flexGrow: 1,
+  backgroundColor: 'blue',
+})
 const x = new Container({
   flexShrink: 0,
   padding: 20,
@@ -70,7 +78,6 @@ const x = new Container({
   backgroundColor: 'green',
   flexBasis: 0,
   justifyContent: 'center',
-  onSizeChange: console.log,
 })
 setTimeout(() => {
   x.dispatchEvent({
@@ -86,10 +93,11 @@ const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,
   aspectRatio: 1,
-  height: '100%',
+  width: 100,
+  backgroundColor: 'blue',
   flexShrink: 0,
 })
-root.add(del, svg, text, x, img)
+root.add(img, del, svg, text, x)
 x.add(a)
 
 renderer.setAnimationLoop(animation)

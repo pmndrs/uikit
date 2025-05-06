@@ -1,5 +1,16 @@
 import { Signal, computed, signal } from '@preact/signals-core'
-import { Box3, Group, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry, Vector3 } from 'three'
+import {
+  Box3,
+  BufferGeometry,
+  Group,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Plane,
+  ShapeGeometry,
+  Vector3,
+} from 'three'
 import { ParentContext } from '../context.js'
 import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
 import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
@@ -13,33 +24,33 @@ import {
   computedGlobalScrollMatrix,
   setupScroll,
 } from '../scroll.js'
-import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { computedTransformMatrix } from '../transform.js'
 import {
   applyAppearancePropertiesToGroup,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
   setupNode,
-  disposeGroup,
   loadResourceWithParams,
   computedAncestorsHaveListeners,
   setupMatrixWorldUpdate,
   setupPointerEvents,
+  buildRaycasting,
 } from './utils.js'
 import { abortableEffect, fitNormalizedContentInside } from '../utils.js'
-import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast, setupBoundingSphere } from '../panel/interaction-panel-mesh.js'
 import { computedIsClipped, ClippingRect, createGlobalClippingPlanes, computedClippingRect } from '../clipping.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { setupCursorCleanup } from '../hover.js'
-import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { computedPanelGroupDependencies, getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { computedPanelGroupDependencies, computedPanelMatrix, getDefaultPanelMaterialConfig } from '../panel/index.js'
 import { ThreeEventMap } from '../events.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { computedFontFamilies } from '../text/font.js'
 import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './root.js'
+import { Component } from '../vanilla/utils.js'
 
 export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalSvgProperties>
 
@@ -55,16 +66,15 @@ const additionalSvgDefaults = {
 export type AdditionalSvgDefaults = typeof additionalSvgDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
-  objectRef: { current?: Object3D | null },
+  object: Component,
   parentCtx?: ParentContext,
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
+  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const aspectRatio = signal<number | undefined>(undefined)
-  const svgObject = signal<Object3D | undefined>(undefined)
 
   const properties: Properties<EM, AdditionalSvgProperties, Partial<AdditionalSvgDefaults>> = new Properties<
     EM,
@@ -103,20 +113,14 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
   const scrollPosition = createScrollPosition()
   const childrenMatrix = computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix)
 
+  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+
   const componentState = Object.assign(flexState, rootContext, {
-    centerGroup: createCenterGroup(),
-    interactionPanel: createInteractionPanel(
-      orderInfo,
-      rootContext.root,
-      parentCtx?.clippingRect,
-      globalMatrix,
-      flexState,
-    ),
+    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
     scrollState: createScrollState(),
     hoveredSignal,
     activeSignal,
     aspectRatio,
-    svgObject,
     properties,
     transformMatrix,
     globalMatrix,
@@ -136,12 +140,13 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx?.anyAncestorScrollable),
   })
 
-  const scrollHandlers = computedScrollHandlers(componentState, objectRef)
+  const scrollHandlers = computedScrollHandlers(componentState, object)
 
   const handlers = computedHandlers(properties, hoveredSignal, activeSignal, scrollHandlers)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
   return Object.assign(componentState, {
+    object,
     handlers,
     ancestorsHaveListeners,
     fontFamilies: computedFontFamilies(properties, parentCtx),
@@ -151,24 +156,20 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
 export function setupSvg(
   state: ReturnType<typeof createSvgState>,
   parentCtx: ParentContext | undefined,
-  object: Object3D,
-  childrenContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, object, childrenContainer, abortSignal)
+  setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  setupNode(state, parentCtx, object, true, abortSignal)
-  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+  setupNode(state, parentCtx, state.object, true, abortSignal)
 
   setupInstancedPanel(
     state.properties,
     state.backgroundOrderInfo,
     state.groupDeps,
     state.root.panelGroupManager,
-    state.globalMatrix,
+    state.panelMatrix,
     state.size,
-    undefined,
     state.borderInset,
     parentCtx?.clippingRect,
     state.isVisible,
@@ -178,33 +179,33 @@ export function setupSvg(
 
   const clippingPlanes = createGlobalClippingPlanes(state.root, parentCtx?.clippingRect)
 
+  const svgResult = signal<{ meshes: Array<Mesh>; center: Vector3; size: Vector3 } | undefined>(undefined)
   loadResourceWithParams(
-    state.svgObject,
+    svgResult,
     loadSvg,
-    disposeGroup,
+    disposeSvg,
     abortSignal,
     state.properties.getSignal('src'),
     state.root,
     clippingPlanes,
     parentCtx?.clippingRect,
     state.orderInfo,
-    state.aspectRatio,
     state,
   )
 
-  applyAppearancePropertiesToGroup(state.properties, state.svgObject, abortSignal)
-  setupCenterGroup(
+  applyAppearancePropertiesToGroup(state.properties, state.object, abortSignal)
+  setupSvgMesges(
+    svgResult,
     state.properties,
-    state.centerGroup,
+    state.object,
     state.root,
     state,
-    state.svgObject,
     state.aspectRatio,
     state.isVisible,
     abortSignal,
   )
 
-  setupScroll(state, childrenContainer, abortSignal)
+  setupScroll(state, abortSignal)
   setupScrollbars(
     state.properties,
     state.scrollPosition,
@@ -218,76 +219,69 @@ export function setupSvg(
     abortSignal,
   )
 
-  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
+  setupBoundingSphere(
+    state.object.boundingSphere,
+    state.properties.getSignal('pixelSize'),
+    state.globalMatrix,
+    state.size,
+    abortSignal,
+  )
 
   setupMatrixWorldUpdate(
-    state.properties.getSignal('updateMatrixWorld'),
     true,
-    state.interactionPanel,
+    true,
+    state.properties,
+    state.size,
+    state.object,
     state.root,
     state.globalMatrix,
-    true,
     abortSignal,
   )
-  setupMatrixWorldUpdate(true, true, state.centerGroup, state.root, state.globalMatrix, true, abortSignal)
 
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.centerGroup, false, abortSignal)
-  setupPointerEvents(
-    state.properties,
-    state.ancestorsHaveListeners,
-    state.root,
-    state.interactionPanel,
-    false,
-    abortSignal,
-  )
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, false, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
 }
 
-function createCenterGroup(): Group {
-  const centerGroup = new Group()
-  centerGroup.matrixAutoUpdate = false
-  return centerGroup
-}
-
-function setupCenterGroup(
+function setupSvgMesges(
+  svgResultSignal: Signal<{ meshes: Array<Mesh> } | undefined>,
   properties: Properties,
-  centerGroup: Group,
+  object: Object3D,
   root: RootContext,
   flexState: FlexNodeState,
-  svgObject: Signal<Object3D | undefined>,
   aspectRatio: Signal<number | undefined>,
   isVisible: Signal<boolean>,
   abortSignal: AbortSignal,
 ) {
   abortableEffect(() => {
+    //TODO: integrate this into the object transformation computation
     fitNormalizedContentInside(
-      centerGroup.position,
-      centerGroup.scale,
+      object.position,
+      object.scale,
       flexState.size,
       flexState.paddingInset,
       flexState.borderInset,
       properties.get('pixelSize'),
       aspectRatio.value ?? 1,
     )
-    centerGroup.updateMatrix()
+    object.updateMatrix()
     root.requestRender?.()
   }, abortSignal)
   abortableEffect(() => {
-    const object = svgObject.value
-    if (object == null) {
+    const svgResult = svgResultSignal.value
+    if (svgResult == null) {
       return
     }
-    centerGroup.add(object)
+    svgResult.meshes.forEach((mesh) => object.add(mesh))
     root.requestRender?.()
     return () => {
-      centerGroup.remove(object)
+      svgResult.meshes.forEach((mesh) => object.remove(mesh))
       root.requestRender?.()
     }
   }, abortSignal)
   abortableEffect(() => {
-    void (centerGroup.visible = svgObject.value != null && isVisible.value)
+    void (object.visible = svgResultSignal.value != null && isVisible.value)
     root.requestRender?.()
   }, abortSignal)
 }
@@ -295,7 +289,6 @@ function setupCenterGroup(
 const loader = new SVGLoader()
 
 const box3Helper = new Box3()
-const vectorHelper = new Vector3()
 
 const svgCache = new Map<string, SVGResult>()
 
@@ -305,19 +298,17 @@ async function loadSvg(
   clippingPlanes: Array<Plane> | null,
   clippedRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
-  aspectRatio: Signal<number | undefined>,
   flexState: FlexNodeState,
-) {
+): Promise<{ meshes: Array<Mesh>; size: Vector3; center: Vector3 } | undefined> {
   if (url == null) {
     return undefined
   }
-  const object = new Group()
-  object.matrixAutoUpdate = false
   let result = svgCache.get(url)
   if (result == null) {
     svgCache.set(url, (result = await loader.loadAsync(url)))
   }
   box3Helper.makeEmpty()
+  const meshes: Array<Mesh> = []
   for (const path of result.paths) {
     const shapes = SVGLoader.createShapes(path)
     const material = new MeshBasicMaterial()
@@ -332,22 +323,29 @@ async function loadSvg(
       box3Helper.union(geometry.boundingBox!)
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.objectRef, clippedRect, orderInfo, flexState)
+      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.object, clippedRect, orderInfo, flexState)
       setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1
       mesh.updateMatrix()
-      object.add(mesh)
+      meshes.push(mesh)
     }
   }
-  box3Helper.getSize(vectorHelper)
-  aspectRatio.value = vectorHelper.x / vectorHelper.y
-  const scale = 1 / vectorHelper.y
-  object.scale.set(1, 1, 1).multiplyScalar(scale)
-  box3Helper.getCenter(vectorHelper)
-  vectorHelper.y *= -1
-  object.position.copy(vectorHelper).negate().multiplyScalar(scale)
-  object.updateMatrix()
-
-  return object
+  //TODO: integrate this into the object transformation computation
+  const size = new Vector3()
+  box3Helper.getSize(size)
+  //aspectRatio.value = vectorHelper.x / vectorHelper.y
+  //const scale = 1 / vectorHelper.y
+  //object.scale.set(1, 1, 1).multiplyScalar(scale)
+  const center = new Vector3()
+  box3Helper.getCenter(center)
+  //vectorHelper.y *= -1
+  //object.position.copy(vectorHelper).negate().multiplyScalar(scale)
+  return {
+    meshes,
+    center,
+    size,
+  }
 }
+
+function disposeSvg(value?: { meshes: Array<Mesh>; size: Vector3; center: Vector3 }) {}

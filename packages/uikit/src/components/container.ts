@@ -11,9 +11,9 @@ import {
   setupScrollbars,
 } from '../scroll.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { computedTransformMatrix } from '../transform.js'
 import { ElementType, computedOrderInfo } from '../order.js'
-import { Signal, signal } from '@preact/signals-core'
+import { signal } from '@preact/signals-core'
 import {
   computedGlobalMatrix,
   computedHandlers,
@@ -22,29 +22,29 @@ import {
   setupMatrixWorldUpdate,
   computedAncestorsHaveListeners,
   setupPointerEvents,
+  buildRaycasting,
 } from './utils.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ParentContext } from '../context.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
-import { getDefaultPanelMaterialConfig } from '../panel/index.js'
-import { Object3D } from 'three'
+import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { ThreeEventMap } from '../events.js'
 import { computedFontFamilies } from '../text/font.js'
 import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
+import { Component } from '../vanilla/utils.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
 export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
-  objectRef: { current?: Object3D | null },
+  object: Component,
   parentCtx?: ParentContext,
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
+  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredList = signal<Array<number>>([])
   const activeList = signal<Array<number>>([])
 
@@ -79,10 +79,13 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Panel, groupDeps, parentCtx?.orderInfo)
 
+  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+
   const componentState = Object.assign(flexState, rootContext, {
+    object,
+    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
     scrollState: createScrollState(),
     properties,
-    transformMatrix,
     hoveredList,
     globalMatrix,
     isClipped,
@@ -100,17 +103,10 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
     childrenMatrix: computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix),
   })
 
-  const scrollHandlers = computedScrollHandlers(componentState, objectRef)
+  const scrollHandlers = computedScrollHandlers(componentState, object)
 
   const handlers = computedHandlers(properties, hoveredList, activeList, scrollHandlers)
   return Object.assign(componentState, {
-    interactionPanel: createInteractionPanel(
-      orderInfo,
-      componentState.root,
-      parentCtx?.clippingRect,
-      globalMatrix,
-      flexState,
-    ),
     fontFamilies: computedFontFamilies(properties, parentCtx),
     handlers,
     ancestorsHaveListeners: computedAncestorsHaveListeners(parentCtx, handlers),
@@ -120,15 +116,11 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
 export function setupContainer(
   state: ReturnType<typeof createContainerState>,
   parentCtx: ParentContext | undefined,
-  object: Object3D,
-  childrenContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, object, childrenContainer, abortSignal)
+  setupRootContext(state, state.object, abortSignal)
 
-  setupNode(state, parentCtx, object, false, abortSignal)
-
-  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+  setupNode(state, parentCtx, state.object, false, abortSignal)
   setupCursorCleanup(state.hoveredList, abortSignal)
 
   setupInstancedPanel(
@@ -136,9 +128,8 @@ export function setupContainer(
     state.orderInfo,
     state.groupDeps,
     state.root.panelGroupManager,
-    state.globalMatrix,
+    state.panelMatrix,
     state.size,
-    undefined,
     state.borderInset,
     parentCtx?.clippingRect,
     state.isVisible,
@@ -147,7 +138,7 @@ export function setupContainer(
   )
 
   //scrolling:
-  setupScroll(state, childrenContainer, abortSignal)
+  setupScroll(state, abortSignal)
   setupScrollbars(
     state.properties,
     state.scrollPosition,
@@ -161,25 +152,24 @@ export function setupContainer(
     abortSignal,
   )
 
-  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
-  setupPointerEvents(
-    state.properties,
-    state.ancestorsHaveListeners,
-    state.root,
-    state.interactionPanel,
-    false,
+  setupBoundingSphere(
+    state.object.boundingSphere,
+    state.properties.getSignal('pixelSize'),
+    state.globalMatrix,
+    state.size,
     abortSignal,
   )
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, false, abortSignal)
 
   const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
-  setupMatrixWorldUpdate(updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
   setupMatrixWorldUpdate(
     updateMatrixWorld,
     false,
-    state.interactionPanel,
+    state.properties,
+    state.size,
+    state.object,
     state.root,
     state.globalMatrix,
-    true,
     abortSignal,
   )
 

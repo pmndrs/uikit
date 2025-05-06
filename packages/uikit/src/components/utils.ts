@@ -1,5 +1,5 @@
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { BufferGeometry, Color, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Vector2Tuple } from 'three'
 import { addActiveHandlers } from '../active.js'
 import { addHoverHandlers } from '../hover.js'
 import { abortableEffect, readReactive } from '../utils.js'
@@ -7,24 +7,16 @@ import { FlexNode, FlexNodeState } from '../flex/index.js'
 import { ParentContext } from '../context.js'
 import { EventHandlers } from '../events.js'
 import { Properties } from '../properties/index.js'
-import { AllowedPointerEventsType } from '../panel/interaction-panel-mesh.js'
+import {
+  AllowedPointerEventsType,
+  makeClippedCast,
+  makePanelRaycast,
+  makePanelSpherecast,
+} from '../panel/interaction-panel-mesh.js'
 import { RootContext } from './root.js'
-
-export function disposeGroup(object: Object3D | undefined) {
-  object?.traverse((mesh) => {
-    if (!(mesh instanceof Mesh)) {
-      return
-    }
-
-    if (mesh.material instanceof Material) {
-      mesh.material.dispose()
-    }
-
-    if (mesh.geometry instanceof BufferGeometry) {
-      mesh.geometry.dispose()
-    }
-  })
-}
+import { Component } from '../vanilla/utils.js'
+import { ClippingRect } from '../clipping.js'
+import { OrderInfo } from '../order.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -65,27 +57,23 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
   param: Signal<P> | P,
   ...additionals: A
 ): void {
-  if (!(param instanceof Signal)) {
-    fn(param, ...additionals).then((value) => (abortSignal.aborted ? undefined : (target.value = value)))
-    return
-  }
   abortableEffect(() => {
     let canceled = false
-    fn(param.value, ...additionals)
-      .then((value) => (canceled ? undefined : (target.value = value)))
+    let current: R | undefined
+    fn(readReactive(param), ...additionals)
+      .then((value) => {
+        if (!canceled) {
+          target.value = current = value
+        }
+      })
       .catch(console.error)
-    return () => (canceled = true)
-  }, abortSignal)
-
-  if (cleanup != null) {
-    abortSignal.addEventListener('abort', () => {
-      const { value } = target
-      if (value == null) {
-        return
+    return () => {
+      canceled = true
+      if (current != null && cleanup != null) {
+        cleanup(current)
       }
-      cleanup(value)
-    })
-  }
+    }
+  }, abortSignal)
 }
 
 export function setupNode(
@@ -210,7 +198,7 @@ export function applyAppearancePropertiesToGroup(
     const depthWrite = properties.get('depthWrite')
     const renderOrder = properties.get('renderOrder')
     readReactive(group)?.traverse((mesh) => {
-      if (!(mesh instanceof Mesh)) {
+      if (!(mesh instanceof Mesh && mesh.userData.color != null)) {
         return
       }
       mesh.renderOrder = renderOrder
@@ -225,17 +213,17 @@ export function applyAppearancePropertiesToGroup(
 
 export function computeMatrixWorld(
   target: Matrix4,
-  localMatrix: Matrix4 | undefined,
-  rootObjectMatrixWorld: Matrix4,
+  rootObjectParentMatrixWorld: Matrix4,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
 ) {
   const globalMatrix = globalMatrixSignal.peek()
   if (globalMatrix == null) {
     return false
   }
-  target.multiplyMatrices(rootObjectMatrixWorld, globalMatrix)
-  if (localMatrix != null) {
-    target.multiply(localMatrix)
+  if (rootObjectParentMatrixWorld == null) {
+    target.copy(globalMatrix)
+  } else {
+    target.multiplyMatrices(rootObjectParentMatrixWorld, globalMatrix)
   }
   return true
 }
@@ -247,10 +235,11 @@ export type UpdateMatrixWorldProperties = {
 export function setupMatrixWorldUpdate(
   updateMatrixWorld: Signal<boolean> | true,
   updateChildrenMatrixWorld: boolean,
+  properties: Properties,
+  size: Signal<Vector2Tuple | undefined>,
   object: Object3D,
   rootContext: RootContext,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
-  useOwnMatrix: boolean,
   abortSignal: AbortSignal,
 ): void {
   abortableEffect(() => {
@@ -258,16 +247,11 @@ export function setupMatrixWorldUpdate(
       return
     }
     const onFrame = () => {
-      const rootObject = rootContext.objectRef
-      if (object == null || rootObject.current == null) {
+      const rootObject = rootContext.object
+      if (object == null) {
         return
       }
-      computeMatrixWorld(
-        object.matrixWorld,
-        useOwnMatrix ? object.matrix : undefined,
-        rootObject.current.matrixWorld,
-        globalMatrixSignal,
-      )
+      computeMatrixWorld(object.matrixWorld, rootObject.matrixWorld, globalMatrixSignal)
       if (!updateChildrenMatrixWorld) {
         return
       }
@@ -325,4 +309,31 @@ export function setupPointerEvents(
       descendants.splice(index, 1)
     }
   }, abortSignal)
+}
+
+export function buildRaycasting(
+  object: Component,
+  root: RootContext,
+  globalMatrix: Signal<Matrix4 | undefined>,
+  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  orderInfo: Signal<OrderInfo | undefined>,
+  flexState: FlexNodeState,
+) {
+  const rootObject = root.object
+  object.raycast = makeClippedCast(
+    object,
+    makePanelRaycast(object.raycast.bind(object), rootObject, object.boundingSphere, globalMatrix, object),
+    rootObject,
+    parentClippingRect,
+    orderInfo,
+    flexState,
+  )
+  object.spherecast = makeClippedCast(
+    object,
+    makePanelSpherecast(rootObject, object.boundingSphere, globalMatrix, object),
+    rootObject,
+    parentClippingRect,
+    orderInfo,
+    flexState,
+  )
 }

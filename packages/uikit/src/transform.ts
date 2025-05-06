@@ -121,19 +121,3 @@ function translateToNumber(translate: number | Percentage, size: Signal<Vector2T
   const sizeOnAxis = size.value?.[sizeIndex] ?? 0
   return (sizeOnAxis * parseFloat(result[1]!)) / 100
 }
-
-export function setupObjectTransform(
-  root: Pick<RootContext, 'requestRender'>,
-  object: Object3D,
-  transformMatrix: Signal<Matrix4 | undefined>,
-  abortSignal: AbortSignal,
-) {
-  abortableEffect(() => {
-    if (transformMatrix.value == null) {
-      object.matrix.elements.fill(0)
-      return
-    }
-    object.matrix.copy(transformMatrix.value)
-    root.requestRender?.()
-  }, abortSignal)
-}

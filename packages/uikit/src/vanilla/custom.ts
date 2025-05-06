@@ -2,7 +2,6 @@ import { Mesh, MeshBasicMaterial } from 'three'
 import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { createCustomContainerState, CustomContainerProperties, setupCustomContainer } from '../components/index.js'
-import { panelGeometry } from '../panel/index.js'
 import { ThreeEventMap } from '../events.js'
 import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
@@ -12,18 +11,12 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
   private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
     signal(undefined)
   private readonly unsubscribe: () => void
-  private readonly material = new MeshBasicMaterial()
 
   public internals!: ReturnType<typeof createCustomContainerState>
 
   constructor(private properties?: CustomContainerProperties<EM>) {
-    super()
-    //TODO make the container the mesh
-    this.matrixAutoUpdate = false
+    super(new MeshBasicMaterial())
     setupParentContextSignal(this.parentContextSignalSignal, this)
-
-    const mesh = new Mesh(panelGeometry, this.material)
-    super.add(mesh)
 
     this.unsubscribe = effect(() => {
       const parentContextSignal = this.parentContextSignalSignal.value
@@ -32,15 +25,14 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       }
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createCustomContainerState({ current: this }, parentContext)
+      this.internals = createCustomContainerState(this, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupCustomContainer(this.internals, parentContext, this, mesh, abortController.signal)
+      setupCustomContainer(this.internals, parentContext, abortController.signal)
 
       //setup events
       bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
-        this.remove(mesh)
         abortController.abort()
       }
     })

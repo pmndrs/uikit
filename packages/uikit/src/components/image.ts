@@ -33,7 +33,7 @@ import {
   setupScroll,
   computedGlobalScrollMatrix,
 } from '../scroll.js'
-import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { computedTransformMatrix } from '../transform.js'
 import {
   computedGlobalMatrix,
   computedHandlers,
@@ -43,6 +43,7 @@ import {
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
+  buildRaycasting,
 } from './utils.js'
 import { abortableEffect } from '../utils.js'
 import {
@@ -60,6 +61,7 @@ import { createConditionals } from '../properties/conditional.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedFontFamilies } from '../text/font.js'
 import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './index.js'
+import { Component } from '../vanilla/utils.js'
 
 export type ImageProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalImageProperties>
 
@@ -79,12 +81,12 @@ const additionalImageDefaults = {
 export type AdditionalImageDefaults = typeof additionalImageDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
-  objectRef: { current?: Object3D | null },
+  object: Component,
   parentCtx?: ParentContext,
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
+  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
   const texture = signal<Texture | undefined>(undefined)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
@@ -125,8 +127,13 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Image, undefined, parentCtx?.orderInfo)
 
+  object.frustumCulled = false
+  setupRenderOrder(object, rootContext.root, orderInfo)
+
   const scrollPosition = createScrollPosition()
   const childrenMatrix = computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix)
+
+  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
 
   const componentState = Object.assign(flexState, rootContext, {
     texture,
@@ -146,16 +153,16 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
     anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx?.anyAncestorScrollable),
   })
 
-  const scrollHandlers = computedScrollHandlers(componentState, objectRef)
+  const scrollHandlers = computedScrollHandlers(componentState, object)
 
   const handlers = computedHandlers(properties, hoveredSignal, activeSignal, scrollHandlers)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
   return Object.assign(componentState, {
+    object,
     handlers,
     ancestorsHaveListeners,
     fontFamilies: computedFontFamilies(properties, parentCtx),
-    interactionPanel: createImageMesh(componentState, globalMatrix, parentCtx, orderInfo, rootContext.root),
     clippingRect: computedClippingRect(
       globalMatrix,
       componentState,
@@ -168,19 +175,16 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
 export function setupImage(
   state: ReturnType<typeof createImageState>,
   parentCtx: ParentContext | undefined,
-  object: Object3D,
-  childrenContainer: Object3D,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, object, childrenContainer, abortSignal)
+  setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   loadResourceWithParams(state.texture, loadTextureImpl, cleanupTexture, abortSignal, state.properties.getSignal('src'))
 
-  setupNode(state, parentCtx, object, true, abortSignal)
-  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+  setupNode(state, parentCtx, state.object, true, abortSignal)
 
-  setupScroll(state, childrenContainer, abortSignal)
+  setupScroll(state, abortSignal)
 
   setupScrollbars(
     state.properties,
@@ -195,24 +199,24 @@ export function setupImage(
     abortSignal,
   )
 
-  setupPointerEvents(
-    state.properties,
-    state.ancestorsHaveListeners,
-    state.root,
-    state.interactionPanel,
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, false, abortSignal)
+
+  setupMatrixWorldUpdate(
+    true,
     false,
+    state.properties,
+    state.size,
+    state.object,
+    state.root,
+    state.globalMatrix,
     abortSignal,
   )
-
-  const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
-  setupMatrixWorldUpdate(updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
-  setupMatrixWorldUpdate(true, false, state.interactionPanel, state.root, state.globalMatrix, true, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
 
   setupImageMesh(
-    state.interactionPanel,
+    state.object,
     state.properties,
     state.texture,
     state.globalMatrix,
@@ -242,39 +246,6 @@ function getImageMaterialConfig() {
     },
   )
   return imageMaterialConfig
-}
-
-function createImageMesh(
-  flexState: FlexNodeState,
-  globalMatrix: Signal<Matrix4 | undefined>,
-  parentContext: ParentContext | undefined,
-  orderInfo: Signal<OrderInfo | undefined>,
-  root: RootContext,
-) {
-  const mesh = Object.assign(new Mesh<PlaneGeometry, MeshBasicMaterial>(panelGeometry), {
-    boundingSphere: new Sphere(),
-  })
-  mesh.frustumCulled = false
-  mesh.matrixAutoUpdate = false
-  mesh.raycast = makeClippedCast(
-    mesh,
-    makePanelRaycast(mesh.raycast.bind(mesh), root.objectRef, mesh.boundingSphere, globalMatrix, mesh),
-    root.objectRef,
-    parentContext?.clippingRect,
-    orderInfo,
-    flexState,
-  )
-  mesh.spherecast = makeClippedCast(
-    mesh,
-    makePanelSpherecast(root.objectRef, mesh.boundingSphere, globalMatrix, mesh),
-    root.objectRef,
-    parentContext?.clippingRect,
-    orderInfo,
-    flexState,
-  )
-
-  setupRenderOrder(mesh, root, orderInfo)
-  return mesh
 }
 
 function setupImageMesh(

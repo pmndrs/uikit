@@ -1,29 +1,37 @@
 import { Signal, signal } from '@preact/signals-core'
 import { EventHandlers } from '../events.js'
-import { Object3D, Object3DEventMap } from 'three'
+import { BufferGeometry, Mesh, MeshBasicMaterial, Object3D, Object3DEventMap, Sphere } from 'three'
 import { ParentContext } from '../context.js'
-import { FontFamilies } from '../text/index.js'
 import { abortableEffect } from '../utils.js'
-
-const _addedEvent = { type: 'added' as const }
-const _childaddedEvent = { type: 'childadded' as const, child: null as any }
+import { panelGeometry } from '../panel/index.js'
 
 export function setupParentContextSignal(
   parentContextSignal: Signal<Signal<ParentContext | undefined> | null | undefined>,
-  container: Object3D,
+  object: Object3D,
 ) {
-  container.addEventListener('added', () => {
-    if (!(container.parent?.parent instanceof Parent)) {
+  object.addEventListener('added', () => {
+    if (!(object.parent instanceof Component)) {
       parentContextSignal.value = null
       return
     }
-    parentContextSignal.value = container.parent.parent.contextSignal
+    parentContextSignal.value = object.parent.contextSignal
   })
-  container.addEventListener('removed', () => (parentContextSignal.value = undefined))
+  object.addEventListener('removed', () => (parentContextSignal.value = undefined))
 }
 
-export class Component<T = {}> extends Object3D<EventMap & { childadded: {}; childremoved: {} } & T> {
+export class Component<T = {}> extends Mesh<
+  BufferGeometry,
+  MeshBasicMaterial,
+  EventMap & { childadded: {}; childremoved: {} } & T
+> {
   readonly contextSignal: Signal<ParentContext | undefined> = signal(undefined)
+  public readonly boundingSphere = new Sphere()
+
+  constructor(material?: MeshBasicMaterial) {
+    super(panelGeometry, material)
+    this.matrixAutoUpdate = false
+  }
+
   update(delta: number) {
     const context = this.contextSignal.peek()
     if (context == null) {
@@ -32,53 +40,6 @@ export class Component<T = {}> extends Object3D<EventMap & { childadded: {}; chi
     for (const onFrame of context.root.onFrameSet) {
       onFrame(delta)
     }
-  }
-}
-
-export class Parent<T = {}> extends Component<T> {
-  protected readonly childrenContainer = new Object3D<{ childadded: {}; childremoved: {} } & Object3DEventMap>()
-
-  constructor() {
-    super()
-    this.childrenContainer.matrixAutoUpdate = false
-    super.add(this.childrenContainer)
-  }
-
-  add(...objects: Array<Object3D>): this {
-    const objectsLength = objects.length
-    for (let i = 0; i < objectsLength; i++) {
-      const object = objects[i]!
-      if (object instanceof Component) {
-        this.childrenContainer.add(object)
-      } else {
-        super.add(object)
-      }
-    }
-    return this
-  }
-
-  addAt(object: Component, index: number): this {
-    object.removeFromParent()
-    object.parent = this.childrenContainer
-    this.childrenContainer.children.splice(index, 0, object)
-    object.dispatchEvent(_addedEvent)
-    _childaddedEvent.child = object
-    this.childrenContainer.dispatchEvent(_childaddedEvent)
-    _childaddedEvent.child = null
-    return this
-  }
-
-  remove(...objects: Array<Object3D>): this {
-    const objectsLength = objects.length
-    for (let i = 0; i < objectsLength; i++) {
-      const object = objects[i]!
-      if (object instanceof Component) {
-        this.childrenContainer.remove(object)
-      } else {
-        super.remove(object)
-      }
-    }
-    return this
   }
 }
 

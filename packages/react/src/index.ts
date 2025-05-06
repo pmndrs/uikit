@@ -2,7 +2,6 @@ export { FontFamilyProvider, useMeasureText } from './font.js'
 export { useRootSize } from './responsive.js'
 export type { R3FEventMap } from './utils.js'
 export {
-  isInteractionPanel,
   basedOnPreferredColorScheme,
   setPreferredColorScheme,
   getPreferredColorScheme,
@@ -16,7 +15,7 @@ export {
   type Listeners,
   type AllOptionalProperties,
   type ColorRepresentation,
-} from '@pmndrs/uikit/internals'
+} from '@pmndrs/uikit'
 export { type DefaultPropertiesProperties, DefaultProperties } from './default.js'
 export type { ComponentInternals } from './ref.js'
 export * from './container.js'

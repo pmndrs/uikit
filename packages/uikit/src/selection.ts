@@ -8,6 +8,7 @@ import {
   PanelGroupManager,
   PanelGroupProperties,
   PanelMaterialConfig,
+  computedPanelMatrix,
   createPanelMaterialConfig,
 } from './panel/index.js'
 import { Properties } from './properties/index.js'
@@ -62,7 +63,7 @@ function getSelectionMaterialConfig() {
 
 export function createSelection(
   properties: Properties,
-  matrix: Signal<Matrix4 | undefined>,
+  globalMatrix: Signal<Matrix4 | undefined>,
   selectionTransformations: Signal<Array<SelectionTransformation>>,
   isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
@@ -88,14 +89,14 @@ export function createSelection(
         const size = signal<Vector2Tuple>([0, 0])
         const offset = signal<Vector2Tuple>([0, 0])
         const abortController = new AbortController()
+        const panelMatrix = computedPanelMatrix(properties, globalMatrix, size, offset)
         setupInstancedPanel(
           properties,
           orderInfo,
           prevPanelDeps,
           panelGroupManager,
-          matrix,
+          panelMatrix,
           size,
-          offset,
           borderInset,
           parentClippingRect,
           isVisible,

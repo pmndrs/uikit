@@ -3,7 +3,7 @@ import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { allAliases } from '../properties/alias.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { computedTransformMatrix } from '../transform.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { computedOrderInfo, ElementType } from '../order.js'
 import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
@@ -15,20 +15,18 @@ import {
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
+  buildRaycasting,
 } from './utils.js'
-import { abortableEffect, ColorRepresentation, readReactive } from '../utils.js'
+import { abortableEffect, ColorRepresentation } from '../utils.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ParentContext } from '../context.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { createInteractionPanel, setupInteractionPanel } from '../panel/instanced-panel-mesh.js'
 import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
 import { Vector2Tuple, Vector2, Object3D } from 'three'
 import { CaretTransformation, createCaret } from '../caret.js'
 import { SelectionTransformation, createSelection } from '../selection.js'
 import {
-  AdditionalTextDefaults,
   AdditionalTextProperties,
-  FontFamilies,
   InstancedText,
   WordBreak,
   additionalTextDefaults,
@@ -37,9 +35,10 @@ import {
   computedGylphGroupDependencies,
   createInstancedText,
 } from '../text/index.js'
-import { getDefaultPanelMaterialConfig } from '../panel/index.js'
+import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
 import { createConditionals } from '../properties/conditional.js'
 import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './index.js'
+import { Component } from '../vanilla/utils.js'
 
 const cancelSet = new Set<unknown>()
 
@@ -87,13 +86,13 @@ export type AdditionalInputDefaults = typeof additionalInputDefaults & {
 }
 
 export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
-  objectRef: { current?: Object3D | null },
+  object: Component,
   multiline: boolean,
   parentCtx?: ParentContext,
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
+  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const hasFocusSignal = signal<boolean>(false)
@@ -186,16 +185,12 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     multiline,
   )
 
+  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+
   return Object.assign(flexState, rootContext, {
+    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
     element,
     instancedTextRef,
-    interactionPanel: createInteractionPanel(
-      backgroundOrderInfo,
-      rootContext.root,
-      parentCtx?.clippingRect,
-      globalMatrix,
-      flexState,
-    ),
     hoveredSignal,
     activeSignal,
     hasFocusSignal,
@@ -214,6 +209,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
     valueSignal,
     writeValue,
     displayValueSignal,
+    object,
     handlers: computedHandlers(properties, hoveredSignal, activeSignal, selectionHandlers, 'text'),
     focus,
     blur() {
@@ -226,23 +222,20 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
 export function setupInput(
   state: ReturnType<typeof createInputState>,
   parentCtx: ParentContext | undefined,
-  object: Object3D,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, object, undefined, abortSignal)
+  setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  setupNode(state, parentCtx, object, false, abortSignal)
-  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+  setupNode(state, parentCtx, state.object, false, abortSignal)
 
   setupInstancedPanel(
     state.properties,
     state.backgroundOrderInfo,
     state.backgroundGroupDeps,
     state.root.panelGroupManager,
-    state.globalMatrix,
+    state.panelMatrix,
     state.size,
-    undefined,
     state.borderInset,
     parentCtx?.clippingRect,
     state.isVisible,
@@ -294,17 +287,23 @@ export function setupInput(
 
   abortableEffect(() => state.node.value?.setCustomLayouting(customLayouting.value), abortSignal)
 
-  setupInteractionPanel(state.properties, state.interactionPanel, state.globalMatrix, state.size, abortSignal)
+  setupBoundingSphere(
+    state.object.boundingSphere,
+    state.properties.getSignal('pixelSize'),
+    state.globalMatrix,
+    state.size,
+    abortSignal,
+  )
 
   const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
-  setupMatrixWorldUpdate(updateMatrixWorld, false, object, state.root, state.globalMatrix, false, abortSignal)
   setupMatrixWorldUpdate(
     updateMatrixWorld,
     false,
-    state.interactionPanel,
+    state.properties,
+    state.size,
+    state.object,
     state.root,
     state.globalMatrix,
-    true,
     abortSignal,
   )
 
@@ -323,7 +322,7 @@ export function setupInput(
   )
 
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, state.handlers)
-  setupPointerEvents(state.properties, ancestorsHaveListeners, state.root, state.interactionPanel, false, abortSignal)
+  setupPointerEvents(state.properties, ancestorsHaveListeners, state.root, state.object, false, abortSignal)
 }
 
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })

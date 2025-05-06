@@ -11,7 +11,7 @@ export class GlyphGroupManager {
   constructor(
     private readonly root: WithReversePainterSortStableCache &
       Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet'>,
-    private readonly objectRef: { current?: Object3D | null },
+    private readonly object: Object3D,
   ) {}
 
   init(abortSignal: AbortSignal) {
@@ -42,7 +42,7 @@ export class GlyphGroupManager {
       groups.set(
         key,
         (glyphGroup = new InstancedGlyphGroup(
-          this.objectRef,
+          this.object,
           font,
           this.root,
           {
@@ -76,7 +76,7 @@ export class InstancedGlyphGroup {
   private timeTillDecimate?: number
 
   constructor(
-    private objectRef: { current?: Object3D | null },
+    private object: Object3D,
     font: Font,
     public readonly root: WithReversePainterSortStableCache & Pick<RootContext, 'requestFrame' | 'requestRender'>,
     private orderInfo: OrderInfo,
@@ -244,21 +244,21 @@ export class InstancedGlyphGroup {
       this.holeIndicies.length = 0
 
       //destroying the old mesh
-      this.objectRef.current?.remove(oldMesh)
+      this.object.remove(oldMesh)
       oldMesh.dispose()
     }
 
     //finalizing the new mesh
     setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
-    this.objectRef.current?.add(this.mesh)
+    this.object.add(this.mesh)
   }
 
   destroy() {
     if (this.mesh == null) {
       return
     }
-    this.objectRef.current?.remove(this.mesh)
+    this.object.remove(this.mesh)
     this.mesh.dispose()
     this.instanceMaterial.dispose()
   }

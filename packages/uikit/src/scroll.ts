@@ -4,12 +4,11 @@ import { FlexNodeState, Inset } from './flex/node.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
+import { computedPanelMatrix, PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
 import { ElementType, OrderInfo, ZIndexOffset, computedOrderInfo } from './order.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupManager, PanelGroupProperties } from './panel/instanced-panel-group.js'
 import { ParentContext } from './context.js'
-import { ScrollListeners } from './listeners.js'
 import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
 import { Properties } from './properties/index.js'
 
@@ -77,7 +76,7 @@ export type ScrollableComponentState = {
   scrollState: ReturnType<typeof createScrollState>
 }
 
-export function computedScrollHandlers(state: ScrollableComponentState, objectRef: { current?: Object3D | null }) {
+export function computedScrollHandlers(state: ScrollableComponentState, object: Object3D) {
   const isScrollable = computed(() => state.scrollable.value?.some((scrollable) => scrollable) ?? false)
 
   return computed<ScrollEventHandlers | undefined>(() => {
@@ -85,12 +84,8 @@ export function computedScrollHandlers(state: ScrollableComponentState, objectRe
       return undefined
     }
     const onPointerFinish = (event: ThreePointerEvent) => {
-      if (
-        objectRef.current != null &&
-        'releasePointerCapture' in objectRef.current &&
-        typeof objectRef.current.releasePointerCapture === 'function'
-      ) {
-        objectRef.current.releasePointerCapture(event.pointerId)
+      if ('releasePointerCapture' in object && typeof object.releasePointerCapture === 'function') {
+        object.releasePointerCapture(event.pointerId)
       }
       if (!state.scrollState.downPointerMap.delete(event.pointerId) || state.scrollPosition.value == null) {
         return
@@ -104,11 +99,8 @@ export function computedScrollHandlers(state: ScrollableComponentState, objectRe
     }
     return {
       onPointerDown: (event) => {
-        if (objectRef.current == null) {
-          return
-        }
         event.stopImmediatePropagation?.()
-        const localPoint = objectRef.current.worldToLocal(event.point.clone())
+        const localPoint = object.worldToLocal(event.point.clone())
 
         const ponterIsMouse =
           event.nativeEvent != null &&
@@ -156,11 +148,11 @@ export function computedScrollHandlers(state: ScrollableComponentState, objectRe
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
         const prevInteraction = state.scrollState.downPointerMap.get(event.pointerId)
-        if (prevInteraction == null || objectRef.current == null) {
+        if (prevInteraction == null) {
           return
         }
         event.stopImmediatePropagation?.()
-        objectRef.current.worldToLocal(localPointHelper.copy(event.point))
+        object.worldToLocal(localPointHelper.copy(event.point))
         distanceHelper.copy(localPointHelper).sub(prevInteraction.localPoint)
         distanceHelper.divideScalar(state.properties.peek('pixelSize'))
         prevInteraction.localPoint.copy(localPointHelper)
@@ -248,7 +240,7 @@ function scroll(
   state.scrollPosition.value = [newX, newY]
 }
 
-export function setupScroll(state: ScrollableComponentState, object: Object3D, abortSignal: AbortSignal) {
+export function setupScroll(state: ScrollableComponentState, abortSignal: AbortSignal) {
   const onFrame = (delta: number) => {
     if (state.scrollState.downPointerMap.size > 0 || state.scrollPosition.value == null) {
       return
@@ -296,13 +288,6 @@ export function setupScroll(state: ScrollableComponentState, object: Object3D, a
     //this also needs to be executed when isScrollable is false since when the max scroll position is lower then the current scroll position, the onFrame callback will animate the scroll position back to 0
     state.root.onFrameSet.add(onFrame)
     return () => state.root.onFrameSet.delete(onFrame)
-  }, abortSignal)
-
-  abortableEffect(() => {
-    const [scrollX, scrollY] = state.scrollPosition.value
-    const pixelSize = state.properties.get('pixelSize')
-    object.position.set(-scrollX * pixelSize, scrollY * pixelSize, 0)
-    object.updateMatrix()
   }, abortSignal)
 }
 
@@ -486,14 +471,15 @@ function setupScrollbar(
   const scrollbarPosition = computed(() => (scrollbarTransformation.value?.slice(0, 2) ?? [0, 0]) as Vector2Tuple)
   const scrollbarSize = computed(() => (scrollbarTransformation.value?.slice(2, 4) ?? [0, 0]) as Vector2Tuple)
 
+  const panelMatrix = computedPanelMatrix(properties, globalMatrix, scrollbarSize, scrollbarPosition)
+
   setupInstancedPanel(
     properties,
     orderInfo,
     groupDeps,
     panelGroupManager,
-    globalMatrix,
+    panelMatrix,
     scrollbarSize,
-    scrollbarPosition,
     borderSize,
     parentClippingRect,
     isVisible,

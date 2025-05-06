@@ -15,7 +15,7 @@ export type RenderContext = {
 
 export type RootContext = WithReversePainterSortStableCache & {
   requestCalculateLayout: () => void
-  objectRef: { current?: Object3D | null }
+  object: Object3D
   gylphGroupManager: GlyphGroupManager
   panelGroupManager: PanelGroupManager
   onFrameSet: Set<(delta: number) => void>
@@ -26,7 +26,7 @@ export type RootContext = WithReversePainterSortStableCache & {
 
 export function createRootContext(
   parentContext: ParentContext | undefined,
-  objectRef: { current?: Object3D | null },
+  object: Object3D,
   size: Signal<Vector2Tuple | undefined>,
   renderContext: RenderContext | undefined,
 ): { isRoot: boolean; root: RootContext } {
@@ -52,9 +52,9 @@ export function createRootContext(
       interactableDescendants,
       onUpdateMatrixWorldSet: new Set<() => void>(),
       requestCalculateLayout: () => {},
-      objectRef,
-      gylphGroupManager: new GlyphGroupManager(ctx, objectRef),
-      panelGroupManager: new PanelGroupManager(ctx, objectRef),
+      object,
+      gylphGroupManager: new GlyphGroupManager(ctx, object),
+      panelGroupManager: new PanelGroupManager(ctx, object),
       size,
     }) satisfies RootContext,
   }
@@ -63,7 +63,6 @@ export function createRootContext(
 export function setupRootContext(
   { isRoot, node, root }: { isRoot: boolean; node: Signal<FlexNode | undefined>; root: RootContext },
   object: Object3D,
-  childrenContainer: Object3D | undefined,
   abortSignal: AbortSignal,
 ) {
   if (!isRoot) {
@@ -81,16 +80,14 @@ export function setupRootContext(
   root.onFrameSet.add(onFrame)
   abortSignal.addEventListener('abort', () => root.onFrameSet.delete(onFrame))
 
-  if (childrenContainer != null) {
-    childrenContainer.updateMatrixWorld = function () {
-      if (this.parent == null) {
-        this.matrixWorld.copy(this.matrix)
-      } else {
-        this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix)
-      }
-      for (const update of root.onUpdateMatrixWorldSet) {
-        update()
-      }
+  object.updateMatrixWorld = function () {
+    if (this.parent == null) {
+      this.matrixWorld.copy(this.matrix)
+    } else {
+      this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix)
+    }
+    for (const update of root.onUpdateMatrixWorldSet) {
+      update()
     }
   }
 }
@@ -106,6 +103,7 @@ function createDeferredRequestLayoutCalculation(
       return
     }
     requested = false
+    console.log('recalculate')
     node.peek()?.calculateLayout()
   }
   root.onFrameSet.add(onFrame)

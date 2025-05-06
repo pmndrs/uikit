@@ -19,7 +19,7 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
     private properties?: IconProperties<EM>,
   ) {
     super()
-    this.matrixAutoUpdate = false
+    this.material.visible = false
     setupParentContextSignal(this.parentContextSignalSignal, this)
     this.unsubscribe = effect(() => {
       const parentContextSignal = this.parentContextSignalSignal.value
@@ -28,17 +28,13 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       }
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
-      this.internals = createIconState(text, svgWidth, svgHeight, { current: this }, parentContext)
+      this.internals = createIconState(text, svgWidth, svgHeight, this, parentContext)
       this.internals.properties.setLayer(Layers.Imperative, this.properties)
 
-      setupIcon(this.internals, parentContext, this, abortController.signal)
+      setupIcon(this.internals, parentContext, abortController.signal)
 
-      super.add(this.internals.interactionPanel)
-      super.add(this.internals.iconGroup)
       bindHandlers(this.internals.handlers, this, abortController.signal)
       return () => {
-        this.remove(this.internals.interactionPanel)
-        this.remove(this.internals.iconGroup)
         abortController.abort()
       }
     })

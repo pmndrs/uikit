@@ -1,7 +1,7 @@
 import { createFlexNodeState } from '../flex/node.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
-import { setupObjectTransform, computedTransformMatrix } from '../transform.js'
+import { computedTransformMatrix } from '../transform.js'
 import { ElementType, computedOrderInfo, setupRenderOrder } from '../order.js'
 import { signal } from '@preact/signals-core'
 import {
@@ -12,27 +12,28 @@ import {
   setupMatrixWorldUpdate,
   setupPointerEvents,
   computedAncestorsHaveListeners,
+  buildRaycasting,
 } from './utils.js'
 import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ParentContext } from '../context.js'
-import { FrontSide, Material, Mesh, Object3D } from 'three'
-import { makeClippedCast } from '../panel/index.js'
+import { FrontSide, Material } from 'three'
 import { ThreeEventMap } from '../events.js'
 import { abortableEffect } from '../utils.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
+import { Component } from '../vanilla/utils.js'
 
 export type CustomContainerProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
 export function createCustomContainerState<EM extends ThreeEventMap = ThreeEventMap>(
-  objectRef: { current?: Object3D | null },
+  object: Component,
   parentCtx?: ParentContext,
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, objectRef, flexState.size, renderContext)
+  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
@@ -63,7 +64,10 @@ export function createCustomContainerState<EM extends ThreeEventMap = ThreeEvent
   const handlers = computedHandlers(properties, hoveredSignal, activeSignal)
   const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
 
+  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+
   return Object.assign(flexState, rootContext, {
+    object,
     hoveredSignal,
     activeSignal,
     properties,
@@ -80,25 +84,20 @@ export function createCustomContainerState<EM extends ThreeEventMap = ThreeEvent
 export function setupCustomContainer(
   state: ReturnType<typeof createCustomContainerState>,
   parentCtx: ParentContext | undefined,
-  object: Object3D,
-  mesh: Mesh,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, object, undefined, abortSignal)
+  setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   //create node
-  setupNode(state, parentCtx, object, true, abortSignal)
-
-  //transform
-  setupObjectTransform(state.root, object, state.transformMatrix, abortSignal)
+  setupNode(state, parentCtx, state.object, true, abortSignal)
 
   //setup mesh
   const clippingPlanes = createGlobalClippingPlanes(state.root, parentCtx?.clippingRect)
 
-  mesh.matrixAutoUpdate = false
-  if (mesh.material instanceof Material) {
-    const material = mesh.material
+  state.object.matrixAutoUpdate = false
+  if (state.object.material instanceof Material) {
+    const material = state.object.material
     material.clippingPlanes = clippingPlanes
     material.needsUpdate = true
     material.shadowSide = FrontSide
@@ -112,46 +111,37 @@ export function setupCustomContainer(
     }, abortSignal)
   }
 
-  mesh.raycast = makeClippedCast(
-    mesh,
-    mesh.raycast,
-    state.root.objectRef,
-    parentCtx?.clippingRect,
-    state.orderInfo,
-    state,
+  setupRenderOrder(state.object, state.root, state.orderInfo)
+
+  abortableEffect(() => {
+    state.object.renderOrder = state.properties.get('renderOrder')
+    state.root.requestRender?.()
+  }, abortSignal)
+  abortableEffect(() => {
+    state.object.receiveShadow = state.properties.get('receiveShadow')
+    state.root.requestRender?.()
+  }, abortSignal)
+  abortableEffect(() => {
+    state.object.castShadow = state.properties.get('castShadow')
+    state.root.requestRender?.()
+  }, abortSignal)
+  abortableEffect(() => {
+    void (state.object.visible = state.isVisible.value)
+    state.root.requestRender?.()
+  }, abortSignal)
+
+  setupMatrixWorldUpdate(
+    true,
+    true,
+    state.properties,
+    state.size,
+    state.object,
+    state.root,
+    state.globalMatrix,
+    abortSignal,
   )
-  setupRenderOrder(mesh, state.root, state.orderInfo)
 
-  abortableEffect(() => {
-    mesh.renderOrder = state.properties.get('renderOrder')
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    mesh.receiveShadow = state.properties.get('receiveShadow')
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    mesh.castShadow = state.properties.get('castShadow')
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    if (state.size.value == null) {
-      return
-    }
-    const [width, height] = state.size.value
-    const pixelSize = state.properties.get('pixelSize')
-    mesh.scale.set(width * pixelSize, height * pixelSize, 1)
-    mesh.updateMatrix()
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    void (mesh.visible = state.isVisible.value)
-    state.root.requestRender?.()
-  }, abortSignal)
-
-  setupMatrixWorldUpdate(true, true, object, state.root, state.globalMatrix, false, abortSignal)
-
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, object, true, abortSignal)
+  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, true, abortSignal)
 
   setupLayoutListeners(state.properties, state.size, abortSignal)
   setupClippedListeners(state.properties, state.isClipped, abortSignal)
