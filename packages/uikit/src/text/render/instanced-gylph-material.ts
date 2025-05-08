@@ -13,7 +13,6 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
       parameters.uniforms.fontPage = { value: font.page }
       parameters.uniforms.pageSize = { value: [font.pageWidth, font.pageHeight] }
       parameters.uniforms.distanceRange = { value: font.distanceRange }
-      parameters.uniforms.v_weight = { value: 0.3 }
       parameters.vertexShader =
         `attribute vec4 instanceUVOffset;
         varying vec2 fontUv;
@@ -35,10 +34,9 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
         `uniform sampler2D fontPage;
             uniform vec2 pageSize;
             uniform int distanceRange;
-            uniform float v_weight;
         varying vec2 fontUv;
         varying vec4 rgba;
-        varying mat4 clipping; 
+        varying mat4 clipping;
         varying vec3 localPosition;
         float median(float r, float g, float b) {
             return max(min(r, g), min(max(r, g), b));
@@ -56,19 +54,30 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
           float clipOpacity = 1.0;
           for(int i = 0; i < 4; i++) {
             plane = clipping[ i ];
-            distanceToPlane = - dot( -localPosition, plane.xyz ) + plane.w;
+            distanceToPlane = dot( localPosition, plane.xyz ) + plane.w;
             distanceGradient = fwidth( distanceToPlane ) / 2.0;
             clipOpacity *= smoothstep( - distanceGradient, distanceGradient, distanceToPlane );
-      
+
             if ( clipOpacity == 0.0 ) discard;
           }
-          vec2 dxdy = fwidth(fontUv) * pageSize;
-          float dist = getDistance() + min(float(v_weight), 0.5 - 1.0 / float(distanceRange)) - 0.5;
-          float multiplier = clamp(dist * float(distanceRange) / length(dxdy) + 0.5, 0.0, 1.0);
-          if(multiplier <= 0.5) {
-              discard;
-          }
-          diffuseColor.a *= clipOpacity * min((multiplier - 0.5) / 0.5, 1.0);
+          // Distance to the edge of the glyph in texels.
+          float dist = (getDistance() - 0.5) * float(distanceRange);
+
+          // Calculate the antialiasing distance based on the number of texels per screen pixel.
+          float aaDist = length(fwidth(fontUv * pageSize)) * 0.5;
+
+          // Clamp the antialiasing distance to avoid excessive blurring.
+          aaDist = clamp(aaDist, 0.0, float(distanceRange) * 0.5);
+
+          float alpha = smoothstep(-aaDist, aaDist, dist);
+
+          if (alpha <= 0.0) discard;
+
+          // Apply gamma correction to improve text appearance.
+          float gamma = 1.3;
+          alpha = pow(alpha, 1.0 / gamma);
+
+          diffuseColor.a *= clipOpacity * alpha;
           diffuseColor *= rgba;
             `,
       )
