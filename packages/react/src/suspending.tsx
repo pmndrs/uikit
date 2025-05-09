@@ -33,21 +33,22 @@ export type SuspendingVideoProperties = VideoProperties & {
 const loadVideoElementSymbol = Symbol('load-video-element')
 
 export const SuspendingVideo: (props: SuspendingVideoProperties & RefAttributes<VideoRef>) => ReactNode = forwardRef(
-  ({ src, ...props }, ref) => {
-    const element = suspend(loadVideoElement, [src, loadVideoElementSymbol])
-    updateVideoElement(element, props)
-    return <Video ref={ref} src={element} {...props} />
+  (props, ref) => {
+    const element = suspend(loadVideoElement, [props, loadVideoElementSymbol])
+    return <Video ref={ref} {...props} src={element} />
   },
 )
 
-function loadVideoElement(src: string): Promise<HTMLVideoElement> {
+function loadVideoElement(props: SuspendingVideoProperties): Promise<HTMLVideoElement> {
   const result = document.createElement('video')
   result.style.position = 'absolute'
   result.style.width = '1px'
   result.style.zIndex = '-1000'
   result.style.top = '0px'
   result.style.left = '0px'
-  result.src = src
+  updateVideoElement(result, props)
+  // Need to append the element to the document, so auto play works.
+  document.body.appendChild(result)
   return new Promise((resolve) => {
     const handleLoadedData = () => {
       result.removeEventListener('loadeddata', handleLoadedData)
