@@ -1,4 +1,4 @@
-import { ReactNode, RefAttributes, forwardRef } from 'react'
+import { ReactNode, RefAttributes, forwardRef, useEffect } from 'react'
 import { Image, ImageProperties } from './image.js'
 import { useLoader } from '@react-three/fiber'
 import { SRGBColorSpace, TextureLoader } from 'three'
@@ -33,21 +33,25 @@ export type SuspendingVideoProperties = VideoProperties & {
 const loadVideoElementSymbol = Symbol('load-video-element')
 
 export const SuspendingVideo: (props: SuspendingVideoProperties & RefAttributes<VideoRef>) => ReactNode = forwardRef(
-  ({ src, ...props }, ref) => {
-    const element = suspend(loadVideoElement, [src, loadVideoElementSymbol])
+  (props, ref) => {
+    const element = suspend(loadVideoElement, [loadVideoElementSymbol])
     updateVideoElement(element, props)
-    return <Video ref={ref} src={element} {...props} />
+    useEffect(() => {
+      // Need to append the element to the document, so auto play works.
+      document.body.appendChild(element)
+      return () => element.remove()
+    }, [element])
+    return <Video ref={ref} {...props} src={element} />
   },
 )
 
-function loadVideoElement(src: string): Promise<HTMLVideoElement> {
+function loadVideoElement(): Promise<HTMLVideoElement> {
   const result = document.createElement('video')
   result.style.position = 'absolute'
   result.style.width = '1px'
   result.style.zIndex = '-1000'
   result.style.top = '0px'
   result.style.left = '0px'
-  result.src = src
   return new Promise((resolve) => {
     const handleLoadedData = () => {
       result.removeEventListener('loadeddata', handleLoadedData)
