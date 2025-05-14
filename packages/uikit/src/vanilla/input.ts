@@ -1,7 +1,7 @@
 import { effect, Signal, signal } from '@preact/signals-core'
 import { AdditionalInputProperties, InputProperties, createInputState, setupInput } from '../components/input.js'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -27,7 +27,7 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
       this.internals = createInputState(this, multiline, parentContext)
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
 
       setupInput(this.internals, parentContext, abortController.signal)
 
@@ -45,7 +45,7 @@ export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Com
 
   setProperties(properties?: InputProperties<Em>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {

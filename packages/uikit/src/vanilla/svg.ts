@@ -1,7 +1,7 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { AdditionalSvgProperties, createSvgState, setupSvg, SvgProperties } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -26,7 +26,7 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Compo
       const abortController = new AbortController()
       this.internals = createSvgState(this, parentContext)
       setupSvg(this.internals, parentContext, abortController.signal)
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
       this.contextSignal.value = this.internals
 
       bindHandlers(this.internals.handlers, this, abortController.signal)
@@ -42,7 +42,7 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Compo
 
   setProperties(properties?: SvgProperties<EM>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {

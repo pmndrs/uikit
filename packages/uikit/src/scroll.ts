@@ -209,7 +209,7 @@ function scroll(
   container.scrollPosition.value = [newX, newY]
 }
 
-export function setupScroll(container: Container) {
+export function setupScroll(container: Container<{}, any>) {
   const onFrame = (delta: number) => {
     if (container.downPointerMap.size > 0 || container.scrollPosition.value == null) {
       return
@@ -341,7 +341,7 @@ const scrollbarBorderPropertyKeys = [
 ] as const
 
 export function setupScrollbars(
-  container: Container,
+  container: Container<{}, any>,
   parentClippingRect: Signal<ClippingRect | undefined>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,

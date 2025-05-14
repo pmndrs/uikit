@@ -15,7 +15,7 @@ import { defaults, Defaults } from './defaults.js'
 import { FontFamilyProperties, GlyphProperties, TextAlignProperties } from '../text/index.js'
 import { CaretProperties } from '../caret.js'
 import { inheritedPropertyKeys } from './inheritance.js'
-import { Layers } from './layers.js'
+import { LayerIndexInheritance, LayerSectionStart, LayerSectionStartBase, LayersSectionSize } from './layers.js'
 import { alignmentXMap, alignmentYMap, ColorRepresentation } from '../utils.js'
 
 type UikitProperties<EM extends ThreeEventMap = ThreeEventMap> = YogaProperties &
@@ -73,61 +73,29 @@ export class Properties<
   AdditionalProperties extends {} = {},
   AdditionalDefaults extends {} = {},
 > extends PropertiesPubSub<
-  WithConditionals<AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>>,
+  AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>,
   UikitProperties<EM> & AdditionalProperties,
   Defaults & AdditionalDefaults
 > {
-  public readonly conditionals = {
-    hover: {
-      anyLayers: signal(false),
-      layers: new Set<number>(),
-    },
-    active: {
-      anyLayers: signal(false),
-      layers: new Set<number>(),
-    },
+  public readonly usedConditionals = {
+    hover: signal(false),
+    active: signal(false),
   }
 
   private cleanupInheritedPropertyKeys: () => void
 
   constructor(
     aliases: Aliases,
-    conditionals: Conditionals,
+    private readonly conditionals: Conditionals,
     inherited: ReadonlySignal<Properties | undefined>,
     elementDefaults: AdditionalDefaults,
   ) {
     super(
-      (key, value, set, index) => {
-        if (key in this.conditionals) {
-          updateLayers(
-            this.conditionals[key as keyof typeof this.conditionals],
-            value === undefined ? 'delete' : 'add',
-            index,
-          )
-        }
+      (key, value, set) => {
         if (key in aliases) {
           const aliasList = aliases[key as keyof Aliases]!
           for (const alias of aliasList) {
             set(alias as keyof UikitProperties<EM> | keyof AdditionalProperties, value as any)
-          }
-          return
-        }
-        if (key in conditionals) {
-          const getConditional = conditionals[key as keyof Conditionals]!
-          if (typeof value != 'object' || value === null) {
-            throw new Error(`Invalid conditional property value "${value}" for key "${String(key)}", expected object`)
-          }
-          for (const [conditionalKey, conditionalValue] of Object.entries(value)) {
-            set(
-              conditionalKey as keyof UikitProperties<EM> | keyof AdditionalProperties,
-              computed(() =>
-                getConditional()
-                  ? conditionalValue instanceof Signal
-                    ? conditionalValue.value
-                    : conditionalValue
-                  : undefined,
-              ) as any,
-            )
           }
           return
         }
@@ -151,9 +119,9 @@ export class Properties<
         }),
         ...elementDefaults,
       },
-      (layerIndex) => {
-        updateLayers(this.conditionals.active, 'delete', layerIndex)
-        updateLayers(this.conditionals.hover, 'delete', layerIndex)
+      () => {
+        this.usedConditionals.active.value = hasConditional(this.propertiesLayers, LayerSectionStart.active)
+        this.usedConditionals.hover.value = hasConditional(this.propertiesLayers, LayerSectionStart.hover)
       },
     )
     this.cleanupInheritedPropertyKeys = effect(() => {
@@ -162,9 +130,32 @@ export class Properties<
         if (!inheritedPropertyKeys.includes(key as any)) {
           return
         }
-        this.set(Layers.Inheritance, key as any, value.getSignal(key as any))
+        this.set(LayerIndexInheritance, key as any, value.getSignal(key as any))
       })
     })
+  }
+
+  setLayersWithConditionals(
+    layerIndexInSection: number,
+    properties: AllProperties<EM, AdditionalProperties> | undefined,
+  ) {
+    this.setLayer(layerIndexInSection + LayerSectionStartBase, properties)
+    for (const [conditional, sectionStart] of Object.entries(LayerSectionStart)) {
+      if (properties == null || !(conditional in properties)) {
+        this.setLayer(layerIndexInSection + sectionStart, undefined)
+        continue
+      }
+      const getConditional = this.conditionals[conditional as keyof Conditionals]!
+      const conditionalComputedProperties: AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>> = {}
+      const conditionalProperties =
+        properties[conditional as keyof AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>]!
+      for (const [key, value] of Object.entries(conditionalProperties)) {
+        conditionalComputedProperties[
+          key as keyof AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>
+        ] = computed(() => (getConditional() ? (value instanceof Signal ? value.value : value) : undefined)) as any
+      }
+      this.setLayer(layerIndexInSection + sectionStart, conditionalComputedProperties)
+    }
   }
 
   destroy(): void {
@@ -173,17 +164,11 @@ export class Properties<
   }
 }
 
-function updateLayers(
-  {
-    anyLayers,
-    layers,
-  }: {
-    anyLayers: Signal<boolean>
-    layers: Set<number>
-  },
-  type: 'delete' | 'add',
-  index: number,
-) {
-  layers[type](index)
-  anyLayers.value = layers.size > 0
+function hasConditional(propertiesLayers: Properties['propertiesLayers'], layerSectionStart: number): boolean {
+  for (const propertyLayerIndex of propertiesLayers.keys()) {
+    if (layerSectionStart <= propertyLayerIndex && propertyLayerIndex < layerSectionStart + LayersSectionSize) {
+      return true
+    }
+  }
+  return false
 }

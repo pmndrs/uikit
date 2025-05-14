@@ -7,7 +7,7 @@ import {
   AdditionalContentProperties,
 } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -32,7 +32,7 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
       const state = createContentState(this, parentContext)
-      state.properties.setLayer(Layers.Imperative, this.properties)
+      state.properties.setLayer(LayerSectionStart.Imperative, this.properties)
       this.internals = state
 
       //setup content with state
@@ -56,7 +56,7 @@ export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
 
   setProperties(properties?: ContentProperties<EM>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {

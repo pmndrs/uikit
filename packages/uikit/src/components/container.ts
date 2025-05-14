@@ -28,7 +28,6 @@ import { createConditionals } from '../properties/conditional.js'
 import { ThreeEventMap } from '../events.js'
 import { computedFontFamilies } from '../text/font.js'
 
-export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
 export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   object: Component,

@@ -54,19 +54,30 @@ const a = new Container({
   backgroundColor: 'blue',
   hover: { backgroundColor: 'black' },
 })
-const x = new Container({
-  flexShrink: 0,
-  padding: 50,
-  height: 300,
-  flexGrow: 1,
-  backgroundColor: 'green',
+
+const _class = {
   hover: { backgroundColor: 'yellow' },
-  flexBasis: 0,
-  justifyContent: 'flex-start',
-  onPointerOver(event) {
-    console.log(event)
+  onClick: () => {
+    console.log('x', ...x.classes)
+    x.removeClass(_class)
+    console.log('x', ...x.classes)
   },
-}) /*
+}
+const x = new Container(undefined, [
+  {
+    flexShrink: 0,
+    padding: 50,
+    height: 300,
+    flexGrow: 1,
+    backgroundColor: 'green',
+    flexBasis: 0,
+    justifyContent: 'flex-start',
+    onPointerOver(event) {
+      console.log(event)
+    },
+  },
+  _class,
+]) /*
 const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,

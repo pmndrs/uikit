@@ -26,7 +26,6 @@ import { AllProperties, Properties } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
-import { Layers } from '../properties/layers.js'
 
 export abstract class Component<
   T = {},
@@ -34,6 +33,8 @@ export abstract class Component<
   AdditionalProperties extends {} = {},
   AdditionalDefaults extends {} = {},
 > extends Mesh<BufferGeometry, MeshBasicMaterial, EventMap & { childadded: {}; childremoved: {} } & T> {
+  private abortController = new AbortController()
+
   readonly isVisible: Signal<boolean>
   readonly orderInfo: Signal<OrderInfo | undefined>
   readonly isClipped: Signal<boolean>
@@ -55,16 +56,15 @@ export abstract class Component<
   readonly ancestorsHaveListenersSignal: Signal<boolean>
   readonly globalMatrix: Signal<Matrix4 | undefined>
   readonly globalPanelMatrix: Signal<Matrix4 | undefined>
-
-  private abortController = new AbortController()
-
   readonly abortSignal = this.abortController.signal
+  classes: Array<AllProperties<EM, AdditionalProperties> | undefined> = []
 
   constructor(
     updateMatrixWorld: 'recursive' | boolean,
     canHaveNonUikitChildren: boolean,
     elementDefaults: AdditionalDefaults,
-    private readonly imperativeProperties: AllProperties<EM, AdditionalProperties> | undefined,
+    private inputProperties: AllProperties<EM, AdditionalProperties> | undefined,
+    private readonly initialClasses: Array<AllProperties<EM, AdditionalProperties>> | undefined,
     material: MeshBasicMaterial | undefined,
     renderContext: RenderContext | undefined,
   ) {
@@ -86,7 +86,8 @@ export abstract class Component<
       computed(() => this.parentContainer.value?.properties),
       elementDefaults,
     )
-    this.properties.setLayer(Layers.Imperative, this.imperativeProperties)
+    this.resetProperties(inputProperties)
+    this.setClasses(initialClasses)
 
     this.node = new FlexNode(this)
 
@@ -145,27 +146,48 @@ export abstract class Component<
 
   protected abstract computedOrderInfo(): Signal<OrderInfo | undefined>
 
-  setClasses(): void {
-    //TODO
+  setClasses(classes: Array<AllProperties<EM, AdditionalProperties>> | undefined): void {
+    const prevClassesLength = this.classes.length
+    this.classes = classes ?? []
+    const length = Math.max(prevClassesLength, classes?.length ?? 0)
+    for (let i = 0; i < length; i++) {
+      this.properties.setLayersWithConditionals(i + 1, classes?.[i])
+    }
   }
 
-  addClass(): void {
-    //TODO
+  addClass(classContent: AllProperties<EM, AdditionalProperties>): void {
+    let index = 0
+    while (this.classes[index] != null) {
+      index++
+    }
+    this.classes[index] = classContent
+    this.properties.setLayersWithConditionals(index + 1, classContent)
   }
 
-  removeClass(): void {
-    //TODO
+  removeClass(classContent: AllProperties<EM, AdditionalProperties>): void {
+    const index = this.classes.indexOf(classContent)
+    if (index === -1) {
+      return
+    }
+    if (index + 1 === this.classes.length) {
+      this.classes.splice(index, 1)
+    } else {
+      this.classes[index] = undefined
+    }
+    this.properties.setLayersWithConditionals(index + 1, undefined)
   }
 
-  setProperties(properties: AllProperties<EM, AdditionalProperties>) {
-    this.properties.setLayer(Layers.Imperative, {
-      ...this.imperativeProperties,
-      ...properties,
-    })
+  setProperties(inputProperties: AllProperties<EM, AdditionalProperties>) {
+    this.inputProperties = {
+      ...this.inputProperties,
+      ...inputProperties,
+    }
+    this.properties.setLayersWithConditionals(0, this.inputProperties)
   }
 
-  resetProperties(properties?: AllProperties<EM, AdditionalProperties>) {
-    this.properties.setLayer(Layers.Imperative, properties)
+  resetProperties(inputProperties?: AllProperties<EM, AdditionalProperties>) {
+    this.inputProperties = inputProperties
+    this.properties.setLayersWithConditionals(0, this.inputProperties)
   }
 
   update(delta: number) {

@@ -4,15 +4,17 @@ import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
 import { ClippingRect, computedClippingRect } from '../clipping.js'
 import { RenderContext } from '../components/root.js'
 import { computedOrderInfo, ElementType, OrderInfo } from '../order.js'
-import { computedPanelMatrix, setupInstancedPanel } from '../panel/instanced-panel.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll, setupScrollbars } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { Component } from './component.js'
-import { ContainerProperties } from '../components/container.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { AllProperties } from '../properties/index.js'
 
-export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component {
+export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
+
+export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, {}, {}> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
@@ -27,8 +29,12 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
   private readonly groupDeps: ReturnType<typeof computedPanelGroupDependencies>
 
-  constructor(imperativeProperties: ContainerProperties, renderContext?: RenderContext) {
-    super(false, false, {}, imperativeProperties, undefined, renderContext)
+  constructor(
+    imperativeProperties?: ContainerProperties,
+    initialClasses?: Array<ContainerProperties>,
+    renderContext?: RenderContext,
+  ) {
+    super(false, false, {}, imperativeProperties, initialClasses, undefined, renderContext)
     this.material.visible = false
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)

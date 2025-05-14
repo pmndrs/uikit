@@ -8,7 +8,7 @@ export type NotUndefined<T> = T extends undefined ? never : T
 
 export class PropertiesPubSub<In, Out, Defaults> {
   private propertyStateMap = {} as Record<keyof Out, PropertyState>
-  private propertiesLayers: Array<Record<keyof Out, any> | undefined> = []
+  protected propertiesLayers = new Map<number, Record<keyof Out, any>>()
   private propertyKeys: Array<keyof Out>
 
   private propertyKeySubscriptions = new Set<(key: keyof Out) => void>()
@@ -21,7 +21,7 @@ export class PropertiesPubSub<In, Out, Defaults> {
       layerIndex: number,
     ) => void,
     private readonly defaults: Defaults,
-    private readonly onLayerCleared?: (layerIndex: number) => void,
+    private readonly onLayerIndicesChanged?: () => void,
   ) {
     this.propertyKeys = Array.from(Object.keys(defaults as object)) as Array<keyof Out>
   }
@@ -39,15 +39,16 @@ export class PropertiesPubSub<In, Out, Defaults> {
   }
 
   clearLayer(index: number): void {
-    const layer = this.propertiesLayers[index]
+    const layer = this.propertiesLayers.get(index)
     if (layer == null) {
       return
     }
     batch(() => this.clearProvidedLayer(layer, index))
+    this.onLayerIndicesChanged?.()
   }
 
   private clearProvidedLayer(layer: Record<keyof Out, any>, index: number) {
-    this.propertiesLayers[index] = undefined
+    this.propertiesLayers.delete(index)
     for (const key in layer) {
       const value = layer[key]
       if (value === undefined) {
@@ -66,25 +67,27 @@ export class PropertiesPubSub<In, Out, Defaults> {
       }
       this.update(key, propertyState)
     }
-    this.onLayerCleared?.(index)
   }
 
   setLayer(index: number, value: In | undefined) {
+    let layer = this.propertiesLayers.get(index)
+    const isNewLayer = layer == null
     batch(() => {
-      let layer = this.propertiesLayers[index]
       if (layer != null) {
         this.clearProvidedLayer(layer, index)
-      } else {
-        this.propertiesLayers[index] = layer = {} as Record<keyof Out, any>
       }
       if (value === undefined) {
         return
       }
+      this.propertiesLayers.set(index, (layer = {} as Record<keyof Out, any>))
       const entries = Object.entries(value as any)
       for (const [key, value] of entries) {
         this.apply(key as keyof In, value as In[keyof In], this.setProperty.bind(this, layer, index), index)
       }
     })
+    if (isNewLayer) {
+      this.onLayerIndicesChanged?.()
+    }
   }
 
   get<K extends keyof Out & string>(key: K) {
@@ -113,14 +116,15 @@ export class PropertiesPubSub<In, Out, Defaults> {
       return propertyState.signal.peek()
     }
     const defaultValue = this.defaults[key as unknown as keyof Defaults]
-    const [result] = untracked(() => selectLayerValue(0, this.propertiesLayers, key, defaultValue)!)
+    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort()
+    const [result] = untracked(() => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!)
     return result
   }
 
   set<K extends keyof In>(layerIndex: number, key: K, value: In[K]): void {
-    let propertiesLayer = this.propertiesLayers[layerIndex]
+    let propertiesLayer = this.propertiesLayers.get(layerIndex)
     if (propertiesLayer == null) {
-      this.propertiesLayers[layerIndex] = propertiesLayer = {} as Record<keyof Out, any>
+      this.propertiesLayers.set(layerIndex, (propertiesLayer = {} as Record<keyof Out, any>))
     }
     this.apply(key, value, this.setProperty.bind(this, propertiesLayer, layerIndex), layerIndex)
   }
@@ -153,14 +157,16 @@ export class PropertiesPubSub<In, Out, Defaults> {
     target.cleanup?.()
     target.cleanup = undefined
     const defaultValue = this.defaults[key as unknown as keyof Defaults]
+    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort()
     const result = selectLayerValue(
       0,
+      layerIndicies,
       this.propertiesLayers,
       key,
       defaultValue,
       (layerIndex) =>
         (target.cleanup = effect(() => {
-          const [value, index] = selectLayerValue(layerIndex, this.propertiesLayers, key, defaultValue)!
+          const [value, index] = selectLayerValue(layerIndex, layerIndicies, this.propertiesLayers, key, defaultValue)!
           target.signal.value = value
           target.layerIndex = index
         })),
@@ -184,16 +190,18 @@ export class PropertiesPubSub<In, Out, Defaults> {
 
 function selectLayerValue(
   startLayerIndex: number,
-  propertiesLayers: Array<Record<string, any> | undefined>,
+  sortedLayerIndexArray: Array<number>,
+  propertiesLayers: Map<number, Record<string, any>>,
   key: any,
   defaultValue: any,
   onSignal?: (layerIndex: number) => void,
 ): [value: any, layerIndex: number] | undefined {
-  const length = propertiesLayers.length
   let value: any = undefined
   let layerIndex = startLayerIndex
-  for (; layerIndex <= length; layerIndex++) {
-    value = layerIndex === length ? defaultValue : propertiesLayers[layerIndex]?.[key]
+  const layerIndicies = sortedLayerIndexArray[Symbol.iterator]()
+  do {
+    layerIndex = layerIndicies.next().value ?? Infinity
+    value = layerIndex === Infinity ? defaultValue : propertiesLayers.get(layerIndex)![key]
     if (typeof value === 'object' && value instanceof Signal) {
       if (onSignal != null) {
         onSignal(layerIndex)
@@ -204,6 +212,6 @@ function selectLayerValue(
     if (value !== undefined) {
       break
     }
-  }
+  } while (layerIndex != Infinity)
   return [value, layerIndex]
 }

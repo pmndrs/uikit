@@ -105,8 +105,8 @@ export function computedHandlers(
       }
     }
     addHandlers(handlers, dynamicHandlers?.value)
-    addHoverHandlers(handlers, properties, hoveredSignal, properties.conditionals.hover.anyLayers, defaultCursor)
-    addActiveHandlers(handlers, properties, activeSignal, properties.conditionals.active.anyLayers)
+    addHoverHandlers(handlers, properties, hoveredSignal, properties.usedConditionals.hover, defaultCursor)
+    addActiveHandlers(handlers, properties, activeSignal, properties.usedConditionals.active)
     return handlers
   })
 }

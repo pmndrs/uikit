@@ -1,7 +1,7 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { IconProperties, createIconState, setupIcon } from '../components/icon.js'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -28,7 +28,7 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
       this.internals = createIconState(text, svgWidth, svgHeight, this, parentContext)
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
 
       setupIcon(this.internals, parentContext, abortController.signal)
 
@@ -45,7 +45,7 @@ export class Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
 
   setProperties(properties?: IconProperties<EM>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {

@@ -1,7 +1,7 @@
 import { Signal, effect, signal } from '@preact/signals-core'
 import { createTextState, setupText, TextProperties } from '../components/text.js'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -30,7 +30,7 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       const abortController = new AbortController()
       const state = createTextState(this, this.textSignal, parentContext)
       this.internals = state
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
 
       setupText(state, parentContext, abortController.signal)
 
@@ -51,7 +51,7 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
 
   setProperties(properties?: TextProperties<EM>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {

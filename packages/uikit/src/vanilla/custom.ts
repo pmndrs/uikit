@@ -2,7 +2,7 @@ import { Mesh, MeshBasicMaterial } from 'three'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { createCustomContainerState, CustomContainerProperties, setupCustomContainer } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -25,7 +25,7 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
       this.internals = createCustomContainerState(this, parentContext)
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
 
       setupCustomContainer(this.internals, parentContext, abortController.signal)
 
@@ -43,7 +43,7 @@ export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
 
   setProperties(properties?: CustomContainerProperties<EM>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {

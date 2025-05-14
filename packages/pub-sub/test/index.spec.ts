@@ -531,4 +531,6 @@ describe('PropertiesPubSub', () => {
       expect(pubSubWithDefaults.peek('color')).to.equal('default-red')
     })
   })
+
+  //TODO: add tests for handling sparse layer distribution, meaning layers e.g. at index: 0, 10, 20
 })

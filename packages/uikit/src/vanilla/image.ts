@@ -1,7 +1,7 @@
 import { AdditionalImageProperties, createImageState, ImageProperties, setupImage } from '../components/image.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
+import { LayerSectionStart } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
 import { Component } from './component.js'
 
@@ -24,7 +24,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
       const parentContext = parentContextSignal?.value
       const abortController = new AbortController()
       this.internals = createImageState(this, parentContext)
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
+      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
       setupImage(this.internals, parentContext, abortController.signal)
       this.contextSignal.value = this.internals
       bindHandlers(this.internals.handlers, this, abortController.signal)
@@ -40,7 +40,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
 
   setProperties(properties?: ImageProperties<EM>) {
     this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
+    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
   }
 
   destroy() {
