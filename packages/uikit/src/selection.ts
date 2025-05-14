@@ -12,6 +12,7 @@ import {
   createPanelMaterialConfig,
 } from './panel/index.js'
 import { Properties } from './properties/index.js'
+import { RootContext } from './components/root.js'
 
 export type SelectionTransformation = { size: Vector2Tuple; position: Vector2Tuple }
 
@@ -63,13 +64,13 @@ function getSelectionMaterialConfig() {
 
 export function createSelection(
   properties: Properties,
+  root: Signal<RootContext>,
   globalMatrix: Signal<Matrix4 | undefined>,
   selectionTransformations: Signal<Array<SelectionTransformation>>,
   isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  panelGroupManager: PanelGroupManager,
   abortSignal: AbortSignal,
 ) {
   const panels: Array<{
@@ -92,9 +93,9 @@ export function createSelection(
         const panelMatrix = computedPanelMatrix(properties, globalMatrix, size, offset)
         setupInstancedPanel(
           properties,
+          root,
           orderInfo,
           prevPanelDeps,
-          panelGroupManager,
           panelMatrix,
           size,
           borderInset,

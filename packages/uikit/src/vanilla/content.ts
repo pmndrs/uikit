@@ -1,5 +1,4 @@
 import { Object3D, Object3DEventMap } from 'three'
-import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { Signal, effect, signal, untracked } from '@preact/signals-core'
 import {
   setupContent,
@@ -8,9 +7,9 @@ import {
   AdditionalContentProperties,
 } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
-import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
+import { Component } from './component.js'
 
 export class Content<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =

@@ -1,29 +1,4 @@
-import { createFlexNodeState } from '../flex/node.js'
-import { setupCursorCleanup } from '../hover.js'
-import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
-import { computedTransformMatrix } from '../transform.js'
-import { ElementType, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { signal } from '@preact/signals-core'
-import {
-  computedGlobalMatrix,
-  computedHandlers,
-  computedIsVisible,
-  setupNode,
-  setupMatrixWorldUpdate,
-  setupPointerEvents,
-  computedAncestorsHaveListeners,
-  buildRaycasting,
-} from './utils.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { ParentContext } from '../context.js'
-import { FrontSide, Material } from 'three'
-import { ThreeEventMap } from '../events.js'
-import { abortableEffect } from '../utils.js'
-import { AllProperties, Properties } from '../properties/index.js'
-import { allAliases } from '../properties/alias.js'
-import { createConditionals } from '../properties/conditional.js'
-import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
-import { Component } from '../vanilla/utils.js'
+
 
 export type CustomContainerProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
@@ -33,7 +8,7 @@ export function createCustomContainerState<EM extends ThreeEventMap = ThreeEvent
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
@@ -47,7 +22,7 @@ export function createCustomContainerState<EM extends ThreeEventMap = ThreeEvent
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -69,9 +44,7 @@ export function createCustomContainerState<EM extends ThreeEventMap = ThreeEvent
   return Object.assign(flexState, rootContext, {
     object,
     hoveredSignal,
-    activeSignal,
     properties,
-    transformMatrix,
     globalMatrix,
     isClipped,
     isVisible,
@@ -90,7 +63,7 @@ export function setupCustomContainer(
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   //create node
-  setupNode(state, parentCtx, state.object, true, abortSignal)
+  createNode(state, parentCtx, state.object, true, abortSignal)
 
   //setup mesh
   const clippingPlanes = createGlobalClippingPlanes(state.root, parentCtx?.clippingRect)

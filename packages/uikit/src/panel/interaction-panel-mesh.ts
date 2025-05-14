@@ -1,22 +1,11 @@
 import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2Tuple, Vector3 } from 'three'
-import { ClippingRect } from '../clipping.js'
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
 import { clamp } from 'three/src/math/MathUtils.js'
-import {
-  computeMatrixWorld,
-  createContainerState,
-  createContentState,
-  createCustomContainerState,
-  createIconState,
-  createImageState,
-  createInputState,
-  createSvgState,
-  createTextState,
-} from '../components/index.js'
-import { FlexNodeState } from '../flex/node.js'
+import { computeMatrixWorld, RootContext } from '../components/index.js'
 import { abortableEffect } from '../utils.js'
-import { Properties } from '../properties/index.js'
+import { Container } from '../vanilla/container.js'
+import { Component } from '../vanilla/component.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
@@ -47,16 +36,17 @@ const sphereHelper = new Sphere()
 const matrixHelper = new Matrix4()
 
 export function makePanelSpherecast(
-  rootObject: Object3D,
+  root: Signal<RootContext>,
   globalSphereWithLocalScale: Sphere,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
   object: Object3D,
 ): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObject.matrixWorld)
+    const rootMatrixWorld = root.peek().component.matrixWorld
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootMatrixWorld)
     if (
       !sphereHelper.intersectsSphere(sphere) ||
-      !computeMatrixWorld(object.matrixWorld, rootObject.matrixWorld, globalMatrixSignal)
+      !computeMatrixWorld(object.matrixWorld, rootMatrixWorld, globalMatrixSignal)
     ) {
       return
     }
@@ -84,18 +74,21 @@ export function makePanelSpherecast(
   }
 }
 
+const IdentityMatrix = new Matrix4()
+
 export function makePanelRaycast(
   raycast: Mesh['raycast'],
-  rootObject: Object3D,
+  root: Signal<RootContext>,
   globalSphereWithLocalScale: Sphere,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
   object: Object3D,
 ): Mesh['raycast'] {
   return (raycaster, intersects) => {
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootObject.matrixWorld)
+    const rootMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootMatrixWorld)
     if (
       !raycaster.ray.intersectsSphere(sphereHelper) ||
-      !computeMatrixWorld(object.matrixWorld, rootObject.matrixWorld, globalMatrixSignal)
+      !computeMatrixWorld(object.matrixWorld, rootMatrixWorld, globalMatrixSignal)
     ) {
       return
     }
@@ -130,17 +123,15 @@ export function setupBoundingSphere(
  * also marks the mesh as a interaction panel
  */
 export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['spherecast'], undefined>>(
-  mesh: Mesh,
+  component: Component,
   fn: T,
-  rootObject: Object3D,
-  clippingRect: Signal<ClippingRect | undefined> | undefined,
+  root: Signal<RootContext>,
+  parent: Signal<Container | undefined>,
   orderInfoSignal: Signal<OrderInfo | undefined>,
-  internals: FlexNodeState,
 ) {
-  Object.assign(mesh, { internals })
   return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
     const oldLength = intersects.length
-    ;(fn as any).call(mesh, raycaster, intersects)
+    ;(fn as any).call(component, raycaster, intersects)
     if (oldLength === intersects.length) {
       return
     }
@@ -148,8 +139,8 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
     if (orderInfo == null) {
       return
     }
-    const clippingPlanes = clippingRect?.peek()?.planes
-    const rootMatrixWorld = rootObject.matrixWorld
+    const clippingPlanes = parent.peek()?.clippingRect?.peek()?.planes
+    const rootMatrixWorld = root.peek().component.matrixWorld
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]!
       intersection.distance -=

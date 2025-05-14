@@ -1,7 +1,7 @@
 import { PropertiesPubSub } from '@pmndrs/uikit-pub-sub'
 import { Aliases, AddAllAliases } from './alias.js'
 import { Conditionals, WithConditionals } from './conditional.js'
-import { computed, signal, Signal } from '@preact/signals-core'
+import { computed, effect, ReadonlySignal, signal, Signal } from '@preact/signals-core'
 import { YogaProperties } from '../flex/index.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { ZIndexProperties } from '../order.js'
@@ -88,12 +88,12 @@ export class Properties<
     },
   }
 
-  private cleanupInheritedPropertyKeys?: () => void
+  private cleanupInheritedPropertyKeys: () => void
 
   constructor(
     aliases: Aliases,
     conditionals: Conditionals,
-    inherited: Properties | undefined,
+    inherited: ReadonlySignal<Properties | undefined>,
     elementDefaults: AdditionalDefaults,
   ) {
     super(
@@ -156,18 +156,19 @@ export class Properties<
         updateLayers(this.conditionals.hover, 'delete', layerIndex)
       },
     )
-    if (inherited != null) {
-      this.cleanupInheritedPropertyKeys = inherited.subscribePropertyKeys((key) => {
+    this.cleanupInheritedPropertyKeys = effect(() => {
+      const { value } = inherited
+      return value?.subscribePropertyKeys((key) => {
         if (!inheritedPropertyKeys.includes(key as any)) {
           return
         }
-        this.set(Layers.Inheritance, key as any, inherited.getSignal(key as any))
+        this.set(Layers.Inheritance, key as any, value.getSignal(key as any))
       })
-    }
+    })
   }
 
   destroy(): void {
-    this.cleanupInheritedPropertyKeys?.()
+    this.cleanupInheritedPropertyKeys()
     super.destroy()
   }
 }

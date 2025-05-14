@@ -1,34 +1,5 @@
-import { Signal, signal } from '@preact/signals-core'
-import { BufferGeometry, Group, Material, Mesh, MeshBasicMaterial, Object3D, Plane, ShapeGeometry } from 'three'
-import { ParentContext } from '../context.js'
-import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
-import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { computedTransformMatrix } from '../transform.js'
-import {
-  applyAppearancePropertiesToGroup,
-  computedGlobalMatrix,
-  computedHandlers,
-  computedIsVisible,
-  setupNode,
-  setupMatrixWorldUpdate,
-  setupPointerEvents,
-  computedAncestorsHaveListeners,
-  buildRaycasting,
-} from './utils.js'
-import { abortableEffect, fitNormalizedContentInside } from '../utils.js'
-import { makeClippedCast, setupBoundingSphere } from '../panel/interaction-panel-mesh.js'
-import { computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { computedPanelGroupDependencies, computedPanelMatrix, getDefaultPanelMaterialConfig } from '../panel/index.js'
-import { ThreeEventMap } from '../events.js'
-import { setupCursorCleanup } from '../hover.js'
-import { AllProperties, Properties } from '../properties/index.js'
-import { allAliases } from '../properties/alias.js'
-import { createConditionals } from '../properties/conditional.js'
-import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './index.js'
-import { Component } from '../vanilla/utils.js'
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js"
+
 
 export type IconProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
@@ -41,7 +12,7 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
@@ -58,7 +29,7 @@ export function createIconState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
   const isClipped = computedIsClipped(
@@ -117,7 +88,7 @@ export function setupIcon(
   setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  setupNode(state, parentCtx, state.object, true, abortSignal)
+  createNode(state, parentCtx, state.object, true, abortSignal)
 
   setupInstancedPanel(
     state.properties,
@@ -208,7 +179,7 @@ function setupIconGroup(
       geometry.computeBoundingBox()
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.object, parentContext?.clippingRect, orderInfo, flexState)
+      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.component, parentContext?.clippingRect, orderInfo, flexState)
       setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1

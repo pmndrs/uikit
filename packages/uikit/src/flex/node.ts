@@ -4,7 +4,7 @@ import { Display, Edge, FlexDirection, MeasureFunction, Node, Overflow } from 'y
 import { setter } from './setter.js'
 import { PointScaleFactor, createYogaNode } from './yoga.js'
 import { abortableEffect } from '../utils.js'
-import { Properties } from '../properties/index.js'
+import { Component } from '../vanilla/component.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -25,22 +25,6 @@ function hasImmediateProperty(key: string): boolean {
   return key in setter
 }
 
-export type FlexNodeState = ReturnType<typeof createFlexNodeState>
-
-export function createFlexNodeState() {
-  return {
-    node: signal<FlexNode | undefined>(),
-    size: signal<Vector2Tuple | undefined>(undefined),
-    relativeCenter: signal<Vector2Tuple | undefined>(undefined),
-    borderInset: signal<Inset | undefined>(undefined),
-    overflow: signal<Overflow>(Overflow.Visible),
-    displayed: signal<boolean>(false),
-    scrollable: signal<[boolean, boolean]>([false, false]),
-    paddingInset: signal<Inset | undefined>(undefined),
-    maxScrollPosition: signal<Partial<Vector2Tuple>>([undefined, undefined]),
-  }
-}
-
 export class FlexNode {
   private children: Array<FlexNode> = []
   private yogaNode: Node | undefined
@@ -49,14 +33,8 @@ export class FlexNode {
   private customLayouting?: CustomLayouting
 
   private active = signal(false)
-  private objectVisible = false
 
-  constructor(
-    private state: FlexNodeState & { root: { requestCalculateLayout(): void }; properties: Properties },
-    private object: Object3D,
-    private objectVisibileDefault: boolean,
-    abortSignal: AbortSignal,
-  ) {
+  constructor(private component: Component) {
     abortableEffect(() => {
       const yogaNode = createYogaNode()
       if (yogaNode == null) {
@@ -69,21 +47,30 @@ export class FlexNode {
         this.yogaNode?.getParent()?.removeChild(this.yogaNode)
         this.yogaNode?.free()
       }
-    }, abortSignal)
+    }, component.abortSignal)
     abortableEffect(() => {
       if (!this.active.value) {
         return
       }
-      return state.properties.subscribePropertyKeys((key) => {
+      return component.properties.subscribePropertyKeys((key) => {
         if (!hasImmediateProperty(key as string)) {
           return
         }
         abortableEffect(() => {
-          setter[key as keyof typeof setter](this.yogaNode!, state.properties.get(key as any) as any)
-          this.state.root.requestCalculateLayout()
-        }, abortSignal)
+          setter[key as keyof typeof setter](this.yogaNode!, component.properties.get(key as any) as any)
+          this.component.root.peek().requestCalculateLayout()
+        }, component.abortSignal)
       })
-    }, abortSignal)
+    }, component.abortSignal)
+
+    abortableEffect(() => {
+      const parentNode = component.parentContainer.value?.node
+      if (parentNode == null) {
+        return
+      }
+      parentNode.addChild(this)
+      return () => parentNode.removeChild(this)
+    }, component.abortSignal)
   }
 
   setCustomLayouting(layouting: CustomLayouting | undefined) {
@@ -96,7 +83,7 @@ export class FlexNode {
       return
     }
     setMeasureFunc(this.yogaNode!, this.customLayouting.measure)
-    this.state.root.requestCalculateLayout()
+    this.component.root.peek().requestCalculateLayout()
   }
 
   /**
@@ -113,7 +100,7 @@ export class FlexNode {
 
   addChild(node: FlexNode): void {
     this.children.push(node)
-    this.state.root.requestCalculateLayout()
+    this.component.root.peek().requestCalculateLayout()
   }
 
   removeChild(node: FlexNode): void {
@@ -122,7 +109,7 @@ export class FlexNode {
       return
     }
     this.children.splice(i, 1)
-    this.state.root.requestCalculateLayout()
+    this.component.root.peek().requestCalculateLayout()
   }
 
   commit(parentDirection: FlexDirection): void {
@@ -135,7 +122,7 @@ export class FlexNode {
       parentDirection === FlexDirection.Column || parentDirection === FlexDirection.ColumnReverse
     if (
       this.customLayouting != null &&
-      this.state.properties.peek(parentDirectionVertical ? 'minHeight' : 'minWidth') === undefined
+      this.component.properties.peek(parentDirectionVertical ? 'minHeight' : 'minWidth') === undefined
     ) {
       this.yogaNode[parentDirectionVertical ? 'setMinHeight' : 'setMinWidth'](
         parentDirectionVertical ? this.customLayouting.minHeight : this.customLayouting.minWidth,
@@ -144,8 +131,8 @@ export class FlexNode {
 
     //see: https://codepen.io/Gettinqdown-Dev/pen/wvZLKBm
     //-> on the web if the parent has flexdireciton column, elements dont shrink below flexBasis
-    if (this.state.properties.peek('flexShrink') == null) {
-      const hasHeight = this.state.properties.peek('height') != null
+    if (this.component.properties.peek('flexShrink') == null) {
+      const hasHeight = this.component.properties.peek('height') != null
       this.yogaNode.setFlexShrink(hasHeight && parentDirectionVertical ? 0 : undefined)
     }
     /** ---- END ---- */
@@ -153,12 +140,12 @@ export class FlexNode {
     //commiting the children
     let groupChildren: Array<Object3D> | undefined
     this.children.sort((child1, child2) => {
-      groupChildren ??= child1.object.parent?.children
+      groupChildren ??= child1.component.parent?.children
       if (groupChildren == null) {
         return 0
       }
-      const group1 = child1.object
-      const group2 = child2.object
+      const group1 = child1.component
+      const group2 = child2.component
       const i1 = groupChildren.indexOf(group1)
       if (i1 === -1) {
         throw new Error(`parent mismatch`)
@@ -207,8 +194,6 @@ export class FlexNode {
     for (let i = 0; i < childrenLength; i++) {
       this.children[i]!.commit(this.yogaNode.getFlexDirection())
     }
-
-    this.objectVisible = this.objectVisibileDefault || this.children.some((child) => child.objectVisible)
   }
 
   updateMeasurements(
@@ -220,13 +205,13 @@ export class FlexNode {
       throw new Error(`update measurements cannot be called without a yoga node`)
     }
 
-    this.state.overflow.value = this.yogaNode.getOverflow()
+    this.component.overflow.value = this.yogaNode.getOverflow()
     displayed &&= this.yogaNode.getDisplay() === Display.Flex
-    this.state.displayed.value = displayed
+    this.component.displayed.value = displayed
 
     const width = this.yogaNode.getComputedWidth()
     const height = this.yogaNode.getComputedHeight()
-    updateVector2Signal(this.state.size, width, height)
+    updateVector2Signal(this.component.size, width, height)
 
     parentWidth ??= width
     parentHeight ??= height
@@ -236,19 +221,19 @@ export class FlexNode {
 
     const relativeCenterX = x + width * 0.5 - parentWidth * 0.5
     const relativeCenterY = -(y + height * 0.5 - parentHeight * 0.5)
-    updateVector2Signal(this.state.relativeCenter, relativeCenterX, relativeCenterY)
+    updateVector2Signal(this.component.relativeCenter, relativeCenterX, relativeCenterY)
 
     const paddingTop = this.yogaNode.getComputedPadding(Edge.Top)
     const paddingLeft = this.yogaNode.getComputedPadding(Edge.Left)
     const paddingRight = this.yogaNode.getComputedPadding(Edge.Right)
     const paddingBottom = this.yogaNode.getComputedPadding(Edge.Bottom)
-    updateInsetSignal(this.state.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
+    updateInsetSignal(this.component.paddingInset, paddingTop, paddingRight, paddingBottom, paddingLeft)
 
     const borderTop = this.yogaNode.getComputedBorder(Edge.Top)
     const borderRight = this.yogaNode.getComputedBorder(Edge.Right)
     const borderBottom = this.yogaNode.getComputedBorder(Edge.Bottom)
     const borderLeft = this.yogaNode.getComputedBorder(Edge.Left)
-    updateInsetSignal(this.state.borderInset, borderTop, borderRight, borderBottom, borderLeft)
+    updateInsetSignal(this.component.borderInset, borderTop, borderRight, borderBottom, borderLeft)
 
     for (const layoutChangeListener of this.layoutChangeListeners) {
       layoutChangeListener()
@@ -266,7 +251,7 @@ export class FlexNode {
     maxContentWidth -= borderLeft
     maxContentHeight -= borderTop
 
-    if (this.state.overflow.value === Overflow.Scroll) {
+    if (this.component.overflow.value === Overflow.Scroll) {
       maxContentWidth += paddingRight
       maxContentHeight += paddingLeft
 
@@ -280,17 +265,17 @@ export class FlexNode {
       const yScrollable = maxScrollY > 0.5
 
       updateVector2Signal(
-        this.state.maxScrollPosition,
+        this.component.maxScrollPosition,
         xScrollable ? maxScrollX : undefined,
         yScrollable ? maxScrollY : undefined,
       )
-      updateVector2Signal(this.state.scrollable, xScrollable, yScrollable)
+      updateVector2Signal(this.component.scrollable, xScrollable, yScrollable)
     } else {
-      updateVector2Signal(this.state.maxScrollPosition, undefined, undefined)
-      updateVector2Signal(this.state.scrollable, false, false)
+      updateVector2Signal(this.component.maxScrollPosition, undefined, undefined)
+      updateVector2Signal(this.component.scrollable, false, false)
     }
 
-    const overflowVisible = this.state.overflow.value === Overflow.Visible
+    const overflowVisible = this.component.overflow.value === Overflow.Visible
 
     return [
       x + Math.max(width, overflowVisible ? maxContentWidth : 0),

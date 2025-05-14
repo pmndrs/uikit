@@ -1,44 +1,4 @@
-import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
-import { setupCursorCleanup } from '../hover.js'
-import { computedIsClipped } from '../clipping.js'
-import { allAliases } from '../properties/alias.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { computedTransformMatrix } from '../transform.js'
-import { AllProperties, Properties } from '../properties/index.js'
-import { computedOrderInfo, ElementType } from '../order.js'
-import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
-import {
-  computedGlobalMatrix,
-  computedHandlers,
-  computedIsVisible,
-  setupNode,
-  setupMatrixWorldUpdate,
-  setupPointerEvents,
-  computedAncestorsHaveListeners,
-  buildRaycasting,
-} from './utils.js'
-import { abortableEffect, ColorRepresentation } from '../utils.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { ParentContext } from '../context.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
-import { Vector2Tuple, Vector2, Object3D } from 'three'
-import { CaretTransformation, createCaret } from '../caret.js'
-import { SelectionTransformation, createSelection } from '../selection.js'
-import {
-  AdditionalTextProperties,
-  InstancedText,
-  WordBreak,
-  additionalTextDefaults,
-  computedFont,
-  computedFontFamilies,
-  computedGylphGroupDependencies,
-  createInstancedText,
-} from '../text/index.js'
-import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
-import { createConditionals } from '../properties/conditional.js'
-import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './index.js'
-import { Component } from '../vanilla/utils.js'
+import { additionalTextDefaults } from '../text/render/instanced-text.js'
 
 const cancelSet = new Set<unknown>()
 
@@ -92,7 +52,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const hasFocusSignal = signal<boolean>(false)
@@ -115,7 +75,7 @@ export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -227,7 +187,7 @@ export function setupInput(
   setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  setupNode(state, parentCtx, state.object, false, abortSignal)
+  createNode(state, parentCtx, state.object, false, abortSignal)
 
   setupInstancedPanel(
     state.properties,
@@ -243,7 +203,7 @@ export function setupInput(
     abortSignal,
   )
 
-  createCaret(
+  setupCaret(
     state.properties,
     state.globalMatrix,
     state.caretTransformation,

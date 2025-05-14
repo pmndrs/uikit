@@ -1,10 +1,9 @@
-import { bindHandlers, Component, setupParentContextSignal } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { AdditionalSvgProperties, createSvgState, setupSvg, SvgProperties } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
-import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
+import { Component } from './component.js'
 
 export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)

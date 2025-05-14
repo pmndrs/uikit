@@ -1,10 +1,8 @@
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Vector2Tuple } from 'three'
+import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import { addActiveHandlers } from '../active.js'
 import { addHoverHandlers } from '../hover.js'
 import { abortableEffect, readReactive } from '../utils.js'
-import { FlexNode, FlexNodeState } from '../flex/index.js'
-import { ParentContext } from '../context.js'
 import { EventHandlers } from '../events.js'
 import { Properties } from '../properties/index.js'
 import {
@@ -14,9 +12,9 @@ import {
   makePanelSpherecast,
 } from '../panel/interaction-panel-mesh.js'
 import { RootContext } from './root.js'
-import { Component } from '../vanilla/utils.js'
-import { ClippingRect } from '../clipping.js'
+import { Component } from '../vanilla/component.js'
 import { OrderInfo } from '../order.js'
+import { Container } from '../vanilla/container.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -37,13 +35,13 @@ export type VisibilityProperties = {
 }
 
 export function computedIsVisible(
-  flexState: FlexNodeState,
+  component: Component,
   isClipped: Signal<boolean> | undefined,
   properties: Properties,
 ) {
   return computed(
     () =>
-      flexState.displayed.value &&
+      component.displayed.value &&
       (isClipped == null || !isClipped?.value) &&
       properties.get('visibility') === 'visible',
   )
@@ -74,31 +72,6 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
       }
     }
   }, abortSignal)
-}
-
-export function setupNode(
-  state: FlexNodeState & {
-    root: RootContext
-    node: Signal<FlexNode | undefined>
-    properties: Properties
-  },
-  parentContext: ParentContext | undefined,
-  object: Object3D,
-  objectVisibleDefault: boolean,
-  abortSignal: AbortSignal,
-) {
-  const node = new FlexNode(state, object, objectVisibleDefault, abortSignal)
-  if (parentContext != null) {
-    abortableEffect(() => {
-      const { value: parentNode } = parentContext.node
-      if (parentNode == null) {
-        return
-      }
-      parentNode.addChild(node)
-      return () => parentNode.removeChild(node)
-    }, abortSignal)
-  }
-  return (state.node.value = node)
 }
 
 const eventHandlerKeys: Array<keyof EventHandlers> = [
@@ -139,11 +112,11 @@ export function computedHandlers(
 }
 
 export function computedAncestorsHaveListeners(
-  parentContext: ParentContext | undefined,
+  parent: Signal<Container | undefined>,
   handlers: ReadonlySignal<EventHandlers>,
 ) {
   return computed(
-    () => (parentContext?.ancestorsHaveListeners.value ?? false) || Object.keys(handlers.value).length > 0,
+    () => (parent.value?.ancestorsHaveListenersSignal.value ?? false) || Object.keys(handlers.value).length > 0,
   )
 }
 
@@ -233,26 +206,23 @@ export type UpdateMatrixWorldProperties = {
 }
 
 export function setupMatrixWorldUpdate(
-  updateMatrixWorld: Signal<boolean> | true,
-  updateChildrenMatrixWorld: boolean,
-  properties: Properties,
-  size: Signal<Vector2Tuple | undefined>,
+  updateMatrixWorld: true | 'recursive' | Signal<boolean>,
   object: Object3D,
-  rootContext: RootContext,
+  rootContext: Signal<RootContext>,
   globalMatrixSignal: Signal<Matrix4 | undefined>,
   abortSignal: AbortSignal,
 ): void {
   abortableEffect(() => {
-    if (updateMatrixWorld != true && !updateMatrixWorld.value) {
+    if (updateMatrixWorld instanceof Signal && !updateMatrixWorld.value) {
       return
     }
     const onFrame = () => {
-      const rootObject = rootContext.object
+      const rootObject = rootContext.peek().component
       if (object == null) {
         return
       }
       computeMatrixWorld(object.matrixWorld, rootObject.matrixWorld, globalMatrixSignal)
-      if (!updateChildrenMatrixWorld) {
+      if (updateMatrixWorld != 'recursive') {
         return
       }
       const length = object.children.length
@@ -260,8 +230,8 @@ export function setupMatrixWorldUpdate(
         object.children[i]!.updateMatrixWorld(true)
       }
     }
-    rootContext.onUpdateMatrixWorldSet.add(onFrame)
-    return () => rootContext.onUpdateMatrixWorldSet.delete(onFrame)
+    rootContext.peek().onUpdateMatrixWorldSet.add(onFrame)
+    return () => rootContext.peek().onUpdateMatrixWorldSet.delete(onFrame)
   }, abortSignal)
 }
 
@@ -274,66 +244,57 @@ export type OutgoingDefaultProperties = {
   pointerEventsOrder: ReadonlySignal<number>
 }
 
-export function setupPointerEvents(
-  properties: Properties,
-  ancestorsHaveListeners: ReadonlySignal<boolean>,
-  rootContext: RootContext,
-  target: Object3D,
-  canHaveNonUikitChildren: boolean,
-  abortSignal: AbortSignal,
-) {
-  if (target == null) {
-    return
-  }
-  target.defaultPointerEvents = 'auto'
+export function setupPointerEvents(component: Component, canHaveNonUikitChildren: boolean) {
+  component.defaultPointerEvents = 'auto'
   abortableEffect(() => {
-    target.ancestorsHaveListeners = ancestorsHaveListeners.value
-    target.pointerEvents = properties.get('pointerEvents')
-    target.pointerEventsOrder = properties.get('pointerEventsOrder')
-    target.pointerEventsType = properties.get('pointerEventsType')
-  }, abortSignal)
+    component.ancestorsHaveListeners = component.ancestorsHaveListenersSignal.value
+    component.pointerEvents = component.properties.get('pointerEvents')
+    component.pointerEventsOrder = component.properties.get('pointerEventsOrder')
+    component.pointerEventsType = component.properties.get('pointerEventsType')
+  }, component.abortSignal)
   abortableEffect(() => {
-    if (!canHaveNonUikitChildren && properties.get('pointerEvents') === 'none') {
+    const rootComponent = component.root.value.component
+    component.intersectChildren = canHaveNonUikitChildren || rootComponent === component
+
+    if (!canHaveNonUikitChildren && component.properties.get('pointerEvents') === 'none') {
       return
     }
-    const descendants = rootContext.interactableDescendants
-    if (descendants == null || target == null) {
+    if (rootComponent === component) {
+      //we must not add the component itself to its interactable descendants
       return
     }
-    descendants.push(target)
+    rootComponent.interactableDescendants ??= []
+    const interactableDescendants = rootComponent.interactableDescendants
+    interactableDescendants.push(component)
     return () => {
-      const index = descendants.indexOf(target)
+      const index = interactableDescendants.indexOf(component)
       if (index === -1) {
         return
       }
-      descendants.splice(index, 1)
+      interactableDescendants.splice(index, 1)
     }
-  }, abortSignal)
+  }, component.abortSignal)
 }
 
 export function buildRaycasting(
-  object: Component,
-  root: RootContext,
-  globalMatrix: Signal<Matrix4 | undefined>,
-  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  component: Component,
+  root: Signal<RootContext>,
+  globalPanelMatrix: Signal<Matrix4 | undefined>,
+  parent: Signal<Container | undefined>,
   orderInfo: Signal<OrderInfo | undefined>,
-  flexState: FlexNodeState,
 ) {
-  const rootObject = root.object
-  object.raycast = makeClippedCast(
-    object,
-    makePanelRaycast(object.raycast.bind(object), rootObject, object.boundingSphere, globalMatrix, object),
-    rootObject,
-    parentClippingRect,
+  component.raycast = makeClippedCast(
+    component,
+    makePanelRaycast(component.raycast.bind(component), root, component.boundingSphere, globalPanelMatrix, component),
+    root,
+    parent,
     orderInfo,
-    flexState,
   )
-  object.spherecast = makeClippedCast(
-    object,
-    makePanelSpherecast(rootObject, object.boundingSphere, globalMatrix, object),
-    rootObject,
-    parentClippingRect,
+  component.spherecast = makeClippedCast(
+    component,
+    makePanelSpherecast(root, component.boundingSphere, globalPanelMatrix, component),
+    root,
+    parent,
     orderInfo,
-    flexState,
   )
 }

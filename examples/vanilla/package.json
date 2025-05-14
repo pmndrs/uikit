@@ -1,6 +1,8 @@
 {
   "type": "module",
   "dependencies": {
+    "@pmndrs/handle": "^6.6.16",
+    "@pmndrs/pointer-events": "^6.6.16",
     "@pmndrs/uikit": "workspace:^",
     "@pmndrs/uikit-lucide": "workspace:^"
   },

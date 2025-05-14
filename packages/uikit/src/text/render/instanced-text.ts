@@ -15,10 +15,11 @@ import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLay
 import { SelectionTransformation } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
-import { FlexNode, FlexNodeState } from '../../flex/index.js'
+import { FlexNode } from '../../flex/index.js'
 import { CaretTransformation } from '../../caret.js'
 import { Properties } from '../../properties/index.js'
 import { ThreeEventMap } from '../../events.js'
+import { Component } from '../../vanilla/component.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'block'
@@ -38,8 +39,7 @@ export function createInstancedText(
   properties: Properties<ThreeEventMap, AdditionalTextProperties, AdditionalTextDefaults>,
   textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
   matrix: Signal<Matrix4 | undefined>,
-  node: Signal<FlexNode | undefined>,
-  flexState: FlexNodeState,
+  component: Component,
   isVisible: Signal<boolean>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   orderInfo: Signal<OrderInfo | undefined>,
@@ -58,13 +58,13 @@ export function createInstancedText(
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
   abortableEffect(
     () =>
-      node.value?.addLayoutChangeListener(() => {
+      component.node.addLayoutChangeListener(() => {
         const layoutProperties = layoutPropertiesRef.current
         const {
           size: { value: size },
           paddingInset: { value: paddingInset },
           borderInset: { value: borderInset },
-        } = flexState
+        } = component
         if (layoutProperties == null || size == null || paddingInset == null || borderInset == null) {
           return
         }

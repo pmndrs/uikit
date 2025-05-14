@@ -1,12 +1,9 @@
-import { createFlexNodeState } from '../flex/node.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped, computedClippingRect } from '../clipping.js'
 import {
   computedAnyAncestorScrollable,
   computedGlobalScrollMatrix,
   computedScrollHandlers,
-  createScrollPosition,
-  createScrollState,
   setupScroll,
   setupScrollbars,
 } from '../scroll.js'
@@ -18,14 +15,11 @@ import {
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  setupNode,
   setupMatrixWorldUpdate,
   computedAncestorsHaveListeners,
   setupPointerEvents,
   buildRaycasting,
 } from './utils.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { ParentContext } from '../context.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
 import { AllProperties, Properties } from '../properties/index.js'
@@ -33,8 +27,6 @@ import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { ThreeEventMap } from '../events.js'
 import { computedFontFamilies } from '../text/font.js'
-import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
-import { Component } from '../vanilla/utils.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
@@ -44,7 +36,7 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredList = signal<Array<number>>([])
   const activeList = signal<Array<number>>([])
 
@@ -60,7 +52,7 @@ export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   const transformMatrix = computedTransformMatrix(properties, flexState)
 
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -120,7 +112,7 @@ export function setupContainer(
 ) {
   setupRootContext(state, state.object, abortSignal)
 
-  setupNode(state, parentCtx, state.object, false, abortSignal)
+  createNode(state, parentCtx, state.object, false, abortSignal)
   setupCursorCleanup(state.hoveredList, abortSignal)
 
   setupInstancedPanel(

@@ -12,6 +12,7 @@ import {
   createPanelMaterialConfig,
 } from './panel/index.js'
 import { Properties } from './properties/index.js'
+import { RootContext } from './components/index.js'
 
 export type CaretTransformation = {
   position: Vector2Tuple
@@ -69,7 +70,7 @@ function getCaretMaterialConfig() {
   return caretMaterialConfig
 }
 
-export function createCaret(
+export function setupCaret(
   properties: Properties,
   globalMatrix: Signal<Matrix4 | undefined>,
   caretTransformation: Signal<CaretTransformation | undefined>,
@@ -77,7 +78,7 @@ export function createCaret(
   parentOrderInfo: Signal<OrderInfo | undefined>,
   parentGroupDeps: ReadonlySignal<Required<PanelGroupProperties>>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  panelGroupManager: PanelGroupManager,
+  root: Signal<RootContext>,
   abortSignal: AbortSignal,
 ) {
   const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, parentGroupDeps, parentOrderInfo)
@@ -115,9 +116,9 @@ export function createCaret(
 
   setupInstancedPanel(
     properties,
+    root,
     orderInfo,
     parentGroupDeps,
-    panelGroupManager,
     panelMatrix,
     panelSize,
     borderInset,

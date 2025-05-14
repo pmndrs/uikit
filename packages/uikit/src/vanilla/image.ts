@@ -1,10 +1,9 @@
 import { AdditionalImageProperties, createImageState, ImageProperties, setupImage } from '../components/image.js'
-import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
+import { Component } from './component.js'
 
 export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   protected readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =

@@ -1,10 +1,9 @@
-import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { Signal, effect, signal } from '@preact/signals-core'
 import { createTextState, setupText, TextProperties } from '../components/text.js'
 import { ThreeEventMap } from '../events.js'
-import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
+import { Component } from './component.js'
 
 export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private readonly textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>

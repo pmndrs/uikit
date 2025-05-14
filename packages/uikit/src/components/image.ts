@@ -1,35 +1,18 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import {
-  Matrix4,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Plane,
-  PlaneGeometry,
-  Sphere,
-  SRGBColorSpace,
-  Texture,
-  TextureLoader,
-  Vector2Tuple,
-} from 'three'
-import { ParentContext } from '../context.js'
-import { FlexNodeState, Inset, createFlexNodeState } from '../flex/index.js'
-import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
+import { Matrix4, Mesh, Plane, Sphere, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
+import { ElementType, computedOrderInfo, setupRenderOrder } from '../order.js'
 import {
   PanelDepthMaterial,
   PanelDistanceMaterial,
   createPanelMaterial,
   createPanelMaterialConfig,
-  panelGeometry,
   PanelMaterialConfig,
   computedPanelGroupDependencies,
 } from '../panel/index.js'
 import {
-  createScrollPosition,
   setupScrollbars,
   computedScrollHandlers,
   computedAnyAncestorScrollable,
-  createScrollState,
   setupScroll,
   computedGlobalScrollMatrix,
 } from '../scroll.js'
@@ -38,7 +21,6 @@ import {
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  setupNode,
   loadResourceWithParams,
   setupMatrixWorldUpdate,
   setupPointerEvents,
@@ -46,22 +28,15 @@ import {
   buildRaycasting,
 } from './utils.js'
 import { abortableEffect } from '../utils.js'
-import {
-  setupBoundingSphere,
-  makeClippedCast,
-  makePanelRaycast,
-  makePanelSpherecast,
-} from '../panel/interaction-panel-mesh.js'
+import { setupBoundingSphere } from '../panel/interaction-panel-mesh.js'
 import { computedClippingRect, computedIsClipped, createGlobalClippingPlanes } from '../clipping.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
 import { ThreeEventMap } from '../events.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedFontFamilies } from '../text/font.js'
-import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './index.js'
-import { Component } from '../vanilla/utils.js'
+import { buildRootMatrix, buildRootContext, RenderContext, RootContext } from './index.js'
 
 export type ImageProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalImageProperties>
 
@@ -86,7 +61,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = buildRootContext(parentCtx, object, flexState.size, renderContext)
   const texture = signal<Texture | undefined>(undefined)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
@@ -112,7 +87,7 @@ export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -177,12 +152,12 @@ export function setupImage(
   parentCtx: ParentContext | undefined,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, state.object, abortSignal)
+  buildRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   loadResourceWithParams(state.texture, loadTextureImpl, cleanupTexture, abortSignal, state.properties.getSignal('src'))
 
-  setupNode(state, parentCtx, state.object, true, abortSignal)
+  createNode(state, parentCtx, state.object, true, abortSignal)
 
   setupScroll(state, abortSignal)
 

@@ -8,6 +8,7 @@ import { abortableEffect, ColorRepresentation } from '../utils.js'
 import { OrderInfo } from '../order.js'
 import { PanelMaterialConfig } from './panel-material.js'
 import { Properties } from '../properties/index.js'
+import { RootContext } from '../components/index.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number
@@ -23,9 +24,9 @@ export type PanelProperties = {
 
 export function setupInstancedPanel(
   properties: Properties,
+  root: Signal<RootContext>,
   orderInfo: Signal<OrderInfo | undefined>,
   panelGroupDependencies: Signal<Required<PanelGroupProperties>>,
-  panelGroupManager: PanelGroupManager,
   panelMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple | undefined>,
   borderInset: Signal<Inset | undefined>,
@@ -39,7 +40,7 @@ export function setupInstancedPanel(
       return
     }
     const innerAbortController = new AbortController()
-    const group = panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
+    const group = root.value.panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
     new InstancedPanel(
       properties,
       group,
@@ -105,7 +106,7 @@ export class InstancedPanel {
   ) {
     const setters = materialConfig.setters
     abortableEffect(() => {
-      if (!isVisible.value) {
+      if (!isVisible.value || !this.active.value) {
         return
       }
       return properties.subscribePropertyKeys((key) => {

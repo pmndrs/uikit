@@ -1,56 +1,6 @@
-import { Signal, computed, signal } from '@preact/signals-core'
-import {
-  Box3,
-  BufferGeometry,
-  Group,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Plane,
-  ShapeGeometry,
-  Vector3,
-} from 'three'
-import { ParentContext } from '../context.js'
-import { FlexNodeState, createFlexNodeState } from '../flex/index.js'
-import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import {
-  createScrollPosition,
-  setupScrollbars,
-  computedScrollHandlers,
-  computedAnyAncestorScrollable,
-  createScrollState,
-  computedGlobalScrollMatrix,
-  setupScroll,
-} from '../scroll.js'
-import { computedTransformMatrix } from '../transform.js'
-import {
-  applyAppearancePropertiesToGroup,
-  computedGlobalMatrix,
-  computedHandlers,
-  computedIsVisible,
-  setupNode,
-  loadResourceWithParams,
-  computedAncestorsHaveListeners,
-  setupMatrixWorldUpdate,
-  setupPointerEvents,
-  buildRaycasting,
-} from './utils.js'
-import { abortableEffect, fitNormalizedContentInside } from '../utils.js'
-import { makeClippedCast, setupBoundingSphere } from '../panel/interaction-panel-mesh.js'
-import { computedIsClipped, ClippingRect, createGlobalClippingPlanes, computedClippingRect } from '../clipping.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { setupCursorCleanup } from '../hover.js'
-import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { computedPanelGroupDependencies, computedPanelMatrix, getDefaultPanelMaterialConfig } from '../panel/index.js'
-import { ThreeEventMap } from '../events.js'
-import { AllProperties, Properties } from '../properties/index.js'
-import { allAliases } from '../properties/alias.js'
-import { createConditionals } from '../properties/conditional.js'
-import { computedFontFamilies } from '../text/font.js'
-import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './root.js'
-import { Component } from '../vanilla/utils.js'
+import { Box3 } from "three"
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js"
+
 
 export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalSvgProperties>
 
@@ -71,7 +21,7 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
   const aspectRatio = signal<number | undefined>(undefined)
@@ -87,7 +37,7 @@ export function createSvgState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -161,7 +111,7 @@ export function setupSvg(
   setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  setupNode(state, parentCtx, state.object, true, abortSignal)
+  createNode(state, parentCtx, state.object, true, abortSignal)
 
   setupInstancedPanel(
     state.properties,
@@ -323,7 +273,7 @@ async function loadSvg(
       box3Helper.union(geometry.boundingBox!)
       const mesh = new Mesh(geometry, material)
       mesh.matrixAutoUpdate = false
-      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.object, clippedRect, orderInfo, flexState)
+      mesh.raycast = makeClippedCast(mesh, mesh.raycast, root.component, clippedRect, orderInfo, flexState)
       setupRenderOrder(mesh, root, orderInfo)
       mesh.userData.color = path.color
       mesh.scale.y = -1

@@ -1,55 +1,79 @@
-import { ContainerProperties, createContainerState, setupContainer } from '../components/container.js'
-import { effect, signal, Signal } from '@preact/signals-core'
-import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
+import { computed, signal, Signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { Layers } from '../properties/layers.js'
-import { ParentContext } from '../context.js'
-import { UikitPropertyKeys } from '../properties/index.js'
+import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
+import { ClippingRect, computedClippingRect } from '../clipping.js'
+import { RenderContext } from '../components/root.js'
+import { computedOrderInfo, ElementType, OrderInfo } from '../order.js'
+import { computedPanelMatrix, setupInstancedPanel } from '../panel/instanced-panel.js'
+import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll, setupScrollbars } from '../scroll.js'
+import { computedFontFamilies, FontFamilies } from '../text/font.js'
+import { Component } from './component.js'
+import { ContainerProperties } from '../components/container.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 
-export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
-    signal(undefined)
-  private readonly unsubscribe: () => void
+export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component {
+  readonly downPointerMap = new Map<
+    number,
+    | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
+    | { type: 'scroll-panel'; localPoint: Vector3; timestamp: number }
+  >()
+  readonly scrollVelocity = new Vector2()
+  readonly anyAncestorScrollable: Signal<readonly [boolean, boolean]>
+  readonly clippingRect: Signal<ClippingRect | undefined>
+  readonly childrenMatrix: Signal<Matrix4 | undefined>
+  readonly fontFamilies: Signal<FontFamilies | undefined>
+  readonly scrollPosition = signal<Vector2Tuple>([0, 0])
 
-  public internals!: ReturnType<typeof createContainerState<EM>>
+  private readonly groupDeps: ReturnType<typeof computedPanelGroupDependencies>
 
-  constructor(private properties?: ContainerProperties<EM>) {
-    super()
+  constructor(imperativeProperties: ContainerProperties, renderContext?: RenderContext) {
+    super(false, false, {}, imperativeProperties, undefined, renderContext)
     this.material.visible = false
-    setupParentContextSignal(this.parentContextSignalSignal, this)
-    this.unsubscribe = effect(() => {
-      const parentContextSignal = this.parentContextSignalSignal.value
-      if (parentContextSignal === undefined) {
-        this.contextSignal.value = undefined
-        return
-      }
-      const parentContext = parentContextSignal?.value
-      const abortController = new AbortController()
-      this.internals = createContainerState<EM>(this, parentContext)
-      this.internals.properties.setLayer(Layers.Imperative, this.properties)
-      setupContainer(this.internals, parentContext, abortController.signal)
-      this.contextSignal.value = this.internals
 
-      //setup events
-      bindHandlers(this.internals.handlers, this, abortController.signal)
-      return () => {
-        abortController.abort()
-      }
-    })
+    this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)
+
+    this.groupDeps = computedPanelGroupDependencies(this.properties)
+
+    const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
+
+    this.fontFamilies = computedFontFamilies(this.properties, this.parentContainer)
+
+    this.clippingRect = computedClippingRect(
+      this.globalMatrix,
+      this,
+      this.properties.getSignal('pixelSize'),
+      parentClippingRect,
+    )
+
+    this.anyAncestorScrollable = computedAnyAncestorScrollable(this.parentContainer)
+
+    setupInstancedPanel(
+      this.properties,
+      this.root,
+      this.orderInfo,
+      this.groupDeps,
+      this.globalPanelMatrix,
+      this.size,
+      this.borderInset,
+      parentClippingRect,
+      this.isVisible,
+      getDefaultPanelMaterialConfig(),
+      this.abortSignal,
+    )
+
+    //scrolling:
+    setupScroll(this)
+    setupScrollbars(this, parentClippingRect, this.orderInfo, this.groupDeps)
   }
 
-  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
-    return this.internals.properties.peek(key)
-  }
-
-  setProperties(properties?: ContainerProperties<EM>) {
-    this.properties = properties
-    this.internals.properties.setLayer(Layers.Imperative, properties)
-  }
-
-  destroy() {
-    this.internals.properties.destroy()
-    this.parent?.remove(this)
-    this.unsubscribe()
+  protected computedOrderInfo(): Signal<OrderInfo | undefined> {
+    return computedOrderInfo(
+      this.properties,
+      'zIndexOffset',
+      ElementType.Panel,
+      this.groupDeps,
+      computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
+    )
   }
 }

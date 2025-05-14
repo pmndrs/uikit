@@ -1,4 +1,3 @@
-import { createFlexNodeState } from '../flex/node.js'
 import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
@@ -9,14 +8,11 @@ import {
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  setupNode,
   setupPointerEvents,
   setupMatrixWorldUpdate,
   computedAncestorsHaveListeners,
   buildRaycasting,
 } from './utils.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { ParentContext } from '../context.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
 import {
@@ -33,8 +29,6 @@ import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { abortableEffect } from '../utils.js'
-import { computedRootMatrix, createRootContext, RenderContext, setupRootContext } from './root.js'
-import { Component } from '../vanilla/utils.js'
 
 export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
@@ -45,7 +39,7 @@ export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredSignal = signal<Array<number>>([])
   const activeSignal = signal<Array<number>>([])
 
@@ -58,7 +52,7 @@ export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
 
   const transformMatrix = computedTransformMatrix(properties, flexState)
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -123,7 +117,7 @@ export function setupText(
   setupRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
-  setupNode(state, parentCtx, state.object, false, abortSignal)
+  createNode(state, parentCtx, state.object, false, abortSignal)
 
   setupInstancedPanel(
     state.properties,

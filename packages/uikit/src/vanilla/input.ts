@@ -1,10 +1,9 @@
-import { setupParentContextSignal, bindHandlers, Component } from './utils.js'
 import { effect, Signal, signal } from '@preact/signals-core'
 import { AdditionalInputProperties, InputProperties, createInputState, setupInput } from '../components/input.js'
 import { ThreeEventMap } from '../events.js'
-import { ParentContext } from '../context.js'
 import { Layers } from '../properties/layers.js'
 import { UikitPropertyKeys } from '../properties/index.js'
+import { Component } from './component.js'
 
 export class Input<T = {}, Em extends ThreeEventMap = ThreeEventMap> extends Component<T> {
   private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)

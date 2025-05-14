@@ -396,6 +396,12 @@ importers:
 
   examples/vanilla:
     dependencies:
+      '@pmndrs/handle':
+        specifier: ^6.6.16
+        version: 6.6.16(@types/react@19.0.8)(react@19.0.0)
+      '@pmndrs/pointer-events':
+        specifier: ^6.6.16
+        version: 6.6.16
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -548,6 +554,15 @@ importers:
       yoga-layout:
         specifier: ^3.2.1
         version: 3.2.1
+
+  packages/uikitml:
+    dependencies:
+      inline-style-parser:
+        specifier: ^0.2.4
+        version: 0.2.4
+      node-html-parser:
+        specifier: ^7.0.1
+        version: 7.0.1
 
 packages:
 
@@ -1858,11 +1873,17 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
+  '@pmndrs/handle@6.6.16':
+    resolution: {integrity: sha512-+//YQ9Hw3emvgAM3WuWEtbdPE6T4m1RBdfDIblPNb2iDGGPdnQXlVVfQL3DKeRjw3SDpVnitLN+cDAiaQb4HcQ==}
+
   '@pmndrs/msdfonts@0.8.6':
     resolution: {integrity: sha512-v/B/JhE2VKDnKBFPEb9unNGHf9YcuBaJN2pirAnVITN49Icjde/D3pZtlzi7NXP6DK+kiEZbGSh5gmF5xoOX8g==}
 
   '@pmndrs/pointer-events@6.5.4':
     resolution: {integrity: sha512-7h3NCyGgxr9NZmYtcaf9KdTvmhYaZYI4WhBKWjmutyl7yue9U6yOBxOWmzUYvAtMBGlQKeMHaBNtGE4ihmy8vQ==}
+
+  '@pmndrs/pointer-events@6.6.16':
+    resolution: {integrity: sha512-RhID/DVWGWguqcOyQk87EeRA4vNMS/9b9CqCRVpr4J10GfqW3iCCIwPpQkIqEDczxlUABgtZMmGHnoAbPHr3rQ==}
 
   '@pmndrs/uikit@0.8.6':
     resolution: {integrity: sha512-yEIwNsNS3HhLiu9wpW3Nj+BKxUMdzheACgsLgxacC6gOkKI/a00jG5zPFmtJJN9GML8McvADZp/clIHI6QDJxg==}
@@ -5360,6 +5381,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch@2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
@@ -8747,9 +8769,20 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
+  '@pmndrs/handle@6.6.16(@types/react@19.0.8)(react@19.0.0)':
+    dependencies:
+      '@pmndrs/pointer-events': 6.6.16
+      zustand: 4.5.6(@types/react@19.0.8)(react@19.0.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - react
+
   '@pmndrs/msdfonts@0.8.6': {}
 
   '@pmndrs/pointer-events@6.5.4': {}
+
+  '@pmndrs/pointer-events@6.6.16': {}
 
   '@pmndrs/uikit@0.8.6(three@0.168.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:

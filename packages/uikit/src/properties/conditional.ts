@@ -1,6 +1,7 @@
 import { Signal } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
 import { isDarkMode } from '../preferred-color-scheme.js'
+import { RootContext } from '../components/index.js'
 
 export type Conditionals = Record<string, () => boolean>
 
@@ -18,12 +19,14 @@ type WithResponsive<T> = T & {
   [Key in keyof typeof breakPoints]?: T
 }
 
-function createResponsiveConditionals(rootSize: Signal<Vector2Tuple | undefined>): Conditionals {
+function createResponsiveConditionals(root: Signal<RootContext>): Conditionals {
   const conditionals: Conditionals = {}
+
+  const rootWidth = root.value.component.size.value?.[0] ?? 0
 
   for (let i = 0; i < breakPointKeysLength; i++) {
     const key = breakPointKeys[i]!
-    conditionals[key] = () => (rootSize.value?.[0] ?? 0) > breakPoints[key]
+    conditionals[key] = () => rootWidth > breakPoints[key]
   }
 
   return conditionals
@@ -75,14 +78,14 @@ export type WithConditionals<T> = WithHover<T> &
   WithFocus<T>
 
 export function createConditionals(
-  rootSize: Signal<Vector2Tuple | undefined>,
+  root: Signal<RootContext>,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
   hasFocusSignal?: Signal<boolean>,
 ) {
   return {
     ...preferredColorSchemeConditionals,
-    ...createResponsiveConditionals(rootSize),
+    ...createResponsiveConditionals(root),
     ...createHoverConditionals(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
     ...createFocusPropertyTransformers(hasFocusSignal),

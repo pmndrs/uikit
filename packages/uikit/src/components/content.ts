@@ -1,37 +1,33 @@
-import { FlexNodeState, createFlexNodeState } from '../flex/node.js'
-import { setupCursorCleanup } from '../hover.js'
-import { computedIsClipped, createGlobalClippingPlanes, ClippingRect } from '../clipping.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { computedTransformMatrix } from '../transform.js'
-import { ElementType, OrderInfo, computedOrderInfo, setupRenderOrder } from '../order.js'
-import { Signal, computed, signal } from '@preact/signals-core'
-import {
-  computedGlobalMatrix,
-  computedHandlers,
-  computedIsVisible,
-  setupNode,
-  setupMatrixWorldUpdate,
-  setupPointerEvents,
-  computedAncestorsHaveListeners,
-  buildRaycasting,
-} from './utils.js'
-import { abortableEffect, alignmentZMap } from '../utils.js'
-import { setupLayoutListeners, setupClippedListeners } from '../listeners.js'
-import { ParentContext } from '../context.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { Box3, Material, Mesh, Object3D, Vector3 } from 'three'
-import {
-  computedPanelMatrix,
-  getDefaultPanelMaterialConfig,
-  makeClippedCast,
-  setupBoundingSphere,
-} from '../panel/index.js'
+import { Signal, signal, computed } from '@preact/signals-core'
+import { Component } from 'react'
+import { Vector3, Object3D, Box3, Mesh, Material } from 'three'
+import { computedIsClipped, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { ThreeEventMap } from '../events.js'
+import { setupCursorCleanup } from '../hover.js'
+import { computedOrderInfo, ElementType, OrderInfo, setupRenderOrder } from '../order.js'
+import {
+  computedPanelGroupDependencies,
+  computedPanelMatrix,
+  setupInstancedPanel,
+  getDefaultPanelMaterialConfig,
+  setupBoundingSphere,
+  makeClippedCast,
+} from '../panel/index.js'
 import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
-import { computedRootMatrix, createRootContext, RenderContext, RootContext, setupRootContext } from './root.js'
-import { Component } from '../vanilla/utils.js'
+import { computedTransformMatrix } from '../transform.js'
+import { alignmentZMap, abortableEffect } from '../utils.js'
+import { RenderContext, buildRootContext, buildRootMatrix, RootContext } from './root.js'
+import {
+  computedGlobalMatrix,
+  computedIsVisible,
+  computedHandlers,
+  computedAncestorsHaveListeners,
+  buildRaycasting,
+  setupMatrixWorldUpdate,
+  setupPointerEvents,
+} from './utils.js'
 
 export type ContentProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalContentProperties>
 
@@ -53,7 +49,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
   renderContext?: RenderContext,
 ) {
   const flexState = createFlexNodeState()
-  const rootContext = createRootContext(parentCtx, object, flexState.size, renderContext)
+  const rootContext = buildRootContext(parentCtx, object, flexState.size, renderContext)
   const hoveredList = signal<Array<number>>([])
   const activeList = signal<Array<number>>([])
 
@@ -74,7 +70,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
   const transformMatrix = computedTransformMatrix(properties, flexState)
 
   const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? computedRootMatrix(properties, rootContext.root.size),
+    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
     transformMatrix,
   )
 
@@ -143,11 +139,11 @@ export function setupContent(
   parentCtx: ParentContext | undefined,
   abortSignal: AbortSignal,
 ) {
-  setupRootContext(state, state.object, abortSignal)
+  buildRootContext(state, state.object, abortSignal)
   setupCursorCleanup(state.hoveredSignal, abortSignal)
 
   //create node
-  setupNode(state, parentCtx, state.object, true, abortSignal)
+  createNode(state, parentCtx, state.object, true, abortSignal)
 
   //instanced panel
   setupInstancedPanel(
@@ -280,7 +276,7 @@ function createMeasureContent(
         setupRenderOrder(child, root, orderInfo)
         child.material.clippingPlanes = clippingPlanes
         child.material.needsUpdate = true
-        child.raycast = makeClippedCast(child, child.raycast, root.object, parentClippingRect, orderInfo, flexState)
+        child.raycast = makeClippedCast(child, child.raycast, root.component, parentClippingRect, orderInfo, flexState)
       }
     })
     const parent = object.parent

@@ -18,6 +18,9 @@
       "build": "tsc"
     },
     "type": "module",
-    "main": "dist/index.js"
+    "main": "src/index.ts",
+    "publishConfig": {
+      "main": "dist/index.js"
+    }
   }
   

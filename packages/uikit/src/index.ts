@@ -9,7 +9,7 @@ export {
   type PreferredColorScheme,
 } from './preferred-color-scheme.js'
 export type { MaterialClass } from './panel/panel-material.js'
-export type { Listeners, LayoutListeners, ScrollListeners, ClippedListeners } from './listeners.js'
+export type { Listeners, ScrollListeners } from './listeners.js'
 export * from './vanilla/index.js'
 export type { ColorRepresentation } from './utils.js'
 export type { CaretTransformation } from './caret.js'

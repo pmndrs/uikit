@@ -1,18 +1,7 @@
-import {
-  AmbientLight,
-  Intersection,
-  Mesh,
-  PerspectiveCamera,
-  Scene,
-  Sphere,
-  SphereGeometry,
-  Vector3,
-  WebGLRenderer,
-} from 'three'
-import { reversePainterSortStable, Container, Image, Text, Svg, Content } from '@pmndrs/uikit'
-import { Delete } from '@pmndrs/uikit-lucide'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { AmbientLight, Mesh, PerspectiveCamera, Scene, Sphere, SphereGeometry, Vector3, WebGLRenderer } from 'three'
+import { reversePainterSortStable, Container } from '@pmndrs/uikit'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { OrbitHandles } from '@pmndrs/handle'
 
 // init
 
@@ -25,12 +14,13 @@ scene.add(camera)
 
 const canvas = document.getElementById('root') as HTMLCanvasElement
 
-const controls = new OrbitControls(camera, canvas)
+const { update } = forwardHtmlEvents(canvas, camera, scene)
+const orbit = new OrbitHandles(canvas, camera)
+orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 const position = new Vector3(0, 0, 0.199)
-const sphere = new Sphere(position, 0.2)
 const sphereMesh = new Mesh(new SphereGeometry(0.2))
 sphereMesh.position.copy(position)
 scene.add(sphereMesh)
@@ -47,13 +37,7 @@ const root = new Container({
   overflow: 'scroll',
 })
 scene.add(root)
-
-setTimeout(() => {
-  const intersections: Array<Intersection> = []
-  root.spherecast?.(sphere, intersections)
-  console.log(intersections)
-}, 1000)
-
+/*
 const c = new Content({ flexShrink: 0, height: 100, backgroundColor: 'black' })
 const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => {
@@ -61,34 +45,28 @@ loader.load('example.glb', (gltf) => {
 })
 const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
 const svg = new Svg({ src: 'example.svg', width: 100, height: 100, flexShrink: 0 })
-const text = new Text('Hello World', { fontSize: 40, flexShrink: 0 })
+const text = new Text('Hello World', { fontSize: 40, flexShrink: 0 })*/
 const a = new Container({
   flexShrink: 0,
   alignSelf: 'stretch',
   height: 100,
-  flexGrow: 1,
+  width: 100,
   backgroundColor: 'blue',
+  hover: { backgroundColor: 'black' },
 })
 const x = new Container({
   flexShrink: 0,
-  padding: 20,
-  height: '100%',
+  padding: 50,
+  height: 300,
   flexGrow: 1,
-  hover: { backgroundColor: 'yellow' },
   backgroundColor: 'green',
+  hover: { backgroundColor: 'yellow' },
   flexBasis: 0,
-  justifyContent: 'center',
-})
-setTimeout(() => {
-  x.dispatchEvent({
-    type: 'pointerover',
-    distance: 0,
-    nativeEvent: {} as any,
-    object: x,
-    point: new Vector3(),
-    pointerId: -1,
-  })
-}, 0)
+  justifyContent: 'flex-start',
+  onPointerOver(event) {
+    console.log(event)
+  },
+}) /*
 const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,
@@ -96,8 +74,8 @@ const img = new Image({
   width: 100,
   backgroundColor: 'blue',
   flexShrink: 0,
-})
-root.add(img, del, svg, text, x)
+})*/
+root.add(/*img, del, svg, text,*/ x)
 x.add(a)
 
 renderer.setAnimationLoop(animation)
@@ -121,7 +99,8 @@ function animation(time: number) {
   const delta = prev == null ? 0 : time - prev
   prev = time
 
-  controls.update(delta)
+  update()
+  orbit.update(delta)
   root.update(delta)
 
   renderer.render(scene, camera)

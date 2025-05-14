@@ -1,9 +1,7 @@
 import { Signal, computed } from '@preact/signals-core'
-import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
-import { FlexNodeState } from './flex/node.js'
-import { abortableEffect, alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
-import { Properties } from './properties/index.js'
-import { RootContext } from './components/index.js'
+import { Euler, Matrix4, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
+import { alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
+import { Component } from './vanilla/component.js'
 
 export type Percentage = `${number}%`
 
@@ -39,10 +37,7 @@ function toQuaternion([x, y, z]: Vector3Tuple): Quaternion {
 const defaultTransformOriginX: keyof typeof alignmentXMap = 'center'
 const defaultTransformOriginY: keyof typeof alignmentYMap = 'center'
 
-export function computedTransformMatrix(
-  properties: Properties,
-  { relativeCenter, size }: FlexNodeState,
-): Signal<Matrix4 | undefined> {
+export function computedTransformMatrix({ relativeCenter, size, properties }: Component): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
   //B = bound transformation matrix
   //O = matrix to transform the origin for matrix T

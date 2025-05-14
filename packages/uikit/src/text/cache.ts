@@ -1,4 +1,4 @@
-import { TextureLoader, WebGLRenderer } from 'three'
+import { TextureLoader } from 'three'
 import { Font, FontInfo } from './font.js'
 
 const fontCache = new Map<string | FontInfo, Set<(font: Font) => void> | Font>()

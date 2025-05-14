@@ -2,8 +2,9 @@ import { Signal, computed } from '@preact/signals-core'
 import { Matrix4, Plane, Vector3 } from 'three'
 import type { Box3, Line3, Matrix3, Sphere, Vector2Tuple } from 'three'
 import { Overflow } from 'yoga-layout/load'
-import { FlexNodeState } from './flex/node.js'
 import { RootContext } from './components/root.js'
+import { Container } from './vanilla/container.js'
+import { Component } from './vanilla/component.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -95,20 +96,20 @@ const multiplier = [
 ] as const
 
 export function computedIsClipped(
-  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
+  parent: Signal<Container | undefined>,
   globalMatrix: Signal<Matrix4 | undefined>,
   size: Signal<Vector2Tuple | undefined>,
   pixelSizeSignal: Signal<number>,
 ): Signal<boolean> {
   return computed(() => {
-    if (parentClippingRect == null) {
+    if (parent.value == null) {
       return false
     }
     if (size.value == null) {
       return true
     }
     const global = globalMatrix.value
-    const rect = parentClippingRect.value
+    const rect = parent.value.clippingRect.value
     if (rect == null || global == null) {
       return false
     }
@@ -141,7 +142,7 @@ export function computedIsClipped(
 
 export function computedClippingRect(
   globalMatrix: Signal<Matrix4 | undefined>,
-  { overflow, borderInset, size }: FlexNodeState,
+  { overflow, borderInset, size }: Component,
   pixelSizeSignal: Signal<number>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
 ): Signal<ClippingRect | undefined> {
@@ -184,7 +185,7 @@ export function createGlobalClippingPlanes(
   if (clippingRect == null) {
     return null
   }
-  const getGlobalMatrix = () => root.object.matrixWorld
+  const getGlobalMatrix = () => root.component.matrixWorld
   const planes = new Array(4)
     .fill(undefined)
     .map<Plane>((_, i) => new RelativePlane(() => clippingRect?.value?.planes[i], getGlobalMatrix))

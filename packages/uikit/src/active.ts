@@ -1,4 +1,4 @@
-import { computed, Signal } from '@preact/signals-core'
+import { Signal } from '@preact/signals-core'
 import { Properties } from './properties/index.js'
 import { EventHandlers, ThreePointerEvent } from './events.js'
 import { addHandler } from './components/index.js'

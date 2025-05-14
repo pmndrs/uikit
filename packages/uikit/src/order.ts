@@ -83,45 +83,40 @@ export function computedOrderInfo(
   zIndexOffsetKey: string,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
-  parentOrderInfoSignal: Signal<OrderInfo | undefined> | undefined,
+  basisOrderInfoSignal: Signal<OrderInfo | undefined | null>,
 ): Signal<OrderInfo | undefined> {
   const zIndexOffset = properties == null ? undefined : properties.getSignal(zIndexOffsetKey as any)
   return computed(() => {
-    let parentOrderInfo: OrderInfo | undefined
-    if (parentOrderInfoSignal == null) {
-      parentOrderInfo = undefined
-    } else if (parentOrderInfoSignal.value == null) {
+    if (basisOrderInfoSignal.value === undefined) {
       return undefined
-    } else {
-      parentOrderInfo = parentOrderInfoSignal.value
     }
 
+    const basisOrderInfo = basisOrderInfoSignal.value
     const offset = zIndexOffset?.value
-
     const majorOffset = typeof offset === 'number' ? offset : (offset?.major ?? 0)
     const minorOffset = typeof offset === 'number' ? 0 : (offset?.minor ?? 0)
 
     let majorIndex: number
     let minorIndex: number
 
-    if (parentOrderInfo == null) {
+    if (basisOrderInfo == null) {
       majorIndex = 0
       minorIndex = 0
-    } else if (type > parentOrderInfo.elementType) {
-      majorIndex = parentOrderInfo.majorIndex
+    } else if (type > basisOrderInfo.elementType) {
+      majorIndex = basisOrderInfo.majorIndex
       minorIndex = 0
     } else if (
-      type != parentOrderInfo.elementType ||
+      type != basisOrderInfo.elementType ||
       !shallowEqualRecord(
         readReactive(instancedGroupDependencies),
-        readReactive(parentOrderInfo.instancedGroupDependencies),
+        readReactive(basisOrderInfo.instancedGroupDependencies),
       )
     ) {
-      majorIndex = parentOrderInfo.majorIndex + 1
+      majorIndex = basisOrderInfo.majorIndex + 1
       minorIndex = 0
     } else {
-      majorIndex = parentOrderInfo.majorIndex
-      minorIndex = parentOrderInfo.minorIndex + 1
+      majorIndex = basisOrderInfo.majorIndex
+      minorIndex = basisOrderInfo.minorIndex + 1
     }
 
     if (majorOffset > 0) {

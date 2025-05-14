@@ -1,10 +1,9 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Texture, TypedArray, WebGLRenderer } from 'three'
+import { Texture, TypedArray } from 'three'
 import { loadCachedFont } from './cache.js'
 import { Properties } from '../properties/index.js'
-import { ParentContext } from '../context.js'
 import { inter } from '@pmndrs/msdfonts'
-import { InteractiveObject3D } from 'three/examples/jsm/Addons.js'
+import { Container } from '../vanilla/container.js'
 
 export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>
 
@@ -31,10 +30,10 @@ const defaultFontFamiles: FontFamilies = {
   inter,
 }
 
-export function computedFontFamilies(properties: Properties, parentContext: ParentContext | undefined) {
+export function computedFontFamilies(properties: Properties, parent: Signal<Container | undefined>) {
   return computed(() => {
     const currentFontFamilies = properties.get('fontFamilies')
-    const inheritedFontFamilies = parentContext?.fontFamilies.value
+    const inheritedFontFamilies = parent.value?.fontFamilies.value
     if (inheritedFontFamilies == null) {
       return currentFontFamilies
     }
