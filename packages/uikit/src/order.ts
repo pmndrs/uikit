@@ -1,6 +1,6 @@
-import { Signal, computed } from '@preact/signals-core'
+import { Signal } from '@preact/signals-core'
 import { RenderItem } from 'three'
-import { readReactive } from './utils.js'
+import { abortableEffect, readReactive } from './utils.js'
 import { Properties } from './properties/index.js'
 
 export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
@@ -17,21 +17,23 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
   }
   let az = a.z
   let bz = b.z
-  const aDistanceRef = (a.object as any)[reversePainterSortStableCacheKey] as
-    | WithReversePainterSortStableCache
+  const aRootSignal = (a.object as any)[reversePainterSortStableCacheKey] as
+    | { peek(): WithReversePainterSortStableCache }
     | undefined
-  const bDistanceRef = (b.object as any)[reversePainterSortStableCacheKey] as
-    | WithReversePainterSortStableCache
+  const bRootSignal = (b.object as any)[reversePainterSortStableCacheKey] as
+    | { peek(): WithReversePainterSortStableCache }
     | undefined
-  if (aDistanceRef != null) {
-    aDistanceRef.reversePainterSortStableCache ??= az
-    az = aDistanceRef.reversePainterSortStableCache
+  if (aRootSignal != null) {
+    const root = aRootSignal.peek()
+    root.reversePainterSortStableCache ??= az
+    az = root.reversePainterSortStableCache
   }
-  if (bDistanceRef != null) {
-    bDistanceRef.reversePainterSortStableCache ??= bz
-    bz = bDistanceRef.reversePainterSortStableCache
+  if (bRootSignal != null) {
+    const root = bRootSignal.peek()
+    root.reversePainterSortStableCache ??= bz
+    bz = root.reversePainterSortStableCache
   }
-  if (aDistanceRef != null && aDistanceRef === bDistanceRef) {
+  if (aRootSignal != null && aRootSignal.peek() === bRootSignal?.peek()) {
     return compareOrderInfo((a.object as any)[orderInfoKey].value, (b.object as any)[orderInfoKey].value)
   }
   //default z comparison
@@ -78,17 +80,20 @@ export type ZIndexProperties = {
 
 export type ZIndexOffset = { major?: number; minor?: number } | number
 
-export function computedOrderInfo(
+export function setupOrderInfo(
+  target: Signal<OrderInfo | undefined>,
   properties: Properties | undefined,
   zIndexOffsetKey: string,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
   basisOrderInfoSignal: Signal<OrderInfo | undefined | null>,
-): Signal<OrderInfo | undefined> {
+  abortSignal: AbortSignal,
+): void {
   const zIndexOffset = properties == null ? undefined : properties.getSignal(zIndexOffsetKey as any)
-  return computed(() => {
+  abortableEffect(() => {
     if (basisOrderInfoSignal.value === undefined) {
-      return undefined
+      target.value = undefined
+      return
     }
 
     const basisOrderInfo = basisOrderInfoSignal.value
@@ -126,13 +131,13 @@ export function computedOrderInfo(
 
     minorIndex += minorOffset
 
-    return {
+    target.value = {
       instancedGroupDependencies,
       elementType: type,
       majorIndex,
       minorIndex,
     }
-  })
+  }, abortSignal)
 }
 
 function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<string, any> | undefined): boolean {
@@ -155,10 +160,10 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
 
 export function setupRenderOrder<T>(
   result: T,
-  rootCameraDistance: WithReversePainterSortStableCache,
+  root: { peek(): WithReversePainterSortStableCache },
   orderInfo: { value: OrderInfo | undefined },
 ): T {
-  ;(result as any)[reversePainterSortStableCacheKey] = rootCameraDistance
+  ;(result as any)[reversePainterSortStableCacheKey] = root
   ;(result as any)[orderInfoKey] = orderInfo
   return result
 }

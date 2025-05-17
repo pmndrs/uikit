@@ -2,7 +2,7 @@ import { setupCursorCleanup } from '../hover.js'
 import { computedIsClipped } from '../clipping.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { computedTransformMatrix } from '../transform.js'
-import { computedOrderInfo, ElementType } from '../order.js'
+import { ElementType } from '../order.js'
 import { Signal, signal } from '@preact/signals-core'
 import {
   computedGlobalMatrix,

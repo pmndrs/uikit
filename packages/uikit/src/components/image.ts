@@ -1,6 +1,6 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Matrix4, Mesh, Plane, Sphere, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
-import { ElementType, computedOrderInfo, setupRenderOrder } from '../order.js'
+import { ElementType, setupRenderOrder } from '../order.js'
 import {
   PanelDepthMaterial,
   PanelDistanceMaterial,
@@ -38,22 +38,6 @@ import { setupCursorCleanup } from '../hover.js'
 import { computedFontFamilies } from '../text/font.js'
 import { buildRootMatrix, buildRootContext, RenderContext, RootContext } from './index.js'
 
-export type ImageProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalImageProperties>
-
-export type ImageFit = 'cover' | 'fill'
-
-export type AdditionalImageProperties = {
-  objectFit?: ImageFit
-  keepAspectRatio?: boolean
-  src?: string | Texture
-}
-
-const additionalImageDefaults = {
-  objectFit: 'fill',
-  keepAspectRatio: true,
-} as const
-
-export type AdditionalImageDefaults = typeof additionalImageDefaults & { aspectRatio: Signal<number | undefined> }
 
 export function createImageState<EM extends ThreeEventMap = ThreeEventMap>(
   object: Component,
@@ -203,25 +187,6 @@ export function setupImage(
   )
 }
 
-let imageMaterialConfig: PanelMaterialConfig | undefined
-function getImageMaterialConfig() {
-  imageMaterialConfig ??= createPanelMaterialConfig(
-    {
-      borderBend: 'borderBend',
-      borderBottomLeftRadius: 'borderBottomLeftRadius',
-      borderBottomRightRadius: 'borderBottomRightRadius',
-      borderColor: 'borderColor',
-      borderOpacity: 'borderOpacity',
-      borderTopLeftRadius: 'borderTopLeftRadius',
-      borderTopRightRadius: 'borderTopRightRadius',
-      backgroundOpacity: 'opacity',
-    },
-    {
-      backgroundColor: 0xffffff,
-    },
-  )
-  return imageMaterialConfig
-}
 
 function setupImageMesh(
   mesh: Mesh & { boundingSphere: Sphere },

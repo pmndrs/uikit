@@ -2,7 +2,7 @@ import { Signal, effect, signal } from '@preact/signals-core'
 import { InstancedGlyph } from './instanced-glyph.js'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from '../../clipping.js'
-import { ColorRepresentation, abortableEffect, alignmentXMap, alignmentYMap } from '../../utils.js'
+import { abortableEffect, alignmentXMap, alignmentYMap } from '../../utils.js'
 import {
   getGlyphLayoutHeight,
   getGlyphOffsetX,
@@ -15,11 +15,10 @@ import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLay
 import { SelectionTransformation } from '../../selection.js'
 import { OrderInfo } from '../../order.js'
 import { Font } from '../font.js'
-import { FlexNode } from '../../flex/index.js'
 import { CaretTransformation } from '../../caret.js'
 import { Properties } from '../../properties/index.js'
 import { ThreeEventMap } from '../../events.js'
-import { Component } from '../../vanilla/component.js'
+import { Text } from '../../vanilla/text.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'block'
@@ -27,44 +26,38 @@ export type TextAlignProperties = {
 
 export type AdditionalTextProperties = {
   verticalAlign?: keyof typeof alignmentYMap
+  text: string | Array<string>
 }
 
 export const additionalTextDefaults = {
   verticalAlign: 'middle',
+  text: '',
 } as const
 
 export type AdditionalTextDefaults = typeof additionalTextDefaults
 
 export function createInstancedText(
-  properties: Properties<ThreeEventMap, AdditionalTextProperties, AdditionalTextDefaults>,
-  textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>,
-  matrix: Signal<Matrix4 | undefined>,
-  component: Component,
-  isVisible: Signal<boolean>,
+  text: Text<{}, any>,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  orderInfo: Signal<OrderInfo | undefined>,
-  fontSignal: Signal<Font | undefined>,
-  glyphGroupManager: GlyphGroupManager,
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
   selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
   caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
-  abortSignal: AbortSignal,
 ) {
   let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
 
-  const customLayouting = computedCustomLayouting(properties, fontSignal, textSignal, layoutPropertiesRef)
+  const customLayouting = computedCustomLayouting(text.properties, text.fontSignal, layoutPropertiesRef)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
   abortableEffect(
     () =>
-      component.node.addLayoutChangeListener(() => {
+      text.node.addLayoutChangeListener(() => {
         const layoutProperties = layoutPropertiesRef.current
         const {
           size: { value: size },
           paddingInset: { value: paddingInset },
           borderInset: { value: borderInset },
-        } = component
+        } = text
         if (layoutProperties == null || size == null || paddingInset == null || borderInset == null) {
           return
         }
@@ -75,25 +68,25 @@ export function createInstancedText(
         const actualheight = height - pTop - pBottom - bTop - bBottom
         layoutSignal.value = buildGlyphLayout(layoutProperties, actualWidth, actualheight)
       }),
-    abortSignal,
+    text.abortSignal,
   )
   abortableEffect(() => {
-    const font = fontSignal.value
-    if (font == null || orderInfo.value == null) {
+    const font = text.fontSignal.value
+    if (font == null || text.orderInfo.value == null) {
       return
     }
     const instancedText = new InstancedText(
-      glyphGroupManager.getGroup(
-        orderInfo.value.majorIndex,
-        properties.get('depthTest'),
-        properties.get('depthWrite'),
-        properties.get('renderOrder'),
+      text.root.value.glyphGroupManager.getGroup(
+        text.orderInfo.value.majorIndex,
+        text.properties.get('depthTest'),
+        text.properties.get('depthWrite'),
+        text.properties.get('renderOrder'),
         font,
       ),
-      properties,
+      text.properties as any,
       layoutSignal,
-      matrix,
-      isVisible,
+      text.globalMatrix,
+      text.isVisible,
       parentClippingRect,
       selectionRange,
       selectionTransformations,
@@ -103,7 +96,7 @@ export function createInstancedText(
       instancedTextRef.current = instancedText
     }
     return () => instancedText.destroy()
-  }, abortSignal)
+  }, text.abortSignal)
 
   return customLayouting
 }

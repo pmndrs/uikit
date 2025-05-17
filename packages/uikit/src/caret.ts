@@ -1,7 +1,7 @@
 import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
 import { ClippingRect } from './clipping.js'
-import { computedOrderInfo, ElementType, OrderInfo } from './order.js'
+import { setupOrderInfo, ElementType, OrderInfo } from './order.js'
 import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
@@ -81,7 +81,8 @@ export function setupCaret(
   root: Signal<RootContext>,
   abortSignal: AbortSignal,
 ) {
-  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Panel, parentGroupDeps, parentOrderInfo)
+  const orderInfo = signal<OrderInfo | undefined>(undefined)
+  setupOrderInfo(orderInfo, undefined, 'zIndexOffset', ElementType.Panel, parentGroupDeps, parentOrderInfo, abortSignal)
   const blinkingCaretTransformation = signal<CaretTransformation | undefined>(undefined)
   abortableEffect(() => {
     const pos = caretTransformation.value

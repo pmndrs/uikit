@@ -5,8 +5,9 @@ import { abortableEffect, alignmentXMap, alignmentYMap } from '../utils.js'
 import { WithReversePainterSortStableCache } from '../order.js'
 import { Matrix4, Object3D, Vector2Tuple } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
-import { Properties } from '../properties/index.js'
+import { Properties, ReadonlyProperties } from '../properties/index.js'
 import { Component } from '../vanilla/component.js'
+import { ReadonlyPropertiesPubSub } from '@pmndrs/uikit-pub-sub'
 
 export type RenderContext = {
   requestRender: () => void
@@ -16,7 +17,7 @@ export type RenderContext = {
 export type RootContext = WithReversePainterSortStableCache & {
   requestCalculateLayout: () => void
   component: Component
-  gylphGroupManager: GlyphGroupManager
+  glyphGroupManager: GlyphGroupManager
   panelGroupManager: PanelGroupManager
   onFrameSet: Set<(delta: number) => void>
   onUpdateMatrixWorldSet: Set<() => void>
@@ -37,7 +38,7 @@ export function buildRootContext(
       return
     }
     const abortController = new AbortController()
-    root.value.gylphGroupManager.init(abortController.signal)
+    root.value.glyphGroupManager.init(abortController.signal)
     root.value.panelGroupManager.init(abortController.signal)
 
     root.value.requestCalculateLayout = createDeferredRequestLayoutCalculation(root.value, component)
@@ -73,7 +74,7 @@ function createRootContext(component: Component, renderContext: RenderContext | 
     onUpdateMatrixWorldSet: new Set<() => void>(),
     requestCalculateLayout: () => {},
     component,
-    gylphGroupManager: new GlyphGroupManager(ctx, component),
+    glyphGroupManager: new GlyphGroupManager(ctx, component),
     panelGroupManager: new PanelGroupManager(ctx, component),
   }) satisfies RootContext
 }
@@ -98,7 +99,7 @@ function createDeferredRequestLayoutCalculation(
   }
 }
 
-export function buildRootMatrix(properties: Properties, size: Signal<Vector2Tuple | undefined>) {
+export function buildRootMatrix(properties: ReadonlyProperties, size: Signal<Vector2Tuple | undefined>) {
   if (size.value == null) {
     return undefined
   }

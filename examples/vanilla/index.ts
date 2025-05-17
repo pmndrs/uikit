@@ -1,5 +1,5 @@
 import { AmbientLight, Mesh, PerspectiveCamera, Scene, Sphere, SphereGeometry, Vector3, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container } from '@pmndrs/uikit'
+import { reversePainterSortStable, Container, Text, Image } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 
@@ -35,6 +35,7 @@ const root = new Container({
   alignItems: 'center',
   backgroundColor: 'red',
   overflow: 'scroll',
+  backgroundOpacity: 0.5,
 })
 scene.add(root)
 /*
@@ -44,8 +45,8 @@ loader.load('example.glb', (gltf) => {
   c.add(gltf.scene)
 })
 const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
-const svg = new Svg({ src: 'example.svg', width: 100, height: 100, flexShrink: 0 })
-const text = new Text('Hello World', { fontSize: 40, flexShrink: 0 })*/
+const svg = new Svg({ src: 'example.svg', width: 100, height: 100, flexShrink: 0 })*/
+const text = new Text({ text: 'Hello World', fontSize: 40, flexShrink: 0 })
 const a = new Container({
   flexShrink: 0,
   alignSelf: 'stretch',
@@ -77,16 +78,18 @@ const x = new Container(undefined, [
     },
   },
   _class,
-]) /*
+])
 const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,
   aspectRatio: 1,
   width: 100,
+  padding: 10,
+  opacity: 0.5,
   backgroundColor: 'blue',
   flexShrink: 0,
-})*/
-root.add(/*img, del, svg, text,*/ x)
+})
+root.add(img, /*del, svg,*/ text, x)
 x.add(a)
 
 renderer.setAnimationLoop(animation)

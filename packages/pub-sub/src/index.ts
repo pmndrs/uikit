@@ -116,8 +116,10 @@ export class PropertiesPubSub<In, Out, Defaults> {
       return propertyState.signal.peek()
     }
     const defaultValue = this.defaults[key as unknown as keyof Defaults]
-    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort()
-    const [result] = untracked(() => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!)
+    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
+    const [result, layerIndex] = untracked(
+      () => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!,
+    )
     return result
   }
 
@@ -157,7 +159,7 @@ export class PropertiesPubSub<In, Out, Defaults> {
     target.cleanup?.()
     target.cleanup = undefined
     const defaultValue = this.defaults[key as unknown as keyof Defaults]
-    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort()
+    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
     const result = selectLayerValue(
       0,
       layerIndicies,

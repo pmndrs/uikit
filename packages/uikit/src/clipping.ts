@@ -178,17 +178,14 @@ for (let i = 0; i < 4; i++) {
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
 }
 
-export function createGlobalClippingPlanes(
-  root: RootContext,
-  clippingRect: Signal<ClippingRect | undefined> | undefined,
-) {
-  if (clippingRect == null) {
-    return null
-  }
-  const getGlobalMatrix = () => root.component.matrixWorld
+export function createGlobalClippingPlanes(component: Component) {
+  const getGlobalMatrix = () => component.root.peek().component.matrixWorld
   const planes = new Array(4)
     .fill(undefined)
-    .map<Plane>((_, i) => new RelativePlane(() => clippingRect?.value?.planes[i], getGlobalMatrix))
+    .map<Plane>(
+      (_, i) =>
+        new RelativePlane(() => component.parentContainer.peek()?.clippingRect.value?.planes[i], getGlobalMatrix),
+    )
   return planes
 }
 

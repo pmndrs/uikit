@@ -1,11 +1,11 @@
-import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
+import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import { Box2, Matrix4, Object3D, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { computedPanelMatrix, PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
-import { ElementType, OrderInfo, ZIndexOffset, computedOrderInfo } from './order.js'
+import { ElementType, OrderInfo, setupOrderInfo, ZIndexOffset } from './order.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupProperties } from './panel/instanced-panel-group.js'
 import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
@@ -346,12 +346,15 @@ export function setupScrollbars(
   prevOrderInfo: Signal<OrderInfo | undefined>,
   prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,
 ): void {
-  const scrollbarOrderInfo = computedOrderInfo(
+  const scrollbarOrderInfo = signal<OrderInfo | undefined>(undefined)
+  setupOrderInfo(
+    scrollbarOrderInfo,
     undefined,
     'scrollbarZIndexOffset',
     ElementType.Panel,
     prevPanelDeps,
     prevOrderInfo,
+    container.abortSignal,
   )
 
   const borderInset = computedBorderInset(container.properties, scrollbarBorderPropertyKeys)

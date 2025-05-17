@@ -287,7 +287,7 @@ export class InstancedPanelGroup {
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
     this.mesh.renderOrder = this.panelGroupProperties.renderOrder
-    setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
+    setupRenderOrder(this.mesh, { peek: () => this.root }, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.panelGroupProperties.receiveShadow
     this.mesh.castShadow = this.panelGroupProperties.castShadow

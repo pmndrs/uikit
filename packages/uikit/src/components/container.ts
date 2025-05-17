@@ -9,7 +9,7 @@ import {
 } from '../scroll.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { computedTransformMatrix } from '../transform.js'
-import { ElementType, computedOrderInfo } from '../order.js'
+import { ElementType } from '../order.js'
 import { signal } from '@preact/signals-core'
 import {
   computedGlobalMatrix,

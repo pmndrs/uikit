@@ -1,62 +1,89 @@
-import { Signal, effect, signal } from '@preact/signals-core'
-import { createTextState, setupText, TextProperties } from '../components/text.js'
+import { computed, signal, Signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { LayerSectionStart } from '../properties/layers.js'
-import { UikitPropertyKeys } from '../properties/index.js'
+import { AllProperties } from '../properties/index.js'
 import { Component } from './component.js'
+import { ElementType, OrderInfo, setupOrderInfo } from '../order.js'
+import { RenderContext } from '../components/root.js'
+import {
+  AdditionalTextDefaults,
+  additionalTextDefaults,
+  computedFont,
+  computedFontFamilies,
+  computedGylphGroupDependencies,
+  createInstancedText,
+  Font,
+} from '../text/index.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import { abortableEffect } from '../utils.js'
 
-export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly textSignal: Signal<unknown | Signal<unknown> | Array<unknown | Signal<unknown>>>
-  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined> = signal(undefined)
-  private readonly unsubscribe: () => void
+export type AdditionalTextProperties = {
+  text: string | Array<string>
+}
 
-  public internals!: ReturnType<typeof createTextState>
+export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalTextProperties>
+
+export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
+  T,
+  EM,
+  AdditionalTextProperties,
+  AdditionalTextDefaults
+> {
+  readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
+  readonly panelGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
+  readonly fontSignal: Signal<Font | undefined>
 
   constructor(
-    text: string | Signal<string> | Array<string | Signal<string>> = '',
-    private properties?: TextProperties<EM>,
+    inputProperties?: TextProperties<EM>,
+    initialClasses?: Array<TextProperties<EM>>,
+    renderContext?: RenderContext,
   ) {
-    super()
+    super(false, additionalTextDefaults, inputProperties, initialClasses, undefined, renderContext)
     this.material.visible = false
-    setupParentContextSignal(this.parentContextSignalSignal, this)
-    this.textSignal = signal(text)
 
-    this.unsubscribe = effect(() => {
-      const parentContextSignal = this.parentContextSignalSignal.value
-      if (parentContextSignal === undefined) {
-        return
-      }
-      const parentContext = parentContextSignal?.value
-      const abortController = new AbortController()
-      const state = createTextState(this, this.textSignal, parentContext)
-      this.internals = state
-      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
+    const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
 
-      setupText(state, parentContext, abortController.signal)
+    this.panelGroupDeps = computedPanelGroupDependencies(this.properties)
 
-      bindHandlers(state.handlers, this, abortController.signal)
-      return () => {
-        abortController.abort()
-      }
-    })
-  }
+    setupOrderInfo(
+      this.backgroundOrderInfo,
+      this.properties,
+      'zIndexOffset',
+      ElementType.Panel,
+      this.panelGroupDeps,
+      computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
+      this.abortSignal,
+    )
 
-  setText(text: string | Signal<string> | Array<string | Signal<string>>) {
-    this.textSignal.value = text
-  }
+    const fontFamilies = computedFontFamilies(this.properties, this.parentContainer)
+    this.fontSignal = computedFont(this.properties, fontFamilies)
 
-  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
-    return this.internals.properties.peek(key)
-  }
+    setupOrderInfo(
+      this.orderInfo,
+      undefined,
+      'zIndexOffset',
+      ElementType.Text,
+      computedGylphGroupDependencies(this.fontSignal),
+      this.backgroundOrderInfo,
+      this.abortSignal,
+    )
 
-  setProperties(properties?: TextProperties<EM>) {
-    this.properties = properties
-    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
-  }
+    setupInstancedPanel(
+      this.properties,
+      this.root,
+      this.backgroundOrderInfo,
+      this.panelGroupDeps,
+      this.globalPanelMatrix,
+      this.size,
+      this.borderInset,
+      parentClippingRect,
+      this.isVisible,
+      getDefaultPanelMaterialConfig(),
+      this.abortSignal,
+    )
 
-  destroy() {
-    this.internals.properties.destroy()
-    this.parent?.remove(this)
-    this.unsubscribe()
+    const customLayouting = createInstancedText(this, parentClippingRect, undefined, undefined, undefined, undefined)
+    abortableEffect(() => this.node.setCustomLayouting(customLayouting.value), this.abortSignal)
   }
 }

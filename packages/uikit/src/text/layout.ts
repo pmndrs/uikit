@@ -6,6 +6,8 @@ import { MeasureMode } from 'yoga-layout/load'
 import { readReactive } from '../utils.js'
 import { Properties } from '../properties/index.js'
 import { CustomLayouting } from '../flex/index.js'
+import { ThreeEventMap } from '../events.js'
+import { AdditionalTextDefaults, AdditionalTextProperties } from './render/index.js'
 
 export type GlyphLayoutLine = {
   charIndexOffset: number
@@ -35,9 +37,8 @@ export type GlyphLayoutProperties = {
 }
 
 export function computedCustomLayouting(
-  properties: Properties,
+  properties: Properties<ThreeEventMap, AdditionalTextProperties, AdditionalTextDefaults>,
   fontSignal: Signal<Font | undefined>,
-  textSignal: Signal<unknown | Signal<unknown> | Array<Signal<unknown> | unknown>>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
 ) {
   return computed<CustomLayouting | undefined>(() => {
@@ -45,10 +46,8 @@ export function computedCustomLayouting(
     if (font == null) {
       return undefined
     }
-    const textsValue = textSignal.value
-    let text = Array.isArray(textsValue)
-      ? textsValue.map((t) => String(readReactive(t))).join('')
-      : String(readReactive(textsValue))
+    const textProperty = properties.get('text')
+    let text = Array.isArray(textProperty) ? textProperty.join('') : textProperty
     //TODO: tab should be intergrated into the text layouting algorithm
     text = text.replaceAll('\t', ' '.repeat(4))
     const layoutProperties: GlyphLayoutProperties = {

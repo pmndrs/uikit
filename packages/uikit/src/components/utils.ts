@@ -201,37 +201,28 @@ export function computeMatrixWorld(
   return true
 }
 
-export type UpdateMatrixWorldProperties = {
-  updateMatrixWorld?: boolean
-}
-
 export function setupMatrixWorldUpdate(
-  updateMatrixWorld: true | 'recursive' | Signal<boolean>,
   object: Object3D,
-  rootContext: Signal<RootContext>,
-  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  rootSignal: Signal<RootContext>,
+  matrixSignal: Signal<Matrix4 | undefined>,
   abortSignal: AbortSignal,
 ): void {
   abortableEffect(() => {
-    if (updateMatrixWorld instanceof Signal && !updateMatrixWorld.value) {
-      return
-    }
+    //requesting a render every time the matrix changes
+    matrixSignal.value
+    rootSignal.peek().requestRender?.()
+  }, abortSignal)
+  abortableEffect(() => {
     const onFrame = () => {
-      const rootObject = rootContext.peek().component
-      if (object == null) {
-        return
-      }
-      computeMatrixWorld(object.matrixWorld, rootObject.matrixWorld, globalMatrixSignal)
-      if (updateMatrixWorld != 'recursive') {
-        return
-      }
+      computeMatrixWorld(object.matrixWorld, rootSignal.peek().component.matrixWorld, matrixSignal)
       const length = object.children.length
       for (let i = 0; i < length; i++) {
         object.children[i]!.updateMatrixWorld(true)
       }
     }
-    rootContext.peek().onUpdateMatrixWorldSet.add(onFrame)
-    return () => rootContext.peek().onUpdateMatrixWorldSet.delete(onFrame)
+    const root = rootSignal.value
+    root.onUpdateMatrixWorldSet.add(onFrame)
+    return () => root.onUpdateMatrixWorldSet.delete(onFrame)
   }, abortSignal)
 }
 

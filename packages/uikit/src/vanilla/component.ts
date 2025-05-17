@@ -1,6 +1,15 @@
 import { computed, Signal, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap } from '../events.js'
-import { BufferGeometry, Matrix4, Mesh, MeshBasicMaterial, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
+import {
+  BufferGeometry,
+  Material,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Object3DEventMap,
+  Sphere,
+  Vector2Tuple,
+} from 'three'
 import { abortableEffect } from '../utils.js'
 import { computedPanelMatrix, panelGeometry, setupBoundingSphere } from '../panel/index.js'
 import {
@@ -11,7 +20,6 @@ import {
   computedIsVisible,
   buildRootMatrix,
   RootContext,
-  setupMatrixWorldUpdate,
   setupPointerEvents,
   RenderContext,
   buildRootContext,
@@ -27,19 +35,20 @@ import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
 
-export abstract class Component<
+export class Component<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   AdditionalProperties extends {} = {},
   AdditionalDefaults extends {} = {},
-> extends Mesh<BufferGeometry, MeshBasicMaterial, EventMap & { childadded: {}; childremoved: {} } & T> {
+> extends Mesh<BufferGeometry, Material, EventMap & { childadded: {}; childremoved: {} } & T> {
   private abortController = new AbortController()
 
+  readonly orderInfo = signal<OrderInfo | undefined>(undefined)
+
   readonly isVisible: Signal<boolean>
-  readonly orderInfo: Signal<OrderInfo | undefined>
   readonly isClipped: Signal<boolean>
   readonly boundingSphere = new Sphere()
-  readonly properties: Properties<EM>
+  readonly properties: Properties
   readonly node: FlexNode
   readonly size = signal<Vector2Tuple | undefined>(undefined)
   readonly relativeCenter = signal<Vector2Tuple | undefined>(undefined)
@@ -60,11 +69,10 @@ export abstract class Component<
   classes: Array<AllProperties<EM, AdditionalProperties> | undefined> = []
 
   constructor(
-    updateMatrixWorld: 'recursive' | boolean,
-    canHaveNonUikitChildren: boolean,
+    hasNonUikitChildren: boolean,
     elementDefaults: AdditionalDefaults,
     private inputProperties: AllProperties<EM, AdditionalProperties> | undefined,
-    private readonly initialClasses: Array<AllProperties<EM, AdditionalProperties>> | undefined,
+    initialClasses: Array<AllProperties<EM, AdditionalProperties>> | undefined,
     material: MeshBasicMaterial | undefined,
     renderContext: RenderContext | undefined,
   ) {
@@ -80,7 +88,7 @@ export abstract class Component<
     this.root = buildRootContext(this, renderContext)
 
     //properties
-    this.properties = new Properties<EM>(
+    this.properties = new Properties(
       allAliases,
       createConditionals(this.root, this.hoveredList, this.activeList),
       computed(() => this.parentContainer.value?.properties),
@@ -104,8 +112,6 @@ export abstract class Component<
     )
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)
 
-    this.orderInfo = this.computedOrderInfo()
-
     const handlers = computedHandlers(this.properties, this.hoveredList, this.activeList)
     this.ancestorsHaveListenersSignal = computedAncestorsHaveListeners(this.parentContainer, handlers)
 
@@ -121,15 +127,7 @@ export abstract class Component<
       this.size,
       this.abortSignal,
     )
-    setupPointerEvents(this, canHaveNonUikitChildren)
-
-    setupMatrixWorldUpdate(
-      updateMatrixWorld === false ? this.properties.getSignal('updateMatrixWorld') : updateMatrixWorld,
-      this,
-      this.root,
-      this.globalMatrix,
-      this.abortSignal,
-    )
+    setupPointerEvents(this, hasNonUikitChildren)
 
     abortableEffect(() => {
       const { value } = handlers
@@ -143,8 +141,6 @@ export abstract class Component<
       }
     }, this.abortSignal)
   }
-
-  protected abstract computedOrderInfo(): Signal<OrderInfo | undefined>
 
   setClasses(classes: Array<AllProperties<EM, AdditionalProperties>> | undefined): void {
     const prevClassesLength = this.classes.length

@@ -8,7 +8,7 @@ import { ZIndexProperties } from '../order.js'
 import { TransformProperties } from '../transform.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { PanelGroupProperties, PointerEventsProperties } from '../panel/index.js'
-import { UpdateMatrixWorldProperties, VisibilityProperties } from '../components/utils.js'
+import { VisibilityProperties } from '../components/utils.js'
 import { Listeners } from '../listeners.js'
 import { EventHandlers, ThreeEventMap } from '../events.js'
 import { defaults, Defaults } from './defaults.js'
@@ -25,7 +25,6 @@ type UikitProperties<EM extends ThreeEventMap = ThreeEventMap> = YogaProperties 
   ScrollbarProperties &
   PanelGroupProperties &
   VisibilityProperties &
-  UpdateMatrixWorldProperties &
   PointerEventsProperties &
   Listeners &
   EventHandlers<EM> &

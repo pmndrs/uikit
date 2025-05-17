@@ -249,7 +249,7 @@ export class InstancedGlyphGroup {
     }
 
     //finalizing the new mesh
-    setupRenderOrder(this.mesh, this.root, { value: this.orderInfo })
+    setupRenderOrder(this.mesh, { peek: () => this.root }, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
     this.object.add(this.mesh)
   }

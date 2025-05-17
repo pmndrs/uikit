@@ -4,7 +4,7 @@ import { Vector3, Object3D, Box3, Mesh, Material } from 'three'
 import { computedIsClipped, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
 import { ThreeEventMap } from '../events.js'
 import { setupCursorCleanup } from '../hover.js'
-import { computedOrderInfo, ElementType, OrderInfo, setupRenderOrder } from '../order.js'
+import { ElementType, OrderInfo, setupRenderOrder } from '../order.js'
 import {
   computedPanelGroupDependencies,
   computedPanelMatrix,
@@ -273,7 +273,7 @@ function createMeasureContent(
   const measureContent = () => {
     object.traverse((child) => {
       if (child instanceof Mesh) {
-        setupRenderOrder(child, root, orderInfo)
+        setupRenderOrder(child, { peek: () => root }, orderInfo)
         child.material.clippingPlanes = clippingPlanes
         child.material.needsUpdate = true
         child.raycast = makeClippedCast(child, child.raycast, root.component, parentClippingRect, orderInfo, flexState)
