@@ -1,7 +1,7 @@
 import { PropertiesPubSub } from '@pmndrs/uikit-pub-sub'
 import { Aliases, AddAllAliases } from './alias.js'
 import { Conditionals, WithConditionals } from './conditional.js'
-import { computed, effect, ReadonlySignal, signal, Signal } from '@preact/signals-core'
+import { batch, computed, effect, ReadonlySignal, signal, Signal } from '@preact/signals-core'
 import { YogaProperties } from '../flex/index.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { ZIndexProperties } from '../order.js'
@@ -138,23 +138,25 @@ export class Properties<
     layerIndexInSection: number,
     properties: AllProperties<EM, AdditionalProperties> | undefined,
   ) {
-    this.setLayer(layerIndexInSection + LayerSectionStartBase, properties)
-    for (const [conditional, sectionStart] of Object.entries(LayerSectionStart)) {
-      if (properties == null || !(conditional in properties)) {
-        this.setLayer(layerIndexInSection + sectionStart, undefined)
-        continue
+    batch(() => {
+      this.setLayer(layerIndexInSection + LayerSectionStartBase, properties)
+      for (const [conditional, sectionStart] of Object.entries(LayerSectionStart)) {
+        if (properties == null || !(conditional in properties)) {
+          this.setLayer(layerIndexInSection + sectionStart, undefined)
+          continue
+        }
+        const getConditional = this.conditionals[conditional as keyof Conditionals]!
+        const conditionalComputedProperties: AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>> = {}
+        const conditionalProperties =
+          properties[conditional as keyof AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>]!
+        for (const [key, value] of Object.entries(conditionalProperties)) {
+          conditionalComputedProperties[
+            key as keyof AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>
+          ] = computed(() => (getConditional() ? (value instanceof Signal ? value.value : value) : undefined)) as any
+        }
+        this.setLayer(layerIndexInSection + sectionStart, conditionalComputedProperties)
       }
-      const getConditional = this.conditionals[conditional as keyof Conditionals]!
-      const conditionalComputedProperties: AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>> = {}
-      const conditionalProperties =
-        properties[conditional as keyof AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>]!
-      for (const [key, value] of Object.entries(conditionalProperties)) {
-        conditionalComputedProperties[
-          key as keyof AddAllAliases<WithSignal<UikitProperties<EM> & AdditionalProperties>>
-        ] = computed(() => (getConditional() ? (value instanceof Signal ? value.value : value) : undefined)) as any
-      }
-      this.setLayer(layerIndexInSection + sectionStart, conditionalComputedProperties)
-    }
+    })
   }
 
   destroy(): void {

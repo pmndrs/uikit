@@ -30,7 +30,7 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
   constructor(
     inputProperties?: ContainerProperties<EM>,
-    initialClasses?: Array<ContainerProperties<EM>>,
+    initialClasses?: Array<ContainerProperties<EM> | string>,
     renderContext?: RenderContext,
   ) {
     super(false, {}, inputProperties, initialClasses, undefined, renderContext)

@@ -2,6 +2,7 @@ import { AmbientLight, Mesh, PerspectiveCamera, Scene, Sphere, SphereGeometry, V
 import { reversePainterSortStable, Container, Text, Image } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
+import { StyleSheet } from '@pmndrs/uikit/src/vanilla/classes'
 
 // init
 
@@ -56,12 +57,10 @@ const a = new Container({
   hover: { backgroundColor: 'black' },
 })
 
-const _class = {
+StyleSheet['test'] = {
   hover: { backgroundColor: 'yellow' },
   onClick: () => {
-    console.log('x', ...x.classes)
-    x.removeClass(_class)
-    console.log('x', ...x.classes)
+    x.classList.remove('test')
   },
 }
 const x = new Container(undefined, [
@@ -77,7 +76,7 @@ const x = new Container(undefined, [
       console.log(event)
     },
   },
-  _class,
+  'test',
 ])
 const img = new Image({
   src: 'https://picsum.photos/300/300',

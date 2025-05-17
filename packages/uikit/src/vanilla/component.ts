@@ -34,6 +34,7 @@ import { AllProperties, Properties } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
+import { ClassList } from './classes.js'
 
 export class Component<
   T = {},
@@ -66,13 +67,14 @@ export class Component<
   readonly globalMatrix: Signal<Matrix4 | undefined>
   readonly globalPanelMatrix: Signal<Matrix4 | undefined>
   readonly abortSignal = this.abortController.signal
-  classes: Array<AllProperties<EM, AdditionalProperties> | undefined> = []
+
+  readonly classList: ClassList<EM, AdditionalProperties>
 
   constructor(
     hasNonUikitChildren: boolean,
     elementDefaults: AdditionalDefaults,
     private inputProperties: AllProperties<EM, AdditionalProperties> | undefined,
-    initialClasses: Array<AllProperties<EM, AdditionalProperties>> | undefined,
+    initialClasses: Array<AllProperties<EM, AdditionalProperties> | string> | undefined,
     material: MeshBasicMaterial | undefined,
     renderContext: RenderContext | undefined,
   ) {
@@ -95,7 +97,11 @@ export class Component<
       elementDefaults,
     )
     this.resetProperties(inputProperties)
-    this.setClasses(initialClasses)
+
+    this.classList = new ClassList(this.properties)
+    if (initialClasses != null) {
+      this.classList.add(...initialClasses)
+    }
 
     this.node = new FlexNode(this)
 
@@ -140,37 +146,6 @@ export class Component<
         }
       }
     }, this.abortSignal)
-  }
-
-  setClasses(classes: Array<AllProperties<EM, AdditionalProperties>> | undefined): void {
-    const prevClassesLength = this.classes.length
-    this.classes = classes ?? []
-    const length = Math.max(prevClassesLength, classes?.length ?? 0)
-    for (let i = 0; i < length; i++) {
-      this.properties.setLayersWithConditionals(i + 1, classes?.[i])
-    }
-  }
-
-  addClass(classContent: AllProperties<EM, AdditionalProperties>): void {
-    let index = 0
-    while (this.classes[index] != null) {
-      index++
-    }
-    this.classes[index] = classContent
-    this.properties.setLayersWithConditionals(index + 1, classContent)
-  }
-
-  removeClass(classContent: AllProperties<EM, AdditionalProperties>): void {
-    const index = this.classes.indexOf(classContent)
-    if (index === -1) {
-      return
-    }
-    if (index + 1 === this.classes.length) {
-      this.classes.splice(index, 1)
-    } else {
-      this.classes[index] = undefined
-    }
-    this.properties.setLayersWithConditionals(index + 1, undefined)
   }
 
   setProperties(inputProperties: AllProperties<EM, AdditionalProperties>) {
