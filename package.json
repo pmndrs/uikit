@@ -30,7 +30,7 @@
     "prettier": "^3.2.5",
     "react": "^19",
     "react-dom": "^19",
-    "three": "0.161.0",
+    "three": "^0.176.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-json-schema": "^0.65.1",

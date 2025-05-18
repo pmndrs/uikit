@@ -35,7 +35,7 @@
     "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "peerDependencies": {
-    "three": ">=0.160"
+    "three": ">=0.162"
   },
   "dependencies": {
     "@preact/signals-core": "^1.5.1",

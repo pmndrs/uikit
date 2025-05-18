@@ -91,7 +91,7 @@ export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
     parentCtx?.orderInfo,
   )
 
-  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Object, undefined, backgroundOrderInfo)
+  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Content, undefined, backgroundOrderInfo)
 
   const handlers = computedHandlers(properties, hoveredList, activeList)
 

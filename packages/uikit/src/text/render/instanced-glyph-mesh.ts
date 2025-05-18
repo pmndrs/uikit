@@ -23,6 +23,7 @@ export class InstancedGlyphMesh extends Mesh {
     planeGeometry.attributes.instanceRGBA = instanceRGBA
     planeGeometry.attributes.instanceClipping = instanceClipping
     this.frustumCulled = false
+    //TODO: register updating the world matrix to the global matrix of the root component multplied with the root's parent matrix world
   }
 
   copy(): this {

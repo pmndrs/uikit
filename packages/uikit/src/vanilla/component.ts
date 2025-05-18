@@ -6,12 +6,13 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  Object3D,
   Object3DEventMap,
   Sphere,
   Vector2Tuple,
 } from 'three'
 import { abortableEffect } from '../utils.js'
-import { computedPanelMatrix, panelGeometry, setupBoundingSphere } from '../panel/index.js'
+import { computedPanelMatrix, InstancedPanelMesh, panelGeometry, setupBoundingSphere } from '../panel/index.js'
 import {
   buildRaycasting,
   computedAncestorsHaveListeners,
@@ -35,13 +36,18 @@ import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
 import { ClassList } from './classes.js'
+import { InstancedGlyphMesh } from '../text/index.js'
 
 export class Component<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   AdditionalProperties extends {} = {},
   AdditionalDefaults extends {} = {},
-> extends Mesh<BufferGeometry, Material, EventMap & { childadded: {}; childremoved: {} } & T> {
+> extends Mesh<
+  BufferGeometry,
+  Material,
+  EventMap & { childadded: { child: Object3D }; childremoved: { child: Object3D } } & T
+> {
   private abortController = new AbortController()
 
   readonly orderInfo = signal<OrderInfo | undefined>(undefined)
@@ -146,6 +152,20 @@ export class Component<
         }
       }
     }, this.abortSignal)
+
+    if (!hasNonUikitChildren) {
+      //only uikit children allowed - throw when non uikit child is added
+      const listener = ({ child }: { child: Object3D }) => {
+        if (child instanceof Component || child instanceof InstancedPanelMesh || child instanceof InstancedGlyphMesh) {
+          return
+        }
+        throw new Error(
+          `Only pmndrs/uikit components can be added as children to this component. Got ${child.constructor.name} instead.`,
+        )
+      }
+      this.addEventListener('childadded', listener)
+      this.abortSignal.addEventListener('abort', () => this.removeEventListener('childadded', listener))
+    }
   }
 
   setProperties(inputProperties: AllProperties<EM, AdditionalProperties>) {

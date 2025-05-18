@@ -26,14 +26,13 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
   readonly childrenMatrix: Signal<Matrix4 | undefined>
   readonly fontFamilies: Signal<FontFamilies | undefined>
   readonly scrollPosition = signal<Vector2Tuple>([0, 0])
-  readonly panelGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
 
   constructor(
     inputProperties?: ContainerProperties<EM>,
     initialClasses?: Array<ContainerProperties<EM> | string>,
     renderContext?: RenderContext,
   ) {
-    super(false, {}, inputProperties, initialClasses, undefined, renderContext)
+    super(false, () => ({}), inputProperties, initialClasses, undefined, renderContext)
     this.material.visible = false
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)
@@ -51,13 +50,13 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
     this.anyAncestorScrollable = computedAnyAncestorScrollable(this.parentContainer)
 
-    this.panelGroupDeps = computedPanelGroupDependencies(this.properties)
+    const panelGroupDeps = computedPanelGroupDependencies(this.properties)
     setupOrderInfo(
       this.orderInfo,
       this.properties,
       'zIndexOffset',
       ElementType.Panel,
-      this.panelGroupDeps,
+      panelGroupDeps,
       computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
       this.abortSignal,
     )
@@ -66,7 +65,7 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
       this.properties,
       this.root,
       this.orderInfo,
-      this.panelGroupDeps,
+      panelGroupDeps,
       this.globalPanelMatrix,
       this.size,
       this.borderInset,
@@ -78,6 +77,6 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
     //scrolling:
     setupScroll(this)
-    setupScrollbars(this, parentClippingRect, this.orderInfo, this.panelGroupDeps)
+    setupScrollbars(this, parentClippingRect, this.orderInfo, panelGroupDeps)
   }
 }

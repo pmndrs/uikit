@@ -168,7 +168,6 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
           return
         }
         abortableEffect(() => {
-          console.log(key, this.properties.get(key as any), this.properties)
           setters[key as any]!(data, 0, this.properties.get(key as any), this.size, undefined)
           this.root.peek().requestRender?.()
         }, this.abortSignal)

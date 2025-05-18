@@ -18,11 +18,12 @@ export class InstancedPanelMesh extends Mesh {
   ) {
     const panelGeometry = createPanelGeometry()
     super(panelGeometry)
-    this.frustumCulled = false
     panelGeometry.attributes.aData = instanceData
     panelGeometry.attributes.aClipping = instanceClipping
     this.customDepthMaterial = instancedPanelDepthMaterial
     this.customDistanceMaterial = instancedPanelDistanceMaterial
+    this.frustumCulled = false
+    //TODO: register updating the world matrix to the global matrix of the root component multplied with the root's parent matrix world
   }
 
   dispose() {

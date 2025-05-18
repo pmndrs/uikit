@@ -1,8 +1,9 @@
 import { AmbientLight, Mesh, PerspectiveCamera, Scene, Sphere, SphereGeometry, Vector3, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Text, Image } from '@pmndrs/uikit'
+import { reversePainterSortStable, Container, Text, Image, Content } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 import { StyleSheet } from '@pmndrs/uikit/src/vanilla/classes'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // init
 
@@ -21,11 +22,6 @@ orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
-const position = new Vector3(0, 0, 0.199)
-const sphereMesh = new Mesh(new SphereGeometry(0.2))
-sphereMesh.position.copy(position)
-scene.add(sphereMesh)
-
 //UI
 const root = new Container({
   flexDirection: 'row',
@@ -39,13 +35,13 @@ const root = new Container({
   backgroundOpacity: 0.5,
 })
 scene.add(root)
-/*
-const c = new Content({ flexShrink: 0, height: 100, backgroundColor: 'black' })
+
+const c = new Content({ flexShrink: 0, height: 100, width: 100, backgroundColor: 'black' })
 const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => {
   c.add(gltf.scene)
 })
-const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
+/*const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
 const svg = new Svg({ src: 'example.svg', width: 100, height: 100, flexShrink: 0 })*/
 const text = new Text({ text: 'Hello World', fontSize: 40, flexShrink: 0 })
 const a = new Container({
@@ -72,9 +68,6 @@ const x = new Container(undefined, [
     backgroundColor: 'green',
     flexBasis: 0,
     justifyContent: 'flex-start',
-    onPointerOver(event) {
-      console.log(event)
-    },
   },
   'test',
 ])
@@ -88,7 +81,7 @@ const img = new Image({
   backgroundColor: 'blue',
   flexShrink: 0,
 })
-root.add(img, /*del, svg,*/ text, x)
+root.add(img, c, /*del, svg,*/ text, x)
 x.add(a)
 
 renderer.setAnimationLoop(animation)

@@ -44,7 +44,7 @@ export function reversePainterSortStable(a: RenderItem, b: RenderItem) {
 export const ElementType = {
   Panel: 0, //render first
   Image: 1,
-  Object: 2,
+  Content: 2,
   Custom: 3,
   Svg: 4,
   Text: 5, //render last
