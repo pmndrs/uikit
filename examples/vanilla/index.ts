@@ -32,7 +32,6 @@ const root = new Container({
   alignItems: 'center',
   backgroundColor: 'red',
   overflow: 'scroll',
-  backgroundOpacity: 1,
 })
 scene.add(root)
 

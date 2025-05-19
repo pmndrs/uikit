@@ -1,4 +1,5 @@
 import { Box3, InstancedBufferAttribute, Material, Mesh, Object3DEventMap, PlaneGeometry, Sphere } from 'three'
+import { computeMatrixWorld, RootContext } from '../../components/index.js'
 
 export class InstancedGlyphMesh extends Mesh {
   public count = 0
@@ -9,7 +10,17 @@ export class InstancedGlyphMesh extends Mesh {
   public readonly boundingBox = new Box3()
   public readonly boundingSphere = new Sphere()
 
+  private readonly customUpdateMatrixWorld = () => {
+    const parent = this.root.component.parent
+    if (parent == null) {
+      this.matrixWorld.identity()
+    } else {
+      this.matrixWorld.copy(parent.matrixWorld)
+    }
+  }
+
   constructor(
+    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     public readonly instanceMatrix: InstancedBufferAttribute,
     public readonly instanceRGBA: InstancedBufferAttribute,
     public readonly instanceUV: InstancedBufferAttribute,
@@ -23,7 +34,7 @@ export class InstancedGlyphMesh extends Mesh {
     planeGeometry.attributes.instanceRGBA = instanceRGBA
     planeGeometry.attributes.instanceClipping = instanceClipping
     this.frustumCulled = false
-    //TODO: register updating the world matrix to the global matrix of the root component multplied with the root's parent matrix world
+    root.onUpdateMatrixWorldSet.add(this.customUpdateMatrixWorld)
   }
 
   copy(): this {
@@ -31,6 +42,7 @@ export class InstancedGlyphMesh extends Mesh {
   }
 
   dispose() {
+    this.root.onUpdateMatrixWorldSet.delete(this.customUpdateMatrixWorld)
     this.dispatchEvent({ type: 'dispose' as keyof Object3DEventMap })
     this.geometry.dispose()
   }

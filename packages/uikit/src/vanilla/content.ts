@@ -22,7 +22,6 @@ const additionalContentDefaults = {
 
 type AdditionalContentDefaults = typeof additionalContentDefaults & {
   aspectRatio: Signal<number | undefined>
-  depthWrite: boolean
 }
 
 export type AdditionalContentProperties = {
@@ -42,27 +41,34 @@ const positionHelper = new Vector3()
 const scaleHelper = new Vector3()
 const vectorHelper = new Vector3()
 
+export type BoundingBox = { size: Vector3; center: Vector3 }
+
 export class Content<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   AP extends AdditionalContentProperties = AdditionalContentProperties,
 > extends Component<T, EM, AP, AdditionalContentDefaults> {
-  readonly measurement = signal({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
+  readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
   readonly clippingPlanes: Array<Plane>
 
   constructor(
     inputProperties?: AllProperties<EM, AP>,
     initialClasses?: Array<AllProperties<EM, AP> | string>,
     renderContext?: RenderContext,
-    config = { remeasureOnChildrenChange: true, depthWrite: true },
+    private readonly config: {
+      remeasureOnChildrenChange: boolean
+      depthWriteDefault: boolean
+      boundingBox?: Signal<BoundingBox | undefined>
+    } = {
+      remeasureOnChildrenChange: true,
+      depthWriteDefault: true,
+    },
   ) {
     const defaultAspectRatio = signal<number | undefined>(undefined)
     super(
       true,
       {
         ...additionalContentDefaults,
-        //TODO: this doesnt work with the background - need different defaults for the background and the content
-        depthWrite: config.depthWrite,
         aspectRatio: defaultAspectRatio,
       },
       inputProperties,
@@ -75,7 +81,8 @@ export class Content<
         defaultAspectRatio.value = undefined
         return
       }
-      defaultAspectRatio.value = this.measurement.value.size.x / this.measurement.value.size.y
+      const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
+      defaultAspectRatio.value = boundingBox.size.x / boundingBox.size.y
     }, this.abortSignal)
     this.material.visible = false
 
@@ -120,7 +127,7 @@ export class Content<
       const innerWidth = width - leftInset - rightInset
       const innerHeight = height - topInset - bottomInset
 
-      const measurement = this.measurement.value
+      const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
 
       const pixelSize = this.properties.get('pixelSize')
       scaleHelper
@@ -128,14 +135,14 @@ export class Content<
           innerWidth * pixelSize,
           innerHeight * pixelSize,
           this.properties.get('keepAspectRatio')
-            ? (innerHeight * pixelSize * measurement.size.z) / measurement.size.y
-            : measurement.size.z,
+            ? (innerHeight * pixelSize * boundingBox.size.z) / boundingBox.size.y
+            : boundingBox.size.z,
         )
-        .divide(measurement.size)
+        .divide(boundingBox.size)
 
-      positionHelper.copy(measurement.center).negate()
+      positionHelper.copy(boundingBox.center).negate()
 
-      positionHelper.z -= alignmentZMap[this.properties.get('depthAlign')] * measurement.size.z
+      positionHelper.z -= alignmentZMap[this.properties.get('depthAlign')] * boundingBox.size.z
       positionHelper.multiply(scaleHelper)
       positionHelper.add(
         vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
@@ -170,7 +177,7 @@ export class Content<
 
     abortableEffect(() => {
       this.visible = this.isVisible.value
-      applyAppearancePropertiesToGroup(this.properties, this)
+      applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
       this.root.peek().requestRender?.()
     }, this.abortSignal)
 
@@ -186,7 +193,7 @@ export class Content<
   }
 
   notifyAncestorsChanged() {
-    applyAppearancePropertiesToGroup(this.properties, this)
+    applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
     this.traverse((child) => {
       if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
         return
@@ -201,22 +208,26 @@ export class Content<
           ? makeClippedCast(this, child.spherecast, this.root, this.parentContainer, this.orderInfo)
           : undefined
     })
-    box3Helper.makeEmpty()
-    for (const child of this.children) {
-      if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh) {
-        continue
-      }
-      const parent = child.parent
-      child.parent = null
-      box3Helper.expandByObject(child)
-      child.parent = parent
-    }
 
-    const size = new Vector3()
-    const center = new Vector3()
-    box3Helper.getSize(size).max(smallValue)
-    box3Helper.getCenter(center)
-    this.measurement.value = { center, size }
+    if (this.config.boundingBox == null) {
+      //no need to compute the bounding box ourselves
+      box3Helper.makeEmpty()
+      for (const child of this.children) {
+        if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh) {
+          continue
+        }
+        const parent = child.parent
+        child.parent = null
+        box3Helper.expandByObject(child)
+        child.parent = parent
+      }
+
+      const size = new Vector3()
+      const center = new Vector3()
+      box3Helper.getSize(size).max(smallValue)
+      box3Helper.getCenter(center)
+      this.boundingBox.value = { center, size }
+    }
 
     this.root.peek().requestRender?.()
   }
@@ -224,7 +235,7 @@ export class Content<
 
 const colorHelper = new Color()
 
-function applyAppearancePropertiesToGroup(properties: Properties, group: Object3D) {
+function applyAppearancePropertiesToGroup(properties: Properties, group: Object3D, depthWriteDefault: boolean) {
   const color = properties.get('color')
   let c: Color | undefined
   if (Array.isArray(color)) {
@@ -234,7 +245,7 @@ function applyAppearancePropertiesToGroup(properties: Properties, group: Object3
   }
   const opacity = properties.get('opacity')
   const depthTest = properties.get('depthTest')
-  const depthWrite = properties.get('depthWrite')
+  const depthWrite = properties.get('depthWrite') ?? depthWriteDefault
   const renderOrder = properties.get('renderOrder')
   group.traverse((child) => {
     if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {

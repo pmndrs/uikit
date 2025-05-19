@@ -1,6 +1,7 @@
 import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
 import { createPanelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
+import { RootContext } from '../components/root.js'
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0
@@ -11,7 +12,17 @@ export class InstancedPanelMesh extends Mesh {
   public readonly boundingBox = new Box3()
   public readonly boundingSphere = new Sphere()
 
+  private readonly customUpdateMatrixWorld = () => {
+    const parent = this.root.component.parent
+    if (parent == null) {
+      this.matrixWorld.identity()
+    } else {
+      this.matrixWorld.copy(parent.matrixWorld)
+    }
+  }
+
   constructor(
+    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     public readonly instanceMatrix: InstancedBufferAttribute,
     instanceData: InstancedBufferAttribute,
     instanceClipping: InstancedBufferAttribute,
@@ -23,10 +34,11 @@ export class InstancedPanelMesh extends Mesh {
     this.customDepthMaterial = instancedPanelDepthMaterial
     this.customDistanceMaterial = instancedPanelDistanceMaterial
     this.frustumCulled = false
-    //TODO: register updating the world matrix to the global matrix of the root component multplied with the root's parent matrix world
+    root.onUpdateMatrixWorldSet.add(this.customUpdateMatrixWorld)
   }
 
   dispose() {
+    this.root.onUpdateMatrixWorldSet.delete(this.customUpdateMatrixWorld)
     this.dispatchEvent({ type: 'dispose' as keyof Object3DEventMap })
     this.geometry.dispose()
   }

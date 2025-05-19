@@ -79,7 +79,7 @@ export function createInstancedText(
       text.root.value.glyphGroupManager.getGroup(
         text.orderInfo.value.majorIndex,
         text.properties.get('depthTest'),
-        text.properties.get('depthWrite'),
+        text.properties.get('depthWrite') ?? false,
         text.properties.get('renderOrder'),
         font,
       ),

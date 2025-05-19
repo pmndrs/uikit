@@ -3,14 +3,13 @@ import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
-import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../../order.js'
+import { ElementType, OrderInfo, setupRenderOrder } from '../../order.js'
 import { RootContext } from '../../components/index.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
-    private readonly root: WithReversePainterSortStableCache &
-      Pick<RootContext, 'requestFrame' | 'requestRender' | 'onFrameSet'>,
+    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private readonly object: Object3D,
   ) {}
 
@@ -78,7 +77,7 @@ export class InstancedGlyphGroup {
   constructor(
     private object: Object3D,
     font: Font,
-    public readonly root: WithReversePainterSortStableCache & Pick<RootContext, 'requestFrame' | 'requestRender'>,
+    public readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private orderInfo: OrderInfo,
     depthTest: boolean,
     depthWrite: boolean,
@@ -213,6 +212,7 @@ export class InstancedGlyphGroup {
     this.instanceClipping.setUsage(DynamicDrawUsage)
     const oldMesh = this.mesh
     this.mesh = new InstancedGlyphMesh(
+      this.root,
       this.instanceMatrix,
       this.instanceRGBA,
       this.instanceUV,

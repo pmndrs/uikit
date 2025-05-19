@@ -6,7 +6,6 @@ export const defaults = {
   updateMatrixWorld: false,
   opacity: 1,
   depthTest: true,
-  depthWrite: false,
   renderOrder: 0,
   fontSize: 16,
   letterSpacing: 0,

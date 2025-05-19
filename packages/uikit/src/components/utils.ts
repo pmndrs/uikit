@@ -1,5 +1,5 @@
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { Color, Matrix4, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { Matrix4, Object3D } from 'three'
 import { addActiveHandlers } from '../active.js'
 import { addHoverHandlers } from '../hover.js'
 import { abortableEffect, readReactive } from '../utils.js'
@@ -13,10 +13,8 @@ import {
 } from '../panel/interaction-panel-mesh.js'
 import { RootContext } from './root.js'
 import { Component } from '../vanilla/component.js'
-import { OrderInfo, setupRenderOrder } from '../order.js'
+import { OrderInfo } from '../order.js'
 import { Container } from '../vanilla/container.js'
-import { InstancedGlyphMesh } from '../text/index.js'
-import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -152,10 +150,9 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
 
 export function computeMatrixWorld(
   target: Matrix4,
-  rootObjectParentMatrixWorld: Matrix4,
-  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  rootObjectParentMatrixWorld: Matrix4 | undefined,
+  globalMatrix: Matrix4 | undefined,
 ) {
-  const globalMatrix = globalMatrixSignal.peek()
   if (globalMatrix == null) {
     return false
   }
@@ -180,7 +177,7 @@ export function setupMatrixWorldUpdate(
   }, abortSignal)
   abortableEffect(() => {
     const onFrame = () => {
-      computeMatrixWorld(object.matrixWorld, rootSignal.peek().component.matrixWorld, matrixSignal)
+      computeMatrixWorld(object.matrixWorld, rootSignal.peek().component.parent?.matrixWorld, matrixSignal.peek())
       const length = object.children.length
       for (let i = 0; i < length; i++) {
         object.children[i]!.updateMatrixWorld(true)

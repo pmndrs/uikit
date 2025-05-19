@@ -1,13 +1,11 @@
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { FlexNode } from '../flex/index.js'
 import { PanelGroupManager } from '../panel/instanced-panel-group.js'
 import { abortableEffect, alignmentXMap, alignmentYMap } from '../utils.js'
 import { WithReversePainterSortStableCache } from '../order.js'
-import { Matrix4, Object3D, Vector2Tuple } from 'three'
+import { Matrix4, Vector2Tuple } from 'three'
 import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
-import { Properties, ReadonlyProperties } from '../properties/index.js'
 import { Component } from '../vanilla/component.js'
-import { ReadonlyPropertiesPubSub } from '@pmndrs/uikit-pub-sub'
+import { Properties } from '../properties/index.js'
 
 export type RenderContext = {
   requestRender: () => void
@@ -65,15 +63,16 @@ export function buildRootContext(
 }
 
 function createRootContext(component: Component, renderContext: RenderContext | undefined) {
-  const ctx: Partial<RenderContext> & Pick<RootContext, 'onFrameSet'> = {
+  const ctx: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'> = {
     onFrameSet: new Set<(delta: number) => void>(),
     ...renderContext,
-  }
 
-  return Object.assign(ctx, {
     onUpdateMatrixWorldSet: new Set<() => void>(),
     requestCalculateLayout: () => {},
     component,
+  }
+
+  return Object.assign(ctx, {
     glyphGroupManager: new GlyphGroupManager(ctx, component),
     panelGroupManager: new PanelGroupManager(ctx, component),
   }) satisfies RootContext
@@ -99,7 +98,7 @@ function createDeferredRequestLayoutCalculation(
   }
 }
 
-export function buildRootMatrix(properties: ReadonlyProperties, size: Signal<Vector2Tuple | undefined>) {
+export function buildRootMatrix(properties: Properties, size: Signal<Vector2Tuple | undefined>) {
   if (size.value == null) {
     return undefined
   }

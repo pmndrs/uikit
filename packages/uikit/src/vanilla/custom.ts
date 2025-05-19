@@ -46,7 +46,7 @@ export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.material.depthWrite = this.properties.get('depthWrite')
+      this.material.depthWrite = this.properties.get('depthWrite') ?? false
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {

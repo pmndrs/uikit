@@ -1,58 +1,88 @@
-/*import { Image } from './image.js'
+import { AdditionalImageProperties, Image } from './image.js'
 import { VideoTexture } from 'three'
-import { Signal, effect, signal } from '@preact/signals-core'
-import { setupVideoElementInvalidation, updateVideoElement, VideoProperties } from '../components/index.js'
+import { Signal, computed, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
+import { AllProperties, Properties } from '../properties/index.js'
+import { RenderContext } from '../components/root.js'
 import { abortableEffect } from '../utils.js'
 
-export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Image<T> {
-  public element: HTMLVideoElement
-  private readonly texture: VideoTexture
-  private readonly aspectRatio: Signal<number>
-  private readonly updateAspectRatio: () => void
-  private unsubscribeInvalidate: () => void
+export type VideoProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalVideoProperties>
 
-  private abortController = new AbortController()
+export type AdditionalVideoProperties = {
+  src: HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | Omit<HTMLVideoElement, 'src' | 'playsInline' | 'style'>
+} & Omit<AdditionalImageProperties, 'src'>
 
-  constructor({ src, ...rest }: VideoProperties<EM> = {}) {
-    const element = src instanceof HTMLVideoElement ? src : document.createElement('video')
-    updateVideoElement(element, rest)
-    const texture = new VideoTexture(element)
-    texture.needsUpdate = true
+export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Image<T, EM> {
+  readonly element: Signal<HTMLVideoElement>
+
+  constructor(
+    inputProperties?: VideoProperties<EM>,
+    initialClasses?: Array<VideoProperties<EM>>,
+    renderContext?: RenderContext,
+  ) {
     const aspectRatio = signal<number>(1)
-    super({ aspectRatio, ...rest, src: texture })
+    const texture = signal<VideoTexture | undefined>(undefined)
+    //TODO: bad idea to modify the initial properties, as they will be overwritten via resetProperties
+    //TODO: input -> output renaming. here specificially: src -> inputSrc, texture -> src
+    super({ ...inputProperties, aspectRatio, src: texture }, initialClasses, renderContext)
 
-    this.unsubscribeInvalidate = effect(() => {
-      const root = this.parentContextSignal.value?.value?.root
-      if (root == null) {
+    this.element = computed(() => {
+      const src = this.properties.get('inputSrc')
+      return src instanceof HTMLVideoElement ? src : document.createElement('video')
+    })
+
+    abortableEffect(() => {
+      const src = this.properties.get('inputSrc')
+      if (src instanceof HTMLVideoElement) {
         return
       }
-      return setupVideoElementInvalidation(element, root.requestRender)
-    })
+      updateVideoElement(this.element.value, this.properties)
+    }, this.abortSignal)
 
-    this.element = element
-    this.texture = texture
-    this.aspectRatio = aspectRatio
-    this.updateAspectRatio = () => (aspectRatio.value = this.element.videoWidth / this.element.videoHeight)
-    this.updateAspectRatio()
-    this.element.addEventListener('resize', this.updateAspectRatio, { signal: this.abortController.signal })
-  }
+    abortableEffect(() => {
+      const { requestRender } = this.root.value
+      if (requestRender == null) {
+        return
+      }
+      const element = this.element.value
+      let requestId: number
+      const callback = () => {
+        requestRender()
+        requestId = element.requestVideoFrameCallback(callback)
+      }
+      requestId = element.requestVideoFrameCallback(callback)
+      return () => element.cancelVideoFrameCallback(requestId)
+    }, this.abortSignal)
 
-  setProperties(properties?: VideoProperties<EM>): void {
-    updateVideoElement(this.element, properties)
-    super.setProperties({
-      aspectRatio: this.aspectRatio,
-      ...properties,
-      src: this.texture,
-    })
-  }
-
-  destroy(): void {
-    super.destroy()
-    this.unsubscribeInvalidate()
-    this.texture.dispose()
-    this.element.remove()
-    this.element.removeEventListener('resize', this.updateAspectRatio)
+    abortableEffect(() => {
+      const element = this.element.value
+      const updateAspectRatio = () => (aspectRatio.value = element.videoWidth / element.videoHeight)
+      updateAspectRatio()
+      element.addEventListener('resize', updateAspectRatio)
+      return () => element.removeEventListener('resize', updateAspectRatio)
+    }, this.abortSignal)
   }
 }
-*/
+
+function updateVideoElement(element: HTMLVideoElement, properties: Properties) {
+  element.playsInline = true
+  element.volume = properties.get('volume') ?? 1
+  element.preservesPitch = properties.get('preservesPitch') ?? true
+  element.playbackRate = properties.get('playbackRate') ?? 1
+  element.muted = properties.get('muted') ?? false
+  element.loop = properties.get('loop') ?? false
+  element.autoplay = properties.get('autoplay') ?? false
+  element.crossOrigin = properties.get('crossOrigin') ?? null
+  //update src
+  const src = properties.get('inputSrc')
+  if (src == null) {
+    element.removeAttribute('src')
+    element.removeAttribute('srcObject')
+    return
+  }
+  if (typeof src === 'string') {
+    element.src = src
+  } else {
+    element.srcObject = src
+  }
+}

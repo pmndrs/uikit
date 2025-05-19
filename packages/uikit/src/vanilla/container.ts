@@ -1,4 +1,4 @@
-import { computed, ReadonlySignal, signal, Signal } from '@preact/signals-core'
+import { computed, signal, Signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
 import { ClippingRect, computedClippingRect } from '../clipping.js'
@@ -9,7 +9,7 @@ import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll, setupScrollbars } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { Component } from './component.js'
-import { computedPanelGroupDependencies, PanelGroupProperties } from '../panel/instanced-panel-group.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { AllProperties } from '../properties/index.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
@@ -32,7 +32,7 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     initialClasses?: Array<ContainerProperties<EM> | string>,
     renderContext?: RenderContext,
   ) {
-    super(false, () => ({}), inputProperties, initialClasses, undefined, renderContext)
+    super(false, {}, inputProperties, initialClasses, undefined, renderContext)
     this.material.visible = false
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)

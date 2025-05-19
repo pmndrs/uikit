@@ -1,7 +1,7 @@
-import { Material, Mesh, MeshBasicMaterial, ShapeGeometry } from 'three'
+import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
 import { RenderContext } from '../components/root.js'
 import { ThreeEventMap } from '../events.js'
-import { Content } from './content.js'
+import { BoundingBox, Content } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect } from '../utils.js'
 import { loadResourceWithParams } from '../components/utils.js'
@@ -22,9 +22,14 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Conte
     initialClasses?: Array<SvgProperties<EM> | string>,
     renderContext?: RenderContext,
   ) {
-    super(inputProperties, initialClasses, renderContext, { remeasureOnChildrenChange: false, depthWrite: false })
+    const boundingBox = signal<BoundingBox | undefined>(undefined)
+    super(inputProperties, initialClasses, renderContext, {
+      remeasureOnChildrenChange: false,
+      depthWriteDefault: false,
+      boundingBox,
+    })
 
-    const svgResult = signal<Array<Mesh> | undefined>(undefined)
+    const svgResult = signal<Awaited<ReturnType<typeof loadSvg>>>(undefined)
     loadResourceWithParams(
       svgResult,
       loadSvg,
@@ -36,15 +41,16 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Conte
       })),
     )
     abortableEffect(() => {
-      const meshes = svgResult.value
-      if (meshes == null || meshes.length === 0) {
+      const result = svgResult.value
+      boundingBox.value = result?.boundingBox
+      if (result == null || result.meshes.length === 0) {
         this.notifyAncestorsChanged()
         return
       }
-      this.add(...meshes)
+      this.add(...result.meshes)
       this.notifyAncestorsChanged()
       return () => {
-        this.remove(...meshes)
+        this.remove(...result.meshes)
       }
     }, this.abortSignal)
   }
@@ -53,19 +59,25 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Conte
 const loader = new SVGLoader()
 const svgCache = new Map<string, Promise<SVGResult>>()
 
-async function loadSvg({ src, content }: { src?: string; content?: string }): Promise<Array<Mesh> | undefined> {
+async function loadSvg({
+  src,
+  content,
+}: {
+  src?: string
+  content?: string
+}): Promise<{ meshes: Array<Mesh>; boundingBox?: BoundingBox } | undefined> {
   if (src == null && content == null) {
     return undefined
   }
-  let result: SVGResult
+  let result: Omit<SVGResult, 'xml'> & { xml: SVGSVGElement }
   if (src != null) {
     let promise = svgCache.get(src)
     if (promise == null) {
       svgCache.set(src, (promise = loader.loadAsync(src)))
     }
-    result = await promise
+    result = (await promise) as any
   } else {
-    result = loader.parse(content!)
+    result = loader.parse(content!) as any
   }
   const meshes: Array<Mesh> = []
   for (const path of result.paths) {
@@ -80,11 +92,28 @@ async function loadSvg({ src, content }: { src?: string; content?: string }): Pr
       meshes.push(mesh)
     }
   }
-  return meshes
+  let boundingBox: { center: Vector3; size: Vector3 } | undefined
+  if (result.xml instanceof SVGSVGElement) {
+    result.xml
+    const viewBoxNumbers = result.xml
+      .getAttribute('viewBox')
+      ?.split(/\s+/)
+      .map((s) => Number.parseFloat(s))
+      .filter((value) => !isNaN(value))
+    if (viewBoxNumbers?.length === 4) {
+      const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
+      boundingBox = {
+        center: new Vector3(width / 2 + minX, -height / 2 - minY, 0.001),
+        size: new Vector3(width, height, 0.001),
+      }
+    }
+  }
+
+  return { meshes, boundingBox }
 }
 
-function disposeSvg(meshes: Array<Mesh> | undefined) {
-  meshes?.forEach((mesh) => {
+function disposeSvg(result: Awaited<ReturnType<typeof loadSvg>>) {
+  result?.meshes.forEach((mesh) => {
     if (mesh.material instanceof Material) {
       mesh.material.dispose()
     }

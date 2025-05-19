@@ -16,3 +16,5 @@ export const LayerSectionStart = {
 export const LayerSectionStartBase = LayersSectionSize * 9
 
 export const LayerIndexInheritance = 1000000000
+
+export const LayerIndexDefaults = LayerIndexInheritance + 1

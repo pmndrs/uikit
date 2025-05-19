@@ -33,12 +33,12 @@ export type PanelGroupProperties = {
 export function computedPanelGroupDependencies(properties: Properties) {
   return computed<Required<PanelGroupProperties>>(() => {
     return {
-      panelMaterialClass: properties.get('panelMaterialClass') ?? MeshBasicMaterial,
-      castShadow: properties.get('castShadow') ?? false,
-      receiveShadow: properties.get('receiveShadow') ?? false,
+      panelMaterialClass: properties.get('panelMaterialClass'),
+      castShadow: properties.get('castShadow'),
+      receiveShadow: properties.get('receiveShadow'),
       depthWrite: properties.get('depthWrite') ?? false,
-      depthTest: properties.get('depthTest') ?? true,
-      renderOrder: properties.get('renderOrder') ?? 0,
+      depthTest: properties.get('depthTest'),
+      renderOrder: properties.get('renderOrder'),
     }
   })
 }
@@ -47,8 +47,7 @@ export class PanelGroupManager {
   private map = new Map<MaterialClass, Map<string, InstancedPanelGroup>>()
 
   constructor(
-    private readonly root: WithReversePainterSortStableCache &
-      Pick<RootContext, 'onFrameSet' | 'requestFrame' | 'requestRender'>,
+    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private readonly object: Object3D,
   ) {}
 
@@ -148,7 +147,7 @@ export class InstancedPanelGroup {
 
   constructor(
     private readonly object: Object3D,
-    public readonly root: WithReversePainterSortStableCache & Pick<RootContext, 'requestFrame' | 'requestRender'>,
+    public readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
@@ -285,7 +284,7 @@ export class InstancedPanelGroup {
     }
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
-    this.mesh = new InstancedPanelMesh(this.instanceMatrix, this.instanceData, this.instanceClipping)
+    this.mesh = new InstancedPanelMesh(this.root, this.instanceMatrix, this.instanceData, this.instanceClipping)
     this.mesh.renderOrder = this.panelGroupProperties.renderOrder
     setupRenderOrder(this.mesh, { peek: () => this.root }, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial

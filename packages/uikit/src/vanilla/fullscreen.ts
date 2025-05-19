@@ -4,6 +4,7 @@ import { RenderContext } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
 import { AllProperties } from '../properties/index.js'
+import { LayerIndexDefaults } from '../properties/layers.js'
 
 export type FullscreenProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
@@ -26,11 +27,15 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     const sizeX = signal(0)
     const sizeY = signal(0)
     const transformTranslateZ = signal(0)
-    super(
-      { pointerEvents: 'listener', ...properties, sizeX, sizeY, pixelSize, transformTranslateZ },
-      initialClasses,
-      renderContext,
-    )
+    super(properties, initialClasses, renderContext)
+    //force sizeX, sizeY, pixelSize, transformTranslateZ
+    this.properties.setLayer(-1, {
+      sizeX,
+      sizeY,
+      pixelSize,
+      transformTranslateZ,
+    })
+    this.properties.setLayer(LayerIndexDefaults, { pointerEvents: 'listener' })
     this.matrixAutoUpdate = false
     this.sizeX = sizeX
     this.sizeY = sizeY
@@ -54,7 +59,6 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       return
     }
     batch(() => {
-      const pixelSize = this.properties.peek('pixelSize')
       if (camera instanceof PerspectiveCamera) {
         const cameraHeight = 2 * Math.tan((Math.PI * camera.fov) / 360) * this.distanceToCamera!
         this.pixelSize.value = cameraHeight / this.renderer.getSize(vectorHelper).y
@@ -69,16 +73,6 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
         this.sizeX.value = cameraWidth
       }
       this.transformTranslateZ.value = -this.distanceToCamera! / this.pixelSize.value
-    })
-  }
-
-  setProperties(properties?: FullscreenProperties<EM>): void {
-    super.setProperties({
-      ...properties,
-      sizeX: this.sizeX,
-      sizeY: this.sizeY,
-      pixelSize: this.pixelSize,
-      transformTranslateZ: this.transformTranslateZ,
     })
   }
 }

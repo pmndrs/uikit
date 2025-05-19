@@ -42,11 +42,11 @@ export function makePanelSpherecast(
   object: Object3D,
 ): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
-    const rootMatrixWorld = root.peek().component.matrixWorld
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootMatrixWorld)
+    const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
     if (
       !sphereHelper.intersectsSphere(sphere) ||
-      !computeMatrixWorld(object.matrixWorld, rootMatrixWorld, globalMatrixSignal)
+      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalMatrixSignal.peek())
     ) {
       return
     }
@@ -84,11 +84,11 @@ export function makePanelRaycast(
   object: Object3D,
 ): Mesh['raycast'] {
   return (raycaster, intersects) => {
-    const rootMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootMatrixWorld)
+    const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
     if (
       !raycaster.ray.intersectsSphere(sphereHelper) ||
-      !computeMatrixWorld(object.matrixWorld, rootMatrixWorld, globalMatrixSignal)
+      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalMatrixSignal.peek())
     ) {
       return
     }
