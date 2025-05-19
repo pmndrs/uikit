@@ -16,7 +16,6 @@ import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
 import { loadResourceWithParams, setupMatrixWorldUpdate } from '../components/utils.js'
 import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 
 export type ImageProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalImageProperties>
 
@@ -42,7 +41,6 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
   AdditionalImageDefaults
 > {
   readonly texture = signal<Texture | undefined>(undefined)
-  readonly panelGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
 
   constructor(
     inputProperties?: ImageProperties<EM>,
@@ -62,7 +60,6 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
       renderContext,
     )
 
-    this.panelGroupDeps = computedPanelGroupDependencies(this.properties)
     setupOrderInfo(
       this.orderInfo,
       this.properties,
@@ -100,28 +97,26 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
     this.customDistanceMaterial.clippingPlanes = clippingPlanes
 
     abortableEffect(() => {
+      this.material.depthTest = this.properties.get('depthTest')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.material.depthWrite = this.properties.get('depthWrite')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      ;(this.material as any).map = this.texture.value ?? null
+      this.material.needsUpdate = true
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
       const material = createPanelMaterial(this.properties.get('panelMaterialClass'), info)
       material.clippingPlanes = clippingPlanes
+      ;(material as any).map = (this.material as any).map
+      material.depthWrite = this.material.depthWrite
+      material.depthTest = this.material.depthTest
       this.material = material
-      const cleanupDepthTestEffect = effect(() => {
-        material.depthTest = this.properties.get('depthTest')
-        this.root.peek().requestRender?.()
-      })
-      const cleanupDepthWriteEffect = effect(() => {
-        material.depthWrite = this.properties.get('depthWrite')
-        this.root.peek().requestRender?.()
-      })
-      const cleanupTextureEffect = effect(() => {
-        ;(material as any).map = this.texture.value ?? null
-        material.needsUpdate = true
-        this.root.peek().requestRender?.()
-      })
-      return () => {
-        cleanupTextureEffect()
-        cleanupDepthWriteEffect()
-        cleanupDepthTestEffect()
-        material.dispose()
-      }
+      return () => material.dispose()
     }, this.abortSignal)
     abortableEffect(() => {
       this.renderOrder = this.properties.get('renderOrder')
@@ -144,19 +139,17 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
         return
       }
 
-      const innerAbortController = new AbortController()
       data.set(imageMaterialConfig.defaultData)
 
-      abortableEffect(
-        () => void (this.size.value != null && data.set(this.size.value, 13)),
-        innerAbortController.signal,
-      )
-      abortableEffect(
+      const cleanupSizeEffect = effect(() => void (this.size.value != null && data.set(this.size.value, 13)))
+      const cleanupBorderEffect = effect(
         () => void (this.borderInset.value != null && data.set(this.borderInset.value, 0)),
-        innerAbortController.signal,
       )
       this.root.peek().requestRender?.()
-      return () => innerAbortController.abort()
+      return () => {
+        cleanupSizeEffect()
+        cleanupBorderEffect()
+      }
     }, this.abortSignal)
     const setters = imageMaterialConfig.setters
     abortableEffect(() => {

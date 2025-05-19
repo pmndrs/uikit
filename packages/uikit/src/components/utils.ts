@@ -13,8 +13,10 @@ import {
 } from '../panel/interaction-panel-mesh.js'
 import { RootContext } from './root.js'
 import { Component } from '../vanilla/component.js'
-import { OrderInfo } from '../order.js'
+import { OrderInfo, setupRenderOrder } from '../order.js'
 import { Container } from '../vanilla/container.js'
+import { InstancedGlyphMesh } from '../text/index.js'
+import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -146,42 +148,6 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
     }
     handler(e)
   }) as T[K]
-}
-
-const colorHelper = new Color()
-
-/**
- * @requires that each mesh inside the group has its default color stored inside object.userData.color
- */
-export function applyAppearancePropertiesToGroup(
-  properties: Properties,
-  group: Signal<Object3D | undefined> | Object3D,
-  abortSignal: AbortSignal,
-) {
-  abortableEffect(() => {
-    const color = properties.get('color')
-    let c: Color | undefined
-    if (Array.isArray(color)) {
-      c = colorHelper.setRGB(...color)
-    } else if (color != null) {
-      c = colorHelper.set(color)
-    }
-    const opacity = properties.get('opacity')
-    const depthTest = properties.get('depthTest')
-    const depthWrite = properties.get('depthWrite')
-    const renderOrder = properties.get('renderOrder')
-    readReactive(group)?.traverse((mesh) => {
-      if (!(mesh instanceof Mesh && mesh.userData.color != null)) {
-        return
-      }
-      mesh.renderOrder = renderOrder
-      const material: MeshBasicMaterial = mesh.material
-      material.color.copy(c ?? mesh.userData.color)
-      material.opacity = opacity
-      material.depthTest = depthTest
-      material.depthWrite = depthWrite
-    })
-  }, abortSignal)
 }
 
 export function computeMatrixWorld(

@@ -1,5 +1,5 @@
 import { Signal } from '@preact/signals-core'
-import { RenderItem } from 'three'
+import { Object3D, RenderItem } from 'three'
 import { abortableEffect, readReactive } from './utils.js'
 import { Properties } from './properties/index.js'
 
@@ -46,8 +46,7 @@ export const ElementType = {
   Image: 1,
   Content: 2,
   Custom: 3,
-  Svg: 4,
-  Text: 5, //render last
+  Text: 4, //render last
 } as const
 
 export type ElementType = (typeof ElementType)[keyof typeof ElementType]
@@ -158,12 +157,11 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
   return i === Object.keys(r2).length
 }
 
-export function setupRenderOrder<T>(
-  result: T,
+export function setupRenderOrder(
+  target: Object3D,
   root: { peek(): WithReversePainterSortStableCache },
   orderInfo: { value: OrderInfo | undefined },
-): T {
-  ;(result as any)[reversePainterSortStableCacheKey] = root
-  ;(result as any)[orderInfoKey] = orderInfo
-  return result
+) {
+  ;(target as any)[reversePainterSortStableCacheKey] = root
+  ;(target as any)[orderInfoKey] = orderInfo
 }

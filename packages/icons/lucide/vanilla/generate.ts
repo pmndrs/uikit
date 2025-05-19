@@ -13,11 +13,26 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { IconProperties, Icon, ThreeEventMap } from '@pmndrs/uikit'
-      const text = \`${svg}\`;
-      export class ${name}Icon extends Icon {
-        constructor(properties?: IconProperties<ThreeEventMap>) {
-          super(text, 24, 24, properties)
+      import { RenderContext, Svg, SvgProperties, ThreeEventMap } from '@pmndrs/uikit'
+      const content = \`${svg}\`;
+      export class ${name}Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Svg<T, EM> {
+        constructor(
+          inputProperties?: SvgProperties<EM>,
+          initialClasses?: Array<SvgProperties<EM> | string>,
+          renderContext?: RenderContext,
+        ) {
+          super(
+            {
+              content,
+              width: 24,
+              height: 24,
+              aspectRatio: 1,
+              keepAspectRatio: false,
+              ...inputProperties,
+            },
+            initialClasses,
+            renderContext,
+          )
         }
       }
       export const ${name} = ${name}Icon

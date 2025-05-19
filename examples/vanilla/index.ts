@@ -1,8 +1,8 @@
-import { AmbientLight, Mesh, PerspectiveCamera, Scene, Sphere, SphereGeometry, Vector3, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Text, Image, Content } from '@pmndrs/uikit'
+import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { reversePainterSortStable, Container, Text, Image, Content, Svg, StyleSheet } from '@pmndrs/uikit'
+import { Delete } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
-import { StyleSheet } from '@pmndrs/uikit/src/vanilla/classes'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // init
@@ -32,7 +32,7 @@ const root = new Container({
   alignItems: 'center',
   backgroundColor: 'red',
   overflow: 'scroll',
-  backgroundOpacity: 0.5,
+  backgroundOpacity: 1,
 })
 scene.add(root)
 
@@ -41,8 +41,15 @@ const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => {
   c.add(gltf.scene)
 })
-/*const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
-const svg = new Svg({ src: 'example.svg', width: 100, height: 100, flexShrink: 0 })*/
+const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
+const svg = new Svg({
+  src: 'example.svg',
+  width: 100,
+  height: 100,
+  flexShrink: 0,
+  backgroundColor: 'white',
+  backgroundOpacity: 1,
+})
 const text = new Text({ text: 'Hello World', fontSize: 40, flexShrink: 0 })
 const a = new Container({
   flexShrink: 0,
@@ -55,11 +62,8 @@ const a = new Container({
 
 StyleSheet['test'] = {
   hover: { backgroundColor: 'yellow' },
-  onClick: () => {
-    x.classList.remove('test')
-  },
 }
-const x = new Container(undefined, [
+const x = new Container(
   {
     flexShrink: 0,
     padding: 50,
@@ -68,9 +72,12 @@ const x = new Container(undefined, [
     backgroundColor: 'green',
     flexBasis: 0,
     justifyContent: 'flex-start',
+    onClick: () => {
+      x.classList.toggle('test')
+    },
   },
-  'test',
-])
+  ['test'],
+)
 const img = new Image({
   src: 'https://picsum.photos/300/300',
   borderRadius: 1000,
@@ -81,7 +88,7 @@ const img = new Image({
   backgroundColor: 'blue',
   flexShrink: 0,
 })
-root.add(img, c, /*del, svg,*/ text, x)
+root.add(img, c, del, svg, text, x)
 x.add(a)
 
 renderer.setAnimationLoop(animation)

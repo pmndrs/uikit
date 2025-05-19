@@ -81,7 +81,7 @@ export class Component<
     elementDefaults: AdditionalDefaults,
     private inputProperties: AllProperties<EM, AdditionalProperties> | undefined,
     initialClasses: Array<AllProperties<EM, AdditionalProperties> | string> | undefined,
-    material: MeshBasicMaterial | undefined,
+    material: Material | undefined,
     renderContext: RenderContext | undefined,
   ) {
     super(panelGeometry, material)

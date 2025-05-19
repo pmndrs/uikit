@@ -1,28 +1,36 @@
 import { Camera, OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { Signal, batch, signal } from '@preact/signals-core'
-import { FullscreenProperties, RenderContext, updateSizeFullscreen } from '../components/index.js'
+import { RenderContext } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
+import { AllProperties } from '../properties/index.js'
+
+export type FullscreenProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
 
 const vectorHelper = new Vector2()
 
 export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   private readonly sizeX: Signal<number>
   private readonly sizeY: Signal<number>
-  private readonly pixelSize: Signal<number>
   private readonly transformTranslateZ: Signal<number>
+  private readonly pixelSize: Signal<number>
 
   constructor(
     private renderer: WebGLRenderer,
     properties?: FullscreenProperties<EM>,
+    initialClasses?: Array<FullscreenProperties<EM>>,
     private distanceToCamera?: number,
     renderContext?: RenderContext,
   ) {
+    const pixelSize = signal(0)
     const sizeX = signal(0)
     const sizeY = signal(0)
-    const pixelSize = signal(0)
     const transformTranslateZ = signal(0)
-    super({ pointerEvents: 'listener', ...properties, sizeX, sizeY, pixelSize, transformTranslateZ }, renderContext)
+    super(
+      { pointerEvents: 'listener', ...properties, sizeX, sizeY, pixelSize, transformTranslateZ },
+      initialClasses,
+      renderContext,
+    )
     this.matrixAutoUpdate = false
     this.sizeX = sizeX
     this.sizeY = sizeY
@@ -46,14 +54,20 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       return
     }
     batch(() => {
-      updateSizeFullscreen(
-        this.sizeX,
-        this.sizeY,
-        this.pixelSize,
-        this.distanceToCamera!,
-        camera,
-        this.renderer.getSize(vectorHelper).y,
-      )
+      const pixelSize = this.properties.peek('pixelSize')
+      if (camera instanceof PerspectiveCamera) {
+        const cameraHeight = 2 * Math.tan((Math.PI * camera.fov) / 360) * this.distanceToCamera!
+        this.pixelSize.value = cameraHeight / this.renderer.getSize(vectorHelper).y
+        this.sizeY.value = cameraHeight
+        this.sizeX.value = cameraHeight * camera.aspect
+      }
+      if (camera instanceof OrthographicCamera) {
+        const cameraHeight = (camera.top - camera.bottom) / camera.zoom
+        const cameraWidth = (camera.right - camera.left) / camera.zoom
+        this.pixelSize.value = cameraHeight / this.renderer.getSize(vectorHelper).y
+        this.sizeY.value = cameraHeight
+        this.sizeX.value = cameraWidth
+      }
       this.transformTranslateZ.value = -this.distanceToCamera! / this.pixelSize.value
     })
   }

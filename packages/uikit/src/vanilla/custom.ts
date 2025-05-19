@@ -1,55 +1,72 @@
-import { Mesh, MeshBasicMaterial } from 'three'
-import { Signal, effect, signal } from '@preact/signals-core'
-import { createCustomContainerState, CustomContainerProperties, setupCustomContainer } from '../components/index.js'
+import { computed } from '@preact/signals-core'
+import { createGlobalClippingPlanes } from '../clipping.js'
+import { RenderContext } from '../components/root.js'
+import { setupMatrixWorldUpdate } from '../components/utils.js'
 import { ThreeEventMap } from '../events.js'
-import { LayerSectionStart } from '../properties/layers.js'
-import { UikitPropertyKeys } from '../properties/index.js'
+import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
+import { AllProperties } from '../properties/index.js'
+import { abortableEffect } from '../utils.js'
 import { Component } from './component.js'
+import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
 
-export class CustomContainer<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T> {
-  private readonly parentContextSignalSignal: Signal<Signal<ParentContext | undefined> | undefined | null> =
-    signal(undefined)
-  private readonly unsubscribe: () => void
+export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
 
-  public internals!: ReturnType<typeof createCustomContainerState>
+export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, {}, {}> {
+  constructor(
+    material: Material,
+    inputProperties?: CustomProperties<EM>,
+    initialClasses?: Array<CustomProperties<EM>>,
+    renderContext?: RenderContext,
+  ) {
+    super(false, {}, inputProperties, initialClasses, material, renderContext)
 
-  constructor(private properties?: CustomContainerProperties<EM>) {
-    super(new MeshBasicMaterial())
-    setupParentContextSignal(this.parentContextSignalSignal, this)
+    setupOrderInfo(
+      this.orderInfo,
+      this.properties,
+      'zIndexOffset',
+      ElementType.Custom,
+      undefined,
+      computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
+      this.abortSignal,
+    )
 
-    this.unsubscribe = effect(() => {
-      const parentContextSignal = this.parentContextSignalSignal.value
-      if (parentContextSignal === undefined) {
-        return
-      }
-      const parentContext = parentContextSignal?.value
-      const abortController = new AbortController()
-      this.internals = createCustomContainerState(this, parentContext)
-      this.internals.properties.setLayer(LayerSectionStart.Imperative, this.properties)
+    this.frustumCulled = false
+    setupRenderOrder(this, this.root, this.orderInfo)
 
-      setupCustomContainer(this.internals, parentContext, abortController.signal)
+    const clippingPlanes = createGlobalClippingPlanes(this)
 
-      //setup events
-      bindHandlers(this.internals.handlers, this, abortController.signal)
-      return () => {
-        abortController.abort()
-      }
-    })
-  }
+    this.customDepthMaterial = new MeshDepthMaterial()
+    this.customDistanceMaterial = new MeshDistanceMaterial()
+    this.material.clippingPlanes = clippingPlanes
+    this.customDepthMaterial.clippingPlanes = clippingPlanes
+    this.customDistanceMaterial.clippingPlanes = clippingPlanes
 
-  getComputedProperty<K extends UikitPropertyKeys>(key: K) {
-    return this.internals.properties.peek(key)
-  }
+    abortableEffect(() => {
+      this.material.depthTest = this.properties.get('depthTest')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.material.depthWrite = this.properties.get('depthWrite')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.renderOrder = this.properties.get('renderOrder')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.castShadow = this.properties.get('castShadow')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.receiveShadow = this.properties.get('receiveShadow')
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
 
-  setProperties(properties?: CustomContainerProperties<EM>) {
-    this.properties = properties
-    this.internals.properties.setLayer(LayerSectionStart.Imperative, properties)
-  }
+    setupMatrixWorldUpdate(this, this.root, this.globalPanelMatrix, this.abortSignal)
 
-  destroy() {
-    this.internals.properties.destroy()
-    this.parent?.remove(this)
-    this.unsubscribe()
-    this.material.dispose()
+    abortableEffect(() => {
+      this.visible = this.isVisible.value
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
   }
 }
