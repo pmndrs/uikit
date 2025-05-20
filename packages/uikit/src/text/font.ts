@@ -32,7 +32,7 @@ const defaultFontFamiles: FontFamilies = {
 
 export function computedFontFamilies(properties: Properties, parent: Signal<Container | undefined>) {
   return computed(() => {
-    const currentFontFamilies = properties.get('fontFamilies')
+    const currentFontFamilies = properties.value.fontFamilies
     const inheritedFontFamilies = parent.value?.fontFamilies.value
     if (inheritedFontFamilies == null) {
       return currentFontFamilies
@@ -53,8 +53,8 @@ export function computedFont(
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
   effect(() => {
-    const fontWeight = properties.get('fontWeight')
-    let fontFamily = properties.get('fontFamily')
+    const fontWeight = properties.value.fontWeight
+    let fontFamily = properties.value.fontFamily
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
     const url = getMatchingFontUrl(

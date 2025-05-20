@@ -1,11 +1,11 @@
 import { batch } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { AllProperties, Properties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties, Properties } from '../properties/index.js'
 
-export const StyleSheet: Record<string, AllProperties<ThreeEventMap, {}>> = {}
+export const StyleSheet: Record<string, InputProperties<BaseOutputProperties<ThreeEventMap>>> = {}
 
-export class ClassList<EM extends ThreeEventMap = ThreeEventMap, AdditionalProperties extends {} = {}> {
-  private list: Array<AllProperties<EM, AdditionalProperties> | string | undefined> = []
+export class ClassList {
+  private list: Array<InputProperties | string | undefined> = []
 
   constructor(private readonly properties: Properties) {}
   [Symbol.iterator]() {
@@ -64,9 +64,7 @@ export class ClassList<EM extends ThreeEventMap = ThreeEventMap, AdditionalPrope
     return true
   }
 
-  private resolveClassRef(
-    classRef: AllProperties<EM, AdditionalProperties> | string | undefined,
-  ): AllProperties<EM, AdditionalProperties> | undefined {
+  private resolveClassRef(classRef: InputProperties | string | undefined): InputProperties | undefined {
     if (classRef == null) {
       return undefined
     }
@@ -77,6 +75,6 @@ export class ClassList<EM extends ThreeEventMap = ThreeEventMap, AdditionalPrope
       console.warn(`class "${classRef}" not present in the global stylesheet`)
       return undefined
     }
-    return StyleSheet[classRef]! as AllProperties<EM, AdditionalProperties>
+    return StyleSheet[classRef]
   }
 }

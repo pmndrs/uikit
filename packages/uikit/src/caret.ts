@@ -45,7 +45,7 @@ export type CaretProperties = {
     [Key in Exclude<
       keyof PanelProperties,
       'backgroundColor' | 'backgroundOpacity'
-    > as `caret${Capitalize<Key>}`]: PanelProperties[Key]
+    > as `caret${Capitalize<Key>}`]?: PanelProperties[Key]
   }
 
 let caretMaterialConfig: PanelMaterialConfig | undefined
@@ -103,14 +103,14 @@ export function setupCaret(
     if (height == null) {
       return [0, 0]
     }
-    return [properties.get('caretWidth'), height]
+    return [properties.value.caretWidth, height]
   })
   const panelOffset = computed<Vector2Tuple>(() => {
     const position = blinkingCaretTransformation.value?.position
     if (position == null) {
       return [0, 0]
     }
-    return [position[0] - properties.get('caretWidth') / 2, position[1]]
+    return [position[0] - properties.value.caretWidth / 2, position[1]]
   })
 
   const panelMatrix = computedPanelMatrix(properties, globalMatrix, panelSize, panelOffset)

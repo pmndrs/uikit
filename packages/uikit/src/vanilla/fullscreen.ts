@@ -3,10 +3,10 @@ import { Signal, batch, signal } from '@preact/signals-core'
 import { RenderContext } from '../components/index.js'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
-import { AllProperties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
 import { LayerIndexDefaults } from '../properties/layers.js'
 
-export type FullscreenProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
+export type FullscreenProperties<EM extends ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
 
 const vectorHelper = new Vector2()
 
@@ -19,7 +19,7 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   constructor(
     private renderer: WebGLRenderer,
     properties?: FullscreenProperties<EM>,
-    initialClasses?: Array<FullscreenProperties<EM>>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     private distanceToCamera?: number,
     renderContext?: RenderContext,
   ) {

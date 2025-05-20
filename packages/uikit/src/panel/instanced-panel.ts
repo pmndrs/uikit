@@ -7,8 +7,9 @@ import { InstancedPanelGroup, PanelGroupManager, PanelGroupProperties } from './
 import { abortableEffect, ColorRepresentation } from '../utils.js'
 import { OrderInfo } from '../order.js'
 import { PanelMaterialConfig } from './panel-material.js'
-import { Properties } from '../properties/index.js'
+import { BaseOutputProperties, Properties } from '../properties/index.js'
 import { RootContext } from '../components/index.js'
+import { ThreeEventMap } from '../events.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number
@@ -72,7 +73,7 @@ export function computedPanelMatrix(
       return undefined
     }
     const [width, height] = size
-    const pixelSize = properties.get('pixelSize')
+    const pixelSize = properties.value.pixelSize
     const result = new Matrix4()
     result.makeScale(width * pixelSize, height * pixelSize, 1)
     if (offsetSignal != null) {
@@ -122,7 +123,7 @@ export class InstancedPanel {
           setters[key as string]!(
             instanceData.array,
             instanceData.itemSize * index,
-            properties.get(key as any),
+            properties.value[key as keyof BaseOutputProperties<ThreeEventMap>],
             size,
             instanceDataAddUpdateRange,
           )

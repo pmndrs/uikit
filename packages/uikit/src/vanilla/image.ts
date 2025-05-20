@@ -1,6 +1,6 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { AllProperties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
 import { Component } from './component.js'
 import { RenderContext } from '../components/root.js'
 import { SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
@@ -16,49 +16,40 @@ import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
 import { loadResourceWithParams, setupMatrixWorldUpdate } from '../components/utils.js'
 import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
-
-export type ImageProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalImageProperties>
+import { defaults } from '../properties/defaults.js'
 
 export type ImageFit = 'cover' | 'fill'
 
-export type AdditionalImageProperties = {
-  objectFit?: ImageFit
-  keepAspectRatio?: boolean
-  src?: string | Texture
+const additionalImageDefaults = {
+  objectFit: 'fill' as ImageFit,
+  keepAspectRatio: true,
 }
 
-const additionalImageDefaults = {
-  objectFit: 'fill',
-  keepAspectRatio: true,
-} as const
+export type ImageOutputProperties<EM extends ThreeEventMap> = BaseOutputProperties<EM> & {
+  src?: string | Texture
+  aspectRatio?: number
+} & typeof additionalImageDefaults
 
-export type AdditionalImageDefaults = typeof additionalImageDefaults & { aspectRatio: Signal<number | undefined> }
+export type ImageProperties<EM extends ThreeEventMap> = InputProperties<ImageOutputProperties<EM>>
 
 export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
   T,
   EM,
-  AdditionalImageProperties,
-  AdditionalImageDefaults
+  ImageOutputProperties<EM>
 > {
   readonly texture = signal<Texture | undefined>(undefined)
 
   constructor(
     inputProperties?: ImageProperties<EM>,
-    initialClasses?: Array<ImageProperties<EM>>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
     const aspectRatio = signal<number | undefined>(undefined)
-    super(
-      false,
-      {
-        aspectRatio,
-        ...additionalImageDefaults,
-      },
-      inputProperties,
-      initialClasses,
-      undefined,
-      renderContext,
-    )
+    super(false, inputProperties, initialClasses, undefined, renderContext, {
+      ...defaults,
+      ...additionalImageDefaults,
+      aspectRatio,
+    })
 
     setupOrderInfo(
       this.orderInfo,
@@ -73,13 +64,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
     this.frustumCulled = false
     setupRenderOrder(this, this.root, this.orderInfo)
 
-    loadResourceWithParams(
-      this.texture,
-      loadTextureImpl,
-      cleanupTexture,
-      this.abortSignal,
-      this.properties.getSignal('src'),
-    )
+    loadResourceWithParams(this.texture, loadTextureImpl, cleanupTexture, this.abortSignal, this.properties.signal.src)
 
     const clippingPlanes = createGlobalClippingPlanes(this)
     const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
@@ -97,11 +82,11 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
     this.customDistanceMaterial.clippingPlanes = clippingPlanes
 
     abortableEffect(() => {
-      this.material.depthTest = this.properties.get('depthTest')
+      this.material.depthTest = this.properties.value.depthTest
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.material.depthWrite = this.properties.get('depthWrite') ?? false
+      this.material.depthWrite = this.properties.value.depthWrite ?? false
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
@@ -110,7 +95,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      const material = createPanelMaterial(this.properties.get('panelMaterialClass'), info)
+      const material = createPanelMaterial(this.properties.value.panelMaterialClass, info)
       material.clippingPlanes = clippingPlanes
       ;(material as any).map = (this.material as any).map
       material.depthWrite = this.material.depthWrite
@@ -119,15 +104,15 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
       return () => material.dispose()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.renderOrder = this.properties.get('renderOrder')
+      this.renderOrder = this.properties.value.renderOrder
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.castShadow = this.properties.get('castShadow')
+      this.castShadow = this.properties.value.castShadow
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.receiveShadow = this.properties.get('receiveShadow')
+      this.receiveShadow = this.properties.value.receiveShadow
       this.root.peek().requestRender?.()
     }, this.abortSignal)
 
@@ -161,7 +146,13 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
           return
         }
         abortableEffect(() => {
-          setters[key as any]!(data, 0, this.properties.get(key as any), this.size, undefined)
+          setters[key as any]!(
+            data,
+            0,
+            this.properties.value[key as keyof ImageOutputProperties<EM>],
+            this.size,
+            undefined,
+          )
           this.root.peek().requestRender?.()
         }, this.abortSignal)
       })
@@ -175,7 +166,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
       texture.matrix.identity()
       this.root.peek().requestRender?.()
 
-      if (this.properties.get('objectFit') === 'fill' || texture == null) {
+      if (this.properties.value.objectFit === 'fill' || texture == null) {
         transformInsideBorder(this.borderInset, this.size, texture)
         return
       }
@@ -204,7 +195,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
     }, this.abortSignal)
 
     abortableEffect(() => {
-      if (!this.properties.get('keepAspectRatio')) {
+      if (!this.properties.value.keepAspectRatio) {
         aspectRatio.value = undefined
         return
       }

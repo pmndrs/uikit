@@ -3,7 +3,7 @@ import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
 import { Component } from './component.js'
 import { ColorRepresentation, Vector2, Vector2Tuple } from 'three'
 import { RenderContext } from '../components/root.js'
-import { AllProperties, Properties } from '../properties/index.js'
+import { InputProperties, Properties } from '../properties/index.js'
 import { additionalTextDefaults, WordBreak, InstancedText } from '../text/index.js'
 import { abortableEffect } from '../utils.js'
 import { AdditionalTextProperties, TextProperties } from './text.js'
@@ -29,7 +29,7 @@ export const canvasInputProps = {
   },
 }
 
-export type InputProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalInputProperties>
+export type InputProperties<EM extends ThreeEventMap> = InputProperties<EM, AdditionalInputProperties>
 
 export type InputType = 'text' | 'password'
 
@@ -63,7 +63,7 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Tex
 > {
   constructor(
     inputProperties?: TextProperties<EM>,
-    initialClasses?: Array<TextProperties<EM>>,
+    initialClasses?: Array<InputProperties<EM> | string>,
     renderContext?: RenderContext,
   ) {
     //TODO: set default caretOpacity based on opacity

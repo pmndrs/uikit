@@ -10,11 +10,16 @@ import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll,
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { AllProperties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { defaults } from '../properties/defaults.js'
 
-export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
+export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
 
-export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, {}, {}> {
+export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
+  T,
+  EM,
+  BaseOutputProperties<EM>
+> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
@@ -29,10 +34,10 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
   constructor(
     inputProperties?: ContainerProperties<EM>,
-    initialClasses?: Array<ContainerProperties<EM> | string>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
-    super(false, {}, inputProperties, initialClasses, undefined, renderContext)
+    super(false, inputProperties, initialClasses, undefined, renderContext, defaults)
     this.material.visible = false
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)
@@ -44,7 +49,7 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     this.clippingRect = computedClippingRect(
       this.globalMatrix,
       this,
-      this.properties.getSignal('pixelSize'),
+      this.properties.signal.pixelSize,
       parentClippingRect,
     )
 

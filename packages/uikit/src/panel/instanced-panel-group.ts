@@ -33,12 +33,12 @@ export type PanelGroupProperties = {
 export function computedPanelGroupDependencies(properties: Properties) {
   return computed<Required<PanelGroupProperties>>(() => {
     return {
-      panelMaterialClass: properties.get('panelMaterialClass'),
-      castShadow: properties.get('castShadow'),
-      receiveShadow: properties.get('receiveShadow'),
-      depthWrite: properties.get('depthWrite') ?? false,
-      depthTest: properties.get('depthTest'),
-      renderOrder: properties.get('renderOrder'),
+      panelMaterialClass: properties.value.panelMaterialClass,
+      castShadow: properties.value.castShadow,
+      receiveShadow: properties.value.receiveShadow,
+      depthWrite: properties.value.depthWrite ?? false,
+      depthTest: properties.value.depthTest,
+      renderOrder: properties.value.renderOrder,
     }
   })
 }

@@ -1,7 +1,8 @@
 import { computed, effect, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple, Vector3 } from 'three'
 import { Inset } from './flex/node.js'
-import { Properties } from './properties/index.js'
+import { BaseOutputProperties, Properties } from './properties/index.js'
+import { ThreeEventMap } from './events.js'
 
 export const percentageRegex = /(-?\d+(?:\.\d+)?)%/
 
@@ -58,5 +59,7 @@ export function readReactive<T>(value: T | Signal<T>): T {
 }
 
 export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {
-  return computed(() => keys.map((key) => properties.get(key as any) ?? 0) as Inset)
+  return computed(
+    () => keys.map((key) => properties.value[key as keyof BaseOutputProperties<ThreeEventMap>] ?? 0) as Inset,
+  )
 }

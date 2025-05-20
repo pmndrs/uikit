@@ -31,7 +31,7 @@ import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
-import { AllProperties, Properties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties, Properties, PropertiesImplementation } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
@@ -41,8 +41,7 @@ import { InstancedGlyphMesh } from '../text/index.js'
 export class Component<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  AdditionalProperties extends {} = {},
-  AdditionalDefaults extends {} = {},
+  OutputProperties extends BaseOutputProperties<EM> = BaseOutputProperties<EM>,
 > extends Mesh<
   BufferGeometry,
   Material,
@@ -51,11 +50,10 @@ export class Component<
   private abortController = new AbortController()
 
   readonly orderInfo = signal<OrderInfo | undefined>(undefined)
-
   readonly isVisible: Signal<boolean>
   readonly isClipped: Signal<boolean>
   readonly boundingSphere = new Sphere()
-  readonly properties: Properties
+  readonly properties: Properties<OutputProperties>
   readonly node: FlexNode
   readonly size = signal<Vector2Tuple | undefined>(undefined)
   readonly relativeCenter = signal<Vector2Tuple | undefined>(undefined)
@@ -73,16 +71,15 @@ export class Component<
   readonly globalMatrix: Signal<Matrix4 | undefined>
   readonly globalPanelMatrix: Signal<Matrix4 | undefined>
   readonly abortSignal = this.abortController.signal
-
-  readonly classList: ClassList<EM, AdditionalProperties>
+  readonly classList: ClassList
 
   constructor(
     hasNonUikitChildren: boolean,
-    elementDefaults: AdditionalDefaults,
-    private inputProperties: AllProperties<EM, AdditionalProperties> | undefined,
-    initialClasses: Array<AllProperties<EM, AdditionalProperties> | string> | undefined,
+    private inputProperties: InputProperties<OutputProperties> | undefined,
+    initialClasses: Array<InputProperties<BaseOutputProperties<EM>> | string> | undefined,
     material: Material | undefined,
     renderContext: RenderContext | undefined,
+    defaults: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
   ) {
     super(panelGeometry, material)
     this.matrixAutoUpdate = false
@@ -96,11 +93,11 @@ export class Component<
     this.root = buildRootContext(this, renderContext)
 
     //properties
-    this.properties = new Properties(
+    this.properties = new PropertiesImplementation<OutputProperties>(
       allAliases,
       createConditionals(this.root, this.hoveredList, this.activeList),
-      computed(() => this.parentContainer.value?.properties),
-      elementDefaults,
+      computed(() => this.parentContainer.value?.properties as Properties<OutputProperties> | undefined),
+      defaults,
     )
     this.resetProperties(inputProperties)
 
@@ -120,7 +117,7 @@ export class Component<
       this.parentContainer,
       this.globalMatrix,
       this.size,
-      this.properties.getSignal('pixelSize'),
+      this.properties.signal.pixelSize,
     )
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)
 
@@ -134,7 +131,7 @@ export class Component<
 
     setupBoundingSphere(
       this.boundingSphere,
-      this.properties.getSignal('pixelSize'),
+      this.properties.signal.pixelSize,
       this.globalMatrix,
       this.size,
       this.abortSignal,
@@ -168,7 +165,7 @@ export class Component<
     }
   }
 
-  setProperties(inputProperties: AllProperties<EM, AdditionalProperties>) {
+  setProperties(inputProperties: InputProperties<OutputProperties>) {
     this.inputProperties = {
       ...this.inputProperties,
       ...inputProperties,
@@ -176,7 +173,7 @@ export class Component<
     this.properties.setLayersWithConditionals(0, this.inputProperties)
   }
 
-  resetProperties(inputProperties?: AllProperties<EM, AdditionalProperties>) {
+  resetProperties(inputProperties?: InputProperties<OutputProperties>) {
     this.inputProperties = inputProperties
     this.properties.setLayersWithConditionals(0, this.inputProperties)
   }

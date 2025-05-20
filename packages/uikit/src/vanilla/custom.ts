@@ -4,21 +4,26 @@ import { RenderContext } from '../components/root.js'
 import { setupMatrixWorldUpdate } from '../components/utils.js'
 import { ThreeEventMap } from '../events.js'
 import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
-import { AllProperties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
 import { abortableEffect } from '../utils.js'
 import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
+import { defaults } from '../properties/defaults.js'
 
-export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
+export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
 
-export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, {}, {}> {
+export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
+  T,
+  EM,
+  BaseOutputProperties<EM>
+> {
   constructor(
     material: Material,
     inputProperties?: CustomProperties<EM>,
-    initialClasses?: Array<CustomProperties<EM>>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
-    super(false, {}, inputProperties, initialClasses, material, renderContext)
+    super(false, inputProperties, initialClasses, material, renderContext, defaults)
 
     setupOrderInfo(
       this.orderInfo,
@@ -42,23 +47,23 @@ export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     this.customDistanceMaterial.clippingPlanes = clippingPlanes
 
     abortableEffect(() => {
-      this.material.depthTest = this.properties.get('depthTest')
+      this.material.depthTest = this.properties.value.depthTest
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.material.depthWrite = this.properties.get('depthWrite') ?? false
+      this.material.depthWrite = this.properties.value.depthWrite ?? false
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.renderOrder = this.properties.get('renderOrder')
+      this.renderOrder = this.properties.value.renderOrder
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.castShadow = this.properties.get('castShadow')
+      this.castShadow = this.properties.value.castShadow
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.receiveShadow = this.properties.get('receiveShadow')
+      this.receiveShadow = this.properties.value.receiveShadow
       this.root.peek().requestRender?.()
     }, this.abortSignal)
 

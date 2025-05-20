@@ -25,12 +25,11 @@ import {
   createInstancedText,
 } from '../text/index.js'
 import { ThreeEventMap } from '../events.js'
-import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { abortableEffect } from '../utils.js'
 
-export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, {}>
+export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<EM, {}>
 
 export function createTextState<EM extends ThreeEventMap = ThreeEventMap>(
   object: Component,

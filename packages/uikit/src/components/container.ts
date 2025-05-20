@@ -22,12 +22,10 @@ import {
 } from './utils.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
-import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { ThreeEventMap } from '../events.js'
 import { computedFontFamilies } from '../text/font.js'
-
 
 export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
   object: Component,

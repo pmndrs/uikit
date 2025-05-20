@@ -1,35 +1,31 @@
-import { computed, Signal, signal, untracked } from '@preact/signals-core'
+import { computed, Signal, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Box3, Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, Vector3 } from 'three'
-import { RenderContext, RootContext } from '../components/root.js'
+import { RenderContext } from '../components/root.js'
 import { ElementType, OrderInfo, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { AllProperties, Properties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties, Properties } from '../properties/index.js'
 import { abortableEffect, alignmentZMap } from '../utils.js'
 import { setupMatrixWorldUpdate } from '../components/utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
+import { defaults } from '../properties/defaults.js'
 
-const additionalContentDefaults = {
-  depthAlign: 'back',
+const contentDefaults = {
+  ...defaults,
+  depthAlign: 'back' as keyof typeof alignmentZMap,
   keepAspectRatio: true,
 }
 
-type AdditionalContentDefaults = typeof additionalContentDefaults & {
-  aspectRatio: Signal<number | undefined>
-}
+export type ContentOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = typeof contentDefaults &
+  BaseOutputProperties<EM>
 
-export type AdditionalContentProperties = {
-  depthAlign?: keyof typeof alignmentZMap
-  keepAspectRatio?: boolean
-}
-
-export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalContentProperties>
+export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<ContentOutputProperties<EM>>
 
 const IdentityQuaternion = new Quaternion()
 const IdentityMatrix = new Matrix4()
@@ -46,14 +42,14 @@ export type BoundingBox = { size: Vector3; center: Vector3 }
 export class Content<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  AP extends AdditionalContentProperties = AdditionalContentProperties,
-> extends Component<T, EM, AP, AdditionalContentDefaults> {
+  OutputProperties extends ContentOutputProperties<EM> = ContentOutputProperties<EM>,
+> extends Component<T, EM, OutputProperties> {
   readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
   readonly clippingPlanes: Array<Plane>
 
   constructor(
-    inputProperties?: AllProperties<EM, AP>,
-    initialClasses?: Array<AllProperties<EM, AP> | string>,
+    inputProperties?: InputProperties<OutputProperties>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
     private readonly config: {
       remeasureOnChildrenChange: boolean
@@ -65,19 +61,12 @@ export class Content<
     },
   ) {
     const defaultAspectRatio = signal<number | undefined>(undefined)
-    super(
-      true,
-      {
-        ...additionalContentDefaults,
-        aspectRatio: defaultAspectRatio,
-      },
-      inputProperties,
-      initialClasses,
-      undefined,
-      renderContext,
-    )
+    super(true, inputProperties, initialClasses, undefined, renderContext, {
+      ...(contentDefaults as OutputProperties),
+      aspectRatio: defaultAspectRatio,
+    })
     abortableEffect(() => {
-      if (!this.properties.get('keepAspectRatio')) {
+      if (!this.properties.value.keepAspectRatio) {
         defaultAspectRatio.value = undefined
         return
       }
@@ -129,12 +118,12 @@ export class Content<
 
       const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
 
-      const pixelSize = this.properties.get('pixelSize')
+      const pixelSize = this.properties.value.pixelSize
       scaleHelper
         .set(
           innerWidth * pixelSize,
           innerHeight * pixelSize,
-          this.properties.get('keepAspectRatio')
+          this.properties.value.keepAspectRatio
             ? (innerHeight * pixelSize * boundingBox.size.z) / boundingBox.size.y
             : boundingBox.size.z,
         )
@@ -142,7 +131,7 @@ export class Content<
 
       positionHelper.copy(boundingBox.center).negate()
 
-      positionHelper.z -= alignmentZMap[this.properties.get('depthAlign')] * boundingBox.size.z
+      positionHelper.z -= alignmentZMap[this.properties.value.depthAlign] * boundingBox.size.z
       positionHelper.multiply(scaleHelper)
       positionHelper.add(
         vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
@@ -236,17 +225,17 @@ export class Content<
 const colorHelper = new Color()
 
 function applyAppearancePropertiesToGroup(properties: Properties, group: Object3D, depthWriteDefault: boolean) {
-  const color = properties.get('color')
+  const color = properties.value.color
   let c: Color | undefined
   if (Array.isArray(color)) {
     c = colorHelper.setRGB(...color)
   } else if (color != null) {
     c = colorHelper.set(color)
   }
-  const opacity = properties.get('opacity')
-  const depthTest = properties.get('depthTest')
-  const depthWrite = properties.get('depthWrite') ?? depthWriteDefault
-  const renderOrder = properties.get('renderOrder')
+  const opacity = properties.value.opacity
+  const depthTest = properties.value.depthTest
+  const depthWrite = properties.value.depthWrite ?? depthWriteDefault
+  const renderOrder = properties.value.renderOrder
   group.traverse((child) => {
     if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
       return

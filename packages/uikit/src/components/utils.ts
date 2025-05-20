@@ -43,7 +43,7 @@ export function computedIsVisible(
     () =>
       component.displayed.value &&
       (isClipped == null || !isClipped?.value) &&
-      properties.get('visibility') === 'visible',
+      properties.value.visibility === 'visible',
   )
 }
 
@@ -99,7 +99,7 @@ export function computedHandlers(
   return computed(() => {
     const handlers: EventHandlers = {}
     for (const key of eventHandlerKeys) {
-      const handler = properties.get(key as keyof EventHandlers)
+      const handler = properties.value[key as keyof EventHandlers]
       if (handler != null) {
         handlers[key] = handler as any
       }
@@ -202,15 +202,15 @@ export function setupPointerEvents(component: Component, canHaveNonUikitChildren
   component.defaultPointerEvents = 'auto'
   abortableEffect(() => {
     component.ancestorsHaveListeners = component.ancestorsHaveListenersSignal.value
-    component.pointerEvents = component.properties.get('pointerEvents')
-    component.pointerEventsOrder = component.properties.get('pointerEventsOrder')
-    component.pointerEventsType = component.properties.get('pointerEventsType')
+    component.pointerEvents = component.properties.value.pointerEvents
+    component.pointerEventsOrder = component.properties.value.pointerEventsOrder
+    component.pointerEventsType = component.properties.value.pointerEventsType
   }, component.abortSignal)
   abortableEffect(() => {
     const rootComponent = component.root.value.component
     component.intersectChildren = canHaveNonUikitChildren || rootComponent === component
 
-    if (!canHaveNonUikitChildren && component.properties.get('pointerEvents') === 'none') {
+    if (!canHaveNonUikitChildren && component.properties.value.pointerEvents === 'none') {
       return
     }
     if (rootComponent === component) {

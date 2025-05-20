@@ -48,13 +48,13 @@ export function computedTransformMatrix({ relativeCenter, size, properties }: Co
       return undefined
     }
     const [x, y] = relativeCenter.value
-    const pixelSize = properties.get('pixelSize')
+    const pixelSize = properties.value.pixelSize
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
     let originCenter = true
 
-    const tOX = properties.get('transformOriginX') ?? defaultTransformOriginX
-    const tOY = properties.get('transformOriginY') ?? defaultTransformOriginY
+    const tOX = properties.value.transformOriginX ?? defaultTransformOriginX
+    const tOY = properties.value.transformOriginY ?? defaultTransformOriginY
 
     if (tOX != 'center' || tOY != 'center') {
       if (size.value == null) {
@@ -67,15 +67,15 @@ export function computedTransformMatrix({ relativeCenter, size, properties }: Co
       originVector.negate()
     }
 
-    const tTX = properties.get('transformTranslateX') ?? 0
-    const tTY = properties.get('transformTranslateY') ?? 0
-    const tTZ = properties.get('transformTranslateZ') ?? 0
-    const tRX = properties.get('transformRotateX') ?? 0
-    const tRY = properties.get('transformRotateY') ?? 0
-    const tRZ = properties.get('transformRotateZ') ?? 0
-    const tSX = properties.get('transformScaleX') ?? 1
-    const tSY = properties.get('transformScaleY') ?? 1
-    const tSZ = properties.get('transformScaleZ') ?? 1
+    const tTX = properties.value.transformTranslateX ?? 0
+    const tTY = properties.value.transformTranslateY ?? 0
+    const tTZ = properties.value.transformTranslateZ ?? 0
+    const tRX = properties.value.transformRotateX ?? 0
+    const tRY = properties.value.transformRotateY ?? 0
+    const tRZ = properties.value.transformRotateZ ?? 0
+    const tSX = properties.value.transformScaleX ?? 1
+    const tSY = properties.value.transformScaleY ?? 1
+    const tSZ = properties.value.transformScaleZ ?? 1
 
     const r: Vector3Tuple = [tRX, tRY, tRZ]
     const t: Vector3Tuple = [translateToNumber(tTX, size, 0), -translateToNumber(tTY, size, 1), tTZ]

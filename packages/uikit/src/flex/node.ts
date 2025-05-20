@@ -5,6 +5,8 @@ import { setter } from './setter.js'
 import { PointScaleFactor, createYogaNode } from './yoga.js'
 import { abortableEffect } from '../utils.js'
 import { Component } from '../vanilla/component.js'
+import { BaseOutputProperties } from '../properties/index.js'
+import { ThreeEventMap } from '../events.js'
 
 export type YogaProperties = {
   [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
@@ -57,7 +59,10 @@ export class FlexNode {
           return
         }
         abortableEffect(() => {
-          setter[key as keyof typeof setter](this.yogaNode!, component.properties.get(key as any) as any)
+          setter[key as keyof typeof setter](
+            this.yogaNode!,
+            component.properties.value[key as keyof BaseOutputProperties<ThreeEventMap>] as any,
+          )
           this.component.root.peek().requestCalculateLayout()
         }, component.abortSignal)
       })
@@ -122,7 +127,7 @@ export class FlexNode {
       parentDirection === FlexDirection.Column || parentDirection === FlexDirection.ColumnReverse
     if (
       this.customLayouting != null &&
-      this.component.properties.peek(parentDirectionVertical ? 'minHeight' : 'minWidth') === undefined
+      this.component.properties.peek()[parentDirectionVertical ? 'minHeight' : 'minWidth'] === undefined
     ) {
       this.yogaNode[parentDirectionVertical ? 'setMinHeight' : 'setMinWidth'](
         parentDirectionVertical ? this.customLayouting.minHeight : this.customLayouting.minWidth,
@@ -131,8 +136,8 @@ export class FlexNode {
 
     //see: https://codepen.io/Gettinqdown-Dev/pen/wvZLKBm
     //-> on the web if the parent has flexdireciton column, elements dont shrink below flexBasis
-    if (this.component.properties.peek('flexShrink') == null) {
-      const hasHeight = this.component.properties.peek('height') != null
+    if (this.component.properties.peek().flexShrink == null) {
+      const hasHeight = this.component.properties.peek().height != null
       this.yogaNode.setFlexShrink(hasHeight && parentDirectionVertical ? 0 : undefined)
     }
     /** ---- END ---- */

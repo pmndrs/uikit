@@ -31,7 +31,7 @@ export function computedGlobalScrollMatrix(
       return undefined
     }
     const [scrollX, scrollY] = scrollPosition.value
-    const pixelSize = properties.get('pixelSize')
+    const pixelSize = properties.value.pixelSize
     return new Matrix4().makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0).premultiply(global)
   })
 }
@@ -80,8 +80,8 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
         const scrollbarAxisIndex = ponterIsMouse
           ? getIntersectedScrollbarIndex(
               localPoint,
-              container.properties.peek('pixelSize'),
-              container.properties.peek('scrollbarWidth'),
+              container.properties.peek().pixelSize,
+              container.properties.peek().scrollbarWidth,
               container.size.peek(),
               container.maxScrollPosition.peek(),
               container.borderInset.peek(),
@@ -123,7 +123,7 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
         event.stopImmediatePropagation?.()
         object.worldToLocal(localPointHelper.copy(event.point))
         distanceHelper.copy(localPointHelper).sub(prevInteraction.localPoint)
-        distanceHelper.divideScalar(container.properties.peek('pixelSize'))
+        distanceHelper.divideScalar(container.properties.peek().pixelSize)
         prevInteraction.localPoint.copy(localPointHelper)
 
         if (prevInteraction.type === 'scroll-bar') {
@@ -138,7 +138,7 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
             size,
             container.borderInset.peek(),
             container.maxScrollPosition.peek(),
-            container.properties.peek('scrollbarWidth'),
+            container.properties.peek().scrollbarWidth,
           )
           scroll(container, event, distanceHelper.x, -distanceHelper.y, undefined, false)
           return
@@ -202,7 +202,7 @@ function scroll(
       wasScrolledY || Math.min(y, (maxY ?? 0) - y) > 5,
     )
   }
-  const preventScroll = container.properties.peek('onScroll')?.(newX, newY, container.scrollPosition, event)
+  const preventScroll = container.properties.peek().onScroll?.(newX, newY, container.scrollPosition, event)
   if (preventScroll === false || (x === newX && y === newY)) {
     return
   }
@@ -330,7 +330,7 @@ export type ScrollbarProperties = {
     [Key in Exclude<
       keyof PanelProperties,
       'backgroundColor' | 'backgroundOpacity'
-    > as `scrollbar${Capitalize<Key>}`]: PanelProperties[Key]
+    > as `scrollbar${Capitalize<Key>}`]?: PanelProperties[Key]
   }
 
 const scrollbarBorderPropertyKeys = [
@@ -395,7 +395,7 @@ function setupScrollbar(
   const scrollbarTransformation = computed(() =>
     computeScrollbarTransformation(
       primaryIndex,
-      container.properties.get('scrollbarWidth'),
+      container.properties.value.scrollbarWidth,
       container.size.value,
       container.maxScrollPosition.value,
       container.borderInset.value,

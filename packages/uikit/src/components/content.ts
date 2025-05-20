@@ -13,7 +13,6 @@ import {
   setupBoundingSphere,
   makeClippedCast,
 } from '../panel/index.js'
-import { AllProperties, Properties } from '../properties/index.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
 import { computedTransformMatrix } from '../transform.js'
@@ -29,7 +28,7 @@ import {
   setupPointerEvents,
 } from './utils.js'
 
-export type ContentProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalContentProperties>
+export type ContentProperties<EM extends ThreeEventMap> = InputProperties<EM, AdditionalContentProperties>
 
 export type AdditionalContentProperties = {
   depthAlign?: keyof typeof alignmentZMap

@@ -1,25 +1,25 @@
 import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
 import { RenderContext } from '../components/root.js'
 import { ThreeEventMap } from '../events.js'
-import { BoundingBox, Content } from './content.js'
+import { BoundingBox, Content, ContentOutputProperties } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect } from '../utils.js'
 import { loadResourceWithParams } from '../components/utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { AllProperties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
 
-export type AdditionalSvgProperties = {
+export type SvgOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutputProperties<EM> & {
   keepAspectRatio?: boolean
   src?: string
   content?: string
 }
 
-export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalSvgProperties>
+export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<SvgOutputProperties<EM>>
 
-export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Content<T, EM, AdditionalSvgProperties> {
+export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Content<T, EM, SvgOutputProperties<EM>> {
   constructor(
     inputProperties?: SvgProperties<EM>,
-    initialClasses?: Array<SvgProperties<EM> | string>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
     const boundingBox = signal<BoundingBox | undefined>(undefined)
@@ -36,8 +36,8 @@ export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Conte
       disposeSvg,
       this.abortSignal,
       computed(() => ({
-        src: this.properties.get('src'),
-        content: this.properties.get('content'),
+        src: this.properties.value.src,
+        content: this.properties.value.content,
       })),
     )
     abortableEffect(() => {

@@ -2,6 +2,8 @@ import { Signal } from '@preact/signals-core'
 import { Object3D, RenderItem } from 'three'
 import { abortableEffect, readReactive } from './utils.js'
 import { Properties } from './properties/index.js'
+import { BaseOutputProperties } from './properties/index.js'
+import { ThreeEventMap } from './events.js'
 
 export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
 
@@ -88,7 +90,6 @@ export function setupOrderInfo(
   basisOrderInfoSignal: Signal<OrderInfo | undefined | null>,
   abortSignal: AbortSignal,
 ): void {
-  const zIndexOffset = properties == null ? undefined : properties.getSignal(zIndexOffsetKey as any)
   abortableEffect(() => {
     if (basisOrderInfoSignal.value === undefined) {
       target.value = undefined
@@ -96,7 +97,7 @@ export function setupOrderInfo(
     }
 
     const basisOrderInfo = basisOrderInfoSignal.value
-    const offset = zIndexOffset?.value
+    const offset = properties?.value[zIndexOffsetKey as keyof ZIndexProperties]
     const majorOffset = typeof offset === 'number' ? offset : (offset?.major ?? 0)
     const minorOffset = typeof offset === 'number' ? 0 : (offset?.minor ?? 0)
 

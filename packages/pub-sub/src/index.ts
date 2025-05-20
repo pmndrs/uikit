@@ -6,7 +6,30 @@ export type GetSignal<T> = T extends Signal<infer K> ? K : T
 
 export type NotUndefined<T> = T extends undefined ? never : T
 
-export class PropertiesPubSub<In, Out, Defaults> {
+export type ReadonlyProperties<Out> = {
+  get value(): Out
+  peek(): Out
+  get signal(): { [Key in keyof Out]: Signal<Out[Key]> }
+  /**
+   * allows to subcribe to all the current and new property keys
+   * @param callback is called immediately for all the current property keys
+   */
+  subscribePropertyKeys(callback: (key: string | symbol | number) => void): () => void
+}
+
+export type Properties<In, Out extends object> = ReadonlyProperties<Out> & {
+  destroy(): void
+  set<K extends keyof In>(layerIndex: number, key: K, value: In[K]): void
+  setLayer(index: number, value: Partial<In> | undefined): void
+}
+
+export class PropertiesImplementation<In, Out extends object> implements Properties<In, Out> {
+  readonly value = new Proxy<Out>({} as any, { get: (_target, key) => this.getSignal(key as keyof Out).value })
+  readonly signal = new Proxy<{ [Key in keyof Out]: Signal<Out[Key]> }>({} as any, {
+    get: (_target, key) => this.getSignal(key as keyof Out),
+  })
+  readonly peekProxy = new Proxy<Out>({} as any, { get: (_target, key) => this.peekValue(key as keyof Out) })
+
   private propertyStateMap = {} as Record<keyof Out, PropertyState>
   protected propertiesLayers = new Map<number, Record<keyof Out, any>>()
   private propertyKeys: Array<keyof Out>
@@ -17,34 +40,25 @@ export class PropertiesPubSub<In, Out, Defaults> {
     private readonly apply: <K1 extends keyof In>(
       key: K1,
       value: In[K1],
-      set: <K2 extends keyof Out>(key: K2, value: Out[K2]) => void,
+      set: <K2 extends keyof Out>(key: K2, value: Out[K2] | Signal<Out[K2]>) => void,
       layerIndex: number,
     ) => void,
-    private readonly defaults: Defaults,
+    private readonly defaults: { [Key in keyof Out]: Out[Key] | Signal<Out[Key]> },
     private readonly onLayerIndicesChanged?: () => void,
   ) {
     this.propertyKeys = Array.from(Object.keys(defaults as object)) as Array<keyof Out>
   }
 
-  /**
-   * allows to subcribe to all the current and new property keys
-   * @param callback is called immediately for all the current property keys
-   */
+  peek() {
+    return this.peekProxy
+  }
+
   subscribePropertyKeys(callback: (key: string | symbol | number) => void): () => void {
     for (const key of this.propertyKeys) {
       callback(key)
     }
     this.propertyKeySubscriptions.add(callback)
     return () => this.propertyKeySubscriptions.delete(callback)
-  }
-
-  clearLayer(index: number): void {
-    const layer = this.propertiesLayers.get(index)
-    if (layer == null) {
-      return
-    }
-    batch(() => this.clearProvidedLayer(layer, index))
-    this.onLayerIndicesChanged?.()
   }
 
   private clearProvidedLayer(layer: Record<keyof Out, any>, index: number) {
@@ -69,7 +83,7 @@ export class PropertiesPubSub<In, Out, Defaults> {
     }
   }
 
-  setLayer(index: number, value: In | undefined) {
+  setLayer(index: number, value: Partial<In> | undefined) {
     let layer = this.propertiesLayers.get(index)
     const isNewLayer = layer == null
     batch(() => {
@@ -90,13 +104,7 @@ export class PropertiesPubSub<In, Out, Defaults> {
     }
   }
 
-  get<K extends keyof Out & string>(key: K) {
-    return this.getSignal(key).value
-  }
-
-  getSignal<K extends keyof Out>(
-    key: K,
-  ): Signal<K extends keyof Defaults ? NotUndefined<GetSignal<Out[K]>> : GetSignal<Out[K]> | undefined> {
+  private getSignal<K extends keyof Out>(key: K): Signal<Out[K]> {
     let propertyState = this.propertyStateMap[key]
     if (propertyState == null) {
       this.propertyStateMap[key] = propertyState = {
@@ -108,14 +116,12 @@ export class PropertiesPubSub<In, Out, Defaults> {
     return propertyState.signal
   }
 
-  peek<K extends keyof Out>(
-    key: K,
-  ): K extends keyof Defaults ? NotUndefined<GetSignal<Out[K]>> : GetSignal<Out[K]> | undefined {
+  private peekValue<K extends keyof Out>(key: K): Out[K] {
     let propertyState = this.propertyStateMap[key]
     if (propertyState != null) {
       return propertyState.signal.peek()
     }
-    const defaultValue = this.defaults[key as unknown as keyof Defaults]
+    const defaultValue = this.defaults[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
     const [result, layerIndex] = untracked(
       () => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!,
@@ -158,7 +164,7 @@ export class PropertiesPubSub<In, Out, Defaults> {
   private update(key: keyof Out, target: PropertyState): void {
     target.cleanup?.()
     target.cleanup = undefined
-    const defaultValue = this.defaults[key as unknown as keyof Defaults]
+    const defaultValue = this.defaults[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
     const result = selectLayerValue(
       0,

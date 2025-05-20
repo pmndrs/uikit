@@ -3,11 +3,10 @@ import { Font } from './font.js'
 import { getGlyphLayoutHeight } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { MeasureMode } from 'yoga-layout/load'
-import { readReactive } from '../utils.js'
-import { Properties } from '../properties/index.js'
+import { BaseOutputProperties, Properties } from '../properties/index.js'
 import { CustomLayouting } from '../flex/index.js'
 import { ThreeEventMap } from '../events.js'
-import { AdditionalTextDefaults, AdditionalTextProperties } from './render/index.js'
+import { AdditionalTextDefaults } from './render/index.js'
 
 export type GlyphLayoutLine = {
   charIndexOffset: number
@@ -37,7 +36,7 @@ export type GlyphLayoutProperties = {
 }
 
 export function computedCustomLayouting(
-  properties: Properties<ThreeEventMap, AdditionalTextProperties, AdditionalTextDefaults>,
+  properties: Properties<BaseOutputProperties<ThreeEventMap> & AdditionalTextDefaults>,
   fontSignal: Signal<Font | undefined>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
 ) {
@@ -46,17 +45,17 @@ export function computedCustomLayouting(
     if (font == null) {
       return undefined
     }
-    const textProperty = properties.get('text')
+    const textProperty = properties.value.text
     let text = Array.isArray(textProperty) ? textProperty.join('') : textProperty
     //TODO: tab should be intergrated into the text layouting algorithm
     text = text.replaceAll('\t', ' '.repeat(4))
     const layoutProperties: GlyphLayoutProperties = {
       font,
-      fontSize: properties.get('fontSize'),
-      letterSpacing: properties.get('letterSpacing'),
-      lineHeight: properties.get('lineHeight'),
+      fontSize: properties.value.fontSize,
+      letterSpacing: properties.value.letterSpacing,
+      lineHeight: properties.value.lineHeight,
       text,
-      wordBreak: properties.get('wordBreak'),
+      wordBreak: properties.value.wordBreak,
     }
     propertiesRef.current = layoutProperties
 

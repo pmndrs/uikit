@@ -1,34 +1,36 @@
 import { expect } from 'chai'
-import { PropertiesPubSub } from '../src/index.js'
+import { PropertiesImplementation } from '../src/index.js'
 import { effect, Signal } from '@preact/signals-core'
 
-interface TestProps {
-  color?: string | Signal<string | undefined>
-  size?: number | Signal<number | undefined>
-  visible?: boolean | Signal<boolean | undefined>
+type OutTestProps = {
+  color?: string
+  size?: number
+  visible?: boolean
 }
 
+type InTestProps = { [Key in keyof OutTestProps]?: OutTestProps[Key] | Signal<OutTestProps[Key] | undefined> }
+
 describe('PropertiesPubSub', () => {
-  let pubSub: PropertiesPubSub<TestProps, TestProps, {}>
+  let pubSub: PropertiesImplementation<InTestProps, OutTestProps>
 
   beforeEach(() => {
-    pubSub = new PropertiesPubSub<TestProps, TestProps, {}>((key, value, set) => set(key, value), {})
+    pubSub = new PropertiesImplementation<InTestProps, OutTestProps>((key, value, set) => set(key, value), {})
   })
 
   describe('normal set/get operations', () => {
     it('should set and get a value', () => {
       pubSub.set(0, 'color', 'red')
-      expect(pubSub.get('color')).to.equal('red')
+      expect(pubSub.value.color).to.equal('red')
     })
 
     it('should return undefined for unset properties', () => {
-      expect(pubSub.get('size')).to.be.undefined
+      expect(pubSub.value.size).to.be.undefined
     })
 
     it('should get the most recently set value', () => {
       pubSub.set(0, 'color', 'red')
       pubSub.set(0, 'color', 'blue')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
     })
 
     it('should handle different property types', () => {
@@ -36,9 +38,9 @@ describe('PropertiesPubSub', () => {
       pubSub.set(0, 'size', 10)
       pubSub.set(0, 'visible', true)
 
-      expect(pubSub.get('color')).to.equal('red')
-      expect(pubSub.get('size')).to.equal(10)
-      expect(pubSub.get('visible')).to.equal(true)
+      expect(pubSub.value.color).to.equal('red')
+      expect(pubSub.value.size).to.equal(10)
+      expect(pubSub.value.visible).to.equal(true)
     })
   })
 
@@ -48,7 +50,7 @@ describe('PropertiesPubSub', () => {
       pubSub.set(1, 'color', 'green')
       pubSub.set(0, 'color', 'blue')
 
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
     })
 
     it("should fall back to higher layers when lower layers don't have a value", () => {
@@ -56,31 +58,31 @@ describe('PropertiesPubSub', () => {
       pubSub.set(1, 'size', 10)
       pubSub.set(0, 'visible', true)
 
-      expect(pubSub.get('color')).to.equal('red')
-      expect(pubSub.get('size')).to.equal(10)
-      expect(pubSub.get('visible')).to.equal(true)
+      expect(pubSub.value.color).to.equal('red')
+      expect(pubSub.value.size).to.equal(10)
+      expect(pubSub.value.visible).to.equal(true)
     })
 
     it('should update property when a higher priority layer sets a value', () => {
       pubSub.set(2, 'color', 'red')
-      expect(pubSub.get('color')).to.equal('red')
+      expect(pubSub.value.color).to.equal('red')
 
       pubSub.set(1, 'color', 'green')
-      expect(pubSub.get('color')).to.equal('green')
+      expect(pubSub.value.color).to.equal('green')
 
       pubSub.set(0, 'color', 'blue')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
     })
 
     it('should not update when a lower priority layer sets a value', () => {
       pubSub.set(0, 'color', 'blue')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
 
       pubSub.set(1, 'color', 'green')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
 
       pubSub.set(2, 'color', 'red')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
     })
   })
 
@@ -89,7 +91,7 @@ describe('PropertiesPubSub', () => {
       let updateCalled = 0
       effect(() => {
         updateCalled++
-        pubSub.get('color')
+        pubSub.value.color
       })
       expect(updateCalled).to.equal(1)
 
@@ -98,7 +100,7 @@ describe('PropertiesPubSub', () => {
       expect(updateCalled).to.equal(2)
 
       // Get the value to establish a listener
-      pubSub.get('color')
+      pubSub.value.color
 
       // Set the same value again
       pubSub.set(0, 'color', 'red')
@@ -117,22 +119,22 @@ describe('PropertiesPubSub', () => {
       pubSub.set(1, 'color', 'green')
       pubSub.set(2, 'color', 'red')
 
-      pubSub.clearLayer(0)
+      pubSub.setLayer(0, undefined)
 
       // Should fall back to higher layers
-      expect(pubSub.get('color')).to.equal('green')
-      expect(pubSub.get('size')).to.be.undefined
+      expect(pubSub.value.color).to.equal('green')
+      expect(pubSub.value.size).to.be.undefined
     })
 
     it('should do nothing when clearing a non-existent layer', () => {
       pubSub.set(0, 'color', 'blue')
-      pubSub.clearLayer(5)
-      expect(pubSub.get('color')).to.equal('blue')
+      pubSub.setLayer(5, undefined)
+      expect(pubSub.value.color).to.equal('blue')
     })
 
     it('should handle clearing an empty layer', () => {
-      pubSub.clearLayer(0)
-      expect(pubSub.get('color')).to.be.undefined
+      pubSub.setLayer(0, undefined)
+      expect(pubSub.value.color).to.be.undefined
     })
   })
 
@@ -141,10 +143,10 @@ describe('PropertiesPubSub', () => {
       const colorSignal = new Signal('red')
       pubSub.set(0, 'color', colorSignal)
 
-      expect(pubSub.get('color')).to.equal('red')
+      expect(pubSub.value.color).to.equal('red')
 
       colorSignal.value = 'blue'
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
     })
 
     it('should update when signal values change', () => {
@@ -152,11 +154,11 @@ describe('PropertiesPubSub', () => {
       pubSub.set(0, 'color', colorSignal)
 
       // First get to establish a subscription
-      expect(pubSub.get('color')).to.equal('red')
+      expect(pubSub.value.color).to.equal('red')
 
       // Change the signal
       colorSignal.value = 'blue'
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
     })
 
     it('should fall back when signal becomes undefined', () => {
@@ -164,10 +166,10 @@ describe('PropertiesPubSub', () => {
       pubSub.set(0, 'color', colorSignal)
       pubSub.set(1, 'color', 'green')
 
-      expect(pubSub.get('color')).to.equal('red')
+      expect(pubSub.value.color).to.equal('red')
 
       colorSignal.value = undefined as any
-      expect(pubSub.get('color')).to.equal('green')
+      expect(pubSub.value.color).to.equal('green')
     })
 
     it('should fall back through multiple layers with signals to a static value', () => {
@@ -178,69 +180,85 @@ describe('PropertiesPubSub', () => {
       pubSub.set(1, 'color', signalLayer1)
       pubSub.set(2, 'color', 'red')
 
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
 
       signalLayer0.value = undefined as any
-      expect(pubSub.get('color')).to.equal('green')
+      expect(pubSub.value.color).to.equal('green')
 
       signalLayer1.value = undefined as any
-      expect(pubSub.get('color')).to.equal('red')
+      expect(pubSub.value.color).to.equal('red')
     })
   })
 
   describe('nesting of two PropertiesPubSub', () => {
     it('should allow one PubSub to be a consumer of another', () => {
-      const parentPubSub = new PropertiesPubSub<TestProps, TestProps, {}>((key, value, set) => set(key, value), {})
-      const childPubSub = new PropertiesPubSub<TestProps, TestProps, {}>((key, value, set) => set(key, value), {})
+      const parentPubSub = new PropertiesImplementation<InTestProps, OutTestProps>(
+        (key, value, set) => set(key, value),
+        {},
+      )
+      const childPubSub = new PropertiesImplementation<InTestProps, OutTestProps>(
+        (key, value, set) => set(key, value),
+        {},
+      )
 
       // Set up parent with a value
       parentPubSub.set(0, 'color', 'red')
 
       // Child gets value from parent and sets its own
-      childPubSub.set(0, 'color', parentPubSub.getSignal('color'))
+      childPubSub.set(0, 'color', parentPubSub.signal.color)
 
-      expect(childPubSub.get('color')).to.equal('red')
+      expect(childPubSub.value.color).to.equal('red')
 
       // Update parent should not automatically update child
       parentPubSub.set(0, 'color', 'blue')
-      expect(childPubSub.get('color')).to.equal('blue')
+      expect(childPubSub.value.color).to.equal('blue')
     })
 
     it('should allow nesting two PubSubs with multiple layers', () => {
-      const parentPubSub = new PropertiesPubSub<TestProps, TestProps, {}>((key, value, set) => set(key, value), {})
-      const childPubSub = new PropertiesPubSub<TestProps, TestProps, {}>((key, value, set) => set(key, value), {})
+      const parentPubSub = new PropertiesImplementation<InTestProps, OutTestProps>(
+        (key, value, set) => set(key, value),
+        {},
+      )
+      const childPubSub = new PropertiesImplementation<InTestProps, OutTestProps>(
+        (key, value, set) => set(key, value),
+        {},
+      )
 
       // Set up parent with a value
       parentPubSub.set(1, 'color', 'red')
       parentPubSub.set(0, 'color', 'orange')
 
       // Child gets value from parent and sets its own
-      childPubSub.set(1, 'color', parentPubSub.getSignal('color'))
+      childPubSub.set(1, 'color', parentPubSub.signal.color)
       childPubSub.set(0, 'color', 'green')
 
-      expect(childPubSub.get('color')).to.equal('green')
+      expect(childPubSub.value.color).to.equal('green')
 
       childPubSub.set(0, 'color', undefined)
-      expect(childPubSub.get('color')).to.equal('orange')
+      expect(childPubSub.value.color).to.equal('orange')
 
       parentPubSub.set(0, 'color', undefined)
-      expect(childPubSub.get('color')).to.equal('red')
+      expect(childPubSub.value.color).to.equal('red')
     })
   })
 
   describe('apply function property aliasing', () => {
-    interface BorderProps {
-      borderWidth?: number | Signal<number | undefined>
-      borderWidthTop?: number | Signal<number | undefined>
-      borderWidthRight?: number | Signal<number | undefined>
-      borderWidthBottom?: number | Signal<number | undefined>
-      borderWidthLeft?: number | Signal<number | undefined>
+    type OutBorderProps = {
+      borderWidth?: number
+      borderWidthTop?: number
+      borderWidthRight?: number
+      borderWidthBottom?: number
+      borderWidthLeft?: number
     }
 
-    let pubSub: PropertiesPubSub<BorderProps, BorderProps, {}>
+    type InBorderProps = {
+      [Key in keyof OutBorderProps]?: OutBorderProps[Key] | Signal<OutBorderProps[Key] | undefined>
+    }
+
+    let pubSub: PropertiesImplementation<InBorderProps, OutBorderProps>
 
     beforeEach(() => {
-      pubSub = new PropertiesPubSub<BorderProps, BorderProps, {}>((key, value, set) => {
+      pubSub = new PropertiesImplementation<InBorderProps, OutBorderProps>((key, value, set) => {
         if (key === 'borderWidth') {
           // Alias borderWidth to all sides
           set('borderWidthTop', value)
@@ -257,68 +275,68 @@ describe('PropertiesPubSub', () => {
     it('should alias borderWidth to all sides', () => {
       pubSub.set(0, 'borderWidth', 5)
 
-      expect(pubSub.get('borderWidthTop')).to.equal(5)
-      expect(pubSub.get('borderWidthRight')).to.equal(5)
-      expect(pubSub.get('borderWidthBottom')).to.equal(5)
-      expect(pubSub.get('borderWidthLeft')).to.equal(5)
+      expect(pubSub.value.borderWidthTop).to.equal(5)
+      expect(pubSub.value.borderWidthRight).to.equal(5)
+      expect(pubSub.value.borderWidthBottom).to.equal(5)
+      expect(pubSub.value.borderWidthLeft).to.equal(5)
     })
 
     it('should handle signals for borderWidth aliasing', () => {
       const borderWidthSignal = new Signal(5)
       pubSub.set(0, 'borderWidth', borderWidthSignal)
 
-      expect(pubSub.get('borderWidthTop')).to.equal(5)
-      expect(pubSub.get('borderWidthRight')).to.equal(5)
-      expect(pubSub.get('borderWidthBottom')).to.equal(5)
-      expect(pubSub.get('borderWidthLeft')).to.equal(5)
+      expect(pubSub.value.borderWidthTop).to.equal(5)
+      expect(pubSub.value.borderWidthRight).to.equal(5)
+      expect(pubSub.value.borderWidthBottom).to.equal(5)
+      expect(pubSub.value.borderWidthLeft).to.equal(5)
 
       borderWidthSignal.value = 10
-      expect(pubSub.get('borderWidthTop')).to.equal(10)
-      expect(pubSub.get('borderWidthRight')).to.equal(10)
-      expect(pubSub.get('borderWidthBottom')).to.equal(10)
-      expect(pubSub.get('borderWidthLeft')).to.equal(10)
+      expect(pubSub.value.borderWidthTop).to.equal(10)
+      expect(pubSub.value.borderWidthRight).to.equal(10)
+      expect(pubSub.value.borderWidthBottom).to.equal(10)
+      expect(pubSub.value.borderWidthLeft).to.equal(10)
     })
 
     it('should allow individual sides to override the aliased borderWidth', () => {
       pubSub.set(0, 'borderWidth', 5)
       pubSub.set(0, 'borderWidthTop', 10)
 
-      expect(pubSub.get('borderWidthTop')).to.equal(10)
-      expect(pubSub.get('borderWidthRight')).to.equal(5)
-      expect(pubSub.get('borderWidthBottom')).to.equal(5)
-      expect(pubSub.get('borderWidthLeft')).to.equal(5)
+      expect(pubSub.value.borderWidthTop).to.equal(10)
+      expect(pubSub.value.borderWidthRight).to.equal(5)
+      expect(pubSub.value.borderWidthBottom).to.equal(5)
+      expect(pubSub.value.borderWidthLeft).to.equal(5)
     })
 
     it('should respect layer precedence with aliased properties', () => {
       pubSub.set(1, 'borderWidth', 5)
       pubSub.set(0, 'borderWidthTop', 10)
 
-      expect(pubSub.get('borderWidthTop')).to.equal(10)
-      expect(pubSub.get('borderWidthRight')).to.equal(5)
-      expect(pubSub.get('borderWidthBottom')).to.equal(5)
-      expect(pubSub.get('borderWidthLeft')).to.equal(5)
+      expect(pubSub.value.borderWidthTop).to.equal(10)
+      expect(pubSub.value.borderWidthRight).to.equal(5)
+      expect(pubSub.value.borderWidthBottom).to.equal(5)
+      expect(pubSub.value.borderWidthLeft).to.equal(5)
 
       pubSub.set(0, 'borderWidth', 15)
-      expect(pubSub.get('borderWidthTop')).to.equal(15)
-      expect(pubSub.get('borderWidthRight')).to.equal(15)
-      expect(pubSub.get('borderWidthBottom')).to.equal(15)
-      expect(pubSub.get('borderWidthLeft')).to.equal(15)
+      expect(pubSub.value.borderWidthTop).to.equal(15)
+      expect(pubSub.value.borderWidthRight).to.equal(15)
+      expect(pubSub.value.borderWidthBottom).to.equal(15)
+      expect(pubSub.value.borderWidthLeft).to.equal(15)
     })
 
     it('should handle undefined values in aliased properties', () => {
       pubSub.set(0, 'borderWidth', 5)
       pubSub.set(0, 'borderWidth', undefined)
 
-      expect(pubSub.get('borderWidthTop')).to.be.undefined
-      expect(pubSub.get('borderWidthRight')).to.be.undefined
-      expect(pubSub.get('borderWidthBottom')).to.be.undefined
-      expect(pubSub.get('borderWidthLeft')).to.be.undefined
+      expect(pubSub.value.borderWidthTop).to.be.undefined
+      expect(pubSub.value.borderWidthRight).to.be.undefined
+      expect(pubSub.value.borderWidthBottom).to.be.undefined
+      expect(pubSub.value.borderWidthLeft).to.be.undefined
     })
   })
 
   describe('subscribePropertyKeys', () => {
     it('should notify subscriber about existing property keys immediately', () => {
-      const receivedKeys = new Set<keyof TestProps>()
+      const receivedKeys = new Set<keyof OutTestProps>()
 
       // Set up some initial properties
       pubSub.set(0, 'color', 'red')
@@ -336,7 +354,7 @@ describe('PropertiesPubSub', () => {
     })
 
     it('should notify subscriber about new property keys', () => {
-      const receivedKeys = new Set<keyof TestProps>()
+      const receivedKeys = new Set<keyof OutTestProps>()
 
       // Set up initial property
       pubSub.set(0, 'color', 'red')
@@ -356,7 +374,7 @@ describe('PropertiesPubSub', () => {
     })
 
     it('should stop notifying after abort signal', () => {
-      const receivedKeys = new Set<keyof TestProps>()
+      const receivedKeys = new Set<keyof OutTestProps>()
 
       // Subscribe and collect keys
       const unsubscribe = pubSub.subscribePropertyKeys((key) => {
@@ -380,88 +398,100 @@ describe('PropertiesPubSub', () => {
   })
 
   describe('defaults', () => {
-    interface DefaultTestProps {
-      color?: string | Signal<string | undefined>
-      size?: number | Signal<number | undefined>
-      visible?: boolean | Signal<boolean | undefined>
+    type OutDefaultTestProps = { color: string; size: number; visible?: boolean }
+
+    type InDefaultTestProps = {
+      [Key in keyof OutDefaultTestProps]?: OutDefaultTestProps[Key] | Signal<OutDefaultTestProps[Key] | undefined>
     }
 
     it('should use default value when no layers provide a value', () => {
-      const pubSub = new PropertiesPubSub<DefaultTestProps, DefaultTestProps, { color: string; size: number }>(
-        (key, value, set) => set(key, value),
-        { color: 'default-red', size: 100 },
+      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
+        (key, value, set) => set(key, value as any),
+        {
+          color: 'default-red',
+          size: 100,
+        },
       )
 
-      expect(pubSub.get('color')).to.equal('default-red')
-      expect(pubSub.get('size')).to.equal(100)
-      expect(pubSub.get('visible')).to.be.undefined
+      expect(pubSub.value.color).to.equal('default-red')
+      expect(pubSub.value.size).to.equal(100)
+      expect(pubSub.value.visible).to.be.undefined
     })
 
     it('should override default value when a layer provides a value', () => {
-      const pubSub = new PropertiesPubSub<DefaultTestProps, DefaultTestProps, { color: string; size: number }>(
-        (key, value, set) => set(key, value),
-        { color: 'default-red', size: 100 },
+      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
+        (key, value, set) => set(key, value as any),
+        {
+          color: 'default-red',
+          size: 100,
+        },
       )
 
       pubSub.set(0, 'color', 'blue')
-      expect(pubSub.get('color')).to.equal('blue')
-      expect(pubSub.get('size')).to.equal(100)
+      expect(pubSub.value.color).to.equal('blue')
+      expect(pubSub.value.size).to.equal(100)
     })
 
     it('should fall back to default value when layer value becomes undefined', () => {
-      const pubSub = new PropertiesPubSub<DefaultTestProps, DefaultTestProps, { color: string; size: number }>(
-        (key, value, set) => set(key, value),
-        { color: 'default-red', size: 100 },
+      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
+        (key, value, set) => set(key, value as any),
+        {
+          color: 'default-red',
+          size: 100,
+        },
       )
 
       pubSub.set(0, 'color', 'blue')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
 
       pubSub.set(0, 'color', undefined)
-      expect(pubSub.get('color')).to.equal('default-red')
+      expect(pubSub.value.color).to.equal('default-red')
     })
 
     it('should handle signal default values', () => {
       const defaultColorSignal = new Signal('default-red')
-      const pubSub = new PropertiesPubSub<DefaultTestProps, DefaultTestProps, { color: Signal<string> }>(
-        (key, value, set) => set(key, value),
-        { color: defaultColorSignal },
+      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
+        (key, value, set) => set(key, value as any),
+        { color: defaultColorSignal, size: 100 },
       )
 
-      expect(pubSub.get('color')).to.equal('default-red')
+      expect(pubSub.value.color).to.equal('default-red')
 
       defaultColorSignal.value = 'default-blue'
-      expect(pubSub.get('color')).to.equal('default-blue')
+      expect(pubSub.value.color).to.equal('default-blue')
     })
 
     it('should handle multiple layers falling back to default', () => {
-      const pubSub = new PropertiesPubSub<DefaultTestProps, DefaultTestProps, { color: string }>(
-        (key, value, set) => set(key, value),
-        { color: 'default-red' },
+      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
+        (key, value, set) => set(key, value as any),
+        { color: 'default-red', size: 100 },
       )
 
       pubSub.set(2, 'color', 'red')
       pubSub.set(1, 'color', 'green')
       pubSub.set(0, 'color', 'blue')
-      expect(pubSub.get('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
 
-      pubSub.clearLayer(0)
-      expect(pubSub.get('color')).to.equal('green')
+      pubSub.setLayer(0, undefined)
+      expect(pubSub.value.color).to.equal('green')
 
-      pubSub.clearLayer(1)
-      expect(pubSub.get('color')).to.equal('red')
+      pubSub.setLayer(1, undefined)
+      expect(pubSub.value.color).to.equal('red')
 
-      pubSub.clearLayer(2)
-      expect(pubSub.get('color')).to.equal('default-red')
+      pubSub.setLayer(2, undefined)
+      expect(pubSub.value.color).to.equal('default-red')
     })
 
     it('should handle getSignal with default values', () => {
-      const pubSub = new PropertiesPubSub<DefaultTestProps, DefaultTestProps, { color: string }>(
-        (key, value, set) => set(key, value),
-        { color: 'default-red' },
+      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
+        (key, value, set) => set(key, value as any),
+        {
+          color: 'default-red',
+          size: 100,
+        },
       )
 
-      const colorSignal = pubSub.getSignal('color')
+      const colorSignal = pubSub.signal.color
       expect(colorSignal.value).to.equal('default-red')
 
       pubSub.set(0, 'color', 'blue')
@@ -479,7 +509,7 @@ describe('PropertiesPubSub', () => {
       let updateCount = 0
       effect(() => {
         updateCount++
-        pubSub.peek('color')
+        pubSub.peek().color
       })
 
       expect(updateCount).to.equal(1)
@@ -487,13 +517,13 @@ describe('PropertiesPubSub', () => {
       // Change value - should not trigger effect since peek doesn't subscribe
       pubSub.set(0, 'color', 'blue')
       expect(updateCount).to.equal(1)
-      expect(pubSub.get('color')).to.equal('blue')
-      expect(pubSub.peek('color')).to.equal('blue')
+      expect(pubSub.value.color).to.equal('blue')
+      expect(pubSub.peek().color).to.equal('blue')
     })
 
     it('should work for keys that were never accessed via get()', () => {
       pubSub.set(0, 'color', 'red')
-      expect(pubSub.peek('color')).to.equal('red')
+      expect(pubSub.peek().color).to.equal('red')
     })
 
     it('should respect layer precedence', () => {
@@ -501,7 +531,7 @@ describe('PropertiesPubSub', () => {
       pubSub.set(1, 'color', 'green')
       pubSub.set(0, 'color', 'blue')
 
-      expect(pubSub.peek('color')).to.equal('blue')
+      expect(pubSub.peek().color).to.equal('blue')
     })
 
     it('should handle signals without subscribing', () => {
@@ -511,24 +541,26 @@ describe('PropertiesPubSub', () => {
       let updateCount = 0
       effect(() => {
         updateCount++
-        pubSub.peek('color')
+        pubSub.peek().color
       })
 
       expect(updateCount).to.equal(1)
-      expect(pubSub.peek('color')).to.equal('red')
+      expect(pubSub.peek().color).to.equal('red')
 
       colorSignal.value = 'blue'
       expect(updateCount).to.equal(1)
-      expect(pubSub.peek('color')).to.equal('blue')
+      expect(pubSub.peek().color).to.equal('blue')
     })
 
     it('should return default value when no layers provide a value', () => {
-      const pubSubWithDefaults = new PropertiesPubSub<TestProps, TestProps, { color: string }>(
+      const pubSubWithDefaults = new PropertiesImplementation<InTestProps, OutTestProps>(
         (key, value, set) => set(key, value),
-        { color: 'default-red' },
+        {
+          color: 'default-red',
+        },
       )
 
-      expect(pubSubWithDefaults.peek('color')).to.equal('default-red')
+      expect(pubSubWithDefaults.peek().color).to.equal('default-red')
     })
   })
 

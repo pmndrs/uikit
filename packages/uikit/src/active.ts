@@ -14,7 +14,7 @@ export function addActiveHandlers(
   activeSignal: Signal<Array<number>>,
   hasActiveConditionalProperties: Signal<boolean>,
 ): void {
-  if (!hasActiveConditionalProperties.value && properties.get('onActiveChange') == null) {
+  if (!hasActiveConditionalProperties.value && properties.value.onActiveChange == null) {
     return
   }
 
@@ -23,14 +23,14 @@ export function addActiveHandlers(
     if (activeSignal.value.length > 0) {
       return
     }
-    properties.peek('onActiveChange')?.(false)
+    properties.peek().onActiveChange?.(false)
   }
   addHandler('onPointerDown', target, ({ pointerId }) => {
     activeSignal.value = [pointerId, ...activeSignal.value]
     if (activeSignal.value.length != 1) {
       return
     }
-    properties.peek('onActiveChange')?.(true)
+    properties.peek().onActiveChange?.(true)
   })
   addHandler('onPointerUp', target, onLeave)
   addHandler('onPointerLeave', target, onLeave)

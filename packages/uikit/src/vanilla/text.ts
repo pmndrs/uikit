@@ -1,6 +1,6 @@
 import { computed, signal, Signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { AllProperties } from '../properties/index.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
 import { Component } from './component.js'
 import { ElementType, OrderInfo, setupOrderInfo } from '../order.js'
 import { RenderContext } from '../components/root.js'
@@ -17,29 +17,26 @@ import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.j
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { abortableEffect } from '../utils.js'
+import { defaults } from '../properties/defaults.js'
 
-export type AdditionalTextProperties = {
-  text: string | Array<string>
-}
-
-export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = AllProperties<EM, AdditionalTextProperties>
-
-export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
-  T,
-  EM,
-  AdditionalTextProperties,
+export type TextOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutputProperties<EM> &
   AdditionalTextDefaults
-> {
+
+export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<TextOutputProperties<EM>>
+
+const textDefaults = { ...defaults, ...additionalTextDefaults }
+
+export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, TextOutputProperties<EM>> {
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly panelGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
 
   constructor(
     inputProperties?: TextProperties<EM>,
-    initialClasses?: Array<TextProperties<EM>>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
-    super(false, additionalTextDefaults, inputProperties, initialClasses, undefined, renderContext)
+    super(false, inputProperties, initialClasses, undefined, renderContext, textDefaults)
     this.material.visible = false
 
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)

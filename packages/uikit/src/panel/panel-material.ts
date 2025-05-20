@@ -98,15 +98,15 @@ export function createPanelMaterialConfig(
         const borderOpacity =
           keys.borderOpacity == null
             ? defaults.borderOpacity
-            : (properties.get(keys.borderOpacity as 'borderOpacity') ?? defaults.borderOpacity)
+            : (properties.value[keys.borderOpacity as 'borderOpacity'] ?? defaults.borderOpacity)
         const backgroundOpacity =
           keys.backgroundOpacity == null
             ? defaults.backgroundOpacity
-            : (properties.get(keys.backgroundOpacity as 'backgroundOpacity') ?? defaults.backgroundOpacity)
+            : (properties.value[keys.backgroundOpacity as 'backgroundOpacity'] ?? defaults.backgroundOpacity)
         const backgroundColor =
           keys.backgroundColor == null
             ? defaults.backgroundColor
-            : (properties.get(keys.backgroundColor as 'backgroundColor') ?? defaults.backgroundColor)
+            : (properties.value[keys.backgroundColor as 'backgroundColor'] ?? defaults.backgroundColor)
         const borderVisible = borderInset.value.some((s) => s > 0) && borderOpacity > 0
         const [width, height] = size.value
         const backgroundVisible =

@@ -1,5 +1,5 @@
 import { Box3, InstancedBufferAttribute, Material, Mesh, Object3DEventMap, PlaneGeometry, Sphere } from 'three'
-import { computeMatrixWorld, RootContext } from '../../components/index.js'
+import { RootContext } from '../../components/index.js'
 
 export class InstancedGlyphMesh extends Mesh {
   public count = 0

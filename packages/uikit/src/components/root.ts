@@ -103,10 +103,10 @@ export function buildRootMatrix(properties: Properties, size: Signal<Vector2Tupl
     return undefined
   }
   const [width, height] = size.value
-  const pixelSize = properties.get('pixelSize')
+  const pixelSize = properties.value.pixelSize
   return new Matrix4().makeTranslation(
-    alignmentXMap[properties.get('anchorX')] * width * pixelSize,
-    alignmentYMap[properties.get('anchorY')] * height * pixelSize,
+    alignmentXMap[properties.value.anchorX] * width * pixelSize,
+    alignmentYMap[properties.value.anchorY] * height * pixelSize,
     0,
   )
 }

@@ -2,11 +2,11 @@ import { AdditionalImageProperties, Image } from './image.js'
 import { VideoTexture } from 'three'
 import { Signal, computed, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { AllProperties, Properties } from '../properties/index.js'
+import { InputProperties, Properties } from '../properties/index.js'
 import { RenderContext } from '../components/root.js'
 import { abortableEffect } from '../utils.js'
 
-export type VideoProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalVideoProperties>
+export type VideoProperties<EM extends ThreeEventMap> = InputProperties<EM, AdditionalVideoProperties>
 
 export type AdditionalVideoProperties = {
   src: HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | Omit<HTMLVideoElement, 'src' | 'playsInline' | 'style'>
@@ -17,7 +17,7 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Ima
 
   constructor(
     inputProperties?: VideoProperties<EM>,
-    initialClasses?: Array<VideoProperties<EM>>,
+    initialClasses?: Array<InputProperties<EM> | string>,
     renderContext?: RenderContext,
   ) {
     const aspectRatio = signal<number>(1)
