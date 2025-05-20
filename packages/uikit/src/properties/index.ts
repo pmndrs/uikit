@@ -12,7 +12,6 @@ import { ZIndexProperties } from '../order.js'
 import { TransformProperties } from '../transform.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { PanelGroupProperties, PointerEventsProperties } from '../panel/index.js'
-import { VisibilityProperties } from '../components/utils.js'
 import { Listeners } from '../listeners.js'
 import { EventHandlers, ThreeEventMap } from '../events.js'
 import { Defaults } from './defaults.js'
@@ -26,7 +25,7 @@ import {
   LayerSectionStartBase,
   LayersSectionSize,
 } from './layers.js'
-import { alignmentXMap, alignmentYMap, ColorRepresentation } from '../utils.js'
+import { alignmentXMap, alignmentYMap, ColorRepresentation, VisibilityProperties } from '../utils.js'
 
 export type BaseOutputProperties<EM extends ThreeEventMap> = YogaProperties &
   PanelProperties &

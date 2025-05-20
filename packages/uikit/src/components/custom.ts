@@ -1,121 +1,76 @@
+import { computed } from '@preact/signals-core'
+import { createGlobalClippingPlanes } from '../clipping.js'
+import { ThreeEventMap } from '../events.js'
+import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
+import { Component } from './component.js'
+import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
+import { defaults } from '../properties/defaults.js'
+import { RenderContext } from '../context.js'
 
+export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
 
-export type CustomContainerProperties<EM extends ThreeEventMap> = AllProperties<EM, {}>
+export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
+  T,
+  EM,
+  BaseOutputProperties<EM>
+> {
+  constructor(
+    material: Material,
+    inputProperties?: CustomProperties<EM>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    renderContext?: RenderContext,
+  ) {
+    super(false, inputProperties, initialClasses, material, renderContext, defaults)
 
-export function createCustomContainerState<EM extends ThreeEventMap = ThreeEventMap>(
-  object: Component,
-  parentCtx?: ParentContext,
-  renderContext?: RenderContext,
-) {
-  const flexState = createFlexNodeState()
-  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
-  const hoveredSignal = signal<Array<number>>([])
-  const activeSignal = signal<Array<number>>([])
+    setupOrderInfo(
+      this.orderInfo,
+      this.properties,
+      'zIndexOffset',
+      ElementType.Custom,
+      undefined,
+      computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
+      this.abortSignal,
+    )
 
-  //properties
-  const properties = new Properties<EM>(
-    allAliases,
-    createConditionals(rootContext.root.size, hoveredSignal, activeSignal),
-    parentCtx?.properties,
-    {},
-  )
+    this.frustumCulled = false
+    setupRenderOrder(this, this.root, this.orderInfo)
 
-  const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
-    transformMatrix,
-  )
+    const clippingPlanes = createGlobalClippingPlanes(this)
 
-  const isClipped = computedIsClipped(
-    parentCtx?.clippingRect,
-    globalMatrix,
-    flexState.size,
-    properties.getSignal('pixelSize'),
-  )
-  const isVisible = computedIsVisible(flexState, isClipped, properties)
+    this.customDepthMaterial = new MeshDepthMaterial()
+    this.customDistanceMaterial = new MeshDistanceMaterial()
+    this.material.clippingPlanes = clippingPlanes
+    this.customDepthMaterial.clippingPlanes = clippingPlanes
+    this.customDistanceMaterial.clippingPlanes = clippingPlanes
 
-  const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Custom, undefined, parentCtx?.orderInfo)
-
-  const handlers = computedHandlers(properties, hoveredSignal, activeSignal)
-  const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
-
-  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
-
-  return Object.assign(flexState, rootContext, {
-    object,
-    hoveredSignal,
-    properties,
-    globalMatrix,
-    isClipped,
-    isVisible,
-    orderInfo,
-    handlers,
-    ancestorsHaveListeners,
-  })
-}
-
-export function setupCustomContainer(
-  state: ReturnType<typeof createCustomContainerState>,
-  parentCtx: ParentContext | undefined,
-  abortSignal: AbortSignal,
-) {
-  setupRootContext(state, state.object, abortSignal)
-  setupCursorCleanup(state.hoveredSignal, abortSignal)
-
-  //create node
-  createNode(state, parentCtx, state.object, true, abortSignal)
-
-  //setup mesh
-  const clippingPlanes = createGlobalClippingPlanes(state.root, parentCtx?.clippingRect)
-
-  state.object.matrixAutoUpdate = false
-  if (state.object.material instanceof Material) {
-    const material = state.object.material
-    material.clippingPlanes = clippingPlanes
-    material.needsUpdate = true
-    material.shadowSide = FrontSide
     abortableEffect(() => {
-      material.depthTest = state.properties.get('depthTest')
-      state.root.requestRender?.()
-    }, abortSignal)
+      this.material.depthTest = this.properties.value.depthTest
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
     abortableEffect(() => {
-      material.depthWrite = state.properties.get('depthWrite')
-      state.root.requestRender?.()
-    }, abortSignal)
+      this.material.depthWrite = this.properties.value.depthWrite ?? false
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.renderOrder = this.properties.value.renderOrder
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.castShadow = this.properties.value.castShadow
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+    abortableEffect(() => {
+      this.receiveShadow = this.properties.value.receiveShadow
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+
+    setupMatrixWorldUpdate(this, this.root, this.globalPanelMatrix, this.abortSignal)
+
+    abortableEffect(() => {
+      this.visible = this.isVisible.value
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
   }
-
-  setupRenderOrder(state.object, state.root, state.orderInfo)
-
-  abortableEffect(() => {
-    state.object.renderOrder = state.properties.get('renderOrder')
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    state.object.receiveShadow = state.properties.get('receiveShadow')
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    state.object.castShadow = state.properties.get('castShadow')
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    void (state.object.visible = state.isVisible.value)
-    state.root.requestRender?.()
-  }, abortSignal)
-
-  setupMatrixWorldUpdate(
-    true,
-    true,
-    state.properties,
-    state.size,
-    state.object,
-    state.root,
-    state.globalMatrix,
-    abortSignal,
-  )
-
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, true, abortSignal)
-
-  setupLayoutListeners(state.properties, state.size, abortSignal)
-  setupClippedListeners(state.properties, state.isClipped, abortSignal)
 }

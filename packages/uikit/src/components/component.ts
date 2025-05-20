@@ -1,30 +1,16 @@
 import { computed, Signal, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap } from '../events.js'
+import { BufferGeometry, Material, Matrix4, Mesh, Object3D, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
 import {
-  BufferGeometry,
-  Material,
-  Matrix4,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Object3DEventMap,
-  Sphere,
-  Vector2Tuple,
-} from 'three'
-import { abortableEffect } from '../utils.js'
-import { computedPanelMatrix, InstancedPanelMesh, panelGeometry, setupBoundingSphere } from '../panel/index.js'
-import {
+  abortableEffect,
   buildRaycasting,
   computedAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  buildRootMatrix,
-  RootContext,
   setupPointerEvents,
-  RenderContext,
-  buildRootContext,
-} from '../components/index.js'
+} from '../utils.js'
+import { computedPanelMatrix, InstancedPanelMesh, panelGeometry, setupBoundingSphere } from '../panel/index.js'
 import { Overflow } from 'yoga-layout'
 import { computedIsClipped } from '../clipping.js'
 import { FlexNode, Inset } from '../flex/node.js'
@@ -37,6 +23,7 @@ import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
 import { ClassList } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
+import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
 
 export class Component<
   T = {},

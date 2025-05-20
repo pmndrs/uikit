@@ -5,14 +5,13 @@ import { setupOrderInfo, ElementType, OrderInfo } from './order.js'
 import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
-  PanelGroupManager,
   PanelGroupProperties,
   PanelMaterialConfig,
   computedPanelMatrix,
   createPanelMaterialConfig,
 } from './panel/index.js'
 import { Properties } from './properties/index.js'
-import { RootContext } from './components/index.js'
+import { RootContext } from './context.js'
 
 export type CaretTransformation = {
   position: Vector2Tuple

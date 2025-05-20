@@ -1,4 +1,4 @@
-<h1>vanilla uikit</h1>
+<h1>pmndrs/uikit</h1>
 
 [![Version](https://img.shields.io/npm/v/@pmndrs/uikit?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@pmndrs/uikit)
 [![Downloads](https://img.shields.io/npm/dt/@pmndrs/uikit.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@pmndrs/uikit)

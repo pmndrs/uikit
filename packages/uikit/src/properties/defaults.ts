@@ -1,7 +1,6 @@
 import { Material, MeshBasicMaterial } from 'three'
-import { VisibilityProperties } from '../components/index.js'
 import { FontWeight, GlyphLayoutProperties, WordBreak } from '../text/index.js'
-import { alignmentXMap, alignmentYMap } from '../utils.js'
+import { alignmentXMap, alignmentYMap, VisibilityProperties } from '../utils.js'
 
 export const defaults = {
   scrollbarWidth: 10,

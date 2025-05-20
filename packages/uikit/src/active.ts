@@ -1,9 +1,7 @@
 import { Signal } from '@preact/signals-core'
 import { Properties } from './properties/index.js'
 import { EventHandlers, ThreePointerEvent } from './events.js'
-import { addHandler } from './components/index.js'
-
-export type ActiveEventHandlers = Pick<EventHandlers, 'onPointerDown' | 'onPointerUp' | 'onPointerLeave'>
+import { addHandler } from './utils.js'
 
 /**
  * must be executed inside effect/computed

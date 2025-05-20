@@ -16,7 +16,7 @@ import { SelectionTransformation } from '../../selection.js'
 import { CaretTransformation } from '../../caret.js'
 import { BaseOutputProperties, Properties } from '../../properties/index.js'
 import { ThreeEventMap } from '../../events.js'
-import { Text } from '../../vanilla/text.js'
+import { Text } from '../../components/text.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'block'

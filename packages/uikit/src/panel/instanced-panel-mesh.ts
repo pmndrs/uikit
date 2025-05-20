@@ -1,7 +1,7 @@
 import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
 import { createPanelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
-import { RootContext } from '../components/root.js'
+import { RootContext } from '../context.js'
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0

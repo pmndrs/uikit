@@ -4,7 +4,7 @@ import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, setupRenderOrder } from '../../order.js'
-import { RootContext } from '../../components/index.js'
+import { RootContext } from '../../context.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()

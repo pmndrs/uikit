@@ -1,325 +1,251 @@
-import { Signal, signal, computed } from '@preact/signals-core'
-import { Component } from 'react'
-import { Vector3, Object3D, Box3, Mesh, Material } from 'three'
-import { computedIsClipped, ClippingRect, createGlobalClippingPlanes } from '../clipping.js'
+import { computed, Signal, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { setupCursorCleanup } from '../hover.js'
-import { ElementType, OrderInfo, setupRenderOrder } from '../order.js'
-import {
-  computedPanelGroupDependencies,
-  computedPanelMatrix,
-  setupInstancedPanel,
-  getDefaultPanelMaterialConfig,
-  setupBoundingSphere,
-  makeClippedCast,
-} from '../panel/index.js'
-import { allAliases } from '../properties/alias.js'
-import { createConditionals } from '../properties/conditional.js'
-import { computedTransformMatrix } from '../transform.js'
-import { alignmentZMap, abortableEffect } from '../utils.js'
-import { RenderContext, buildRootContext, buildRootMatrix, RootContext } from './root.js'
-import {
-  computedGlobalMatrix,
-  computedIsVisible,
-  computedHandlers,
-  computedAncestorsHaveListeners,
-  buildRaycasting,
-  setupMatrixWorldUpdate,
-  setupPointerEvents,
-} from './utils.js'
+import { Box3, Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, Vector3 } from 'three'
+import { ElementType, OrderInfo, setupOrderInfo, setupRenderOrder } from '../order.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import { Component } from './component.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { BaseOutputProperties, InputProperties, Properties } from '../properties/index.js'
+import { abortableEffect, alignmentZMap, setupMatrixWorldUpdate } from '../utils.js'
+import { createGlobalClippingPlanes } from '../clipping.js'
+import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
+import { InstancedGlyphMesh } from '../text/index.js'
+import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
+import { defaults } from '../properties/defaults.js'
+import { RenderContext } from '../context.js'
 
-export type ContentProperties<EM extends ThreeEventMap> = InputProperties<EM, AdditionalContentProperties>
-
-export type AdditionalContentProperties = {
-  depthAlign?: keyof typeof alignmentZMap
-  keepAspectRatio?: boolean
-}
-
-const additionalContentDefaults = {
-  depthAlign: 'back',
+const contentDefaults = {
+  ...defaults,
+  depthAlign: 'back' as keyof typeof alignmentZMap,
   keepAspectRatio: true,
 }
 
-type AdditionalContentDefaults = typeof additionalContentDefaults & { aspectRatio: Signal<number | undefined> }
+export type ContentOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = typeof contentDefaults &
+  BaseOutputProperties<EM>
 
-export function createContentState<EM extends ThreeEventMap = ThreeEventMap>(
-  object: Component,
-  parentCtx?: ParentContext,
-  renderContext?: RenderContext,
-) {
-  const flexState = createFlexNodeState()
-  const rootContext = buildRootContext(parentCtx, object, flexState.size, renderContext)
-  const hoveredList = signal<Array<number>>([])
-  const activeList = signal<Array<number>>([])
+export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<ContentOutputProperties<EM>>
 
-  const sizeSignal = signal(new Vector3(1, 1, 1))
-
-  //properties
-  const properties: Properties<EM, AdditionalContentProperties, Partial<AdditionalContentDefaults>> = new Properties<
-    EM,
-    AdditionalContentProperties,
-    Partial<AdditionalContentDefaults>
-  >(allAliases, createConditionals(rootContext.root.size, hoveredList, activeList), parentCtx?.properties, {
-    aspectRatio: computed(() =>
-      properties.get('keepAspectRatio') ? sizeSignal.value.x / sizeSignal.value.y : undefined,
-    ),
-    ...additionalContentDefaults,
-  })
-
-  const transformMatrix = computedTransformMatrix(properties, flexState)
-
-  const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
-    transformMatrix,
-  )
-
-  const isClipped = computedIsClipped(
-    parentCtx?.clippingRect,
-    globalMatrix,
-    flexState.size,
-    properties.getSignal('pixelSize'),
-  )
-  const isVisible = computedIsVisible(flexState, isClipped, properties)
-
-  const groupDeps = computedPanelGroupDependencies(properties)
-  const backgroundOrderInfo = computedOrderInfo(
-    properties,
-    'zIndexOffset',
-    ElementType.Panel,
-    groupDeps,
-    parentCtx?.orderInfo,
-  )
-
-  const orderInfo = computedOrderInfo(undefined, 'zIndexOffset', ElementType.Content, undefined, backgroundOrderInfo)
-
-  const handlers = computedHandlers(properties, hoveredList, activeList)
-
-  const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, handlers)
-
-  const measuredSize = new Vector3()
-  const measuredCenter = new Vector3()
-
-  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
-
-  return Object.assign(flexState, rootContext, {
-    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
-    object,
-    measuredSize,
-    measuredCenter,
-    globalMatrix,
-    isClipped,
-    isVisible,
-    properties,
-    hoveredSignal: hoveredList,
-    sizeSignal,
-    orderInfo,
-    backgroundOrderInfo,
-    groupDeps,
-    handlers,
-    ancestorsHaveListeners,
-    transformMatrix,
-    remeasureContent: createMeasureContent(
-      flexState,
-      measuredSize,
-      measuredCenter,
-      properties,
-      rootContext.root,
-      parentCtx?.clippingRect,
-      isVisible,
-      orderInfo,
-      sizeSignal,
-      object,
-    ),
-  })
-}
-
-export function setupContent(
-  state: ReturnType<typeof createContentState>,
-  parentCtx: ParentContext | undefined,
-  abortSignal: AbortSignal,
-) {
-  buildRootContext(state, state.object, abortSignal)
-  setupCursorCleanup(state.hoveredSignal, abortSignal)
-
-  //create node
-  createNode(state, parentCtx, state.object, true, abortSignal)
-
-  //instanced panel
-  setupInstancedPanel(
-    state.properties,
-    state.backgroundOrderInfo,
-    state.groupDeps,
-    state.root.panelGroupManager,
-    state.panelMatrix,
-    state.size,
-    state.borderInset,
-    parentCtx?.clippingRect,
-    state.isVisible,
-    getDefaultPanelMaterialConfig(),
-    abortSignal,
-  )
-
-  setupMatrixWorldUpdate(
-    true,
-    true,
-    state.properties,
-    state.size,
-    state.object,
-    state.root,
-    state.globalMatrix,
-    abortSignal,
-  )
-
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, true, abortSignal)
-
-  setupLayoutListeners(state.properties, state.size, abortSignal)
-  setupClippedListeners(state.properties, state.isClipped, abortSignal)
-
-  setupBoundingSphere(
-    state.object.boundingSphere,
-    state.properties.getSignal('pixelSize'),
-    state.globalMatrix,
-    state.size,
-    abortSignal,
-  )
-
-  setupContentContainer(state, state.object, abortSignal)
-}
-
-const vectorHelper = new Vector3()
-
-function setupContentContainer(
-  state: ReturnType<typeof createContentState>,
-  object: Object3D,
-  abortSignal: AbortSignal,
-) {
-  state.remeasureContent()
-  abortableEffect(() => {
-    updateRenderProperties(
-      object,
-      state.isVisible.value,
-      state.properties.get('renderOrder'),
-      state.properties.get('depthTest'),
-      state.properties.get('depthWrite'),
-    )
-    state.root.requestRender?.()
-  }, abortSignal)
-  abortableEffect(() => {
-    const {
-      size: { value: size },
-      paddingInset: { value: paddingInset },
-      borderInset: { value: borderInset },
-    } = state
-    if (size == null || paddingInset == null || borderInset == null) {
-      return
-    }
-    const [width, height] = size
-    const [pTop, pRight, pBottom, pLeft] = paddingInset
-    const [bTop, bRight, bBottom, bLeft] = borderInset
-    const topInset = pTop + bTop
-    const rightInset = pRight + bRight
-    const bottomInset = pBottom + bBottom
-    const leftInset = pLeft + bLeft
-
-    const innerWidth = width - leftInset - rightInset
-    const innerHeight = height - topInset - bottomInset
-
-    const pixelSize = state.properties.get('pixelSize')
-
-    //TODO: integrate this into the object transformation computation
-    object.scale
-      .set(
-        innerWidth * pixelSize,
-        innerHeight * pixelSize,
-        state.properties.get('keepAspectRatio')
-          ? (innerHeight * pixelSize * state.measuredSize.z) / state.measuredSize.y
-          : state.measuredSize.z,
-      )
-      .divide(state.measuredSize)
-
-    object.position.copy(state.measuredCenter).negate()
-
-    object.position.z -= alignmentZMap[state.properties.get('depthAlign')] * state.measuredSize.z
-    object.position.multiply(object.scale)
-    object.position.add(
-      vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
-    )
-    object.updateMatrix()
-    state.root.requestRender?.()
-  }, abortSignal)
-}
+const IdentityQuaternion = new Quaternion()
+const IdentityMatrix = new Matrix4()
 
 const box3Helper = new Box3()
 const smallValue = new Vector3().setScalar(0.001)
 
-/**
- * normalizes the content so it has a height of 1
- */
-function createMeasureContent(
-  flexState: FlexNodeState,
-  measuredSize: Vector3,
-  measuredCenter: Vector3,
-  properties: Properties,
-  root: RootContext,
-  parentClippingRect: Signal<ClippingRect | undefined> | undefined,
-  isVisible: Signal<boolean>,
-  orderInfo: Signal<OrderInfo | undefined>,
-  sizeSignal: Signal<Vector3>,
-  object: Object3D,
-) {
-  const clippingPlanes = createGlobalClippingPlanes(root, parentClippingRect)
+const positionHelper = new Vector3()
+const scaleHelper = new Vector3()
+const vectorHelper = new Vector3()
 
-  const measureContent = () => {
-    object.traverse((child) => {
-      if (child instanceof Mesh) {
-        setupRenderOrder(child, { peek: () => root }, orderInfo)
-        child.material.clippingPlanes = clippingPlanes
-        child.material.needsUpdate = true
-        child.raycast = makeClippedCast(child, child.raycast, root.component, parentClippingRect, orderInfo, flexState)
-      }
+export type BoundingBox = { size: Vector3; center: Vector3 }
+
+export class Content<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutputProperties extends ContentOutputProperties<EM> = ContentOutputProperties<EM>,
+> extends Component<T, EM, OutputProperties> {
+  readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
+  readonly clippingPlanes: Array<Plane>
+
+  constructor(
+    inputProperties?: InputProperties<OutputProperties>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    renderContext?: RenderContext,
+    private readonly config: {
+      remeasureOnChildrenChange: boolean
+      depthWriteDefault: boolean
+      boundingBox?: Signal<BoundingBox | undefined>
+    } = {
+      remeasureOnChildrenChange: true,
+      depthWriteDefault: true,
+    },
+  ) {
+    const defaultAspectRatio = signal<number | undefined>(undefined)
+    super(true, inputProperties, initialClasses, undefined, renderContext, {
+      ...(contentDefaults as OutputProperties),
+      aspectRatio: defaultAspectRatio,
     })
-    const parent = object.parent
-    object.parent = null
-    box3Helper.setFromObject(object)
-    box3Helper.getSize(measuredSize).max(smallValue)
-    sizeSignal.value = measuredSize
+    abortableEffect(() => {
+      if (!this.properties.value.keepAspectRatio) {
+        defaultAspectRatio.value = undefined
+        return
+      }
+      const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
+      defaultAspectRatio.value = boundingBox.size.x / boundingBox.size.y
+    }, this.abortSignal)
+    this.material.visible = false
 
-    if (parent != null) {
-      object.parent = parent
-    }
-    box3Helper.getCenter(measuredCenter)
-    root.requestRender?.()
-  }
-  return () => {
-    updateRenderProperties(
-      object,
-      isVisible.peek(),
-      properties.peek('renderOrder'),
-      properties.peek('depthTest'),
-      properties.peek('depthWrite'),
+    const panelGroupDeps = computedPanelGroupDependencies(this.properties)
+    const backgroundOrderInfo = signal<OrderInfo | undefined>()
+    setupOrderInfo(
+      backgroundOrderInfo,
+      this.properties,
+      'zIndexOffset',
+      ElementType.Panel,
+      panelGroupDeps,
+      computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
+      this.abortSignal,
     )
-    measureContent()
+
+    setupInstancedPanel(
+      this.properties,
+      this.root,
+      backgroundOrderInfo,
+      panelGroupDeps,
+      this.globalPanelMatrix,
+      this.size,
+      this.borderInset,
+      computed(() => this.parentContainer.value?.clippingRect.value),
+      this.isVisible,
+      getDefaultPanelMaterialConfig(),
+      this.abortSignal,
+    )
+
+    const localMatrix = computed(() => {
+      if (this.size.value == null || this.paddingInset.value == null || this.borderInset.value == null) {
+        return IdentityMatrix
+      }
+      const [width, height] = this.size.value
+      const [pTop, pRight, pBottom, pLeft] = this.paddingInset.value
+      const [bTop, bRight, bBottom, bLeft] = this.borderInset.value
+      const topInset = pTop + bTop
+      const rightInset = pRight + bRight
+      const bottomInset = pBottom + bBottom
+      const leftInset = pLeft + bLeft
+
+      const innerWidth = width - leftInset - rightInset
+      const innerHeight = height - topInset - bottomInset
+
+      const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
+
+      const pixelSize = this.properties.value.pixelSize
+      scaleHelper
+        .set(
+          innerWidth * pixelSize,
+          innerHeight * pixelSize,
+          this.properties.value.keepAspectRatio
+            ? (innerHeight * pixelSize * boundingBox.size.z) / boundingBox.size.y
+            : boundingBox.size.z,
+        )
+        .divide(boundingBox.size)
+
+      positionHelper.copy(boundingBox.center).negate()
+
+      positionHelper.z -= alignmentZMap[this.properties.value.depthAlign] * boundingBox.size.z
+      positionHelper.multiply(scaleHelper)
+      positionHelper.add(
+        vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
+      )
+      return new Matrix4().compose(positionHelper, IdentityQuaternion, scaleHelper)
+    })
+
+    setupMatrixWorldUpdate(
+      this,
+      this.root,
+      computed(() => {
+        const result = localMatrix.value
+        if (this.globalMatrix.value == null) {
+          return result
+        }
+        return result.clone().premultiply(this.globalMatrix.value)
+      }),
+      this.abortSignal,
+    )
+
+    setupOrderInfo(
+      this.orderInfo,
+      undefined,
+      'zIndexOffset',
+      ElementType.Content,
+      undefined,
+      backgroundOrderInfo,
+      this.abortSignal,
+    )
+
+    this.clippingPlanes = createGlobalClippingPlanes(this)
+
+    abortableEffect(() => {
+      this.visible = this.isVisible.value
+      applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
+      this.root.peek().requestRender?.()
+    }, this.abortSignal)
+
+    if (config.remeasureOnChildrenChange) {
+      const onChildrenChanged = this.notifyAncestorsChanged.bind(this)
+      this.addEventListener('childadded', onChildrenChanged)
+      this.addEventListener('childremoved', onChildrenChanged)
+      this.abortSignal.addEventListener('abort', () => {
+        this.removeEventListener('childadded', onChildrenChanged)
+        this.removeEventListener('childremoved', onChildrenChanged)
+      })
+    }
+  }
+
+  notifyAncestorsChanged() {
+    applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
+    this.traverse((child) => {
+      if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
+        return
+      }
+      setupRenderOrder(child, this.root, this.orderInfo)
+      child.material.clippingPlanes = this.clippingPlanes
+      child.material.needsUpdate = true
+      child.material.transparent = true
+      child.raycast = makeClippedCast(this, child.raycast, this.root, this.parentContainer, this.orderInfo)
+      child.spherecast =
+        child.spherecast != null
+          ? makeClippedCast(this, child.spherecast, this.root, this.parentContainer, this.orderInfo)
+          : undefined
+    })
+
+    if (this.config.boundingBox == null) {
+      //no need to compute the bounding box ourselves
+      box3Helper.makeEmpty()
+      for (const child of this.children) {
+        if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh) {
+          continue
+        }
+        const parent = child.parent
+        child.parent = null
+        box3Helper.expandByObject(child)
+        child.parent = parent
+      }
+
+      const size = new Vector3()
+      const center = new Vector3()
+      box3Helper.getSize(size).max(smallValue)
+      box3Helper.getCenter(center)
+      this.boundingBox.value = { center, size }
+    }
+
+    this.root.peek().requestRender?.()
   }
 }
 
-function updateRenderProperties(
-  object: Object3D,
-  visible: boolean,
-  renderOrder: number,
-  depthTest: boolean,
-  depthWrite: boolean,
-) {
-  object.visible = visible
-  object.traverse((child) => {
-    if (!(child instanceof Mesh)) {
+const colorHelper = new Color()
+
+function applyAppearancePropertiesToGroup(properties: Properties, group: Object3D, depthWriteDefault: boolean) {
+  const color = properties.value.color
+  let c: Color | undefined
+  if (Array.isArray(color)) {
+    c = colorHelper.setRGB(...color)
+  } else if (color != null) {
+    c = colorHelper.set(color)
+  }
+  const opacity = properties.value.opacity
+  const depthTest = properties.value.depthTest
+  const depthWrite = properties.value.depthWrite ?? depthWriteDefault
+  const renderOrder = properties.value.renderOrder
+  group.traverse((child) => {
+    if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
       return
     }
+
     child.renderOrder = renderOrder
-    if (!(child.material instanceof Material)) {
-      return
-    }
-    child.material.depthTest = depthTest
-    child.material.depthWrite = depthWrite
-    child.material.transparent = true
+    const material: MeshBasicMaterial = child.material
+    child.userData.color ??= material.color.clone()
+    material.color.copy(c ?? child.userData.color)
+    material.opacity = opacity
+    material.depthTest = depthTest
+    material.depthWrite = depthWrite
   })
 }

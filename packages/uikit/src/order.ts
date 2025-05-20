@@ -2,8 +2,6 @@ import { Signal } from '@preact/signals-core'
 import { Object3D, RenderItem } from 'three'
 import { abortableEffect, readReactive } from './utils.js'
 import { Properties } from './properties/index.js'
-import { BaseOutputProperties } from './properties/index.js'
-import { ThreeEventMap } from './events.js'
 
 export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
 

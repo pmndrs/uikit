@@ -2,9 +2,8 @@ import { Signal, computed } from '@preact/signals-core'
 import { Matrix4, Plane, Vector3 } from 'three'
 import type { Box3, Line3, Matrix3, Sphere, Vector2Tuple } from 'three'
 import { Overflow } from 'yoga-layout/load'
-import { RootContext } from './components/root.js'
-import { Container } from './vanilla/container.js'
-import { Component } from './vanilla/component.js'
+import { Container } from './components/container.js'
+import { Component } from './components/component.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 

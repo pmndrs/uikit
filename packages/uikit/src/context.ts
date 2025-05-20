@@ -1,11 +1,11 @@
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { PanelGroupManager } from '../panel/instanced-panel-group.js'
-import { abortableEffect, alignmentXMap, alignmentYMap } from '../utils.js'
-import { WithReversePainterSortStableCache } from '../order.js'
+import { PanelGroupManager } from './panel/instanced-panel-group.js'
+import { abortableEffect, alignmentXMap, alignmentYMap } from './utils.js'
+import { WithReversePainterSortStableCache } from './order.js'
 import { Matrix4, Vector2Tuple } from 'three'
-import { GlyphGroupManager } from '../text/render/instanced-glyph-group.js'
-import { Component } from '../vanilla/component.js'
-import { Properties } from '../properties/index.js'
+import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
+import { Component } from './components/component.js'
+import { Properties } from './properties/index.js'
 
 export type RenderContext = {
   requestRender: () => void

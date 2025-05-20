@@ -1,14 +1,14 @@
-import { computed, effect, Signal, signal } from '@preact/signals-core'
+import { computed, Signal, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
 import { Bucket } from '../allocation/sorted-buckets.js'
 import { ClippingRect, defaultClippingData } from '../clipping.js'
 import { Inset } from '../flex/node.js'
-import { InstancedPanelGroup, PanelGroupManager, PanelGroupProperties } from './instanced-panel-group.js'
+import { InstancedPanelGroup, PanelGroupProperties } from './instanced-panel-group.js'
 import { abortableEffect, ColorRepresentation } from '../utils.js'
 import { OrderInfo } from '../order.js'
 import { PanelMaterialConfig } from './panel-material.js'
 import { BaseOutputProperties, Properties } from '../properties/index.js'
-import { RootContext } from '../components/index.js'
+import { RootContext } from '../context.js'
 import { ThreeEventMap } from '../events.js'
 
 export type PanelProperties = {

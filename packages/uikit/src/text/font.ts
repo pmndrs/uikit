@@ -3,7 +3,7 @@ import { Texture, TypedArray } from 'three'
 import { loadCachedFont } from './cache.js'
 import { Properties } from '../properties/index.js'
 import { inter } from '@pmndrs/msdfonts'
-import { Container } from '../vanilla/container.js'
+import { Container } from '../components/container.js'
 
 export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>
 

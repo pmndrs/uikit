@@ -12,7 +12,7 @@ import {
   createPanelMaterialConfig,
 } from './panel/index.js'
 import { Properties } from './properties/index.js'
-import { RootContext } from './components/root.js'
+import { RootContext } from './context.js'
 
 export type SelectionTransformation = { size: Vector2Tuple; position: Vector2Tuple }
 

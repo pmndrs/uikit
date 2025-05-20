@@ -1,7 +1,7 @@
 import { Signal, computed } from '@preact/signals-core'
 import { Euler, Matrix4, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
 import { alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
-import { Component } from './vanilla/component.js'
+import { Component } from './components/component.js'
 
 export type Percentage = `${number}%`
 

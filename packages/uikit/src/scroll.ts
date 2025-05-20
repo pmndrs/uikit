@@ -10,7 +10,7 @@ import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-ma
 import { PanelGroupProperties } from './panel/instanced-panel-group.js'
 import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
 import { Properties } from './properties/index.js'
-import { Container } from './vanilla/container.js'
+import { Container } from './components/container.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()

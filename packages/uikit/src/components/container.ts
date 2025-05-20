@@ -1,167 +1,87 @@
-import { setupCursorCleanup } from '../hover.js'
-import { computedIsClipped, computedClippingRect } from '../clipping.js'
-import {
-  computedAnyAncestorScrollable,
-  computedGlobalScrollMatrix,
-  computedScrollHandlers,
-  setupScroll,
-  setupScrollbars,
-} from '../scroll.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { computedTransformMatrix } from '../transform.js'
-import { ElementType } from '../order.js'
-import { signal } from '@preact/signals-core'
-import {
-  computedGlobalMatrix,
-  computedHandlers,
-  computedIsVisible,
-  setupMatrixWorldUpdate,
-  computedAncestorsHaveListeners,
-  setupPointerEvents,
-  buildRaycasting,
-} from './utils.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { computedPanelMatrix, getDefaultPanelMaterialConfig, setupBoundingSphere } from '../panel/index.js'
-import { allAliases } from '../properties/alias.js'
-import { createConditionals } from '../properties/conditional.js'
+import { computed, signal, Signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { computedFontFamilies } from '../text/font.js'
+import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
+import { ClippingRect, computedClippingRect } from '../clipping.js'
+import { ElementType, setupOrderInfo } from '../order.js'
+import { setupInstancedPanel } from '../panel/instanced-panel.js'
+import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll, setupScrollbars } from '../scroll.js'
+import { computedFontFamilies, FontFamilies } from '../text/font.js'
+import { Component } from './component.js'
+import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { defaults } from '../properties/defaults.js'
+import { RenderContext } from '../context.js'
 
-export function createContainerState<EM extends ThreeEventMap = ThreeEventMap>(
-  object: Component,
-  parentCtx?: ParentContext,
-  renderContext?: RenderContext,
-) {
-  const flexState = createFlexNodeState()
-  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
-  const hoveredList = signal<Array<number>>([])
-  const activeList = signal<Array<number>>([])
+export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
 
-  //properties
-  const properties = new Properties<EM, {}, {}>(
-    allAliases,
-    createConditionals(rootContext.root.size, hoveredList, activeList),
-    parentCtx?.properties,
-    {},
-  )
+export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
+  T,
+  EM,
+  BaseOutputProperties<EM>
+> {
+  readonly downPointerMap = new Map<
+    number,
+    | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
+    | { type: 'scroll-panel'; localPoint: Vector3; timestamp: number }
+  >()
+  readonly scrollVelocity = new Vector2()
+  readonly anyAncestorScrollable: Signal<readonly [boolean, boolean]>
+  readonly clippingRect: Signal<ClippingRect | undefined>
+  readonly childrenMatrix: Signal<Matrix4 | undefined>
+  readonly fontFamilies: Signal<FontFamilies | undefined>
+  readonly scrollPosition = signal<Vector2Tuple>([0, 0])
 
-  //transform
-  const transformMatrix = computedTransformMatrix(properties, flexState)
+  constructor(
+    inputProperties?: ContainerProperties<EM>,
+    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    renderContext?: RenderContext,
+  ) {
+    super(false, inputProperties, initialClasses, undefined, renderContext, defaults)
+    this.material.visible = false
 
-  const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
-    transformMatrix,
-  )
+    this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)
 
-  const isClipped = computedIsClipped(
-    parentCtx?.clippingRect,
-    globalMatrix,
-    flexState.size,
-    properties.getSignal('pixelSize'),
-  )
+    const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
 
-  const isVisible = computedIsVisible(flexState, isClipped, properties)
+    this.fontFamilies = computedFontFamilies(this.properties, this.parentContainer)
 
-  //instanced panel
-  const groupDeps = computedPanelGroupDependencies(properties)
-  const scrollPosition = createScrollPosition()
+    this.clippingRect = computedClippingRect(
+      this.globalMatrix,
+      this,
+      this.properties.signal.pixelSize,
+      parentClippingRect,
+    )
 
-  const orderInfo = computedOrderInfo(properties, 'zIndexOffset', ElementType.Panel, groupDeps, parentCtx?.orderInfo)
+    this.anyAncestorScrollable = computedAnyAncestorScrollable(this.parentContainer)
 
-  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+    const panelGroupDeps = computedPanelGroupDependencies(this.properties)
+    setupOrderInfo(
+      this.orderInfo,
+      this.properties,
+      'zIndexOffset',
+      ElementType.Panel,
+      panelGroupDeps,
+      computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
+      this.abortSignal,
+    )
 
-  const componentState = Object.assign(flexState, rootContext, {
-    object,
-    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
-    scrollState: createScrollState(),
-    properties,
-    hoveredList,
-    globalMatrix,
-    isClipped,
-    isVisible,
-    scrollPosition,
-    groupDeps,
-    orderInfo,
-    anyAncestorScrollable: computedAnyAncestorScrollable(flexState.scrollable, parentCtx?.anyAncestorScrollable),
-    clippingRect: computedClippingRect(
-      globalMatrix,
-      flexState,
-      properties.getSignal('pixelSize'),
-      parentCtx?.clippingRect,
-    ),
-    childrenMatrix: computedGlobalScrollMatrix(properties, scrollPosition, globalMatrix),
-  })
+    setupInstancedPanel(
+      this.properties,
+      this.root,
+      this.orderInfo,
+      panelGroupDeps,
+      this.globalPanelMatrix,
+      this.size,
+      this.borderInset,
+      parentClippingRect,
+      this.isVisible,
+      getDefaultPanelMaterialConfig(),
+      this.abortSignal,
+    )
 
-  const scrollHandlers = computedScrollHandlers(componentState, object)
-
-  const handlers = computedHandlers(properties, hoveredList, activeList, scrollHandlers)
-  return Object.assign(componentState, {
-    fontFamilies: computedFontFamilies(properties, parentCtx),
-    handlers,
-    ancestorsHaveListeners: computedAncestorsHaveListeners(parentCtx, handlers),
-  }) satisfies ParentContext
-}
-
-export function setupContainer(
-  state: ReturnType<typeof createContainerState>,
-  parentCtx: ParentContext | undefined,
-  abortSignal: AbortSignal,
-) {
-  setupRootContext(state, state.object, abortSignal)
-
-  createNode(state, parentCtx, state.object, false, abortSignal)
-  setupCursorCleanup(state.hoveredList, abortSignal)
-
-  setupInstancedPanel(
-    state.properties,
-    state.orderInfo,
-    state.groupDeps,
-    state.root.panelGroupManager,
-    state.panelMatrix,
-    state.size,
-    state.borderInset,
-    parentCtx?.clippingRect,
-    state.isVisible,
-    getDefaultPanelMaterialConfig(),
-    abortSignal,
-  )
-
-  //scrolling:
-  setupScroll(state, abortSignal)
-  setupScrollbars(
-    state.properties,
-    state.scrollPosition,
-    state,
-    state.globalMatrix,
-    state.isVisible,
-    parentCtx?.clippingRect,
-    state.orderInfo,
-    state.groupDeps,
-    state.root.panelGroupManager,
-    abortSignal,
-  )
-
-  setupBoundingSphere(
-    state.object.boundingSphere,
-    state.properties.getSignal('pixelSize'),
-    state.globalMatrix,
-    state.size,
-    abortSignal,
-  )
-  setupPointerEvents(state.properties, state.ancestorsHaveListeners, state.root, state.object, false, abortSignal)
-
-  const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
-  setupMatrixWorldUpdate(
-    updateMatrixWorld,
-    false,
-    state.properties,
-    state.size,
-    state.object,
-    state.root,
-    state.globalMatrix,
-    abortSignal,
-  )
-
-  setupLayoutListeners(state.properties, state.size, abortSignal)
-  setupClippedListeners(state.properties, state.isClipped, abortSignal)
+    //scrolling:
+    setupScroll(this)
+    setupScrollbars(this, parentClippingRect, this.orderInfo, panelGroupDeps)
+  }
 }

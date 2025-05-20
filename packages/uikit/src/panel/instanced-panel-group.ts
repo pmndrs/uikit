@@ -12,7 +12,7 @@ import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../order.js'
 import { computed } from '@preact/signals-core'
 import { Properties } from '../properties/index.js'
-import { RootContext } from '../components/index.js'
+import { RootContext } from '../context.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean

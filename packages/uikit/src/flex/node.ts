@@ -4,7 +4,7 @@ import { Display, Edge, FlexDirection, MeasureFunction, Node, Overflow } from 'y
 import { setter } from './setter.js'
 import { PointScaleFactor, createYogaNode } from './yoga.js'
 import { abortableEffect } from '../utils.js'
-import { Component } from '../vanilla/component.js'
+import { Component } from '../components/component.js'
 import { BaseOutputProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 

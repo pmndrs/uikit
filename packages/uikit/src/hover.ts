@@ -1,9 +1,7 @@
 import { Signal } from '@preact/signals-core'
 import { EventHandlers } from './events.js'
-import { addHandler } from './components/index.js'
 import { Properties } from './properties/index.js'
-
-export type HoverEventHandlers = Pick<EventHandlers, 'onPointerOver' | 'onPointerOut'>
+import { addHandler } from './utils.js'
 
 export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, abortSignal: AbortSignal) {
   //cleanup cursor effect
@@ -48,13 +46,13 @@ export function addHoverHandlers(
 const cursorRefStack: Array<unknown> = []
 const cursorTypeStack: Array<string> = []
 
-export function setCursorType(ref: unknown, type: string): void {
+function setCursorType(ref: unknown, type: string): void {
   cursorRefStack.push(ref)
   cursorTypeStack.push(type)
   document.body.style.cursor = type
 }
 
-export function unsetCursorType(ref: unknown): void {
+function unsetCursorType(ref: unknown): void {
   const index = cursorRefStack.indexOf(ref)
   if (index == -1) {
     return

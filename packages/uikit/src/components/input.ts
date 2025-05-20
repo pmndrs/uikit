@@ -1,4 +1,13 @@
-import { additionalTextDefaults } from '../text/render/instanced-text.js'
+import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
+import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
+import { Component } from './component.js'
+import { ColorRepresentation, Vector2, Vector2Tuple } from 'three'
+import { InputProperties, Properties } from '../properties/index.js'
+import { additionalTextDefaults, WordBreak, InstancedText } from '../text/index.js'
+import { abortableEffect } from '../utils.js'
+import { AdditionalTextProperties, TextProperties } from './text.js'
+import { CaretTransformation, setupCaret } from '../caret.js'
+import { SelectionTransformation, createSelection } from '../selection.js'
 
 const cancelSet = new Set<unknown>()
 
@@ -19,7 +28,7 @@ export const canvasInputProps = {
   },
 }
 
-export type InputProperties<EM extends ThreeEventMap> = AllProperties<EM, AdditionalInputProperties>
+export type InputProperties<EM extends ThreeEventMap> = InputProperties<EM, AdditionalInputProperties>
 
 export type InputType = 'text' | 'password'
 
@@ -45,244 +54,94 @@ export type AdditionalInputDefaults = typeof additionalInputDefaults & {
   caretColor: Signal<ColorRepresentation>
 }
 
-export function createInputState<EM extends ThreeEventMap = ThreeEventMap>(
-  object: Component,
-  multiline: boolean,
-  parentCtx?: ParentContext,
-  renderContext?: RenderContext,
-) {
-  const flexState = createFlexNodeState()
-  const rootContext = setupRootContext(parentCtx, object, flexState.size, renderContext)
-  const hoveredSignal = signal<Array<number>>([])
-  const activeSignal = signal<Array<number>>([])
-  const hasFocusSignal = signal<boolean>(false)
+export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Text<
+  T,
+  EM,
+  AdditionalInputProperties,
+  AdditionalInputDefaults
+> {
+  constructor(
+    inputProperties?: TextProperties<EM>,
+    initialClasses?: Array<InputProperties<EM> | string>,
+    renderContext?: RenderContext,
+  ) {
+    //TODO: set default caretOpacity based on opacity
+    //TODO: set default caretColor based on color
 
-  const properties: Properties<EM, AdditionalInputProperties, AdditionalInputDefaults> = new Properties<
-    EM,
-    AdditionalInputProperties,
-    AdditionalInputDefaults
-  >(
-    allAliases,
-    createConditionals(rootContext.root.size, hoveredSignal, activeSignal, hasFocusSignal),
-    parentCtx?.properties,
-    {
-      wordBreak: multiline ? 'break-word' : 'keep-all',
-      caretOpacity: computed(() => properties.get('opacity')),
-      caretColor: computed(() => properties.get('color') ?? 0),
-      ...additionalInputDefaults,
-    },
-  )
+    const writeValue = signal<string | undefined>(undefined)
 
-  const transformMatrix = computedTransformMatrix(properties, flexState)
-  const globalMatrix = computedGlobalMatrix(
-    parentCtx?.childrenMatrix ?? buildRootMatrix(properties, rootContext.root.size),
-    transformMatrix,
-  )
+    const valueSignal = computed(
+      () => properties.get('value') ?? writeValue.value ?? properties.get('defaultValue') ?? '',
+    )
 
-  const isClipped = computedIsClipped(
-    parentCtx?.clippingRect,
-    globalMatrix,
-    flexState.size,
-    properties.getSignal('pixelSize'),
-  )
-  const isVisible = computedIsVisible(flexState, isClipped, properties)
+    const displayValueSignal = computed(() =>
+      properties.get('type') === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value,
+    )
 
-  const backgroundGroupDeps = computedPanelGroupDependencies(properties)
-  const backgroundOrderInfo = computedOrderInfo(
-    properties,
-    'zIndexOffset',
-    ElementType.Panel,
-    backgroundGroupDeps,
-    parentCtx?.orderInfo,
-  )
+    const selectionTransformations = signal<Array<SelectionTransformation>>([])
+    const caretTransformation = signal<CaretTransformation | undefined>(undefined)
+    const selectionRange = signal<Vector2Tuple | undefined>(undefined)
 
-  const selectionTransformations = signal<Array<SelectionTransformation>>([])
-  const caretTransformation = signal<CaretTransformation | undefined>(undefined)
-  const selectionRange = signal<Vector2Tuple | undefined>(undefined)
+    const instancedTextRef: { current?: InstancedText } = {}
 
-  const fontFamilies = computedFontFamilies(properties, parentCtx)
-  const fontSignal = computedFont(properties, fontFamilies)
-  const orderInfo = computedOrderInfo(
-    undefined,
-    'zIndexOffset',
-    ElementType.Text,
-    computedGylphGroupDependencies(fontSignal),
-    backgroundOrderInfo,
-  )
-
-  const writeValue = signal<string | undefined>(undefined)
-
-  const valueSignal = computed(
-    () => properties.get('value') ?? writeValue.value ?? properties.get('defaultValue') ?? '',
-  )
-
-  const displayValueSignal = computed(() =>
-    properties.get('type') === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value,
-  )
-
-  const instancedTextRef: { current?: InstancedText } = {}
-
-  const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
-    if (!hasFocusSignal.peek()) {
-      element.focus()
-    }
-    if (start != null && end != null) {
-      element.setSelectionRange(start, end, direction)
-    }
-    selectionRange.value = [element.selectionStart ?? 0, element.selectionEnd ?? 0]
-  }
-
-  const selectionHandlers = computedSelectionHandlers(properties, valueSignal, flexState, instancedTextRef, focus)
-
-  const element = createHtmlInputElement(
-    selectionRange,
-    (newValue) => {
-      if (properties.peek('value') == null) {
-        writeValue.value = newValue
+    const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
+      if (!hasFocusSignal.peek()) {
+        element.focus()
       }
-      properties.peek('onValueChange')?.(newValue)
-    },
-    multiline,
-  )
+      if (start != null && end != null) {
+        element.setSelectionRange(start, end, direction)
+      }
+      selectionRange.value = [element.selectionStart ?? 0, element.selectionEnd ?? 0]
+    }
 
-  buildRaycasting(object, rootContext.root, globalMatrix, parentCtx?.clippingRect, orderInfo, flexState)
+    const selectionHandlers = computedSelectionHandlers(properties, valueSignal, flexState, instancedTextRef, focus)
 
-  return Object.assign(flexState, rootContext, {
-    panelMatrix: computedPanelMatrix(properties, globalMatrix, flexState.size, undefined),
-    element,
-    instancedTextRef,
-    hoveredSignal,
-    activeSignal,
-    hasFocusSignal,
-    properties,
-    transformMatrix,
-    globalMatrix,
-    isClipped,
-    isVisible,
-    backgroundGroupDeps,
-    backgroundOrderInfo,
-    orderInfo,
-    selectionTransformations,
-    caretTransformation,
-    selectionRange,
-    fontSignal,
-    valueSignal,
-    writeValue,
-    displayValueSignal,
-    object,
-    handlers: computedHandlers(properties, hoveredSignal, activeSignal, selectionHandlers, 'text'),
-    focus,
-    blur() {
-      element.blur()
-      selectionRange.value = undefined
-    },
-  })
-}
+    const element = createHtmlInputElement(
+      selectionRange,
+      (newValue) => {
+        if (this.properties.peek('value') == null) {
+          writeValue.value = newValue
+        }
+        this.properties.peek('onValueChange')?.(newValue)
+      },
+      multiline,
+    )
 
-export function setupInput(
-  state: ReturnType<typeof createInputState>,
-  parentCtx: ParentContext | undefined,
-  abortSignal: AbortSignal,
-) {
-  setupRootContext(state, state.object, abortSignal)
-  setupCursorCleanup(state.hoveredSignal, abortSignal)
+    setupCaret(
+      state.properties,
+      state.globalMatrix,
+      state.caretTransformation,
+      state.isVisible,
+      state.backgroundOrderInfo,
+      state.backgroundGroupDeps,
+      parentCtx?.clippingRect,
+      state.root.panelGroupManager,
+      abortSignal,
+    )
 
-  createNode(state, parentCtx, state.object, false, abortSignal)
+    createSelection(
+      state.properties,
+      state.globalMatrix,
+      state.selectionTransformations,
+      state.isVisible,
+      state.backgroundOrderInfo,
+      state.backgroundGroupDeps,
+      parentCtx?.clippingRect,
+      state.root.panelGroupManager,
+      abortSignal,
+    )
 
-  setupInstancedPanel(
-    state.properties,
-    state.backgroundOrderInfo,
-    state.backgroundGroupDeps,
-    state.root.panelGroupManager,
-    state.panelMatrix,
-    state.size,
-    state.borderInset,
-    parentCtx?.clippingRect,
-    state.isVisible,
-    getDefaultPanelMaterialConfig(),
-    abortSignal,
-  )
+    setupHtmlInputElement(state.properties, state.element, state.valueSignal, abortSignal)
 
-  setupCaret(
-    state.properties,
-    state.globalMatrix,
-    state.caretTransformation,
-    state.isVisible,
-    state.backgroundOrderInfo,
-    state.backgroundGroupDeps,
-    parentCtx?.clippingRect,
-    state.root.panelGroupManager,
-    abortSignal,
-  )
-
-  createSelection(
-    state.properties,
-    state.globalMatrix,
-    state.selectionTransformations,
-    state.isVisible,
-    state.backgroundOrderInfo,
-    state.backgroundGroupDeps,
-    parentCtx?.clippingRect,
-    state.root.panelGroupManager,
-    abortSignal,
-  )
-
-  const customLayouting = createInstancedText(
-    state.properties,
-    state.displayValueSignal,
-    state.globalMatrix,
-    state.node,
-    state,
-    state.isVisible,
-    parentCtx?.clippingRect,
-    state.orderInfo,
-    state.fontSignal,
-    state.root.gylphGroupManager,
-    state.selectionRange,
-    state.selectionTransformations,
-    state.caretTransformation,
-    state.instancedTextRef,
-    abortSignal,
-  )
-
-  abortableEffect(() => state.node.value?.setCustomLayouting(customLayouting.value), abortSignal)
-
-  setupBoundingSphere(
-    state.object.boundingSphere,
-    state.properties.getSignal('pixelSize'),
-    state.globalMatrix,
-    state.size,
-    abortSignal,
-  )
-
-  const updateMatrixWorld = state.properties.getSignal('updateMatrixWorld')
-  setupMatrixWorldUpdate(
-    updateMatrixWorld,
-    false,
-    state.properties,
-    state.size,
-    state.object,
-    state.root,
-    state.globalMatrix,
-    abortSignal,
-  )
-
-  setupLayoutListeners(state.properties, state.size, abortSignal)
-  setupClippedListeners(state.properties, state.isClipped, abortSignal)
-
-  setupHtmlInputElement(state.properties, state.element, state.valueSignal, abortSignal)
-
-  setupUpdateHasFocus(
-    state.element,
-    state.hasFocusSignal,
-    (hasFocus) => {
-      state.properties.peek('onFocusChange')?.(hasFocus)
-    },
-    abortSignal,
-  )
-
-  const ancestorsHaveListeners = computedAncestorsHaveListeners(parentCtx, state.handlers)
-  setupPointerEvents(state.properties, ancestorsHaveListeners, state.root, state.object, false, abortSignal)
+    setupUpdateHasFocus(
+      this.element,
+      this.hasFocusSignal,
+      (hasFocus) => {
+        state.properties.peek('onFocusChange')?.(hasFocus)
+      },
+      abortSignal,
+    )
+  }
 }
 
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })
@@ -290,7 +149,7 @@ const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(u
 export function computedSelectionHandlers(
   properties: Properties<ThreeEventMap, AdditionalInputProperties, AdditionalInputDefaults>,
   text: ReadonlySignal<string>,
-  flexState: FlexNodeState,
+  component: Component,
   instancedTextRef: { current?: InstancedText },
   focus: (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => void,
 ) {
@@ -316,7 +175,7 @@ export function computedSelectionHandlers(
         if ('setPointerCapture' in e.object && typeof e.object.setPointerCapture === 'function') {
           e.object.setPointerCapture(e.pointerId)
         }
-        const startCharIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current, 'between')
+        const startCharIndex = uvToCharIndex(component, e.uv, instancedTextRef.current, 'between')
         dragState = {
           pointerId: e.pointerId,
           startCharIndex,
@@ -332,7 +191,7 @@ export function computedSelectionHandlers(
           setTimeout(() => focus(0, text.peek().length, 'none'))
           return
         }
-        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current, 'on')
+        const charIndex = uvToCharIndex(component, e.uv, instancedTextRef.current, 'on')
         const segments = segmenter.segment(text.peek())
         let segmentLengthSum = 0
         for (const { segment } of segments) {
@@ -352,7 +211,7 @@ export function computedSelectionHandlers(
           return
         }
         e.stopImmediatePropagation?.()
-        const charIndex = uvToCharIndex(flexState, e.uv, instancedTextRef.current, 'between')
+        const charIndex = uvToCharIndex(component, e.uv, instancedTextRef.current, 'between')
 
         const start = Math.min(dragState.startCharIndex, charIndex)
         const end = Math.max(dragState.startCharIndex, charIndex)
@@ -442,7 +301,7 @@ function setupUpdateHasFocus(
 }
 
 function uvToCharIndex(
-  { size: s, borderInset: b, paddingInset: p }: FlexNodeState,
+  { size: s, borderInset: b, paddingInset: p }: Component,
   uv: Vector2,
   instancedText: InstancedText,
   position: 'between' | 'on',

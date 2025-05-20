@@ -2,10 +2,10 @@ import { Intersection, Matrix4, Mesh, Object3D, Plane, Sphere, Vector2, Vector2T
 import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { computeMatrixWorld, RootContext } from '../components/index.js'
-import { abortableEffect } from '../utils.js'
-import { Container } from '../vanilla/container.js'
-import { Component } from '../vanilla/component.js'
+import { RootContext } from '../context.js'
+import { abortableEffect, computeMatrixWorld } from '../utils.js'
+import { Container } from '../components/container.js'
+import { Component } from '../components/component.js'
 
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
