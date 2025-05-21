@@ -7,7 +7,7 @@ import { InstancedPanelGroup, PanelGroupProperties } from './instanced-panel-gro
 import { abortableEffect, ColorRepresentation } from '../utils.js'
 import { OrderInfo } from '../order.js'
 import { PanelMaterialConfig } from './panel-material.js'
-import { BaseOutputProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, Properties } from '../properties/index.js'
 import { RootContext } from '../context.js'
 import { ThreeEventMap } from '../events.js'
 
@@ -123,7 +123,7 @@ export class InstancedPanel {
           setters[key as string]!(
             instanceData.array,
             instanceData.itemSize * index,
-            properties.value[key as keyof BaseOutputProperties<ThreeEventMap>],
+            properties.value[key as keyof BaseOutProperties<ThreeEventMap>],
             size,
             instanceDataAddUpdateRange,
           )
@@ -139,6 +139,7 @@ export class InstancedPanel {
       }
       this.hide()
     }, abortSignal)
+    abortSignal.addEventListener('abort', () => this.hide())
   }
 
   setIndexInBucket(index: number): void {

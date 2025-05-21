@@ -27,7 +27,7 @@ import {
 } from './layers.js'
 import { alignmentXMap, alignmentYMap, ColorRepresentation, VisibilityProperties } from '../utils.js'
 
-export type BaseOutputProperties<EM extends ThreeEventMap> = YogaProperties &
+export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   PanelProperties &
   ZIndexProperties &
   TransformProperties &
@@ -51,7 +51,7 @@ export type CursorProperties = {
   cursor?: string
 }
 
-export type UikitPropertyKeys = keyof BaseOutputProperties<ThreeEventMap>
+export type UikitPropertyKeys = keyof BaseOutProperties<ThreeEventMap>
 
 export type AppearanceProperties = {
   color?: ColorRepresentation
@@ -73,25 +73,20 @@ export type WithSignal<T> = {
   [K in keyof T]?: T[K] | Signal<T[K]>
 }
 
-export type InputProperties<
-  OutputProperties extends BaseOutputProperties<ThreeEventMap> = BaseOutputProperties<ThreeEventMap>,
-> = WithConditionals<AddAllAliases<WithSignal<Partial<OutputProperties>>>>
+export type InProperties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
+  WithConditionals<AddAllAliases<WithSignal<Partial<OutputProperties>>>>
 
-export type Properties<
-  OutputProperties extends BaseOutputProperties<ThreeEventMap> = BaseOutputProperties<ThreeEventMap>,
-> = BaseProperties<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties> & {
-  get usedConditionals(): {
-    hover: Signal<boolean>
-    active: Signal<boolean>
+export type Properties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
+  BaseProperties<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties> & {
+    get usedConditionals(): {
+      hover: Signal<boolean>
+      active: Signal<boolean>
+    }
+    setLayersWithConditionals(layerIndexInSection: number, properties: InProperties<OutputProperties> | undefined): void
   }
-  setLayersWithConditionals(
-    layerIndexInSection: number,
-    properties: InputProperties<OutputProperties> | undefined,
-  ): void
-}
 
 export class PropertiesImplementation<
-    OutputProperties extends BaseOutputProperties<ThreeEventMap> = BaseOutputProperties<ThreeEventMap>,
+    OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   >
   extends BasePropertiesImplementation<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties>
   implements Properties<OutputProperties>
@@ -161,7 +156,7 @@ export class PropertiesImplementation<
     })
   }
 
-  setLayersWithConditionals(layerIndexInSection: number, properties: InputProperties<OutputProperties> | undefined) {
+  setLayersWithConditionals(layerIndexInSection: number, properties: InProperties<OutputProperties> | undefined) {
     batch(() => {
       this.setLayer(layerIndexInSection + LayerSectionStartBase, properties)
       for (const [conditional, sectionStart] of Object.entries(LayerSectionStart)) {

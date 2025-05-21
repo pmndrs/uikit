@@ -9,16 +9,16 @@ import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll,
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 
-export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
+export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
 export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
   T,
   EM,
-  BaseOutputProperties<EM>
+  BaseOutProperties<EM>
 > {
   readonly downPointerMap = new Map<
     number,
@@ -34,9 +34,9 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
 
   constructor(
     inputProperties?: ContainerProperties<EM>,
-    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
-    overrideDefaults: BaseOutputProperties<EM> = defaults,
+    overrideDefaults: BaseOutProperties<EM> = defaults,
   ) {
     super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults)
     this.material.visible = false

@@ -45,17 +45,6 @@ export function buildRootContext(
 
     root.value.onFrameSet.add(onFrame)
     abortController.signal.addEventListener('abort', () => root.value.onFrameSet.delete(onFrame))
-
-    component.updateMatrixWorld = function () {
-      if (this.parent == null) {
-        this.matrixWorld.copy(this.matrix)
-      } else {
-        this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix)
-      }
-      for (const update of root.value.onUpdateMatrixWorldSet) {
-        update()
-      }
-    }
     return () => abortController.abort()
   }, component.abortSignal)
 

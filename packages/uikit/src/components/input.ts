@@ -1,13 +1,14 @@
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
 import { Component } from './component.js'
-import { ColorRepresentation, Vector2, Vector2Tuple } from 'three'
-import { InputProperties, Properties } from '../properties/index.js'
-import { additionalTextDefaults, WordBreak, InstancedText } from '../text/index.js'
+import { Vector2, Vector2Tuple } from 'three'
+import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
+import { InstancedText } from '../text/index.js'
 import { abortableEffect } from '../utils.js'
-import { AdditionalTextProperties, TextProperties } from './text.js'
+import { Text, TextOutProperties, textDefaults } from './text.js'
 import { CaretTransformation, setupCaret } from '../caret.js'
 import { SelectionTransformation, createSelection } from '../selection.js'
+import { RenderContext } from '../context.js'
 
 const cancelSet = new Set<unknown>()
 
@@ -28,61 +29,75 @@ export const canvasInputProps = {
   },
 }
 
-export type InputProperties<EM extends ThreeEventMap> = InputProperties<EM, AdditionalInputProperties>
+export type InputType = 'text' | 'password' | 'number'
 
-export type InputType = 'text' | 'password'
-
-export type AdditionalInputProperties = {
-  html?: Omit<HTMLInputElement, 'value' | 'disabled' | 'type'>
+export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<TextOutProperties<EM>, 'text'> & {
   defaultValue?: string
   value?: string
-  disabled?: boolean
+  disabled: boolean
+  tabIndex: number
+  autocomplete: string
   type: InputType
   onValueChange?: (value: string) => void
   onFocusChange?: (focus: boolean) => void
-} & AdditionalTextProperties
+} & Omit<Partial<HTMLInputElement>, 'value' | 'disabled' | 'type'>
 
-const additionalInputDefaults = {
-  type: 'text',
-  disabled: false,
-  ...additionalTextDefaults,
-}
+export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
 
-export type AdditionalInputDefaults = typeof additionalInputDefaults & {
-  wordBreak: WordBreak
-  caretOpacity: Signal<number>
-  caretColor: Signal<ColorRepresentation>
-}
-
-export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Text<
-  T,
-  EM,
-  AdditionalInputProperties,
-  AdditionalInputDefaults
-> {
+export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Text<T, EM, InputOutProperties<EM>> {
   constructor(
-    inputProperties?: TextProperties<EM>,
-    initialClasses?: Array<InputProperties<EM> | string>,
+    inputProperties?: InputProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    multiline = false,
   ) {
-    //TODO: set default caretOpacity based on opacity
-    //TODO: set default caretColor based on color
-
-    const writeValue = signal<string | undefined>(undefined)
-
-    const valueSignal = computed(
-      () => properties.get('value') ?? writeValue.value ?? properties.get('defaultValue') ?? '',
-    )
-
-    const displayValueSignal = computed(() =>
-      properties.get('type') === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value,
-    )
+    const text = signal('')
+    const caretOpacity = signal<InputOutProperties<EM>['caretOpacity']>(undefined)
+    const caretColor = signal<InputOutProperties<EM>['caretColor']>(undefined)
+    const selectionHandlers = signal<EventHandlers | undefined>(undefined)
 
     const selectionTransformations = signal<Array<SelectionTransformation>>([])
     const caretTransformation = signal<CaretTransformation | undefined>(undefined)
     const selectionRange = signal<Vector2Tuple | undefined>(undefined)
-
     const instancedTextRef: { current?: InstancedText } = {}
+
+    super(
+      inputProperties,
+      initialClasses,
+      renderContext,
+      {
+        ...textDefaults,
+        cursor: 'text',
+        ...({ text } as any),
+        type: 'text',
+        disabled: false,
+        tabIndex: 0,
+        autocomplete: '',
+        caretOpacity,
+        caretColor,
+      },
+      selectionHandlers,
+      selectionRange,
+      selectionTransformations,
+      caretTransformation,
+      instancedTextRef,
+    )
+    abortableEffect(() => void (caretOpacity.value = this.properties.value.opacity), this.abortSignal)
+    abortableEffect(() => void (caretColor.value = this.properties.value.color), this.abortSignal)
+
+    const writeValue = signal<string | undefined>(undefined)
+    const hasFocusSignal = signal<boolean>(false)
+
+    const valueSignal = computed(
+      () => this.properties.value.value ?? writeValue.value ?? this.properties.value.defaultValue ?? '',
+    )
+
+    abortableEffect(
+      () =>
+        void (text.value =
+          this.properties.value.type === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value),
+      this.abortSignal,
+    )
 
     const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
       if (!hasFocusSignal.peek()) {
@@ -94,68 +109,81 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Tex
       selectionRange.value = [element.selectionStart ?? 0, element.selectionEnd ?? 0]
     }
 
-    const selectionHandlers = computedSelectionHandlers(properties, valueSignal, flexState, instancedTextRef, focus)
+    setupSelectionHandlers(
+      selectionHandlers,
+      this.properties,
+      valueSignal,
+      this,
+      instancedTextRef,
+      focus,
+      this.abortSignal,
+    )
+
+    const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
 
     const element = createHtmlInputElement(
       selectionRange,
       (newValue) => {
-        if (this.properties.peek('value') == null) {
+        if (this.properties.peek().value == null) {
           writeValue.value = newValue
         }
-        this.properties.peek('onValueChange')?.(newValue)
+        this.properties.peek().onValueChange?.(newValue)
       },
       multiline,
     )
 
     setupCaret(
-      state.properties,
-      state.globalMatrix,
-      state.caretTransformation,
-      state.isVisible,
-      state.backgroundOrderInfo,
-      state.backgroundGroupDeps,
-      parentCtx?.clippingRect,
-      state.root.panelGroupManager,
-      abortSignal,
+      this.properties,
+      this.globalMatrix,
+      caretTransformation,
+      this.isVisible,
+      this.backgroundOrderInfo,
+      this.backgroundGroupDeps,
+      parentClippingRect,
+      this.root,
+      this.abortSignal,
     )
 
     createSelection(
-      state.properties,
-      state.globalMatrix,
-      state.selectionTransformations,
-      state.isVisible,
-      state.backgroundOrderInfo,
-      state.backgroundGroupDeps,
-      parentCtx?.clippingRect,
-      state.root.panelGroupManager,
-      abortSignal,
+      this.properties,
+      this.root,
+      this.globalMatrix,
+      selectionTransformations,
+      this.isVisible,
+      this.backgroundOrderInfo,
+      this.backgroundGroupDeps,
+      parentClippingRect,
+      this.abortSignal,
     )
 
-    setupHtmlInputElement(state.properties, state.element, state.valueSignal, abortSignal)
+    setupHtmlInputElement(this.properties, element, valueSignal, this.abortSignal)
 
     setupUpdateHasFocus(
-      this.element,
-      this.hasFocusSignal,
+      element,
+      hasFocusSignal,
       (hasFocus) => {
-        state.properties.peek('onFocusChange')?.(hasFocus)
+        this.properties.peek().onFocusChange?.(hasFocus)
       },
-      abortSignal,
+      this.abortSignal,
     )
   }
 }
 
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })
 
-export function computedSelectionHandlers(
-  properties: Properties<ThreeEventMap, AdditionalInputProperties, AdditionalInputDefaults>,
+export function setupSelectionHandlers(
+  target: Signal<EventHandlers | undefined>,
+  properties: Properties<InputOutProperties<ThreeEventMap>>,
   text: ReadonlySignal<string>,
   component: Component,
   instancedTextRef: { current?: InstancedText },
   focus: (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => void,
+  abortSignal: AbortSignal,
 ) {
-  return computed<EventHandlers | undefined>(() => {
-    if (properties.get('disabled')) {
-      return undefined
+  abortableEffect(() => {
+    if (properties.value.disabled) {
+      target.value = undefined
+      return
     }
     let dragState: { startCharIndex: number; pointerId: number } | undefined
     const onPointerFinish = (e: ThreePointerEvent) => {
@@ -165,7 +193,7 @@ export function computedSelectionHandlers(
       e.stopImmediatePropagation?.()
       dragState = undefined
     }
-    return {
+    target.value = {
       onPointerDown: (e) => {
         if (dragState != null || e.uv == null || instancedTextRef.current == null) {
           return
@@ -187,7 +215,7 @@ export function computedSelectionHandlers(
           return
         }
         e.stopImmediatePropagation?.()
-        if (properties.peek('type') === 'password') {
+        if (properties.peek().type === 'password') {
           setTimeout(() => focus(0, text.peek().length, 'none'))
           return
         }
@@ -220,7 +248,7 @@ export function computedSelectionHandlers(
         setTimeout(() => focus(start, end, direction))
       },
     }
-  })
+  }, abortSignal)
 }
 
 export function createHtmlInputElement(
@@ -258,20 +286,19 @@ export function createHtmlInputElement(
 }
 
 function setupHtmlInputElement(
-  properties: Properties<ThreeEventMap, AdditionalInputProperties, AdditionalInputDefaults>,
+  properties: Properties<InputOutProperties<ThreeEventMap>>,
   element: HTMLInputElement | HTMLTextAreaElement,
   value: Signal<string>,
   abortSignal: AbortSignal,
 ) {
   document.body.appendChild(element)
-
   abortSignal.addEventListener('abort', () => element.remove())
   abortableEffect(() => void (element.value = value.value), abortSignal)
-  abortableEffect(() => {
-    properties.get('html')
-    //TODO: apply properties
-  }, abortSignal)
-  abortableEffect(() => element.setAttribute('type', properties.get('type')), abortSignal)
+  abortableEffect(() => void (element.disabled = properties.value.disabled), abortSignal)
+  abortableEffect(() => void (element.tabIndex = properties.value.tabIndex), abortSignal)
+  abortableEffect(() => void (element.autocomplete = properties.value.autocomplete), abortSignal)
+  abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
+  abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
 }
 
 function setupUpdateHasFocus(

@@ -6,7 +6,7 @@ import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { BaseOutputProperties, InputProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
 import { abortableEffect, alignmentZMap, setupMatrixWorldUpdate } from '../utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
@@ -21,10 +21,10 @@ const contentDefaults = {
   keepAspectRatio: true,
 }
 
-export type ContentOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = typeof contentDefaults &
-  BaseOutputProperties<EM>
+export type ContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = typeof contentDefaults &
+  BaseOutProperties<EM>
 
-export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<ContentOutputProperties<EM>>
+export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ContentOutProperties<EM>>
 
 const IdentityQuaternion = new Quaternion()
 const IdentityMatrix = new Matrix4()
@@ -41,14 +41,14 @@ export type BoundingBox = { size: Vector3; center: Vector3 }
 export class Content<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends ContentOutputProperties<EM> = ContentOutputProperties<EM>,
+  OutputProperties extends ContentOutProperties<EM> = ContentOutProperties<EM>,
 > extends Component<T, EM, OutputProperties> {
   readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
   readonly clippingPlanes: Array<Plane>
 
   constructor(
-    inputProperties?: InputProperties<OutputProperties>,
-    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    inputProperties?: InProperties<OutputProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
     private readonly config: {
       remeasureOnChildrenChange: boolean

@@ -1,6 +1,6 @@
 import { computed, signal, Signal } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
-import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { EventHandlers, ThreeEventMap } from '../events.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { Component } from './component.js'
 import { ElementType, OrderInfo, setupOrderInfo } from '../order.js'
 import {
@@ -11,6 +11,7 @@ import {
   computedGylphGroupDependencies,
   createInstancedText,
   Font,
+  InstancedText,
 } from '../text/index.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
@@ -18,37 +19,52 @@ import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { abortableEffect } from '../utils.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
+import { Vector2Tuple } from 'three'
+import { CaretTransformation } from '../caret.js'
+import { SelectionTransformation } from '../selection.js'
 
-export type TextOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutputProperties<EM> &
-  AdditionalTextDefaults
+export type TextOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> &
+  AdditionalTextDefaults & { text?: string | Array<string> }
 
-export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<TextOutputProperties<EM>>
+export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TextOutProperties<EM>>
 
-const textDefaults = { ...defaults, ...additionalTextDefaults }
+export const textDefaults = { ...defaults, ...additionalTextDefaults }
 
-export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, TextOutputProperties<EM>> {
+export class Text<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutputProperties extends TextOutProperties<EM> = TextOutProperties<EM>,
+> extends Component<T, EM, OutputProperties> {
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
-  readonly panelGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
+  readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
 
   constructor(
-    inputProperties?: TextProperties<EM>,
-    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    inputProperties?: InProperties<OutputProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    customDefaults: {
+      [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]>
+    } = textDefaults as any,
+    dynamicHandlers?: Signal<EventHandlers | undefined>,
+    selectionRange?: Signal<Vector2Tuple | undefined>,
+    selectionTransformations?: Signal<Array<SelectionTransformation>>,
+    caretTransformation?: Signal<CaretTransformation | undefined>,
+    instancedTextRef?: { current?: InstancedText },
   ) {
-    super(false, inputProperties, initialClasses, undefined, renderContext, textDefaults)
+    super(false, inputProperties, initialClasses, undefined, renderContext, customDefaults, dynamicHandlers)
     this.material.visible = false
 
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
 
-    this.panelGroupDeps = computedPanelGroupDependencies(this.properties)
+    this.backgroundGroupDeps = computedPanelGroupDependencies(this.properties)
 
     setupOrderInfo(
       this.backgroundOrderInfo,
       this.properties,
       'zIndexOffset',
       ElementType.Panel,
-      this.panelGroupDeps,
+      this.backgroundGroupDeps,
       computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
       this.abortSignal,
     )
@@ -70,7 +86,7 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       this.properties,
       this.root,
       this.backgroundOrderInfo,
-      this.panelGroupDeps,
+      this.backgroundGroupDeps,
       this.globalPanelMatrix,
       this.size,
       this.borderInset,
@@ -80,7 +96,14 @@ export class Text<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Comp
       this.abortSignal,
     )
 
-    const customLayouting = createInstancedText(this, parentClippingRect, undefined, undefined, undefined, undefined)
+    const customLayouting = createInstancedText(
+      this,
+      parentClippingRect,
+      selectionRange,
+      selectionTransformations,
+      caretTransformation,
+      instancedTextRef,
+    )
     abortableEffect(() => this.node.setCustomLayouting(customLayouting.value), this.abortSignal)
   }
 }

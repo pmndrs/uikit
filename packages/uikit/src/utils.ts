@@ -1,7 +1,7 @@
 import { computed, effect, ReadonlySignal, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple, Vector3, Matrix4, Object3D } from 'three'
 import { Inset } from './flex/node.js'
-import { BaseOutputProperties, Properties } from './properties/index.js'
+import { BaseOutProperties, Properties } from './properties/index.js'
 import { EventHandlers, ThreeEventMap } from './events.js'
 import { addActiveHandlers } from './active.js'
 import { addHoverHandlers } from './hover.js'
@@ -94,7 +94,6 @@ export function computedHandlers(
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
   dynamicHandlers?: Signal<EventHandlers | undefined>,
-  defaultCursor?: string,
 ) {
   return computed(() => {
     const handlers: EventHandlers = {}
@@ -105,7 +104,7 @@ export function computedHandlers(
       }
     }
     addHandlers(handlers, dynamicHandlers?.value)
-    addHoverHandlers(handlers, properties, hoveredSignal, properties.usedConditionals.hover, defaultCursor)
+    addHoverHandlers(handlers, properties, hoveredSignal, properties.usedConditionals.hover)
     addActiveHandlers(handlers, properties, activeSignal, properties.usedConditionals.active)
     return handlers
   })
@@ -309,6 +308,6 @@ export function readReactive<T>(value: T | Signal<T>): T {
 
 export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {
   return computed(
-    () => keys.map((key) => properties.value[key as keyof BaseOutputProperties<ThreeEventMap>] ?? 0) as Inset,
+    () => keys.map((key) => properties.value[key as keyof BaseOutProperties<ThreeEventMap>] ?? 0) as Inset,
   )
 }

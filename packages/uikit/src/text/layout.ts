@@ -3,10 +3,11 @@ import { Font } from './font.js'
 import { getGlyphLayoutHeight } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { MeasureMode } from 'yoga-layout/load'
-import { BaseOutputProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, Properties } from '../properties/index.js'
 import { CustomLayouting } from '../flex/index.js'
 import { ThreeEventMap } from '../events.js'
 import { AdditionalTextDefaults } from './render/index.js'
+import { TextOutProperties } from '../components/text.js'
 
 export type GlyphLayoutLine = {
   charIndexOffset: number
@@ -36,7 +37,7 @@ export type GlyphLayoutProperties = {
 }
 
 export function computedCustomLayouting(
-  properties: Properties<BaseOutputProperties<ThreeEventMap> & AdditionalTextDefaults>,
+  properties: Properties<TextOutProperties<ThreeEventMap>>,
   fontSignal: Signal<Font | undefined>,
   propertiesRef: { current: GlyphLayoutProperties | undefined },
 ) {
@@ -46,7 +47,7 @@ export function computedCustomLayouting(
       return undefined
     }
     const textProperty = properties.value.text
-    let text = Array.isArray(textProperty) ? textProperty.join('') : textProperty
+    let text = Array.isArray(textProperty) ? textProperty.join('') : (textProperty ?? '')
     //TODO: tab should be intergrated into the text layouting algorithm
     text = text.replaceAll('\t', ' '.repeat(4))
     const layoutProperties: GlyphLayoutProperties = {

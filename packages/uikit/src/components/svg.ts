@@ -1,24 +1,24 @@
 import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
 import { ThreeEventMap } from '../events.js'
-import { BoundingBox, Content, ContentOutputProperties } from './content.js'
+import { BoundingBox, Content, ContentOutProperties } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 
-export type SvgOutputProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutputProperties<EM> & {
+export type SvgOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutProperties<EM> & {
   keepAspectRatio?: boolean
   src?: string
   content?: string
 }
 
-export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = InputProperties<SvgOutputProperties<EM>>
+export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SvgOutProperties<EM>>
 
-export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Content<T, EM, SvgOutputProperties<EM>> {
+export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Content<T, EM, SvgOutProperties<EM>> {
   constructor(
     inputProperties?: SvgProperties<EM>,
-    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
     const boundingBox = signal<BoundingBox | undefined>(undefined)

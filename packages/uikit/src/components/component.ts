@@ -17,7 +17,7 @@ import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
-import { BaseOutputProperties, InputProperties, Properties, PropertiesImplementation } from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties, PropertiesImplementation } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
@@ -28,7 +28,7 @@ import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '.
 export class Component<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends BaseOutputProperties<EM> = BaseOutputProperties<EM>,
+  OutputProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
 > extends Mesh<
   BufferGeometry,
   Material,
@@ -62,11 +62,12 @@ export class Component<
 
   constructor(
     hasNonUikitChildren: boolean,
-    private inputProperties: InputProperties<OutputProperties> | undefined,
-    initialClasses: Array<InputProperties<BaseOutputProperties<EM>> | string> | undefined,
+    private inputProperties: InProperties<OutputProperties> | undefined,
+    initialClasses: Array<InProperties<BaseOutProperties<EM>> | string> | undefined,
     material: Material | undefined,
     renderContext: RenderContext | undefined,
     defaults: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
+    dynamicHandlers?: Signal<EventHandlers | undefined>,
   ) {
     super(panelGeometry, material)
     this.matrixAutoUpdate = false
@@ -108,7 +109,7 @@ export class Component<
     )
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)
 
-    const handlers = computedHandlers(this.properties, this.hoveredList, this.activeList)
+    const handlers = computedHandlers(this.properties, this.hoveredList, this.activeList, dynamicHandlers)
     this.ancestorsHaveListenersSignal = computedAncestorsHaveListeners(this.parentContainer, handlers)
 
     this.globalPanelMatrix = computedPanelMatrix(this.properties, this.globalMatrix, this.size, undefined)
@@ -152,14 +153,24 @@ export class Component<
     }
   }
 
-  setProperties(inputProperties: InputProperties<OutputProperties>) {
+  updateMatrixWorld() {
+    for (const update of this.root.value.onUpdateMatrixWorldSet) {
+      update()
+    }
+  }
+
+  updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
+    //TODO
+  }
+
+  setProperties(inputProperties: InProperties<OutputProperties>) {
     this.resetProperties({
       ...this.inputProperties,
       ...inputProperties,
     })
   }
 
-  resetProperties(inputProperties?: InputProperties<OutputProperties>) {
+  resetProperties(inputProperties?: InProperties<OutputProperties>) {
     this.inputProperties = inputProperties
     this.properties.setLayersWithConditionals(0, this.inputProperties)
   }

@@ -1,6 +1,6 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutputProperties, InputProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { Component } from './component.js'
 import { SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
 import { abortableEffect, loadResourceWithParams, setupMatrixWorldUpdate } from '../utils.js'
@@ -24,23 +24,23 @@ const additionalImageDefaults = {
   keepAspectRatio: true,
 }
 
-export type ImageOutputProperties<EM extends ThreeEventMap, Src> = BaseOutputProperties<EM> & {
+export type ImageOutProperties<EM extends ThreeEventMap, Src> = BaseOutProperties<EM> & {
   src?: Src
   aspectRatio?: number
 } & typeof additionalImageDefaults
 
-export type ImageProperties<EM extends ThreeEventMap> = InputProperties<ImageOutputProperties<EM, string | Texture>>
+export type ImageProperties<EM extends ThreeEventMap> = InProperties<ImageOutProperties<EM, string | Texture>>
 
 export class Image<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends ImageOutputProperties<EM, unknown> = ImageOutputProperties<EM, string | Texture>,
+  OutputProperties extends ImageOutProperties<EM, unknown> = ImageOutProperties<EM, string | Texture>,
 > extends Component<T, EM, OutputProperties> {
   readonly texture = signal<Texture | undefined>(undefined)
 
   constructor(
-    inputProperties?: InputProperties<OutputProperties>,
-    initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
+    inputProperties?: InProperties<OutputProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
     loadTexture = true,
   ) {

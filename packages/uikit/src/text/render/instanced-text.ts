@@ -14,7 +14,7 @@ import { InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
 import { SelectionTransformation } from '../../selection.js'
 import { CaretTransformation } from '../../caret.js'
-import { BaseOutputProperties, Properties } from '../../properties/index.js'
+import { BaseOutProperties, Properties } from '../../properties/index.js'
 import { ThreeEventMap } from '../../events.js'
 import { Text } from '../../components/text.js'
 
@@ -24,7 +24,6 @@ export type TextAlignProperties = {
 
 export const additionalTextDefaults = {
   verticalAlign: 'middle' as keyof typeof alignmentYMap,
-  text: '' as string | Array<string>,
 }
 
 export type AdditionalTextDefaults = typeof additionalTextDefaults
@@ -106,7 +105,7 @@ export class InstancedText {
 
   constructor(
     private group: InstancedGlyphGroup,
-    private properties: Properties<AdditionalTextDefaults & BaseOutputProperties<ThreeEventMap>>,
+    private properties: Properties<AdditionalTextDefaults & BaseOutProperties<ThreeEventMap>>,
     private layoutSignal: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
     isVisible: Signal<boolean>,

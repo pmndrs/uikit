@@ -16,9 +16,8 @@ export function addHoverHandlers(
   properties: Properties,
   hoveredSignal: Signal<Array<number>>,
   hasHoverConditionalProperties: Signal<boolean>,
-  defaultCursor?: string,
 ): void {
-  const cursor = properties.value.cursor ?? defaultCursor
+  const cursor = properties.value.cursor
   const onHoverChange = properties.value.onHoverChange
   if (!hasHoverConditionalProperties.value && onHoverChange == null && cursor == null) {
     //no need to trigger a "push" by writing to .value because nobody should listen to hoveredSignal anyways

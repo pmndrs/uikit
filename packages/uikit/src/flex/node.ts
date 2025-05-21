@@ -5,7 +5,7 @@ import { setter } from './setter.js'
 import { PointScaleFactor, createYogaNode } from './yoga.js'
 import { abortableEffect } from '../utils.js'
 import { Component } from '../components/component.js'
-import { BaseOutputProperties } from '../properties/index.js'
+import { BaseOutProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 
 export type YogaProperties = {
@@ -61,7 +61,7 @@ export class FlexNode {
         abortableEffect(() => {
           setter[key as keyof typeof setter](
             this.yogaNode!,
-            component.properties.value[key as keyof BaseOutputProperties<ThreeEventMap>] as any,
+            component.properties.value[key as keyof BaseOutProperties<ThreeEventMap>] as any,
           )
           this.component.root.peek().requestCalculateLayout()
         }, component.abortSignal)

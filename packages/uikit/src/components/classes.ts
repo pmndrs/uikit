@@ -1,11 +1,11 @@
 import { batch } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutputProperties, InputProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
 
-export const StyleSheet: Record<string, InputProperties<BaseOutputProperties<ThreeEventMap>>> = {}
+export const StyleSheet: Record<string, InProperties<BaseOutProperties<ThreeEventMap>>> = {}
 
 export class ClassList {
-  private list: Array<InputProperties | string | undefined> = []
+  private list: Array<InProperties | string | undefined> = []
 
   constructor(private readonly properties: Properties) {}
   [Symbol.iterator]() {
@@ -64,7 +64,7 @@ export class ClassList {
     return true
   }
 
-  private resolveClassRef(classRef: InputProperties | string | undefined): InputProperties | undefined {
+  private resolveClassRef(classRef: InProperties | string | undefined): InProperties | undefined {
     if (classRef == null) {
       return undefined
     }
