@@ -1,5 +1,5 @@
 import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Text, Image, Content, Svg, StyleSheet } from '@pmndrs/uikit'
+import { reversePainterSortStable, Container, Text, Image, Content, Svg, StyleSheet, Video } from '@pmndrs/uikit'
 import { Delete } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
@@ -26,7 +26,7 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 const root = new Container({
   flexDirection: 'row',
   gap: 30,
-  width: 1000,
+  width: 1300,
   borderRadius: 10,
   padding: 10,
   alignItems: 'center',
@@ -87,7 +87,16 @@ const img = new Image({
   backgroundColor: 'blue',
   flexShrink: 0,
 })
-root.add(img, c, del, svg, text, x)
+const video = new Video({
+  src: 'example.mp4',
+  width: 300,
+  autoplay: true,
+  muted: true,
+  loop: true,
+  flexShrink: 0,
+})
+console.log(video)
+root.add(img, c, del, svg, text, x, video)
 x.add(a)
 
 renderer.setAnimationLoop(animation)

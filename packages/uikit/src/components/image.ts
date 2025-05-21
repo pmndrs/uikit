@@ -24,31 +24,32 @@ const additionalImageDefaults = {
   keepAspectRatio: true,
 }
 
-export type ImageOutputProperties<EM extends ThreeEventMap> = BaseOutputProperties<EM> & {
-  src?: string | Texture
+export type ImageOutputProperties<EM extends ThreeEventMap, Src> = BaseOutputProperties<EM> & {
+  src?: Src
   aspectRatio?: number
 } & typeof additionalImageDefaults
 
-export type ImageProperties<EM extends ThreeEventMap> = InputProperties<ImageOutputProperties<EM>>
+export type ImageProperties<EM extends ThreeEventMap> = InputProperties<ImageOutputProperties<EM, string | Texture>>
 
-export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
-  T,
-  EM,
-  ImageOutputProperties<EM>
-> {
+export class Image<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutputProperties extends ImageOutputProperties<EM, unknown> = ImageOutputProperties<EM, string | Texture>,
+> extends Component<T, EM, OutputProperties> {
   readonly texture = signal<Texture | undefined>(undefined)
 
   constructor(
-    inputProperties?: ImageProperties<EM>,
+    inputProperties?: InputProperties<OutputProperties>,
     initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
+    loadTexture = true,
   ) {
     const aspectRatio = signal<number | undefined>(undefined)
     super(false, inputProperties, initialClasses, undefined, renderContext, {
       ...defaults,
       ...additionalImageDefaults,
       aspectRatio,
-    })
+    } as any as OutputProperties)
 
     setupOrderInfo(
       this.orderInfo,
@@ -63,7 +64,15 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
     this.frustumCulled = false
     setupRenderOrder(this, this.root, this.orderInfo)
 
-    loadResourceWithParams(this.texture, loadTextureImpl, cleanupTexture, this.abortSignal, this.properties.signal.src)
+    if (loadTexture) {
+      loadResourceWithParams(
+        this.texture,
+        loadTextureImpl,
+        cleanupTexture,
+        this.abortSignal,
+        this.properties.signal.src as Signal<string | Texture | undefined>,
+      )
+    }
 
     const clippingPlanes = createGlobalClippingPlanes(this)
     const isMeshVisible = getImageMaterialConfig().computedIsVisibile(
@@ -145,13 +154,7 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
           return
         }
         abortableEffect(() => {
-          setters[key as any]!(
-            data,
-            0,
-            this.properties.value[key as keyof ImageOutputProperties<EM>],
-            this.size,
-            undefined,
-          )
+          setters[key as any]!(data, 0, this.properties.value[key as keyof OutputProperties], this.size, undefined)
           this.root.peek().requestRender?.()
         }, this.abortSignal)
       })
@@ -203,8 +206,10 @@ export class Image<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Com
         aspectRatio.value = undefined
         return
       }
-      const image = tex.source.data as { width: number; height: number }
-      aspectRatio.value = image.width / image.height
+      const image = tex.source.data
+      const width = image.videoWidth ?? image.naturalWidth ?? image.width
+      const height = image.videoHeight ?? image.naturalHeight ?? image.height
+      aspectRatio.value = width / height
     }, this.abortSignal)
   }
 }

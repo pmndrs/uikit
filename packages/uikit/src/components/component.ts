@@ -153,11 +153,10 @@ export class Component<
   }
 
   setProperties(inputProperties: InputProperties<OutputProperties>) {
-    this.inputProperties = {
+    this.resetProperties({
       ...this.inputProperties,
       ...inputProperties,
-    }
-    this.properties.setLayersWithConditionals(0, this.inputProperties)
+    })
   }
 
   resetProperties(inputProperties?: InputProperties<OutputProperties>) {

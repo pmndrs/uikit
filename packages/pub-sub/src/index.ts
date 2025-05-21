@@ -9,7 +9,7 @@ export type NotUndefined<T> = T extends undefined ? never : T
 export type ReadonlyProperties<Out> = {
   get value(): Out
   peek(): Out
-  get signal(): { [Key in keyof Out]: Signal<Out[Key]> }
+  get signal(): { [Key in keyof Out]-?: Signal<Out[Key]> }
   /**
    * allows to subcribe to all the current and new property keys
    * @param callback is called immediately for all the current property keys
@@ -25,7 +25,7 @@ export type Properties<In, Out extends object> = ReadonlyProperties<Out> & {
 
 export class PropertiesImplementation<In, Out extends object> implements Properties<In, Out> {
   readonly value = new Proxy<Out>({} as any, { get: (_target, key) => this.getSignal(key as keyof Out).value })
-  readonly signal = new Proxy<{ [Key in keyof Out]: Signal<Out[Key]> }>({} as any, {
+  readonly signal = new Proxy<{ [Key in keyof Out]-?: Signal<Out[Key]> }>({} as any, {
     get: (_target, key) => this.getSignal(key as keyof Out),
   })
   readonly peekProxy = new Proxy<Out>({} as any, { get: (_target, key) => this.peekValue(key as keyof Out) })

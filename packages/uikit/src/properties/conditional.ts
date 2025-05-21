@@ -1,7 +1,6 @@
 import { Signal } from '@preact/signals-core'
-import { Vector2Tuple } from 'three'
 import { isDarkMode } from '../preferred-color-scheme.js'
-import { RootContext } from '../components/index.js'
+import { RootContext } from '../context.js'
 
 export type Conditionals = Record<string, () => boolean>
 

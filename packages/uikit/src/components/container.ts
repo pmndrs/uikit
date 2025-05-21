@@ -36,8 +36,9 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     inputProperties?: ContainerProperties<EM>,
     initialClasses?: Array<InputProperties<BaseOutputProperties<EM>> | string>,
     renderContext?: RenderContext,
+    overrideDefaults: BaseOutputProperties<EM> = defaults,
   ) {
-    super(false, inputProperties, initialClasses, undefined, renderContext, defaults)
+    super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults)
     this.material.visible = false
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)

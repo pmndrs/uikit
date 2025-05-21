@@ -1,7 +1,7 @@
 {
   "name": "@pmndrs/uikit-pub-sub",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
     "@preact/signals-core": "^1.8.0"
   },

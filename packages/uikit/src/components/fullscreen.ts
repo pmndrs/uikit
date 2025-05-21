@@ -3,12 +3,17 @@ import { Signal, batch, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
 import { BaseOutputProperties, InputProperties } from '../properties/index.js'
-import { LayerIndexDefaults } from '../properties/layers.js'
 import { RenderContext } from '../context.js'
+import { defaults } from '../properties/defaults.js'
 
 export type FullscreenProperties<EM extends ThreeEventMap> = InputProperties<BaseOutputProperties<EM>>
 
 const vectorHelper = new Vector2()
+
+const fullscreenDefaults = {
+  ...defaults,
+  pointerEvents: 'listener' as const,
+}
 
 export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   private readonly sizeX: Signal<number>
@@ -27,7 +32,7 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     const sizeX = signal(0)
     const sizeY = signal(0)
     const transformTranslateZ = signal(0)
-    super(properties, initialClasses, renderContext)
+    super(properties, initialClasses, renderContext, fullscreenDefaults)
     //force sizeX, sizeY, pixelSize, transformTranslateZ
     this.properties.setLayer(-1, {
       sizeX,
@@ -35,7 +40,6 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       pixelSize,
       transformTranslateZ,
     })
-    this.properties.setLayer(LayerIndexDefaults, { pointerEvents: 'listener' })
     this.matrixAutoUpdate = false
     this.sizeX = sizeX
     this.sizeY = sizeY
