@@ -46,6 +46,8 @@ export class Content<
   readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
   readonly clippingPlanes: Array<Plane>
 
+  private readonly childrenMatrix = new Matrix4()
+
   constructor(
     inputProperties?: InProperties<OutputProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -100,9 +102,10 @@ export class Content<
       this.abortSignal,
     )
 
-    const localMatrix = computed(() => {
+    abortableEffect(() => {
       if (this.size.value == null || this.paddingInset.value == null || this.borderInset.value == null) {
-        return IdentityMatrix
+        this.childrenMatrix.copy(IdentityMatrix)
+        return
       }
       const [width, height] = this.size.value
       const [pTop, pRight, pBottom, pLeft] = this.paddingInset.value
@@ -135,21 +138,10 @@ export class Content<
       positionHelper.add(
         vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
       )
-      return new Matrix4().compose(positionHelper, IdentityQuaternion, scaleHelper)
-    })
+      this.childrenMatrix.compose(positionHelper, IdentityQuaternion, scaleHelper)
+    }, this.abortSignal)
 
-    setupMatrixWorldUpdate(
-      this,
-      this.root,
-      computed(() => {
-        const result = localMatrix.value
-        if (this.globalMatrix.value == null) {
-          return result
-        }
-        return result.clone().premultiply(this.globalMatrix.value)
-      }),
-      this.abortSignal,
-    )
+    setupMatrixWorldUpdate(this, this.root, undefined, this.abortSignal)
 
     setupOrderInfo(
       this.orderInfo,
@@ -180,6 +172,14 @@ export class Content<
     }
   }
 
+  private updateChildMatrixWorld(child: Object3D) {
+    child.matrixWorld
+      .copy(child.matrix)
+      .premultiply(this.childrenMatrix)
+      .premultiply(this.globalMatrix.peek() ?? IdentityMatrix)
+      .premultiply(this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix)
+  }
+
   notifyAncestorsChanged() {
     applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
     this.traverse((child) => {
@@ -190,7 +190,9 @@ export class Content<
       child.material.clippingPlanes = this.clippingPlanes
       child.material.needsUpdate = true
       child.material.transparent = true
-      child.raycast = makeClippedCast(this, child.raycast, this.root, this.parentContainer, this.orderInfo)
+      child.matrixAutoUpdate = false
+      child.updateMatrixWorld = this.updateChildMatrixWorld.bind(this, child)
+      child.raycast = makeClippedCast(this, child.raycast.bind(child), this.root, this.parentContainer, this.orderInfo)
       child.spherecast =
         child.spherecast != null
           ? makeClippedCast(this, child.spherecast, this.root, this.parentContainer, this.orderInfo)

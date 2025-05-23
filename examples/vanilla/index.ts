@@ -26,7 +26,7 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 const root = new Container({
   flexDirection: 'row',
   gap: 30,
-  width: 2000,
+  width: 1000,
   borderRadius: 10,
   padding: 10,
   alignItems: 'center',
@@ -35,7 +35,13 @@ const root = new Container({
 })
 scene.add(root)
 
-const c = new Content({ flexShrink: 0, height: 100, width: 100, backgroundColor: 'black' })
+const c = new Content({
+  flexShrink: 0,
+  hover: { backgroundColor: 'pink' },
+  height: 100,
+  width: 100,
+  backgroundColor: 'black',
+})
 const loader = new GLTFLoader()
 loader.load('example.glb', (gltf) => {
   c.add(gltf.scene)

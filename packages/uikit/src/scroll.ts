@@ -45,16 +45,21 @@ export function computedAnyAncestorScrollable(parentSignal: Signal<Container | u
   })
 }
 
-export function computedScrollHandlers(container: Container, object: Object3D) {
+export function setupScrollHandlers(
+  target: Signal<ScrollEventHandlers | undefined>,
+  container: Container<any, any>,
+  abortSignal: AbortSignal,
+) {
   const isScrollable = computed(() => container.scrollable.value.some((scrollable) => scrollable) ?? false)
 
-  return computed<ScrollEventHandlers | undefined>(() => {
+  abortableEffect(() => {
     if (!isScrollable.value) {
-      return undefined
+      target.value = undefined
+      return
     }
     const onPointerFinish = (event: ThreePointerEvent) => {
-      if ('releasePointerCapture' in object && typeof object.releasePointerCapture === 'function') {
-        object.releasePointerCapture(event.pointerId)
+      if ('releasePointerCapture' in container && typeof container.releasePointerCapture === 'function') {
+        container.releasePointerCapture(event.pointerId)
       }
       if (!container.downPointerMap.delete(event.pointerId) || container.scrollPosition.value == null) {
         return
@@ -66,10 +71,10 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
       //only request a render if the last pointer that was dragging stopped dragging and this panel is actually scrollable
       container.root.peek().requestRender?.()
     }
-    return {
+    target.value = {
       onPointerDown: (event) => {
         event.stopImmediatePropagation?.()
-        const localPoint = object.worldToLocal(event.point.clone())
+        const localPoint = container.worldToLocal(event.point.clone())
 
         const ponterIsMouse =
           event.nativeEvent != null &&
@@ -80,7 +85,6 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
         const scrollbarAxisIndex = ponterIsMouse
           ? getIntersectedScrollbarIndex(
               localPoint,
-              container.properties.peek().pixelSize,
               container.properties.peek().scrollbarWidth,
               container.size.peek(),
               container.maxScrollPosition.peek(),
@@ -121,9 +125,10 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
           return
         }
         event.stopImmediatePropagation?.()
-        object.worldToLocal(localPointHelper.copy(event.point))
+        container.worldToLocal(localPointHelper.copy(event.point))
         distanceHelper.copy(localPointHelper).sub(prevInteraction.localPoint)
-        distanceHelper.divideScalar(container.properties.peek().pixelSize)
+        distanceHelper.x *= container.size.peek()?.[0] ?? 0
+        distanceHelper.y *= container.size.peek()?.[1] ?? 0
         prevInteraction.localPoint.copy(localPointHelper)
 
         if (prevInteraction.type === 'scroll-bar') {
@@ -163,7 +168,7 @@ export function computedScrollHandlers(container: Container, object: Object3D) {
         scroll(container, event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
       },
     }
-  })
+  }, abortSignal)
 }
 
 function scroll(
@@ -524,7 +529,6 @@ const point2Helper = new Vector2()
 
 function getIntersectedScrollbarIndex(
   point: Vector3,
-  pixelSize: number,
   secondaryScrollbarSize: number,
   size: Vector2Tuple | undefined,
   maxScrollPosition: Partial<Vector2Tuple>,
@@ -534,7 +538,9 @@ function getIntersectedScrollbarIndex(
   if (size == null) {
     return undefined
   }
-  point2Helper.copy(point).divideScalar(pixelSize)
+  point2Helper.copy(point)
+  point2Helper.x *= size[0]
+  point2Helper.y *= size[1]
   for (let i = 0; i < 2; i++) {
     if (
       intersectsScrollbar(point2Helper, i, secondaryScrollbarSize, size, maxScrollPosition, borderInset, scrollPosition)

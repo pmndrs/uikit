@@ -29,6 +29,7 @@ export class InstancedPanelMesh extends Mesh {
   ) {
     const panelGeometry = createPanelGeometry()
     super(panelGeometry)
+    this.pointerEvents = 'none'
     panelGeometry.attributes.aData = instanceData
     panelGeometry.attributes.aClipping = instanceClipping
     this.customDepthMaterial = instancedPanelDepthMaterial

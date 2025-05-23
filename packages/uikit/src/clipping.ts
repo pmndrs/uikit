@@ -178,7 +178,7 @@ for (let i = 0; i < 4; i++) {
 }
 
 export function createGlobalClippingPlanes(component: Component) {
-  const getGlobalMatrix = () => component.root.peek().component.matrixWorld
+  const getGlobalMatrix = () => component.root.peek().component.parent?.matrixWorld
   const planes = new Array(4)
     .fill(undefined)
     .map<Plane>(

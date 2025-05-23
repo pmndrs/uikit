@@ -30,6 +30,7 @@ export class InstancedGlyphMesh extends Mesh {
     const planeGeometry = new PlaneGeometry()
     planeGeometry.translate(0.5, -0.5, 0)
     super(planeGeometry, material)
+    this.pointerEvents = 'none'
     planeGeometry.attributes.instanceUVOffset = instanceUV
     planeGeometry.attributes.instanceRGBA = instanceRGBA
     planeGeometry.attributes.instanceClipping = instanceClipping

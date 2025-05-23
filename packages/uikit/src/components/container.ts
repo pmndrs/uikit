@@ -5,7 +5,14 @@ import { ClippingRect, computedClippingRect } from '../clipping.js'
 import { ElementType, setupOrderInfo } from '../order.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
-import { computedAnyAncestorScrollable, computedGlobalScrollMatrix, setupScroll, setupScrollbars } from '../scroll.js'
+import {
+  computedAnyAncestorScrollable,
+  computedGlobalScrollMatrix,
+  ScrollEventHandlers,
+  setupScroll,
+  setupScrollbars,
+  setupScrollHandlers,
+} from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
@@ -38,8 +45,11 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     renderContext?: RenderContext,
     overrideDefaults: BaseOutProperties<EM> = defaults,
   ) {
-    super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults)
+    const scrollHandlers = signal<ScrollEventHandlers | undefined>(undefined)
+    super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults, scrollHandlers)
     this.material.visible = false
+
+    setupScrollHandlers(scrollHandlers, this, this.abortSignal)
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)
 

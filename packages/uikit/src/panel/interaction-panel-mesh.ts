@@ -38,7 +38,7 @@ const matrixHelper = new Matrix4()
 export function makePanelSpherecast(
   root: Signal<RootContext>,
   globalSphereWithLocalScale: Sphere,
-  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  globalPanelMatrixSignal: Signal<Matrix4 | undefined>,
   object: Object3D,
 ): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
@@ -46,7 +46,7 @@ export function makePanelSpherecast(
     sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
     if (
       !sphereHelper.intersectsSphere(sphere) ||
-      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalMatrixSignal.peek())
+      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalPanelMatrixSignal.peek())
     ) {
       return
     }
@@ -80,7 +80,7 @@ export function makePanelRaycast(
   raycast: Mesh['raycast'],
   root: Signal<RootContext>,
   globalSphereWithLocalScale: Sphere,
-  globalMatrixSignal: Signal<Matrix4 | undefined>,
+  globalPanelMatrixSignal: Signal<Matrix4 | undefined>,
   object: Object3D,
 ): Mesh['raycast'] {
   return (raycaster, intersects) => {
@@ -88,7 +88,7 @@ export function makePanelRaycast(
     sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
     if (
       !raycaster.ray.intersectsSphere(sphereHelper) ||
-      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalMatrixSignal.peek())
+      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalPanelMatrixSignal.peek())
     ) {
       return
     }
@@ -140,7 +140,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
       return
     }
     const clippingPlanes = parent.peek()?.clippingRect?.peek()?.planes
-    const rootMatrixWorld = root.peek().component.matrixWorld
+    const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]!
       intersection.distance -=
@@ -151,7 +151,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
         continue
       }
       for (let ii = 0; ii < 4; ii++) {
-        planeHelper.copy(clippingPlanes[ii]!).applyMatrix4(rootMatrixWorld)
+        planeHelper.copy(clippingPlanes[ii]!).applyMatrix4(rootParentMatrixWorld)
         if (planeHelper.distanceToPoint(intersection.point) < 0) {
           intersects.splice(i, 1)
           continue outer

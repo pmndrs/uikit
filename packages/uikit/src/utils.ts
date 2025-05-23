@@ -150,15 +150,15 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
 export function computeMatrixWorld(
   target: Matrix4,
   rootObjectParentMatrixWorld: Matrix4 | undefined,
-  globalMatrix: Matrix4 | undefined,
+  globalPanelMatrix: Matrix4 | undefined,
 ) {
-  if (globalMatrix == null) {
+  if (globalPanelMatrix == null) {
     return false
   }
   if (rootObjectParentMatrixWorld == null) {
-    target.copy(globalMatrix)
+    target.copy(globalPanelMatrix)
   } else {
-    target.multiplyMatrices(rootObjectParentMatrixWorld, globalMatrix)
+    target.multiplyMatrices(rootObjectParentMatrixWorld, globalPanelMatrix)
   }
   return true
 }
@@ -166,17 +166,25 @@ export function computeMatrixWorld(
 export function setupMatrixWorldUpdate(
   object: Object3D,
   rootSignal: Signal<RootContext>,
-  matrixSignal: Signal<Matrix4 | undefined>,
+  globalPanelMatrixSignal: Signal<Matrix4 | undefined> | undefined,
   abortSignal: AbortSignal,
 ): void {
-  abortableEffect(() => {
-    //requesting a render every time the matrix changes
-    matrixSignal.value
-    rootSignal.peek().requestRender?.()
-  }, abortSignal)
+  if (globalPanelMatrixSignal != null) {
+    abortableEffect(() => {
+      //requesting a render every time the matrix changes
+      globalPanelMatrixSignal.value
+      rootSignal.peek().requestRender?.()
+    }, abortSignal)
+  }
   abortableEffect(() => {
     const onFrame = () => {
-      computeMatrixWorld(object.matrixWorld, rootSignal.peek().component.parent?.matrixWorld, matrixSignal.peek())
+      if (globalPanelMatrixSignal != null) {
+        computeMatrixWorld(
+          object.matrixWorld,
+          rootSignal.peek().component.parent?.matrixWorld,
+          globalPanelMatrixSignal.peek(),
+        )
+      }
       const length = object.children.length
       for (let i = 0; i < length; i++) {
         object.children[i]!.updateMatrixWorld(true)
