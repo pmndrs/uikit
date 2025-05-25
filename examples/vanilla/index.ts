@@ -4,6 +4,15 @@ import { Delete } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import {
+  Button,
+  themeRootProperties,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionTriggerIcon,
+} from '@pmndrs/uikit-default'
 
 // init
 
@@ -24,13 +33,14 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 //UI
 const root = new Container({
+  ...themeRootProperties,
   flexDirection: 'row',
   gap: 30,
-  width: 1000,
+  width: 400,
   borderRadius: 10,
   padding: 10,
   alignItems: 'center',
-  backgroundColor: 'red',
+  backgroundColor: 'black',
   overflow: 'scroll',
 })
 scene.add(root)
@@ -52,6 +62,7 @@ const svg = new Svg({
   width: 100,
   height: 100,
   flexShrink: 0,
+  color: null,
   backgroundColor: 'white',
   backgroundOpacity: 1,
 })
@@ -102,7 +113,41 @@ const video = new Video({
   loop: true,
   flexShrink: 0,
 })
-root.add(img, c, del, input, svg, text, x, video)
+const btn = new Button({ flexShrink: 0, variant: 'outline' })
+btn.add(new Text({ text: 'Press me!' }))
+
+const accordion = new Accordion({ width: '100%' })
+const item1 = new AccordionItem({ value: 'item1' })
+accordion.add(item1)
+const item1Trigger = new AccordionTrigger()
+item1.add(item1Trigger)
+item1Trigger.add(new Text({ text: 'Getting Started' }))
+const item1TriggerIcon = new AccordionTriggerIcon()
+item1Trigger.add(item1TriggerIcon)
+const item1Content = new AccordionContent()
+item1.add(item1Content)
+item1Content.add(
+  new Text({
+    text: 'Welcome to our platform! Here you can find quick start guides, tutorials, and documentation to help you get up and running quickly.',
+  }),
+)
+
+const item2 = new AccordionItem({ value: 'item2' })
+accordion.add(item2)
+const item2Trigger = new AccordionTrigger()
+item2.add(item2Trigger)
+item2Trigger.add(new Text({ text: 'Frequently Asked Questions' }))
+const item2TriggerIcon = new AccordionTriggerIcon()
+item2Trigger.add(item2TriggerIcon)
+const item2Content = new AccordionContent()
+item2.add(item2Content)
+item2Content.add(
+  new Text({
+    text: 'Find answers to common questions about our services, pricing, features, and technical requirements. Our FAQ section is regularly updated to provide the most relevant information.',
+  }),
+)
+
+root.add(accordion)
 x.add(a)
 
 renderer.setAnimationLoop(animation)

@@ -35,11 +35,12 @@ export class Image<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutputProperties extends ImageOutProperties<EM, unknown> = ImageOutProperties<EM, string | Texture>,
-> extends Component<T, EM, OutputProperties> {
+  NonReactiveProperties = {},
+> extends Component<T, EM, OutputProperties, NonReactiveProperties> {
   readonly texture = signal<Texture | undefined>(undefined)
 
   constructor(
-    inputProperties?: InProperties<OutputProperties>,
+    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
     loadTexture = true,

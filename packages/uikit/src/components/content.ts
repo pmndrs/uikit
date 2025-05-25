@@ -42,6 +42,7 @@ export class Content<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutputProperties extends ContentOutProperties<EM> = ContentOutProperties<EM>,
+  NonReactiveProperties = {},
 > extends Component<T, EM, OutputProperties> {
   readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
   readonly clippingPlanes: Array<Plane>
@@ -49,7 +50,7 @@ export class Content<
   private readonly childrenMatrix = new Matrix4()
 
   constructor(
-    inputProperties?: InProperties<OutputProperties>,
+    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
     private readonly config: {

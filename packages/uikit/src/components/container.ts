@@ -22,11 +22,12 @@ import { RenderContext } from '../context.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
-export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class Container<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  Properties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  NonReactiveProperties = {},
+> extends Component<T, EM, Properties, NonReactiveProperties> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
@@ -40,10 +41,10 @@ export class Container<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
   readonly scrollPosition = signal<Vector2Tuple>([0, 0])
 
   constructor(
-    inputProperties?: ContainerProperties<EM>,
+    inputProperties?: InProperties<Properties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
-    overrideDefaults: BaseOutProperties<EM> = defaults,
+    overrideDefaults: Properties = defaults as Properties,
   ) {
     const scrollHandlers = signal<ScrollEventHandlers | undefined>(undefined)
     super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults, scrollHandlers)

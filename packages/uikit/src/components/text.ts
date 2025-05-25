@@ -34,13 +34,14 @@ export class Text<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutputProperties extends TextOutProperties<EM> = TextOutProperties<EM>,
-> extends Component<T, EM, OutputProperties> {
+  NonReactiveProperties = {},
+> extends Component<T, EM, OutputProperties, NonReactiveProperties> {
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
 
   constructor(
-    inputProperties?: InProperties<OutputProperties>,
+    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
     customDefaults: {

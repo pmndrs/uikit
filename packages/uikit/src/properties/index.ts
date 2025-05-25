@@ -73,8 +73,10 @@ export type WithSignal<T> = {
   [K in keyof T]?: T[K] | Signal<T[K]>
 }
 
-export type InProperties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  WithConditionals<AddAllAliases<WithSignal<Partial<OutputProperties>>>>
+export type InProperties<
+  OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
+  NonReactiveProperties = {},
+> = WithConditionals<AddAllAliases<WithSignal<Partial<OutputProperties>>>> & NonReactiveProperties
 
 export type Properties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
   BaseProperties<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties> & {

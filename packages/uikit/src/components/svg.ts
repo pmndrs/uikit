@@ -15,9 +15,14 @@ export type SvgOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Content
 
 export type SvgProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SvgOutProperties<EM>>
 
-export class Svg<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Content<T, EM, SvgOutProperties<EM>> {
+export class Svg<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>,
+  NonReactiveProperties = {},
+> extends Content<T, EM, OutProperties, NonReactiveProperties> {
   constructor(
-    inputProperties?: SvgProperties<EM>,
+    inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
@@ -118,13 +123,4 @@ function disposeSvg(result: Awaited<ReturnType<typeof loadSvg>>) {
     }
     mesh.geometry.dispose()
   })
-}
-
-function isUrl(url: string): boolean {
-  try {
-    new URL(url)
-    return true
-  } catch (e: any) {
-    return false
-  }
 }

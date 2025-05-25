@@ -1,8 +1,7 @@
 import { ReadonlySignal, computed, signal } from '@preact/signals-core'
-import { isDarkMode, DefaultProperties, DefaultPropertiesProperties } from '@react-three/uikit'
+import { isDarkMode } from '@pmndrs/uikit'
 import { Theme, themes } from './themes.js'
 import { Color } from 'three'
-import React from 'react'
 
 export const baseBorderRadius = signal(8)
 
@@ -22,16 +21,11 @@ for (const anyKey in themes['slate']['light']) {
   colors[key] = computed<Color>(() => themes[themeName.value][isDarkMode.value ? 'dark' : 'light'][key])
 }
 
-export function Defaults(props: DefaultPropertiesProperties) {
-  return (
-    <DefaultProperties
-      scrollbarColor={colors.foreground}
-      scrollbarBorderRadius={4}
-      scrollbarOpacity={0.3}
-      lineHeight="150%"
-      borderColor={colors.border}
-      color={colors.foreground}
-      {...props}
-    />
-  )
-}
+export const themeRootProperties = {
+  scrollbarColor: colors.foreground,
+  scrollbarBorderRadius: 4,
+  scrollbarOpacity: 0.3,
+  lineHeight: '150%',
+  borderColor: colors.border,
+  color: colors.foreground,
+} as const

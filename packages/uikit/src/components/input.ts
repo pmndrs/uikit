@@ -9,6 +9,7 @@ import { Text, TextOutProperties, textDefaults } from './text.js'
 import { CaretTransformation, setupCaret } from '../caret.js'
 import { SelectionTransformation, createSelection } from '../selection.js'
 import { RenderContext } from '../context.js'
+import { ReadonlyProperties } from '@pmndrs/uikit-pub-sub'
 
 const cancelSet = new Set<unknown>()
 
@@ -44,9 +45,14 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
 
 export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
 
-export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Text<T, EM, InputOutProperties<EM>> {
+export class Input<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutputProperties extends InputOutProperties<EM> = InputOutProperties<EM>,
+  NonReactiveProperties = {},
+> extends Text<T, EM, OutputProperties, NonReactiveProperties> {
   constructor(
-    inputProperties?: InputProperties<EM>,
+    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
     multiline = false,
@@ -173,7 +179,7 @@ const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(u
 
 export function setupSelectionHandlers(
   target: Signal<EventHandlers | undefined>,
-  properties: Properties<InputOutProperties<ThreeEventMap>>,
+  properties: ReadonlyProperties<InputOutProperties<ThreeEventMap>>,
   text: ReadonlySignal<string>,
   component: Component,
   instancedTextRef: { current?: InstancedText },
@@ -286,7 +292,7 @@ export function createHtmlInputElement(
 }
 
 function setupHtmlInputElement(
-  properties: Properties<InputOutProperties<ThreeEventMap>>,
+  properties: ReadonlyProperties<InputOutProperties<ThreeEventMap>>,
   element: HTMLInputElement | HTMLTextAreaElement,
   value: Signal<string>,
   abortSignal: AbortSignal,

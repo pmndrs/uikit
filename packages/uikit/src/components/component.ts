@@ -29,6 +29,7 @@ export class Component<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutputProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  NonReactiveProperties = {},
 > extends Mesh<
   BufferGeometry,
   Material,
@@ -62,7 +63,7 @@ export class Component<
 
   constructor(
     hasNonUikitChildren: boolean,
-    private inputProperties: InProperties<OutputProperties> | undefined,
+    private inputProperties: InProperties<OutputProperties, NonReactiveProperties> | undefined,
     initialClasses: Array<InProperties<BaseOutProperties<EM>> | string> | undefined,
     material: Material | undefined,
     renderContext: RenderContext | undefined,
@@ -74,7 +75,7 @@ export class Component<
 
     //setting up the parent signal
     const updateParentSignal = () =>
-      (this.parentContainer.value = this.parent instanceof Container ? this.parent : undefined)
+      (this.parentContainer.value = this.parent instanceof Container ? (this.parent as any) : undefined)
     this.addEventListener('added', updateParentSignal)
     this.removeEventListener('removed', updateParentSignal)
 
@@ -160,17 +161,25 @@ export class Component<
   }
 
   updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
-    //TODO
+    if (updateParents) {
+      this.updateWorldMatrix(true, false)
+    }
+    this.updateMatrixWorld()
+    if (updateChildren) {
+      for (const child of this.children) {
+        this.updateWorldMatrix(false, true)
+      }
+    }
   }
 
-  setProperties(inputProperties: InProperties<OutputProperties>) {
+  setProperties(inputProperties: InProperties<OutputProperties, NonReactiveProperties>) {
     this.resetProperties({
       ...this.inputProperties,
       ...inputProperties,
     })
   }
 
-  resetProperties(inputProperties?: InProperties<OutputProperties>) {
+  resetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
     this.inputProperties = inputProperties
     this.properties.setLayersWithConditionals(0, this.inputProperties)
   }

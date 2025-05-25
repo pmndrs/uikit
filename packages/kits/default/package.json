@@ -1,16 +1,14 @@
 {
-  "name": "@react-three/uikit-default",
-  "description": "Default (shadcn) kit for @react-three/uikit",
+  "name": "@pmndrs/uikit-default",
+  "description": "Default (shadcn) kit for @pmndrs/uikit",
   "version": "0.0.0",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",
   "keywords": [
-    "r3f",
     "uikit",
     "three.js",
     "userinterface",
-    "react",
     "flexbox",
     "yoga",
     "typescript",
@@ -28,7 +26,7 @@
     "main": "dist/index.js"
   },
   "scripts": {
-    "build": "node --loader ts-node/esm scripts/extract-default-kit-component-properties.ts && tsc -p ./tsconfig.build.json",
+    "build": "tsc",
     "check:prettier": "prettier --check .",
     "check:eslint": "eslint '**/*.{tsx,ts}'",
     "fix:prettier": "prettier --write .",
@@ -39,8 +37,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@react-three/uikit": "workspace:^",
-    "@react-three/uikit-lucide": "workspace:^",
-    "tunnel-rat": "^0.1.2"
+    "@pmndrs/uikit": "workspace:^",
+    "@pmndrs/uikit-lucide": "workspace:^"
   }
 }

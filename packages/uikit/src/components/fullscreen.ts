@@ -2,9 +2,10 @@ import { Camera, OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer }
 import { Signal, batch, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { defaults } from '../properties/defaults.js'
+import { AddAllAliases } from '../properties/alias.js'
 
 export type FullscreenProperties<EM extends ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -15,7 +16,12 @@ const fullscreenDefaults = {
   pointerEvents: 'listener' as const,
 }
 
-export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
+export class Fullscreen<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  NonReactiveProperties = {},
+> extends Container<T, EM, OutProperties, NonReactiveProperties> {
   private readonly sizeX: Signal<number>
   private readonly sizeY: Signal<number>
   private readonly transformTranslateZ: Signal<number>
@@ -23,7 +29,7 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
 
   constructor(
     private renderer: WebGLRenderer,
-    properties?: FullscreenProperties<EM>,
+    properties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     private distanceToCamera?: number,
     renderContext?: RenderContext,
@@ -32,14 +38,14 @@ export class Fullscreen<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     const sizeX = signal(0)
     const sizeY = signal(0)
     const transformTranslateZ = signal(0)
-    super(properties, initialClasses, renderContext, fullscreenDefaults)
+    super(properties, initialClasses, renderContext, fullscreenDefaults as OutProperties)
     //force sizeX, sizeY, pixelSize, transformTranslateZ
     this.properties.setLayer(-1, {
       sizeX,
       sizeY,
       pixelSize,
       transformTranslateZ,
-    })
+    } as Partial<AddAllAliases<WithSignal<Partial<OutProperties>>>>)
     this.matrixAutoUpdate = false
     this.sizeX = sizeX
     this.sizeY = sizeY

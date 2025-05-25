@@ -405,6 +405,9 @@ importers:
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
+      '@pmndrs/uikit-default':
+        specifier: workspace:^
+        version: link:../../packages/kits/default
       '@pmndrs/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/vanilla
@@ -445,15 +448,12 @@ importers:
 
   packages/kits/default:
     dependencies:
-      '@react-three/uikit':
+      '@pmndrs/uikit':
         specifier: workspace:^
-        version: link:../../react
-      '@react-three/uikit-lucide':
+        version: link:../../uikit
+      '@pmndrs/uikit-lucide':
         specifier: workspace:^
-        version: link:../../icons/lucide/react
-      tunnel-rat:
-        specifier: ^0.1.2
-        version: 0.1.2(@types/react@19.0.8)(react@19.0.0)
+        version: link:../../icons/lucide/vanilla
     devDependencies:
       '@preact/signals-core':
         specifier: ^1.5.1

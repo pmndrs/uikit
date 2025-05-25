@@ -6,7 +6,6 @@
         "target": "ESNext",
         "declaration": true,
         "esModuleInterop": true,
-        "jsx": "react-jsx",
         "skipLibCheck": true,
         "noUncheckedIndexedAccess": true
     },

@@ -11,14 +11,19 @@ import { RenderContext } from '../context.js'
 
 export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
-export class Custom<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Component<T, EM, BaseOutProperties<EM>> {
+export class Custom<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutputProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  NonReactiveProperties = {},
+> extends Component<T, EM, OutputProperties, NonReactiveProperties> {
   constructor(
     material: Material,
-    inputProperties?: CustomProperties<EM>,
+    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
   ) {
-    super(false, inputProperties, initialClasses, material, renderContext, defaults)
+    super(false, inputProperties, initialClasses, material, renderContext, defaults as OutputProperties)
 
     setupOrderInfo(
       this.orderInfo,
