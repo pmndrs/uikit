@@ -1,17 +1,28 @@
 import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Text, Image, Content, Svg, StyleSheet, Video, Input } from '@pmndrs/uikit'
-import { Delete } from '@pmndrs/uikit-lucide'
+import { reversePainterSortStable, Container, Text } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   Button,
-  themeRootProperties,
+  defaultProperties,
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
   AccordionTriggerIcon,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Video,
+  setTheme,
+  defaultThemes,
+  colors,
 } from '@pmndrs/uikit-default'
 
 // init
@@ -31,88 +42,23 @@ orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
+setTheme(defaultThemes.red)
+
 //UI
 const root = new Container({
-  ...themeRootProperties,
-  flexDirection: 'row',
+  ...defaultProperties,
+  flexDirection: 'column',
   gap: 30,
-  width: 400,
+  width: 1024,
+  height: 512,
   borderRadius: 10,
   padding: 10,
   alignItems: 'center',
-  backgroundColor: 'black',
-  overflow: 'scroll',
+  backgroundColor: colors.background,
+  overflow: 'hidden',
 })
 scene.add(root)
 
-const c = new Content({
-  flexShrink: 0,
-  hover: { backgroundColor: 'pink' },
-  height: 100,
-  width: 100,
-  backgroundColor: 'black',
-})
-const loader = new GLTFLoader()
-loader.load('example.glb', (gltf) => {
-  c.add(gltf.scene)
-})
-const del = new Delete({ onClick: () => {}, width: 100, flexShrink: 0 })
-const svg = new Svg({
-  src: 'example.svg',
-  width: 100,
-  height: 100,
-  flexShrink: 0,
-  color: null,
-  backgroundColor: 'white',
-  backgroundOpacity: 1,
-})
-const text = new Text({ text: 'Hello World', fontSize: 40, flexShrink: 0 })
-const input = new Input({ defaultValue: 'test', color: 'white', fontSize: 40, flexShrink: 0 })
-const a = new Container({
-  flexShrink: 0,
-  alignSelf: 'stretch',
-  height: 100,
-  width: 100,
-  backgroundColor: 'blue',
-  hover: { backgroundColor: 'black' },
-})
-
-StyleSheet['test'] = {
-  hover: { backgroundColor: 'yellow' },
-}
-const x = new Container(
-  {
-    flexShrink: 0,
-    padding: 50,
-    height: 300,
-    flexGrow: 1,
-    backgroundColor: 'green',
-    flexBasis: 0,
-    justifyContent: 'flex-start',
-    onClick: () => {
-      x.classList.toggle('test')
-    },
-  },
-  ['test'],
-)
-const img = new Image({
-  src: 'https://picsum.photos/300/300',
-  borderRadius: 1000,
-  aspectRatio: 1,
-  width: 100,
-  padding: 10,
-  opacity: 0.5,
-  backgroundColor: 'blue',
-  flexShrink: 0,
-})
-const video = new Video({
-  src: 'example.mp4',
-  width: 300,
-  autoplay: true,
-  muted: true,
-  loop: true,
-  flexShrink: 0,
-})
 const btn = new Button({ flexShrink: 0, variant: 'outline' })
 btn.add(new Text({ text: 'Press me!' }))
 
@@ -147,8 +93,55 @@ item2Content.add(
   }),
 )
 
+// Create Alert Dialog
+const alertDialog = new AlertDialog()
+root.add(alertDialog)
+
+const alertDialogTrigger = new AlertDialogTrigger({ dialog: alertDialog })
+const alertDialogTriggerButton = new Button({ variant: 'outline' })
+alertDialogTriggerButton.add(new Text({ text: 'Show Alert Dialog' }))
+alertDialogTrigger.add(alertDialogTriggerButton)
+
+const alertDialogContent = new AlertDialogContent()
+alertDialog.add(alertDialogContent)
+
+const alertDialogHeader = new AlertDialogHeader()
+alertDialogContent.add(alertDialogHeader)
+
+const alertDialogTitle = new AlertDialogTitle()
+alertDialogTitle.add(new Text({ text: 'Are you absolutely sure?' }))
+alertDialogHeader.add(alertDialogTitle)
+
+const alertDialogDescription = new AlertDialogDescription()
+alertDialogDescription.add(
+  new Text({
+    text: 'This action cannot be undone. This will permanently delete your account and remove your data from our servers.',
+  }),
+)
+alertDialogHeader.add(alertDialogDescription)
+
+const alertDialogFooter = new AlertDialogFooter()
+alertDialogContent.add(alertDialogFooter)
+
+const alertDialogCancel = new AlertDialogCancel()
+alertDialogCancel.add(new Text({ text: 'Cancel' }))
+alertDialogFooter.add(alertDialogCancel)
+
+const alertDialogAction = new AlertDialogAction()
+alertDialogAction.add(new Text({ text: 'Continue' }))
+alertDialogFooter.add(alertDialogAction)
+
+// Create Video component
+const video = new Video({
+  src: 'example.mp4',
+  width: 400,
+  height: 225,
+  borderRadius: 8,
+})
+
 root.add(accordion)
-x.add(a)
+root.add(video)
+root.add(alertDialogTrigger)
 
 renderer.setAnimationLoop(animation)
 renderer.localClippingEnabled = true

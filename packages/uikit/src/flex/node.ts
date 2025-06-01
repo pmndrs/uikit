@@ -54,7 +54,8 @@ export class FlexNode {
       if (!this.active.value) {
         return
       }
-      return component.properties.subscribePropertyKeys((key) => {
+      const internalAbort = new AbortController()
+      const unsubscribe = component.properties.subscribePropertyKeys((key) => {
         if (!hasImmediateProperty(key as string)) {
           return
         }
@@ -64,8 +65,12 @@ export class FlexNode {
             component.properties.value[key as keyof BaseOutProperties<ThreeEventMap>] as any,
           )
           this.component.root.peek().requestCalculateLayout()
-        }, component.abortSignal)
+        }, internalAbort.signal)
       })
+      return () => {
+        unsubscribe()
+        internalAbort.abort()
+      }
     }, component.abortSignal)
 
     abortableEffect(() => {

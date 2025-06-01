@@ -43,10 +43,10 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       set: <K2 extends keyof Out>(key: K2, value: Out[K2] | Signal<Out[K2]>) => void,
       layerIndex: number,
     ) => void,
-    private readonly defaults: { [Key in keyof Out]: Out[Key] | Signal<Out[Key]> },
+    private readonly defaults?: { [Key in keyof Out]: Out[Key] | Signal<Out[Key]> },
     private readonly onLayerIndicesChanged?: () => void,
   ) {
-    this.propertyKeys = Array.from(Object.keys(defaults as object)) as Array<keyof Out>
+    this.propertyKeys = defaults == null ? [] : (Array.from(Object.keys(defaults)) as Array<keyof Out>)
   }
 
   peek() {
@@ -121,7 +121,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     if (propertyState != null) {
       return propertyState.signal.peek()
     }
-    const defaultValue = this.defaults[key]
+    const defaultValue = this.defaults?.[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
     const [result, layerIndex] = untracked(
       () => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!,
@@ -164,7 +164,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
   private update(key: keyof Out, target: PropertyState): void {
     target.cleanup?.()
     target.cleanup = undefined
-    const defaultValue = this.defaults[key]
+    const defaultValue = this.defaults?.[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
     const result = selectLayerValue(
       0,

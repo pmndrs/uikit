@@ -8,8 +8,8 @@ export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = Cont
 export class Accordion<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   readonly openItemValue = signal<string | undefined>(undefined)
 
-  resetProperties(inputProperties?: AccordionProperties | undefined): void {
-    super.resetProperties({
+  protected internalResetProperties(inputProperties?: AccordionProperties | undefined): void {
+    super.internalResetProperties({
       flexDirection: 'column',
       ...inputProperties,
     })
@@ -29,8 +29,8 @@ export class AccordionItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   EM,
   AccordionItemOutProperties<EM>
 > {
-  resetProperties(inputProperties?: AccordionItemProperties<EM> | undefined): void {
-    super.resetProperties({
+  protected internalResetProperties(inputProperties?: AccordionItemProperties<EM> | undefined): void {
+    super.internalResetProperties({
       cursor: 'pointer',
       flexDirection: 'column',
       onClick: () => {
@@ -52,14 +52,17 @@ export class AccordionItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
 export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
 export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
-  resetProperties(inputProperties?: AccordionTriggerProperties<EM> | undefined): void {
-    super.resetProperties({
+  protected internalResetProperties(inputProperties?: AccordionTriggerProperties<EM> | undefined): void {
+    super.internalResetProperties({
       flexDirection: 'row',
       flexGrow: 1,
       flexShrink: 1,
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingY: 16,
+      fontSize: 14,
+      lineHeight: 20,
+      fontWeight: 'medium',
       ...inputProperties,
     })
   }
@@ -68,8 +71,8 @@ export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
 export type AccordionTriggerIconProperties<EM extends ThreeEventMap = ThreeEventMap> = SvgProperties<EM>
 
 export class AccordionTriggerIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends ChevronDown<T, EM> {
-  resetProperties(inputProperties?: AccordionTriggerIconProperties<EM> | undefined): void {
-    super.resetProperties({
+  protected internalResetProperties(inputProperties?: AccordionTriggerIconProperties<EM> | undefined): void {
+    super.internalResetProperties({
       transformRotateZ: computed(() => (isSelected(this.parentContainer.value) ? 180 : 0)),
       width: 16,
       height: 16,
@@ -82,8 +85,8 @@ export class AccordionTriggerIcon<T = {}, EM extends ThreeEventMap = ThreeEventM
 export type AccordionContentProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
 export class AccordionContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
-  resetProperties(inputProperties?: AccordionContentProperties<EM> | undefined): void {
-    super.resetProperties({
+  protected internalResetProperties(inputProperties?: AccordionContentProperties<EM> | undefined): void {
+    super.internalResetProperties({
       display: computed(() => (isSelected(this) ? 'flex' : 'none')),
       paddingTop: 0,
       fontSize: 14,

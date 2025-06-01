@@ -21,11 +21,12 @@ type WithResponsive<T> = T & {
 function createResponsiveConditionals(root: Signal<RootContext>): Conditionals {
   const conditionals: Conditionals = {}
 
-  const rootWidth = root.value.component.size.value?.[0] ?? 0
-
   for (let i = 0; i < breakPointKeysLength; i++) {
     const key = breakPointKeys[i]!
-    conditionals[key] = () => rootWidth > breakPoints[key]
+    conditionals[key] = () => {
+      const rootWidth = root.value.component.size.value?.[0] ?? 0
+      return rootWidth > breakPoints[key]
+    }
   }
 
   return conditionals
@@ -75,6 +76,8 @@ export type WithConditionals<T> = WithHover<T> &
   WithPreferredColorScheme<T> &
   WithActive<T> &
   WithFocus<T>
+
+export const conditionalKeys = ['dark', 'hover', 'active', 'focus', ...breakPointKeys]
 
 export function createConditionals(
   root: Signal<RootContext>,

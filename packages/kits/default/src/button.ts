@@ -1,8 +1,6 @@
 import { Container, ContainerProperties, ThreeEventMap } from '@pmndrs/uikit'
 import { borderRadius, colors } from './theme.js'
 import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
-import { computed } from '@preact/signals-core'
-import { readReactive } from '@pmndrs/uikit/src/utils.js'
 
 const buttonVariants = {
   default: {
@@ -31,14 +29,15 @@ const buttonVariants = {
   secondary: {
     hover: {
       backgroundOpacity: 0.8,
-      color: colors.accentForeground,
     },
     backgroundColor: colors.secondary,
     color: colors.secondaryForeground,
   },
   ghost: {
-    hover: undefined,
-    backgroundColor: colors.accent,
+    hover: {
+      backgroundColor: colors.accent,
+      color: colors.accentForeground,
+    },
   },
   link: {
     hover: undefined,
@@ -70,18 +69,24 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   BaseOutProperties<EM>,
   ButtonNonReactiveProperties
 > {
-  resetProperties({ hover, variant, size, disabled, ...rest }: ButtonProperties<EM> = {}): void {
+  protected internalResetProperties({
+    hover,
+    variant,
+    size,
+    disabled = false,
+    ...rest
+  }: ButtonProperties<EM> = {}): void {
     const { hover: variantHoverProperties, ...variantProperties } = buttonVariants[variant ?? 'default']
     const sizeProperties = buttonSizes[size ?? 'default']
-    super.resetProperties({
+    super.internalResetProperties({
       borderRadius: borderRadius.md,
       alignItems: 'center',
       justifyContent: 'center',
       ...variantProperties,
       ...sizeProperties,
-      borderOpacity: computed(() => (readReactive(disabled) ? 0.5 : undefined)),
-      backgroundOpacity: computed(() => (readReactive(disabled) ? 0.5 : undefined)),
-      cursor: computed(() => (readReactive(disabled) ? undefined : 'pointer')),
+      borderOpacity: disabled ? 0.5 : undefined,
+      backgroundOpacity: disabled ? 0.5 : undefined,
+      cursor: disabled ? undefined : 'pointer',
       flexDirection: 'row',
       hover: {
         ...variantHoverProperties,
@@ -91,7 +96,7 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       lineHeight: 20,
       fontWeight: 'medium',
       wordBreak: 'keep-all',
-      opacity: computed(() => (readReactive(disabled) ? 0.5 : undefined)),
+      opacity: disabled ? 0.5 : undefined,
       ...rest,
     })
   }

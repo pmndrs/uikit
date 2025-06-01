@@ -21,9 +21,11 @@ import { BaseOutProperties, InProperties, Properties, PropertiesImplementation }
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { Container } from './container.js'
-import { ClassList } from './classes.js'
+import { ClassList, getStarProperties } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
+import { inheritedPropertyKeys } from '../properties/inheritance.js'
+import { LayerIndexInheritance, LayerIndexStarInheritance } from '../properties/layers.js'
 
 export class Component<
   T = {},
@@ -42,6 +44,7 @@ export class Component<
   readonly isClipped: Signal<boolean>
   readonly boundingSphere = new Sphere()
   readonly properties: Properties<OutputProperties>
+  readonly starProperties: Properties<OutputProperties>
   readonly node: FlexNode
   readonly size = signal<Vector2Tuple | undefined>(undefined)
   readonly relativeCenter = signal<Vector2Tuple | undefined>(undefined)
@@ -77,20 +80,50 @@ export class Component<
     const updateParentSignal = () =>
       (this.parentContainer.value = this.parent instanceof Container ? (this.parent as any) : undefined)
     this.addEventListener('added', updateParentSignal)
-    this.removeEventListener('removed', updateParentSignal)
+    this.addEventListener('removed', updateParentSignal)
 
     this.root = buildRootContext(this, renderContext)
 
     //properties
-    this.properties = new PropertiesImplementation<OutputProperties>(
-      allAliases,
-      createConditionals(this.root, this.hoveredList, this.activeList),
-      computed(() => this.parentContainer.value?.properties as Properties<OutputProperties> | undefined),
-      defaults,
-    )
-    this.resetProperties(inputProperties)
+    const conditionals = createConditionals(this.root, this.hoveredList, this.activeList)
+    this.properties = new PropertiesImplementation<OutputProperties>(allAliases, conditionals, defaults)
+    abortableEffect(() => {
+      const parentProprties = this.parentContainer.value?.properties
+      const cleanup = parentProprties?.subscribePropertyKeys((key) => {
+        if (!inheritedPropertyKeys.includes(key as any)) {
+          return
+        }
+        this.properties.set(
+          LayerIndexInheritance,
+          key as any,
+          parentProprties.signal[key as keyof typeof parentProprties.signal],
+        )
+      })
+      return () => {
+        cleanup?.()
+        this.properties.setLayer(LayerIndexInheritance, undefined)
+      }
+    }, this.abortSignal)
 
-    this.classList = new ClassList(this.properties)
+    this.starProperties = new PropertiesImplementation<OutputProperties>(allAliases, conditionals)
+
+    abortableEffect(() => {
+      const parentStarProprties = this.parentContainer.value?.starProperties
+      const cleanup = parentStarProprties?.subscribePropertyKeys((key) => {
+        const signal = parentStarProprties.signal[key as keyof typeof parentStarProprties.signal]
+        this.starProperties.set(LayerIndexStarInheritance, key as any, signal)
+        this.properties.set(LayerIndexStarInheritance, key as any, signal)
+      })
+      return () => {
+        cleanup?.()
+        this.properties.setLayer(LayerIndexStarInheritance, undefined)
+        this.starProperties.setLayer(LayerIndexStarInheritance, undefined)
+      }
+    }, this.abortSignal)
+
+    this.internalResetProperties(inputProperties)
+
+    this.classList = new ClassList(this.properties, this.starProperties)
     if (initialClasses != null) {
       this.classList.add(...initialClasses)
     }
@@ -162,18 +195,18 @@ export class Component<
 
   updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
     if (updateParents) {
-      this.updateWorldMatrix(true, false)
+      this.parent?.updateWorldMatrix(true, false)
     }
     this.updateMatrixWorld()
     if (updateChildren) {
       for (const child of this.children) {
-        this.updateWorldMatrix(false, true)
+        child.updateWorldMatrix(false, true)
       }
     }
   }
 
   setProperties(inputProperties: InProperties<OutputProperties, NonReactiveProperties>) {
-    this.resetProperties({
+    this.internalResetProperties({
       ...this.inputProperties,
       ...inputProperties,
     })
@@ -181,7 +214,12 @@ export class Component<
 
   resetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
     this.inputProperties = inputProperties
-    this.properties.setLayersWithConditionals(0, this.inputProperties)
+    this.internalResetProperties(inputProperties)
+  }
+
+  protected internalResetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
+    this.properties.setLayersWithConditionals(0, inputProperties)
+    this.starProperties.setLayersWithConditionals(0, getStarProperties(inputProperties))
   }
 
   update(delta: number) {

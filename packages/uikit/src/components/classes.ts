@@ -1,13 +1,18 @@
 import { batch } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
+import { AddAllAliases } from '../properties/alias.js'
+import { conditionalKeys, WithConditionals } from '../properties/conditional.js'
 
 export const StyleSheet: Record<string, InProperties<BaseOutProperties<ThreeEventMap>>> = {}
 
 export class ClassList {
   private list: Array<InProperties | string | undefined> = []
 
-  constructor(private readonly properties: Properties) {}
+  constructor(
+    private readonly properties: Properties,
+    private readonly starProperties: Properties,
+  ) {}
   [Symbol.iterator]() {
     return this.list[Symbol.iterator]()
   }
@@ -21,6 +26,7 @@ export class ClassList {
         }
         this.list[index] = classRef
         this.properties.setLayersWithConditionals(index + 1, this.resolveClassRef(classRef))
+        this.starProperties.setLayersWithConditionals(index + 1, getStarProperties(this.resolveClassRef(classRef)))
       }
     })
   }
@@ -39,6 +45,7 @@ export class ClassList {
           this.list[index] = undefined
         }
         this.properties.setLayersWithConditionals(index + 1, undefined)
+        this.starProperties.setLayersWithConditionals(index + 1, undefined)
       }
     })
   }
@@ -77,4 +84,25 @@ export class ClassList {
     }
     return StyleSheet[classRef]
   }
+}
+
+export function getStarProperties<T extends BaseOutProperties<ThreeEventMap>, K>(
+  properties: InProperties<T, K> | undefined,
+) {
+  if (properties == null) {
+    return undefined
+  }
+  let result: InProperties<T, K> | undefined
+  if ('*' in properties) {
+    result = { ...properties['*'] } as any
+  }
+  for (const conditionalKey in conditionalKeys) {
+    const conditionalEntry = properties[conditionalKey as keyof InProperties<T, K>]?.['*' as never]
+    if (conditionalEntry == null) {
+      continue
+    }
+    result ??= {} as InProperties<T, K>
+    result[conditionalKey as keyof InProperties<T, K>] = conditionalEntry
+  }
+  return result
 }

@@ -1,7 +1,7 @@
 {
   "name": "@pmndrs/uikit-default",
   "description": "Default (shadcn) kit for @pmndrs/uikit",
-  "version": "0.0.0",
+  "version": "1.0.4",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",

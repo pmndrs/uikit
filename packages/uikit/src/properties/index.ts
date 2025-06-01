@@ -73,10 +73,17 @@ export type WithSignal<T> = {
   [K in keyof T]?: T[K] | Signal<T[K]>
 }
 
+export type WithInheritance<T, OutProperties> = T & {
+  '*'?: OutProperties extends BaseOutProperties<infer EM>
+    ? AddAllAliases<WithSignal<Partial<BaseOutProperties<EM>>>>
+    : never
+}
+
 export type InProperties<
   OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   NonReactiveProperties = {},
-> = WithConditionals<AddAllAliases<WithSignal<Partial<OutputProperties>>>> & NonReactiveProperties
+> = WithConditionals<WithInheritance<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties>> &
+  NonReactiveProperties
 
 export type Properties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
   BaseProperties<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties> & {
@@ -98,13 +105,10 @@ export class PropertiesImplementation<
     active: signal(false),
   }
 
-  private cleanupInheritedPropertyKeys: () => void
-
   constructor(
     aliases: Aliases,
     private readonly conditionals: Conditionals,
-    inherited: ReadonlySignal<ReadonlyProperties<OutputProperties> | undefined>,
-    defaults: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
+    defaults?: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
   ) {
     super(
       (key, value, set) => {
@@ -146,16 +150,6 @@ export class PropertiesImplementation<
         return sizeY / this.value.pixelSize
       }) as any,
     )
-
-    this.cleanupInheritedPropertyKeys = effect(() => {
-      const { value } = inherited
-      return value?.subscribePropertyKeys((key) => {
-        if (!inheritedPropertyKeys.includes(key as any)) {
-          return
-        }
-        this.set(LayerIndexInheritance, key as any, value.signal[key as keyof typeof value.signal])
-      })
-    })
   }
 
   setLayersWithConditionals(layerIndexInSection: number, properties: InProperties<OutputProperties> | undefined) {
@@ -177,11 +171,6 @@ export class PropertiesImplementation<
         this.setLayer(layerIndexInSection + sectionStart, conditionalComputedProperties)
       }
     })
-  }
-
-  destroy(): void {
-    this.cleanupInheritedPropertyKeys()
-    super.destroy()
   }
 }
 
