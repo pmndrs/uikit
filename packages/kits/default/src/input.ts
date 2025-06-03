@@ -30,7 +30,6 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       borderRadius: borderRadius.md,
       backgroundColor: colors.background,
       borderColor: colors.input,
-      multiline: false,
       inset: 0,
     })
     super.add(inputImpl)

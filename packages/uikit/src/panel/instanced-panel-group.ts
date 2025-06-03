@@ -1,4 +1,11 @@
-import { InstancedBufferAttribute, Material, DynamicDrawUsage, MeshBasicMaterial, Object3D } from 'three'
+import {
+  InstancedBufferAttribute,
+  Material,
+  DynamicDrawUsage,
+  Object3D,
+  MeshPhongMaterial,
+  MeshPhysicalMaterial,
+} from 'three'
 import {
   Bucket,
   addToSortedBuckets,
@@ -9,7 +16,7 @@ import {
 import { MaterialClass, createPanelMaterial } from './panel-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
-import { ElementType, OrderInfo, WithReversePainterSortStableCache, setupRenderOrder } from '../order.js'
+import { ElementType, OrderInfo, setupRenderOrder } from '../order.js'
 import { computed } from '@preact/signals-core'
 import { Properties } from '../properties/index.js'
 import { RootContext } from '../context.js'
@@ -25,8 +32,47 @@ export type RenderProperties = {
   renderOrder?: number
 }
 
+export class PlasticMaterial extends MeshPhongMaterial {
+  constructor() {
+    super({
+      specular: '#111',
+      shininess: 100,
+    })
+  }
+}
+
+export class GlassMaterial extends MeshPhysicalMaterial {
+  constructor() {
+    super({
+      transmission: 0.5,
+      roughness: 0.1,
+      reflectivity: 0.5,
+      iridescence: 0.4,
+      thickness: 0.05,
+      specularIntensity: 1,
+      metalness: 0.3,
+      ior: 2,
+      envMapIntensity: 1,
+    })
+  }
+}
+
+export class MetalMaterial extends MeshPhysicalMaterial {
+  constructor() {
+    super({
+      metalness: 0.8,
+      roughness: 0.1,
+    })
+  }
+}
+const materialClasses = {
+  glass: GlassMaterial,
+  metal: MetalMaterial,
+  plastic: PlasticMaterial,
+}
+
 export type PanelGroupProperties = {
-  panelMaterialClass?: MaterialClass
+  panelMaterialClass?: MaterialClass | keyof typeof materialClasses
 } & ShadowProperties &
   RenderProperties
 
@@ -69,9 +115,13 @@ export class PanelGroupManager {
   }
 
   getGroup(majorIndex: number, properties: Required<PanelGroupProperties>) {
-    let groups = this.map.get(properties.panelMaterialClass)
+    const materialClass =
+      typeof properties.panelMaterialClass === 'string'
+        ? materialClasses[properties.panelMaterialClass]
+        : properties.panelMaterialClass
+    let groups = this.map.get(materialClass)
     if (groups == null) {
-      this.map.set(properties.panelMaterialClass, (groups = new Map()))
+      this.map.set(materialClass, (groups = new Map()))
     }
     const key = [
       majorIndex,
@@ -151,7 +201,11 @@ export class InstancedPanelGroup {
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
-    this.instanceMaterial = createPanelMaterial(panelGroupProperties.panelMaterialClass, { type: 'instanced' })
+    const materialClass =
+      typeof panelGroupProperties.panelMaterialClass === 'string'
+        ? materialClasses[panelGroupProperties.panelMaterialClass]
+        : panelGroupProperties.panelMaterialClass
+    this.instanceMaterial = createPanelMaterial(materialClass, { type: 'instanced' })
     this.instanceMaterial.depthTest = panelGroupProperties.depthTest
     this.instanceMaterial.depthWrite = panelGroupProperties.depthWrite
   }

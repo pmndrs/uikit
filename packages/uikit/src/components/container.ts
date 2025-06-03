@@ -14,11 +14,11 @@ import {
   setupScrollHandlers,
 } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
-import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
+import { Parent } from './component.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -27,7 +27,7 @@ export class Container<
   EM extends ThreeEventMap = ThreeEventMap,
   Properties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
   NonReactiveProperties = {},
-> extends Component<T, EM, Properties, NonReactiveProperties> {
+> extends Parent<T, EM, Properties, NonReactiveProperties> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }

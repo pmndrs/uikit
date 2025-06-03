@@ -1,5 +1,13 @@
-import { AmbientLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Text } from '@pmndrs/uikit'
+import {
+  AmbientLight,
+  CubeTextureLoader,
+  DirectionalLight,
+  PerspectiveCamera,
+  PointLight,
+  Scene,
+  WebGLRenderer,
+} from 'three'
+import { reversePainterSortStable, Container, Text, StyleSheet, setPreferredColorScheme } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 import {
@@ -41,8 +49,7 @@ const orbit = new OrbitHandles(canvas, camera)
 orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
-
-setTheme(defaultThemes.red)
+setPreferredColorScheme('dark')
 
 //UI
 const root = new Container({
@@ -54,10 +61,33 @@ const root = new Container({
   borderRadius: 10,
   padding: 10,
   alignItems: 'center',
-  backgroundColor: colors.background,
   overflow: 'hidden',
+  backgroundColor: colors.background,
+  borderOpacity: 0,
+  panelMaterialClass: 'plastic',
+  borderBend: 0.6,
+  borderWidth: 8,
 })
 scene.add(root)
+const envMap = new CubeTextureLoader().load([
+  'https://threejs.org/examples/textures/cube/Park2/posx.jpg',
+  'https://threejs.org/examples/textures/cube/Park2/negx.jpg',
+  'https://threejs.org/examples/textures/cube/Park2/posy.jpg',
+  'https://threejs.org/examples/textures/cube/Park2/negy.jpg',
+  'https://threejs.org/examples/textures/cube/Park2/posz.jpg',
+  'https://threejs.org/examples/textures/cube/Park2/negz.jpg',
+])
+scene.environment = envMap
+
+// Add directional light
+const directionalLight = new DirectionalLight(0xffffff, 1)
+directionalLight.position.set(5, 5, 5)
+scene.add(directionalLight)
+
+// Add point light
+const pointLight = new PointLight(0xffffff, 1)
+pointLight.position.set(-5, 5, -5)
+scene.add(pointLight)
 
 const btn = new Button({ flexShrink: 0, variant: 'outline' })
 btn.add(new Text({ text: 'Press me!' }))

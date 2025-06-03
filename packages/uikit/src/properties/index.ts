@@ -83,7 +83,7 @@ export type InProperties<
   OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   NonReactiveProperties = {},
 > = WithConditionals<WithInheritance<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties>> &
-  NonReactiveProperties
+  Omit<NonReactiveProperties, never>
 
 export type Properties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
   BaseProperties<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties> & {

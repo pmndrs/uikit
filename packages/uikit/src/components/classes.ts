@@ -1,10 +1,9 @@
 import { batch } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
-import { AddAllAliases } from '../properties/alias.js'
-import { conditionalKeys, WithConditionals } from '../properties/conditional.js'
+import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
+import { conditionalKeys } from '../properties/conditional.js'
 
-export const StyleSheet: Record<string, InProperties<BaseOutProperties<ThreeEventMap>>> = {}
+export const StyleSheet: Record<string, InProperties> = {}
 
 export class ClassList {
   private list: Array<InProperties | string | undefined> = []
@@ -13,8 +12,12 @@ export class ClassList {
     private readonly properties: Properties,
     private readonly starProperties: Properties,
   ) {}
-  [Symbol.iterator]() {
-    return this.list[Symbol.iterator]()
+  *[Symbol.iterator]() {
+    for (const entry in this.list) {
+      if (entry != null) {
+        yield entry
+      }
+    }
   }
 
   add(...classes: typeof this.list): void {

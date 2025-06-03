@@ -1,3 +1,4 @@
+export { Component } from './component.js'
 export * from './container.js'
 export * from './image.js'
 export * from './text.js'

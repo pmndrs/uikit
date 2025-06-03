@@ -1,6 +1,7 @@
-import { Material, MeshBasicMaterial } from 'three'
-import { FontWeight, GlyphLayoutProperties, WordBreak } from '../text/index.js'
-import { alignmentXMap, alignmentYMap, VisibilityProperties } from '../utils.js'
+import { MeshBasicMaterial } from 'three'
+import type { FontWeight, GlyphLayoutProperties, WordBreak } from '../text/index.js'
+import { alignmentXMap, alignmentYMap, type VisibilityProperties } from '../utils.js'
+import type { PanelGroupProperties } from '../panel/instanced-panel-group.js'
 
 export const defaults = {
   scrollbarWidth: 10,
@@ -19,7 +20,7 @@ export const defaults = {
   caretWidth: 1.5,
   receiveShadow: false,
   castShadow: false,
-  panelMaterialClass: MeshBasicMaterial as typeof Material,
+  panelMaterialClass: MeshBasicMaterial as PanelGroupProperties['panelMaterialClass'],
   pixelSize: 0.01,
   anchorX: 'center' as keyof typeof alignmentXMap,
   anchorY: 'center' as keyof typeof alignmentYMap,

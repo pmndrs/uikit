@@ -20,12 +20,12 @@ import { createConditionals } from '../properties/conditional.js'
 import { BaseOutProperties, InProperties, Properties, PropertiesImplementation } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
-import { Container } from './container.js'
 import { ClassList, getStarProperties } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
 import { inheritedPropertyKeys } from '../properties/inheritance.js'
 import { LayerIndexInheritance, LayerIndexStarInheritance } from '../properties/layers.js'
+import type { Container } from './index.js'
 
 export class Component<
   T = {},
@@ -78,7 +78,7 @@ export class Component<
 
     //setting up the parent signal
     const updateParentSignal = () =>
-      (this.parentContainer.value = this.parent instanceof Container ? (this.parent as any) : undefined)
+      (this.parentContainer.value = this.parent instanceof Parent ? (this.parent as any) : undefined)
     this.addEventListener('added', updateParentSignal)
     this.addEventListener('removed', updateParentSignal)
 
@@ -246,3 +246,10 @@ export type EventMap = Object3DEventMap & {
     Exclude<EventHandlers[Key], undefined>
   >[0]
 }
+
+export class Parent<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  Properties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  NonReactiveProperties = {},
+> extends Component<T, EM, Properties, NonReactiveProperties> {}
