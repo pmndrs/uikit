@@ -71,6 +71,13 @@ const materialClasses = {
   plastic: PlasticMaterial,
 }
 
+export function resolvePanelMaterialClassProperty(input: NonNullable<PanelGroupProperties['panelMaterialClass']>) {
+  if (typeof input != 'string') {
+    return input
+  }
+  return materialClasses[input]
+}
+
 export type PanelGroupProperties = {
   panelMaterialClass?: MaterialClass | keyof typeof materialClasses
 } & ShadowProperties &
@@ -79,7 +86,7 @@ export type PanelGroupProperties = {
 export function computedPanelGroupDependencies(properties: Properties) {
   return computed<Required<PanelGroupProperties>>(() => {
     return {
-      panelMaterialClass: properties.value.panelMaterialClass,
+      panelMaterialClass: resolvePanelMaterialClassProperty(properties.value.panelMaterialClass),
       castShadow: properties.value.castShadow,
       receiveShadow: properties.value.receiveShadow,
       depthWrite: properties.value.depthWrite ?? false,
@@ -115,10 +122,7 @@ export class PanelGroupManager {
   }
 
   getGroup(majorIndex: number, properties: Required<PanelGroupProperties>) {
-    const materialClass =
-      typeof properties.panelMaterialClass === 'string'
-        ? materialClasses[properties.panelMaterialClass]
-        : properties.panelMaterialClass
+    const materialClass = resolvePanelMaterialClassProperty(properties.panelMaterialClass)
     let groups = this.map.get(materialClass)
     if (groups == null) {
       this.map.set(materialClass, (groups = new Map()))
@@ -201,10 +205,7 @@ export class InstancedPanelGroup {
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
-    const materialClass =
-      typeof panelGroupProperties.panelMaterialClass === 'string'
-        ? materialClasses[panelGroupProperties.panelMaterialClass]
-        : panelGroupProperties.panelMaterialClass
+    const materialClass = resolvePanelMaterialClassProperty(panelGroupProperties.panelMaterialClass)
     this.instanceMaterial = createPanelMaterial(materialClass, { type: 'instanced' })
     this.instanceMaterial.depthTest = panelGroupProperties.depthTest
     this.instanceMaterial.depthWrite = panelGroupProperties.depthWrite

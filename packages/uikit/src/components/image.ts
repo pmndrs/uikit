@@ -16,6 +16,7 @@ import { Inset } from '../flex/index.js'
 import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
+import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
 
 export type ImageFit = 'cover' | 'fill'
 
@@ -104,7 +105,10 @@ export class Image<
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      const material = createPanelMaterial(this.properties.value.panelMaterialClass, info)
+      const material = createPanelMaterial(
+        resolvePanelMaterialClassProperty(this.properties.value.panelMaterialClass),
+        info,
+      )
       material.clippingPlanes = clippingPlanes
       ;(material as any).map = (this.material as any).map
       material.depthWrite = this.material.depthWrite

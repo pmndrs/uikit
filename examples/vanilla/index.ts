@@ -7,7 +7,14 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three'
-import { reversePainterSortStable, Container, Text, StyleSheet, setPreferredColorScheme } from '@pmndrs/uikit'
+import {
+  reversePainterSortStable,
+  Container,
+  Text,
+  StyleSheet,
+  setPreferredColorScheme,
+  Fullscreen,
+} from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 import {
@@ -52,12 +59,10 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 setPreferredColorScheme('dark')
 
 //UI
-const root = new Container({
+const root = new Fullscreen(renderer, {
   ...defaultProperties,
   flexDirection: 'column',
   gap: 30,
-  width: 1024,
-  height: 512,
   borderRadius: 10,
   padding: 10,
   alignItems: 'center',
@@ -68,7 +73,8 @@ const root = new Container({
   borderBend: 0.6,
   borderWidth: 8,
 })
-scene.add(root)
+camera.add(root)
+scene.add(camera)
 const envMap = new CubeTextureLoader().load([
   'https://threejs.org/examples/textures/cube/Park2/posx.jpg',
   'https://threejs.org/examples/textures/cube/Park2/negx.jpg',

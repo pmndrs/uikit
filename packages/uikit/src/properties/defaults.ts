@@ -20,7 +20,7 @@ export const defaults = {
   caretWidth: 1.5,
   receiveShadow: false,
   castShadow: false,
-  panelMaterialClass: MeshBasicMaterial as PanelGroupProperties['panelMaterialClass'],
+  panelMaterialClass: MeshBasicMaterial as NonNullable<PanelGroupProperties['panelMaterialClass']>,
   pixelSize: 0.01,
   anchorX: 'center' as keyof typeof alignmentXMap,
   anchorY: 'center' as keyof typeof alignmentYMap,

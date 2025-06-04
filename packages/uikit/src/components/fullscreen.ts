@@ -56,14 +56,15 @@ export class Fullscreen<
         throw new Error(`fullscreen can only be added to a camera`)
       }
       this.distanceToCamera ??= this.parent.near + 0.1
-      this.update()
+      this.update(0)
     })
   }
 
   /**
    * must be called when camera.fov, camera.top, camera.bottom, camera.right, camera.left, camera.zoom, camera.aspect changes
    */
-  update() {
+  update(delta: number) {
+    super.update(delta)
     const camera = this.parent
     if (this.distanceToCamera == null || !(camera instanceof Camera)) {
       return

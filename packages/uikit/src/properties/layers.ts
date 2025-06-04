@@ -20,4 +20,4 @@ export const LayerSectionStartInherited = LayersSectionSize * 10
 export const LayerIndexInheritance = 1000000000
 export const LayerIndexStarInheritance = LayerIndexInheritance + 1
 
-export const LayerIndexDefaults = LayerIndexInheritance + 1
+export const LayerIndexDefaults = LayerIndexInheritance + 2

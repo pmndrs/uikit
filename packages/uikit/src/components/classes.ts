@@ -2,6 +2,7 @@ import { batch } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
 import { conditionalKeys } from '../properties/conditional.js'
+import { MaxClassAmount } from '../properties/layers.js'
 
 export const StyleSheet: Record<string, InProperties> = {}
 
@@ -28,8 +29,11 @@ export class ClassList {
           index++
         }
         this.list[index] = classRef
-        this.properties.setLayersWithConditionals(index + 1, this.resolveClassRef(classRef))
-        this.starProperties.setLayersWithConditionals(index + 1, getStarProperties(this.resolveClassRef(classRef)))
+        this.properties.setLayersWithConditionals(classIndexToLayerIndex(index), this.resolveClassRef(classRef))
+        this.starProperties.setLayersWithConditionals(
+          classIndexToLayerIndex(index),
+          getStarProperties(this.resolveClassRef(classRef)),
+        )
       }
     })
   }
@@ -47,8 +51,8 @@ export class ClassList {
         } else {
           this.list[index] = undefined
         }
-        this.properties.setLayersWithConditionals(index + 1, undefined)
-        this.starProperties.setLayersWithConditionals(index + 1, undefined)
+        this.properties.setLayersWithConditionals(classIndexToLayerIndex(index), undefined)
+        this.starProperties.setLayersWithConditionals(classIndexToLayerIndex(index), undefined)
       }
     })
   }
@@ -108,4 +112,11 @@ export function getStarProperties<T extends BaseOutProperties<ThreeEventMap>, K>
     result[conditionalKey as keyof InProperties<T, K>] = conditionalEntry
   }
   return result
+}
+
+function classIndexToLayerIndex(index: number) {
+  if (index >= MaxClassAmount) {
+    throw new Error(`Maximum number of classes (${MaxClassAmount}) exceeded`)
+  }
+  return MaxClassAmount - index
 }
