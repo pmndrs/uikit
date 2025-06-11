@@ -245,47 +245,17 @@ describe('html parser', () => {
 
   describe('custom elements', () => {
     it('should parse custom element as type custom', () => {
-      const result = parse('<testkit-custom-element data-test="value">Content</testkit-custom-element>', {
-        availableKits: ['testkit'],
-      })
+      const result = parse('<testkit-custom-element data-test="value">Content</testkit-custom-element>', {})
       expect(result).to.deep.equal({
         element: {
           type: 'custom',
           sourceTag: 'testkit-custom-element',
           children: ['Content'],
-          name: 'customElement',
-          kit: 'testkit',
           properties: {
             dataTest: 'value',
           },
           defaultProperties: {},
         },
-        classes: {},
-      })
-    })
-
-    it('should call onError and ignore element when kit is not available', () => {
-      const errors: string[] = []
-      const result = parse('<unknownkit-custom-element>Content</unknownkit-custom-element>', {
-        availableKits: ['testkit'],
-        onError: (msg) => errors.push(msg),
-      })
-      expect(errors).to.deep.equal(['Unknown kit "unknownkit". Available kits: testkit'])
-      expect(result).to.deep.equal({
-        element: undefined,
-        classes: {},
-      })
-    })
-
-    it('should call onError and ignore element when kit prefix is missing', () => {
-      const errors: string[] = []
-      const result = parse('<customelement>Content</customelement>', {
-        availableKits: ['testkit'],
-        onError: (msg) => errors.push(msg),
-      })
-      expect(errors).to.deep.equal(['Unknown HTML element: customelement'])
-      expect(result).to.deep.equal({
-        element: undefined,
         classes: {},
       })
     })
@@ -350,12 +320,16 @@ describe('html parser', () => {
         element: undefined,
         classes: {
           'my-class': {
-            color: 'red',
-            fontSize: '16px',
+            content: {
+              color: 'red',
+              fontSize: '16px',
+            },
           },
           'another-class': {
-            backgroundColor: 'blue',
-            padding: '10px',
+            content: {
+              backgroundColor: 'blue',
+              padding: '10px',
+            },
           },
         },
       })
@@ -375,11 +349,15 @@ describe('html parser', () => {
       expect(result.element).to.equal(undefined)
       expect(result.classes).to.deep.equal({
         child: {
-          color: 'green',
+          content: {
+            color: 'green',
+          },
         },
         parent: {
-          hover: {
-            backgroundColor: 'yellow',
+          content: {
+            hover: {
+              backgroundColor: 'yellow',
+            },
           },
         },
       })

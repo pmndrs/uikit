@@ -4,9 +4,13 @@ import { htmlElements } from './defaults.js'
 
 const voidTagRegex = /<(([^<\s]+)[^<]*)\/>/g
 
+//TODO: add support for #btn * {} and #btn:hover * {}
+//TODO: #btn treted as class
+//TODO: parse("<link ref='./text.css'/>", { files: { 'text.css': '' } })
+
 export type ParseConfig = {
   onError?: (message: string) => void
-  availableKits: Array<string>
+  resolveFile?: (filePath: string) => string
 }
 
 /**
@@ -15,7 +19,10 @@ export type ParseConfig = {
 export function parse(
   text: string,
   config?: ParseConfig,
-): { element: ElementJson | string | undefined; classes: Record<string, Record<string, string>> } {
+): {
+  element: ElementJson | string | undefined
+  classes: Record<string, { origin?: string; content: Record<string, any> }>
+} {
   text = text.replaceAll(voidTagRegex, (_, tagContent, tagName) => `<${tagContent}></${tagName}>`)
   const htmlElement = parseHTML(text, { voidTag: { tags: [] } })
   return {
@@ -26,20 +33,21 @@ export function parse(
 
 function toUikitClassesJson(element: Node) {
   const classesList = toUikitClassesList(element)
-  const result: Record<string, Record<string, any>> = {}
+  const result: Record<string, { origin?: string; content: Record<string, any> }> = {}
   for (const { name, selector, style } of classesList) {
-    let classObject = result[name]
-    if (classObject == null) {
-      result[name] = classObject = {}
+    let entry = result[name]
+    if (entry == null) {
+      result[name] = entry = { content: {} }
     }
+    let content = entry.content
     if (selector != null) {
-      if (!(selector in classObject)) {
-        classObject[selector] = {}
+      if (!(selector in content)) {
+        content[selector] = {}
       }
-      classObject = classObject[selector]
+      content = content[selector]
     }
 
-    Object.assign(classObject!, style)
+    Object.assign(content, style)
   }
   return result
 }
@@ -124,25 +132,11 @@ function toUikitElementJson(element: Node, config: ParseConfig | undefined): Ele
         defaultProperties,
       }
   }
-  const tagNameParts = tag.split('-')
-  if (tagNameParts.length <= 1) {
-    config?.onError?.(`Unknown HTML element: ${tag}`)
-    return undefined
-  }
-  const [kit, ...nameParts] = tagNameParts
-  if (config == null || !config.availableKits.includes(kit!)) {
-    config?.onError?.(
-      `Unknown kit "${kit}". Available kits: ${config == null ? 'no available kits' : config.availableKits.join(', ')}`,
-    )
-    return undefined
-  }
-  const name = kebabToCamelCase(nameParts.join('-'))
+
   return {
     sourceTag,
     type: 'custom',
     children,
-    name,
-    kit: kit!,
     properties,
     defaultProperties,
   }
@@ -159,11 +153,8 @@ export type ElementJson =
 
 export type CustomElementJson = {
   type: 'custom'
-  name: string
-  kit: string
   children: ReadonlyArray<ElementJson | string>
   properties: Record<string, any>
-  //for re-converting to .uikitml
   sourceTag: string
   defaultProperties: Record<string, any>
 }

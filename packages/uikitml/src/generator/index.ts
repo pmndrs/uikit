@@ -27,14 +27,22 @@ function generateProperties(properties: Record<string, any>): string {
     .join(' ')
 }
 
-function generateClassStyles(classes: Record<string, Record<string, any>>): string {
+function generateClassStyles(
+  classes: Record<
+    string,
+    {
+      origin?: string
+      content: Record<string, any>
+    }
+  >,
+): string {
   const styleRules: string[] = []
 
-  for (const [className, styles] of Object.entries(classes)) {
-    styleRules.push(`.${className} { ${generateStyleString(styles)} }`)
+  for (const [className, { content }] of Object.entries(classes)) {
+    styleRules.push(`.${className} { ${generateStyleString(content)} }`)
     for (const conditional of conditionals) {
-      if (conditional in styles) {
-        styleRules.push(`.${className}:${conditional} { ${generateStyleString(styles[conditional])} }`)
+      if (conditional in content) {
+        styleRules.push(`.${className}:${conditional} { ${generateStyleString(content[conditional])} }`)
       }
     }
   }
@@ -46,7 +54,14 @@ const conditionals = ['hover', 'active', 'focus', 'sm', 'md', 'lg', 'xl', '2xl']
 
 export function generate(
   json: ElementJson | string | undefined,
-  classes?: Record<string, Record<string, any>>,
+  classes?: Record<
+    string,
+    {
+      origin?: string
+      content: Record<string, any>
+    }
+  >,
+  outputFiles?: Record<string, string>,
 ): string {
   const classStyles = classes == null ? '' : generateClassStyles(classes)
   if (json == null) {
