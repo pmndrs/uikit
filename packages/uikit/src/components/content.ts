@@ -48,11 +48,10 @@ export type InheritableContentProperties = WithClasses<
           ZIndexProperties &
           TransformProperties &
           ScrollbarProperties &
-          PanelGroupProperties &
+          Omit<PanelGroupProperties, 'renderOrder'> &
           DepthAlignProperties &
           KeepAspectRatioProperties &
           VisibilityProperties &
-          RenderProperties &
           PointerEventsProperties
       >
     >
@@ -61,6 +60,7 @@ export type InheritableContentProperties = WithClasses<
 
 export type DepthAlignProperties = {
   depthAlign?: keyof typeof alignmentZMap
+  renderOrder?: null | number
 }
 
 export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InheritableContentProperties &
@@ -352,7 +352,7 @@ function createMeasureContent(
 function updateRenderProperties(
   contentContainerRef: { current?: Object3D | null },
   visible: boolean,
-  renderOrder: number,
+  renderOrder: number | null,
   depthTest: boolean,
   depthWrite: boolean,
 ) {
@@ -365,7 +365,9 @@ function updateRenderProperties(
     if (!(object instanceof Mesh)) {
       return
     }
-    object.renderOrder = renderOrder
+    if (renderOrder != null) {
+      object.renderOrder = renderOrder
+    }
     if (!(object.material instanceof Material)) {
       return
     }
