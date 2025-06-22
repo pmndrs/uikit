@@ -20,10 +20,15 @@ function generateProperties(properties: Record<string, any>): string {
       if (key === 'style') {
         return `style="${generateStyleString(value)}"`
       }
+      // Skip dataUid attributes as they're for internal tracking only
+      if (key === 'dataUid') {
+        return undefined
+      }
       // Convert camelCase back to kebab-case for HTML attributes
       const kebabKey = key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)
       return `${kebabKey}="${value}"`
     })
+    .filter(Boolean)
     .join(' ')
 }
 
@@ -71,7 +76,8 @@ export function generate(
     return `${classStyles}${json}`
   }
   if (json.type === 'inline-svg') {
-    return json.text
+    // Remove data-uid attributes from SVG text for clean output
+    return json.text.replace(/\s*data-uid="[^"]*"/g, '')
   }
   const properties = generateProperties(json.properties)
 
