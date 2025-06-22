@@ -24,6 +24,18 @@ function generateProperties(properties: Record<string, any>): string {
       if (key === 'dataUid') {
         return undefined
       }
+      // Filter out internal __id__ classes from class attribute
+      if (key === 'class' && typeof value === 'string') {
+        const filteredClasses = value
+          .split(' ')
+          .filter((className) => !className.startsWith('__id__'))
+          .join(' ')
+          .trim()
+        if (!filteredClasses) {
+          return undefined
+        }
+        return `class="${filteredClasses}"`
+      }
       // Convert camelCase back to kebab-case for HTML attributes
       const kebabKey = key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)
       return `${kebabKey}="${value}"`
@@ -44,6 +56,11 @@ function generateClassStyles(
   const styleRules: string[] = []
 
   for (const [className, { content }] of Object.entries(classes)) {
+    // Skip internal __id__ classes from style generation
+    if (className.startsWith('__id__')) {
+      continue
+    }
+
     styleRules.push(`.${className} { ${generateStyleString(content)} }`)
     for (const conditional of conditionals) {
       if (conditional in content) {

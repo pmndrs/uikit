@@ -422,5 +422,59 @@ describe('html parser', () => {
         },
       })
     })
+
+    it('should parse ID styles as classes with special prefix', () => {
+      const result = parse(`
+        <style>
+          #myButton {
+            background-color: blue;
+            padding: 10px;
+          }
+          #myButton:hover {
+            background-color: red;
+          }
+        </style>
+        <div id="myButton">Click me</div>
+      `)
+
+      expect(result.element).to.deep.include({
+        type: 'container',
+        sourceTag: 'div',
+        children: ['Click me'],
+        properties: {
+          id: 'myButton',
+          class: '__id__myButton', // Should auto-apply ID class
+        },
+      })
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Click me'],
+          properties: {
+            id: 'myButton',
+            class: '__id__myButton',
+          },
+          defaultProperties: {},
+        },
+        classes: {
+          __id__myButton: {
+            content: {
+              backgroundColor: 'blue',
+              padding: '10px',
+              hover: {
+                backgroundColor: 'red',
+              },
+            },
+          },
+        },
+      })
+
+      // Verify ranges include the ID-based class
+      expect(result.ranges).to.have.property('__id__myButton')
+      expect(result.ranges['__id__myButton']).to.have.property('start')
+      expect(result.ranges['__id__myButton']).to.have.property('end')
+    })
   })
 })

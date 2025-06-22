@@ -40,7 +40,6 @@ export function parse(
   const document = parse5Parse(text, { sourceCodeLocationInfo: true })
 
   const ranges: Record<string, Range> = {}
-  const idStyleMap: Map<string, { styles: string; range: Range }> = new Map()
   let nextId = 1
 
   // First pass: annotate elements with data-uid and collect ranges
@@ -74,7 +73,7 @@ export function parse(
     if (node.nodeName === 'style' && node.childNodes && node.childNodes.length > 0) {
       const textNode = node.childNodes[0]
       if (textNode && textNode.nodeName === '#text') {
-        extractCssRanges(textNode.value, node.sourceCodeLocation, ranges, idStyleMap)
+        extractCssRanges(textNode.value, node.sourceCodeLocation, ranges)
       }
     }
 
@@ -95,12 +94,7 @@ export function parse(
   }
 }
 
-function extractCssRanges(
-  cssText: string,
-  styleLocation: any,
-  ranges: Record<string, Range>,
-  idStyleMap: Map<string, { styles: string; range: Range }>,
-): void {
+function extractCssRanges(cssText: string, styleLocation: any, ranges: Record<string, Range>): void {
   const styleStartLine = styleLocation.startLine - 1
   const styleStartCol = styleLocation.startCol - 1
   const lines = cssText.split('\n')
@@ -125,13 +119,12 @@ function extractCssRanges(
     }
   }
 
-  // Extract ID styles for inlining
-  const idRuleRegex = /#([a-zA-Z_][\w-]*)\s*{([^}]*)}/g
+  // Extract ID styles and treat them as classes with special prefix
+  const idRuleRegex = /#([a-zA-Z_][\w-]*)\s*{/g
 
   while ((match = idRuleRegex.exec(cssText)) !== null) {
     const idName = match[1]
-    const styleContent = match[2]?.trim()
-    if (!idName || !styleContent) continue
+    if (!idName) continue
     const matchIndex = match.index ?? 0
 
     // Calculate position
@@ -139,13 +132,12 @@ function extractCssRanges(
     const startLine = styleStartLine + line
     const startCol = line === 0 ? styleStartCol + col : col
 
-    idStyleMap.set(idName, {
-      styles: styleContent,
-      range: {
-        start: { line: startLine, column: startCol },
-        end: { line: startLine, column: startCol + (match[0]?.length ?? 0) },
-      },
-    })
+    // Add ID style to ranges with special prefix
+    const idClassName = `__id__${idName}`
+    ranges[idClassName] = {
+      start: { line: startLine, column: startCol },
+      end: { line: startLine, column: startCol + idName.length + 1 }, // +1 for the # symbol
+    }
   }
 }
 
@@ -235,6 +227,7 @@ function toUikitClassesJson(element: any) {
 }
 
 const classRegex = /\.([a-zA-Z0-9_-]+)(?::([a-zA-Z0-9_-]+))?\s*{([^}]*)}/g
+const idRegex = /#([a-zA-Z0-9_-]+)(?::([a-zA-Z0-9_-]+))?\s*{([^}]*)}/g
 
 function toUikitClassesList(
   element: any,
@@ -248,11 +241,21 @@ function toUikitClassesList(
       .map((child: any) => child.value || '')
       .join('')
 
+    // Extract regular CSS classes
     let match: RegExpExecArray | null
     while ((match = classRegex.exec(textContent)) != null) {
       const [, name, selector, classContent] = match
       if (name && classContent) {
         result.push({ name, selector, style: toUikitStyleProperties(classContent) })
+      }
+    }
+
+    // Extract ID styles and treat them as classes with special prefix
+    while ((match = idRegex.exec(textContent)) != null) {
+      const [, idName, selector, classContent] = match
+      if (idName && classContent) {
+        const idClassName = `__id__${idName}`
+        result.push({ name: idClassName, selector, style: toUikitStyleProperties(classContent) })
       }
     }
   }
@@ -306,6 +309,14 @@ function toUikitElementJson(element: any, config: ParseConfig | undefined): Elem
   // Extract dataUid from attributes
   const dataUidAttr = element.attrs?.find((attr: any) => attr.name === 'data-uid')
   const dataUid = dataUidAttr?.value
+
+  // Auto-apply ID-based classes if element has an id attribute
+  const idAttr = element.attrs?.find((attr: any) => attr.name === 'id')
+  if (idAttr?.value) {
+    const idClassName = `__id__${idAttr.value}`
+    const existingClasses = properties.class ? `${properties.class} ${idClassName}` : idClassName
+    properties.class = existingClasses
+  }
 
   if (tag in htmlElements) {
     const { convertTo, defaultProperties: htmlDefaultProperties } = htmlElements[tag]!
