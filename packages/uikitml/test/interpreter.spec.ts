@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { JSDOM } from 'jsdom'
-import { Container, Text, Image, Input } from '@pmndrs/uikit'
+import { Container, Text, Image, Input, StyleSheet } from '@pmndrs/uikit'
 import { interpret, Kit, getElementDescription } from '../src/interpreter/index.js'
 import { parse } from '../src/parser/index.js'
 
@@ -103,7 +103,7 @@ describe('interpreter', () => {
   })
 
   describe('CSS class application', () => {
-    it('should apply CSS classes to elements', () => {
+    it('should add CSS classes to global StyleSheet and apply to elements', () => {
       const htmlWithStyles = `
         <style>
           .test-class {
@@ -116,6 +116,13 @@ describe('interpreter', () => {
       `
       const { result } = safeInterpret(htmlWithStyles)
       expect(result).to.be.instanceOf(Container)
+
+      // Verify class was added to global StyleSheet
+      expect(StyleSheet['test-class']).to.deep.include({
+        color: 'red',
+        fontSize: '16px',
+        backgroundColor: 'blue',
+      })
     })
 
     it('should apply multiple CSS classes', () => {

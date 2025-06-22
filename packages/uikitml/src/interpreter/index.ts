@@ -1,6 +1,6 @@
 import { Object3D, Object3DEventMap } from 'three'
-import { Component, Container, Image, Input, Text, Video, Svg } from '@pmndrs/uikit'
-import { ElementJson } from '../parser/index.js'
+import { Component, Container, Image, Input, Text, Video, Svg, StyleSheet } from '@pmndrs/uikit'
+import { ContainerElementJson, ElementJson } from '../parser/index.js'
 
 export interface Kit {
   [componentName: string]: new (props?: any) => Component<Object3DEventMap>
@@ -16,22 +16,17 @@ export function interpret(
     return null
   }
 
-  // Convert classes from parser format to flat format for interpretElement
-  const flatClasses: Record<string, Record<string, string>> = {}
+  // Add parsed CSS classes to the global StyleSheet
   for (const [className, classData] of Object.entries(parseResult.classes)) {
     if (classData && typeof classData === 'object' && 'content' in classData) {
-      flatClasses[className] = classData.content as Record<string, string>
+      StyleSheet[className] = classData.content as Record<string, any>
     }
   }
 
-  return interpretElement(parseResult.element, flatClasses, kit)
+  return interpretElement(parseResult.element, kit)
 }
 
-function interpretElement(
-  json: ElementJson | string,
-  classes: Record<string, Record<string, string>>,
-  kit?: Kit,
-): Object3D<Object3DEventMap> | null {
+function interpretElement(json: ElementJson | string, kit?: Kit): Object3D<Object3DEventMap> | null {
   if (json === null || json === undefined) {
     return null
   }
@@ -97,18 +92,13 @@ function interpretElement(
   }
 
   if (properties.class) {
-    const classNames = (properties.class as string).split(' ')
-    classNames.forEach((className) => {
-      const styleClass = classes[className]
-      if (styleClass) {
-        element.classList.add(styleClass)
-      }
-    })
+    const classNames = (properties.class as string).split(' ').filter((name) => name.trim())
+    element.classList.add(...classNames)
   }
 
-  if ('children' in json && json.children && !(element instanceof Text)) {
-    json.children.forEach((childElementJson: any) => {
-      const childElement = interpretElement(childElementJson, classes, kit)
+  if (element instanceof Container) {
+    ;(json as ContainerElementJson).children.forEach((childElementJson: ElementJson | string) => {
+      const childElement = interpretElement(childElementJson, kit)
       if (childElement) {
         element.add(childElement)
       }
