@@ -23,16 +23,9 @@ function safeInterpret(html: string, kit?: Kit) {
   if (!parsed.element) {
     throw new Error(`Failed to parse: ${html}`)
   }
-  // Convert classes from parser format to interpreter format
-  const flatClasses: Record<string, Record<string, string>> = {}
-  for (const [className, classData] of Object.entries(parsed.classes)) {
-    if (classData && typeof classData === 'object' && 'content' in classData) {
-      flatClasses[className] = classData.content as Record<string, string>
-    }
-  }
   return {
-    result: interpret(parsed.element, flatClasses, kit),
-    classes: flatClasses,
+    result: interpret(parsed, kit),
+    classes: parsed.classes,
     element: parsed.element,
   }
 }
@@ -40,13 +33,13 @@ function safeInterpret(html: string, kit?: Kit) {
 describe('interpreter', () => {
   describe('basic element interpretation', () => {
     it('should interpret text strings', () => {
-      const result = interpret('Hello World', {})
+      const result = interpret({ element: 'Hello World', classes: {} })
       expect(result).to.be.instanceOf(Text)
     })
 
     it('should handle null and undefined input', () => {
-      expect(interpret(null as any, {})).to.be.null
-      expect(interpret(undefined as any, {})).to.be.null
+      expect(interpret({ element: null as any, classes: {} })).to.be.null
+      expect(interpret({ element: undefined as any, classes: {} })).to.be.null
     })
 
     it('should interpret container elements', () => {
@@ -198,7 +191,7 @@ describe('interpreter', () => {
         defaultProperties: {},
         children: [],
       }
-      const result = interpret(unknownElement, {})
+      const result = interpret({ element: unknownElement, classes: {} })
       expect(result).to.be.instanceOf(Container)
     })
 

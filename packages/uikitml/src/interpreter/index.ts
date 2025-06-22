@@ -6,6 +6,28 @@ export interface Kit {
   [componentName: string]: new (props?: any) => Component<Object3DEventMap>
 }
 export function interpret(
+  parseResult: {
+    element: ElementJson | string | undefined
+    classes: Record<string, { origin?: string; content: Record<string, any> }>
+  },
+  kit?: Kit,
+): Object3D<Object3DEventMap> | null {
+  if (!parseResult.element) {
+    return null
+  }
+
+  // Convert classes from parser format to flat format for interpretElement
+  const flatClasses: Record<string, Record<string, string>> = {}
+  for (const [className, classData] of Object.entries(parseResult.classes)) {
+    if (classData && typeof classData === 'object' && 'content' in classData) {
+      flatClasses[className] = classData.content as Record<string, string>
+    }
+  }
+
+  return interpretElement(parseResult.element, flatClasses, kit)
+}
+
+function interpretElement(
   json: ElementJson | string,
   classes: Record<string, Record<string, string>>,
   kit?: Kit,
@@ -86,7 +108,7 @@ export function interpret(
 
   if ('children' in json && json.children && !(element instanceof Text)) {
     json.children.forEach((childElementJson: any) => {
-      const childElement = interpret(childElementJson, classes, kit)
+      const childElement = interpretElement(childElementJson, classes, kit)
       if (childElement) {
         element.add(childElement)
       }
