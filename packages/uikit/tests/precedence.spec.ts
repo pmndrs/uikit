@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import { MergedProperties } from '../src/properties/index.js'
+import { PropertiesImplementation } from '../src/properties/index.js'
 import { Signal, signal } from '@preact/signals-core'
 import { createHoverPropertyTransformers } from '../src/hover.js'
 
 describe('properties precedence', () => {
   it('should use undefined as ignore and null as unset (without signals)', () => {
-    const merged = new MergedProperties()
+    const merged = new PropertiesImplementation()
     merged.add('x', 1)
     expect(merged.read('x')).to.equal(1)
     merged.add('x', undefined)
@@ -15,7 +15,7 @@ describe('properties precedence', () => {
   })
 
   it('should use undefined as ignore and null as unset (with signals)', () => {
-    const merged = new MergedProperties()
+    const merged = new PropertiesImplementation()
     merged.add('x', signal(1))
     expect(merged.read('x')).to.equal(1)
     merged.add('x', signal(undefined))
@@ -28,7 +28,7 @@ describe('properties precedence', () => {
   })
 
   it('should preserve order default classes (hover/...) -> defaults (hover/...) -> properties classes (hover/...) -> properties (class/hover/...) -> style classes (hover/...) -> styles (class/hover/...)', () => {
-    const merged = new MergedProperties()
+    const merged = new PropertiesImplementation()
     merged.addAll(
       {
         classes: [{ height: signal(0), hover: { height: signal(1) } }, { height: signal(2) }],

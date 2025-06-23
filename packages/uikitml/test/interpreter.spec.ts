@@ -168,6 +168,25 @@ describe('interpreter', () => {
       expect(result?.userData.dataUid).to.be.a('string')
       expect(result?.userData.dataUid).to.match(/^uid-\d+$/)
     })
+
+    it('should automatically apply ID-based classes from StyleSheet', () => {
+      const htmlWithIdStyles = `
+        <style>
+          #testButton {
+            color: red;
+            backgroundColor: blue;
+          }
+        </style>
+        <div id="testButton">Click me</div>
+      `
+      const { result } = safeInterpret(htmlWithIdStyles)
+
+      // Verify the element has the id property
+      expect(result?.userData.id).to.equal('testButton')
+
+      // Verify UIKit automatically applied the __id__ class
+      expect((result as any)?.classList?.contains('__id__testButton')).to.be.true
+    })
   })
 
   describe('children processing', () => {

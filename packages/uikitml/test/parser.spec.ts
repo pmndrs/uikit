@@ -443,7 +443,7 @@ describe('html parser', () => {
         children: ['Click me'],
         properties: {
           id: 'myButton',
-          class: '__id__myButton', // Should auto-apply ID class
+          // ID class will be auto-applied by UIKit core when element is created
         },
       })
 
@@ -454,7 +454,6 @@ describe('html parser', () => {
           children: ['Click me'],
           properties: {
             id: 'myButton',
-            class: '__id__myButton',
           },
           defaultProperties: {},
         },
