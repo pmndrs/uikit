@@ -91,6 +91,10 @@ function interpretElement(json: ElementJson | string, kit?: Kit): Object3D<Objec
     element.userData.sourceTag = json.sourceTag
   }
 
+  if (json.dataUid) {
+    element.userData.dataUid = json.dataUid
+  }
+
   if (properties.class) {
     const classNames = (properties.class as string).split(' ').filter((name) => name.trim())
     element.classList.add(...classNames)

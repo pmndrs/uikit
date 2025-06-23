@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "inline-style-parser": "^0.2.4",
-    "node-html-parser": "^7.0.1"
+    "parse5": "^7.1.2"
   },
   "peerDependencies": {
     "@pmndrs/uikit": "workspace:^"

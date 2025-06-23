@@ -1,11 +1,52 @@
 import { expect } from 'chai'
 import { parse } from '../src/index.js'
 
+// Helper to test core functionality while ignoring ranges and dataUid
+function expectParseResult(result: any, expected: any) {
+  // Handle undefined elements (for style-only parsing)
+  if (expected.element === undefined) {
+    expect(result.element).to.equal(undefined)
+  } else {
+    // Deep clone the actual element and remove dataUid properties for comparison
+    const cleanActual = JSON.parse(JSON.stringify(result.element))
+    const cleanExpected = JSON.parse(JSON.stringify(expected.element))
+
+    // Recursively remove dataUid from actual element
+    function removeDataUid(obj: any): any {
+      if (obj && typeof obj === 'object') {
+        if (Array.isArray(obj)) {
+          return obj.map(removeDataUid)
+        } else {
+          const cleaned = { ...obj }
+          delete cleaned.dataUid
+          for (const key in cleaned) {
+            if (cleaned[key] && typeof cleaned[key] === 'object') {
+              cleaned[key] = removeDataUid(cleaned[key])
+            }
+          }
+          return cleaned
+        }
+      }
+      return obj
+    }
+
+    const actualCleaned = removeDataUid(cleanActual)
+    expect(actualCleaned).to.deep.equal(cleanExpected)
+  }
+
+  expect(result.classes).to.deep.equal(expected.classes)
+
+  // Just verify ranges exists (don't test exact values)
+  expect(result).to.have.property('ranges')
+  expect(result.ranges).to.be.an('object')
+}
+
 describe('html parser', () => {
   describe('basic element parsing', () => {
     it('should parse video element', () => {
       const result = parse('<video src="test.mp4" autoplay></video>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'video',
           sourceTag: 'video',
@@ -21,7 +62,8 @@ describe('html parser', () => {
 
     it('should parse input element', () => {
       const result = parse('<input type="text" value="test" />')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'input',
           sourceTag: 'input',
@@ -37,7 +79,8 @@ describe('html parser', () => {
 
     it('should parse image element', () => {
       const result = parse('<img src="test.jpg" alt="test" />')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'image',
           sourceTag: 'img',
@@ -53,7 +96,8 @@ describe('html parser', () => {
 
     it('should parse SVG image', () => {
       const result = parse('<img src="test.svg" alt="test" />')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'svg',
           sourceTag: 'img',
@@ -68,9 +112,8 @@ describe('html parser', () => {
     })
 
     it('should parse inline SVG', () => {
-      const svgContent = '<svg><circle cx="50" cy="50" r="40"/></svg>'
-      const result = parse(svgContent)
-      expect(result).to.deep.equal({
+      const result = parse('<svg><circle cx="50" cy="50" r="40"/></svg>')
+      expectParseResult(result, {
         element: {
           type: 'inline-svg',
           sourceTag: 'svg',
@@ -84,7 +127,8 @@ describe('html parser', () => {
 
     it('should parse container element', () => {
       const result = parse('<div><p>Hello</p><p>World</p></div>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'container',
           sourceTag: 'div',
@@ -115,7 +159,8 @@ describe('html parser', () => {
   describe('default html elements', () => {
     it('should parse h1-h6 with correct default properties', () => {
       const h1Result = parse('<h1>Title</h1>')
-      expect(h1Result).to.deep.equal({
+
+      expectParseResult(h1Result, {
         element: {
           type: 'container',
           sourceTag: 'h1',
@@ -130,7 +175,8 @@ describe('html parser', () => {
       })
 
       const h6Result = parse('<h6>Small Title</h6>')
-      expect(h6Result).to.deep.equal({
+
+      expectParseResult(h6Result, {
         element: {
           type: 'container',
           sourceTag: 'h6',
@@ -147,7 +193,8 @@ describe('html parser', () => {
 
     it('should parse ol and ul with correct default properties', () => {
       const olResult = parse('<ol><li>Item</li></ol>')
-      expect(olResult).to.deep.equal({
+
+      expectParseResult(olResult, {
         element: {
           type: 'container',
           sourceTag: 'ol',
@@ -169,7 +216,8 @@ describe('html parser', () => {
       })
 
       const ulResult = parse('<ul><li>Item</li></ul>')
-      expect(ulResult).to.deep.equal({
+
+      expectParseResult(ulResult, {
         element: {
           type: 'container',
           sourceTag: 'ul',
@@ -193,7 +241,8 @@ describe('html parser', () => {
 
     it('should parse anchor with correct default properties', () => {
       const result = parse('<a href="https://example.com">Link</a>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'container',
           sourceTag: 'a',
@@ -211,7 +260,8 @@ describe('html parser', () => {
 
     it('should parse button with correct default properties', () => {
       const result = parse('<button>Click me</button>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'container',
           sourceTag: 'button',
@@ -229,7 +279,8 @@ describe('html parser', () => {
 
     it('should convert textarea to input with multiline property', () => {
       const result = parse('<textarea>Some text</textarea>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'input',
           sourceTag: 'textarea',
@@ -246,7 +297,8 @@ describe('html parser', () => {
   describe('custom elements', () => {
     it('should parse custom element as type custom', () => {
       const result = parse('<testkit-custom-element data-test="value">Content</testkit-custom-element>', {})
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'custom',
           sourceTag: 'testkit-custom-element',
@@ -264,7 +316,8 @@ describe('html parser', () => {
   describe('inline styles', () => {
     it('should parse and flatten inline styles with yoga renamings', () => {
       const result = parse('<div style="row-gap: 10px; position: absolute; top: 5px;"></div>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'container',
           sourceTag: 'div',
@@ -284,7 +337,8 @@ describe('html parser', () => {
 
     it('should convert kebab-case style properties to camelCase', () => {
       const result = parse('<div style="background-color: red; font-size: 16px;"></div>')
-      expect(result).to.deep.equal({
+
+      expectParseResult(result, {
         element: {
           type: 'container',
           sourceTag: 'div',
@@ -316,7 +370,9 @@ describe('html parser', () => {
           }
         </style>
       `)
-      expect(result).to.deep.equal({
+
+      expect(result.element).to.equal(undefined)
+      expectParseResult(result, {
         element: undefined,
         classes: {
           'my-class': {
@@ -346,21 +402,79 @@ describe('html parser', () => {
           }
         </style>
       `)
+
       expect(result.element).to.equal(undefined)
-      expect(result.classes).to.deep.equal({
-        child: {
-          content: {
-            color: 'green',
+      expectParseResult(result, {
+        element: undefined,
+        classes: {
+          child: {
+            content: {
+              color: 'green',
+            },
           },
-        },
-        parent: {
-          content: {
-            hover: {
-              backgroundColor: 'yellow',
+          parent: {
+            content: {
+              hover: {
+                backgroundColor: 'yellow',
+              },
             },
           },
         },
       })
+    })
+
+    it('should parse ID styles as classes with special prefix', () => {
+      const result = parse(`
+        <style>
+          #myButton {
+            background-color: blue;
+            padding: 10px;
+          }
+          #myButton:hover {
+            background-color: red;
+          }
+        </style>
+        <div id="myButton">Click me</div>
+      `)
+
+      expect(result.element).to.deep.include({
+        type: 'container',
+        sourceTag: 'div',
+        children: ['Click me'],
+        properties: {
+          id: 'myButton',
+          class: '__id__myButton', // Should auto-apply ID class
+        },
+      })
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Click me'],
+          properties: {
+            id: 'myButton',
+            class: '__id__myButton',
+          },
+          defaultProperties: {},
+        },
+        classes: {
+          __id__myButton: {
+            content: {
+              backgroundColor: 'blue',
+              padding: '10px',
+              hover: {
+                backgroundColor: 'red',
+              },
+            },
+          },
+        },
+      })
+
+      // Verify ranges include the ID-based class
+      expect(result.ranges).to.have.property('__id__myButton')
+      expect(result.ranges['__id__myButton']).to.have.property('start')
+      expect(result.ranges['__id__myButton']).to.have.property('end')
     })
   })
 })

@@ -162,6 +162,12 @@ describe('interpreter', () => {
       const { result } = safeInterpret('<section>Content</section>')
       expect(result?.userData.sourceTag).to.equal('section')
     })
+
+    it('should store dataUid in userData', () => {
+      const { result } = safeInterpret('<div>Content</div>')
+      expect(result?.userData.dataUid).to.be.a('string')
+      expect(result?.userData.dataUid).to.match(/^uid-\d+$/)
+    })
   })
 
   describe('children processing', () => {
@@ -231,13 +237,9 @@ describe('interpreter', () => {
     })
 
     it('should handle mixed content types', () => {
-      const { result } = safeInterpret(`
-        <div>
-          <img src="image.jpg" alt="Image" />
-          <p>Text content</p>
-          <input type="text" placeholder="Input" />
-        </div>
-      `)
+      const { result } = safeInterpret(
+        '<div><img src="image.jpg" alt="Image" /><p>Text content</p><input type="text" placeholder="Input" /></div>',
+      )
       expect(result).to.be.instanceOf(Container)
       expect(result?.children).to.have.length(3)
       expect(result?.children[0]).to.be.instanceOf(Image)
