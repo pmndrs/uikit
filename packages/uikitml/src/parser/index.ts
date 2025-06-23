@@ -310,14 +310,6 @@ function toUikitElementJson(element: any, config: ParseConfig | undefined): Elem
   const dataUidAttr = element.attrs?.find((attr: any) => attr.name === 'data-uid')
   const dataUid = dataUidAttr?.value
 
-  // Auto-apply ID-based classes if element has an id attribute
-  const idAttr = element.attrs?.find((attr: any) => attr.name === 'id')
-  if (idAttr?.value) {
-    const idClassName = `__id__${idAttr.value}`
-    const existingClasses = properties.class ? `${properties.class} ${idClassName}` : idClassName
-    properties.class = existingClasses
-  }
-
   if (tag in htmlElements) {
     const { convertTo, defaultProperties: htmlDefaultProperties } = htmlElements[tag]!
     tag = convertTo ?? 'div'

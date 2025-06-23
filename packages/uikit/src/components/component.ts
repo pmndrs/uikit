@@ -20,7 +20,7 @@ import { createConditionals } from '../properties/conditional.js'
 import { BaseOutProperties, InProperties, Properties, PropertiesImplementation } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
-import { ClassList, getStarProperties } from './classes.js'
+import { ClassList, getStarProperties, StyleSheet } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
 import { inheritedPropertyKeys } from '../properties/inheritance.js'
@@ -127,6 +127,27 @@ export class Component<
     if (initialClasses != null) {
       this.classList.add(...initialClasses)
     }
+
+    // Reactively apply ID-based classes when id property changes
+    let currentIdClass: string | undefined
+    abortableEffect(() => {
+      const elementId = this.properties.signal.id?.value
+
+      // Remove old ID class if it exists
+      if (currentIdClass) {
+        this.classList.remove(currentIdClass)
+        currentIdClass = undefined
+      }
+
+      // Add new ID class if id exists and corresponding style exists
+      if (elementId && typeof elementId === 'string') {
+        const idClassName = `__id__${elementId}`
+        if (idClassName in StyleSheet) {
+          this.classList.add(idClassName)
+          currentIdClass = idClassName
+        }
+      }
+    }, this.abortSignal)
 
     this.node = new FlexNode(this)
 

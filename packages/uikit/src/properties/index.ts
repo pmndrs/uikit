@@ -45,10 +45,15 @@ export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   SizeProperties &
   AnchorProperties &
   CursorProperties &
+  IdProperties &
   Defaults
 
 export type CursorProperties = {
   cursor?: string
+}
+
+export type IdProperties = {
+  id?: string
 }
 
 export type UikitPropertyKeys = keyof BaseOutProperties<ThreeEventMap>
