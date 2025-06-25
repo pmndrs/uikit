@@ -14,13 +14,11 @@ import { inter } from '@pmndrs/msdfonts'
 
 ## First Step
 
-`cd docker-volume`
 `docker build . -t msdfonts`  
 `docker run -v ./docker-volume:/data/:rw -e GOOGLE_FONTS_API_KEY='<insert-api-key>' msdfonts`
 
 for users on ARM architecture (e.g. Apple M-chips)
 
-`cd docker-volume`
 `docker build . --platform linux/x86_64 -t msdfonts`  
 `docker run -v ./docker-volume:/data/:rw -e GOOGLE_FONTS_API_KEY='<insert-api-key>'  --platform linux/x86_64 msdfonts`
 

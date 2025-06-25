@@ -5,10 +5,27 @@ import { exec } from 'child_process'
 import { dirname, resolve } from 'path'
 
 async function generate(fontFamily, variant) {
-  const response = await fetch(
-    `https://www.googleapis.com/webfonts/v1/webfonts?family=${fontFamily}&key=${process.env.GOOGLE_FONTS_API_KEY}`,
-  )
-  const json = await response.json()
+  await wait(5000)
+  console.log('generating', fontFamily, variant)
+  let retries = 0
+  let json
+  while (retries < 3) {
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/webfonts/v1/webfonts?family=${fontFamily}&key=${process.env.GOOGLE_FONTS_API_KEY}`,
+      )
+      json = await response.json()
+      break
+    } catch (error) {
+      retries++
+      if (retries === 3) {
+        console.error('fetch font families', fontFamily, error.message)
+        return
+      }
+      console.log(`Retry ${retries}/3 for ${fontFamily}`)
+      await wait(1000 * retries)
+    }
+  }
   if (json.error != null) {
     console.error('fetch font families', fontFamily, json.error)
     return
@@ -27,12 +44,30 @@ async function generate(fontFamily, variant) {
 }
 
 const variants = { light: '300', regular: '400', medium: '500', 'semi-bold': '600', bold: '700' }
-const fontFamilies = ['Inter']
+const fontFamilies = [
+  'Inter',
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Poppins',
+  'Montserrat',
+  'Nunito',
+  'Raleway',
+  'Work Sans',
+  'Playfair Display',
+  'Merriweather',
+  'Libre Baskerville',
+  'Crimson Text',
+  'Fira Code',
+  'Source Code Pro',
+  'Inconsolata',
+  'Space Mono',
+]
 
 async function main() {
   let result = ''
   for (const fontFamily of fontFamilies) {
-    result += `export const ${fontFamily.toLowerCase()} = {`
+    result += `export const ${fontFamily.toLowerCase().replaceAll(/ (.)/g, (_, g) => g.toUpperCase())} = {`
     for (const [fontWeightName, fontWeightValue] of Object.entries(variants)) {
       if (!(await generate(fontFamily, fontWeightValue))) {
         continue
@@ -45,6 +80,10 @@ async function main() {
 }
 
 main().catch(console.error)
+
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds))
+}
 
 function runCmd(cmd) {
   return new Promise((resolve, reject) =>

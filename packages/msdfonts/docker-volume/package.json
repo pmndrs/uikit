@@ -5,7 +5,7 @@
     "sharp-cli": "4.1"
   },
   "scripts": {
-    "msdf": "msdf-bmfont -f json fixed-font.ttf -i charset.txt -m 256,512 -o fixed-font -s 48",
+    "msdf": "msdf-bmfont -f json fixed-font.ttf -i charset.txt -m 256,512 -o fixed-font -s 44",
     "webp": "sharp --nearLossless -i fixed-font.png -o fixed-font.webp -f webp"
   }
 }

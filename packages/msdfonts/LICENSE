@@ -1,11 +1,81 @@
+This package redistributes fonts from Google Fonts in MSDF format.
 
-Inter License:
+===============================================================================
+FONTS LICENSED UNDER APACHE LICENSE 2.0:
+===============================================================================
 
-Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter)
+Roboto:
+Copyright 2011 Google Inc. All Rights Reserved.
 
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+===============================================================================
+FONTS LICENSED UNDER SIL OPEN FONT LICENSE 1.1:
+===============================================================================
+
+Inter:
+Copyright (c) 2016-2020 The Inter Project Authors
+"Inter" is trademark of Rasmus Andersson.
+https://github.com/rsms/inter
+
+Open Sans:
+Copyright (c) 2020 The Open Sans Project Authors (https://github.com/googlefonts/opensans)
+
+Lato:
+Copyright (c) 2010-2011 by tyPoland Lukasz Dziedzic (team@latofonts.com)
+
+Poppins:
+Copyright (c) 2020 The Poppins Project Authors (https://github.com/itfoundry/poppins)
+
+Montserrat:
+Copyright (c) 2011 The Montserrat Project Authors (https://github.com/JulietaUla/Montserrat)
+
+Nunito:
+Copyright (c) 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito)
+
+Raleway:
+Copyright (c) 2010 The Raleway Project Authors (impallari@gmail.com)
+
+Work Sans:
+Copyright (c) 2014 The Work Sans Project Authors (https://github.com/weiweihuanghuang/Work-Sans)
+
+Playfair Display:
+Copyright (c) 2017 The Playfair Display Project Authors (https://github.com/clauseggers/Playfair-Display)
+
+Merriweather:
+Copyright (c) 2010-2016 The Merriweather Project Authors (https://github.com/EbenSorkin/Merriweather)
+
+Libre Baskerville:
+Copyright (c) 2012 The Libre Baskerville Project Authors (https://github.com/impallari/Libre-Baskerville)
+
+Crimson Text:
+Copyright (c) 2010 The Crimson Text Project Authors (https://github.com/skosch/Crimson)
+
+Fira Code:
+Copyright (c) 2014 The Fira Code Project Authors (https://github.com/tonsky/FiraCode)
+
+Source Code Pro:
+Copyright (c) 2010, 2012 Adobe Systems Incorporated (http://www.adobe.com/)
+
+Inconsolata:
+Copyright (c) 2006 The Inconsolata Project Authors (https://github.com/googlefonts/inconsolata)
+
+Space Mono:
+Copyright (c) 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono)
+
+The above Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
+https://openfontlicense.org
 
 -----------------------------------------------------------
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
