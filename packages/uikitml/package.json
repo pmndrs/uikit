@@ -1,6 +1,6 @@
 {
   "name": "@pmndrs/uikitml",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "type": "module",
   "dependencies": {
     "inline-style-parser": "^0.2.4",

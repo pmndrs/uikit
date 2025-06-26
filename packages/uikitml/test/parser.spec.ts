@@ -478,7 +478,7 @@ describe('html parser', () => {
   })
 
   describe('conditional attributes', () => {
-    it('should parse hoverStyle attribute', () => {
+    it('should parse hover:style attribute', () => {
       const result = parse('<div hover:style="background-color: red; font-size: 18px;">Content</div>')
 
       expectParseResult(result, {
@@ -487,9 +487,11 @@ describe('html parser', () => {
           sourceTag: 'div',
           children: ['Content'],
           properties: {
-            hoverStyle: {
-              backgroundColor: 'red',
-              fontSize: '18px',
+            style: {
+              hover: {
+                backgroundColor: 'red',
+                fontSize: '18px',
+              },
             },
           },
           defaultProperties: {},
@@ -507,9 +509,11 @@ describe('html parser', () => {
           sourceTag: 'button',
           children: ['Click me'],
           properties: {
-            activeStyle: {
-              transform: 'scale(0.95)',
-              backgroundColor: 'blue',
+            style: {
+              active: {
+                transform: 'scale(0.95)',
+                backgroundColor: 'blue',
+              },
             },
           },
           defaultProperties: {
@@ -530,9 +534,11 @@ describe('html parser', () => {
           type: 'input',
           sourceTag: 'input',
           properties: {
-            focusStyle: {
-              borderColor: 'blue',
-              outline: '2px solid blue',
+            style: {
+              focus: {
+                borderColor: 'blue',
+                outline: '2px solid blue',
+              },
             },
             type: 'text',
           },
@@ -551,14 +557,16 @@ describe('html parser', () => {
           sourceTag: 'div',
           children: ['Responsive'],
           properties: {
-            smStyle: {
-              width: '50%',
-            },
-            mdStyle: {
-              width: '75%',
-            },
-            lgStyle: {
-              width: '80%',
+            style: {
+              sm: {
+                width: '50%',
+              },
+              md: {
+                width: '75%',
+              },
+              lg: {
+                width: '80%',
+              },
             },
           },
           defaultProperties: {},
@@ -576,11 +584,13 @@ describe('html parser', () => {
           sourceTag: 'div',
           children: ['Large screens'],
           properties: {
-            xlStyle: {
-              padding: '2rem',
-            },
-            '2xlStyle': {
-              padding: '3rem',
+            style: {
+              xl: {
+                padding: '2rem',
+              },
+              '2xl': {
+                padding: '3rem',
+              },
             },
           },
           defaultProperties: {},
@@ -602,15 +612,15 @@ describe('html parser', () => {
           properties: {
             style: {
               color: 'black',
-            },
-            hoverStyle: {
-              color: 'red',
-            },
-            activeStyle: {
-              color: 'blue',
-            },
-            focusStyle: {
-              outline: '2px solid green',
+              hover: {
+                color: 'red',
+              },
+              active: {
+                color: 'blue',
+              },
+              focus: {
+                outline: '2px solid green',
+              },
             },
           },
           defaultProperties: {},
@@ -628,10 +638,12 @@ describe('html parser', () => {
           sourceTag: 'div',
           children: ['With renamings'],
           properties: {
-            hoverStyle: {
-              gapRow: '10px',
-              positionType: 'absolute',
-              positionTop: '5px',
+            style: {
+              hover: {
+                gapRow: '10px',
+                positionType: 'absolute',
+                positionTop: '5px',
+              },
             },
           },
           defaultProperties: {},
@@ -649,7 +661,9 @@ describe('html parser', () => {
           sourceTag: 'div',
           children: ['Empty hover'],
           properties: {
-            hoverStyle: {},
+            style: {
+              hover: {},
+            },
           },
           defaultProperties: {},
         },
@@ -668,9 +682,11 @@ describe('html parser', () => {
           sourceTag: 'mykit-button',
           children: ['Custom with hover'],
           properties: {
-            hoverStyle: {
-              backgroundColor: '#007bff',
-              transform: 'translateY(-2px)',
+            style: {
+              hover: {
+                backgroundColor: '#007bff',
+                transform: 'translateY(-2px)',
+              },
             },
           },
           defaultProperties: {},

@@ -1,7 +1,6 @@
 import { Object3D, Object3DEventMap } from 'three'
 import { Component, Container, Image, Input, Text, Video, Svg, StyleSheet } from '@pmndrs/uikit'
 import { ContainerElementJson, ElementJson } from '../parser/index.js'
-import { conditionals } from '../index.js'
 
 export interface Kit {
   [componentName: string]: new (props?: any) => Component<Object3DEventMap>
@@ -40,14 +39,6 @@ function interpretElement(json: ElementJson | string, kit?: Kit): Object3D<Objec
   if (properties.style && typeof properties.style === 'object') {
     Object.assign(properties, properties.style)
     delete properties.style
-  }
-  for (const conditional of conditionals) {
-    const key = `${conditional}:style`
-    if (!(key in properties) || typeof properties[key] != 'object') {
-      continue
-    }
-    properties[conditional] ??= {}
-    Object.assign(properties[conditional], properties[key])
   }
 
   if (json.defaultProperties) {

@@ -168,7 +168,7 @@ describe('generator', () => {
 
     it('should generate multiple conditional attributes on same element', () => {
       const input =
-        '<div style="color: black" hover:style="color: red" active:style="color: blue" focus:style="outline: 2px solid green">Multi-state</div>'
+        '<div hover:style="color: red" active:style="color: blue" focus:style="outline: 2px solid green" style="color: black">Multi-state</div>'
       const parsed = parse(input, {})
       const generated = generate(parsed.element, parsed.classes)
       expect(generated).to.equal(input)
@@ -198,7 +198,7 @@ describe('generator', () => {
 
     it('should generate conditional attributes combined with regular style', () => {
       const input =
-        '<div style="color: black; padding: 1rem" hover:style="color: red; background-color: yellow">Combined styles</div>'
+        '<div hover:style="color: red; background-color: yellow" style="color: black; padding: 1rem">Combined styles</div>'
       const parsed = parse(input, {})
       const generated = generate(parsed.element, parsed.classes)
       expect(generated).to.equal(input)

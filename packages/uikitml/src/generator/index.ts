@@ -18,13 +18,20 @@ function generateStyleString(style: Record<string, any>): string {
 function generateProperties(properties: Record<string, any>): string {
   return Object.entries(properties)
     .map(([key, value]) => {
-      for (const conditional of conditionals) {
-        if (key === `${conditional}Style`) {
-          return `${conditional}:style="${generateStyleString(value)}"`
-        }
-      }
       if (key === 'style') {
-        return `style="${generateStyleString(value)}"`
+        const result: Array<string> = []
+        const clonedValue = { ...value }
+
+        for (const conditional of conditionals) {
+          if (conditional in clonedValue) {
+            result.push(`${conditional}:style="${generateStyleString(clonedValue[conditional])}"`)
+            delete clonedValue[conditional]
+          }
+        }
+        if (Object.keys(clonedValue).length > 0) {
+          result.push(`style="${generateStyleString(clonedValue)}"`)
+        }
+        return result.join(' ')
       }
       // Skip dataUid attributes as they're for internal tracking only
       if (key === 'dataUid') {

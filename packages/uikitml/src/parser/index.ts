@@ -461,7 +461,9 @@ function toUikitProperties(attributes: Array<{ name: string; value: string }>): 
     if (properties[colonKey] == null) {
       continue
     }
-    properties[`${conditional}Style`] = parseStyle(properties[colonKey]) as any
+    properties.style ??= {}
+    properties.style[conditional] ??= {}
+    Object.assign(properties.style[conditional], parseStyle(properties[colonKey]))
     delete properties[colonKey]
   }
 
