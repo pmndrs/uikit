@@ -31,7 +31,7 @@ export type GlyphLayoutProperties = {
   text: string
   font: Font
   letterSpacing: number
-  lineHeight: number | `${number}%`
+  lineHeight: number | string
   fontSize: number
   wordBreak: WordBreak
 }

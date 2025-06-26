@@ -9,7 +9,7 @@ import { BaseOutProperties } from '../properties/index.js'
 import { ThreeEventMap } from '../events.js'
 
 export type YogaProperties = {
-  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[1]
+  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
 }
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
@@ -61,6 +61,7 @@ export class FlexNode {
         }
         abortableEffect(() => {
           setter[key as keyof typeof setter](
+            component.root.value,
             this.yogaNode!,
             component.properties.value[key as keyof BaseOutProperties<ThreeEventMap>] as any,
           )

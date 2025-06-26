@@ -1,6 +1,7 @@
 import { GlyphLayout, GlyphLayoutProperties } from './layout.js'
 import { Font, GlyphInfo } from './font.js'
-import { percentageRegex } from '../utils.js'
+import { numberWithUnitRegex } from '../utils.js'
+import { RootContext } from '../context.js'
 
 export function getGlyphOffsetX(
   font: Font,
@@ -12,15 +13,47 @@ export function getGlyphOffsetX(
   return (kerning + glyphInfo.xoffset) * fontSize
 }
 
-function lineHeightToAbsolute(lineHeight: GlyphLayoutProperties['lineHeight'], fontSize: number): number {
-  if (typeof lineHeight === 'number') {
-    return lineHeight
+export function toAbsoluteNumber(value: number | string, getRelativeValue?: () => number, root?: RootContext): number {
+  if (typeof value === 'number') {
+    return value
   }
-  const result = percentageRegex.exec(lineHeight)
+  const result = value.match(numberWithUnitRegex)
   if (result == null) {
-    throw new Error(`invalid line height "${lineHeight}"`)
+    throw new Error(`invalid value "${value}"`)
   }
-  return (fontSize * parseFloat(result[1]!)) / 100
+  const number = parseFloat(result[1]!)
+  if (result[2] === '%') {
+    if (getRelativeValue == null) {
+      throw new Error(`"%" values not supported for this property`)
+    }
+    return (getRelativeValue() * number) / 100
+  }
+  if (result[2] == null) {
+    return number
+  }
+  if (root == null) {
+    throw new Error(`"${result[2]}" values not supported for this property`)
+  }
+  switch (result[2]) {
+    case 'vh':
+    case 'dvh':
+    case 'svh':
+    case 'lvh':
+      return ((root.component.size.value?.[1] ?? 0) * number) / 100
+    case 'vw':
+    case 'dvw':
+    case 'svw':
+    case 'lvw':
+      return ((root.component.size.value?.[1] ?? 0) * number) / 100
+  }
+  throw new Error(`unknown unit "${result[2]}"`)
+}
+
+function computeLineHeight(lineHeight: number | string, fontSize: number) {
+  if (typeof lineHeight === 'string' && lineHeight.endsWith('px')) {
+    return parseFloat(lineHeight)
+  }
+  return fontSize * toAbsoluteNumber(lineHeight, () => 1)
 }
 
 export function getGlyphOffsetY(
@@ -29,7 +62,7 @@ export function getGlyphOffsetY(
   glyphInfo?: GlyphInfo,
 ): number {
   //glyphInfo undefined for the caret, which has no yoffset
-  return (glyphInfo?.yoffset ?? 0) * fontSize + (lineHeightToAbsolute(lineHeight, fontSize) - fontSize) / 2
+  return (glyphInfo?.yoffset ?? 0) * fontSize + (computeLineHeight(lineHeight, fontSize) - fontSize) / 2
 }
 
 export function getOffsetToNextGlyph(fontSize: number, glyphInfo: GlyphInfo, letterSpacing: number): number {
@@ -37,7 +70,7 @@ export function getOffsetToNextGlyph(fontSize: number, glyphInfo: GlyphInfo, let
 }
 
 export function getOffsetToNextLine(lineHeight: GlyphLayoutProperties['lineHeight'], fontSize: number): number {
-  return lineHeightToAbsolute(lineHeight, fontSize)
+  return computeLineHeight(lineHeight, fontSize)
 }
 
 export function getGlyphLayoutWidth(layout: GlyphLayout): number {
@@ -45,5 +78,5 @@ export function getGlyphLayoutWidth(layout: GlyphLayout): number {
 }
 
 export function getGlyphLayoutHeight(linesAmount: number, { lineHeight, fontSize }: GlyphLayoutProperties): number {
-  return Math.max(linesAmount, 1) * lineHeightToAbsolute(lineHeight, fontSize)
+  return Math.max(linesAmount, 1) * computeLineHeight(lineHeight, fontSize)
 }

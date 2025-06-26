@@ -61,7 +61,7 @@ export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
       justifyContent: 'space-between',
       paddingY: 16,
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       fontWeight: 'medium',
       ...inputProperties,
     })

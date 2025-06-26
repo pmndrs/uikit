@@ -260,7 +260,7 @@ export function buildRaycasting(
   )
 }
 
-export const percentageRegex = /(-?\d+(?:\.\d+)?)%/
+export const numberWithUnitRegex = /(-?\d+(?:\.\d+)?)(%)?/
 
 export type ColorRepresentation = Color | string | number | Vector3Tuple
 

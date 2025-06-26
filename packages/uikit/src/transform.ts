@@ -1,22 +1,21 @@
 import { Signal, computed } from '@preact/signals-core'
 import { Euler, Matrix4, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
-import { alignmentXMap, alignmentYMap, percentageRegex } from './utils.js'
+import { alignmentXMap, alignmentYMap, numberWithUnitRegex } from './utils.js'
 import { Component } from './components/component.js'
-
-export type Percentage = `${number}%`
+import { toAbsoluteNumber } from './text/utils.js'
 
 export type TransformProperties = {
-  transformTranslateX?: Percentage | number
-  transformTranslateY?: Percentage | number
+  transformTranslateX?: string | number
+  transformTranslateY?: string | number
   transformTranslateZ?: number
 
   transformRotateX?: number
   transformRotateY?: number
   transformRotateZ?: number
 
-  transformScaleX?: Percentage | number
-  transformScaleY?: Percentage | number
-  transformScaleZ?: Percentage | number
+  transformScaleX?: string | number
+  transformScaleY?: string | number
+  transformScaleZ?: string | number
 
   transformOriginX?: keyof typeof alignmentXMap
   transformOriginY?: keyof typeof alignmentYMap
@@ -37,7 +36,12 @@ function toQuaternion([x, y, z]: Vector3Tuple): Quaternion {
 const defaultTransformOriginX: keyof typeof alignmentXMap = 'center'
 const defaultTransformOriginY: keyof typeof alignmentYMap = 'center'
 
-export function computedTransformMatrix({ relativeCenter, size, properties }: Component): Signal<Matrix4 | undefined> {
+export function computedTransformMatrix({
+  relativeCenter,
+  size,
+  properties,
+  root,
+}: Component): Signal<Matrix4 | undefined> {
   //B * O^-1 * T * O
   //B = bound transformation matrix
   //O = matrix to transform the origin for matrix T
@@ -78,8 +82,16 @@ export function computedTransformMatrix({ relativeCenter, size, properties }: Co
     const tSZ = properties.value.transformScaleZ ?? 1
 
     const r: Vector3Tuple = [tRX, tRY, tRZ]
-    const t: Vector3Tuple = [translateToNumber(tTX, size, 0), -translateToNumber(tTY, size, 1), tTZ]
-    const s: Vector3Tuple = [scaleToNumber(tSX), scaleToNumber(tSY), scaleToNumber(tSZ)]
+    const t: Vector3Tuple = [
+      toAbsoluteNumber(tTX, () => size.value?.[0] ?? 0, root.value),
+      -toAbsoluteNumber(tTY, () => size.value?.[1] ?? 0, root.value),
+      tTZ,
+    ]
+    const s: Vector3Tuple = [
+      toAbsoluteNumber(tSX, () => 1, root.value),
+      toAbsoluteNumber(tSY, () => 1, root.value),
+      toAbsoluteNumber(tSZ, () => 1, root.value),
+    ]
     if (t.some((v) => v != 0) || r.some((v) => v != 0) || s.some((v) => v != 1)) {
       result.multiply(
         matrixHelper.compose(tHelper.fromArray(t).multiplyScalar(pixelSize), toQuaternion(r), sHelper.fromArray(s)),
@@ -92,27 +104,4 @@ export function computedTransformMatrix({ relativeCenter, size, properties }: Co
 
     return result
   })
-}
-
-function scaleToNumber(scale: number | Percentage) {
-  if (typeof scale === 'number') {
-    return scale
-  }
-  const result = percentageRegex.exec(scale)
-  if (result == null) {
-    throw new Error(`invalid value "${scale}", expected number of percentage`)
-  }
-  return parseFloat(result[1]!) / 100
-}
-
-function translateToNumber(translate: number | Percentage, size: Signal<Vector2Tuple | undefined>, sizeIndex: number) {
-  if (typeof translate === 'number') {
-    return translate
-  }
-  const result = percentageRegex.exec(translate)
-  if (result == null) {
-    throw new Error(`invalid value "${translate}", expected number of percentage`)
-  }
-  const sizeOnAxis = size.value?.[sizeIndex] ?? 0
-  return (sizeOnAxis * parseFloat(result[1]!)) / 100
 }

@@ -1,3 +1,4 @@
+import { conditionals } from '../index.js'
 import { ElementJson } from '../parser/index.js'
 
 function generateStyleString(style: Record<string, any>): string {
@@ -17,6 +18,11 @@ function generateStyleString(style: Record<string, any>): string {
 function generateProperties(properties: Record<string, any>): string {
   return Object.entries(properties)
     .map(([key, value]) => {
+      for (const conditional of conditionals) {
+        if (key === `${conditional}Style`) {
+          return `${conditional}:style="${generateStyleString(value)}"`
+        }
+      }
       if (key === 'style') {
         return `style="${generateStyleString(value)}"`
       }
@@ -71,8 +77,6 @@ function generateClassStyles(
 
   return styleRules.length > 0 ? `<style>${styleRules.join(' ')}</style>` : ''
 }
-
-const conditionals = ['hover', 'active', 'focus', 'sm', 'md', 'lg', 'xl', '2xl']
 
 export function generate(
   json: ElementJson | string | undefined,

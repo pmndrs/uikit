@@ -102,19 +102,30 @@ async function main() {
       const autoUnit = node[`set${functionName}Auto` as keyof Node] != null
       types = ['undefined', 'number']
       if (percentUnit) {
-        types.push('`${number}%`')
+        types.push(
+          '`${number}%`',
+          '`${number}vh`',
+          '`${number}dvh`',
+          '`${number}svh`',
+          '`${number}lvh`',
+          '`${number}vw`',
+          '`${number}lvw`',
+          '`${number}svw`',
+          '`${number}dvw`',
+        )
       }
       if (autoUnit) {
         types.push(`"auto"`)
       }
       convertFunction = (defaultValue, setter) => {
         const prefix = autoUnit ? `if(input === "auto") { ${setter(null, 'Auto')}; return }\n` : ''
+        let input = percentUnit ? `convertPoint(input, root)` : 'input'
         if (defaultValue == null || (typeof defaultValue === 'number' && isNaN(defaultValue))) {
-          return prefix + setter('input')
+          return prefix + setter(input)
         }
         const defaultValueString =
           defaultValue === null || isNaN(defaultValue as any) ? 'NaN' : JSON.stringify(defaultValue)
-        return prefix + setter(`input ?? ${defaultValueString}${propertyName === 'margin' ? ' as number' : ''}`)
+        return prefix + setter(`${input} ?? ${defaultValueString}${propertyName === 'margin' ? ' as number' : ''}`)
       }
     }
     if (propertiesWithEdge.has(propertyName)) {
@@ -124,7 +135,7 @@ async function main() {
         const edgePropertyName = `${propertyName}${edgeKey}`
         setterFunctions.push([
           edgePropertyName,
-          `(node: Node, input: ${types.join(' | ')}) => {
+          `(root: RootContext, node: Node, input: ${types.join(' | ')}) => {
               ${convertFunction(
                 defaultValue,
                 (value, fnNameSuffix) =>
@@ -140,7 +151,7 @@ async function main() {
         const gutterType = `Gutter.${gutterKey}`
         setterFunctions.push([
           gutterPropertyName,
-          `(node: Node, input: ${types.join(' | ')}) => {
+          `(root: RootContext, node: Node, input: ${types.join(' | ')}) => {
               ${convertFunction(
                 defaultValue,
                 (value, fnNameSuffix) => `
@@ -152,7 +163,7 @@ async function main() {
       const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getWidth']())
       setterFunctions.push([
         propertyName,
-        `(node: Node, input: ${types.join(' | ')}) => {
+        `(root: RootContext, node: Node, input: ${types.join(' | ')}) => {
           ${convertFunction(
             defaultValue,
             (value, fnNameSuffix) => `
@@ -166,6 +177,7 @@ async function main() {
     'src/flex/setter.ts',
     `import { Node } from "yoga-layout/load"
     import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/load"
+    import type { RootContext } from '../context.js'
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
@@ -176,8 +188,17 @@ async function main() {
       }
       return resolvedValue
     }
-    function convertPoint<T>(input: T | undefined, defaultValue: T): T | number {
-      return input ?? defaultValue
+    function convertPoint(input: string | number | undefined, root: RootContext): \`\${number}%\` | undefined | number {
+      if (input == null || typeof input != 'string') {
+        return input
+      }
+      if (input.endsWith('vw')) {
+        return ((root.component.size.value?.[0] ?? 0) * parseFloat(input)) / 100
+      }
+      if (input.endsWith('vh')) {
+        return ((root.component.size.value?.[1] ?? 0) * parseFloat(input)) / 100
+      }
+      return input as \`\${number}%\`
     }
     ${Array.from(lookupTables.values()).join('\n')}
     export const setter = { ${setterFunctions

@@ -93,7 +93,7 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         ...hover,
       },
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       fontWeight: 'medium',
       wordBreak: 'keep-all',
       opacity: disabled ? 0.5 : undefined,

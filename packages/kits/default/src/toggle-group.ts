@@ -132,7 +132,7 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       color: computed(() => (checked.value ? colors.accentForeground.value : undefined)),
       opacity: computed(() => (disabled ? 0.5 : undefined)),
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       ...rest,
     })
   }

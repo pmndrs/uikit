@@ -122,7 +122,7 @@ export class AlertDialogTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
   protected internalResetProperties(props: AlertDialogTitleProperties<EM> = {}): void {
     super.internalResetProperties({
       fontSize: 18,
-      lineHeight: 28,
+      lineHeight: '28px',
       fontWeight: 'semi-bold',
       ...props,
     })
@@ -143,7 +143,7 @@ export class AlertDialogDescription<T = {}, EM extends ThreeEventMap = ThreeEven
   protected internalResetProperties(props: AlertDialogDescriptionProperties<EM> = {}): void {
     super.internalResetProperties({
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       color: colors.mutedForeground,
       ...props,
     })
@@ -184,7 +184,7 @@ export class AlertDialogAction<T = {}, EM extends ThreeEventMap = ThreeEventMap>
         backgroundOpacity: 0.9,
       },
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       fontWeight: 'medium',
       wordBreak: 'keep-all',
       color: colors.primaryForeground,
@@ -249,7 +249,7 @@ export class AlertDialogCancel<T = {}, EM extends ThreeEventMap = ThreeEventMap>
         backgroundColor: colors.accent,
       },
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       fontWeight: 'medium',
       wordBreak: 'keep-all',
       ...props,

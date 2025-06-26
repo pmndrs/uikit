@@ -22,7 +22,7 @@ const fontWeightNames = {
   'extra-black': 950,
 }
 
-export type FontWeight = keyof typeof fontWeightNames | number
+export type FontWeight = keyof typeof fontWeightNames | number | (string & {})
 
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight; fontFamilies?: FontFamilies }
 
@@ -53,14 +53,21 @@ export function computedFont(
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
   effect(() => {
-    const fontWeight = properties.value.fontWeight
+    let fontWeight: FontWeight = properties.value.fontWeight
+    if (typeof fontWeight === 'string') {
+      fontWeight = parseFloat(fontWeight)
+      if (isNaN(fontWeight)) {
+        fontWeight = properties.value.fontWeight
+        if (!(fontWeight in fontWeightNames)) {
+          throw new Error(`unknown font weight "${fontWeight}"`)
+        }
+        fontWeight = fontWeightNames[fontWeight as keyof typeof fontWeightNames]
+      }
+    }
     let fontFamily = properties.value.fontFamily
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
-    const url = getMatchingFontUrl(
-      fontFamilies[fontFamily as keyof FontFamilies]!,
-      typeof fontWeight === 'string' ? fontWeightNames[fontWeight] : fontWeight,
-    )
+    const url = getMatchingFontUrl(fontFamilies[fontFamily as keyof FontFamilies]!, fontWeight)
     loadCachedFont(url, (font) => (result.value = font))
   })
   return result

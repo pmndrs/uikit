@@ -73,7 +73,7 @@ async function loadSvg({
   if (src == null && content == null) {
     return undefined
   }
-  let result: Omit<SVGResult, 'xml'> & { xml: SVGSVGElement }
+  let result: Omit<SVGResult, 'xml'> & { xml: Element }
   if (src != null) {
     let promise = svgCache.get(src)
     if (promise == null) {
@@ -97,19 +97,16 @@ async function loadSvg({
     }
   }
   let boundingBox: { center: Vector3; size: Vector3 } | undefined
-  if (result.xml instanceof SVGSVGElement) {
-    result.xml
-    const viewBoxNumbers = result.xml
-      .getAttribute('viewBox')
-      ?.split(/\s+/)
-      .map((s) => Number.parseFloat(s))
-      .filter((value) => !isNaN(value))
-    if (viewBoxNumbers?.length === 4) {
-      const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
-      boundingBox = {
-        center: new Vector3(width / 2 + minX, -height / 2 - minY, 0.001),
-        size: new Vector3(width, height, 0.001),
-      }
+  const viewBoxNumbers = result.xml
+    .getAttribute('viewBox')
+    ?.split(/\s+/)
+    .map((s) => Number.parseFloat(s))
+    .filter((value) => !isNaN(value))
+  if (viewBoxNumbers?.length === 4) {
+    const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
+    boundingBox = {
+      center: new Vector3(width / 2 + minX, -height / 2 - minY, 0.001),
+      size: new Vector3(width, height, 0.001),
     }
   }
 

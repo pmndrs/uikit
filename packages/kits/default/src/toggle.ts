@@ -88,7 +88,7 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       color: computed(() => (checked.value ? colors.accentForeground.value : undefined)),
       opacity: disabled ? 0.5 : undefined,
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       fontWeight: 'medium',
       disabled,
       ...containerProps,

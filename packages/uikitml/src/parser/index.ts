@@ -1,6 +1,7 @@
 import { parse as parse5Parse, serializeOuter } from 'parse5'
 import parseInlineCSS from 'inline-style-parser'
 import { htmlElements } from './defaults.js'
+import { conditionals } from '../index.js'
 
 //TODO: add support for #btn * {} and #btn:hover * {}
 //TODO: #btn treted as class
@@ -246,7 +247,7 @@ function toUikitClassesList(
     while ((match = classRegex.exec(textContent)) != null) {
       const [, name, selector, classContent] = match
       if (name && classContent) {
-        result.push({ name, selector, style: toUikitStyleProperties(classContent) })
+        result.push({ name, selector, style: parseStyle(classContent) })
       }
     }
 
@@ -255,7 +256,7 @@ function toUikitClassesList(
       const [, idName, selector, classContent] = match
       if (idName && classContent) {
         const idClassName = `__id__${idName}`
-        result.push({ name: idClassName, selector, style: toUikitStyleProperties(classContent) })
+        result.push({ name: idClassName, selector, style: parseStyle(classContent) })
       }
     }
   }
@@ -452,21 +453,28 @@ function toUikitProperties(attributes: Array<{ name: string; value: string }>): 
   }
 
   // Parse style attribute
-  const { style: styleString, ...otherProperties } = properties
-  if (styleString != null) {
-    otherProperties.style = toUikitStyleProperties(styleString) as any
+  if (properties.style != null) {
+    properties.style = parseStyle(properties.style) as any
+  }
+  for (const conditional of conditionals) {
+    const colonKey = `${conditional}:style`
+    if (properties[colonKey] == null) {
+      continue
+    }
+    properties[`${conditional}Style`] = parseStyle(properties[colonKey]) as any
+    delete properties[colonKey]
   }
 
   // Convert kebab-case to camelCase
   const finalProperties: Record<string, any> = {}
-  for (const [key, value] of Object.entries(otherProperties)) {
+  for (const [key, value] of Object.entries(properties)) {
     finalProperties[kebabToCamelCase(key)] = value
   }
 
   return finalProperties
 }
 
-function toUikitStyleProperties(styleString: string) {
+export function parseStyle(styleString: string) {
   const parsedStyle = parseInlineCSS(styleString)
   const style: Record<string, string> = {}
   for (const parsedStyleEntry of parsedStyle) {

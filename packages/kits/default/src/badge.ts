@@ -53,7 +53,7 @@ export class Badge<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       paddingX: 10,
       paddingY: 2,
       fontSize: 12,
-      lineHeight: 16,
+      lineHeight: '16px',
       fontWeight: 'semi-bold',
       ...variantProperties,
       hover: {

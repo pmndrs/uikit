@@ -36,7 +36,7 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       borderWidth: 1,
       paddingX: 12,
       paddingY: 8,
-      lineHeight: 20,
+      lineHeight: '20px',
       opacity: disabled ? 0.5 : undefined,
       backgroundOpacity: disabled ? 0.5 : undefined,
       disabled,

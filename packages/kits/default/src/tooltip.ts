@@ -80,7 +80,7 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       paddingY: 6,
       wordBreak: 'keep-all',
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       color: colors.popoverForeground,
       display: computed(() =>
         this.parentContainer.value instanceof Tooltip && this.parentContainer.value.open.value ? 'flex' : 'none',

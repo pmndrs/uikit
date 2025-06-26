@@ -62,7 +62,7 @@ export class CardDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
   protected internalResetProperties(inputProperties?: CardDescriptionProperties<EM>): void {
     super.internalResetProperties({
       fontSize: 14,
-      lineHeight: 20,
+      lineHeight: '20px',
       color: colors.mutedForeground,
       ...inputProperties,
     })

@@ -476,4 +476,207 @@ describe('html parser', () => {
       expect(result.ranges['__id__myButton']).to.have.property('end')
     })
   })
+
+  describe('conditional attributes', () => {
+    it('should parse hoverStyle attribute', () => {
+      const result = parse('<div hover:style="background-color: red; font-size: 18px;">Content</div>')
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Content'],
+          properties: {
+            hoverStyle: {
+              backgroundColor: 'red',
+              fontSize: '18px',
+            },
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse activeStyle attribute', () => {
+      const result = parse('<button active:style="transform: scale(0.95); background-color: blue;">Click me</button>')
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'button',
+          children: ['Click me'],
+          properties: {
+            activeStyle: {
+              transform: 'scale(0.95)',
+              backgroundColor: 'blue',
+            },
+          },
+          defaultProperties: {
+            verticalAlign: 'middle',
+            textAlign: 'center',
+            cursor: 'pointer',
+          },
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse focusStyle attribute', () => {
+      const result = parse('<input focus:style="border-color: blue; outline: 2px solid blue;" type="text"  />')
+
+      expectParseResult(result, {
+        element: {
+          type: 'input',
+          sourceTag: 'input',
+          properties: {
+            focusStyle: {
+              borderColor: 'blue',
+              outline: '2px solid blue',
+            },
+            type: 'text',
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse responsive conditional attributes', () => {
+      const result = parse('<div sm:style="width: 50%;" md:style="width: 75%;" lg:style="width: 80%;">Responsive</div>')
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Responsive'],
+          properties: {
+            smStyle: {
+              width: '50%',
+            },
+            mdStyle: {
+              width: '75%',
+            },
+            lgStyle: {
+              width: '80%',
+            },
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse xl and 2xl responsive conditional attributes', () => {
+      const result = parse('<div xl:style="padding: 2rem;" 2xl:style="padding: 3rem;">Large screens</div>')
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Large screens'],
+          properties: {
+            xlStyle: {
+              padding: '2rem',
+            },
+            '2xlStyle': {
+              padding: '3rem',
+            },
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse multiple conditional attributes on same element', () => {
+      const result = parse(
+        '<div style="color: black;" hover:style="color: red;" active:style="color: blue;" focus:style="outline: 2px solid green;">Multi-state</div>',
+      )
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Multi-state'],
+          properties: {
+            style: {
+              color: 'black',
+            },
+            hoverStyle: {
+              color: 'red',
+            },
+            activeStyle: {
+              color: 'blue',
+            },
+            focusStyle: {
+              outline: '2px solid green',
+            },
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse conditional attributes with yoga property renamings', () => {
+      const result = parse('<div hover:style="row-gap: 10px; position: absolute; top: 5px;">With renamings</div>')
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['With renamings'],
+          properties: {
+            hoverStyle: {
+              gapRow: '10px',
+              positionType: 'absolute',
+              positionTop: '5px',
+            },
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should handle empty conditional style attributes', () => {
+      const result = parse('<div hover:style="">Empty hover</div>')
+
+      expectParseResult(result, {
+        element: {
+          type: 'container',
+          sourceTag: 'div',
+          children: ['Empty hover'],
+          properties: {
+            hoverStyle: {},
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+
+    it('should parse conditional attributes on custom elements', () => {
+      const result = parse(
+        '<mykit-button hover:style="background-color: #007bff; transform: translateY(-2px);">Custom with hover</mykit-button>',
+      )
+
+      expectParseResult(result, {
+        element: {
+          type: 'custom',
+          sourceTag: 'mykit-button',
+          children: ['Custom with hover'],
+          properties: {
+            hoverStyle: {
+              backgroundColor: '#007bff',
+              transform: 'translateY(-2px)',
+            },
+          },
+          defaultProperties: {},
+        },
+        classes: {},
+      })
+    })
+  })
 })

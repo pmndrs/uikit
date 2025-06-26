@@ -113,7 +113,7 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       color: computed(() => (active.value ? colors.foreground.value : undefined)),
       fontSize: 14,
       fontWeight: 'medium',
-      lineHeight: 20,
+      lineHeight: '20px',
       wordBreak: 'keep-all',
       ...rest,
     })
