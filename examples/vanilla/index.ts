@@ -61,13 +61,13 @@ const root = new Fullscreen(renderer, {
   ...defaultProperties,
   flexDirection: 'column',
   gap: 30,
-  borderRadius: 10,
+  borderRadius: 8,
   padding: 10,
   alignItems: 'center',
   overflow: 'hidden',
   backgroundColor: colors.background,
   panelMaterialClass: 'plastic',
-  borderBend: 0.6,
+  borderBend: '60%',
   borderWidth: 8,
 })
 camera.add(root)
