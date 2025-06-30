@@ -547,7 +547,7 @@ export function compilePanelMaterial(parameters: WebGLProgramParametersWithUnifo
       
       float currentBorderSize = distance.x - distance.y;
       float outsideNormalWeight = currentBorderSize < 1e-5 ? 0.0 : 
-        max(0.0, -distance.y / currentBorderSize) * borderBend;
+        max(0.0, -distance.y / currentBorderSize) * -borderBend;
       
       vec3 outsideNormal = (borderWeight * transpose(directions)).xyz;
       normal = normalize(mix(normal, outsideNormal, outsideNormalWeight));
