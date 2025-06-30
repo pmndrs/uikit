@@ -231,8 +231,9 @@ function applyAppearancePropertiesToGroup(properties: Properties, group: Object3
   const color = properties.value.color
   const opacity = toAbsoluteNumber(properties.value.opacity, () => 1)
   if (color != null) {
-    writeColor(colorArrayHelper, 0, color, opacity, undefined)
+    writeColor(colorArrayHelper, 0, colorHelper, opacity, undefined)
   }
+  colorHelper.fromArray(colorArrayHelper)
   const depthTest = properties.value.depthTest
   const depthWrite = properties.value.depthWrite ?? depthWriteDefault
   const renderOrder = properties.value.renderOrder

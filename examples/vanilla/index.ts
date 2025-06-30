@@ -171,7 +171,6 @@ const video = new Video({
   height: 225,
   borderRadius: 8,
 })
-console.log(video)
 
 root.add(accordion)
 root.add(video)

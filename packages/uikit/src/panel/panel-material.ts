@@ -200,7 +200,7 @@ function writeComponent(
 
 const colorHelper = new Color()
 
-const rgbaRegex = /rgba\((\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\)/
+const rgbaRegex = /rgba\((\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\)/
 
 export function writeColor(
   target: Array<number> | TypedArray,

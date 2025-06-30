@@ -84,10 +84,14 @@ export type WithInheritance<T, OutProperties> = T & {
     : never
 }
 
+export type WithInitial<T> = { [Key in keyof T]: T[Key] | 'initial' }
+
 export type InProperties<
   OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   NonReactiveProperties = {},
-> = WithConditionals<WithInheritance<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties>> &
+> = WithConditionals<
+  WithInheritance<AddAllAliases<WithSignal<WithInitial<Partial<OutputProperties>>>>, OutputProperties>
+> &
   Omit<NonReactiveProperties, never>
 
 export type Properties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
