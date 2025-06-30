@@ -55,13 +55,13 @@ const root = new Root(camera, renderer, undefined, {
 scene.add(root)
 
 const defaultProperties = {
-    backgroundOpacity: 0.5,
+    opacity: 0.5,
 }
 
 const container1 = new Container(
     {
         flexGrow: 1,
-        hover: { backgroundOpacity: 1 }
+        hover: { opacity: 1 }
         backgroundColor: "red"
     },
     defaultProperties
@@ -71,8 +71,8 @@ root.add(container1)
 const container2 = new Container(
     {
         flexGrow: 1,
-        backgroundOpacity: 0.5,
-        hover: { backgroundOpacity: 1 },
+        opacity: 0.5,
+        hover: { opacity: 1 },
         backgroundColor: "blue"
     },
     defaultProperties

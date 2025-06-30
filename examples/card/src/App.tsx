@@ -67,7 +67,7 @@ export function CardPage() {
           onClick={(e) => (e.stopPropagation(), (openRef.current = !openRef.current))}
           cursor="pointer"
           flexDirection="column"
-          zIndexOffset={10}
+          zIndex={10}
           transformTranslateZ={translateZ}
         >
           <Content transformTranslateZ={1} padding={14} keepAspectRatio={false} width="100%" height={400}>

@@ -145,8 +145,9 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
       const intersection = intersects[i]!
       intersection.distance -=
         orderInfo.majorIndex * 0.01 +
-        orderInfo.elementType * 0.001 + //1-10
-        orderInfo.minorIndex * 0.00001 //1-100
+        orderInfo.minorIndex * 0.0001 + //1-100
+        orderInfo.elementType * 0.00001 + //1-10
+        orderInfo.patchIndex * 0.0000001 //1-100
       if (clippingPlanes == null) {
         continue
       }

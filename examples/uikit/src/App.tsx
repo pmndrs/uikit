@@ -156,8 +156,7 @@ export default function App() {
                     }}
                     flexShrink={0}
                     width="100%"
-                    backgroundOpacity={0.5}
-                    backgroundColor="black"
+                    backgroundColor="rgba(0,0,0,0.5)"
                     fontSize={30}
                     verticalAlign="bottom"
                     textAlign="block"
@@ -208,8 +207,8 @@ export default function App() {
                       objectFit="cover"
                       borderWidth={20}
                       ref={ref}
-                      onHoverChange={(hovered) => ref.current?.setStyle({ borderOpacity: hovered ? 1 : 0.5 })}
-                      borderOpacity={0.5}
+                      onHoverChange={(hovered) => ref.current?.setStyle({ borderColor: withOpacity(colors.borderColor, hovered ? 1 : 0.5) })}
+                      borderColor={colors.borderColor}
                       borderRadius={10}
                       flexDirection="column"
                       src="https://picsum.photos/2000/3000"
@@ -249,7 +248,7 @@ export default function App() {
                   width="60%"
                   alignItems="center"
                   justifyContent="center"
-                  zIndexOffset={1}
+                  zIndex={1}
                 >
                   <Container
                     width={100}
@@ -274,9 +273,7 @@ export default function App() {
                     caretWidth={10}
                     caretBorderRadius={5}
                     caretBorderWidth={3}
-                    caretOpacity={0}
                     caretBorderColor="orange"
-                    selectionOpacity={0}
                     selectionBorderRadius={5}
                     selectionBorderWidth={3}
                     selectionBorderColor="orange"

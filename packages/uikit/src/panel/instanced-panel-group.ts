@@ -121,7 +121,7 @@ export class PanelGroupManager {
     }
   }
 
-  getGroup(majorIndex: number, properties: Required<PanelGroupProperties>) {
+  getGroup({ majorIndex, minorIndex }: OrderInfo, properties: Required<PanelGroupProperties>) {
     const materialClass = resolvePanelMaterialClassProperty(properties.panelMaterialClass)
     let groups = this.map.get(materialClass)
     if (groups == null) {
@@ -129,6 +129,7 @@ export class PanelGroupManager {
     }
     const key = [
       majorIndex,
+      minorIndex,
       properties.renderOrder,
       properties.depthTest,
       properties.depthWrite,
@@ -144,8 +145,9 @@ export class PanelGroupManager {
           this.root,
           {
             elementType: ElementType.Panel,
+            minorIndex,
             majorIndex,
-            minorIndex: 0,
+            patchIndex: 0,
           },
           properties,
         )),

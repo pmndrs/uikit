@@ -1,18 +1,18 @@
-import { Container, ContainerProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { Container, ContainerProperties, ThreeEventMap, withOpacity } from '@pmndrs/uikit'
 import { borderRadius, colors } from './theme.js'
 import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
 
 const buttonVariants = {
   default: {
     hover: {
-      backgroundOpacity: 0.9,
+      backgroundColor: withOpacity(colors.primary, 0.9),
     },
     backgroundColor: colors.primary,
     color: colors.primaryForeground,
   },
   destructive: {
     hover: {
-      backgroundOpacity: 0.9,
+      backgroundColor: withOpacity(colors.destructive, 0.9),
     },
     backgroundColor: colors.destructive,
     color: colors.destructiveForeground,
@@ -28,7 +28,7 @@ const buttonVariants = {
   },
   secondary: {
     hover: {
-      backgroundOpacity: 0.8,
+      backgroundColor: withOpacity(colors.secondary, 0.8),
     },
     backgroundColor: colors.secondary,
     color: colors.secondaryForeground,
@@ -84,8 +84,7 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       justifyContent: 'center',
       ...variantProperties,
       ...sizeProperties,
-      borderOpacity: disabled ? 0.5 : undefined,
-      backgroundOpacity: disabled ? 0.5 : undefined,
+      opacity: disabled ? 0.5 : undefined,
       cursor: disabled ? undefined : 'pointer',
       flexDirection: 'row',
       hover: {
@@ -96,7 +95,6 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       lineHeight: '20px',
       fontWeight: 'medium',
       wordBreak: 'keep-all',
-      opacity: disabled ? 0.5 : undefined,
       ...rest,
     })
   }

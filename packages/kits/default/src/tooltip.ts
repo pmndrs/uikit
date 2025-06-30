@@ -71,7 +71,7 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       positionType: 'absolute',
       positionBottom: '100%',
       marginBottom: sideOffset,
-      zIndexOffset: 50,
+      zIndex: 50,
       overflow: 'hidden',
       borderRadius: borderRadius.md,
       borderWidth: 1,

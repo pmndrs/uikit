@@ -5,7 +5,7 @@ import { abortableEffect, ColorRepresentation, computedBorderInset } from './uti
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { computedPanelMatrix, PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
-import { ElementType, OrderInfo, setupOrderInfo, ZIndexOffset } from './order.js'
+import { ElementType, OrderInfo, setupOrderInfo } from './order.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupProperties } from './panel/instanced-panel-group.js'
 import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
@@ -327,15 +327,11 @@ type ScrollbarBorderSizeProperties = {
 }
 
 export type ScrollbarProperties = {
-  scrollbarOpacity?: number
   scrollbarColor?: ColorRepresentation
-  scrollbarZIndexOffset?: ZIndexOffset
+  scrollbarZIndex?: number
 } & ScrollbarWidthProperties &
   ScrollbarBorderSizeProperties & {
-    [Key in Exclude<
-      keyof PanelProperties,
-      'backgroundColor' | 'backgroundOpacity'
-    > as `scrollbar${Capitalize<Key>}`]?: PanelProperties[Key]
+    [Key in Exclude<keyof PanelProperties, 'opacity'> as `scrollbar${Capitalize<Key>}`]?: PanelProperties[Key]
   }
 
 const scrollbarBorderPropertyKeys = [
@@ -354,8 +350,8 @@ export function setupScrollbars(
   const scrollbarOrderInfo = signal<OrderInfo | undefined>(undefined)
   setupOrderInfo(
     scrollbarOrderInfo,
-    undefined,
-    'scrollbarZIndexOffset',
+    container.properties,
+    'scrollbarZIndex',
     ElementType.Panel,
     prevPanelDeps,
     prevOrderInfo,
@@ -378,12 +374,9 @@ function getScrollbarMaterialConfig() {
       borderTopLeftRadius: 'scrollbarBorderTopLeftRadius',
       borderColor: 'scrollbarBorderColor',
       borderBend: 'scrollbarBorderBend',
-      borderOpacity: 'scrollbarBorderOpacity',
-      backgroundOpacity: 'scrollbarOpacity',
     },
     {
       backgroundColor: 0xffffff,
-      backgroundOpacity: 1,
     },
   )
   return scrollbarMaterialConfig

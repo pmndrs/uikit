@@ -1,5 +1,5 @@
 import { computed, effect, ReadonlySignal, Signal } from '@preact/signals-core'
-import { Vector2Tuple, Color, Vector3Tuple, Vector3, Matrix4, Object3D } from 'three'
+import { Vector2Tuple, Color, Vector3Tuple, Vector3, Matrix4, Object3D, Vector4Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { BaseOutProperties, Properties } from './properties/index.js'
 import { EventHandlers, ThreeEventMap } from './events.js'
@@ -15,6 +15,7 @@ import {
 import { Component } from './components/component.js'
 import { Container } from './components/container.js'
 import { RootContext } from './context.js'
+import { writeColor } from './panel/index.js'
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -262,7 +263,7 @@ export function buildRaycasting(
 
 export const numberWithUnitRegex = /(-?\d+(?:\.\d+)?)(%)?/
 
-export type ColorRepresentation = Color | string | number | Vector3Tuple
+export type ColorRepresentation = Color | string | number | Vector3Tuple | Vector4Tuple
 
 export function abortableEffect(fn: Parameters<typeof effect>[0], abortSignal: AbortSignal): void {
   if (abortSignal.aborted) {
@@ -318,4 +319,12 @@ export function computedBorderInset(properties: Properties, keys: ReadonlyArray<
   return computed(
     () => keys.map((key) => properties.value[key as keyof BaseOutProperties<ThreeEventMap>] ?? 0) as Inset,
   )
+}
+
+export function withOpacity(value: Signal<ColorRepresentation> | ColorRepresentation, opacity: number) {
+  return computed<ColorRepresentation>(() => {
+    const result: Vector4Tuple = [0, 0, 0, 0]
+    writeColor(result, 0, readReactive(value), opacity)
+    return result
+  })
 }

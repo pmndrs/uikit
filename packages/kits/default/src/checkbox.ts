@@ -77,8 +77,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       borderWidth: 1,
       borderColor: colors.primary,
       backgroundColor: computed(() => (checked.value ? colors.primary.value : undefined)),
-      backgroundOpacity: disabled ? 0.5 : undefined,
-      borderOpacity: disabled ? 0.5 : undefined,
+      opacity: disabled ? 0.5 : undefined,
       disabled,
       ...rest,
     })

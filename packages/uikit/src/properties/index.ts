@@ -60,7 +60,7 @@ export type UikitPropertyKeys = keyof BaseOutProperties<ThreeEventMap>
 
 export type AppearanceProperties = {
   color?: ColorRepresentation
-  opacity?: number
+  opacity?: number | `${number}%`
 }
 
 export type SizeProperties = {

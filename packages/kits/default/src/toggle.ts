@@ -81,8 +81,6 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       justifyContent: 'center',
       borderRadius: borderRadius.md,
       cursor: disabled ? undefined : 'pointer',
-      backgroundOpacity: disabled ? 0.5 : undefined,
-      borderOpacity: disabled ? 0.5 : undefined,
       backgroundColor: computed(() => (checked.value ? colors.accent.value : undefined)),
       hover: disabled ? undefined : { backgroundColor: colors.muted.value, ...containerHoverProps },
       color: computed(() => (checked.value ? colors.accentForeground.value : undefined)),

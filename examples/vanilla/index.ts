@@ -35,8 +35,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   Video,
-  setTheme,
-  defaultThemes,
   colors,
 } from '@pmndrs/uikit-default'
 
@@ -68,7 +66,6 @@ const root = new Fullscreen(renderer, {
   alignItems: 'center',
   overflow: 'hidden',
   backgroundColor: colors.background,
-  borderOpacity: 0,
   panelMaterialClass: 'plastic',
   borderBend: 0.6,
   borderWidth: 8,
@@ -174,6 +171,7 @@ const video = new Video({
   height: 225,
   borderRadius: 8,
 })
+console.log(video)
 
 root.add(accordion)
 root.add(video)

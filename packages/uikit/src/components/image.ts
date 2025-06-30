@@ -17,6 +17,7 @@ import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
+import { toAbsoluteNumber } from '../text/index.js'
 
 export type ImageFit = 'cover' | 'fill'
 
@@ -56,7 +57,7 @@ export class Image<
     setupOrderInfo(
       this.orderInfo,
       this.properties,
-      'zIndexOffset',
+      'zIndex',
       ElementType.Image,
       undefined,
       computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
@@ -139,7 +140,7 @@ export class Image<
 
       data.set(imageMaterialConfig.defaultData)
 
-      const cleanupSizeEffect = effect(() => void (this.size.value != null && data.set(this.size.value, 13)))
+      const cleanupSizeEffect = effect(() => void (this.size.value != null && data.set(this.size.value, 14)))
       const cleanupBorderEffect = effect(
         () => void (this.borderInset.value != null && data.set(this.borderInset.value, 0)),
       )
@@ -159,7 +160,14 @@ export class Image<
           return
         }
         abortableEffect(() => {
-          setters[key as any]!(data, 0, this.properties.value[key as keyof OutputProperties], this.size, undefined)
+          setters[key as any]!(
+            data,
+            0,
+            this.properties.value[key as keyof OutputProperties],
+            this.size,
+            this.properties.signal.opacity,
+            undefined,
+          )
           this.root.peek().requestRender?.()
         }, this.abortSignal)
       })
@@ -273,10 +281,8 @@ function getImageMaterialConfig() {
       borderBottomLeftRadius: 'borderBottomLeftRadius',
       borderBottomRightRadius: 'borderBottomRightRadius',
       borderColor: 'borderColor',
-      borderOpacity: 'borderOpacity',
       borderTopLeftRadius: 'borderTopLeftRadius',
       borderTopRightRadius: 'borderTopRightRadius',
-      backgroundOpacity: 'opacity',
     },
     {
       backgroundColor: 0xffffff,

@@ -3,14 +3,14 @@ import { ThreeEventMap } from '../events.js'
 import { Box3, Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, Vector3 } from 'three'
 import { ElementType, OrderInfo, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import { getDefaultPanelMaterialConfig, writeColor } from '../panel/panel-material.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
 import { abortableEffect, alignmentZMap, setupMatrixWorldUpdate } from '../utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
-import { InstancedGlyphMesh } from '../text/index.js'
+import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
 import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
@@ -82,7 +82,7 @@ export class Content<
     setupOrderInfo(
       backgroundOrderInfo,
       this.properties,
-      'zIndexOffset',
+      'zIndex',
       ElementType.Panel,
       panelGroupDeps,
       computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
@@ -146,8 +146,8 @@ export class Content<
 
     setupOrderInfo(
       this.orderInfo,
-      undefined,
-      'zIndexOffset',
+      this.properties,
+      'zIndex',
       ElementType.Content,
       undefined,
       backgroundOrderInfo,
@@ -225,16 +225,14 @@ export class Content<
 }
 
 const colorHelper = new Color()
+const colorArrayHelper = [0, 0, 0, 0]
 
 function applyAppearancePropertiesToGroup(properties: Properties, group: Object3D, depthWriteDefault: boolean) {
   const color = properties.value.color
-  let c: Color | undefined
-  if (Array.isArray(color)) {
-    c = colorHelper.setRGB(...color)
-  } else if (color != null) {
-    c = colorHelper.set(color)
+  const opacity = toAbsoluteNumber(properties.value.opacity, () => 1)
+  if (color != null) {
+    writeColor(colorArrayHelper, 0, color, opacity, undefined)
   }
-  const opacity = properties.value.opacity
   const depthTest = properties.value.depthTest
   const depthWrite = properties.value.depthWrite ?? depthWriteDefault
   const renderOrder = properties.value.renderOrder
@@ -246,8 +244,8 @@ function applyAppearancePropertiesToGroup(properties: Properties, group: Object3
     child.renderOrder = renderOrder
     const material: MeshBasicMaterial = child.material
     child.userData.color ??= material.color.clone()
-    material.color.copy(c ?? child.userData.color)
-    material.opacity = opacity
+    material.color.copy(color != null ? colorHelper : child.userData.color)
+    material.opacity = color != null ? colorArrayHelper[3]! : opacity
     material.depthTest = depthTest
     material.depthWrite = depthWrite
   })

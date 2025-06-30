@@ -74,7 +74,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       borderRadius: 1000,
       borderWidth: 1,
       borderColor: colors.primary,
-      borderOpacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+      opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
       alignItems: 'center',
       justifyContent: 'center',
     })
@@ -82,7 +82,6 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       borderRadius: 1000,
       aspectRatio: 1,
       backgroundColor: colors.primary,
-      backgroundOpacity: computed(() => (isSelected.value ? 1 : 0)),
       height: 9,
       width: 9,
     })

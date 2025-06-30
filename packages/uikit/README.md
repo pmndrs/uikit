@@ -43,15 +43,15 @@ const root = new Root(camera, renderer, {
 scene.add(root)
 const c1 = new Container({
     flexGrow: 1,
-    backgroundOpacity: 0.5,
-    hover: { backgroundOpacity: 1 }
+    opacity: 0.5,
+    hover: { opacity: 1 }
     backgroundColor: "red"
 })
 root.add(c1)
 const c2 = new Container({
     flexGrow: 1,
-    backgroundOpacity: 0.5,
-    hover: { backgroundOpacity: 1 },
+    opacity: 0.5,
+    hover: { opacity: 1 },
     backgroundColor: "blue"
 })
 root.add(c2)

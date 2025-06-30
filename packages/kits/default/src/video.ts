@@ -13,7 +13,7 @@ import { Slider } from './slider.js'
 import { Button } from './button.js'
 import { colors } from './theme.js'
 import { Object3D } from 'three/src/Three.js'
-import { abortableEffect, readReactive } from '@pmndrs/uikit/src/utils.js'
+import { abortableEffect, readReactive, withOpacity } from '@pmndrs/uikit/src/utils.js'
 
 export type VideoOutProperties<EM extends ThreeEventMap> = BaseVideoOutProperties<EM> & {
   controls?: boolean
@@ -238,15 +238,14 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       display: computed(() =>
         this.parentContainer.value instanceof Video && this.parentContainer.value.interacting.value ? 'flex' : 'none',
       ),
-      zIndexOffset: 1,
+      zIndex: 1,
       positionType: 'absolute',
       padding: 8,
       positionBottom: 0,
       positionLeft: 0,
       positionRight: 0,
       flexDirection: 'column',
-      backgroundOpacity: 0.5,
-      backgroundColor: colors.background,
+      backgroundColor: withOpacity(colors.background, 0.5),
       gap: 8,
       ...props,
     })

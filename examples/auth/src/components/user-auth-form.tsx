@@ -23,7 +23,7 @@ export function UserAuthForm(props: React.ComponentPropsWithoutRef<typeof Contai
         <Container positionType="relative" flexDirection="row" justifyContent="center">
           <Text
             backgroundColor={colors.background}
-            zIndexOffset={{ minor: 1 }}
+            zIndexO={1}
             paddingX={8}
             color={colors.mutedForeground}
             fontSize={14}

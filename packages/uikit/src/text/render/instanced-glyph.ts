@@ -69,8 +69,7 @@ export class InstancedGlyph {
     this.index = index
     this.writeUpdatedMatrix()
     this.writeUV()
-    this.updateColor(this.color)
-    this.updateOpacity(this.opacity)
+    this.updateColor(this.color, this.opacity)
     this.updateClippingRect(this.clippingRect)
   }
 
@@ -95,28 +94,16 @@ export class InstancedGlyph {
     root.requestRender?.()
   }
 
-  updateColor(color: ColorRepresentation): void {
+  updateColor(color: ColorRepresentation, opacity: number): void {
     this.color = color
-    if (this.index == null) {
-      return
-    }
-    const { instanceRGBA, root } = this.group
-    const offset = instanceRGBA.itemSize * this.index
-    writeColor(instanceRGBA.array, offset, color, undefined)
-    instanceRGBA.addUpdateRange(offset, 3)
-    instanceRGBA.needsUpdate = true
-    root.requestRender?.()
-  }
-
-  updateOpacity(opacity: number): void {
     this.opacity = opacity
     if (this.index == null) {
       return
     }
     const { instanceRGBA, root } = this.group
-    const bufferIndex = this.index * 4 + 3
-    instanceRGBA.array[bufferIndex] = opacity
-    instanceRGBA.addUpdateRange(bufferIndex, 1)
+    const offset = instanceRGBA.itemSize * this.index
+    writeColor(instanceRGBA.array, offset, color, opacity)
+    instanceRGBA.addUpdateRange(offset, 4)
     instanceRGBA.needsUpdate = true
     root.requestRender?.()
   }

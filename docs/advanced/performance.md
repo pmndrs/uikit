@@ -10,7 +10,7 @@ When frequently changing properties of uikit components and especially when anim
 
 ### using `ref.current.setStyle`
 
-This approach is similar to html/css. The following code shows how to animate the background opacity on every frame without interfering with react.
+This approach is similar to html/css. The following code shows how to animate the background color on every frame without interfering with react.
 
 ```jsx showLineNumbers
 import { Container } from '@react-three/uikit'
@@ -19,12 +19,12 @@ import { useFrame } from '@react-three/fiber'
 import { signal } from '@preact/signals-core'
 
 export function AnimateBackground() {
-    const ref = useRef()
-    useFrame(({ clock }) => {
-        //continuously animate between 0 and 1
-        ref.current.setStyle({ opacity: Math.sin(clock.getElapsedTime()) / 2 + 0.5 })
-    })
-    return <Container ref={ref} backgroundOpacity={0}></Container>
+  const ref = useRef()
+  useFrame(({ clock }) => {
+    //continuously animate between 0 and 1
+    ref.current.setStyle({ backgroundColor: `rgba(255, 255, 255, ${Math.sin(clock.getElapsedTime()) / 2 + 0.5})` })
+  })
+  return <Container ref={ref} backgroundColor="rgba(255, 255, 255, 0)"></Container>
 }
 ```
 
@@ -32,7 +32,7 @@ Setting executing `setStyle(undefined, true)` resets all changes back to the ini
 
 ### using signals
 
-This approach is similar to react-spring and allows to modify the properties of a uikit component without any property diffing. The following code shows how to animate the background opacity on every frame without interfering with react.
+This approach is similar to react-spring and allows to modify the properties of a uikit component without any property diffing. The following code shows how to animate the background color on every frame without interfering with react.
 
 ```jsx showLineNumbers
 import { Container } from '@react-three/uikit'
@@ -41,12 +41,12 @@ import { useFrame } from '@react-three/fiber'
 import { signal } from '@preact/signals-core'
 
 export function AnimateBackground() {
-    const opacity = useMemo(() => signal(0), []);
-    useFrame(({ clock }) => {
-        //continuously animate between 0 and 1
-        opacity.value = Math.sin(clock.getElapsedTime()) / 2 + 0.5
-    })
-    return <Container backgroundOpacity={opacity}></Container>
+  const backgroundColor = useMemo(() => signal(0), [])
+  useFrame(({ clock }) => {
+    //continuously animate between 0 and 1
+    backgroundColor.value = `rgba(255, 255, 255, ${Math.sin(clock.getElapsedTime()) / 2 + 0.5})`
+  })
+  return <Container backgroundColor={backgroundColor}></Container>
 }
 ```
 

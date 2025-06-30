@@ -1,4 +1,12 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, readReactive, RenderContext } from '@pmndrs/uikit'
+import {
+  Container,
+  ThreeEventMap,
+  InProperties,
+  BaseOutProperties,
+  readReactive,
+  RenderContext,
+  withOpacity,
+} from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors } from './theme.js'
 import { Dialog, DialogProperties } from './dialog.js'
@@ -181,7 +189,7 @@ export class AlertDialogAction<T = {}, EM extends ThreeEventMap = ThreeEventMap>
         }
       }),
       hover: {
-        backgroundOpacity: 0.9,
+        backgroundColor: withOpacity(colors.primary, 0.9),
       },
       fontSize: 14,
       lineHeight: '20px',

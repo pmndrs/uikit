@@ -58,7 +58,6 @@ export class Input<
     multiline = false,
   ) {
     const text = signal('')
-    const caretOpacity = signal<InputOutProperties<EM>['caretOpacity']>(undefined)
     const caretColor = signal<InputOutProperties<EM>['caretColor']>(undefined)
     const selectionHandlers = signal<EventHandlers | undefined>(undefined)
 
@@ -79,7 +78,6 @@ export class Input<
         disabled: false,
         tabIndex: 0,
         autocomplete: '',
-        caretOpacity,
         caretColor,
       },
       selectionHandlers,
@@ -88,7 +86,6 @@ export class Input<
       caretTransformation,
       instancedTextRef,
     )
-    abortableEffect(() => void (caretOpacity.value = this.properties.value.opacity), this.abortSignal)
     abortableEffect(() => void (caretColor.value = this.properties.value.color), this.abortSignal)
 
     const writeValue = signal<string | undefined>(undefined)

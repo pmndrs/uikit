@@ -30,7 +30,7 @@ export default function App() {
         <CountFrames />
         <Fullscreen flexDirection="column">
           <Defaults>
-            <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>
+            <DefaultProperties>
               <MarketPage />
             </DefaultProperties>
           </Defaults>

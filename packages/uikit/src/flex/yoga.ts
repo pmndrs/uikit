@@ -1,7 +1,7 @@
 import { signal } from '@preact/signals-core'
 import { ExperimentalFeature, Node, Yoga, loadYoga } from 'yoga-layout/load'
 
-export const PointScaleFactor = 100
+export const PointScaleFactor = 10
 
 export function createDefaultConfig(Config: Yoga['Config']) {
   const config = Config.create()

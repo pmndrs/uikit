@@ -11,28 +11,27 @@ import {
   WebGLRenderer,
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
-import { Signal, computed } from '@preact/signals-core'
+import { Signal, computed, signal } from '@preact/signals-core'
 import { ColorRepresentation } from '../utils.js'
 import { Properties } from '../properties/index.js'
 import { Inset } from '../flex/index.js'
+import { toAbsoluteNumber } from '../text/utils.js'
 
 export type MaterialClass = { new (...args: Array<any>): Material }
 
 type InstanceOf<T> = T extends { new (): infer K } ? K : never
 
-const noColor = new Color(-1, -1, -1)
-
 const defaultDefaults = {
-  backgroundColor: noColor as ColorRepresentation,
-  backgroundOpacity: -1,
-  borderColor: 0xffffff as ColorRepresentation,
+  backgroundColor: 'transparent' as ColorRepresentation,
+  borderColor: 'transparent' as ColorRepresentation,
   borderBottomLeftRadius: 0,
   borderTopLeftRadius: 0,
   borderBottomRightRadius: 0,
   borderTopRightRadius: 0,
   borderBend: 0,
-  borderOpacity: 1,
 } satisfies { [Key in keyof typeof materialSetters]: unknown }
+
+const defaultOpacity = 1
 
 export type PanelMaterialConfig = ReturnType<typeof createPanelMaterialConfig>
 
@@ -47,6 +46,8 @@ export function getDefaultPanelMaterialConfig() {
   }
   return defaultPanelMaterialConfig
 }
+
+const colorArrayHelper = [0, 0, 0, 0]
 
 export function createPanelMaterialConfig(
   keys: { [Key in keyof typeof materialSetters]?: string },
@@ -65,22 +66,21 @@ export function createPanelMaterialConfig(
       offset: number,
       value: unknown,
       size: Signal<Vector2Tuple | undefined>,
+      opacity: Signal<number | `${number}%`>,
       onUpdate: ((start: number, count: number) => void) | undefined,
     ) => void
   } = {}
   for (const key in keys) {
     const fn = materialSetters[key as keyof typeof materialSetters]
     const defaultValue = defaults[key as keyof typeof materialSetters]
-    setters[keys[key as keyof typeof materialSetters]!] = (data, offset, value, size, onUpdate) =>
-      fn(data, offset, (value ?? defaultValue) as any, size, onUpdate)
+    setters[keys[key as keyof typeof materialSetters]!] = (data, offset, value, size, opacity, onUpdate) =>
+      fn(data, offset, (value ?? defaultValue) as any, size, opacity, onUpdate)
   }
 
   const defaultData = new Float32Array(16) //filled with 0s by default
-  writeColor(defaultData, 4, defaults.backgroundColor, undefined)
-  writeColor(defaultData, 8, defaults.borderColor, undefined)
-  defaultData[11] = defaults.borderBend
-  defaultData[12] = defaults.borderOpacity
-  defaultData[15] = defaults.backgroundOpacity
+  writeColor(defaultData, 4, defaults.backgroundColor, defaultOpacity, undefined)
+  writeColor(defaultData, 9, defaults.borderColor, defaultOpacity, undefined)
+  defaultData[13] = defaults.borderBend
   return {
     hasProperty: (key: string) => key in setters,
     defaultData,
@@ -93,24 +93,25 @@ export function createPanelMaterialConfig(
     ) => {
       return computed(() => {
         if (borderInset.value == null || size.value == null) {
-          return true
+          return false
         }
-        const borderOpacity =
-          keys.borderOpacity == null
-            ? defaults.borderOpacity
-            : (properties.value[keys.borderOpacity as 'borderOpacity'] ?? defaults.borderOpacity)
-        const backgroundOpacity =
-          keys.backgroundOpacity == null
-            ? defaults.backgroundOpacity
-            : (properties.value[keys.backgroundOpacity as 'backgroundOpacity'] ?? defaults.backgroundOpacity)
         const backgroundColor =
           keys.backgroundColor == null
             ? defaults.backgroundColor
             : (properties.value[keys.backgroundColor as 'backgroundColor'] ?? defaults.backgroundColor)
-        const borderVisible = borderInset.value.some((s) => s > 0) && borderOpacity > 0
+        const borderColor =
+          keys.borderColor == null
+            ? defaults.borderColor
+            : (properties.value[keys.borderColor as 'borderColor'] ?? defaults.borderColor)
+
+        const opacity = toAbsoluteNumber(properties.value.opacity ?? defaultOpacity, () => 1)
+
+        writeColor(colorArrayHelper, 0, backgroundColor ?? defaults.backgroundColor, opacity)
         const [width, height] = size.value
-        const backgroundVisible =
-          width > 0 && height > 0 && (backgroundOpacity === -1 || backgroundOpacity > 0) && backgroundColor != noColor
+        const backgroundVisible = width > 0 && height > 0 && colorArrayHelper[3]! > 0
+
+        writeColor(colorArrayHelper, 0, borderColor ?? defaults.borderColor, opacity)
+        const borderVisible = borderInset.value.some((s) => s > 0) && colorArrayHelper[3]! > 0
 
         if (!backgroundVisible && !borderVisible) {
           return false
@@ -125,34 +126,52 @@ export function createPanelMaterialConfig(
 const materialSetters = {
   //0-3 = borderSizes
 
-  //4-6 = background color
-  backgroundColor: (d, o, p: ColorRepresentation, _, u) => writeColor(d, o + 4, p, u),
+  //4-7 = background color
+  backgroundColor: (d, o, p: ColorRepresentation, _, op, u) =>
+    writeColor(
+      d,
+      o + 4,
+      p,
+      toAbsoluteNumber(op.value, () => 1),
+      u,
+    ),
 
-  //7 = border radiuses
-  borderBottomLeftRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 0, p, s[1], u),
-  borderBottomRightRadius: (d, o, p: number, { value: s }, u) =>
-    s != null && writeBorderRadius(d, o + 7, 1, p, s[1], u),
-  borderTopRightRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 2, p, s[1], u),
-  borderTopLeftRadius: (d, o, p: number, { value: s }, u) => s != null && writeBorderRadius(d, o + 7, 3, p, s[1], u),
+  //8 = border radiuses
+  borderBottomLeftRadius: (d, o, p: number, { value: s }, _, u) =>
+    s != null && writeBorderRadius(d, o + 8, 0, p, s[1], u),
+  borderBottomRightRadius: (d, o, p: number, { value: s }, _, u) =>
+    s != null && writeBorderRadius(d, o + 8, 1, p, s[1], u),
+  borderTopRightRadius: (d, o, p: number, { value: s }, _, u) =>
+    s != null && writeBorderRadius(d, o + 8, 2, p, s[1], u),
+  borderTopLeftRadius: (d, o, p: number, { value: s }, _, u) => s != null && writeBorderRadius(d, o + 8, 3, p, s[1], u),
 
-  //8 - 10 = border color
-  borderColor: (d, o, p: number, _, u) => writeColor(d, o + 8, p, u),
-  //11
-  borderBend: (d, o, p: number, _, u) => writeComponent(d, o + 11, p, u),
-  //12
-  borderOpacity: (d, o, p: number, _, u) => writeComponent(d, o + 12, p, u),
+  //9 - 12 = border color
+  borderColor: (d, o, p: ColorRepresentation, _, op, u) =>
+    writeColor(
+      d,
+      o + 9,
+      p,
+      toAbsoluteNumber(op.value, () => 1),
+      u,
+    ),
+  //13
+  borderBend: (d, o, p: number | `${number}%`, _, op, u) =>
+    writeComponent(
+      d,
+      o + 13,
+      toAbsoluteNumber(p, () => 1),
+      u,
+    ),
 
-  //13 = width
-  //14 = height
-
-  //15
-  backgroundOpacity: (d, o, p: number, _, u) => writeComponent(d, o + 15, p, u),
+  //14 = width
+  //15 = height
 } as const satisfies {
   [Key in string]: (
     data: TypedArray,
     offset: number,
     value: any,
     size: Signal<Vector2Tuple | undefined>,
+    opacity: Signal<number | `${number}%`>,
     onUpdate: ((start: number, count: number) => void) | undefined,
   ) => void
 }
@@ -181,18 +200,33 @@ function writeComponent(
 
 const colorHelper = new Color()
 
+const rgbaRegex = /rgba\((\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\)/
+
 export function writeColor(
-  target: TypedArray,
+  target: Array<number> | TypedArray,
   offset: number,
   color: ColorRepresentation,
-  onUpdate: ((start: number, count: number) => void) | undefined,
+  opacity: number,
+  onUpdate?: ((start: number, count: number) => void) | undefined,
 ) {
+  let match: RegExpMatchArray | null
   if (Array.isArray(color)) {
-    target.set(color, offset)
+    for (let i = 0; i < color.length; i++) {
+      target[i + offset] = color[i]!
+    }
+    target[offset + 3] = (color.length === 3 ? 1 : target[offset + 3]!) * opacity
+  } else if (color === 'transparent') {
+    target.fill(0, offset, offset + 4)
+  } else if (typeof color === 'string' && (match = color.match(rgbaRegex)) != null) {
+    for (let i = 0; i < 3; i++) {
+      target[i + offset] = parseFloat(match[i]!) / 255
+    }
+    target[3 + offset] = parseFloat(match[3]!) * opacity
   } else {
     colorHelper.set(color).toArray(target, offset)
+    target[offset + 3] = opacity
   }
-  onUpdate?.(offset, 3)
+  onUpdate?.(offset, 4)
 }
 
 export type PanelMaterial = InstanceOf<ReturnType<typeof createPanelMaterial>>
@@ -285,7 +319,7 @@ function compilePanelClippingMaterial(parameters: WebGLProgramParametersWithUnif
   parameters.vertexShader = parameters.vertexShader.replace(
     '#include <uv_vertex>',
     ` #include <uv_vertex>
-      highp int packedBorderRadius = int(data[1].w);
+      highp int packedBorderRadius = int(data[2].x);
       borderRadius = vec4(
         packedBorderRadius / 125000 % 50,
         packedBorderRadius / 2500 % 50,
@@ -365,12 +399,12 @@ function compilePanelClippingMaterial(parameters: WebGLProgramParametersWithUnif
     }
         vec4 absoluteBorderSize = data[0];
         vec3 backgroundColor = data[1].xyz;
-        vec3 borderColor = data[2].xyz;
-        float borderBend = data[2].w;
+        float backgroundOpacity = data[1].w;
+        vec3 borderColor = data[2].yzw;
         float borderOpacity = data[3].x;
-        float width = data[3].y;
-        float height = data[3].z;
-        float backgroundOpacity = data[3].w;
+        float borderBend = data[3].y;
+        float width = data[3].z;
+        float height = data[3].w;
         float ratio = width / height;
         vec4 relative = vec4(height, height, height, height);
         vec4 borderSize = absoluteBorderSize / relative;
@@ -450,21 +484,6 @@ function getFargmentOpacityCode(instanced: boolean, existingOpacity: string | un
   float inner = smoothstep(-ddy, ddy, distance.y);
 
   float transition = 1.0 - step(0.1, outer - inner) * (1.0 - inner);
-
-  if(backgroundColor.r < 0.0 && backgroundOpacity >= 0.0) {
-    backgroundColor = vec3(1.0);
-  }
-  if(backgroundOpacity < 0.0) {
-    backgroundOpacity = backgroundColor.r >= 0.0 ? 1.0 : 0.0;
-  }
-
-  if(backgroundOpacity < 0.0) {
-    backgroundOpacity = 0.0;
-  }
-
-  borderOpacity = min(backgroundOpacity + data[3].x, 1.0);
-  borderColor = mix(backgroundColor, data[2].xyz, data[3].x / borderOpacity);
-        
 
   float outOpacity = ${
     instanced ? 'clipOpacity * ' : ''

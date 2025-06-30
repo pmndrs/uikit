@@ -16,11 +16,10 @@ export type PanelProperties = {
   borderTopRightRadius?: number
   borderBottomLeftRadius?: number
   borderBottomRightRadius?: number
-  backgroundOpacity?: number
+  opacity?: number | `${number}%`
   backgroundColor?: ColorRepresentation
   borderColor?: ColorRepresentation
-  borderBend?: number
-  borderOpacity?: number
+  borderBend?: number | `${number}%`
 }
 
 export function setupInstancedPanel(
@@ -41,11 +40,11 @@ export function setupInstancedPanel(
       return
     }
     const innerAbortController = new AbortController()
-    const group = root.value.panelGroupManager.getGroup(orderInfo.value.majorIndex, panelGroupDependencies.value)
+    const group = root.value.panelGroupManager.getGroup(orderInfo.value, panelGroupDependencies.value)
     new InstancedPanel(
       properties,
       group,
-      orderInfo.value.minorIndex,
+      orderInfo.value.patchIndex,
       panelMatrix,
       size,
       borderInset,
@@ -125,6 +124,7 @@ export class InstancedPanel {
             instanceData.itemSize * index,
             properties.value[key as keyof BaseOutProperties<ThreeEventMap>],
             size,
+            properties.signal.opacity,
             instanceDataAddUpdateRange,
           )
           root.requestRender?.()
@@ -181,7 +181,7 @@ export class InstancedPanel {
       const [width, height] = this.size.value
       const { instanceData, root } = this.group
       const { array } = instanceData
-      const bufferIndex = index * 16 + 13
+      const bufferIndex = index * 16 + 14
       array[bufferIndex] = width
       array[bufferIndex + 1] = height
       instanceData.addUpdateRange(bufferIndex, 2)

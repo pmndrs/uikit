@@ -71,14 +71,13 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     // Create thumb
     const thumb = new Container({
-      zIndexOffset: { minor: 100 },
+      zIndexOffset: 100,
       positionType: 'absolute',
       positionLeft: percentage,
       transformTranslateX: -10,
       transformTranslateY: -6,
       cursor: 'pointer',
-      borderOpacity: computed(() => ((this.properties.value.disabled ?? false) ? 0.5 : undefined)),
-      backgroundOpacity: computed(() => ((this.properties.value.disabled ?? false) ? 0.5 : undefined)),
+      opacity: computed(() => ((this.properties.value.disabled ?? false) ? 0.5 : undefined)),
       height: 20,
       width: 20,
       borderWidth: 2,

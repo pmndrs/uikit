@@ -1,5 +1,5 @@
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
-import { isDarkMode, readReactive } from '@pmndrs/uikit'
+import { isDarkMode, readReactive, withOpacity } from '@pmndrs/uikit'
 import { Color, ColorRepresentation } from 'three'
 
 function hsl(h: number, s: number, l: number): Signal<ColorRepresentation> | ColorRepresentation {
@@ -390,9 +390,8 @@ for (const anyKey in defaultThemes['default']) {
 }
 
 export const defaultProperties = {
-  scrollbarColor: colors.foreground,
+  scrollbarColor: withOpacity(colors.foreground, 0.3),
   scrollbarBorderRadius: 4,
-  scrollbarOpacity: 0.3,
   lineHeight: '150%',
   '*': {
     borderColor: colors.border,

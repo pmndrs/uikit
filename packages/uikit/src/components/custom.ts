@@ -28,7 +28,7 @@ export class Custom<
     setupOrderInfo(
       this.orderInfo,
       this.properties,
-      'zIndexOffset',
+      'zIndex',
       ElementType.Custom,
       undefined,
       computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),

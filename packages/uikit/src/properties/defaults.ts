@@ -7,7 +7,7 @@ export const defaults = {
   scrollbarWidth: 10,
   visibility: 'visible' as Required<VisibilityProperties>['visibility'],
   updateMatrixWorld: false,
-  opacity: 1,
+  opacity: 1 as number | `${number}%`,
   depthTest: true,
   renderOrder: 0,
   fontSize: 16,

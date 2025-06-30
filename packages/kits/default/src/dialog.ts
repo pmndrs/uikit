@@ -7,6 +7,7 @@ import {
   getProperty,
   RenderContext,
   readReactive,
+  withOpacity,
 } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
 import { borderRadius, colors } from './theme.js'
@@ -37,9 +38,8 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       positionType: 'absolute',
       display: computed(() => (isOpen.value ? 'flex' : 'none')),
       inset: 0,
-      zIndexOffset: 50,
-      backgroundColor: 'black',
-      backgroundOpacity: 0.8,
+      zIndex: 50,
+      backgroundColor: withOpacity('black', 0.8),
       alignItems: 'center',
       justifyContent: 'center',
       onClick: (e: any) => {
@@ -93,13 +93,12 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       onClick: () => this.closeDialog(),
       cursor: 'pointer',
       positionType: 'absolute',
-      zIndexOffset: 50,
+      zIndex: 50,
       positionRight: 16,
       positionTop: 16,
       borderRadius: 2,
       opacity: 0.7,
-      backgroundOpacity: 0.7,
-      hover: { opacity: 1, backgroundOpacity: 1 },
+      hover: { opacity: 1 },
       width: 16,
       height: 16,
     })

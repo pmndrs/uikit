@@ -67,7 +67,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       flexDirection: 'row',
       padding: 2,
       alignItems: 'center',
-      backgroundOpacity: computed(() => (disabled ? 0.5 : undefined)),
+      opacity: computed(() => (disabled ? 0.5 : undefined)),
       borderRadius: 1000,
       backgroundColor: computed(() => (checked.value ? colors.primary.value : colors.input.value)),
       cursor: computed(() => (disabled ? undefined : 'pointer')),

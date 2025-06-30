@@ -30,12 +30,18 @@ export class GlyphGroupManager {
     }
   }
 
-  getGroup(majorIndex: number, depthTest: boolean, depthWrite: boolean, renderOrder: number, font: Font) {
+  getGroup(
+    { majorIndex, minorIndex }: OrderInfo,
+    depthTest: boolean,
+    depthWrite: boolean,
+    renderOrder: number,
+    font: Font,
+  ) {
     let groups = this.map.get(font)
     if (groups == null) {
       this.map.set(font, (groups = new Map()))
     }
-    const key = [majorIndex, depthTest, depthWrite, renderOrder].join(',')
+    const key = [majorIndex, minorIndex, depthTest, depthWrite, renderOrder].join(',')
     let glyphGroup = groups?.get(key)
     if (glyphGroup == null) {
       groups.set(
@@ -46,8 +52,9 @@ export class GlyphGroupManager {
           this.root,
           {
             majorIndex,
+            minorIndex,
             elementType: ElementType.Text,
-            minorIndex: 0,
+            patchIndex: 0,
           },
           depthTest,
           depthWrite,

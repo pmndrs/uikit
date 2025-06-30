@@ -120,8 +120,7 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       height,
       paddingX,
       cursor: computed(() => (disabled ? undefined : 'pointer')),
-      backgroundOpacity: computed(() => (disabled ? 0.5 : undefined)),
-      borderOpacity: computed(() => (disabled ? 0.5 : undefined)),
+      opacity: computed(() => (disabled ? 0.5 : undefined)),
       backgroundColor: computed(() => (checked.value ? colors.accent.value : undefined)),
       hover: disabled
         ? hover
@@ -130,7 +129,6 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
             ...hover,
           },
       color: computed(() => (checked.value ? colors.accentForeground.value : undefined)),
-      opacity: computed(() => (disabled ? 0.5 : undefined)),
       fontSize: 14,
       lineHeight: '20px',
       ...rest,

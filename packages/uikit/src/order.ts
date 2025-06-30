@@ -53,8 +53,9 @@ export type ElementType = (typeof ElementType)[keyof typeof ElementType]
 
 export type OrderInfo = {
   majorIndex: number
-  elementType: ElementType
   minorIndex: number
+  elementType: ElementType
+  patchIndex: number
   instancedGroupDependencies?: Signal<Record<string, any>> | Record<string, any>
 }
 
@@ -66,23 +67,26 @@ export function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | unde
   if (dif != 0) {
     return dif
   }
+  dif = o1.minorIndex - o2.minorIndex
+  if (dif != 0) {
+    return dif
+  }
   dif = o1.elementType - o2.elementType
   if (dif != 0) {
     return dif
   }
-  return o1.minorIndex - o2.minorIndex
+  return o1.patchIndex - o2.patchIndex
 }
 
 export type ZIndexProperties = {
-  zIndexOffset?: ZIndexOffset
+  zIndex?: number
+  zIndexOffset?: number
 }
-
-export type ZIndexOffset = { major?: number; minor?: number } | number
 
 export function setupOrderInfo(
   target: Signal<OrderInfo | undefined>,
-  properties: Properties | undefined,
-  zIndexOffsetKey: string,
+  properties: Properties,
+  zIndexKey: string,
   type: ElementType,
   instancedGroupDependencies: Signal<Record<string, any>> | Record<string, any> | undefined,
   basisOrderInfoSignal: Signal<OrderInfo | undefined | null>,
@@ -95,19 +99,18 @@ export function setupOrderInfo(
     }
 
     const basisOrderInfo = basisOrderInfoSignal.value
-    const offset = properties?.value[zIndexOffsetKey as keyof ZIndexProperties]
-    const majorOffset = typeof offset === 'number' ? offset : (offset?.major ?? 0)
-    const minorOffset = typeof offset === 'number' ? 0 : (offset?.minor ?? 0)
+    //similiar but not the same as in css
+    const majorIndex = properties.value[zIndexKey as 'zIndex'] ?? basisOrderInfo?.majorIndex ?? 0
 
-    let majorIndex: number
     let minorIndex: number
+    let patchIndex: number
 
     if (basisOrderInfo == null) {
-      majorIndex = 0
       minorIndex = 0
+      patchIndex = 0
     } else if (type > basisOrderInfo.elementType) {
-      majorIndex = basisOrderInfo.majorIndex
-      minorIndex = 0
+      minorIndex = basisOrderInfo.minorIndex
+      patchIndex = 0
     } else if (
       type != basisOrderInfo.elementType ||
       !shallowEqualRecord(
@@ -115,25 +118,21 @@ export function setupOrderInfo(
         readReactive(basisOrderInfo.instancedGroupDependencies),
       )
     ) {
-      majorIndex = basisOrderInfo.majorIndex + 1
-      minorIndex = 0
-    } else {
-      majorIndex = basisOrderInfo.majorIndex
       minorIndex = basisOrderInfo.minorIndex + 1
+      patchIndex = 0
+    } else {
+      minorIndex = basisOrderInfo.minorIndex
+      patchIndex = basisOrderInfo.patchIndex + 1
     }
 
-    if (majorOffset > 0) {
-      majorIndex += majorOffset
-      minorIndex = 0
-    }
-
-    minorIndex += minorOffset
+    patchIndex += properties.value['zIndexOffset'] ?? 0
 
     target.value = {
       instancedGroupDependencies,
       elementType: type,
       majorIndex,
       minorIndex,
+      patchIndex,
     }
   }, abortSignal)
 }

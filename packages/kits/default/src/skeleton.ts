@@ -38,7 +38,7 @@ export class Skeleton<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     super.internalResetProperties({
       borderRadius: borderRadius.md,
       backgroundColor: colors.muted,
-      backgroundOpacity: this.opacity,
+      opacity: this.opacity,
       ...inputProperties,
     })
   }

@@ -45,7 +45,7 @@ export default function App() {
       <OrbitControls makeDefault />*/}
         <Fullscreen backgroundColor={colors.background}>
           <Defaults>
-            <DefaultProperties scrollbarWidth={8} scrollbarOpacity={0.1} scrollbarBorderRadius={4}>
+            <DefaultProperties>
               <AuthenticationPage />
             </DefaultProperties>
           </Defaults>

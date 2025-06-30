@@ -63,7 +63,7 @@ export class Text<
     setupOrderInfo(
       this.backgroundOrderInfo,
       this.properties,
-      'zIndexOffset',
+      'zIndex',
       ElementType.Panel,
       this.backgroundGroupDeps,
       computed(() => (this.parentContainer.value == null ? null : this.parentContainer.value.orderInfo.value)),
@@ -75,8 +75,8 @@ export class Text<
 
     setupOrderInfo(
       this.orderInfo,
-      undefined,
-      'zIndexOffset',
+      this.properties,
+      'zIndex',
       ElementType.Text,
       computedGylphGroupDependencies(this.fontSignal),
       this.backgroundOrderInfo,

@@ -37,14 +37,10 @@ const caretBorderKeys = [
 ]
 
 export type CaretProperties = {
-  caretOpacity?: number
   caretColor?: ColorRepresentation
 } & CaretWidthProperties &
   CaretBorderSizeProperties & {
-    [Key in Exclude<
-      keyof PanelProperties,
-      'backgroundColor' | 'backgroundOpacity'
-    > as `caret${Capitalize<Key>}`]?: PanelProperties[Key]
+    [Key in Exclude<keyof PanelProperties, 'opacity'> as `caret${Capitalize<Key>}`]?: PanelProperties[Key]
   }
 
 let caretMaterialConfig: PanelMaterialConfig | undefined
@@ -52,18 +48,15 @@ function getCaretMaterialConfig() {
   caretMaterialConfig ??= createPanelMaterialConfig(
     {
       backgroundColor: 'caretColor',
-      backgroundOpacity: 'caretOpacity',
       borderBend: 'caretBorderBend',
       borderBottomLeftRadius: 'caretBorderBottomLeftRadius',
       borderBottomRightRadius: 'caretBorderBottomRightRadius',
       borderColor: 'caretBorderColor',
-      borderOpacity: 'caretBorderOpacity',
       borderTopLeftRadius: 'caretBorderTopLeftRadius',
       borderTopRightRadius: 'caretBorderTopRightRadius',
     },
     {
       backgroundColor: 0x0,
-      backgroundOpacity: 1,
     },
   )
   return caretMaterialConfig
@@ -81,7 +74,7 @@ export function setupCaret(
   abortSignal: AbortSignal,
 ) {
   const orderInfo = signal<OrderInfo | undefined>(undefined)
-  setupOrderInfo(orderInfo, undefined, 'zIndexOffset', ElementType.Panel, parentGroupDeps, parentOrderInfo, abortSignal)
+  setupOrderInfo(orderInfo, properties, 'zIndex', ElementType.Panel, parentGroupDeps, parentOrderInfo, abortSignal)
   const blinkingCaretTransformation = signal<CaretTransformation | undefined>(undefined)
   abortableEffect(() => {
     const pos = caretTransformation.value

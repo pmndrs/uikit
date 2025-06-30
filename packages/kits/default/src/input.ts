@@ -37,7 +37,6 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     // Always create placeholder text
     const placeholderText = new Text({
       color: colors.mutedForeground,
-      borderOpacity: 0,
       inset: 0,
       positionType: 'absolute',
       display: computed(() => (this.properties.value.placeholder != null ? 'flex' : 'none')),
@@ -56,7 +55,6 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       paddingY: 8,
       lineHeight: '20px',
       opacity: disabled ? 0.5 : undefined,
-      backgroundOpacity: disabled ? 0.5 : undefined,
       disabled,
       ...rest,
     })

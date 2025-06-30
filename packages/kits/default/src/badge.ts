@@ -1,4 +1,4 @@
-import { Container, ContainerProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { Container, ContainerProperties, ThreeEventMap, withOpacity } from '@pmndrs/uikit'
 import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
 import { colors } from './theme.js'
 
@@ -7,21 +7,21 @@ const badgeVariants = {
     backgroundColor: colors.primary,
     color: colors.primaryForeground,
     hover: {
-      backgroundOpacity: 0.8,
+      backgroundColor: withOpacity(colors.primary, 0.8),
     },
   },
   secondary: {
     backgroundColor: colors.secondary,
     color: colors.secondaryForeground,
     hover: {
-      backgroundOpacity: 0.8,
+      backgroundColor: withOpacity(colors.secondary, 0.8),
     },
   },
   destructive: {
     backgroundColor: colors.destructive,
     color: colors.destructiveForeground,
     hover: {
-      backgroundOpacity: 0.8,
+      backgroundColor: withOpacity(colors.destructive, 0.8),
     },
   },
   outline: {

@@ -5,7 +5,6 @@ import { ClippingRect } from './clipping.js'
 import { setupOrderInfo, ElementType, OrderInfo } from './order.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import {
-  PanelGroupManager,
   PanelGroupProperties,
   PanelMaterialConfig,
   computedPanelMatrix,
@@ -31,13 +30,9 @@ const selectionBorderKeys = [
 ]
 
 export type SelectionProperties = {
-  selectionOpacity?: number
   selectionColor?: ColorRepresentation
 } & SelectionBorderSizeProperties & {
-    [Key in Exclude<
-      keyof PanelProperties,
-      'backgroundColor' | 'backgroundOpacity'
-    > as `selection${Capitalize<Key>}`]: PanelProperties[Key]
+    [Key in Exclude<keyof PanelProperties, 'opacity'> as `selection${Capitalize<Key>}`]: PanelProperties[Key]
   }
 
 let selectionMaterialConfig: PanelMaterialConfig | undefined
@@ -45,18 +40,15 @@ function getSelectionMaterialConfig() {
   selectionMaterialConfig ??= createPanelMaterialConfig(
     {
       backgroundColor: 'selectionColor',
-      backgroundOpacity: 'selectionOpacity',
       borderBend: 'selectionBorderBend',
       borderBottomLeftRadius: 'selectionBorderBottomLeftRadius',
       borderBottomRightRadius: 'selectionBorderBottomRightRadius',
       borderColor: 'selectionBorderColor',
-      borderOpacity: 'selectionBorderOpacity',
       borderTopLeftRadius: 'selectionBorderTopLeftRadius',
       borderTopRightRadius: 'selectionBorderTopRightRadius',
     },
     {
       backgroundColor: 0xb4d7ff,
-      backgroundOpacity: 1,
     },
   )
   return selectionMaterialConfig
@@ -79,7 +71,7 @@ export function createSelection(
     abortController: AbortController
   }> = []
   const orderInfo = signal<OrderInfo | undefined>(undefined)
-  setupOrderInfo(orderInfo, undefined, 'zIndexOffset', ElementType.Panel, prevPanelDeps, prevOrderInfo, abortSignal)
+  setupOrderInfo(orderInfo, properties, 'zIndex', ElementType.Panel, prevPanelDeps, prevOrderInfo, abortSignal)
   const borderInset = computedBorderInset(properties, selectionBorderKeys)
 
   abortableEffect(() => {

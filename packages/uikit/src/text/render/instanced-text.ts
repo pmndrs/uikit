@@ -9,6 +9,7 @@ import {
   getGlyphOffsetY,
   getOffsetToNextGlyph,
   getOffsetToNextLine,
+  toAbsoluteNumber,
 } from '../utils.js'
 import { InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
@@ -69,7 +70,7 @@ export function createInstancedText(
     }
     const instancedText = new InstancedText(
       text.root.value.glyphGroupManager.getGroup(
-        text.orderInfo.value.majorIndex,
+        text.orderInfo.value,
         text.properties.value.depthTest,
         text.properties.value.depthWrite ?? false,
         text.properties.value.renderOrder,
@@ -116,7 +117,7 @@ export class InstancedText {
   ) {
     this.unsubscribeInitialList = [
       effect(() => {
-        if (!isVisible.value || this.properties.value.opacity < 0.01) {
+        if (!isVisible.value || toAbsoluteNumber(this.properties.value.opacity, () => 1) < 0.01) {
           this.hide()
           return
         }
@@ -290,11 +291,8 @@ export class InstancedText {
       }),
       effect(() => {
         const color = this.properties.value.color
-        traverseGlyphs(this.glyphLines, (glyph) => glyph.updateColor(color ?? 0))
-      }),
-      effect(() => {
-        const opacity = this.properties.value.opacity
-        traverseGlyphs(this.glyphLines, (glyph) => glyph.updateOpacity(opacity))
+        const opacity = toAbsoluteNumber(this.properties.value.opacity, () => 1)
+        traverseGlyphs(this.glyphLines, (glyph) => glyph.updateColor(color ?? 0, opacity))
       }),
       effect(() => {
         const layout = this.layoutSignal.value
@@ -362,7 +360,7 @@ export class InstancedText {
                 this.group,
                 this.matrix.peek(),
                 this.properties.peek().color ?? 0,
-                this.properties.peek().opacity,
+                toAbsoluteNumber(this.properties.peek().opacity, () => 1),
                 this.parentClippingRect?.peek(),
               )
             }

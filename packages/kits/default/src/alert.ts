@@ -3,10 +3,12 @@ import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/in
 import { borderRadius, colors } from './theme.js'
 
 const alertVariants = {
-  default: {},
+  default: {
+    backgroundColor: colors.card,
+    color: colors.cardForeground,
+  },
   destructive: {
-    borderColor: colors.destructive,
-    borderOpacity: 0.5,
+    backgroundColor: colors.card,
     color: colors.destructive,
   },
 } satisfies { [Key in string]: ContainerProperties }
@@ -91,6 +93,7 @@ export class AlertDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
       paddingLeft: 28,
       lineHeight: '162.5%',
       fontSize: 14,
+      opacity: 0.9,
       ...inputProperties,
     })
   }
