@@ -1,5 +1,5 @@
 import { MeshBasicMaterial } from 'three'
-import type { FontWeight, GlyphLayoutProperties, WordBreak } from '../text/index.js'
+import type { FontWeight, GlyphProperties, WordBreak } from '../text/index.js'
 import { alignmentXMap, alignmentYMap, type VisibilityProperties } from '../utils.js'
 import type { PanelGroupProperties } from '../panel/instanced-panel-group.js'
 
@@ -10,10 +10,10 @@ export const defaults = {
   opacity: 1 as number | `${number}%`,
   depthTest: true,
   renderOrder: 0,
-  fontSize: 16,
-  letterSpacing: 0,
-  lineHeight: '120%' as GlyphLayoutProperties['lineHeight'],
-  wordBreak: 'break-word' as WordBreak,
+  fontSize: 16 as Required<GlyphProperties>['fontSize'],
+  letterSpacing: 0 as Required<GlyphProperties>['letterSpacing'],
+  lineHeight: '120%' as Required<GlyphProperties>['lineHeight'],
+  wordBreak: 'break-word' as Required<GlyphProperties>['wordBreak'],
   verticalAlign: 'middle' as keyof typeof alignmentYMap,
   textAlign: 'left' as keyof typeof alignmentXMap | 'block',
   fontWeight: 'normal' as FontWeight,

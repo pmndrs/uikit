@@ -1,7 +1,7 @@
-import type { GlyphLayoutLine, GlyphLayoutProperties } from '../layout.js'
+import type { GlyphLayoutLine, GlyphOutProperties } from '../layout.js'
 
 export type GlyphWrapper = (
-  layout: GlyphLayoutProperties,
+  properties: GlyphOutProperties,
   availableWidth: number | undefined,
   textStartIndex: number,
   target: GlyphLayoutLine,

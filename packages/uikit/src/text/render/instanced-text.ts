@@ -12,7 +12,7 @@ import {
   toAbsoluteNumber,
 } from '../utils.js'
 import { InstancedGlyphGroup } from './instanced-glyph-group.js'
-import { GlyphLayout, GlyphLayoutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
+import { GlyphLayout, GlyphOutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
 import { SelectionTransformation } from '../../selection.js'
 import { CaretTransformation } from '../../caret.js'
 import { BaseOutProperties, Properties } from '../../properties/index.js'
@@ -37,7 +37,7 @@ export function createInstancedText(
   caretTransformation: Signal<CaretTransformation | undefined> | undefined,
   instancedTextRef: { current?: InstancedText } | undefined,
 ) {
-  let layoutPropertiesRef: { current: GlyphLayoutProperties | undefined } = { current: undefined }
+  let layoutPropertiesRef: { current: GlyphOutProperties | undefined } = { current: undefined }
 
   const customLayouting = computedCustomLayouting(text.properties, text.fontSignal, layoutPropertiesRef)
 
@@ -140,7 +140,7 @@ export class InstancedText {
       return 0
     }
     y -= -getYOffset(layout, this.properties.peek().verticalAlign)
-    const lineIndex = Math.floor(y / -getOffsetToNextLine(layout.lineHeight, layout.fontSize))
+    const lineIndex = Math.floor(y / -getOffsetToNextLine(layout.lineHeight))
     const lines = layout.lines
     if (lineIndex < 0 || lines.length === 0) {
       return 0
@@ -184,7 +184,7 @@ export class InstancedText {
       const y = -(
         getYOffset(layout, verticalAlign) -
         layout.availableHeight / 2 +
-        lineIndex * getOffsetToNextLine(layout.lineHeight, layout.fontSize) +
+        lineIndex * getOffsetToNextLine(layout.lineHeight) +
         getGlyphOffsetY(layout.fontSize, layout.lineHeight)
       )
       this.caretTransformation.value = { position: [x, y - layout.fontSize / 2], height: layout.fontSize }
@@ -229,7 +229,7 @@ export class InstancedText {
     if (endX == null) {
       endX = this.getGlyphX(lineGlyphs[lineGlyphs.length - 1]!, 1, whitespaceWidth)
     }
-    const height = getOffsetToNextLine(layout.lineHeight, layout.fontSize)
+    const height = getOffsetToNextLine(layout.lineHeight)
     const y = -(getYOffset(layout, verticalAlign) - layout.availableHeight / 2 + lineIndex * height)
     const width = endX - startX
     return { position: [startX + width / 2, y - height / 2], size: [width, height] }
@@ -376,7 +376,7 @@ export class InstancedText {
             x += getOffsetToNextGlyph(fontSize, glyphInfo, letterSpacing)
           }
 
-          y += getOffsetToNextLine(lineHeight, fontSize)
+          y += getOffsetToNextLine(lineHeight)
 
           //remove unnecassary glyphs
           const glyphsLength = glyphs.length
@@ -445,9 +445,9 @@ function getYOffset(layout: GlyphLayout, verticalAlign: keyof typeof alignmentYM
   switch (verticalAlign) {
     case 'center':
     case 'middle':
-      return (layout.availableHeight - getGlyphLayoutHeight(layout.lines.length, layout)) / 2
+      return (layout.availableHeight - getGlyphLayoutHeight(layout.lines.length, layout.lineHeight)) / 2
     case 'bottom':
-      return layout.availableHeight - getGlyphLayoutHeight(layout.lines.length, layout)
+      return layout.availableHeight - getGlyphLayoutHeight(layout.lines.length, layout.lineHeight)
     default:
       return 0
   }

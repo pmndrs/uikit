@@ -1,6 +1,6 @@
 import { Signal, computed } from '@preact/signals-core'
-import { Euler, Matrix4, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
-import { alignmentXMap, alignmentYMap, numberWithUnitRegex } from './utils.js'
+import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { alignmentXMap, alignmentYMap } from './utils.js'
 import { Component } from './components/component.js'
 import { toAbsoluteNumber } from './text/utils.js'
 

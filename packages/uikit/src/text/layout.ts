@@ -1,12 +1,11 @@
 import { BreakallWrapper, NowrapWrapper, WordWrapper } from './wrapper/index.js'
 import { Font } from './font.js'
-import { getGlyphLayoutHeight } from './utils.js'
+import { getGlyphLayoutHeight, toAbsoluteNumber } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { MeasureMode } from 'yoga-layout/load'
-import { BaseOutProperties, Properties } from '../properties/index.js'
+import { Properties } from '../properties/index.js'
 import { CustomLayouting } from '../flex/index.js'
 import { ThreeEventMap } from '../events.js'
-import { AdditionalTextDefaults } from './render/index.js'
 import { TextOutProperties } from '../components/text.js'
 
 export type GlyphLayoutLine = {
@@ -21,17 +20,37 @@ export type GlyphLayout = {
   lines: Array<GlyphLayoutLine>
   availableWidth: number
   availableHeight: number
-} & GlyphLayoutProperties
+} & GlyphOutProperties
 
-export type GlyphProperties = Partial<Omit<GlyphLayoutProperties, 'text' | 'font'>>
+export type GlyphProperties = Partial<{
+  letterSpacing: number | string
+  lineHeight: number | string
+  fontSize: number | string
+  wordBreak: WordBreak
+}>
 
 export type WordBreak = keyof typeof wrappers
 
-export type GlyphLayoutProperties = {
+function buildGlyphOutProperties(
+  font: Font,
+  text: string,
+  { fontSize: fontSizeString, letterSpacing, lineHeight: lineHeightString, wordBreak }: Required<GlyphProperties>,
+): GlyphOutProperties {
+  const fontSize = toAbsoluteNumber(fontSizeString)
+  let lineHeight: number
+  if (typeof lineHeightString === 'string' && lineHeightString.endsWith('px')) {
+    lineHeight = parseFloat(lineHeightString)
+  } else {
+    lineHeight = fontSize * toAbsoluteNumber(lineHeightString, () => 1)
+  }
+  return { font, text, fontSize, letterSpacing: toAbsoluteNumber(letterSpacing), lineHeight, wordBreak }
+}
+
+export type GlyphOutProperties = {
   text: string
   font: Font
   letterSpacing: number
-  lineHeight: number | string
+  lineHeight: number
   fontSize: number
   wordBreak: WordBreak
 }
@@ -39,7 +58,7 @@ export type GlyphLayoutProperties = {
 export function computedCustomLayouting(
   properties: Properties<TextOutProperties<ThreeEventMap>>,
   fontSignal: Signal<Font | undefined>,
-  propertiesRef: { current: GlyphLayoutProperties | undefined },
+  propertiesRef: { current: GlyphOutProperties | undefined },
 ) {
   return computed<CustomLayouting | undefined>(() => {
     const font = fontSignal.value
@@ -50,14 +69,7 @@ export function computedCustomLayouting(
     let text = Array.isArray(textProperty) ? textProperty.join('') : (textProperty ?? '')
     //TODO: tab should be intergrated into the text layouting algorithm
     text = text.replaceAll('\t', ' '.repeat(4))
-    const layoutProperties: GlyphLayoutProperties = {
-      font,
-      fontSize: properties.value.fontSize,
-      letterSpacing: properties.value.letterSpacing,
-      lineHeight: properties.value.lineHeight,
-      text,
-      wordBreak: properties.value.wordBreak,
-    }
+    const layoutProperties = buildGlyphOutProperties(font, text, properties.value)
     propertiesRef.current = layoutProperties
 
     const { width: minWidth } = measureGlyphLayout(layoutProperties, 0)
@@ -81,7 +93,7 @@ const wrappers = {
 const lineHelper = {} as GlyphLayoutLine
 
 export function measureGlyphLayout(
-  properties: GlyphLayoutProperties,
+  properties: GlyphOutProperties,
   availableWidth?: number,
 ): {
   width: number
@@ -105,11 +117,11 @@ export function measureGlyphLayout(
     lines += 1
   }
 
-  return { width, height: getGlyphLayoutHeight(lines, properties) }
+  return { width, height: getGlyphLayoutHeight(lines, properties.lineHeight) }
 }
 
 export function buildGlyphLayout(
-  properties: GlyphLayoutProperties,
+  properties: GlyphOutProperties,
   availableWidth: number,
   availableHeight: number,
 ): GlyphLayout {

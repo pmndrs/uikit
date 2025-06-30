@@ -2,18 +2,12 @@ import { Matrix4 } from 'three'
 import { InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { ColorRepresentation } from '../../utils.js'
 import { ClippingRect, defaultClippingData } from '../../clipping.js'
-import { Font, FontFamilyProperties, GlyphInfo, glyphIntoToUV } from '../font.js'
+import { Font, GlyphInfo, glyphIntoToUV } from '../font.js'
 import { Signal, computed } from '@preact/signals-core'
-import { GlyphLayoutProperties } from '../layout.js'
-import { TextAlignProperties } from './instanced-text.js'
 import { writeColor } from '../../panel/index.js'
 
 const helperMatrix1 = new Matrix4()
 const helperMatrix2 = new Matrix4()
-
-export type InstancedTextProperties = TextAlignProperties &
-  Omit<GlyphLayoutProperties, 'text' | 'font'> &
-  FontFamilyProperties
 
 export function computedGylphGroupDependencies(fontSignal: Signal<Font | undefined>) {
   return computed(() => ({ font: fontSignal.value }))

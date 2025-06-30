@@ -261,8 +261,6 @@ export function buildRaycasting(
   )
 }
 
-export const numberWithUnitRegex = /(-?\d+(?:\.\d+)?)(%)?/
-
 export type ColorRepresentation = Color | string | number | Vector3Tuple | Vector4Tuple
 
 export function abortableEffect(fn: Parameters<typeof effect>[0], abortSignal: AbortSignal): void {

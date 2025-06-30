@@ -1,6 +1,5 @@
-import { GlyphLayout, GlyphLayoutProperties } from './layout.js'
+import { GlyphLayout } from './layout.js'
 import { Font, GlyphInfo } from './font.js'
-import { numberWithUnitRegex } from '../utils.js'
 import { RootContext } from '../context.js'
 
 export function getGlyphOffsetX(
@@ -13,70 +12,47 @@ export function getGlyphOffsetX(
   return (kerning + glyphInfo.xoffset) * fontSize
 }
 
+//order is important here as we need to check vh and vw last
+const vhSymbols = ['dvh', 'svh', 'lvh', 'vh']
+const vwSymbols = ['dvw', 'svw', 'lvw', 'vw']
+
 export function toAbsoluteNumber(value: number | string, getRelativeValue?: () => number, root?: RootContext): number {
   if (typeof value === 'number') {
     return value
   }
-  const result = value.match(numberWithUnitRegex)
-  if (result == null) {
-    throw new Error(`invalid value "${value}"`)
+  const number = parseFloat(value)
+  if (isNaN(number)) {
+    throw new Error(``)
   }
-  const number = parseFloat(result[1]!)
-  if (result[2] === '%') {
-    if (getRelativeValue == null) {
-      throw new Error(`"%" values not supported for this property`)
-    }
+  if (getRelativeValue != null && value.endsWith('%')) {
     return (getRelativeValue() * number) / 100
   }
-  if (result[2] == null) {
-    return number
+  if (root != null && vhSymbols.some((symbol) => value.endsWith(symbol))) {
+    return ((root.component.size.value?.[1] ?? 0) * number) / 100
   }
-  if (root == null) {
-    throw new Error(`"${result[2]}" values not supported for this property`)
+  if (root != null && vwSymbols.some((symbol) => value.endsWith(symbol))) {
+    return ((root.component.size.value?.[1] ?? 0) * number) / 100
   }
-  switch (result[2]) {
-    case 'vh':
-    case 'dvh':
-    case 'svh':
-    case 'lvh':
-      return ((root.component.size.value?.[1] ?? 0) * number) / 100
-    case 'vw':
-    case 'dvw':
-    case 'svw':
-    case 'lvw':
-      return ((root.component.size.value?.[1] ?? 0) * number) / 100
-  }
-  throw new Error(`unknown unit "${result[2]}"`)
+  return number
 }
 
-function computeLineHeight(lineHeight: number | string, fontSize: number) {
-  if (typeof lineHeight === 'string' && lineHeight.endsWith('px')) {
-    return parseFloat(lineHeight)
-  }
-  return fontSize * toAbsoluteNumber(lineHeight, () => 1)
-}
-
-export function getGlyphOffsetY(
-  fontSize: number,
-  lineHeight: GlyphLayoutProperties['lineHeight'],
-  glyphInfo?: GlyphInfo,
-): number {
+export function getGlyphOffsetY(fontSize: number, lineHeight: number, glyphInfo?: GlyphInfo): number {
   //glyphInfo undefined for the caret, which has no yoffset
-  return (glyphInfo?.yoffset ?? 0) * fontSize + (computeLineHeight(lineHeight, fontSize) - fontSize) / 2
+  return (glyphInfo?.yoffset ?? 0) * fontSize + (lineHeight - fontSize) / 2
 }
 
 export function getOffsetToNextGlyph(fontSize: number, glyphInfo: GlyphInfo, letterSpacing: number): number {
   return glyphInfo.xadvance * fontSize + letterSpacing
 }
 
-export function getOffsetToNextLine(lineHeight: GlyphLayoutProperties['lineHeight'], fontSize: number): number {
-  return computeLineHeight(lineHeight, fontSize)
+export function getOffsetToNextLine(lineHeight: number): number {
+  return lineHeight
 }
 
 export function getGlyphLayoutWidth(layout: GlyphLayout): number {
   return Math.max(...layout.lines.map(({ nonWhitespaceWidth }) => nonWhitespaceWidth))
 }
 
-export function getGlyphLayoutHeight(linesAmount: number, { lineHeight, fontSize }: GlyphLayoutProperties): number {
-  return Math.max(linesAmount, 1) * computeLineHeight(lineHeight, fontSize)
+export function getGlyphLayoutHeight(linesAmount: number, lineHeight: number): number {
+  return Math.max(linesAmount, 1) * lineHeight
 }
