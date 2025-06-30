@@ -22,7 +22,7 @@ export function toAbsoluteNumber(value: number | string, getRelativeValue?: () =
   }
   const number = parseFloat(value)
   if (isNaN(number)) {
-    throw new Error(``)
+    throw new Error(`Invalid number: ${value}`)
   }
   if (getRelativeValue != null && value.endsWith('%')) {
     return (getRelativeValue() * number) / 100

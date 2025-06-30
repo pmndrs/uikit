@@ -222,7 +222,7 @@ function selectLayerValue(
     }
   } while (layerIndex != Infinity)
   if (value === 'initial') {
-    return defaultValue
+    value = defaultValue
   }
   return [value, layerIndex]
 }
