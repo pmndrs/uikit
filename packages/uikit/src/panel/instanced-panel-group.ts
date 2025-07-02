@@ -44,7 +44,7 @@ export class PlasticMaterial extends MeshPhongMaterial {
 export class GlassMaterial extends MeshPhysicalMaterial {
   constructor() {
     super({
-      transmission: 0.5,
+      transmission: 0,
       roughness: 0.1,
       reflectivity: 0.5,
       iridescence: 0.4,
