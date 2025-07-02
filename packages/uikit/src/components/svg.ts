@@ -30,6 +30,7 @@ export class Svg<
     super(inputProperties, initialClasses, renderContext, {
       remeasureOnChildrenChange: false,
       depthWriteDefault: false,
+      supportFillProperty: true,
       boundingBox,
     })
 

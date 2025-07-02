@@ -2,6 +2,7 @@ export const inheritedPropertyKeys = [
   'pixelSize',
   'opacity',
   'color',
+  'fill',
   'textAlign',
   'verticalAlign',
   'fontSize',

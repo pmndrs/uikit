@@ -56,10 +56,12 @@ export class Content<
     private readonly config: {
       remeasureOnChildrenChange: boolean
       depthWriteDefault: boolean
+      supportFillProperty: boolean
       boundingBox?: Signal<BoundingBox | undefined>
     } = {
       remeasureOnChildrenChange: true,
       depthWriteDefault: true,
+      supportFillProperty: false,
     },
   ) {
     const defaultAspectRatio = signal<number | undefined>(undefined)
@@ -158,7 +160,12 @@ export class Content<
 
     abortableEffect(() => {
       this.visible = this.isVisible.value
-      applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
+      applyAppearancePropertiesToGroup(
+        this.properties,
+        this,
+        this.config.depthWriteDefault,
+        this.config.supportFillProperty,
+      )
       this.root.peek().requestRender?.()
     }, this.abortSignal)
 
@@ -182,7 +189,12 @@ export class Content<
   }
 
   notifyAncestorsChanged() {
-    applyAppearancePropertiesToGroup(this.properties, this, this.config.depthWriteDefault)
+    applyAppearancePropertiesToGroup(
+      this.properties,
+      this,
+      this.config.depthWriteDefault,
+      this.config.supportFillProperty,
+    )
     this.traverse((child) => {
       if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
         return
@@ -227,11 +239,16 @@ export class Content<
 const colorHelper = new Color()
 const colorArrayHelper = [0, 0, 0, 0]
 
-function applyAppearancePropertiesToGroup(properties: Properties, group: Object3D, depthWriteDefault: boolean) {
-  const color = properties.value.color
+function applyAppearancePropertiesToGroup(
+  properties: Properties,
+  group: Object3D,
+  depthWriteDefault: boolean,
+  supportFillProperty: boolean,
+) {
+  const color = (supportFillProperty ? properties.value.fill : undefined) ?? properties.value.color
   const opacity = toAbsoluteNumber(properties.value.opacity, () => 1)
   if (color != null) {
-    writeColor(colorArrayHelper, 0, colorHelper, opacity, undefined)
+    writeColor(colorArrayHelper, 0, color, opacity, undefined)
     colorHelper.fromArray(colorArrayHelper)
   }
   const depthTest = properties.value.depthTest
