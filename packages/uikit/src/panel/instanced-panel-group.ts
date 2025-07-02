@@ -44,15 +44,12 @@ export class PlasticMaterial extends MeshPhongMaterial {
 export class GlassMaterial extends MeshPhysicalMaterial {
   constructor() {
     super({
-      transmission: 0,
       roughness: 0.1,
       reflectivity: 0.5,
-      iridescence: 0.4,
+      iridescence: 0.001,
       thickness: 0.05,
-      specularIntensity: 1,
       metalness: 0.3,
       ior: 2,
-      envMapIntensity: 1,
     })
   }
 }
@@ -60,6 +57,7 @@ export class GlassMaterial extends MeshPhysicalMaterial {
 export class MetalMaterial extends MeshPhysicalMaterial {
   constructor() {
     super({
+      iridescence: 0.001,
       metalness: 0.8,
       roughness: 0.1,
     })
