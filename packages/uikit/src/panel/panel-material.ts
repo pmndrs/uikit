@@ -219,9 +219,9 @@ export function writeColor(
     target.fill(0, offset, offset + 4)
   } else if (typeof color === 'string' && (match = color.match(rgbaRegex)) != null) {
     for (let i = 0; i < 3; i++) {
-      target[i + offset] = parseFloat(match[i]!) / 255
+      target[i + offset] = parseFloat(match[i + 1]!) / 255
     }
-    target[3 + offset] = parseFloat(match[3]!) * opacity
+    target[3 + offset] = parseFloat(match[4]!) * opacity
   } else {
     colorHelper.set(color).toArray(target, offset)
     target[offset + 3] = opacity
