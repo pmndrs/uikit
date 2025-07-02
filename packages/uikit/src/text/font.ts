@@ -68,7 +68,9 @@ export function computedFont(
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
     const url = getMatchingFontUrl(fontFamilies[fontFamily as keyof FontFamilies]!, fontWeight)
-    loadCachedFont(url, (font) => (result.value = font))
+    let aborted = false
+    loadCachedFont(url, (font) => !aborted && (result.value = font))
+    return () => (aborted = true)
   })
   return result
 }
