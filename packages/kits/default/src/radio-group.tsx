@@ -39,7 +39,7 @@ export const RadioGroup: (props: RadioGroupProperties & RefAttributes<ContainerR
   },
 )
 
-export type RadioGroupItemProperties = ContainerProperties & { disabled?: boolean; value: string }
+export type RadioGroupItemProperties = ContainerProperties & { disabled?: boolean; value?: string }
 
 export const RadioGroupItem: (props: RadioGroupItemProperties & RefAttributes<ContainerRef>) => ReactNode = forwardRef(
   ({ disabled = false, value, children, ...props }, ref) => {
