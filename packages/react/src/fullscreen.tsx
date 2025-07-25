@@ -14,7 +14,7 @@ export type FullscreenProperties = BaseFullscreenProperties<R3FEventMap> & {
 
 export type FullscreenRef = ComponentInternals<BaseFullscreenProperties<R3FEventMap>>
 
-export const Fullscreen: (props: FullscreenProperties & RefAttributes<FullscreenRef>) => ReactNode = forwardRef(
+const FullscreenInternal: (props: FullscreenProperties & RefAttributes<FullscreenRef>) => ReactNode = forwardRef(
   (properties, ref) => {
     const store = useStore()
     const camera = useThree((s) => s.camera)
@@ -36,6 +36,7 @@ export const Fullscreen: (props: FullscreenProperties & RefAttributes<Fullscreen
         hasAttached.current = true
       }
     })
+
     //cleanup attaching the camera
     useEffect(
       () => () => {
@@ -58,5 +59,14 @@ export const Fullscreen: (props: FullscreenProperties & RefAttributes<Fullscreen
       </group>,
       camera,
     )
+  },
+)
+
+export const Fullscreen: (props: FullscreenProperties & RefAttributes<FullscreenRef>) => ReactNode = forwardRef(
+  (properties, ref) => {
+    const camera = useThree((s) => s.camera)
+
+    // Use camera as key to force component re-creation when camera changes
+    return <FullscreenInternal key={camera.uuid} ref={ref} {...properties} />
   },
 )
