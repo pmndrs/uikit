@@ -1,6 +1,12 @@
-import { Container, ContainerProperties, ThreeEventMap, withOpacity } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  Container,
+  ContainerProperties,
+  InProperties,
+  ThreeEventMap,
+  withOpacity,
+} from '@pmndrs/uikit'
 import { borderRadius, colors } from './theme.js'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
 
 const buttonVariants = {
   default: {

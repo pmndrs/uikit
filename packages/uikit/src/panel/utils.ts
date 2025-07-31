@@ -39,6 +39,6 @@ export function setBorderRadius(
   data[indexInData] = setComponentInFloat(
     data[indexInData]!,
     indexInFloat,
-    clamp(Math.ceil(((value ?? 0) / height) * 100), 0, 49),
+    height === 0 ? 0 : clamp(Math.ceil(((value ?? 0) / height) * 100), 0, 49),
   )
 }

@@ -1,5 +1,11 @@
-import { Container, ContainerProperties, ThreeEventMap, withOpacity } from '@pmndrs/uikit'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
+import {
+  BaseOutProperties,
+  Container,
+  ContainerProperties,
+  InProperties,
+  ThreeEventMap,
+  withOpacity,
+} from '@pmndrs/uikit'
 import { colors } from './theme.js'
 
 const badgeVariants = {

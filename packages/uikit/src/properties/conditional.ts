@@ -64,7 +64,9 @@ type WithFocus<T> = T & {
 
 function createFocusPropertyTransformers(hasFocusSignal?: Signal<boolean>): Conditionals {
   if (hasFocusSignal == null) {
-    return {}
+    return {
+      focus: () => false,
+    }
   }
   return {
     focus: () => hasFocusSignal.value,

@@ -34,9 +34,14 @@ export class AlertDialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap
 > {
   protected internalResetProperties({ onClick, dialog, ...props }: AlertDialogTriggerProperties<EM> = {}): void {
     super.internalResetProperties({
-      onClick: computed(() => (e: any) => {
-        dialog?.setOpen(true)
-        readReactive(onClick)?.(e)
+      onClick: computed(() => {
+        const resolvedOnClick = readReactive(onClick)
+        return (e: any) => {
+          dialog?.setOpen(true)
+          if (typeof resolvedOnClick === 'function') {
+            resolvedOnClick(e)
+          }
+        }
       }),
       cursor: 'pointer',
       ...props,
@@ -57,9 +62,14 @@ export class AlertDialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap
 > {
   protected internalResetProperties({ onClick, sm, ...props }: AlertDialogContentProperties<EM> = {}): void {
     super.internalResetProperties({
-      onClick: computed(() => (e: any) => {
-        e.stopPropagation()
-        readReactive(onClick)?.(e)
+      onClick: computed(() => {
+        const resolvedOnClick = readReactive(onClick)
+        return (e: any) => {
+          e.stopPropagation()
+          if (typeof resolvedOnClick === 'function') {
+            resolvedOnClick(e)
+          }
+        }
       }),
       positionType: 'relative',
       flexDirection: 'column',

@@ -1,6 +1,12 @@
-import { Container, ContainerProperties, SvgProperties, ThreeEventMap } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  Container,
+  ContainerProperties,
+  InProperties,
+  SvgProperties,
+  ThreeEventMap,
+} from '@pmndrs/uikit'
 import { ChevronDown } from '@pmndrs/uikit-lucide'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties'
 import { computed, signal } from '@preact/signals-core'
 
 export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>

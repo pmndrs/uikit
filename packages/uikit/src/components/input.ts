@@ -41,7 +41,7 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   type: InputType
   onValueChange?: (value: string) => void
   onFocusChange?: (focus: boolean) => void
-} & Omit<Partial<HTMLInputElement>, 'value' | 'disabled' | 'type'>
+} & Omit<Partial<HTMLInputElement>, 'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active'>
 
 export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
 
@@ -51,6 +51,11 @@ export class Input<
   OutputProperties extends InputOutProperties<EM> = InputOutProperties<EM>,
   NonReactiveProperties = {},
 > extends Text<T, EM, OutputProperties, NonReactiveProperties> {
+  readonly element: HTMLInputElement | HTMLTextAreaElement
+
+  readonly selectionRange: Signal<Vector2Tuple | undefined>
+  readonly hasFocus: Signal<boolean>
+
   constructor(
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -63,8 +68,10 @@ export class Input<
 
     const selectionTransformations = signal<Array<SelectionTransformation>>([])
     const caretTransformation = signal<CaretTransformation | undefined>(undefined)
-    const selectionRange = signal<Vector2Tuple | undefined>(undefined)
     const instancedTextRef: { current?: InstancedText } = {}
+
+    const selectionRange = signal<Vector2Tuple | undefined>(undefined)
+    const hasFocus = signal<boolean>(false)
 
     super(
       inputProperties,
@@ -85,11 +92,13 @@ export class Input<
       selectionTransformations,
       caretTransformation,
       instancedTextRef,
+      hasFocus,
     )
+    this.selectionRange = selectionRange
+    this.hasFocus = hasFocus
     abortableEffect(() => void (caretColor.value = this.properties.value.color), this.abortSignal)
 
     const writeValue = signal<string | undefined>(undefined)
-    const hasFocusSignal = signal<boolean>(false)
 
     const valueSignal = computed(
       () => this.properties.value.value ?? writeValue.value ?? this.properties.value.defaultValue ?? '',
@@ -102,29 +111,19 @@ export class Input<
       this.abortSignal,
     )
 
-    const focus = (start?: number, end?: number, direction?: 'forward' | 'backward' | 'none') => {
-      if (!hasFocusSignal.peek()) {
-        element.focus()
-      }
-      if (start != null && end != null) {
-        element.setSelectionRange(start, end, direction)
-      }
-      selectionRange.value = [element.selectionStart ?? 0, element.selectionEnd ?? 0]
-    }
-
     setupSelectionHandlers(
       selectionHandlers,
       this.properties,
       valueSignal,
       this,
       instancedTextRef,
-      focus,
+      this.focus.bind(this),
       this.abortSignal,
     )
 
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
 
-    const element = createHtmlInputElement(
+    this.element = createHtmlInputElement(
       selectionRange,
       (newValue) => {
         if (this.properties.peek().value == null) {
@@ -159,16 +158,26 @@ export class Input<
       this.abortSignal,
     )
 
-    setupHtmlInputElement(this.properties, element, valueSignal, this.abortSignal)
+    setupHtmlInputElement(this.properties, this.element, valueSignal, this.abortSignal)
 
     setupUpdateHasFocus(
-      element,
-      hasFocusSignal,
+      this.element,
+      this.hasFocus,
       (hasFocus) => {
         this.properties.peek().onFocusChange?.(hasFocus)
       },
       this.abortSignal,
     )
+  }
+
+  focus(start?: number, end?: number, direction?: 'forward' | 'backward' | 'none'): void {
+    if (!this.hasFocus.peek()) {
+      this.element.focus()
+    }
+    if (start != null && end != null) {
+      this.element.setSelectionRange(start, end, direction)
+    }
+    this.selectionRange.value = [this.element.selectionStart ?? 0, this.element.selectionEnd ?? 0]
   }
 }
 

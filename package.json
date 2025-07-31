@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "@react-three/drei": "rc",
+    "@react-three/drei": "^10.4.2",
     "@react-three/eslint-plugin": "^0.1.1",
     "@react-three/fiber": "rc",
     "@react-three/xr": "^6.5.4",
@@ -11,7 +11,7 @@
     "@types/node": "^20.14.8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "0.161.0",
+    "@types/three": "0.175.0",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "@vitejs/plugin-react": "^4.2.1",
@@ -30,7 +30,7 @@
     "prettier": "^3.2.5",
     "react": "^19",
     "react-dom": "^19",
-    "three": "^0.176.0",
+    "three": "0.175.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-json-schema": "^0.65.1",

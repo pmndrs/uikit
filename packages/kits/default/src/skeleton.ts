@@ -1,8 +1,6 @@
-import { Container, ThreeEventMap } from '@pmndrs/uikit'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
+import { abortableEffect, BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
 import { signal } from '@preact/signals-core'
 import { borderRadius, colors } from './theme.js'
-import { abortableEffect } from '@pmndrs/uikit/src/utils.js'
 
 export type SkeletonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 

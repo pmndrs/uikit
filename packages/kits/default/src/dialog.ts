@@ -149,9 +149,14 @@ export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
 > {
   protected internalResetProperties({ onClick, dialog, ...props }: DialogTriggerProperties<EM> = {}): void {
     super.internalResetProperties({
-      onClick: computed(() => (e: any) => {
-        dialog?.setOpen(true)
-        readReactive(onClick)?.(e)
+      onClick: computed(() => {
+        const resolvedOnClick = readReactive(onClick)
+        return (e: any) => {
+          dialog?.setOpen(true)
+          if (typeof resolvedOnClick === 'function') {
+            resolvedOnClick(e)
+          }
+        }
       }),
       cursor: 'pointer',
       ...props,

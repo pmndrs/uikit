@@ -11,7 +11,7 @@ import {
   WebGLRenderer,
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
-import { Signal, computed, signal } from '@preact/signals-core'
+import { Signal, computed } from '@preact/signals-core'
 import { ColorRepresentation } from '../utils.js'
 import { Properties } from '../properties/index.js'
 import { Inset } from '../flex/index.js'
@@ -137,8 +137,10 @@ const materialSetters = {
     ),
 
   //8 = border radiuses
-  borderBottomLeftRadius: (d, o, p: number, { value: s }, _, u) =>
-    s != null && writeBorderRadius(d, o + 8, 0, p, s[1], u),
+  borderBottomLeftRadius: (d, o, p: number, { value: s }, _, u) => {
+    console.log('borderBottomLeftRadius', p)
+    s != null && writeBorderRadius(d, o + 8, 0, p, s[1], u)
+  },
   borderBottomRightRadius: (d, o, p: number, { value: s }, _, u) =>
     s != null && writeBorderRadius(d, o + 8, 1, p, s[1], u),
   borderTopRightRadius: (d, o, p: number, { value: s }, _, u) =>

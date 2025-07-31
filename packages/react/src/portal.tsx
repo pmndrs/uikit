@@ -11,13 +11,10 @@ import {
   Vector3,
   OrthographicCamera,
 } from 'three'
-import { Image } from './image.js'
+import { Image, ImageProperties, VanillaImage } from './index.js'
 import { InjectState, RootState, reconciler, useFrame, useStore, context } from '@react-three/fiber'
 import type { DomEvent, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
-import type { ImageProperties } from '@pmndrs/uikit/internals'
-import type { ComponentInternals } from './ref.js'
 import { create } from 'zustand'
-import { R3FEventMap } from './utils.js'
 
 // Keys that shouldn't be copied between R3F stores
 export const privateKeys = [
@@ -37,7 +34,7 @@ type Camera = OrthographicCamera | PerspectiveCamera
 const isOrthographicCamera = (def: Camera): def is OrthographicCamera =>
   def && (def as OrthographicCamera).isOrthographicCamera
 
-type BasePortalProperties = Omit<ImageProperties<R3FEventMap>, 'src' | 'objectFit'>
+type BasePortalProperties = Omit<ImageProperties, 'src' | 'objectFit'>
 
 export type PortalProperties = {
   frames?: number
@@ -53,12 +50,10 @@ export type PortalProperties = {
     children?: ReactNode
   }
 
-export type PortalRef = ComponentInternals<BasePortalProperties>
-
-export const Portal: (props: PortalProperties & RefAttributes<PortalRef>) => ReactNode = forwardRef(
+export const Portal = forwardRef<VanillaImage, PortalProperties>(
   ({ children, dpr, frames = Infinity, renderPriority = 0, eventPriority = 0, ...props }, ref) => {
     const fbo = useMemo(() => new Signal<WebGLRenderTarget | undefined>(undefined), [])
-    const imageRef = useRef<ComponentInternals<ImageProperties>>(null)
+    const imageRef = useRef<VanillaImage>(null)
     const previousRoot = useStore()
     dpr ??= previousRoot.getState().viewport.dpr
     useImperativeHandle(ref, () => imageRef.current!, [])
@@ -182,7 +177,7 @@ export const Portal: (props: PortalProperties & RefAttributes<PortalRef>) => Rea
 )
 
 function uvCompute(
-  { current }: RefObject<ComponentInternals<ImageProperties> | null>,
+  { current }: RefObject<VanillaImage | null>,
   event: DomEvent,
   state: RootState,
   previous?: RootState,
@@ -193,7 +188,7 @@ function uvCompute(
   // First we call the previous state-onion-layers compute, this is what makes it possible to nest portals
   if (!previous.raycaster.camera) previous.events.compute?.(event, previous, previous.previousRoot?.getState())
   // We run a quick check against the parent, if it isn't hit there's no need to raycast at all
-  const [intersection] = previous.raycaster.intersectObject(current.interactionPanel)
+  const [intersection] = previous.raycaster.intersectObject(current)
   if (!intersection) return false
   // We take that hits uv coords, set up this layers raycaster, et voilà, we have raycasting on arbitrary surfaces
   const uv = intersection.uv
@@ -212,7 +207,7 @@ function ChildrenToFBO({
   renderPriority: number
   children: ReactNode
   fbo: Signal<WebGLRenderTarget | undefined>
-  imageRef: RefObject<ComponentInternals | null>
+  imageRef: RefObject<VanillaImage | null>
 }) {
   const store = useStore()
 

@@ -1,5 +1,4 @@
-import { Container, ContainerProperties, ThreeEventMap } from '@pmndrs/uikit'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
+import { BaseOutProperties, Container, ContainerProperties, InProperties, ThreeEventMap } from '@pmndrs/uikit'
 import { borderRadius, colors } from './theme.js'
 
 const alertVariants = {

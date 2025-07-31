@@ -1,11 +1,10 @@
 import {
   PropertiesImplementation as BasePropertiesImplementation,
-  ReadonlyProperties,
   Properties as BaseProperties,
 } from '@pmndrs/uikit-pub-sub'
 import { Aliases, AddAllAliases } from './alias.js'
 import { Conditionals, WithConditionals } from './conditional.js'
-import { batch, computed, effect, ReadonlySignal, signal, Signal } from '@preact/signals-core'
+import { batch, computed, signal, Signal } from '@preact/signals-core'
 import { YogaProperties } from '../flex/index.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { ZIndexProperties } from '../order.js'
@@ -17,15 +16,9 @@ import { EventHandlers, ThreeEventMap } from '../events.js'
 import { Defaults } from './defaults.js'
 import { FontFamilyProperties, GlyphProperties, TextAlignProperties } from '../text/index.js'
 import { CaretProperties } from '../caret.js'
-import { inheritedPropertyKeys } from './inheritance.js'
-import {
-  LayerIndexDefaults,
-  LayerIndexInheritance,
-  LayerSectionStart,
-  LayerSectionStartBase,
-  LayersSectionSize,
-} from './layers.js'
+import { LayerIndexDefaults, LayerSectionStart, LayerSectionStartBase, LayersSectionSize } from './layers.js'
 import { alignmentXMap, alignmentYMap, ColorRepresentation, VisibilityProperties } from '../utils.js'
+import { SelectionProperties } from '../selection.js'
 
 export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   PanelProperties &
@@ -42,6 +35,7 @@ export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   FontFamilyProperties &
   GlyphProperties &
   CaretProperties &
+  SelectionProperties &
   SizeProperties &
   AnchorProperties &
   CursorProperties &

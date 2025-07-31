@@ -9,7 +9,7 @@ import { RenderContext } from '../context.js'
 export type VideoSrc = HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | HTMLVideoElement
 
 export type VideoOutProperties<EM extends ThreeEventMap> = ImageOutProperties<EM, VideoSrc> &
-  Omit<HTMLVideoElement, 'src' | 'srcObject' | 'playsInline'>
+  Omit<HTMLVideoElement, 'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active'>
 
 export type VideoProperties<EM extends ThreeEventMap> = InProperties<VideoOutProperties<EM>>
 
@@ -115,8 +115,10 @@ async function loadVideoElement(element: HTMLVideoElement | undefined) {
   if (element == null) {
     return undefined
   }
+  console.log('loadVideoElement', element.readyState, 'src', element.src.length, 'y')
   if (element.readyState < HTMLMediaElement.HAVE_METADATA) {
     await new Promise((resolve) => (element.onloadedmetadata = resolve))
   }
+  console.log('loadedVideoElement', element)
   return element
 }

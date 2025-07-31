@@ -1,5 +1,4 @@
-import { Container, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
+import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors } from './theme.js'
 

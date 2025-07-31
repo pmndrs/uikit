@@ -17,7 +17,6 @@ import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { defaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
-import { toAbsoluteNumber } from '../text/index.js'
 
 export type ImageFit = 'cover' | 'fill'
 
@@ -210,11 +209,13 @@ export class Image<
     }, this.abortSignal)
 
     abortableEffect(() => {
+      console.log('xx')
       if (!this.properties.value.keepAspectRatio) {
         aspectRatio.value = undefined
         return
       }
       const tex = this.texture.value
+      console.log('texture', tex)
       if (tex == null) {
         aspectRatio.value = undefined
         return

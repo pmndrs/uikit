@@ -1,5 +1,12 @@
-import { Container, ContainerProperties, Text, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
+import {
+  Container,
+  ContainerProperties,
+  Text,
+  ThreeEventMap,
+  RenderContext,
+  InProperties,
+  BaseOutProperties,
+} from '@pmndrs/uikit'
 import { ChevronLeft, ChevronRight, Ellipsis } from '@pmndrs/uikit-lucide'
 import { borderRadius, colors } from './theme.js'
 

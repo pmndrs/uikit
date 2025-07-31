@@ -1,4 +1,4 @@
-import { computed, Signal, signal } from '@preact/signals-core'
+import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap } from '../events.js'
 import { BufferGeometry, Material, Matrix4, Mesh, Object3D, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
 import {
@@ -39,6 +39,7 @@ export class Component<
 > {
   private abortController = new AbortController()
 
+  readonly handlers: ReadonlySignal<EventHandlers>
   readonly orderInfo = signal<OrderInfo | undefined>(undefined)
   readonly isVisible: Signal<boolean>
   readonly isClipped: Signal<boolean>
@@ -72,6 +73,7 @@ export class Component<
     renderContext: RenderContext | undefined,
     defaults: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
     dynamicHandlers?: Signal<EventHandlers | undefined>,
+    hasFocus?: Signal<boolean>,
   ) {
     super(panelGeometry, material)
     this.matrixAutoUpdate = false
@@ -85,7 +87,7 @@ export class Component<
     this.root = buildRootContext(this, renderContext)
 
     //properties
-    const conditionals = createConditionals(this.root, this.hoveredList, this.activeList)
+    const conditionals = createConditionals(this.root, this.hoveredList, this.activeList, hasFocus)
     this.properties = new PropertiesImplementation<OutputProperties>(allAliases, conditionals, defaults)
     abortableEffect(() => {
       const parentProprties = this.parentContainer.value?.properties
@@ -164,8 +166,8 @@ export class Component<
     )
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)
 
-    const handlers = computedHandlers(this.properties, this.hoveredList, this.activeList, dynamicHandlers)
-    this.ancestorsHaveListenersSignal = computedAncestorsHaveListeners(this.parentContainer, handlers)
+    this.handlers = computedHandlers(this.properties, this.hoveredList, this.activeList, dynamicHandlers)
+    this.ancestorsHaveListenersSignal = computedAncestorsHaveListeners(this.parentContainer, this.handlers)
 
     this.globalPanelMatrix = computedPanelMatrix(this.properties, this.globalMatrix, this.size, undefined)
 
@@ -182,7 +184,7 @@ export class Component<
     setupPointerEvents(this, hasNonUikitChildren)
 
     abortableEffect(() => {
-      const { value } = handlers
+      const { value } = this.handlers
       for (const key in value) {
         this.addEventListener(keyToEventName(key as keyof EventHandlers), value[key as keyof EventHandlers] as any)
       }
@@ -254,6 +256,7 @@ export class Component<
   }
 
   dispose(): void {
+    console.log('dispose')
     this.abortController.abort()
   }
 }

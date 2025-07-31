@@ -6,6 +6,8 @@ import {
   Video as VideoImpl,
   Text,
   BaseOutProperties,
+  abortableEffect,
+  withOpacity,
 } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { Play, Pause, VolumeX, Volume2 } from '@pmndrs/uikit-lucide'
@@ -13,7 +15,6 @@ import { Slider } from './slider.js'
 import { Button } from './button.js'
 import { colors } from './theme.js'
 import { Object3D } from 'three/src/Three.js'
-import { abortableEffect, readReactive, withOpacity } from '@pmndrs/uikit/src/utils.js'
 
 export type VideoOutProperties<EM extends ThreeEventMap> = BaseVideoOutProperties<EM> & {
   controls?: boolean

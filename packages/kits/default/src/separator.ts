@@ -1,5 +1,4 @@
-import { Container, ThreeEventMap } from '@pmndrs/uikit'
-import { InProperties, BaseOutProperties } from '@pmndrs/uikit/src/properties/index.js'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
 import { colors } from './theme.js'
 
 export type SeparatorNonReactiveProperties = {

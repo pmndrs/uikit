@@ -18,7 +18,7 @@ export class Custom<
   NonReactiveProperties = {},
 > extends Component<T, EM, OutputProperties, NonReactiveProperties> {
   constructor(
-    material: Material,
+    material?: Material,
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,

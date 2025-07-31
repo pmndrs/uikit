@@ -1,13 +1,14 @@
-import { Camera, OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
-import { Signal, batch, signal } from '@preact/signals-core'
+import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
+import { batch, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
-import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { defaults } from '../properties/defaults.js'
-import { AddAllAliases } from '../properties/alias.js'
 
-export type FullscreenProperties<EM extends ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type FullscreenProperties<EM extends ThreeEventMap> = InProperties<FullscreenOutProperties<EM>>
+
+type FullscreenOutProperties<EM extends ThreeEventMap> = BaseOutProperties<EM> & { distanceToCamera?: number }
 
 const vectorHelper = new Vector2()
 
@@ -19,59 +20,41 @@ const fullscreenDefaults = {
 export class Fullscreen<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  OutProperties extends FullscreenOutProperties<EM> = FullscreenOutProperties<EM>,
   NonReactiveProperties = {},
 > extends Container<T, EM, OutProperties, NonReactiveProperties> {
-  private readonly sizeX: Signal<number>
-  private readonly sizeY: Signal<number>
-  private readonly transformTranslateZ: Signal<number>
-  private readonly pixelSize: Signal<number>
+  private readonly sizeX = signal(0)
+  private readonly sizeY = signal(0)
+  private readonly transformTranslateZ = signal(0)
+  private readonly pixelSize = signal(0)
 
   constructor(
     private renderer: WebGLRenderer,
     properties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    private distanceToCamera?: number,
     renderContext?: RenderContext,
   ) {
-    const pixelSize = signal(0)
-    const sizeX = signal(0)
-    const sizeY = signal(0)
-    const transformTranslateZ = signal(0)
     super(properties, initialClasses, renderContext, fullscreenDefaults as OutProperties)
     //force sizeX, sizeY, pixelSize, transformTranslateZ
     this.properties.setLayer(-1, {
-      sizeX,
-      sizeY,
-      pixelSize,
-      transformTranslateZ,
-    } as Partial<AddAllAliases<WithSignal<Partial<OutProperties>>>>)
+      sizeX: this.sizeX,
+      sizeY: this.sizeY,
+      pixelSize: this.pixelSize,
+      transformTranslateZ: this.transformTranslateZ,
+    } as InProperties<OutProperties>)
     this.matrixAutoUpdate = false
-    this.sizeX = sizeX
-    this.sizeY = sizeY
-    this.pixelSize = pixelSize
-    this.transformTranslateZ = transformTranslateZ
-    this.addEventListener('added', () => {
-      if (!(this.parent instanceof PerspectiveCamera || this.parent instanceof OrthographicCamera)) {
-        throw new Error(`fullscreen can only be added to a camera`)
-      }
-      this.distanceToCamera ??= this.parent.near + 0.1
-      this.update(0)
-    })
   }
 
-  /**
-   * must be called when camera.fov, camera.top, camera.bottom, camera.right, camera.left, camera.zoom, camera.aspect changes
-   */
   update(delta: number) {
     super.update(delta)
     const camera = this.parent
-    if (this.distanceToCamera == null || !(camera instanceof Camera)) {
-      return
+    if (!(camera instanceof PerspectiveCamera || camera instanceof OrthographicCamera)) {
+      throw new Error(`fullscreen can only be added to a camera`)
     }
+    const distanceToCamera = this.properties.peek().distanceToCamera ?? camera.near + 0.1
     batch(() => {
       if (camera instanceof PerspectiveCamera) {
-        const cameraHeight = 2 * Math.tan((Math.PI * camera.fov) / 360) * this.distanceToCamera!
+        const cameraHeight = 2 * Math.tan((Math.PI * camera.fov) / 360) * distanceToCamera!
         this.pixelSize.value = cameraHeight / this.renderer.getSize(vectorHelper).y
         this.sizeY.value = cameraHeight
         this.sizeX.value = cameraHeight * camera.aspect
@@ -83,7 +66,7 @@ export class Fullscreen<
         this.sizeY.value = cameraHeight
         this.sizeX.value = cameraWidth
       }
-      this.transformTranslateZ.value = -this.distanceToCamera! / this.pixelSize.value
+      this.transformTranslateZ.value = -distanceToCamera / this.pixelSize.value
     })
   }
 }

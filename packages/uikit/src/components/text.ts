@@ -52,8 +52,9 @@ export class Text<
     selectionTransformations?: Signal<Array<SelectionTransformation>>,
     caretTransformation?: Signal<CaretTransformation | undefined>,
     instancedTextRef?: { current?: InstancedText },
+    hasFocus?: Signal<boolean>,
   ) {
-    super(false, inputProperties, initialClasses, undefined, renderContext, customDefaults, dynamicHandlers)
+    super(false, inputProperties, initialClasses, undefined, renderContext, customDefaults, dynamicHandlers, hasFocus)
     this.material.visible = false
 
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
