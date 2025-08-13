@@ -1,22 +1,9 @@
-import { StrictMode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Box, OrbitControls, OrthographicCamera, RenderTexture } from '@react-three/drei'
-import { computed, signal } from '@preact/signals-core'
-import {
-  Container,
-  Content,
-  Svg,
-  Text,
-  Image,
-  Fullscreen,
-  Portal,
-  SuspendingImage,
-  Video,
-  VanillaImage,
-  VanillaInput,
-  withOpacity,
-  Textarea,
-} from '@react-three/uikit'
+import { Box, OrbitControls, OrthographicCamera } from '@react-three/drei'
+import { signal } from '@preact/signals-core'
+import { Text, Fullscreen, VanillaImage, VanillaInput, Video, Image, Portal, Container } from '@react-three/uikit'
+import {} from '@react-three/uikit-lucide'
 import { Texture } from 'three'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
@@ -59,65 +46,36 @@ export default function App() {
         <color attach="background" args={['black']} />
         <ambientLight intensity={0.5} />
         <directionalLight intensity={10} position={[5, 1, 10]} />
-        <RenderTexture ref={(t) => void (texture.value = t ?? undefined)}>
-          <Box />
-        </RenderTexture>
-        {show && (
-          <Fullscreen
-            distanceToCamera={1}
-            gap={10}
-            overflow="scroll"
-            padding={10}
-            alignItems="center"
-            flexDirection="column"
-            borderWidth={10}
-            borderRightWidth={0}
-            borderColor="red"
-          >
-            {/* Tests for the Portal component.*/}
-            <Container flexShrink={0} flexDirection="row" height={500}>
-              <Video
-                // controls
-                onClick={() => {
-                  videoel?.play()
-                }}
-                height={300}
-                src={videoel}
-                // src={'./video.mp4'}
-              ></Video>
+        <Fullscreen backgroundColor="red" padding={12} gap={12}>
+          <Container padding={12} backgroundColor="blue">
+            <Text backgroundColor="green">Hello World</Text>
+          </Container>
 
-              {/* By default, the Portal should create it's own camera and thus
-                not be affected by the scene camera and orbit controls..*/}
-              {/* <Portal dpr={0.5} borderRadius={30} width="33%">
-                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
-                <color attach="background" args={['red']} />
-              </Portal> */}
-              {/* However, we can provide a camera with custom properties, like
-                a different position or field of view. Note that the aspect
-                ratio will be overriden to match with the screens aspect ratio,
-                s.t. resizing the screen would not distort the portal view.*/}
-              {/* <Portal borderRadius={30} width="33%">
-                <PerspectiveCamera makeDefault position={[0, -1, 4]} fov={500} aspect={100} />
-                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
-                <color attach="background" args={['blue']} />
-              </Portal> */}
-              {/* The resizing should work for the orthographic camera as well.*/}
-              <Portal borderRadius={30} width="33%">
-                <OrthographicCamera
-                  makeDefault
-                  position={[0, 0, 100]}
-                  left={10}
-                  right={10}
-                  top={10}
-                  zoom={100}
-                  bottom={10}
-                />
-                <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
-                <color attach="background" args={['green']} />
-              </Portal>
-            </Container>
-          </Fullscreen>
-        )}
+          <Video
+            // controls
+            onClick={() => {
+              videoel?.play()
+            }}
+            width={300}
+            backgroundColor="blue"
+            src={videoel}
+            // src={'./video.mp4'}
+          ></Video>
+          <Image src="https://picsum.photos/id/237/200/300" width={100} />
+          <Portal borderRadius={30} width="33%">
+            <OrthographicCamera
+              makeDefault
+              position={[0, 0, 100]}
+              left={10}
+              right={10}
+              top={10}
+              zoom={100}
+              bottom={10}
+            />
+            <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+            <color attach="background" args={['green']} />
+          </Portal>
+        </Fullscreen>
       </Canvas>
     </>
   )

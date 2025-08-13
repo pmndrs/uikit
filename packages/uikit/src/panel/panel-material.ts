@@ -138,7 +138,6 @@ const materialSetters = {
 
   //8 = border radiuses
   borderBottomLeftRadius: (d, o, p: number, { value: s }, _, u) => {
-    console.log('borderBottomLeftRadius', p)
     s != null && writeBorderRadius(d, o + 8, 0, p, s[1], u)
   },
   borderBottomRightRadius: (d, o, p: number, { value: s }, _, u) =>

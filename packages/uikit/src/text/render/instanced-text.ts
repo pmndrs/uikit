@@ -20,7 +20,7 @@ import { ThreeEventMap } from '../../events.js'
 import { Text } from '../../components/text.js'
 
 export type TextAlignProperties = {
-  textAlign?: keyof typeof alignmentXMap | 'block'
+  textAlign?: keyof typeof alignmentXMap | 'justify'
 }
 
 export const additionalTextDefaults = {
@@ -167,7 +167,7 @@ export class InstancedText {
     layout: GlyphLayout | undefined,
     range: Vector2Tuple | undefined,
     verticalAlign: keyof typeof alignmentYMap,
-    textAlign: keyof typeof alignmentXMap | 'block',
+    textAlign: keyof typeof alignmentXMap | 'justify',
   ): void {
     if (this.caretTransformation == null || this.selectionTransformations == null) {
       return
@@ -240,7 +240,7 @@ export class InstancedText {
     charIndex: number,
     start: boolean,
     whitespaceWidth: number,
-    textAlign: keyof typeof alignmentXMap | 'block',
+    textAlign: keyof typeof alignmentXMap | 'justify',
   ): { lineIndex: number; x: number } {
     const linesLength = lines.length
     if (charIndex >= lines[0]!.charIndexOffset) {
@@ -320,7 +320,7 @@ export class InstancedText {
 
           const textAlign = this.properties.value.textAlign
           let offsetPerWhitespace =
-            textAlign === 'block' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
+            textAlign === 'justify' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
           let x = getXOffset(availableWidth, nonWhitespaceWidth, textAlign) - availableWidth / 2
 
           let prevGlyphId: number | undefined
@@ -429,7 +429,7 @@ export class InstancedText {
 function getXOffset(
   availableWidth: number,
   nonWhitespaceWidth: number,
-  textAlign: keyof typeof alignmentXMap | 'block',
+  textAlign: keyof typeof alignmentXMap | 'justify',
 ) {
   switch (textAlign) {
     case 'right':

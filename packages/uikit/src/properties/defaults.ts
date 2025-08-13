@@ -15,7 +15,7 @@ export const defaults = {
   lineHeight: '120%' as Required<GlyphProperties>['lineHeight'],
   wordBreak: 'break-word' as Required<GlyphProperties>['wordBreak'],
   verticalAlign: 'middle' as keyof typeof alignmentYMap,
-  textAlign: 'left' as keyof typeof alignmentXMap | 'block',
+  textAlign: 'left' as keyof typeof alignmentXMap | 'justify',
   fontWeight: 'normal' as FontWeight,
   caretWidth: 1.5,
   receiveShadow: false,

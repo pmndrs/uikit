@@ -62,7 +62,6 @@ export function useSetup(ref: { current: Component | null }, props: any) {
   const root = useStore()
   useEffect(() => {
     ref.current?.resetProperties(props)
-    console.log(props, ref.current?.properties.peek().borderTopLeftRadius, ref.current)
   })
   useEffect(() => {
     const container = ref.current

@@ -23,6 +23,7 @@
     "main": "dist/index.js"
   },
   "dependencies": {
-    "@react-three/uikit": "workspace:^"
+    "@react-three/uikit": "workspace:^",
+    "@pmndrs/uikit-lucide": "workspace:^"
   }
 }

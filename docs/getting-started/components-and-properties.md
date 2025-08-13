@@ -268,7 +268,7 @@ The `Text` component allows you to render of text and is highly intertwined with
 | ------------- | --------------------------------------------------------------------------------------------------------------------- |
 | color         | ColorRepresentation                                                                                                   |
 | opacity       | number                                                                                                                |
-| textAlign     | "left", "center", "right"                                                                                             |
+| textAlign     | "left", "center", "right", "block"                                                                                    |
 | verticalAlign | "top", "center", "bottom"                                                                                             |
 | letterSpacing | number                                                                                                                |
 | lineHeight    | number                                                                                                                |

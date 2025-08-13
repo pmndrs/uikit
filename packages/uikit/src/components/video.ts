@@ -31,7 +31,7 @@ export class Video<
     const srcIsElement = computed(() => this.properties.value.src instanceof HTMLVideoElement)
     const notYetLoadedElement = computed(() => {
       if (srcIsElement.value) {
-        this.properties.value.src as HTMLVideoElement
+        return this.properties.value.src as HTMLVideoElement
       }
       const element = document.createElement('video')
       element.style.position = 'absolute'
@@ -115,10 +115,8 @@ async function loadVideoElement(element: HTMLVideoElement | undefined) {
   if (element == null) {
     return undefined
   }
-  console.log('loadVideoElement', element.readyState, 'src', element.src.length, 'y')
   if (element.readyState < HTMLMediaElement.HAVE_METADATA) {
     await new Promise((resolve) => (element.onloadedmetadata = resolve))
   }
-  console.log('loadedVideoElement', element)
   return element
 }

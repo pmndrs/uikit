@@ -281,6 +281,9 @@ importers:
 
   packages/icons/lucide/react:
     dependencies:
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../vanilla
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../../react

@@ -209,13 +209,11 @@ export class Image<
     }, this.abortSignal)
 
     abortableEffect(() => {
-      console.log('xx')
       if (!this.properties.value.keepAspectRatio) {
         aspectRatio.value = undefined
         return
       }
       const tex = this.texture.value
-      console.log('texture', tex)
       if (tex == null) {
         aspectRatio.value = undefined
         return
