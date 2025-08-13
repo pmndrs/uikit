@@ -187,6 +187,26 @@ describe('interpreter', () => {
       // Verify UIKit automatically applied the __id__ class
       expect((result as any)?.classList?.contains('__id__testButton')).to.be.true
     })
+
+    it('should preserve data-* attributes in userData', () => {
+      const htmlWithDataAttrs = `
+        <span
+          class="color-swatch"
+          style="background-color: #1f2937"
+          data-value="#1f2937"
+          data-type="color"
+          data-custom-id="123"
+        ></span>
+      `
+      const { result } = safeInterpret(htmlWithDataAttrs)
+
+      // Verify data-value is transformed to value
+      expect(result?.userData.value).to.equal('#1f2937')
+      
+      // Verify other data attributes have data prefix removed and first letter lowercased
+      expect(result?.userData.type).to.equal('color')
+      expect(result?.userData.customId).to.equal('123')
+    })
   })
 
   describe('children processing', () => {

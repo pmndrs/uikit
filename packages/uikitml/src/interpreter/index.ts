@@ -95,6 +95,15 @@ function interpretElement(json: ElementJson | string, kit?: Kit): Object3D<Objec
     element.userData.dataUid = json.dataUid
   }
 
+  // Preserve data-* attributes in userData, removing data prefix and lowercasing first letter
+  for (const [key, value] of Object.entries(properties)) {
+    if (key.startsWith('data')) {
+      // Remove 'data' prefix and lowercase the first letter of the remaining part
+      const userDataKey = key.slice(4, 5).toLowerCase() + key.slice(5)
+      element.userData[userDataKey] = value
+    }
+  }
+
   if (properties.class) {
     const classNames = (properties.class as string).split(' ').filter((name) => name.trim())
     element.classList.add(...classNames)
