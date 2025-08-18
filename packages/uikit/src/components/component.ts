@@ -11,7 +11,7 @@ import {
   setupPointerEvents,
 } from '../utils.js'
 import { computedPanelMatrix, InstancedPanelMesh, panelGeometry, setupBoundingSphere } from '../panel/index.js'
-import { Overflow } from 'yoga-layout'
+import { Overflow } from 'yoga-layout/load'
 import { computedIsClipped } from '../clipping.js'
 import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
