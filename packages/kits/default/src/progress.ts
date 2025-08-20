@@ -35,6 +35,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       width: '100%',
       borderRadius: 1000,
       backgroundColor: colors.secondary,
+      value,
       ...rest,
     })
   }
