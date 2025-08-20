@@ -104,12 +104,16 @@ export class Input<
       () => this.properties.value.value ?? writeValue.value ?? this.properties.value.defaultValue ?? '',
     )
 
-    abortableEffect(
-      () =>
-        void (text.value =
-          this.properties.value.type === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value),
-      this.abortSignal,
-    )
+    abortableEffect(() => {
+      if (valueSignal.value.length > 0) {
+        text.value =
+          this.properties.value.type === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value
+      } else if (!hasFocus.value && this.properties.value.placeholder != null) {
+        text.value = this.properties.value.placeholder
+      } else {
+        text.value = ''
+      }
+    }, this.abortSignal)
 
     setupSelectionHandlers(
       selectionHandlers,
