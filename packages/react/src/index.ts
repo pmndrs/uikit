@@ -17,7 +17,7 @@ export {
   type AllOptionalProperties,
   type ColorRepresentation,
 } from '@pmndrs/uikit/internals'
-export { type DefaultPropertiesProperties, DefaultProperties } from './default.js'
+export { type DefaultPropertiesProperties, DefaultProperties, useDefaultProperties } from './default.js'
 export type { ComponentInternals } from './ref.js'
 export * from './container.js'
 export * from './root.js'
