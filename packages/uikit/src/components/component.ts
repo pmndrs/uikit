@@ -229,10 +229,11 @@ export class Component<
   }
 
   setProperties(inputProperties: InProperties<OutputProperties, NonReactiveProperties>) {
-    this.internalResetProperties({
+    this.inputProperties = {
       ...this.inputProperties,
       ...inputProperties,
-    })
+    }
+    this.internalResetProperties(this.inputProperties)
   }
 
   resetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
