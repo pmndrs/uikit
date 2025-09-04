@@ -4,7 +4,7 @@ import * as Icons from '@react-three/uikit-lucide'
 
 export default function App() {
   return (
-    <Canvas frameloop="demand" style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
+    <Canvas style={{ height: '100dvh', touchAction: 'none' }} gl={{ localClippingEnabled: true }}>
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
@@ -17,8 +17,8 @@ export default function App() {
         gap={10}
         padding={10}
       >
-        {Object.values(Icons)
-          .filter((Icon, i) => 'render' in Icon && i % 2 === 0)
+        {Object.values(Icons as Record<string, (typeof Icons)['AArrowDown']>)
+          .filter((Icon, i) => i % 2 === 0)
           .map((Icon: any, i) => (
             <Icon key={i} />
           ))}

@@ -13,8 +13,16 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { RenderContext, Svg, SvgProperties, ThreeEventMap, SvgOutProperties, InProperties } from '@pmndrs/uikit'
+      import { RenderContext, Svg, SvgProperties, ThreeEventMap, SvgOutProperties, InProperties, contentDefaults } from '@pmndrs/uikit'
       const content = \`${svg}\`;
+      const defaults = {
+        ...contentDefaults,
+        content,
+        width: 24,
+        height: 24,
+        aspectRatio: 1,
+        keepAspectRatio: false
+      }
       export class ${name}Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap, OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>, NonReactiveProperties = {}> extends Svg<T, EM, OutProperties, NonReactiveProperties> {
         constructor(
           inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
@@ -22,16 +30,10 @@ async function main() {
           renderContext?: RenderContext,
         ) {
           super(
-            {
-              content,
-              width: 24,
-              height: 24,
-              aspectRatio: 1,
-              keepAspectRatio: false,
-              ...inputProperties,
-            } as InProperties<OutProperties, NonReactiveProperties>,
+            inputProperties,
             initialClasses,
             renderContext,
+            defaults as OutProperties,
           )
         }
       }

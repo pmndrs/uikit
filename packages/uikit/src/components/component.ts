@@ -123,7 +123,7 @@ export class Component<
       }
     }, this.abortSignal)
 
-    this.internalResetProperties(inputProperties)
+    this.resetProperties(inputProperties)
 
     this.classList = new ClassList(this.properties, this.starProperties)
     if (initialClasses != null) {
@@ -229,19 +229,14 @@ export class Component<
   }
 
   setProperties(inputProperties: InProperties<OutputProperties, NonReactiveProperties>) {
-    this.inputProperties = {
+    this.resetProperties({
       ...this.inputProperties,
       ...inputProperties,
-    }
-    this.internalResetProperties(this.inputProperties)
+    })
   }
 
   resetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
     this.inputProperties = inputProperties
-    this.internalResetProperties(inputProperties)
-  }
-
-  protected internalResetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
     this.properties.setLayersWithConditionals(0, inputProperties)
     this.starProperties.setLayersWithConditionals(0, getStarProperties(inputProperties))
   }

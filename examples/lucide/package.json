@@ -2,7 +2,8 @@
   "type": "module",
   "dependencies": {
     "@react-three/uikit": "workspace:^",
-    "@react-three/uikit-lucide": "workspace:^"
+    "@react-three/uikit-lucide": "workspace:^",
+    "@pmndrs/uikit": "workspace:^"
   },
   "scripts": {
     "dev": "vite --host",

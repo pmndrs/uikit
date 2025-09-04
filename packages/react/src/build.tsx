@@ -3,9 +3,11 @@ import { effect } from '@preact/signals-core'
 import { extend, RootStore, useFrame, useStore, useThree } from '@react-three/fiber'
 import {
   forwardRef,
+  ForwardRefExoticComponent,
   ForwardRefRenderFunction,
   PropsWithoutRef,
   ReactNode,
+  RefAttributes,
   useEffect,
   useImperativeHandle,
   useMemo,
