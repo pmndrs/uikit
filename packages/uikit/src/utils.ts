@@ -5,13 +5,7 @@ import { BaseOutProperties, Properties } from './properties/index.js'
 import { EventHandlers, ThreeEventMap } from './events.js'
 import { addActiveHandlers } from './active.js'
 import { addHoverHandlers } from './hover.js'
-import { OrderInfo } from './order.js'
-import {
-  AllowedPointerEventsType,
-  makeClippedCast,
-  makePanelRaycast,
-  makePanelSpherecast,
-} from './panel/interaction-panel-mesh.js'
+import { AllowedPointerEventsType } from './panel/interaction-panel-mesh.js'
 import { Component } from './components/component.js'
 import { Container } from './components/container.js'
 import { RootContext } from './context.js'
@@ -236,29 +230,6 @@ export function setupPointerEvents(component: Component, canHaveNonUikitChildren
       interactableDescendants.splice(index, 1)
     }
   }, component.abortSignal)
-}
-
-export function buildRaycasting(
-  component: Component,
-  root: Signal<RootContext>,
-  globalPanelMatrix: Signal<Matrix4 | undefined>,
-  parent: Signal<Container | undefined>,
-  orderInfo: Signal<OrderInfo | undefined>,
-) {
-  component.raycast = makeClippedCast(
-    component,
-    makePanelRaycast(component.raycast.bind(component), root, component.boundingSphere, globalPanelMatrix, component),
-    root,
-    parent,
-    orderInfo,
-  )
-  component.spherecast = makeClippedCast(
-    component,
-    makePanelSpherecast(root, component.boundingSphere, globalPanelMatrix, component),
-    root,
-    parent,
-    orderInfo,
-  )
 }
 
 export type ColorRepresentation = Color | string | number | Vector3Tuple | Vector4Tuple

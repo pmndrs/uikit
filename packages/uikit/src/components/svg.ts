@@ -4,7 +4,7 @@ import { BoundingBox, Content, contentDefaults, ContentOutProperties } from './c
 import { computed, Signal, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 
 export type SvgOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutProperties<EM> & {
@@ -25,12 +25,10 @@ export class Svg<
     inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
-    customDefaults: {
-      [Key in keyof OutProperties]: OutProperties[Key] | Signal<OutProperties[Key]>
-    } = contentDefaults as OutProperties,
+    overrideDefaults = contentDefaults as WithSignal<OutProperties>,
   ) {
     const boundingBox = signal<BoundingBox | undefined>(undefined)
-    super(inputProperties, initialClasses, renderContext, customDefaults as OutProperties, {
+    super(inputProperties, initialClasses, renderContext, overrideDefaults, {
       remeasureOnChildrenChange: false,
       depthWriteDefault: false,
       supportFillProperty: true,

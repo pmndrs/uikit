@@ -76,27 +76,6 @@ export function makePanelSpherecast(
 
 const IdentityMatrix = new Matrix4()
 
-export function makePanelRaycast(
-  raycast: Mesh['raycast'],
-  root: Signal<RootContext>,
-  globalSphereWithLocalScale: Sphere,
-  globalPanelMatrixSignal: Signal<Matrix4 | undefined>,
-  object: Object3D,
-): Mesh['raycast'] {
-  return (raycaster, intersects) => {
-    const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
-    if (
-      !raycaster.ray.intersectsSphere(sphereHelper) ||
-      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalPanelMatrixSignal.peek())
-    ) {
-      return
-    }
-
-    raycast(raycaster, intersects)
-  }
-}
-
 export function setupBoundingSphere(
   target: Sphere,
   pixelSize: Signal<number>,
@@ -129,15 +108,15 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
   parent: Signal<Container | undefined>,
   orderInfoSignal: Signal<OrderInfo | undefined>,
 ) {
-  return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]) => {
+  return (raycaster: Parameters<T>[0], intersects: Parameters<T>[1]): unknown => {
     const oldLength = intersects.length
-    ;(fn as any).call(component, raycaster, intersects)
+    const fnResult = (fn as any).call(component, raycaster, intersects)
     if (oldLength === intersects.length) {
-      return
+      return fnResult
     }
     const orderInfo = orderInfoSignal.peek()
     if (orderInfo == null) {
-      return
+      return fnResult
     }
     const clippingPlanes = parent.peek()?.clippingRect?.peek()?.planes
     const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
@@ -159,5 +138,6 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
         }
       }
     }
+    return fnResult
   }
 }

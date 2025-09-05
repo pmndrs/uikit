@@ -61,10 +61,10 @@ export function useSetup(ref: { current: Component | null }, props: any) {
     renderer.localClippingEnabled = true
     renderer.setTransparentSort(reversePainterSortStable)
   }, [renderer])
-  const root = useStore()
   useEffect(() => {
     ref.current?.resetProperties(props)
   })
+  const root = useStore()
   useEffect(() => {
     const container = ref.current
     if (container == null) {
@@ -72,16 +72,31 @@ export function useSetup(ref: { current: Component | null }, props: any) {
     }
     return effect(() => {
       const { value: handlers } = container.handlers
-      if (container.__r3f != null) {
-        container.__r3f.handlers = handlers
+      const eventCount = Object.keys(handlers).length
+      if (eventCount === 0) {
         return
       }
-      container.__r3f = {
-        root,
-        eventCount: 1,
-        handlers,
+      if (container.__r3f == null) {
+        container.__r3f = {
+          eventCount,
+          root,
+          handlers,
+        }
+      }
+      container.__r3f.handlers = handlers
+      container.__r3f.eventCount = eventCount
+
+      root.getState().internal.interaction.push(container)
+
+      return () => {
+        const rootState = root.getState()
+        const index = rootState.internal.interaction.indexOf(container)
+        if (index === -1) {
+          return
+        }
+        rootState.internal.interaction.splice(index, 1)
       }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [root])
+  }, [])
 }

@@ -13,7 +13,7 @@ import { ScrollbarProperties } from '../scroll.js'
 import { PanelGroupProperties, PointerEventsProperties } from '../panel/index.js'
 import { Listeners } from '../listeners.js'
 import { EventHandlers, ThreeEventMap } from '../events.js'
-import { Defaults } from './defaults.js'
+import { ComponentDefaults } from './defaults.js'
 import { FontFamilyProperties, GlyphProperties, TextAlignProperties } from '../text/index.js'
 import { CaretProperties } from '../caret.js'
 import { LayerIndexDefaults, LayerSectionStart, LayerSectionStartBase, LayersSectionSize } from './layers.js'
@@ -40,7 +40,7 @@ export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   AnchorProperties &
   CursorProperties &
   IdProperties &
-  Defaults
+  ComponentDefaults
 
 export type CursorProperties = {
   cursor?: string
@@ -112,7 +112,7 @@ export class PropertiesImplementation<
   constructor(
     aliases: Aliases,
     private readonly conditionals: Conditionals,
-    defaults?: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
+    defaults?: WithSignal<OutputProperties>,
   ) {
     super(
       (key, value, set) => {

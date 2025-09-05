@@ -1,9 +1,9 @@
 import { MeshBasicMaterial } from 'three'
-import type { FontWeight, GlyphProperties, WordBreak } from '../text/index.js'
+import type { FontWeight, GlyphProperties } from '../text/index.js'
 import { alignmentXMap, alignmentYMap, type VisibilityProperties } from '../utils.js'
 import type { PanelGroupProperties } from '../panel/instanced-panel-group.js'
 
-export const defaults = {
+export const componentDefaults = {
   scrollbarWidth: 10,
   visibility: 'visible' as Required<VisibilityProperties>['visibility'],
   updateMatrixWorld: false,
@@ -26,4 +26,4 @@ export const defaults = {
   anchorY: 'center' as keyof typeof alignmentYMap,
 }
 
-export type Defaults = typeof defaults
+export type ComponentDefaults = typeof componentDefaults

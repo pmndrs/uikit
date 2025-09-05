@@ -1,23 +1,47 @@
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap } from '../events.js'
-import { BufferGeometry, Material, Matrix4, Mesh, Object3D, Object3DEventMap, Sphere, Vector2Tuple } from 'three'
+import {
+  BufferGeometry,
+  Intersection,
+  Material,
+  Matrix4,
+  Mesh,
+  Object3D,
+  Object3DEventMap,
+  Raycaster,
+  Sphere,
+  Vector2Tuple,
+} from 'three'
 import {
   abortableEffect,
-  buildRaycasting,
   computedAncestorsHaveListeners,
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
+  computeMatrixWorld,
   setupPointerEvents,
 } from '../utils.js'
-import { computedPanelMatrix, InstancedPanelMesh, panelGeometry, setupBoundingSphere } from '../panel/index.js'
+import {
+  computedPanelMatrix,
+  InstancedPanelMesh,
+  makeClippedCast,
+  makePanelSpherecast,
+  panelGeometry,
+  setupBoundingSphere,
+} from '../panel/index.js'
 import { Overflow } from 'yoga-layout/load'
 import { computedIsClipped } from '../clipping.js'
 import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
-import { BaseOutProperties, InProperties, Properties, PropertiesImplementation } from '../properties/index.js'
+import {
+  BaseOutProperties,
+  InProperties,
+  Properties,
+  PropertiesImplementation,
+  WithSignal,
+} from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { ClassList, getStarProperties, StyleSheet } from './classes.js'
@@ -26,6 +50,10 @@ import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '.
 import { inheritedPropertyKeys } from '../properties/inheritance.js'
 import { LayerIndexInheritance, LayerIndexStarInheritance } from '../properties/layers.js'
 import type { Container } from './index.js'
+import { componentDefaults } from '../properties/defaults.js'
+
+const IdentityMatrix = new Matrix4()
+const sphereHelper = new Sphere()
 
 export class Component<
   T = {},
@@ -71,7 +99,7 @@ export class Component<
     initialClasses: Array<InProperties<BaseOutProperties<EM>> | string> | undefined,
     material: Material | undefined,
     renderContext: RenderContext | undefined,
-    defaults: { [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]> },
+    defaults = componentDefaults as WithSignal<OutputProperties>,
     dynamicHandlers?: Signal<EventHandlers | undefined>,
     hasFocus?: Signal<boolean>,
   ) {
@@ -171,7 +199,14 @@ export class Component<
 
     this.globalPanelMatrix = computedPanelMatrix(this.properties, this.globalMatrix, this.size, undefined)
 
-    buildRaycasting(this, this.root, this.globalPanelMatrix, this.parentContainer, this.orderInfo)
+    this.raycast = makeClippedCast(this, this.raycast.bind(this), this.root, this.parentContainer, this.orderInfo)
+    this.spherecast = makeClippedCast(
+      this,
+      makePanelSpherecast(this.root, this.boundingSphere, this.globalPanelMatrix, this),
+      this.root,
+      this.parentContainer,
+      this.orderInfo,
+    )
     setupCursorCleanup(this.hoveredList, this.abortSignal)
 
     setupBoundingSphere(
@@ -208,6 +243,21 @@ export class Component<
       this.addEventListener('childadded', listener)
       this.abortSignal.addEventListener('abort', () => this.removeEventListener('childadded', listener))
     }
+  }
+
+  raycast(raycaster: Raycaster, intersects: Intersection[]): unknown {
+    //TODO: enable configuring the return value
+    const rootParentMatrixWorld = this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix
+    sphereHelper.copy(this.boundingSphere).applyMatrix4(rootParentMatrixWorld)
+    if (
+      !raycaster.ray.intersectsSphere(sphereHelper) ||
+      !computeMatrixWorld(this.matrixWorld, rootParentMatrixWorld, this.globalPanelMatrix.peek())
+    ) {
+      return false
+    }
+
+    super.raycast(raycaster, intersects)
+    return false
   }
 
   updateMatrixWorld() {

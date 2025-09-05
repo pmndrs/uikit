@@ -1,8 +1,11 @@
 import {
   BaseOutProperties,
+  Component,
   Container,
+  containerDefaults,
   ContainerProperties,
   InProperties,
+  RenderContext,
   SvgProperties,
   ThreeEventMap,
 } from '@pmndrs/uikit'
@@ -11,14 +14,20 @@ import { computed, signal } from '@preact/signals-core'
 
 export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
+export const accordionDefaults = {
+  flexDirection: 'column',
+}
+
 export class Accordion<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   readonly openItemValue = signal<string | undefined>(undefined)
 
-  protected internalResetProperties(inputProperties?: AccordionProperties | undefined): void {
-    super.internalResetProperties({
-      flexDirection: 'column',
-      ...inputProperties,
-    })
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>, {}> | undefined,
+    initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[] | undefined,
+    renderContext?: RenderContext,
+    overrideDefaults?: BaseOutProperties<EM>,
+  ) {
+    super(inputProperties, initialClasses, renderContext, overrideDefaults)
   }
 }
 
@@ -30,28 +39,38 @@ export type AccordionItemProperties<EM extends ThreeEventMap = ThreeEventMap> = 
   AccordionItemOutProperties<EM>
 >
 
+export const accordionItemDefaults = {
+  cursor: 'pointer',
+  flexDirection: 'column',
+  onClick: (event) => {
+    if (!('eventObject' in event && event.eventObject instanceof Component)) {
+      return
+    }
+    const parent = event.eventObject.parentContainer.peek()
+    if (!(parent instanceof Accordion)) {
+      return
+    }
+    const ownValue = event.eventObject.properties.peek().value
+    const currentValue = parent.openItemValue.peek()
+    const isSelected = ownValue === currentValue
+    parent.openItemValue.value = isSelected ? undefined : ownValue
+  },
+  borderBottomWidth: 1,
+  ...containerDefaults,
+} satisfies AccordionItemOutProperties<ThreeEventMap>
+
 export class AccordionItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
   AccordionItemOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: AccordionItemProperties<EM> | undefined): void {
-    super.internalResetProperties({
-      cursor: 'pointer',
-      flexDirection: 'column',
-      onClick: () => {
-        const parent = this.parentContainer.peek()
-        if (!(parent instanceof Accordion)) {
-          return
-        }
-        const ownValue = this.properties.peek().value
-        const currentValue = parent.openItemValue.peek()
-        const isSelected = ownValue === currentValue
-        parent.openItemValue.value = isSelected ? undefined : ownValue
-      },
-      borderBottomWidth: 1,
-      ...inputProperties,
-    })
+  constructor(
+    inputProperties?: InProperties<AccordionItemOutProperties<EM>, {}> | undefined,
+    initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[] | undefined,
+    renderContext?: RenderContext,
+    overrideDefaults: AccordionItemOutProperties<EM> = accordionItemDefaults,
+  ) {
+    super(inputProperties, initialClasses, renderContext, overrideDefaults)
   }
 }
 

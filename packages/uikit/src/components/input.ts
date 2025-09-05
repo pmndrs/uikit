@@ -2,7 +2,7 @@ import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
 import { Component } from './component.js'
 import { Vector2, Vector2Tuple } from 'three'
-import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
 import { InstancedText } from '../text/index.js'
 import { abortableEffect } from '../utils.js'
 import { Text, TextOutProperties, textDefaults } from './text.js'
@@ -45,6 +45,15 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
 
 export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
 
+export const inputDefaults = {
+  ...textDefaults,
+  cursor: 'text',
+  type: 'text',
+  disabled: false,
+  tabIndex: 0,
+  autocomplete: '',
+}
+
 export class Input<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
@@ -60,6 +69,7 @@ export class Input<
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    overrideDefaults = inputDefaults as WithSignal<OutputProperties>,
     multiline = false,
   ) {
     const text = signal('')
@@ -78,13 +88,8 @@ export class Input<
       initialClasses,
       renderContext,
       {
-        ...textDefaults,
-        cursor: 'text',
+        ...overrideDefaults,
         ...({ text } as any),
-        type: 'text',
-        disabled: false,
-        tabIndex: 0,
-        autocomplete: '',
         caretColor,
       },
       selectionHandlers,

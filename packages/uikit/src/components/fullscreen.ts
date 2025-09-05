@@ -2,18 +2,18 @@ import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 't
 import { batch, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
-import { defaults } from '../properties/defaults.js'
+import { componentDefaults } from '../properties/defaults.js'
 
 export type FullscreenProperties<EM extends ThreeEventMap> = InProperties<FullscreenOutProperties<EM>>
 
-type FullscreenOutProperties<EM extends ThreeEventMap> = BaseOutProperties<EM> & { distanceToCamera?: number }
+export type FullscreenOutProperties<EM extends ThreeEventMap> = BaseOutProperties<EM> & { distanceToCamera?: number }
 
 const vectorHelper = new Vector2()
 
-const fullscreenDefaults = {
-  ...defaults,
+export const fullscreenDefaults = {
+  ...componentDefaults,
   pointerEvents: 'listener' as const,
 }
 
@@ -33,8 +33,9 @@ export class Fullscreen<
     properties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    overrideDefaults = fullscreenDefaults as WithSignal<OutProperties>,
   ) {
-    super(properties, initialClasses, renderContext, fullscreenDefaults as OutProperties)
+    super(properties, initialClasses, renderContext, overrideDefaults)
     //force sizeX, sizeY, pixelSize, transformTranslateZ
     this.properties.setLayer(-1, {
       sizeX: this.sizeX,

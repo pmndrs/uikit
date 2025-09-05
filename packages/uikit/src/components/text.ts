@@ -1,6 +1,6 @@
 import { computed, signal, Signal } from '@preact/signals-core'
 import { EventHandlers, ThreeEventMap } from '../events.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
 import { ElementType, OrderInfo, setupOrderInfo } from '../order.js'
 import {
@@ -17,7 +17,7 @@ import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.j
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { abortableEffect } from '../utils.js'
-import { defaults } from '../properties/defaults.js'
+import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { Vector2Tuple } from 'three'
 import { CaretTransformation } from '../caret.js'
@@ -28,7 +28,7 @@ export type TextOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOu
 
 export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TextOutProperties<EM>>
 
-export const textDefaults = { ...defaults, ...additionalTextDefaults }
+export const textDefaults = { ...componentDefaults, ...additionalTextDefaults }
 
 export class Text<
   T = {},
@@ -44,9 +44,7 @@ export class Text<
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
-    customDefaults: {
-      [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]>
-    } = textDefaults as any,
+    overrideDefaults = textDefaults as WithSignal<OutputProperties>,
     dynamicHandlers?: Signal<EventHandlers | undefined>,
     selectionRange?: Signal<Vector2Tuple | undefined>,
     selectionTransformations?: Signal<Array<SelectionTransformation>>,
@@ -54,7 +52,7 @@ export class Text<
     instancedTextRef?: { current?: InstancedText },
     hasFocus?: Signal<boolean>,
   ) {
-    super(false, inputProperties, initialClasses, undefined, renderContext, customDefaults, dynamicHandlers, hasFocus)
+    super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults, dynamicHandlers, hasFocus)
     this.material.visible = false
 
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)

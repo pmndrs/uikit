@@ -1,8 +1,8 @@
-import { ImageOutProperties, Image } from './image.js'
+import { ImageOutProperties, Image, imageDefaults } from './image.js'
 import { SRGBColorSpace, VideoTexture } from 'three'
 import { computed, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { RenderContext } from '../context.js'
 
@@ -12,6 +12,8 @@ export type VideoOutProperties<EM extends ThreeEventMap> = ImageOutProperties<EM
   Omit<HTMLVideoElement, 'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active'>
 
 export type VideoProperties<EM extends ThreeEventMap> = InProperties<VideoOutProperties<EM>>
+
+export const videoDefaults = imageDefaults
 
 export class Video<
   T = {},
@@ -25,8 +27,9 @@ export class Video<
     inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    overrideDefaults = videoDefaults as WithSignal<OutProperties>,
   ) {
-    super(inputProperties, initialClasses, renderContext, false)
+    super(inputProperties, initialClasses, renderContext, overrideDefaults, false)
 
     const srcIsElement = computed(() => this.properties.value.src instanceof HTMLVideoElement)
     const notYetLoadedElement = computed(() => {

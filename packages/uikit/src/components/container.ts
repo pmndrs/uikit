@@ -15,19 +15,23 @@ import {
 } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
-import { defaults } from '../properties/defaults.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
+import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { Parent } from './component.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
+export type ContainerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+
+export const containerDefaults = componentDefaults
+
 export class Container<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  Properties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
   NonReactiveProperties = {},
-> extends Parent<T, EM, Properties, NonReactiveProperties> {
+> extends Parent<T, EM, OutProperties, NonReactiveProperties> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
@@ -41,10 +45,10 @@ export class Container<
   readonly scrollPosition = signal<Vector2Tuple>([0, 0])
 
   constructor(
-    inputProperties?: InProperties<Properties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
-    overrideDefaults: Properties = defaults as Properties,
+    overrideDefaults = containerDefaults as WithSignal<OutProperties>,
   ) {
     const scrollHandlers = signal<ScrollEventHandlers | undefined>(undefined)
     super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults, scrollHandlers)

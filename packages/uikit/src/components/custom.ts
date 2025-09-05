@@ -2,14 +2,18 @@ import { computed } from '@preact/signals-core'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { ThreeEventMap } from '../events.js'
 import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
 import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
-import { defaults } from '../properties/defaults.js'
+import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 
 export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+
+export type CustomOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+
+export const customDefaults = componentDefaults
 
 export class Custom<
   T = {},
@@ -22,8 +26,9 @@ export class Custom<
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    overrideDefaults = componentDefaults as WithSignal<OutputProperties>,
   ) {
-    super(false, inputProperties, initialClasses, material, renderContext, defaults as OutputProperties)
+    super(false, inputProperties, initialClasses, material, renderContext, overrideDefaults)
 
     setupOrderInfo(
       this.orderInfo,

@@ -43,7 +43,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       set: <K2 extends keyof Out>(key: K2, value: Out[K2] | Signal<Out[K2]>) => void,
       layerIndex: number,
     ) => void,
-    private readonly defaults?: { [Key in keyof Out]: Out[Key] | Signal<Out[Key]> },
+    private readonly defaults?: { [Key in keyof Out]?: Out[Key] | Signal<Out[Key]> },
     private readonly onLayerIndicesChanged?: () => void,
   ) {
     this.propertyKeys = defaults == null ? [] : (Array.from(Object.keys(defaults)) as Array<keyof Out>)

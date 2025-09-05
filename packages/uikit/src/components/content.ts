@@ -6,17 +6,17 @@ import { setupInstancedPanel } from '../panel/instanced-panel.js'
 import { getDefaultPanelMaterialConfig, writeColor } from '../panel/panel-material.js'
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
 import { abortableEffect, alignmentZMap, setupMatrixWorldUpdate } from '../utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
 import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
-import { defaults } from '../properties/defaults.js'
+import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 
 export const contentDefaults = {
-  ...defaults,
+  ...componentDefaults,
   depthAlign: 'back' as keyof typeof alignmentZMap,
   keepAspectRatio: true,
 }
@@ -53,9 +53,7 @@ export class Content<
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
-    customDefaults: {
-      [Key in keyof OutputProperties]: OutputProperties[Key] | Signal<OutputProperties[Key]>
-    } = contentDefaults as OutputProperties,
+    overrideDefaults = contentDefaults as WithSignal<OutputProperties>,
     private readonly config: {
       remeasureOnChildrenChange: boolean
       depthWriteDefault: boolean
@@ -70,7 +68,7 @@ export class Content<
     const defaultAspectRatio = signal<number | undefined>(undefined)
     super(true, inputProperties, initialClasses, undefined, renderContext, {
       aspectRatio: defaultAspectRatio,
-      ...customDefaults,
+      ...overrideDefaults,
     })
     abortableEffect(() => {
       if (!this.properties.value.keepAspectRatio) {

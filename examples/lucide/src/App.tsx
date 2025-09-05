@@ -19,7 +19,7 @@ export default function App() {
       >
         {Object.values(Icons as Record<string, (typeof Icons)['AArrowDown']>)
           .filter((Icon, i) => i % 2 === 0)
-          .map((Icon: any, i) => (
+          .map((Icon, i) => (
             <Icon key={i} />
           ))}
       </Fullscreen>

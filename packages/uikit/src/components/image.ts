@@ -1,6 +1,6 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
 import { SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
 import { abortableEffect, loadResourceWithParams, setupMatrixWorldUpdate } from '../utils.js'
@@ -14,13 +14,14 @@ import {
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
 import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
-import { defaults } from '../properties/defaults.js'
+import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
 
 export type ImageFit = 'cover' | 'fill'
 
-const additionalImageDefaults = {
+export const imageDefaults = {
+  ...componentDefaults,
   objectFit: 'fill' as ImageFit,
   keepAspectRatio: true,
 }
@@ -28,7 +29,7 @@ const additionalImageDefaults = {
 export type ImageOutProperties<EM extends ThreeEventMap, Src> = BaseOutProperties<EM> & {
   src?: Src
   aspectRatio?: number
-} & typeof additionalImageDefaults
+} & typeof imageDefaults
 
 export type ImageProperties<EM extends ThreeEventMap> = InProperties<ImageOutProperties<EM, string | Texture>>
 
@@ -44,14 +45,14 @@ export class Image<
     inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     renderContext?: RenderContext,
+    overrideDefaults = imageDefaults as WithSignal<OutputProperties>,
     loadTexture = true,
   ) {
     const aspectRatio = signal<number | undefined>(undefined)
     super(false, inputProperties, initialClasses, undefined, renderContext, {
-      ...defaults,
-      ...additionalImageDefaults,
       aspectRatio,
-    } as any as OutputProperties)
+      ...overrideDefaults,
+    } as WithSignal<OutputProperties>)
 
     setupOrderInfo(
       this.orderInfo,
