@@ -38,44 +38,46 @@ const vectorHelper = new Vector3()
 
 export type BoundingBox = { size: Vector3; center: Vector3 }
 
+const RemeasureOnChildrenChangeDefault = true
+const DepthWriteDefaultDefault = true
+const SupportFillPropertyDefault = false
+
 export class Content<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends ContentOutProperties<EM> = ContentOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Component<T, EM, OutputProperties> {
+  OutProperties extends ContentOutProperties<EM> = ContentOutProperties<EM>,
+> extends Component<T, EM, OutProperties> {
   readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
   readonly clippingPlanes: Array<Plane>
 
   private readonly childrenMatrix = new Matrix4()
 
   constructor(
-    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = contentDefaults as WithSignal<OutputProperties>,
-    private readonly config: {
-      remeasureOnChildrenChange: boolean
-      depthWriteDefault: boolean
-      supportFillProperty: boolean
+    private readonly config?: {
+      remeasureOnChildrenChange?: boolean
+      depthWriteDefault?: boolean
+      supportFillProperty?: boolean
       boundingBox?: Signal<BoundingBox | undefined>
-    } = {
-      remeasureOnChildrenChange: true,
-      depthWriteDefault: true,
-      supportFillProperty: false,
+      defaultOverrides?: InProperties<OutProperties>
+      renderContext?: RenderContext
     },
   ) {
     const defaultAspectRatio = signal<number | undefined>(undefined)
-    super(true, inputProperties, initialClasses, undefined, renderContext, {
-      aspectRatio: defaultAspectRatio,
-      ...overrideDefaults,
+    super(inputProperties, initialClasses, {
+      defaults: contentDefaults as OutProperties,
+      hasNonUikitChildren: true,
+      ...config,
+      defaultOverrides: { aspectRatio: defaultAspectRatio, ...config?.defaultOverrides } as InProperties<OutProperties>,
     })
+
     abortableEffect(() => {
       if (!this.properties.value.keepAspectRatio) {
         defaultAspectRatio.value = undefined
         return
       }
-      const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
+      const boundingBox = config?.boundingBox?.value ?? this.boundingBox.value
       defaultAspectRatio.value = boundingBox.size.x / boundingBox.size.y
     }, this.abortSignal)
     this.material.visible = false
@@ -122,7 +124,7 @@ export class Content<
       const innerWidth = width - leftInset - rightInset
       const innerHeight = height - topInset - bottomInset
 
-      const boundingBox = this.config.boundingBox?.value ?? this.boundingBox.value
+      const boundingBox = config?.boundingBox?.value ?? this.boundingBox.value
 
       const pixelSize = this.properties.value.pixelSize
       scaleHelper
@@ -164,13 +166,14 @@ export class Content<
       applyAppearancePropertiesToGroup(
         this.properties,
         this,
-        this.config.depthWriteDefault,
-        this.config.supportFillProperty,
+        this.config?.depthWriteDefault ?? DepthWriteDefaultDefault,
+        this.config?.supportFillProperty ?? SupportFillPropertyDefault,
       )
       this.root.peek().requestRender?.()
     }, this.abortSignal)
 
-    if (config.remeasureOnChildrenChange) {
+    const remeasureOnChildrenChange = this.config?.remeasureOnChildrenChange ?? RemeasureOnChildrenChangeDefault
+    if (remeasureOnChildrenChange) {
       const onChildrenChanged = this.notifyAncestorsChanged.bind(this)
       this.addEventListener('childadded', onChildrenChanged)
       this.addEventListener('childremoved', onChildrenChanged)
@@ -193,8 +196,8 @@ export class Content<
     applyAppearancePropertiesToGroup(
       this.properties,
       this,
-      this.config.depthWriteDefault,
-      this.config.supportFillProperty,
+      this.config?.depthWriteDefault ?? DepthWriteDefaultDefault,
+      this.config?.supportFillProperty ?? SupportFillPropertyDefault,
     )
     this.traverse((child) => {
       if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
@@ -213,7 +216,7 @@ export class Content<
           : undefined
     })
 
-    if (this.config.boundingBox == null) {
+    if (this.config?.boundingBox == null) {
       //no need to compute the bounding box ourselves
       box3Helper.makeEmpty()
       for (const child of this.children) {

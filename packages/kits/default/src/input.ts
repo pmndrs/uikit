@@ -5,8 +5,8 @@ import {
   Input as InputImpl,
   Text,
   ThreeEventMap,
-  RenderContext,
   InputOutProperties as BaseInputOutProperties,
+  RenderContext,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors } from './theme.js'
@@ -22,42 +22,45 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   constructor(
     inputProperties?: InProperties<InputOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<InputOutProperties<EM>> },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        height: 40,
+        positionType: 'relative',
+        overflow: 'hidden',
+        fontSize: 14,
+        borderWidth: 1,
+        paddingX: 12,
+        paddingY: 8,
+        lineHeight: '20px',
+        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.signal.disabled?.value),
+        ...config?.defaultOverrides,
+      },
+    })
     // Create input implementation
-    const inputImpl = new InputImpl({
-      borderRadius: borderRadius.md,
-      backgroundColor: colors.background,
-      borderColor: colors.input,
-      inset: 0,
+    const inputImpl = new InputImpl(undefined, undefined, {
+      defaultOverrides: {
+        borderRadius: borderRadius.md,
+        backgroundColor: colors.background,
+        borderColor: colors.input,
+        inset: 0,
+      },
     })
     super.add(inputImpl)
 
     // Always create placeholder text
-    const placeholderText = new Text({
-      color: colors.mutedForeground,
-      inset: 0,
-      positionType: 'absolute',
-      display: computed(() => (this.properties.value.placeholder != null ? 'flex' : 'none')),
+    const placeholderText = new Text(undefined, undefined, {
+      defaultOverrides: {
+        color: colors.mutedForeground,
+        inset: 0,
+        positionType: 'absolute',
+        display: computed(() => (this.properties.value.placeholder != null ? 'flex' : 'none')),
+      },
     })
     super.add(placeholderText)
-  }
-
-  protected internalResetProperties({ disabled, ...rest }: InputProperties<EM> = {}): void {
-    super.internalResetProperties({
-      height: 40,
-      positionType: 'relative',
-      overflow: 'hidden',
-      fontSize: 14,
-      borderWidth: 1,
-      paddingX: 12,
-      paddingY: 8,
-      lineHeight: '20px',
-      opacity: disabled ? 0.5 : undefined,
-      disabled,
-      ...rest,
-    })
   }
 
   add(...object: Object3D[]): this {

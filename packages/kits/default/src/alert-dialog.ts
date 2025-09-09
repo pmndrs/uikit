@@ -1,13 +1,4 @@
-import {
-  Container,
-  ThreeEventMap,
-  InProperties,
-  BaseOutProperties,
-  readReactive,
-  RenderContext,
-  withOpacity,
-} from '@pmndrs/uikit'
-import { computed } from '@preact/signals-core'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, withOpacity, RenderContext } from '@pmndrs/uikit'
 import { borderRadius, colors } from './theme.js'
 import { Dialog, DialogProperties } from './dialog.js'
 
@@ -15,36 +6,34 @@ export type AlertDialogProperties<EM extends ThreeEventMap = ThreeEventMap> = Di
 
 export class AlertDialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Dialog<T, EM> {}
 
-export type AlertDialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
-
-export type AlertDialogTriggerNonReactiveProperties = {
+export type AlertDialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   dialog?: AlertDialog
 }
 
 export type AlertDialogTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  AlertDialogTriggerOutProperties<EM>,
-  AlertDialogTriggerNonReactiveProperties
+  AlertDialogTriggerOutProperties<EM>
 >
 
 export class AlertDialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
-  AlertDialogTriggerOutProperties<EM>,
-  AlertDialogTriggerNonReactiveProperties
+  AlertDialogTriggerOutProperties<EM>
 > {
-  protected internalResetProperties({ onClick, dialog, ...props }: AlertDialogTriggerProperties<EM> = {}): void {
-    super.internalResetProperties({
-      onClick: computed(() => {
-        const resolvedOnClick = readReactive(onClick)
-        return (e: any) => {
-          dialog?.setOpen(true)
-          if (typeof resolvedOnClick === 'function') {
-            resolvedOnClick(e)
-          }
-        }
-      }),
-      cursor: 'pointer',
-      ...props,
+  constructor(
+    inputProperties?: AlertDialogTriggerProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogTriggerOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onClick: (event) => {
+          this.properties.peek().dialog?.setOpen(true)
+          this.properties.peek().onClick?.(event)
+        },
+        cursor: 'pointer',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -60,27 +49,29 @@ export class AlertDialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap
   EM,
   AlertDialogContentOutProperties<EM>
 > {
-  protected internalResetProperties({ onClick, sm, ...props }: AlertDialogContentProperties<EM> = {}): void {
-    super.internalResetProperties({
-      onClick: computed(() => {
-        const resolvedOnClick = readReactive(onClick)
-        return (e: any) => {
-          e.stopPropagation()
-          if (typeof resolvedOnClick === 'function') {
-            resolvedOnClick(e)
-          }
-        }
-      }),
-      positionType: 'relative',
-      flexDirection: 'column',
-      maxWidth: 512,
-      width: '100%',
-      gap: 16,
-      borderWidth: 1,
-      backgroundColor: colors.background,
-      padding: 24,
-      sm: { borderRadius: borderRadius.lg, ...sm },
-      ...props,
+  constructor(
+    inputProperties?: AlertDialogContentProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogContentOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onClick: (e) => {
+          e.stopPropagation?.()
+          this.properties.peek().onClick?.(e)
+        },
+        positionType: 'relative',
+        flexDirection: 'column',
+        maxWidth: 512,
+        width: '100%',
+        gap: 16,
+        borderWidth: 1,
+        backgroundColor: colors.background,
+        padding: 24,
+        sm: { borderRadius: borderRadius.lg },
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -96,11 +87,18 @@ export class AlertDialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap>
   EM,
   AlertDialogHeaderOutProperties<EM>
 > {
-  protected internalResetProperties(props: AlertDialogHeaderProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexDirection: 'column',
-      gap: 6,
-      ...props,
+  constructor(
+    inputProperties?: AlertDialogHeaderProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogHeaderOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column',
+        gap: 6,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -116,12 +114,19 @@ export class AlertDialogFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap>
   EM,
   AlertDialogFooterOutProperties<EM>
 > {
-  protected internalResetProperties({ sm, ...props }: AlertDialogFooterProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexDirection: 'column-reverse',
-      sm: { flexDirection: 'row', justifyContent: 'flex-end', ...sm },
-      gap: 8,
-      ...props,
+  constructor(
+    inputProperties?: AlertDialogFooterProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogFooterOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column-reverse',
+        sm: { flexDirection: 'row', justifyContent: 'flex-end' },
+        gap: 8,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -137,12 +142,19 @@ export class AlertDialogTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
   EM,
   AlertDialogTitleOutProperties<EM>
 > {
-  protected internalResetProperties(props: AlertDialogTitleProperties<EM> = {}): void {
-    super.internalResetProperties({
-      fontSize: 18,
-      lineHeight: '28px',
-      fontWeight: 'semi-bold',
-      ...props,
+  constructor(
+    inputProperties?: AlertDialogTitleProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogTitleOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        fontSize: 18,
+        lineHeight: '28px',
+        fontWeight: 'semi-bold',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -158,12 +170,22 @@ export class AlertDialogDescription<T = {}, EM extends ThreeEventMap = ThreeEven
   EM,
   AlertDialogDescriptionOutProperties<EM>
 > {
-  protected internalResetProperties(props: AlertDialogDescriptionProperties<EM> = {}): void {
-    super.internalResetProperties({
-      fontSize: 14,
-      lineHeight: '20px',
-      color: colors.mutedForeground,
-      ...props,
+  constructor(
+    inputProperties?: AlertDialogDescriptionProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<AlertDialogDescriptionOutProperties<EM>>
+    },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        fontSize: 14,
+        lineHeight: '20px',
+        color: colors.mutedForeground,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -179,34 +201,41 @@ export class AlertDialogAction<T = {}, EM extends ThreeEventMap = ThreeEventMap>
   EM,
   AlertDialogActionOutProperties<EM>
 > {
-  protected internalResetProperties({ onClick, ...props }: AlertDialogActionProperties<EM> = {}): void {
-    super.internalResetProperties({
-      borderRadius: borderRadius.md,
-      height: 40,
-      paddingX: 16,
-      paddingY: 8,
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      flexDirection: 'row',
-      backgroundColor: colors.primary,
-      onClick: computed(() => (e: any) => {
-        e.stopPropagation()
-        this.closeDialog()
-        const originalOnClick = onClick
-        if (typeof originalOnClick === 'function') {
-          originalOnClick(e)
-        }
-      }),
-      hover: {
-        backgroundColor: withOpacity(colors.primary, 0.9),
+  constructor(
+    inputProperties?: AlertDialogActionProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogActionOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        borderRadius: borderRadius.md,
+        height: 40,
+        paddingX: 16,
+        paddingY: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        flexDirection: 'row',
+        backgroundColor: colors.primary,
+        onClick: (e: any) => {
+          e.stopPropagation()
+          this.closeDialog()
+          const originalOnClick = this.properties.peek().onClick as any
+          if (typeof originalOnClick === 'function') {
+            originalOnClick(e)
+          }
+        },
+        hover: {
+          backgroundColor: withOpacity(colors.primary, 0.9),
+        },
+        fontSize: 14,
+        lineHeight: '20px',
+        fontWeight: 'medium',
+        wordBreak: 'keep-all',
+        color: colors.primaryForeground,
+        ...config?.defaultOverrides,
       },
-      fontSize: 14,
-      lineHeight: '20px',
-      fontWeight: 'medium',
-      wordBreak: 'keep-all',
-      color: colors.primaryForeground,
-      ...props,
     })
   }
 
@@ -242,35 +271,42 @@ export class AlertDialogCancel<T = {}, EM extends ThreeEventMap = ThreeEventMap>
   EM,
   AlertDialogCancelOutProperties<EM>
 > {
-  protected internalResetProperties({ onClick, ...props }: AlertDialogCancelProperties<EM> = {}): void {
-    super.internalResetProperties({
-      borderRadius: borderRadius.md,
-      height: 40,
-      paddingX: 16,
-      paddingY: 8,
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderColor: colors.input,
-      backgroundColor: colors.background,
-      onClick: computed(() => (e: any) => {
-        e.stopPropagation()
-        this.closeDialog()
-        const originalOnClick = onClick
-        if (typeof originalOnClick === 'function') {
-          originalOnClick(e)
-        }
-      }),
-      hover: {
-        backgroundColor: colors.accent,
+  constructor(
+    inputProperties?: AlertDialogCancelProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogCancelOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        borderRadius: borderRadius.md,
+        height: 40,
+        paddingX: 16,
+        paddingY: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: colors.input,
+        backgroundColor: colors.background,
+        onClick: (e: any) => {
+          e.stopPropagation()
+          this.closeDialog()
+          const originalOnClick = this.properties.peek().onClick as any
+          if (typeof originalOnClick === 'function') {
+            originalOnClick(e)
+          }
+        },
+        hover: {
+          backgroundColor: colors.accent,
+        },
+        fontSize: 14,
+        lineHeight: '20px',
+        fontWeight: 'medium',
+        wordBreak: 'keep-all',
+        ...config?.defaultOverrides,
       },
-      fontSize: 14,
-      lineHeight: '20px',
-      fontWeight: 'medium',
-      wordBreak: 'keep-all',
-      ...props,
     })
   }
 

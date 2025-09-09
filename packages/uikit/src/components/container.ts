@@ -15,8 +15,7 @@ import {
 } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
-import { componentDefaults } from '../properties/defaults.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { Parent } from './component.js'
 
@@ -24,14 +23,11 @@ export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InPr
 
 export type ContainerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
-export const containerDefaults = componentDefaults
-
 export class Container<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Parent<T, EM, OutProperties, NonReactiveProperties> {
+> extends Parent<T, EM, OutProperties> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
@@ -45,13 +41,19 @@ export class Container<
   readonly scrollPosition = signal<Vector2Tuple>([0, 0])
 
   constructor(
-    inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = containerDefaults as WithSignal<OutProperties>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+    },
   ) {
     const scrollHandlers = signal<ScrollEventHandlers | undefined>(undefined)
-    super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults, scrollHandlers)
+    super(inputProperties, initialClasses, {
+      hasNonUikitChildren: false,
+      dynamicHandlers: scrollHandlers,
+      ...config,
+    })
     this.material.visible = false
 
     setupScrollHandlers(scrollHandlers, this, this.abortSignal)

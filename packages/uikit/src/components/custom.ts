@@ -2,33 +2,31 @@ import { computed } from '@preact/signals-core'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { ThreeEventMap } from '../events.js'
 import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
-import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
 import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
-import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 
 export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
 export type CustomOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
-export const customDefaults = componentDefaults
-
 export class Custom<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Component<T, EM, OutputProperties, NonReactiveProperties> {
+  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
+> extends Component<T, EM, OutProperties> {
   constructor(
-    material?: Material,
-    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = componentDefaults as WithSignal<OutputProperties>,
+    config?: {
+      material?: Material
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+    },
   ) {
-    super(false, inputProperties, initialClasses, material, renderContext, overrideDefaults)
+    super(inputProperties, initialClasses, { hasNonUikitChildren: false, ...config })
 
     setupOrderInfo(
       this.orderInfo,

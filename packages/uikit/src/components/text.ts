@@ -33,26 +33,31 @@ export const textDefaults = { ...componentDefaults, ...additionalTextDefaults }
 export class Text<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends TextOutProperties<EM> = TextOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Component<T, EM, OutputProperties, NonReactiveProperties> {
+  OutProperties extends TextOutProperties<EM> = TextOutProperties<EM>,
+> extends Component<T, EM, OutProperties> {
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
 
   constructor(
-    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = textDefaults as WithSignal<OutputProperties>,
-    dynamicHandlers?: Signal<EventHandlers | undefined>,
-    selectionRange?: Signal<Vector2Tuple | undefined>,
-    selectionTransformations?: Signal<Array<SelectionTransformation>>,
-    caretTransformation?: Signal<CaretTransformation | undefined>,
-    instancedTextRef?: { current?: InstancedText },
-    hasFocus?: Signal<boolean>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+      dynamicHandlers?: Signal<EventHandlers | undefined>
+      selectionRange?: Signal<Vector2Tuple | undefined>
+      selectionTransformations?: Signal<Array<SelectionTransformation>>
+      caretTransformation?: Signal<CaretTransformation | undefined>
+      instancedTextRef?: { current?: InstancedText }
+      hasFocus?: Signal<boolean>
+    },
   ) {
-    super(false, inputProperties, initialClasses, undefined, renderContext, overrideDefaults, dynamicHandlers, hasFocus)
+    super(inputProperties, initialClasses, {
+      defaults: textDefaults as OutProperties,
+      hasNonUikitChildren: false,
+      ...config,
+    })
     this.material.visible = false
 
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
@@ -99,10 +104,10 @@ export class Text<
     const customLayouting = createInstancedText(
       this,
       parentClippingRect,
-      selectionRange,
-      selectionTransformations,
-      caretTransformation,
-      instancedTextRef,
+      config?.selectionRange,
+      config?.selectionTransformations,
+      config?.caretTransformation,
+      config?.instancedTextRef,
     )
     abortableEffect(() => this.node.setCustomLayouting(customLayouting.value), this.abortSignal)
   }

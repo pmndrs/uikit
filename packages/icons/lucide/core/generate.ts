@@ -13,28 +13,28 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { RenderContext, Svg, SvgProperties, ThreeEventMap, SvgOutProperties, InProperties, contentDefaults } from '@pmndrs/uikit'
+      import { RenderContext, Svg, SvgProperties, ThreeEventMap, SvgOutProperties, InProperties } from '@pmndrs/uikit'
       const content = \`${svg}\`;
-      const defaults = {
-        ...contentDefaults,
-        content,
-        width: 24,
-        height: 24,
-        aspectRatio: 1,
-        keepAspectRatio: false
-      }
-      export class ${name}Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap, OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>, NonReactiveProperties = {}> extends Svg<T, EM, OutProperties, NonReactiveProperties> {
+      export class ${name}Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap, OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>> extends Svg<T, EM, OutProperties> {
         constructor(
-          inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
+          inputProperties?: InProperties<OutProperties>,
           initialClasses?: Array<SvgProperties<EM> | string>,
-          renderContext?: RenderContext,
+          config?: {
+            renderContext?: RenderContext
+            defaultOverrides?: InProperties<OutProperties>
+          },
         ) {
-          super(
-            inputProperties,
-            initialClasses,
-            renderContext,
-            defaults as OutProperties,
-          )
+          super(inputProperties, initialClasses, {
+            ...config,
+            defaultOverrides: {
+              content,
+              width: 24,
+              height: 24,
+              aspectRatio: 1,
+              keepAspectRatio: false,
+              ...config?.defaultOverrides
+            } as InProperties<OutProperties>,
+          })
         }
       }
       export const ${name} = ${name}Icon

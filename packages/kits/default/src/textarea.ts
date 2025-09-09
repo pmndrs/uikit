@@ -3,8 +3,8 @@ import {
   BaseOutProperties,
   Input as InputImpl,
   ThreeEventMap,
-  RenderContext,
   InputOutProperties as BaseInputOutProperties,
+  RenderContext,
 } from '@pmndrs/uikit'
 import type { Object3D } from 'three'
 
@@ -22,24 +22,12 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   constructor(
     textareaProperties?: InProperties<TextareaOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TextareaOutProperties<EM>> },
   ) {
-    super(textareaProperties, initialClasses, renderContext, true) // true for multiline
-  }
-
-  protected internalResetProperties({ disabled, ...rest }: TextareaProperties<EM> = {}): void {
-    super.internalResetProperties({
-      minHeight: 80,
-      positionType: 'relative',
-      overflow: 'hidden',
-      fontSize: 14,
-      borderWidth: 1,
-      paddingX: 12,
-      paddingY: 8,
-      lineHeight: '20px',
-      opacity: disabled ? 0.5 : undefined,
-      disabled,
-      ...rest,
+    super(textareaProperties, initialClasses, {
+      multiline: true,
+      ...config,
+      defaultOverrides: { minHeight: 80, ...config?.defaultOverrides },
     })
   }
 

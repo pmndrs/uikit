@@ -1,5 +1,13 @@
-import { BaseOutProperties, Container, ContainerProperties, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  Container,
+  ContainerProperties,
+  InProperties,
+  ThreeEventMap,
+  RenderContext,
+} from '@pmndrs/uikit'
 import { borderRadius, colors } from './theme.js'
+import { computed } from '@preact/signals-core'
 
 const alertVariants = {
   default: {
@@ -12,33 +20,40 @@ const alertVariants = {
   },
 } satisfies { [Key in string]: ContainerProperties }
 
-export type AlertNonReactiveProperties = {
+export type AlertProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<AlertOutProperties<EM>>
+
+export type AlertOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   variant?: keyof typeof alertVariants
 }
 
-export type AlertProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  BaseOutProperties<EM>,
-  AlertNonReactiveProperties
->
-
-export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>,
-  AlertNonReactiveProperties
-> {
-  protected internalResetProperties({ variant, ...rest }: AlertProperties<EM> = {}): void {
-    const variantProperties = alertVariants[variant ?? 'default']
-
-    super.internalResetProperties({
-      flexDirection: 'column',
-      positionType: 'relative',
-      width: '100%',
-      borderRadius: borderRadius.lg,
-      borderWidth: 1,
-      padding: 16,
-      ...variantProperties,
-      ...rest,
+export class Alert<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutProperties extends AlertOutProperties<EM> = AlertOutProperties<EM>,
+> extends Container<T, EM, OutProperties> {
+  constructor(
+    inputProperties?: InProperties<OutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+    },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column',
+        positionType: 'relative',
+        width: '100%',
+        borderRadius: borderRadius.lg,
+        borderWidth: 1,
+        padding: 16,
+        backgroundColor: computed(
+          () => alertVariants[this.properties.signal.variant.value ?? 'default'].backgroundColor,
+        ),
+        color: computed(() => alertVariants[this.properties.signal.variant.value ?? 'default'].color),
+        ...config?.defaultOverrides,
+      } as InProperties<OutProperties>,
     })
   }
 }
@@ -50,12 +65,19 @@ export class AlertIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: AlertIconProperties<EM>): void {
-    super.internalResetProperties({
-      positionLeft: 16,
-      positionTop: 16,
-      positionType: 'absolute',
-      ...inputProperties,
+  constructor(
+    inputProperties?: AlertIconProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        positionLeft: 16,
+        positionTop: 16,
+        positionType: 'absolute',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -67,15 +89,22 @@ export class AlertTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: AlertTitleProperties<EM>): void {
-    super.internalResetProperties({
-      marginBottom: 4,
-      padding: 0,
-      paddingLeft: 28,
-      fontWeight: 'medium',
-      letterSpacing: -0.4,
-      lineHeight: '100%',
-      ...inputProperties,
+  constructor(
+    inputProperties?: AlertTitleProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        marginBottom: 4,
+        padding: 0,
+        paddingLeft: 28,
+        fontWeight: 'medium',
+        letterSpacing: -0.4,
+        lineHeight: '100%',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -87,13 +116,20 @@ export class AlertDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: AlertDescriptionProperties<EM>): void {
-    super.internalResetProperties({
-      paddingLeft: 28,
-      lineHeight: '162.5%',
-      fontSize: 14,
-      opacity: 0.9,
-      ...inputProperties,
+  constructor(
+    inputProperties?: AlertDescriptionProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        paddingLeft: 28,
+        lineHeight: '162.5%',
+        fontSize: 14,
+        opacity: 0.9,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }

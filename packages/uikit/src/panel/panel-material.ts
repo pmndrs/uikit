@@ -51,14 +51,14 @@ const colorArrayHelper = [0, 0, 0, 0]
 
 export function createPanelMaterialConfig(
   keys: { [Key in keyof typeof materialSetters]?: string },
-  overrideDefaults?: {
+  providedDefaults?: {
     [Key in Exclude<
       keyof typeof defaultDefaults,
       'borderBottomLeftRadius' | 'borderTopLeftRadius' | 'borderBottomRightRadius' | 'borderTopRightRadius'
     >]?: (typeof defaultDefaults)[Key]
   },
 ) {
-  const defaults = { ...defaultDefaults, ...overrideDefaults }
+  const defaults = { ...defaultDefaults, ...providedDefaults }
 
   const setters: {
     [Key in string]: (

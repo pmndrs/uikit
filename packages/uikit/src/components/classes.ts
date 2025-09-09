@@ -2,7 +2,7 @@ import { batch } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
 import { conditionalKeys } from '../properties/conditional.js'
-import { MaxClassAmount } from '../properties/layers.js'
+import { LayerInSectionIdentifier } from '../properties/layer.js'
 
 export const StyleSheet: Record<string, InProperties> = {}
 
@@ -24,16 +24,14 @@ export class ClassList {
   add(...classes: typeof this.list): void {
     batch(() => {
       for (const classRef of classes) {
-        let index = 0
-        while (this.list[index] != null) {
-          index++
+        let classIndex = 0
+        while (this.list[classIndex] != null) {
+          classIndex++
         }
-        this.list[index] = classRef
-        this.properties.setLayersWithConditionals(classIndexToLayerIndex(index), this.resolveClassRef(classRef))
-        this.starProperties.setLayersWithConditionals(
-          classIndexToLayerIndex(index),
-          getStarProperties(this.resolveClassRef(classRef)),
-        )
+        this.list[classIndex] = classRef
+        const identifier: LayerInSectionIdentifier = { type: 'class', classIndex }
+        this.properties.setLayersWithConditionals(identifier, this.resolveClassRef(classRef))
+        this.starProperties.setLayersWithConditionals(identifier, getStarProperties(this.resolveClassRef(classRef)))
       }
     })
   }
@@ -41,18 +39,19 @@ export class ClassList {
   remove(...classes: typeof this.list): void {
     batch(() => {
       for (const classRef of classes) {
-        const index = this.list.indexOf(classRef)
-        if (index === -1) {
+        const classIndex = this.list.indexOf(classRef)
+        if (classIndex === -1) {
           console.warn(`Class '${classRef}' not found in the classList`)
           return
         }
-        if (index + 1 === this.list.length) {
-          this.list.splice(index, 1)
+        if (classIndex + 1 === this.list.length) {
+          this.list.splice(classIndex, 1)
         } else {
-          this.list[index] = undefined
+          this.list[classIndex] = undefined
         }
-        this.properties.setLayersWithConditionals(classIndexToLayerIndex(index), undefined)
-        this.starProperties.setLayersWithConditionals(classIndexToLayerIndex(index), undefined)
+        const identifier: LayerInSectionIdentifier = { type: 'class', classIndex }
+        this.properties.setLayersWithConditionals(identifier, undefined)
+        this.starProperties.setLayersWithConditionals(identifier, undefined)
       }
     })
   }
@@ -93,30 +92,21 @@ export class ClassList {
   }
 }
 
-export function getStarProperties<T extends BaseOutProperties<ThreeEventMap>, K>(
-  properties: InProperties<T, K> | undefined,
-) {
+export function getStarProperties<T extends BaseOutProperties<ThreeEventMap>>(properties: InProperties<T> | undefined) {
   if (properties == null) {
     return undefined
   }
-  let result: InProperties<T, K> | undefined
+  let result: InProperties<T> | undefined
   if ('*' in properties) {
     result = { ...properties['*'] } as any
   }
   for (const conditionalKey in conditionalKeys) {
-    const conditionalEntry = properties[conditionalKey as keyof InProperties<T, K>]?.['*' as never]
+    const conditionalEntry = properties[conditionalKey as keyof InProperties<T>]?.['*' as never]
     if (conditionalEntry == null) {
       continue
     }
-    result ??= {} as InProperties<T, K>
-    result[conditionalKey as keyof InProperties<T, K>] = conditionalEntry
+    result ??= {} as InProperties<T>
+    result[conditionalKey as keyof InProperties<T>] = conditionalEntry
   }
   return result
-}
-
-function classIndexToLayerIndex(index: number) {
-  if (index >= MaxClassAmount) {
-    throw new Error(`Maximum number of classes (${MaxClassAmount}) exceeded`)
-  }
-  return MaxClassAmount - index
 }

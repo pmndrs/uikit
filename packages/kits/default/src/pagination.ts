@@ -3,10 +3,11 @@ import {
   ContainerProperties,
   Text,
   ThreeEventMap,
-  RenderContext,
   InProperties,
   BaseOutProperties,
+  RenderContext,
 } from '@pmndrs/uikit'
+import { computed } from '@preact/signals-core'
 import { ChevronLeft, ChevronRight, Ellipsis } from '@pmndrs/uikit-lucide'
 import { borderRadius, colors } from './theme.js'
 
@@ -17,13 +18,20 @@ export class Pagination<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: PaginationProperties<EM>): void {
-    super.internalResetProperties({
-      marginX: 'auto',
-      flexDirection: 'row',
-      width: '100%',
-      justifyContent: 'center',
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        marginX: 'auto',
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'center',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -35,12 +43,19 @@ export class PaginationContent<T = {}, EM extends ThreeEventMap = ThreeEventMap>
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: PaginationContentProperties<EM>): void {
-    super.internalResetProperties({
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      ...inputProperties,
+  constructor(
+    inputProperties?: PaginationContentProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -53,72 +68,61 @@ export class PaginationItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
   BaseOutProperties<EM>
 > {}
 
-const paginationVariants: {
-  [Key in string]: {
-    containerProps?: Omit<ContainerProperties, 'hover'>
-    containerHoverProps?: ContainerProperties['hover']
-  }
-} = {
-  outline: {
-    containerProps: {
-      borderWidth: 1,
-      borderColor: colors.input,
-      backgroundColor: colors.background,
-    },
-    containerHoverProps: {
-      backgroundColor: colors.accent,
-    },
-  },
-  ghost: {
-    containerHoverProps: {
-      backgroundColor: colors.accent,
-    },
-  },
-}
+type PaginationSizeProps = Pick<ContainerProperties, 'height' | 'width' | 'paddingX' | 'paddingY'>
 
-const paginationSizes = {
+const paginationSizes: Record<string, PaginationSizeProps> = {
   default: { height: 40, paddingX: 16, paddingY: 8 },
   sm: { height: 36, paddingX: 12 },
   lg: { height: 42, paddingX: 32 },
   icon: { height: 40, width: 40 },
-} satisfies { [Key in string]: ContainerProperties }
+}
 
-export type PaginationLinkNonReactiveProperties = {
+export type PaginationLinkOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   size?: keyof typeof paginationSizes
   isActive?: boolean
 }
 
 export type PaginationLinkProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  BaseOutProperties<EM>,
-  PaginationLinkNonReactiveProperties
+  PaginationLinkOutProperties<EM>
 >
 
 export class PaginationLink<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
-  BaseOutProperties<EM>,
-  PaginationLinkNonReactiveProperties
+  PaginationLinkOutProperties<EM>
 > {
-  protected internalResetProperties({
-    isActive = false,
-    size = 'icon',
-    hover,
-    ...rest
-  }: PaginationLinkProperties<EM> = {}): void {
-    const variant = paginationVariants[isActive ? 'outline' : 'ghost']
-    const containerProps = variant?.containerProps ?? {}
-    const containerHoverProps = variant?.containerHoverProps
-    const sizeProps = paginationSizes[size]
-
-    super.internalResetProperties({
-      cursor: 'pointer',
-      borderRadius: borderRadius.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-      hover: { ...containerHoverProps, ...hover },
-      ...containerProps,
-      ...sizeProps,
-      ...rest,
+  constructor(
+    inputProperties?: PaginationLinkProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<PaginationLinkOutProperties<EM>>
+    },
+  ) {
+    const sizeProps = computed(() => paginationSizes[this.properties.signal.size?.value ?? 'icon'])
+    const paddingX = computed(() => sizeProps.value?.paddingX)
+    const paddingY = computed(() => sizeProps.value?.paddingY)
+    const isActive = computed(() => this.properties.signal.isActive?.value ?? false)
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        cursor: 'pointer',
+        borderRadius: borderRadius.md,
+        alignItems: 'center',
+        justifyContent: 'center',
+        hover: { backgroundColor: colors.accent },
+        backgroundColor: computed(() => (isActive.value ? colors.background.value : undefined)),
+        color: computed(() => (isActive.value ? colors.foreground.value : undefined)),
+        borderWidth: computed(() => (isActive.value ? 1 : undefined)),
+        borderColor: computed(() => (isActive.value ? colors.input.value : undefined)),
+        height: computed(() => sizeProps.value?.height),
+        width: computed(() => sizeProps.value?.width),
+        paddingLeft: paddingX,
+        paddingRight: paddingX,
+        paddingTop: paddingY,
+        paddingBottom: paddingY,
+        ...config?.defaultOverrides,
+      } as InProperties<PaginationLinkOutProperties<EM>>,
     })
   }
 }
@@ -130,32 +134,29 @@ export type PaginationPreviousProperties<EM extends ThreeEventMap = ThreeEventMa
 
 export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends PaginationLink<T, EM> {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>, PaginationLinkNonReactiveProperties>,
+    inputProperties?: InProperties<PaginationLinkOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<PaginationLinkOutProperties<EM>>
+    },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(
+      { size: 'default', flexDirection: 'row', gap: 4, paddingLeft: 10, ...inputProperties },
+      initialClasses,
+      config,
+    )
 
-    // Add chevron icon
-    const chevronIcon = new ChevronLeft({
-      width: 16,
-      height: 16,
+    const chevronIcon = new ChevronLeft(undefined, undefined, {
+      defaultOverrides: {
+        width: 16,
+        height: 16,
+      },
     })
     super.add(chevronIcon)
 
-    // Add text
-    const textElement = new Text({ text: 'Previous' })
+    const textElement = new Text(undefined, undefined, { defaultOverrides: { text: 'Previous' } })
     super.add(textElement)
-  }
-
-  protected internalResetProperties(inputProperties?: PaginationPreviousProperties<EM>): void {
-    super.internalResetProperties({
-      flexDirection: 'row',
-      size: 'default',
-      gap: 4,
-      paddingLeft: 10,
-      ...inputProperties,
-    })
   }
 
   add(): never {
@@ -170,34 +171,30 @@ export type PaginationNextProperties<EM extends ThreeEventMap = ThreeEventMap> =
 
 export class PaginationNext<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends PaginationLink<T, EM> {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>, PaginationLinkNonReactiveProperties>,
+    inputProperties?: InProperties<PaginationLinkOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<PaginationLinkOutProperties<EM>>
+    },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(
+      { size: 'default', flexDirection: 'row', gap: 4, paddingRight: 10, ...inputProperties },
+      initialClasses,
+      config,
+    )
 
-    // Add text
-    const textElement = new Text({ text: 'Next' })
+    const textElement = new Text(undefined, undefined, { defaultOverrides: { text: 'Next' } })
     super.add(textElement)
 
-    // Add chevron icon
-    const chevronIcon = new ChevronRight({
-      width: 16,
-      height: 16,
+    const chevronIcon = new ChevronRight(undefined, undefined, {
+      defaultOverrides: {
+        width: 16,
+        height: 16,
+      },
     })
     super.add(chevronIcon)
   }
-
-  protected internalResetProperties(inputProperties?: PaginationNextProperties<EM>): void {
-    super.internalResetProperties({
-      flexDirection: 'row',
-      size: 'default',
-      gap: 4,
-      paddingRight: 10,
-      ...inputProperties,
-    })
-  }
-
   add(): never {
     throw new Error('PaginationNext does not support adding children. The component has predefined content.')
   }
@@ -218,27 +215,17 @@ export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap
   constructor(
     inputProperties?: InProperties<BaseOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(inputProperties, initialClasses, config)
 
-    // Add ellipsis icon
-    this.ellipsisIcon = new Ellipsis({
-      width: 16,
-      height: 16,
+    this.ellipsisIcon = new Ellipsis(undefined, undefined, {
+      defaultOverrides: {
+        width: 16,
+        height: 16,
+      },
     })
     super.add(this.ellipsisIcon)
-  }
-
-  protected internalResetProperties(inputProperties?: PaginationEllipsisProperties<EM>): void {
-    super.internalResetProperties({
-      flexDirection: 'row',
-      height: 36,
-      width: 36,
-      alignItems: 'center',
-      justifyContent: 'center',
-      ...inputProperties,
-    })
   }
 
   add(): never {

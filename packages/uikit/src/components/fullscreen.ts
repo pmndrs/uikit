@@ -1,10 +1,9 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
-import { batch, signal } from '@preact/signals-core'
+import { batch, Signal, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
-import { componentDefaults } from '../properties/defaults.js'
 
 export type FullscreenProperties<EM extends ThreeEventMap> = InProperties<FullscreenOutProperties<EM>>
 
@@ -12,38 +11,41 @@ export type FullscreenOutProperties<EM extends ThreeEventMap> = BaseOutPropertie
 
 const vectorHelper = new Vector2()
 
-export const fullscreenDefaults = {
-  ...componentDefaults,
-  pointerEvents: 'listener' as const,
-}
-
 export class Fullscreen<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutProperties extends FullscreenOutProperties<EM> = FullscreenOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Container<T, EM, OutProperties, NonReactiveProperties> {
-  private readonly sizeX = signal(0)
+> extends Container<T, EM, OutProperties> {
+  private readonly sizeX: Signal<number> = signal(0)
   private readonly sizeY = signal(0)
   private readonly transformTranslateZ = signal(0)
   private readonly pixelSize = signal(0)
 
   constructor(
     private renderer: WebGLRenderer,
-    properties?: InProperties<OutProperties, NonReactiveProperties>,
+    properties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = fullscreenDefaults as WithSignal<OutProperties>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+    },
   ) {
-    super(properties, initialClasses, renderContext, overrideDefaults)
-    //force sizeX, sizeY, pixelSize, transformTranslateZ
-    this.properties.setLayer(-1, {
-      sizeX: this.sizeX,
-      sizeY: this.sizeY,
-      pixelSize: this.pixelSize,
-      transformTranslateZ: this.transformTranslateZ,
-    } as InProperties<OutProperties>)
-    this.matrixAutoUpdate = false
+    const sizeX = signal(0)
+    const sizeY = signal(0)
+    const transformTranslateZ = signal(0)
+    const pixelSize = signal(0)
+
+    super(properties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        sizeX,
+        sizeY,
+        pixelSize,
+        transformTranslateZ,
+        pointerEvents: 'listener',
+        ...config?.defaultOverrides,
+      } as InProperties<OutProperties>,
+    })
   }
 
   update(delta: number) {

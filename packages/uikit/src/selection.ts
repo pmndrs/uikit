@@ -32,7 +32,7 @@ const selectionBorderKeys = [
 export type SelectionProperties = {
   selectionColor?: ColorRepresentation
 } & SelectionBorderSizeProperties & {
-    [Key in Exclude<keyof PanelProperties, 'opacity'> as `selection${Capitalize<Key>}`]: PanelProperties[Key]
+    [Key in Exclude<keyof PanelProperties, 'opacity'> as `selection${Capitalize<Key>}`]?: PanelProperties[Key]
   }
 
 let selectionMaterialConfig: PanelMaterialConfig | undefined

@@ -35,22 +35,16 @@ import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
-import {
-  BaseOutProperties,
-  InProperties,
-  Properties,
-  PropertiesImplementation,
-  WithSignal,
-} from '../properties/index.js'
+import { BaseOutProperties, InProperties, Properties, PropertiesImplementation } from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { ClassList, getStarProperties, StyleSheet } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
 import { inheritedPropertyKeys } from '../properties/inheritance.js'
-import { LayerIndexInheritance, LayerIndexStarInheritance } from '../properties/layers.js'
 import type { Container } from './index.js'
 import { componentDefaults } from '../properties/defaults.js'
+import { getLayerIndex } from '../properties/layer.js'
 
 const IdentityMatrix = new Matrix4()
 const sphereHelper = new Sphere()
@@ -58,8 +52,7 @@ const sphereHelper = new Sphere()
 export class Component<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-  NonReactiveProperties = {},
+  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
 > extends Mesh<
   BufferGeometry,
   Material,
@@ -72,8 +65,8 @@ export class Component<
   readonly isVisible: Signal<boolean>
   readonly isClipped: Signal<boolean>
   readonly boundingSphere = new Sphere()
-  readonly properties: Properties<OutputProperties>
-  readonly starProperties: Properties<OutputProperties>
+  readonly properties: Properties<OutProperties>
+  readonly starProperties: Properties<OutProperties>
   readonly node: FlexNode
   readonly size = signal<Vector2Tuple | undefined>(undefined)
   readonly relativeCenter = signal<Vector2Tuple | undefined>(undefined)
@@ -94,16 +87,19 @@ export class Component<
   readonly classList: ClassList
 
   constructor(
-    hasNonUikitChildren: boolean,
-    private inputProperties: InProperties<OutputProperties, NonReactiveProperties> | undefined,
-    initialClasses: Array<InProperties<BaseOutProperties<EM>> | string> | undefined,
-    material: Material | undefined,
-    renderContext: RenderContext | undefined,
-    defaults = componentDefaults as WithSignal<OutputProperties>,
-    dynamicHandlers?: Signal<EventHandlers | undefined>,
-    hasFocus?: Signal<boolean>,
+    private inputProperties?: InProperties<OutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      material?: Material
+      renderContext?: RenderContext
+      dynamicHandlers?: Signal<EventHandlers | undefined>
+      hasFocus?: Signal<boolean>
+      defaultOverrides?: InProperties<OutProperties>
+      hasNonUikitChildren?: boolean
+      defaults?: OutProperties
+    },
   ) {
-    super(panelGeometry, material)
+    super(panelGeometry, config?.material)
     this.matrixAutoUpdate = false
 
     //setting up the parent signal
@@ -112,42 +108,44 @@ export class Component<
     this.addEventListener('added', updateParentSignal)
     this.addEventListener('removed', updateParentSignal)
 
-    this.root = buildRootContext(this, renderContext)
+    this.root = buildRootContext(this, config?.renderContext)
 
     //properties
-    const conditionals = createConditionals(this.root, this.hoveredList, this.activeList, hasFocus)
-    this.properties = new PropertiesImplementation<OutputProperties>(allAliases, conditionals, defaults)
+    const conditionals = createConditionals(this.root, this.hoveredList, this.activeList, config?.hasFocus)
+    this.properties = new PropertiesImplementation<OutProperties>(
+      allAliases,
+      conditionals,
+      config?.defaults ?? (componentDefaults as OutProperties),
+    )
     abortableEffect(() => {
       const parentProprties = this.parentContainer.value?.properties
+      const layerIndex = getLayerIndex({ type: 'inheritance' })
       const cleanup = parentProprties?.subscribePropertyKeys((key) => {
         if (!inheritedPropertyKeys.includes(key as any)) {
           return
         }
-        this.properties.set(
-          LayerIndexInheritance,
-          key as any,
-          parentProprties.signal[key as keyof typeof parentProprties.signal],
-        )
+        this.properties.set(layerIndex, key as any, parentProprties.signal[key as keyof typeof parentProprties.signal])
       })
       return () => {
         cleanup?.()
-        this.properties.setLayer(LayerIndexInheritance, undefined)
+        this.properties.setLayer(layerIndex, undefined)
       }
     }, this.abortSignal)
 
-    this.starProperties = new PropertiesImplementation<OutputProperties>(allAliases, conditionals)
+    this.starProperties = new PropertiesImplementation<OutProperties>(allAliases, conditionals)
 
     abortableEffect(() => {
       const parentStarProprties = this.parentContainer.value?.starProperties
+      const layerIndex = getLayerIndex({ type: 'star-inheritance' })
       const cleanup = parentStarProprties?.subscribePropertyKeys((key) => {
         const signal = parentStarProprties.signal[key as keyof typeof parentStarProprties.signal]
-        this.starProperties.set(LayerIndexStarInheritance, key as any, signal)
-        this.properties.set(LayerIndexStarInheritance, key as any, signal)
+        this.starProperties.set(layerIndex, key as any, signal)
+        this.properties.set(layerIndex, key as any, signal)
       })
       return () => {
         cleanup?.()
-        this.properties.setLayer(LayerIndexStarInheritance, undefined)
-        this.starProperties.setLayer(LayerIndexStarInheritance, undefined)
+        this.properties.setLayer(layerIndex, undefined)
+        this.starProperties.setLayer(layerIndex, undefined)
       }
     }, this.abortSignal)
 
@@ -194,7 +192,7 @@ export class Component<
     )
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)
 
-    this.handlers = computedHandlers(this.properties, this.hoveredList, this.activeList, dynamicHandlers)
+    this.handlers = computedHandlers(this.properties, this.hoveredList, this.activeList, config?.dynamicHandlers)
     this.ancestorsHaveListenersSignal = computedAncestorsHaveListeners(this.parentContainer, this.handlers)
 
     this.globalPanelMatrix = computedPanelMatrix(this.properties, this.globalMatrix, this.size, undefined)
@@ -216,6 +214,7 @@ export class Component<
       this.size,
       this.abortSignal,
     )
+    const hasNonUikitChildren = config?.hasNonUikitChildren ?? true
     setupPointerEvents(this, hasNonUikitChildren)
 
     abortableEffect(() => {
@@ -278,17 +277,17 @@ export class Component<
     }
   }
 
-  setProperties(inputProperties: InProperties<OutputProperties, NonReactiveProperties>) {
+  setProperties(inputProperties: InProperties<OutProperties>) {
     this.resetProperties({
       ...this.inputProperties,
       ...inputProperties,
     })
   }
 
-  resetProperties(inputProperties?: InProperties<OutputProperties, NonReactiveProperties>) {
+  resetProperties(inputProperties?: InProperties<OutProperties>) {
     this.inputProperties = inputProperties
-    this.properties.setLayersWithConditionals(0, inputProperties)
-    this.starProperties.setLayersWithConditionals(0, getStarProperties(inputProperties))
+    this.properties.setLayersWithConditionals({ type: 'base' }, inputProperties)
+    this.starProperties.setLayersWithConditionals({ type: 'base' }, getStarProperties(inputProperties))
   }
 
   update(delta: number) {
@@ -320,5 +319,4 @@ export class Parent<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   Properties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Component<T, EM, Properties, NonReactiveProperties> {}
+> extends Component<T, EM, Properties> {}

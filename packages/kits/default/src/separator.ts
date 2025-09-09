@@ -1,28 +1,39 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
 import { colors } from './theme.js'
+import { computed } from '@preact/signals-core'
 
-export type SeparatorNonReactiveProperties = {
+export type SeparatorProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SeperatorOutProperties<EM>>
+
+export type SeperatorOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   orientation?: 'horizontal' | 'vertical'
 }
-
-export type SeparatorProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  BaseOutProperties<EM>,
-  SeparatorNonReactiveProperties
->
 
 export class Separator<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
-  BaseOutProperties<EM>,
-  SeparatorNonReactiveProperties
+  SeperatorOutProperties<EM>
 > {
-  protected internalResetProperties({ orientation, ...rest }: SeparatorProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexShrink: 0,
-      backgroundColor: colors.border,
-      width: (orientation ?? 'horizontal' === 'horizontal') ? '100%' : 1,
-      height: (orientation ?? 'horizontal' === 'horizontal') ? 1 : '100%',
-      ...rest,
+  constructor(
+    inputProperties?: InProperties<SeperatorOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: any
+      defaultOverrides?: InProperties<SeperatorOutProperties<EM>>
+    },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexShrink: 0,
+        backgroundColor: colors.border,
+        width: computed(() =>
+          (this.properties.signal.orientation?.value ?? 'horizontal') === 'horizontal' ? '100%' : 1,
+        ),
+        height: computed(() =>
+          (this.properties.signal.orientation?.value ?? 'horizontal') === 'horizontal' ? 1 : '100%',
+        ),
+        ...config?.defaultOverrides,
+      },
     })
   }
 }

@@ -5,8 +5,6 @@ import {
   BaseOutProperties,
   Properties,
   getProperty,
-  RenderContext,
-  readReactive,
   withOpacity,
 } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
@@ -26,27 +24,30 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   DialogOutProperties<EM>
 > {
-  protected internalResetProperties(props: DialogProperties<EM> = {}): void {
-    // Get the open state signal
-    const isOpen = this.getCurrentOpenSignal()
-
-    super.internalResetProperties({
-      onPointerMove: (e: any) => e.stopPropagation(),
-      onPointerEnter: (e: any) => e.stopPropagation(),
-      onPointerLeave: (e: any) => e.stopPropagation(),
-      onWheel: (e: any) => e.stopPropagation(),
-      positionType: 'absolute',
-      display: computed(() => (isOpen.value ? 'flex' : 'none')),
-      inset: 0,
-      zIndex: 50,
-      backgroundColor: withOpacity('black', 0.8),
-      alignItems: 'center',
-      justifyContent: 'center',
-      onClick: (e: any) => {
-        this.setOpen(false)
-        e.stopPropagation()
+  constructor(
+    inputProperties?: InProperties<DialogOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onPointerMove: (e: any) => e.stopPropagation(),
+        onPointerEnter: (e: any) => e.stopPropagation(),
+        onPointerLeave: (e: any) => e.stopPropagation(),
+        onWheel: (e: any) => e.stopPropagation(),
+        positionType: 'absolute',
+        display: computed(() => (this.getCurrentOpenSignal().value ? 'flex' : 'none')),
+        inset: 0,
+        zIndex: 50,
+        backgroundColor: withOpacity('black', 0.8),
+        alignItems: 'center',
+        justifyContent: 'center',
+        onClick: () => {
+          this.setOpen(false)
+        },
+        ...config?.defaultOverrides,
       },
-      ...props,
     })
   }
 
@@ -83,9 +84,23 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   constructor(
     inputProperties?: DialogContentProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogContentOutProperties<EM>> },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onClick: (e: any) => e.stopPropagation(),
+        positionType: 'relative',
+        flexDirection: 'column',
+        width: '100%',
+        gap: 16,
+        borderWidth: 1,
+        backgroundColor: colors.background,
+        padding: 24,
+        sm: { borderRadius: borderRadius.lg },
+        ...config?.defaultOverrides,
+      },
+    })
 
     // Create close button
     this.closeButton = new X({
@@ -107,21 +122,6 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     this.add(this.closeButton)
   }
 
-  protected internalResetProperties({ sm, ...props }: DialogContentProperties<EM> = {}): void {
-    super.internalResetProperties({
-      onClick: (e: any) => e.stopPropagation(),
-      positionType: 'relative',
-      flexDirection: 'column',
-      width: '100%',
-      gap: 16,
-      borderWidth: 1,
-      backgroundColor: colors.background,
-      padding: 24,
-      sm: { borderRadius: borderRadius.lg, ...sm },
-      ...props,
-    })
-  }
-
   private closeDialog() {
     const dialog = this.parentContainer.value
     if (!(dialog instanceof Dialog)) {
@@ -131,15 +131,12 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   }
 }
 
-export type DialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
-
-export type DialogTriggerNonReactiveProperties = {
+export type DialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   dialog?: Dialog
 }
 
 export type DialogTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DialogTriggerOutProperties<EM>,
-  DialogTriggerNonReactiveProperties
+  DialogTriggerOutProperties<EM>
 >
 
 export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
@@ -147,19 +144,21 @@ export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   EM,
   DialogTriggerOutProperties<EM>
 > {
-  protected internalResetProperties({ onClick, dialog, ...props }: DialogTriggerProperties<EM> = {}): void {
-    super.internalResetProperties({
-      onClick: computed(() => {
-        const resolvedOnClick = readReactive(onClick)
-        return (e: any) => {
-          dialog?.setOpen(true)
-          if (typeof resolvedOnClick === 'function') {
-            resolvedOnClick(e)
-          }
-        }
-      }),
-      cursor: 'pointer',
-      ...props,
+  constructor(
+    inputProperties?: DialogTriggerProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogTriggerOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onClick: (event) => {
+          this.properties.peek().dialog?.setOpen(true)
+          this.properties.peek().onClick?.(event)
+        },
+        cursor: 'pointer',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -175,11 +174,18 @@ export class DialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
   EM,
   DialogHeaderOutProperties<EM>
 > {
-  protected internalResetProperties(props: DialogHeaderProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexDirection: 'column',
-      gap: 6,
-      ...props,
+  constructor(
+    inputProperties?: DialogHeaderProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogHeaderOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column',
+        gap: 6,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -195,12 +201,19 @@ export class DialogFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
   EM,
   DialogFooterOutProperties<EM>
 > {
-  protected internalResetProperties({ sm, ...props }: DialogFooterProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexDirection: 'column-reverse',
-      sm: { flexDirection: 'row', justifyContent: 'flex-end', ...sm },
-      gap: 8,
-      ...props,
+  constructor(
+    inputProperties?: DialogFooterProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogFooterOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column-reverse',
+        sm: { flexDirection: 'row', justifyContent: 'flex-end' },
+        gap: 8,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }

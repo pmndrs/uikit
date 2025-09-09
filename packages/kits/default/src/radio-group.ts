@@ -23,11 +23,18 @@ export class RadioGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   EM,
   RadioGroupOutProperties<EM>
 > {
-  protected internalResetProperties(props: RadioGroupProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexDirection: 'column',
-      gap: 8,
-      ...props,
+  constructor(
+    inputProperties?: RadioGroupProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<RadioGroupOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column',
+        gap: 8,
+        ...config?.defaultOverrides,
+      },
     })
   }
 
@@ -57,9 +64,35 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
   constructor(
     inputProperties?: RadioGroupItemProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<RadioGroupItemOutProperties<EM>> },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
+        onClick: computed(() =>
+          this.properties.signal.disabled?.value
+            ? undefined
+            : () => {
+                const radioGroup = this.parentContainer.peek()
+                if (!(radioGroup instanceof RadioGroup)) {
+                  return
+                }
+                const value = this.properties.peek().value
+                if (radioGroup.properties.peek().value == null) {
+                  radioGroup.getUncontrolledSignal().value = value
+                }
+                radioGroup.properties.peek().onValueChange?.(value)
+              },
+        ),
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.signal.disabled?.value),
+        ...config?.defaultOverrides,
+      },
+    })
     const isSelected = computed(
       () =>
         this.parentContainer.value instanceof RadioGroup &&
@@ -67,58 +100,33 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     )
 
     // Create radio button and dot in constructor with their properties
-    const radioButton = new Container({
-      aspectRatio: 1,
-      height: 16,
-      width: 16,
-      borderRadius: 1000,
-      borderWidth: 1,
-      borderColor: colors.primary,
-      opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
-      alignItems: 'center',
-      justifyContent: 'center',
+    const radioButton = new Container(undefined, undefined, {
+      defaultOverrides: {
+        aspectRatio: 1,
+        height: 16,
+        width: 16,
+        borderRadius: 1000,
+        borderWidth: 1,
+        borderColor: colors.primary,
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
     })
-    const radioDot = new Container({
-      borderRadius: 1000,
-      aspectRatio: 1,
-      backgroundColor: colors.primary,
-      height: 9,
-      width: 9,
+    const radioDot = new Container(undefined, undefined, {
+      defaultOverrides: {
+        borderRadius: 1000,
+        aspectRatio: 1,
+        backgroundColor: colors.primary,
+        height: 9,
+        width: 9,
+        opacity: computed(() => (isSelected.value ? 1 : 0)),
+      },
     })
 
     // Add radio dot to radio button and radio button to this item
     radioButton.add(radioDot)
     super.add(radioButton)
-  }
-
-  protected internalResetProperties({ disabled = false, ...rest }: RadioGroupItemProperties<EM> = {}): void {
-    super.internalResetProperties({
-      cursor: disabled ? undefined : 'pointer',
-      onClick: computed(() =>
-        disabled
-          ? undefined
-          : () => {
-              const radioGroup = this.parentContainer.peek()
-              if (!(radioGroup instanceof RadioGroup)) {
-                return
-              }
-              const value = this.properties.peek().value
-              if (radioGroup.properties.peek().value == null) {
-                radioGroup.getUncontrolledSignal().value = value
-              }
-              radioGroup.properties.peek().onValueChange?.(value)
-            },
-      ),
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-      disabled,
-      ...rest,
-    })
-  }
-
-  add(): this {
-    throw new Error(`the radio group item component can not have any children`)
   }
 }
 

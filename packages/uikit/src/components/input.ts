@@ -45,32 +45,24 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
 
 export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
 
-export const inputDefaults = {
-  ...textDefaults,
-  cursor: 'text',
-  type: 'text',
-  disabled: false,
-  tabIndex: 0,
-  autocomplete: '',
-}
-
 export class Input<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends InputOutProperties<EM> = InputOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Text<T, EM, OutputProperties, NonReactiveProperties> {
+  OutProperties extends InputOutProperties<EM> = InputOutProperties<EM>,
+> extends Text<T, EM, OutProperties> {
   readonly element: HTMLInputElement | HTMLTextAreaElement
 
   readonly selectionRange: Signal<Vector2Tuple | undefined>
   readonly hasFocus: Signal<boolean>
 
   constructor(
-    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = inputDefaults as WithSignal<OutputProperties>,
-    multiline = false,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+      multiline?: boolean
+    },
   ) {
     const text = signal('')
     const caretColor = signal<InputOutProperties<EM>['caretColor']>(undefined)
@@ -83,22 +75,25 @@ export class Input<
     const selectionRange = signal<Vector2Tuple | undefined>(undefined)
     const hasFocus = signal<boolean>(false)
 
-    super(
-      inputProperties,
-      initialClasses,
-      renderContext,
-      {
-        ...overrideDefaults,
-        ...({ text } as any),
-        caretColor,
-      },
-      selectionHandlers,
+    super(inputProperties, initialClasses, {
+      dynamicHandlers: selectionHandlers,
       selectionRange,
       selectionTransformations,
       caretTransformation,
       instancedTextRef,
       hasFocus,
-    )
+      ...config,
+      defaultOverrides: {
+        cursor: 'text',
+        type: 'text',
+        disabled: false,
+        tabIndex: 0,
+        autocomplete: '',
+        ...({ text } as any),
+        caretColor,
+        ...config?.defaultOverrides,
+      } as InProperties<OutProperties>,
+    })
     this.selectionRange = selectionRange
     this.hasFocus = hasFocus
     abortableEffect(() => void (caretColor.value = this.properties.value.color), this.abortSignal)
@@ -136,7 +131,7 @@ export class Input<
         }
         this.properties.peek().onValueChange?.(newValue)
       },
-      multiline,
+      config?.multiline ?? false,
     )
 
     setupCaret(

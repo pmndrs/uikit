@@ -16,9 +16,15 @@ import { EventHandlers, ThreeEventMap } from '../events.js'
 import { ComponentDefaults } from './defaults.js'
 import { FontFamilyProperties, GlyphProperties, TextAlignProperties } from '../text/index.js'
 import { CaretProperties } from '../caret.js'
-import { LayerIndexDefaults, LayerSectionStart, LayerSectionStartBase, LayersSectionSize } from './layers.js'
 import { alignmentXMap, alignmentYMap, ColorRepresentation, VisibilityProperties } from '../utils.js'
 import { SelectionProperties } from '../selection.js'
+import {
+  getLayerIndex,
+  LayerInSectionIdentifier,
+  LayerSection,
+  SpecialLayerSections,
+  LayersSectionSize,
+} from './layer.js'
 
 export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   PanelProperties &
@@ -81,28 +87,26 @@ export type WithInheritance<T, OutProperties> = T & {
 
 export type WithInitial<T> = { [Key in keyof T]: T[Key] | 'initial' }
 
-export type InProperties<
-  OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
-  NonReactiveProperties = {},
-> = WithConditionals<
-  WithInheritance<AddAllAliases<WithSignal<WithInitial<Partial<OutputProperties>>>>, OutputProperties>
-> &
-  Omit<NonReactiveProperties, never>
+export type InProperties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
+  WithConditionals<WithInheritance<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties>> & {}
 
-export type Properties<OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  BaseProperties<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties> & {
+export type Properties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
+  BaseProperties<AddAllAliases<WithSignal<Partial<OutProperties>>>, OutProperties> & {
     get usedConditionals(): {
       hover: Signal<boolean>
       active: Signal<boolean>
     }
-    setLayersWithConditionals(layerIndexInSection: number, properties: InProperties<OutputProperties> | undefined): void
+    setLayersWithConditionals(
+      layerInSectionIdentifier: LayerInSectionIdentifier,
+      properties: InProperties<OutProperties> | undefined,
+    ): void
   }
 
 export class PropertiesImplementation<
-    OutputProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
+    OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   >
-  extends BasePropertiesImplementation<AddAllAliases<WithSignal<Partial<OutputProperties>>>, OutputProperties>
-  implements Properties<OutputProperties>
+  extends BasePropertiesImplementation<AddAllAliases<WithSignal<Partial<OutProperties>>>, OutProperties>
+  implements Properties<OutProperties>
 {
   public readonly usedConditionals = {
     hover: signal(false),
@@ -112,67 +116,64 @@ export class PropertiesImplementation<
   constructor(
     aliases: Aliases,
     private readonly conditionals: Conditionals,
-    defaults?: WithSignal<OutputProperties>,
+    defaults?: WithSignal<OutProperties>,
   ) {
     super(
       (key, value, set) => {
         if (key in aliases) {
           const aliasList = aliases[key as keyof Aliases]!
           for (const alias of aliasList) {
-            set(alias as keyof OutputProperties, value as any)
+            set(alias as keyof OutProperties, value as any)
           }
           return
         }
         set(key, value as any)
       },
-      defaults,
+      {
+        width: computed(() => {
+          const sizeX = this.value.sizeX
+          if (sizeX == null) {
+            return undefined
+          }
+          return sizeX / this.value.pixelSize
+        }),
+        height: computed(() => {
+          const sizeY = this.value.sizeY
+          if (sizeY == null) {
+            return undefined
+          }
+          return sizeY / this.value.pixelSize
+        }),
+        ...defaults,
+      } as WithSignal<OutProperties>,
       () => {
-        this.usedConditionals.active.value = hasConditional(this.propertiesLayers, LayerSectionStart.active)
-        this.usedConditionals.hover.value = hasConditional(this.propertiesLayers, LayerSectionStart.hover)
+        this.usedConditionals.active.value = hasConditional(this.propertiesLayers, 'active')
+        this.usedConditionals.hover.value = hasConditional(this.propertiesLayers, 'hover')
       },
-    )
-
-    this.set(
-      LayerIndexDefaults,
-      'width',
-      computed(() => {
-        const sizeX = this.value.sizeX
-        if (sizeX == null) {
-          return undefined
-        }
-        return sizeX / this.value.pixelSize
-      }) as any,
-    )
-    this.set(
-      LayerIndexDefaults,
-      'height',
-      computed(() => {
-        const sizeY = this.value.sizeY
-        if (sizeY == null) {
-          return undefined
-        }
-        return sizeY / this.value.pixelSize
-      }) as any,
     )
   }
 
-  setLayersWithConditionals(layerIndexInSection: number, properties: InProperties<OutputProperties> | undefined) {
+  setLayersWithConditionals(
+    layerInSectionIdentifier: LayerInSectionIdentifier,
+    properties: InProperties<OutProperties> | undefined,
+  ) {
     batch(() => {
-      this.setLayer(layerIndexInSection + LayerSectionStartBase, properties)
-      for (const [conditional, sectionStart] of Object.entries(LayerSectionStart)) {
-        if (properties == null || !(conditional in properties)) {
-          this.setLayer(layerIndexInSection + sectionStart, undefined)
+      this.setLayer(getLayerIndex({ ...layerInSectionIdentifier, section: 'base' }), properties as any)
+      for (const layerSection of SpecialLayerSections) {
+        const layerIndex = getLayerIndex({ ...layerInSectionIdentifier, section: layerSection })
+        if (properties == null || !(layerSection in properties)) {
+          this.setLayer(layerIndex, undefined)
           continue
         }
-        const getConditional = this.conditionals[conditional as keyof Conditionals]!
-        const conditionalComputedProperties: Partial<AddAllAliases<WithSignal<Partial<OutputProperties>>>> = {}
-        const conditionalProperties = properties[conditional as keyof AddAllAliases<WithSignal<OutputProperties>>]!
+        const getConditional = this.conditionals[layerSection]!
+        const conditionalComputedProperties: Partial<AddAllAliases<WithSignal<Partial<OutProperties>>>> = {}
+        const conditionalProperties = properties[layerSection]!
         for (const [key, value] of Object.entries(conditionalProperties)) {
-          conditionalComputedProperties[key as keyof AddAllAliases<WithSignal<OutputProperties>>] = computed(() =>
+          conditionalComputedProperties[key as keyof AddAllAliases<WithSignal<OutProperties>>] = computed(() =>
             getConditional() ? (value instanceof Signal ? value.value : value) : undefined,
           ) as any
         }
-        this.setLayer(layerIndexInSection + sectionStart, conditionalComputedProperties)
+        this.setLayer(layerIndex, conditionalComputedProperties)
       }
     })
   }
@@ -180,8 +181,9 @@ export class PropertiesImplementation<
 
 function hasConditional(
   propertiesLayers: PropertiesImplementation['propertiesLayers'],
-  layerSectionStart: number,
+  layerSection: LayerSection,
 ): boolean {
+  const layerSectionStart = getLayerIndex({ type: 'base', section: layerSection })
   for (const propertyLayerIndex of propertiesLayers.keys()) {
     if (layerSectionStart <= propertyLayerIndex && propertyLayerIndex < layerSectionStart + LayersSectionSize) {
       return true

@@ -5,9 +5,9 @@ import {
   InProperties,
   BaseOutProperties,
   getProperty,
-  Properties,
+  RenderContext,
 } from '@pmndrs/uikit'
-import { signal, computed, Signal } from '@preact/signals-core'
+import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors } from './theme.js'
 
 const toggleVariants = {
@@ -24,7 +24,6 @@ const toggleVariants = {
     },
   },
 }
-
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
   sm: { height: 36, paddingX: 10 },
@@ -43,103 +42,102 @@ export class ToggleGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
   EM,
   ToggleGroupOutProperties<EM>
 > {
-  protected internalResetProperties(props: ToggleGroupProperties<EM> = {}): void {
-    super.internalResetProperties({
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4,
-      ...props,
+  constructor(
+    inputProperties?: ToggleGroupProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<ToggleGroupOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
-
 export type ToggleGroupItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   checked?: boolean
   onCheckedChange?: (checked: boolean) => void
-} & BaseOutProperties<EM>
-
-export type ToggleGroupItemNonReactiveProperties = {
   disabled?: boolean
   defaultChecked?: boolean
-}
+} & BaseOutProperties<EM>
 
 export type ToggleGroupItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  ToggleGroupItemOutProperties<EM>,
-  ToggleGroupItemNonReactiveProperties
+  ToggleGroupItemOutProperties<EM>
 >
 
 export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
-  ToggleGroupItemOutProperties<EM>,
-  ToggleGroupItemNonReactiveProperties
+  ToggleGroupItemOutProperties<EM>
 > {
-  protected internalResetProperties({
-    defaultChecked,
-    disabled = false,
-    hover,
-    ...rest
-  }: ToggleGroupItemProperties<EM> = {}): void {
-    const uncontrolled = getProperty(this, 'uncontrolled', () => computeDefaultChecked(defaultChecked))
-    const checked = getProperty(this, 'checked', () => computeChecked(this.properties, uncontrolled))
-
-    // Get parent ToggleGroup using parentContainer pattern from radio-group
-    const toggleGroupProperties = computed(() =>
-      this.parentContainer.value instanceof ToggleGroup ? this.parentContainer.value.properties.value : undefined,
-    )
-
-    const size = computed(() => toggleGroupProperties.value?.size ?? 'default')
-    const variant = computed(() => toggleGroupProperties.value?.variant ?? 'default')
-
-    //all the properties extracted from toggleVariants and toggleSizes
-    const hoverBackgroundColor = computed(
-      () => toggleVariants[variant.value].hover?.backgroundColor.value ?? colors.muted.value,
-    )
-    const borderWidth = computed(() => toggleVariants[variant.value].borderWidth)
-    const borderColor = computed(() => toggleVariants[variant.value].borderColor?.value)
-    const height = computed(() => toggleSizes[size.value].height)
-    const paddingX = computed(() => toggleSizes[size.value].paddingX)
-
-    super.internalResetProperties({
-      onClick: computed(() =>
-        disabled
-          ? undefined
-          : () => {
-              if (this.properties.peek().checked == null) {
-                uncontrolled.value = !checked.peek()
-              }
-              this.properties.peek().onCheckedChange?.(!checked.peek())
-            },
-      ),
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: borderRadius.md,
-      borderWidth,
-      borderColor,
-      height,
-      paddingX,
-      cursor: computed(() => (disabled ? undefined : 'pointer')),
-      opacity: computed(() => (disabled ? 0.5 : undefined)),
-      backgroundColor: computed(() => (checked.value ? colors.accent.value : undefined)),
-      hover: disabled
-        ? hover
-        : {
-            backgroundColor: hoverBackgroundColor,
-            ...hover,
-          },
-      color: computed(() => (checked.value ? colors.accentForeground.value : undefined)),
-      fontSize: 14,
-      lineHeight: '20px',
-      ...rest,
+  constructor(
+    inputProperties?: ToggleGroupItemProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<ToggleGroupItemOutProperties<EM>>
+    },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onClick: () => {
+          if (this.properties.peek().disabled) {
+            return
+          }
+          const isChecked = this.getCheckedSignal().peek()
+          if (this.properties.peek().checked == null) {
+            this.getUncontrolledSignal().value = !isChecked
+          }
+          this.properties.peek().onCheckedChange?.(!isChecked)
+        },
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: borderRadius.md,
+        borderWidth: computed(() => toggleVariants[this.getGroupVariant()].borderWidth),
+        borderColor: computed(() => toggleVariants[this.getGroupVariant()].borderColor?.value),
+        height: computed(() => toggleSizes[this.getGroupSize()].height),
+        paddingX: computed(() => toggleSizes[this.getGroupSize()].paddingX),
+        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
+        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.signal.disabled?.value),
+        backgroundColor: computed(() => (this.getCheckedSignal().value ? colors.accent.value : undefined)),
+        hover: computed(() => {
+          if (this.properties.signal.disabled?.value) return undefined
+          const variant = this.getGroupVariant()
+          return { backgroundColor: toggleVariants[variant].hover?.backgroundColor?.value ?? colors.muted.value }
+        }),
+        color: computed(() => (this.getCheckedSignal().value ? colors.accentForeground.value : undefined)),
+        fontSize: 14,
+        lineHeight: '20px',
+        ...config?.defaultOverrides,
+      } as InProperties<ToggleGroupItemOutProperties<EM>>,
     })
   }
-}
 
-function computeDefaultChecked(defaultChecked?: boolean) {
-  return signal(defaultChecked ?? false)
-}
+  private getUncontrolledSignal() {
+    return getProperty(this, 'uncontrolled', () => signal(this.properties.peek().defaultChecked ?? false))
+  }
 
-function computeChecked(properties: Properties<ToggleGroupItemOutProperties>, uncontrolled: Signal<boolean>) {
-  return computed(() => properties.value.checked ?? uncontrolled.value)
+  private getCheckedSignal() {
+    const uncontrolled = this.getUncontrolledSignal()
+    return getProperty(this, 'checked', () => computed(() => this.properties.value.checked ?? uncontrolled.value))
+  }
+
+  private getGroupVariant(): keyof typeof toggleVariants {
+    const parent = this.parentContainer.value
+    const variant = parent instanceof ToggleGroup ? parent.properties.value.variant : undefined
+    return (variant ?? 'default') as keyof typeof toggleVariants
+  }
+
+  private getGroupSize(): keyof typeof toggleSizes {
+    const parent = this.parentContainer.value
+    const size = parent instanceof ToggleGroup ? parent.properties.value.size : undefined
+    return (size ?? 'default') as keyof typeof toggleSizes
+  }
 }

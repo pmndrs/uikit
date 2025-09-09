@@ -4,14 +4,21 @@ import { borderRadius, colors } from './theme.js'
 export type CardProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
 export class Card<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, BaseOutProperties<EM>> {
-  protected internalResetProperties(inputProperties?: CardProperties<EM>): void {
-    super.internalResetProperties({
-      flexDirection: 'column',
-      borderRadius: borderRadius.lg,
-      borderWidth: 1,
-      backgroundColor: colors.card,
-      color: colors.cardForeground,
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'column',
+        borderRadius: borderRadius.lg,
+        borderWidth: 1,
+        backgroundColor: colors.card,
+        color: colors.cardForeground,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -23,12 +30,19 @@ export class CardHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: CardHeaderProperties<EM>): void {
-    super.internalResetProperties({
-      padding: 24,
-      flexDirection: 'column',
-      gap: 6,
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        padding: 24,
+        flexDirection: 'column',
+        gap: 6,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -40,13 +54,20 @@ export class CardTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: CardTitleProperties<EM>): void {
-    super.internalResetProperties({
-      fontWeight: 'semi-bold',
-      letterSpacing: -0.4,
-      fontSize: 24,
-      lineHeight: '100%',
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        fontWeight: 'semi-bold',
+        letterSpacing: -0.4,
+        fontSize: 24,
+        lineHeight: '100%',
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -58,12 +79,19 @@ export class CardDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: CardDescriptionProperties<EM>): void {
-    super.internalResetProperties({
-      fontSize: 14,
-      lineHeight: '20px',
-      color: colors.mutedForeground,
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        fontSize: 14,
+        lineHeight: '20px',
+        color: colors.mutedForeground,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -75,11 +103,18 @@ export class CardContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: CardContentProperties<EM>): void {
-    super.internalResetProperties({
-      padding: 24,
-      paddingTop: 0,
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        padding: 24,
+        paddingTop: 0,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }
@@ -91,13 +126,20 @@ export class CardFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   EM,
   BaseOutProperties<EM>
 > {
-  protected internalResetProperties(inputProperties?: CardFooterProperties<EM>): void {
-    super.internalResetProperties({
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 24,
-      paddingTop: 0,
-      ...inputProperties,
+  constructor(
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 24,
+        paddingTop: 0,
+        ...config?.defaultOverrides,
+      },
     })
   }
 }

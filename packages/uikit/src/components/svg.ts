@@ -1,10 +1,10 @@
 import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
 import { ThreeEventMap } from '../events.js'
-import { BoundingBox, Content, contentDefaults, ContentOutProperties } from './content.js'
-import { computed, Signal, signal } from '@preact/signals-core'
+import { BoundingBox, Content, ContentOutProperties } from './content.js'
+import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
+import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 
 export type SvgOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutProperties<EM> & {
@@ -19,16 +19,18 @@ export class Svg<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>,
-  NonReactiveProperties = {},
-> extends Content<T, EM, OutProperties, NonReactiveProperties> {
+> extends Content<T, EM, OutProperties> {
   constructor(
-    inputProperties?: InProperties<OutProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = contentDefaults as WithSignal<OutProperties>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+    },
   ) {
     const boundingBox = signal<BoundingBox | undefined>(undefined)
-    super(inputProperties, initialClasses, renderContext, overrideDefaults, {
+    super(inputProperties, initialClasses, {
+      ...config,
       remeasureOnChildrenChange: false,
       depthWriteDefault: false,
       supportFillProperty: true,

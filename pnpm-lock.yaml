@@ -271,7 +271,7 @@ importers:
         version: link:../../packages/kits/default
       '@pmndrs/uikit-lucide':
         specifier: workspace:^
-        version: link:../../packages/icons/lucide/vanilla
+        version: link:../../packages/icons/lucide/core
 
   packages/icons/lucide:
     devDependencies:
@@ -282,20 +282,20 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
 
-  packages/icons/lucide/react:
-    dependencies:
-      '@pmndrs/uikit-lucide':
-        specifier: workspace:^
-        version: link:../vanilla
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../../react
-
-  packages/icons/lucide/vanilla:
+  packages/icons/lucide/core:
     dependencies:
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../../uikit
+
+  packages/icons/lucide/react:
+    dependencies:
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../core
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../../react
 
   packages/kits/default:
     dependencies:
@@ -304,7 +304,7 @@ importers:
         version: link:../../uikit
       '@pmndrs/uikit-lucide':
         specifier: workspace:^
-        version: link:../../icons/lucide/vanilla
+        version: link:../../icons/lucide/core
     devDependencies:
       '@preact/signals-core':
         specifier: ^1.5.1

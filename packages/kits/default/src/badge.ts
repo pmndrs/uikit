@@ -5,10 +5,14 @@ import {
   InProperties,
   ThreeEventMap,
   withOpacity,
+  RenderContext,
 } from '@pmndrs/uikit'
 import { colors } from './theme.js'
+import { computed } from '@preact/signals-core'
 
-const badgeVariants = {
+type BadgeVariantProps = Pick<ContainerProperties, 'hover' | 'backgroundColor' | 'color'>
+
+const badgeVariants: Record<string, BadgeVariantProps> = {
   default: {
     backgroundColor: colors.primary,
     color: colors.primaryForeground,
@@ -33,40 +37,48 @@ const badgeVariants = {
   outline: {
     hover: undefined,
   },
-} satisfies Record<string, ContainerProperties>
+}
 
-export type BadgeNonReactiveProperties = {
+export type BadgeProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BadgeOutProperties<EM>>
+
+export type BadgeOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   variant?: keyof typeof badgeVariants
 }
 
-export type BadgeProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  BaseOutProperties<EM>,
-  BadgeNonReactiveProperties
->
-
-export class Badge<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>,
-  BadgeNonReactiveProperties
-> {
-  protected internalResetProperties({ variant, hover, ...rest }: BadgeProperties<EM> = {}): void {
-    const { hover: variantHoverProperties, ...variantProperties } = badgeVariants[variant ?? 'default']
-
-    super.internalResetProperties({
-      borderRadius: 1000,
-      borderWidth: 1,
-      paddingX: 10,
-      paddingY: 2,
-      fontSize: 12,
-      lineHeight: '16px',
-      fontWeight: 'semi-bold',
-      ...variantProperties,
-      hover: {
-        ...variantHoverProperties,
-        ...hover,
-      },
-      ...rest,
+export class Badge<
+  T = {},
+  EM extends ThreeEventMap = ThreeEventMap,
+  OutProperties extends BadgeOutProperties<EM> = BadgeOutProperties<EM>,
+> extends Container<T, EM, BadgeOutProperties<EM>> {
+  constructor(
+    inputProperties?: InProperties<OutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+    },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        borderRadius: 1000,
+        paddingX: 10,
+        paddingY: 2,
+        fontSize: 12,
+        lineHeight: '16px',
+        fontWeight: 'semi-bold',
+        backgroundColor: computed(
+          () => badgeVariants[this.properties.signal.variant.value ?? 'default']?.backgroundColor,
+        ),
+        color: computed(() => badgeVariants[this.properties.signal.variant.value ?? 'default']?.color),
+        hover: {
+          backgroundColor: computed(
+            () => badgeVariants[this.properties.signal.variant.value ?? 'default']?.hover?.backgroundColor,
+          ),
+        },
+        borderWidth: 1,
+        ...config?.defaultOverrides,
+      } as InProperties<OutProperties>,
     })
   }
 }

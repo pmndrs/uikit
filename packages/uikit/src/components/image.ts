@@ -36,23 +36,26 @@ export type ImageProperties<EM extends ThreeEventMap> = InProperties<ImageOutPro
 export class Image<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutputProperties extends ImageOutProperties<EM, unknown> = ImageOutProperties<EM, string | Texture>,
-  NonReactiveProperties = {},
-> extends Component<T, EM, OutputProperties, NonReactiveProperties> {
+  OutProperties extends ImageOutProperties<EM, unknown> = ImageOutProperties<EM, string | Texture>,
+> extends Component<T, EM, OutProperties> {
   readonly texture = signal<Texture | undefined>(undefined)
 
   constructor(
-    inputProperties?: InProperties<OutputProperties, NonReactiveProperties>,
+    inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: RenderContext,
-    overrideDefaults = imageDefaults as WithSignal<OutputProperties>,
-    loadTexture = true,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<OutProperties>
+      loadTexture?: boolean
+    },
   ) {
     const aspectRatio = signal<number | undefined>(undefined)
-    super(false, inputProperties, initialClasses, undefined, renderContext, {
-      aspectRatio,
-      ...overrideDefaults,
-    } as WithSignal<OutputProperties>)
+    super(inputProperties, initialClasses, {
+      defaults: imageDefaults as OutProperties,
+      hasNonUikitChildren: false,
+      ...config,
+      defaultOverrides: { aspectRatio, ...config?.defaultOverrides } as InProperties<OutProperties>,
+    })
 
     setupOrderInfo(
       this.orderInfo,
@@ -67,7 +70,7 @@ export class Image<
     this.frustumCulled = false
     setupRenderOrder(this, this.root, this.orderInfo)
 
-    if (loadTexture) {
+    if (config?.loadTexture ?? true) {
       loadResourceWithParams(
         this.texture,
         loadTextureImpl,
@@ -163,7 +166,7 @@ export class Image<
           setters[key as any]!(
             data,
             0,
-            this.properties.value[key as keyof OutputProperties],
+            this.properties.value[key as keyof OutProperties],
             this.size,
             this.properties.signal.opacity,
             undefined,

@@ -31,9 +31,17 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   constructor(
     inputProperties?: VideoProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: any,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<VideoOutProperties<EM>> },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        positionType: 'relative',
+        onPointerMove: () => this.onInteract(),
+        onPointerDown: () => this.onInteract(),
+        ...config?.defaultOverrides,
+      },
+    })
 
     super.add(
       (this.video = new VideoImpl({
@@ -48,20 +56,12 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     )
   }
 
-  protected internalResetProperties(props: VideoProperties<EM> = {}): void {
-    const onInteract = () => {
-      this.interacting.value = true
-      if (this.timeoutRef != null) {
-        clearTimeout(this.timeoutRef)
-      }
-      this.timeoutRef = setTimeout(() => (this.interacting.value = false), 2000)
+  private onInteract() {
+    this.interacting.value = true
+    if (this.timeoutRef != null) {
+      clearTimeout(this.timeoutRef)
     }
-    super.internalResetProperties({
-      positionType: 'relative',
-      onPointerMove: onInteract,
-      onPointerDown: onInteract,
-      ...props,
-    })
+    this.timeoutRef = setTimeout(() => (this.interacting.value = false), 2000)
   }
 
   add(...object: Object3D[]): this {
@@ -86,9 +86,26 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   constructor(
     inputProperties?: VideoControlsProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    renderContext?: any,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
-    super(inputProperties, initialClasses, renderContext)
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        display: computed(() =>
+          this.parentContainer.value instanceof Video && this.parentContainer.value.interacting.value ? 'flex' : 'none',
+        ),
+        zIndex: 1,
+        positionType: 'absolute',
+        padding: 8,
+        positionBottom: 0,
+        positionLeft: 0,
+        positionRight: 0,
+        flexDirection: 'column',
+        backgroundColor: withOpacity(colors.background, 0.5),
+        gap: 8,
+        ...config?.defaultOverrides,
+      },
+    })
     const videoElementSignal = computed(() =>
       this.parentContainer.value instanceof Video ? this.parentContainer.value.video.element.value : undefined,
     )
@@ -232,24 +249,6 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
 
     super.add(controlsContainer)
     super.add(slider)
-  }
-
-  protected internalResetProperties(props: VideoControlsProperties<EM> = {}): void {
-    super.internalResetProperties({
-      display: computed(() =>
-        this.parentContainer.value instanceof Video && this.parentContainer.value.interacting.value ? 'flex' : 'none',
-      ),
-      zIndex: 1,
-      positionType: 'absolute',
-      padding: 8,
-      positionBottom: 0,
-      positionLeft: 0,
-      positionRight: 0,
-      flexDirection: 'column',
-      backgroundColor: withOpacity(colors.background, 0.5),
-      gap: 8,
-      ...props,
-    })
   }
 
   add(...object: Object3D[]): this {
