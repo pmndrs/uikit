@@ -1,0 +1,82 @@
+import {
+  Container,
+  ThreeEventMap,
+  InProperties,
+  BaseOutProperties,
+  Properties,
+  getProperty,
+  withOpacity,
+} from '@pmndrs/uikit'
+import { signal, computed, Signal } from '@preact/signals-core'
+
+export type DialogOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  defaultOpen?: boolean
+} & BaseOutProperties<EM>
+
+export type DialogProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<DialogOutProperties<EM>>
+
+export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+  T,
+  EM,
+  DialogOutProperties<EM>
+> {
+  constructor(
+    inputProperties?: InProperties<DialogOutProperties<EM>>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        onPointerMove: (e: any) => e.stopPropagation(),
+        onPointerEnter: (e: any) => e.stopPropagation(),
+        onPointerLeave: (e: any) => e.stopPropagation(),
+        onWheel: (e: any) => e.stopPropagation(),
+        positionType: 'absolute',
+        display: computed(() => (this.getCurrentOpenSignal().value ? 'flex' : 'none')),
+        inset: 0,
+        zIndex: 50,
+        backgroundColor: withOpacity('black', 0.8),
+        alignItems: 'center',
+        justifyContent: 'center',
+        onClick: () => {
+          this.setOpen(false)
+        },
+        ...config?.defaultOverrides,
+      },
+    })
+  }
+
+  private getUncontrolledSignal() {
+    return getProperty(this, 'uncontrolled', () => computeDefaultOpen(this.properties.peek().defaultOpen))
+  }
+
+  private getCurrentOpenSignal() {
+    return getProperty(this, 'currentOpen', () => computeCurrentOpen(this.properties, this.getUncontrolledSignal()))
+  }
+
+  setOpen(open: boolean) {
+    const props = this.properties.peek()
+    if (props.open == null) {
+      this.getUncontrolledSignal().value = open
+    }
+    props.onOpenChange?.(open)
+  }
+}
+
+function computeDefaultOpen(defaultOpen: boolean | undefined) {
+  return signal<boolean>(defaultOpen ?? false)
+}
+
+function computeCurrentOpen(properties: Properties<DialogOutProperties>, uncontrolled: Signal<boolean>) {
+  return computed(() => properties.value.open ?? uncontrolled.value)
+}
+
+export * from './trigger.js'
+export * from './content.js'
+export * from './header.js'
+export * from './footer.js'
+export * from './title.js'
+export * from './description.js'

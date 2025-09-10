@@ -111,4 +111,8 @@ export class Text<
     )
     abortableEffect(() => this.node.setCustomLayouting(customLayouting.value), this.abortSignal)
   }
+
+  add(): this {
+    throw new Error(`the text component can not have any children`)
+  }
 }

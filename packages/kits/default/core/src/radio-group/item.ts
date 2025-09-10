@@ -1,0 +1,88 @@
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { computed } from '@preact/signals-core'
+import { colors } from '../theme.js'
+import { RadioGroup } from './index.js'
+
+export type RadioGroupItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+  disabled?: boolean
+  value?: string
+} & BaseOutProperties<EM>
+
+export type RadioGroupItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
+  RadioGroupItemOutProperties<EM>
+>
+
+export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+  T,
+  EM,
+  RadioGroupItemOutProperties<EM>
+> {
+  constructor(
+    inputProperties?: RadioGroupItemProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<RadioGroupItemOutProperties<EM>> },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
+        onClick: computed(() =>
+          this.properties.signal.disabled?.value
+            ? undefined
+            : () => {
+                const radioGroup = this.parentContainer.peek()
+                if (!(radioGroup instanceof RadioGroup)) {
+                  return
+                }
+                const value = this.properties.peek().value
+                if (radioGroup.properties.peek().value == null) {
+                  radioGroup.getUncontrolledSignal().value = value
+                }
+                radioGroup.properties.peek().onValueChange?.(value)
+              },
+        ),
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.signal.disabled?.value),
+        ...config?.defaultOverrides,
+      },
+    })
+    const isSelected = computed(
+      () =>
+        this.parentContainer.value instanceof RadioGroup &&
+        this.parentContainer.value.getCurrentValueSignal().value === this.properties.value.value,
+    )
+
+    const radioButton = new Container(undefined, undefined, {
+      defaultOverrides: {
+        aspectRatio: 1,
+        height: 16,
+        width: 16,
+        borderRadius: 1000,
+        borderWidth: 1,
+        borderColor: colors.primary,
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+    })
+    const radioDot = new Container(undefined, undefined, {
+      defaultOverrides: {
+        borderRadius: 1000,
+        aspectRatio: 1,
+        backgroundColor: colors.primary,
+        height: 9,
+        width: 9,
+        opacity: computed(() => (isSelected.value ? 1 : 0)),
+      },
+    })
+
+    radioButton.add(radioDot)
+    super.add(radioButton)
+  }
+}
+
+
+

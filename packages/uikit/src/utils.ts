@@ -280,8 +280,12 @@ export function fitNormalizedContentInside(
   scaleTarget.setScalar((innerWidth * pixelSize) / aspectRatio)
 }
 
-export function readReactive<T>(value: T | Signal<T>): T {
-  return value instanceof Signal ? value.value : value
+export function readReactive<T>(value: T | 'initial' | Signal<T | 'initial'>): T {
+  value = value instanceof Signal ? value.value : value
+  if (value === 'initial') {
+    return undefined as T
+  }
+  return value
 }
 
 export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {

@@ -228,6 +228,10 @@ export class Image<
       aspectRatio.value = width / height
     }, this.abortSignal)
   }
+
+  add(): this {
+    throw new Error(`the image component can not have any children`)
+  }
 }
 
 function transformInsideBorder(

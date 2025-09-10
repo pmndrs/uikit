@@ -16,10 +16,10 @@ export class Fullscreen<
   EM extends ThreeEventMap = ThreeEventMap,
   OutProperties extends FullscreenOutProperties<EM> = FullscreenOutProperties<EM>,
 > extends Container<T, EM, OutProperties> {
-  private readonly sizeX: Signal<number> = signal(0)
-  private readonly sizeY = signal(0)
-  private readonly transformTranslateZ = signal(0)
-  private readonly pixelSize = signal(0)
+  private readonly sizeX: Signal<number>
+  private readonly sizeY: Signal<number>
+  private readonly transformTranslateZ: Signal<number>
+  private readonly pixelSize: Signal<number>
 
   constructor(
     private renderer: WebGLRenderer,
@@ -46,6 +46,11 @@ export class Fullscreen<
         ...config?.defaultOverrides,
       } as InProperties<OutProperties>,
     })
+
+    this.sizeX = sizeX
+    this.sizeY = sizeY
+    this.transformTranslateZ = transformTranslateZ
+    this.pixelSize = pixelSize
   }
 
   update(delta: number) {

@@ -117,6 +117,7 @@ export class Component<
       conditionals,
       config?.defaults ?? (componentDefaults as OutProperties),
     )
+    this.properties.setLayersWithConditionals({ type: 'default-overrides' }, config?.defaultOverrides)
     abortableEffect(() => {
       const parentProprties = this.parentContainer.value?.properties
       const layerIndex = getLayerIndex({ type: 'inheritance' })

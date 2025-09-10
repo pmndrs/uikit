@@ -1,8 +1,9 @@
 import { Text, Container } from '@react-three/uikit'
 import { BellRing } from '@react-three/uikit-lucide'
-import { Avatar } from '@/avatar.js'
-import { Button } from '@/button.js'
 import {
+  Avatar,
+  Button,
+  colors,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -10,9 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog.js'
-import { colors } from '@/theme.js'
-import { Switch } from '@/switch.js'
+  Switch,
+} from '@react-three/uikit-default'
 
 const notifications = [
   {

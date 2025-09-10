@@ -182,12 +182,18 @@ importers:
 
   examples/dashboard:
     dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react
+      '@react-three/uikit-default':
+        specifier: workspace:^
+        version: link:../../packages/kits/default/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/react
@@ -268,7 +274,7 @@ importers:
         version: link:../../packages/uikit
       '@pmndrs/uikit-default':
         specifier: workspace:^
-        version: link:../../packages/kits/default
+        version: link:../../packages/kits/default/core
       '@pmndrs/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/core
@@ -297,18 +303,27 @@ importers:
         specifier: workspace:^
         version: link:../../../react
 
-  packages/kits/default:
+  packages/kits/default/core:
     dependencies:
       '@pmndrs/uikit':
         specifier: workspace:^
-        version: link:../../uikit
+        version: link:../../../uikit
       '@pmndrs/uikit-lucide':
         specifier: workspace:^
-        version: link:../../icons/lucide/core
+        version: link:../../../icons/lucide/core
     devDependencies:
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
+
+  packages/kits/default/react:
+    dependencies:
+      '@pmndrs/uikit-default':
+        specifier: workspace:^
+        version: link:../core
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../../react
 
   packages/msdfonts: {}
 

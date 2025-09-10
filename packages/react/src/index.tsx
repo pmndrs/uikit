@@ -58,7 +58,8 @@ export type FullscreenProperties = VanillaFullscreenProperties<ThreeEventMap> & 
   attachCamera?: boolean
 }
 
-export type {
+export {
+  readReactive,
   Container as VanillaContainer,
   Content as VanillaContent,
   Custom as VanillaCustom,

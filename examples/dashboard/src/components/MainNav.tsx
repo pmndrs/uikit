@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef } from 'react'
 import { Container, Text } from '@react-three/uikit'
-import { colors } from '@/theme.js'
+import { colors } from '@react-three/uikit-default'
 
 export function MainNav(props: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
   return (

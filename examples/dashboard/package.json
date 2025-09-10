@@ -3,7 +3,9 @@
   "dependencies": {
     "@preact/signals-core": "^1.5.1",
     "@react-three/uikit": "workspace:^",
+    "@pmndrs/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
+    "@react-three/uikit-default": "workspace:^",
     "vite-plugin-mkcert": "^1.17.4",
     "zustand": "^4.4.7"
   },

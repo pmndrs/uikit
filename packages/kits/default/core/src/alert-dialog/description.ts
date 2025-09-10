@@ -1,0 +1,36 @@
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { colors } from '../theme.js'
+
+export type AlertDialogDescriptionOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+
+export type AlertDialogDescriptionProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
+  AlertDialogDescriptionOutProperties<EM>
+>
+
+export class AlertDialogDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+  T,
+  EM,
+  AlertDialogDescriptionOutProperties<EM>
+> {
+  constructor(
+    inputProperties?: AlertDialogDescriptionProperties<EM>,
+    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    config?: {
+      renderContext?: RenderContext
+      defaultOverrides?: InProperties<AlertDialogDescriptionOutProperties<EM>>
+    },
+  ) {
+    super(inputProperties, initialClasses, {
+      ...config,
+      defaultOverrides: {
+        fontSize: 14,
+        lineHeight: '20px',
+        color: colors.mutedForeground,
+        ...config?.defaultOverrides,
+      },
+    })
+  }
+}
+
+
+

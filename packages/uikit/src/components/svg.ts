@@ -6,6 +6,7 @@ import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { RenderContext } from '../context.js'
+import { Object3D } from 'three/src/Three.Core.js'
 
 export type SvgOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutProperties<EM> & {
   keepAspectRatio?: boolean
@@ -55,10 +56,10 @@ export class Svg<
         this.notifyAncestorsChanged()
         return
       }
-      this.add(...result.meshes)
+      super.add(...result.meshes)
       this.notifyAncestorsChanged()
       return () => {
-        this.remove(...result.meshes)
+        super.remove(...result.meshes)
       }
     }, this.abortSignal)
   }

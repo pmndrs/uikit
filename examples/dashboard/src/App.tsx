@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Container, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
-
-import { Defaults, colors } from '@/theme.js'
-import { Button } from '@/button.js'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/card.js'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
-import { DialogAnchor } from '@/dialog.js'
+import {
+  Button,
+  Card,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+  colors,
+} from '@react-three/uikit-default'
 import { CalendarDateRangePicker } from './components/DateRangePicker.js'
 import { MainNav } from './components/MainNav.js'
 import { Overview } from './components/Overview.js'
@@ -20,6 +27,8 @@ import { Highlighter } from './components/Highlighter.js'
 
 setPreferredColorScheme('light')
 
+//TODO: test with frameloop="demand"
+
 export default function App() {
   const [open, setOpen] = useState(false)
   return (
@@ -27,24 +36,18 @@ export default function App() {
       <FrameCounter />
       <Canvas
         events={noEvents}
-        frameloop="demand"
         flat
         camera={{ position: [0, 0, 18], fov: 35, zoom: 100 }}
         style={{ height: '100dvh', touchAction: 'none' }}
-        gl={{ localClippingEnabled: true }}
         orthographic
       >
         <CountFrames />
         <PointerEvents />
         <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
           <Highlighter>
-            <Defaults>
-              <DialogAnchor>
-                <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
-                  <DashboardPage open={open} setOpen={setOpen} />
-                </Container>
-              </DialogAnchor>
-            </Defaults>
+            <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
+              <DashboardPage open={open} setOpen={setOpen} />
+            </Container>
           </Highlighter>
         </Fullscreen>
       </Canvas>
