@@ -17,7 +17,7 @@ export type ThreeEventMap = {
 export type EventHandlers<EM extends ThreeEventMap = ThreeEventMap> = {
   onClick?: (event: EM['mouse']) => void
   onContextMenu?: (event: EM['mouse']) => void
-  onDoubleClick?: (event: EM['mouse']) => void
+  onDblClick?: (event: EM['mouse']) => void
 
   onWheel?: (event: EM['wheel']) => void
 

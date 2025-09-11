@@ -533,7 +533,7 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 | onPointerEnter    | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
 | onPointerDown     | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
 | onPointerCancel   | `(event: ThreeEvent<PointerEvent>) => void`                                                                                                   |
-| onDoubleClick     | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
+| onDblClick     | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onContextMenu     | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onClick           | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onSizeChange      | `(width: number, height: number) => void`                                                                                                     |

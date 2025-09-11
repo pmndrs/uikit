@@ -30,13 +30,15 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         height: 40,
         positionType: 'relative',
         overflow: 'hidden',
-        fontSize: 14,
-        borderWidth: 1,
-        paddingX: 12,
-        paddingY: 8,
-        lineHeight: '20px',
-        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
-        disabled: computed(() => this.properties.value.disabled),
+        '*': {
+          height: '100%',
+          width: '100%',
+          fontSize: 14,
+          paddingX: 12,
+          paddingY: 8,
+          lineHeight: '20px',
+          opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+        },
         ...config?.defaultOverrides,
       },
     })
@@ -44,9 +46,11 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     const inputImpl = new InputImpl(undefined, undefined, {
       defaultOverrides: {
         borderRadius: borderRadius.md,
-        backgroundColor: colors.background,
         borderColor: colors.input,
+        borderWidth: 1,
+        focus: { borderColor: colors.ring },
         inset: 0,
+        disabled: computed(() => this.properties.value.disabled),
       },
     })
     super.add(inputImpl)
@@ -56,8 +60,9 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       defaultOverrides: {
         color: colors.mutedForeground,
         inset: 0,
+        text: this.properties.signal.placeholder,
         positionType: 'absolute',
-        display: computed(() => (this.properties.value.placeholder != null ? 'flex' : 'none')),
+        display: computed(() => (inputImpl.currentSignal.value.length === 0 ? 'flex' : 'none')),
       },
     })
     super.add(placeholderText)

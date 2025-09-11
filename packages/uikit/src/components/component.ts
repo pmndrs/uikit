@@ -153,6 +153,10 @@ export class Component<
     }, this.abortSignal)
 
     this.starProperties = new PropertiesImplementation<OutProperties>(allAliases, conditionals)
+    this.starProperties.setLayersWithConditionals(
+      { type: 'default-overrides' },
+      getStarProperties(config?.defaultOverrides),
+    )
 
     abortableEffect(() => {
       const parentStarProprties = this.parentContainer.value?.starProperties

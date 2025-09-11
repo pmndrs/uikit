@@ -55,6 +55,11 @@ export class Input<
   readonly selectionRange: Signal<Vector2Tuple | undefined>
   readonly hasFocus: Signal<boolean>
 
+  readonly uncontrolledSignal = signal<string | undefined>(undefined)
+  readonly currentSignal = computed(
+    () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? '',
+  )
+
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -98,23 +103,19 @@ export class Input<
     this.hasFocus = hasFocus
     abortableEffect(() => void (caretColor.value = this.properties.value.color), this.abortSignal)
 
-    const writeValue = signal<string | undefined>(undefined)
-
-    const valueSignal = computed(
-      () => this.properties.value.value ?? writeValue.value ?? this.properties.value.defaultValue ?? '',
-    )
-
     abortableEffect(
       () =>
         void (text.value =
-          this.properties.value.type === 'password' ? '*'.repeat(valueSignal.value.length ?? 0) : valueSignal.value),
+          this.properties.value.type === 'password'
+            ? '*'.repeat(this.currentSignal.value.length ?? 0)
+            : this.currentSignal.value),
       this.abortSignal,
     )
 
     setupSelectionHandlers(
       selectionHandlers,
       this.properties,
-      valueSignal,
+      this.currentSignal,
       this,
       instancedTextRef,
       this.focus.bind(this),
@@ -127,7 +128,7 @@ export class Input<
       selectionRange,
       (newValue) => {
         if (this.properties.peek().value == null) {
-          writeValue.value = newValue
+          this.uncontrolledSignal.value = newValue
         }
         this.properties.peek().onValueChange?.(newValue)
       },
@@ -158,7 +159,7 @@ export class Input<
       this.abortSignal,
     )
 
-    setupHtmlInputElement(this.properties, this.element, valueSignal, this.abortSignal)
+    setupHtmlInputElement(this.properties, this.element, this.currentSignal, this.abortSignal)
 
     setupUpdateHasFocus(
       this.element,
@@ -222,7 +223,7 @@ export function setupSelectionHandlers(
         }
         setTimeout(() => focus(startCharIndex, startCharIndex))
       },
-      onDoubleClick: (e) => {
+      onDblClick: (e) => {
         if (segmenter == null || e.uv == null || instancedTextRef.current == null) {
           return
         }

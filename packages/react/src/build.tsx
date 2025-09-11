@@ -80,7 +80,11 @@ export function useSetup(ref: { current: Component | null }, props: any) {
           handlers,
         }
       }
-      container.__r3f.handlers = handlers
+      container.__r3f.handlers = { ...handlers }
+      if (handlers.onDblClick != null) {
+        //patch that in react land "dblclick" is called doubleclick
+        ;(container.__r3f.handlers as any).onDoubleClick = handlers.onDblClick
+      }
       container.__r3f.eventCount = eventCount
 
       root.getState().internal.interaction.push(container)

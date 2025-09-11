@@ -72,7 +72,7 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
 const eventHandlerKeys: Array<keyof EventHandlers> = [
   'onClick',
   'onContextMenu',
-  'onDoubleClick',
+  'onDblClick',
   'onPointerCancel',
   'onPointerDown',
   'onPointerEnter',
