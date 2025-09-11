@@ -37,7 +37,6 @@ export class AlertDialogCancel<T = {}, EM extends ThreeEventMap = ThreeEventMap>
         onClick: (e: any) => {
           e.stopPropagation()
           this.closeDialog()
-          this.properties.peek().onClick?.(e)
         },
         hover: {
           backgroundColor: colors.accent,

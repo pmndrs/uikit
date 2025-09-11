@@ -21,12 +21,10 @@ export class DialogDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap>
       ...config,
       defaultOverrides: {
         fontSize: 14,
-        lineHeight: 20,
+        lineHeight: '20px',
         color: colors.mutedForeground,
         ...config?.defaultOverrides,
       },
     })
   }
 }
-
-

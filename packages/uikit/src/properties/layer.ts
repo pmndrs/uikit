@@ -37,6 +37,8 @@ export const SpecialLayerSections = Object.keys(SectionStartIndexMap).filter((la
   Exclude<keyof typeof SectionStartIndexMap, 'base'>
 >
 
+export function getLayerType(index: number) {}
+
 export function getLayerIndex(identifier: LayerIdentifier) {
   if (identifier.type != 'class' && identifier.type != 'default-overrides' && identifier.type != 'base') {
     if (identifier.type === 'star-inheritance') {

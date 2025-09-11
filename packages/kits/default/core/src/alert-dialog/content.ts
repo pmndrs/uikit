@@ -22,7 +22,6 @@ export class AlertDialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap
       defaultOverrides: {
         onClick: (e) => {
           e.stopPropagation?.()
-          this.properties.peek().onClick?.(e)
         },
         positionType: 'relative',
         flexDirection: 'column',

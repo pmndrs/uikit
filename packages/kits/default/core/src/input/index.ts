@@ -7,6 +7,7 @@ import {
   ThreeEventMap,
   InputOutProperties as BaseInputOutProperties,
   RenderContext,
+  withOpacity,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
@@ -29,7 +30,14 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       defaultOverrides: {
         height: 40,
         positionType: 'relative',
-        overflow: 'hidden',
+        overflow: 'scroll',
+        scrollbarBackgroundColor: withOpacity('black', 0),
+        scrollbarColor: withOpacity('black', 0),
+        borderRadius: borderRadius.md,
+        backgroundColor: colors.background,
+        borderColor: computed(() => (inputImpl.hasFocus.value ? colors.ring.value : colors.input.value)),
+        borderWidth: 1,
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
         '*': {
           height: '100%',
           width: '100%',
@@ -37,19 +45,14 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
           paddingX: 12,
           paddingY: 8,
           lineHeight: '20px',
-          opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
         },
         ...config?.defaultOverrides,
       },
     })
     // Create input implementation
     const inputImpl = new InputImpl(undefined, undefined, {
+      multiline: false,
       defaultOverrides: {
-        borderRadius: borderRadius.md,
-        borderColor: colors.input,
-        borderWidth: 1,
-        focus: { borderColor: colors.ring },
-        inset: 0,
         disabled: computed(() => this.properties.value.disabled),
       },
     })

@@ -37,6 +37,8 @@ import { ForwardRefExoticComponent, PropsWithoutRef, ReactNode, RefAttributes } 
 import { ${name} as Vanilla${name}, ${name}Properties as Vanilla${name}Properties } from '@pmndrs/uikit-default'
 import { build } from '@react-three/uikit'
 
+export { ${name} as Vanilla${name} } from '@pmndrs/uikit-default'
+
 export type ${name}Properties = Vanilla${name}Properties${canHaveChildren ? '& { children?: ReactNode }' : ''} 
 
 export const ${name}: ForwardRefExoticComponent<
@@ -51,7 +53,6 @@ export const ${name}: ForwardRefExoticComponent<
           }
           code += `export * from "./${componentFileName.slice(0, -3)}.js";`
         }
-        //TODO: add exports to the others in here
       }
       writeFile(`src/${componentFolderName}/${componentFileName}`, code)
     }

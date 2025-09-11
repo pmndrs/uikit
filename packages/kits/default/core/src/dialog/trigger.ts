@@ -24,7 +24,7 @@ export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       defaultOverrides: {
         onClick: (event) => {
           this.properties.peek().dialog?.setOpen(true)
-          this.properties.peek().onClick?.(event)
+          //TODO: this.properties.peek().onClick?.(event)
         },
         cursor: 'pointer',
         ...config?.defaultOverrides,

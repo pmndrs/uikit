@@ -18,7 +18,7 @@ export function SeparatorDemo() {
         height={20}
         alignItems="center"
         gap={16}
-        {...{ '*': { fontSize: 14, lineHeight: 20 } }}
+        {...{ '*': { fontSize: 14, lineHeight: '20px' } }}
       >
         <Text>Blog</Text>
         <Separator orientation="vertical" />

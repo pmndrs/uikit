@@ -1,11 +1,4 @@
-import {
-  Container,
-  ThreeEventMap,
-  InProperties,
-  BaseOutProperties,
-  Properties,
-  withOpacity,
-} from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, withOpacity } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
 
 export type DialogOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
@@ -21,8 +14,6 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   DialogOutProperties<EM>
 > {
-
-
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.open ?? this.uncontrolledSignal.value ?? this.properties.value.defaultOpen,
@@ -62,14 +53,6 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     }
     props.onOpenChange?.(open)
   }
-}
-
-function computeDefaultOpen(defaultOpen: boolean | undefined) {
-  return signal<boolean>(defaultOpen ?? false)
-}
-
-function computeCurrentOpen(properties: Properties<DialogOutProperties>, uncontrolled: Signal<boolean>) {
-  return computed(() => properties.value.open ?? uncontrolled.value)
 }
 
 export * from './trigger.js'

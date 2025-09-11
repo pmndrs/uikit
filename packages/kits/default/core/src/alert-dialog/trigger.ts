@@ -23,9 +23,8 @@ export class AlertDialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
-        onClick: (event) => {
+        onClick: () => {
           this.properties.peek().dialog?.setOpen(true)
-          this.properties.peek().onClick?.(event)
         },
         cursor: 'pointer',
         ...config?.defaultOverrides,

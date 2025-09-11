@@ -45,6 +45,8 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
 
     super.add(
       (this.video = new VideoImpl({
+        width: '100%',
+        height: '100%',
         src: this.properties.signal.src,
       })),
     )
@@ -230,7 +232,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       min: 0,
       margin: 16,
       marginTop: 8,
-      width: undefined,
+      width: 'initial',
       max: durationSignal,
       value: timeSignal,
       onValueChange: (t: number) => {
