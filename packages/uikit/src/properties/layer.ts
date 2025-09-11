@@ -19,6 +19,8 @@ export const LayersSectionSize = MaxClassAmount + 2
 //7. active
 //8. focus
 //9. base
+//- start inheritance
+//- inheritance
 
 const SectionStartIndexMap = {
   sm: LayersSectionSize * 0,
@@ -37,14 +39,12 @@ export const SpecialLayerSections = Object.keys(SectionStartIndexMap).filter((la
   Exclude<keyof typeof SectionStartIndexMap, 'base'>
 >
 
-export function getLayerType(index: number) {}
-
 export function getLayerIndex(identifier: LayerIdentifier) {
   if (identifier.type != 'class' && identifier.type != 'default-overrides' && identifier.type != 'base') {
     if (identifier.type === 'star-inheritance') {
-      return LayersSectionSize * 10 + 1
+      return LayersSectionSize * 10
     }
-    return LayersSectionSize * 10
+    return LayersSectionSize * 10 + 1
   }
   const sectionStartIndex = SectionStartIndexMap[identifier.section]
   if (identifier.type != 'class') {

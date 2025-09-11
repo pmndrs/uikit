@@ -6,10 +6,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ['@react-three/uikit-lucide', '@react-three/uikit'],
+    include: ['@react-three/uikit-lucide', '@pmndrs/uikit', '@pmndrs/uikit-lucide'],
   },
   base: '/uikit/examples/auth/',
   resolve: {
-    dedupe: ['@react-three/fiber', 'three'],
+    dedupe: ['@react-three/fiber', 'three', '@react-three/uikit', '@pmndrs/uikit'],
   },
 })

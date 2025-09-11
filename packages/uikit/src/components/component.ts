@@ -144,7 +144,8 @@ export class Component<
         if (!inheritedPropertyKeys.includes(key as any)) {
           return
         }
-        this.properties.set(layerIndex, key as any, parentProprties.signal[key as keyof typeof parentProprties.signal])
+        const signal = parentProprties.signal[key as keyof typeof parentProprties.signal]
+        this.properties.set(layerIndex, key as any, signal)
       })
       return () => {
         cleanup?.()

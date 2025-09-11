@@ -114,26 +114,17 @@ importers:
         specifier: ^5.4.14
         version: 5.4.14(@types/node@20.17.16)(terser@5.43.1)
 
-  examples/apfel:
-    dependencies:
-      '@preact/signals-core':
-        specifier: ^1.5.1
-        version: 1.8.0
-      '@react-three/uikit':
-        specifier: workspace:^
-        version: link:../../packages/react
-      '@react-three/uikit-lucide':
-        specifier: workspace:^
-        version: link:../../packages/icons/lucide/react
-      maath:
-        specifier: ^0.10.7
-        version: 0.10.8(@types/three@0.178.0)(three@0.178.0)
-
   examples/auth:
     dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react
+      '@react-three/uikit-default':
+        specifier: workspace:^
+        version: link:../../packages/kits/default/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/react
