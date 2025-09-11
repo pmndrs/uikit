@@ -14,6 +14,7 @@ import {
   CardContent,
   CardDescription,
   colors,
+  defaultProperties,
 } from '@react-three/uikit-default'
 import { CalendarDateRangePicker } from './components/DateRangePicker.js'
 import { MainNav } from './components/MainNav.js'
@@ -43,7 +44,12 @@ export default function App() {
       >
         <CountFrames />
         <PointerEvents />
-        <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
+        <Fullscreen
+          distanceToCamera={1}
+          backgroundColor={0xffffff}
+          dark={{ backgroundColor: 0x0 }}
+          {...defaultProperties}
+        >
           <Highlighter>
             <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
               <DashboardPage open={open} setOpen={setOpen} />
@@ -141,17 +147,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     paddingBottom={8}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={20}>
+                      <Text fontSize={14} lineHeight="20px">
                         Total Revenue
                       </Text>
                     </CardTitle>
                     <DollarSign width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={32}>
+                    <Text fontSize={24} lineHeight="32px">
                       $45,231.89
                     </Text>
-                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight="16px" color={colors.mutedForeground}>
                       +20.1% from last month
                     </Text>
                   </CardContent>
@@ -166,17 +172,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     gap={0}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={20}>
+                      <Text fontSize={14} lineHeight="20px">
                         Subscriptions
                       </Text>
                     </CardTitle>
                     <Users height={16} width={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={32}>
+                    <Text fontSize={24} lineHeight="32px">
                       +2350
                     </Text>
-                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight="16px" color={colors.mutedForeground}>
                       +180.1% from last month
                     </Text>
                   </CardContent>
@@ -193,17 +199,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     flexShrink={0}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={20}>
+                      <Text fontSize={14} lineHeight="20px">
                         Sales
                       </Text>
                     </CardTitle>
                     <CreditCard width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={32}>
+                    <Text fontSize={24} lineHeight="32px">
                       +12,234
                     </Text>
-                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight="16px" color={colors.mutedForeground}>
                       +19% from last month
                     </Text>
                   </CardContent>
@@ -218,17 +224,17 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     flexShrink={0}
                   >
                     <CardTitle>
-                      <Text fontSize={14} lineHeight={20}>
+                      <Text fontSize={14} lineHeight="20px">
                         Active Now
                       </Text>
                     </CardTitle>
                     <Activity width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight={32}>
+                    <Text fontSize={24} lineHeight="32px">
                       +573
                     </Text>
-                    <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
+                    <Text fontSize={12} lineHeight="16px" color={colors.mutedForeground}>
                       +201 since last hour
                     </Text>
                   </CardContent>

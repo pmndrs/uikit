@@ -5,11 +5,12 @@ import {
   InProperties,
   ThreeEventMap,
   RenderContext,
+  UnionizeVariants,
 } from '@pmndrs/uikit'
 import { borderRadius, colors } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
-const alertVariants = {
+const _alertVariants = {
   default: {
     backgroundColor: colors.card,
     color: colors.cardForeground,
@@ -19,6 +20,7 @@ const alertVariants = {
     color: colors.destructive,
   },
 } satisfies { [Key in string]: ContainerProperties }
+const alertVariants = _alertVariants as UnionizeVariants<typeof _alertVariants>
 
 export type AlertProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<AlertOutProperties<EM>>
 
@@ -26,17 +28,13 @@ export type AlertOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseO
   variant?: keyof typeof alertVariants
 }
 
-export class Alert<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends AlertOutProperties<EM> = AlertOutProperties<EM>,
-> extends Container<T, EM, OutProperties> {
+export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, AlertOutProperties<EM>> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<AlertOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<AlertOutProperties<EM>>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -49,11 +47,11 @@ export class Alert<
         borderWidth: 1,
         padding: 16,
         backgroundColor: computed(
-          () => alertVariants[this.properties.signal.variant.value ?? 'default'].backgroundColor,
+          () => alertVariants[this.properties.value.variant ?? 'default'].backgroundColor?.value,
         ),
-        color: computed(() => alertVariants[this.properties.signal.variant.value ?? 'default'].color),
+        color: computed(() => alertVariants[this.properties.value.variant ?? 'default'].color?.value),
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
   }
 }

@@ -79,10 +79,10 @@ export function MarketPage() {
             <TabsContent flexShrink={0} flexDirection="column" value="music" borderWidth={0} padding={0}>
               <Container flexDirection="row" alignItems="center" justifyContent="space-between">
                 <Container flexDirection="column" gap={4}>
-                  <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={28}>
+                  <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight="28px">
                     Trending
                   </Text>
-                  <Text color={colors.mutedForeground} fontSize={14} lineHeight={20}>
+                  <Text color={colors.mutedForeground} fontSize={14} lineHeight="20px">
                     Top picks for you. Updated daily.
                   </Text>
                 </Container>
@@ -94,10 +94,10 @@ export function MarketPage() {
                 ))}
               </Container>
               <Container flexDirection="column" marginTop={24} gap={4}>
-                <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight={28}>
+                <Text fontWeight="semi-bold" letterSpacing={-0.4} fontSize={18} lineHeight="28px">
                   Made By You
                 </Text>
-                <Text color={colors.mutedForeground} fontSize={14} lineHeight={20}>
+                <Text color={colors.mutedForeground} fontSize={14} lineHeight="20px">
                   Your personal models.
                 </Text>
               </Container>

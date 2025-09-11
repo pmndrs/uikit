@@ -1,12 +1,4 @@
-import {
-  Container,
-  ThreeEventMap,
-  InProperties,
-  BaseOutProperties,
-  Properties,
-  getProperty,
-  RenderContext,
-} from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
 import { colors } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
@@ -25,6 +17,11 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   SwitchOutProperties<EM>
 > {
+  public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
+  public readonly currentSignal = computed(
+    () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
+  )
+
   constructor(
     inputProperties?: InProperties<SwitchOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -39,34 +36,34 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         flexDirection: 'row',
         padding: 2,
         alignItems: 'center',
-        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
         borderRadius: 1000,
-        backgroundColor: computed(() => (this.getChecked().value ? colors.primary.value : colors.input.value)),
-        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
+        backgroundColor: computed(() => (this.currentSignal.value ? colors.primary.value : colors.input.value)),
+        cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
         onClick: computed(() => {
-          return this.properties.signal.disabled?.value
+          return this.properties.value.disabled
             ? undefined
             : () => {
-                const checked = this.getChecked().peek()
+                const checked = this.currentSignal.peek()
                 if (this.properties.peek().checked == null) {
-                  this.getUncontrolled().value = !checked
+                  this.uncontrolledSignal.value = !checked
                 }
                 this.properties.peek().onCheckedChange?.(!checked)
               }
         }),
-        disabled: computed(() => this.properties.signal.disabled?.value),
+        disabled: computed(() => this.properties.value.disabled),
         ...config?.defaultOverrides,
       },
     })
-    const uncontrolled = getProperty(this, 'uncontrolled', () => computeDefaultChecked())
-    const checked = getProperty(this, 'checked', () => computeChecked(this.properties, uncontrolled))
     super.add(
-      new Container({
-        width: 20,
-        height: 20,
-        borderRadius: 1000,
-        transformTranslateX: computed(() => (checked.value ? 20 : 0)),
-        backgroundColor: colors.background,
+      new Container(undefined, undefined, {
+        defaultOverrides: {
+          width: 20,
+          height: 20,
+          borderRadius: 1000,
+          transformTranslateX: computed(() => (this.currentSignal.value ? 20 : 0)),
+          backgroundColor: colors.background,
+        },
       }),
     )
   }
@@ -74,19 +71,4 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   add(...object: Object3D[]): this {
     throw new Error(`the switch component can not have any children`)
   }
-
-  private getUncontrolled() {
-    return getProperty(this, 'uncontrolled', () => signal(this.properties.signal.defaultChecked?.value ?? false))
-  }
-  private getChecked() {
-    return getProperty(this, 'checked', () => computeChecked(this.properties, this.getUncontrolled()))
-  }
-}
-
-function computeDefaultChecked(defaultChecked?: boolean) {
-  return signal(defaultChecked ?? false)
-}
-
-function computeChecked(properties: Properties<SwitchOutProperties>, uncontrolled: Signal<boolean>) {
-  return computed(() => properties.value.checked ?? uncontrolled.value)
 }

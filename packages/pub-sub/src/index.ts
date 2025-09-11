@@ -24,6 +24,8 @@ export type Properties<In, Out extends object> = ReadonlyProperties<Out> & {
 }
 
 export class PropertiesImplementation<In, Out extends object> implements Properties<In, Out> {
+  private enabled = false
+
   readonly value = new Proxy<Out>({} as any, { get: (_target, key) => this.getSignal(key as keyof Out).value })
   readonly signal = new Proxy<{ [Key in keyof Out]-?: Signal<Out[Key]> }>({} as any, {
     get: (_target, key) => this.getSignal(key as keyof Out),
@@ -43,7 +45,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       set: <K2 extends keyof Out>(key: K2, value: Out[K2] | Signal<Out[K2]>) => void,
       layerIndex: number,
     ) => void,
-    private readonly defaults?: { [Key in keyof Out]?: Out[Key] | Signal<Out[Key]> },
+    private readonly defaults?: Out,
     private readonly onLayerIndicesChanged?: () => void,
   ) {
     this.propertyKeys = defaults == null ? [] : (Array.from(Object.keys(defaults)) as Array<keyof Out>)
@@ -79,6 +81,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
         //we have not published the value from this layer
         continue
       }
+      //no need to check if we are enabled, because if we are not enabled, the layerIndex is Infinity, which makes the previous "if" already continue
       this.update(key, propertyState)
     }
   }
@@ -123,9 +126,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     }
     const defaultValue = this.defaults?.[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
-    const [result, layerIndex] = untracked(
-      () => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!,
-    )
+    const [result] = untracked(() => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!)
     return result
   }
 
@@ -158,6 +159,10 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       //current value has higher prescedence
       return
     }
+    if (!this.enabled) {
+      //no need to run update, since the value change has no effect while enabled is `false`
+      return
+    }
     this.update(key, propertyState)
   }
 
@@ -166,25 +171,47 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     target.cleanup = undefined
     const defaultValue = this.defaults?.[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
-    const result = selectLayerValue(
-      0,
-      layerIndicies,
-      this.propertiesLayers,
-      key,
-      defaultValue,
-      (layerIndex) =>
-        (target.cleanup = effect(() => {
-          const [value, index] = selectLayerValue(layerIndex, layerIndicies, this.propertiesLayers, key, defaultValue)!
-          target.signal.value = value
-          target.layerIndex = index
-        })),
-    )!
+    const result = !this.enabled
+      ? ([defaultValue, Infinity] as const)
+      : selectLayerValue(
+          0,
+          layerIndicies,
+          this.propertiesLayers,
+          key,
+          defaultValue,
+          (layerIndex) =>
+            (target.cleanup = effect(() => {
+              const [value, index] = selectLayerValue(
+                layerIndex,
+                layerIndicies,
+                this.propertiesLayers,
+                key,
+                defaultValue,
+              )!
+              target.signal.value = value
+              target.layerIndex = index
+            })),
+        )!
     if (result == null) {
       return
     }
     const [value, index] = result
     target.signal.value = value
     target.layerIndex = index
+  }
+
+  setEnabled(enabled: boolean) {
+    if (this.enabled === enabled) {
+      return
+    }
+    this.enabled = enabled
+    this.updateAll()
+  }
+
+  private updateAll() {
+    for (const key in this.propertyStateMap) {
+      this.update(key, this.propertyStateMap[key])
+    }
   }
 
   destroy() {
@@ -204,11 +231,14 @@ function selectLayerValue(
   defaultValue: any,
   onSignal?: (layerIndex: number) => void,
 ): [value: any, layerIndex: number] | undefined {
-  let value: any = undefined
-  let layerIndex = startLayerIndex
+  let value: any
+  let layerIndex: number
   const layerIndicies = sortedLayerIndexArray[Symbol.iterator]()
   do {
     layerIndex = layerIndicies.next().value ?? Infinity
+    if (layerIndex < startLayerIndex) {
+      continue
+    }
     value = layerIndex === Infinity ? defaultValue : propertiesLayers.get(layerIndex)![key]
     if (typeof value === 'object' && value instanceof Signal) {
       if (onSignal != null) {

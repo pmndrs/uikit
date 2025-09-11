@@ -116,7 +116,7 @@ export class PropertiesImplementation<
   constructor(
     aliases: Aliases,
     private readonly conditionals: Conditionals,
-    defaults?: WithSignal<OutProperties>,
+    defaults?: OutProperties,
   ) {
     super(
       (key, value, set) => {
@@ -129,23 +129,7 @@ export class PropertiesImplementation<
         }
         set(key, value as any)
       },
-      {
-        width: computed(() => {
-          const sizeX = this.value.sizeX
-          if (sizeX == null) {
-            return undefined
-          }
-          return sizeX / this.value.pixelSize
-        }),
-        height: computed(() => {
-          const sizeY = this.value.sizeY
-          if (sizeY == null) {
-            return undefined
-          }
-          return sizeY / this.value.pixelSize
-        }),
-        ...defaults,
-      } as WithSignal<OutProperties>,
+      defaults,
       () => {
         this.usedConditionals.active.value = hasConditional(this.propertiesLayers, 'active')
         this.usedConditionals.hover.value = hasConditional(this.propertiesLayers, 'hover')

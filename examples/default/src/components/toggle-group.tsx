@@ -1,5 +1,5 @@
 import { Bold, Italic, Underline } from '@react-three/uikit-lucide'
-import { ToggleGroup, ToggleGroupItem } from '@/toggle-group.js'
+import { ToggleGroup, ToggleGroupItem } from '@react-three/uikit-default'
 
 export function ToggleGroupDemo() {
   return (

@@ -10,7 +10,7 @@ export function RecentSales() {
           <Text fontSize={14} lineHeight="100%" fontWeight="medium">
             Olivia Martin
           </Text>
-          <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
             olivia.martin@email.com
           </Text>
         </Container>
@@ -32,7 +32,7 @@ export function RecentSales() {
           <Text fontSize={14} lineHeight="100%" fontWeight="medium">
             Jackson Lee
           </Text>
-          <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
             jackson.lee@email.com
           </Text>
         </Container>
@@ -46,7 +46,7 @@ export function RecentSales() {
           <Text fontSize={14} lineHeight="100%" fontWeight="medium">
             Isabella Nguyen
           </Text>
-          <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
             isabella.nguyen@email.com
           </Text>
         </Container>
@@ -60,7 +60,7 @@ export function RecentSales() {
           <Text fontSize={14} lineHeight="100%" fontWeight="medium">
             William Kim
           </Text>
-          <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
             will@email.com
           </Text>
         </Container>
@@ -74,7 +74,7 @@ export function RecentSales() {
           <Text fontSize={14} lineHeight="100%" fontWeight="medium">
             Sofia Davis
           </Text>
-          <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
             sofia.davis@email.com
           </Text>
         </Container>

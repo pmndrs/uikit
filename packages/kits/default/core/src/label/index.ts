@@ -7,17 +7,13 @@ export type LabelOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
 
 export type LabelProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<LabelOutProperties<EM>>
 
-export class Label<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends LabelOutProperties<EM> = LabelOutProperties<EM>,
-> extends Container<T, EM, OutProperties> {
+export class Label<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, LabelOutProperties<EM>> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<LabelOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: any
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<LabelOutProperties<EM>>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -26,9 +22,9 @@ export class Label<
         fontWeight: 'medium',
         fontSize: 14,
         lineHeight: '100%',
-        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.7 : undefined)),
+        opacity: computed(() => (this.properties.value.disabled ? 0.7 : undefined)),
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
   }
 }

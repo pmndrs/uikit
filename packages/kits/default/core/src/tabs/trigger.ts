@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { Tabs } from './index.js'
+import { Tabs, TabsList } from './index.js'
 import { borderRadius, colors } from '../theme.js'
 
 export type TabsTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
@@ -24,21 +24,21 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     },
   ) {
     const active = computed(() => {
-      const tabs = this.parentContainer.value
+      const tabs = this.parentContainer.value?.parentContainer.value
       if (!(tabs instanceof Tabs)) {
         return false
       }
-      const val = this.properties.signal.value?.value
-      return val != null && val === tabs.getCurrentValueSignal().value
+      const val = this.properties.value.value
+      return val != null && val === tabs.currentSignal.value
     })
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
         onClick: computed(() => {
-          return this.properties.signal.disabled?.value
+          return (this.properties.value.disabled ?? false)
             ? undefined
             : () => {
-                const tabs = this.parentContainer.peek()
+                const tabs = this.parentContainer.value?.parentContainer.value
                 if (!(tabs instanceof Tabs)) {
                   return
                 }
@@ -46,19 +46,19 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
                 if (val) {
                   const props = tabs.properties.peek()
                   if (props.value == null) {
-                    tabs.getUncontrolledSignal().value = val
+                    tabs.uncontrolledSignal.value = val
                   }
                   props.onValueChange?.(val)
                 }
               }
         }),
-        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
+        cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: borderRadius.sm,
         paddingX: 12,
-        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
-        disabled: computed(() => this.properties.signal.disabled?.value),
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.value.disabled),
         backgroundColor: computed(() => (active.value ? colors.background.value : undefined)),
         paddingY: 6,
         justifyContent: 'center',
@@ -68,9 +68,7 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
         lineHeight: '20px',
         wordBreak: 'keep-all',
         ...config?.defaultOverrides,
-      } as InProperties<TabsTriggerOutProperties<EM>>,
+      },
     })
   }
 }
-
-

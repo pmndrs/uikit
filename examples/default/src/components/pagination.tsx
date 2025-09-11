@@ -7,7 +7,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/pagination.js'
+} from '@react-three/uikit-default'
 
 export function PaginationDemo() {
   return (

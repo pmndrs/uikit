@@ -5,16 +5,16 @@ import { colors } from '@react-three/uikit-default'
 export function MainNav(props: Omit<ComponentPropsWithoutRef<typeof Container>, 'children'>) {
   return (
     <Container alignItems="center" flexDirection="row" gap={16} lg={{ gap: 24 }} {...props}>
-      <Text fontSize={14} lineHeight={20} fontWeight="medium">
+      <Text fontSize={14} lineHeight="20px" fontWeight="medium">
         Overview
       </Text>
-      <Text color={colors.mutedForeground} fontSize={14} lineHeight={20} fontWeight="medium">
+      <Text color={colors.mutedForeground} fontSize={14} lineHeight="20px" fontWeight="medium">
         Customers
       </Text>
-      <Text color={colors.mutedForeground} fontSize={14} lineHeight={20} fontWeight="medium">
+      <Text color={colors.mutedForeground} fontSize={14} lineHeight="20px" fontWeight="medium">
         Products
       </Text>
-      <Text color={colors.mutedForeground} fontSize={14} lineHeight={20} fontWeight="medium">
+      <Text color={colors.mutedForeground} fontSize={14} lineHeight="20px" fontWeight="medium">
         Settings
       </Text>
     </Container>

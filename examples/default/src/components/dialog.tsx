@@ -1,7 +1,7 @@
 import { Text, Container } from '@react-three/uikit'
-import { Button } from '@/button.js'
-import { Label } from '@/label.js'
 import {
+  Button,
+  Label,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/dialog.js'
+} from '@react-three/uikit-default'
 
 export function DialogDemo() {
   return (

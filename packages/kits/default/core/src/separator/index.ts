@@ -27,10 +27,10 @@ export class Separator<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
         flexShrink: 0,
         backgroundColor: colors.border,
         width: computed(() =>
-          (this.properties.signal.orientation?.value ?? 'horizontal') === 'horizontal' ? '100%' : 1,
+          (this.properties.value.orientation ?? 'horizontal') === 'horizontal' ? '100%' : 1,
         ),
         height: computed(() =>
-          (this.properties.signal.orientation?.value ?? 'horizontal') === 'horizontal' ? 1 : '100%',
+          (this.properties.value.orientation ?? 'horizontal') === 'horizontal' ? 1 : '100%',
         ),
         ...config?.defaultOverrides,
       },

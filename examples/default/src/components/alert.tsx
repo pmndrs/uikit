@@ -1,6 +1,6 @@
 import { Text } from '@react-three/uikit'
 import { Terminal } from '@react-three/uikit-lucide'
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/alert.js'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@react-three/uikit-default'
 
 export function AlertDemo() {
   return (

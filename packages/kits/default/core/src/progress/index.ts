@@ -8,15 +8,15 @@ export type ProgressOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
 
 export type ProgressProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ProgressOutProperties<EM>>
 
-export class Progress<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends ProgressOutProperties<EM> = ProgressOutProperties<EM>,
-> extends Container<T, EM, OutProperties> {
+export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+  T,
+  EM,
+  ProgressOutProperties<EM>
+> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<ProgressOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { defaultOverrides?: InProperties<OutProperties>; renderContext?: RenderContext },
+    config?: { defaultOverrides?: InProperties<ProgressOutProperties<EM>>; renderContext?: RenderContext },
   ) {
     super(inputProperties, initialClasses, {
       ...config,
@@ -29,7 +29,7 @@ export class Progress<
         borderTopLeftRadius: 1000,
         backgroundColor: colors.secondary,
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
     super.add(
       new Container(undefined, undefined, {

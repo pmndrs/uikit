@@ -1,6 +1,5 @@
 import { Text } from '@react-three/uikit'
-import { Label } from '@/label.js'
-import { RadioGroup, RadioGroupItem } from '@/radio-group.js'
+import { Label, RadioGroup, RadioGroupItem } from '@react-three/uikit-default'
 
 export function RadioGroupDemo() {
   return (

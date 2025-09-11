@@ -1,33 +1,27 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 
-export type PaginationProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type PaginationContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
-export class Pagination<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+export class PaginationContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
   BaseOutProperties<EM>
 > {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    inputProperties?: PaginationContentProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
-        marginX: 'auto',
         flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 4,
         ...config?.defaultOverrides,
       },
     })
   }
 }
 
-export * from './content'
-export * from './item'
-export * from './link'
-export * from './previous'
-export * from './next'
-export * from './ellipsis'
+

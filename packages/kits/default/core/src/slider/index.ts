@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, getProperty, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { Signal, signal, computed } from '@preact/signals-core'
 import { colors } from '../theme.js'
 import { Vector3 } from 'three'
@@ -24,6 +24,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 > {
   private downPointerId?: number
 
+  public readonly uncontrolledSignal = signal<number | undefined>(undefined)
+  public readonly currentSignal = computed(
+    () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0,
+  )
+
   constructor(
     inputProperties?: InProperties<SliderOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -41,7 +46,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         width: '100%',
         alignItems: 'center',
         onPointerDown: computed(() => {
-          const disabled = this.properties.signal.disabled?.value ?? false
+          const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
             : (e: any) => {
@@ -49,23 +54,23 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
                   return
                 }
                 this.downPointerId = e.pointerId
-                this.handleSetValue(e, this.getUncontrolled(), this.properties.peek().onValueChange)
+                this.handleSetValue(e, this.uncontrolledSignal, this.properties.peek().onValueChange)
                 ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
               }
         }),
         onPointerMove: computed(() => {
-          const disabled = this.properties.signal.disabled?.value ?? false
+          const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
             : (e: any) => {
                 if (this.downPointerId != e.pointerId) {
                   return
                 }
-                this.handleSetValue(e, this.getUncontrolled(), this.properties.peek().onValueChange)
+                this.handleSetValue(e, this.uncontrolledSignal, this.properties.peek().onValueChange)
               }
         }),
         onPointerUp: computed(() => {
-          const disabled = this.properties.signal.disabled?.value ?? false
+          const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
             : (e: any) => {
@@ -80,13 +85,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
 
-    const uncontrolled = getProperty(this, 'uncontrolled', () => computeDefaultValue())
-    const value = getProperty(this, 'value', () => computeValue(this.properties, uncontrolled))
     const percentage = computed(() => {
       const min = this.properties.value.min ?? 0
       const max = this.properties.value.max ?? 100
       const range = max - min
-      return `${(100 * (value.value - min)) / range}%` as const
+      return `${(100 * (this.currentSignal.value - min)) / range}%` as const
     })
 
     // Create track
@@ -137,11 +140,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     super.add(thumb)
   }
 
-  getUncontrolled() {
-    return getProperty(this, 'uncontrolled', () => computeDefaultValue(this.properties.peek().defaultValue))
-  }
-
-  private handleSetValue(e: any, uncontrolled: Signal<number>, onValueChange?: (value: number) => void) {
+  private handleSetValue(e: any, uncontrolled: Signal<number | undefined>, onValueChange?: (value: number) => void) {
     vectorHelper.copy(e.point)
     this.worldToLocal(vectorHelper)
     const minValue = this.properties.peek().min ?? 0
@@ -164,12 +163,4 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   add(): this {
     throw new Error(`the slider component can not have any children`)
   }
-}
-
-function computeDefaultValue(defaultValue?: number) {
-  return signal(defaultValue ?? 50)
-}
-
-function computeValue(properties: any, uncontrolled: Signal<number>) {
-  return computed(() => properties.value.value ?? uncontrolled.value)
 }

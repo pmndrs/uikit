@@ -6,6 +6,7 @@
     "@pmndrs/uikit": "workspace:^",
     "@react-three/uikit-lucide": "workspace:^",
     "@react-three/uikit-default": "workspace:^",
+    "@pmndrs/uikit-lucide": "workspace:^",
     "vite-plugin-mkcert": "^1.17.4",
     "zustand": "^4.4.7"
   },

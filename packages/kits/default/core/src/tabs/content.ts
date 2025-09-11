@@ -23,7 +23,7 @@ export class TabsContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       if (!(tabs instanceof Tabs)) {
         return false
       }
-      return this.properties.value.value === tabs.getCurrentValueSignal().value
+      return this.properties.value.value === tabs.currentSignal.value
     })
     super(inputProperties, initialClasses, {
       ...config,
@@ -31,10 +31,7 @@ export class TabsContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
         marginTop: 8,
         display: computed(() => (isVisible.value ? 'flex' : 'none')),
         ...config?.defaultOverrides,
-      } as InProperties<TabsContentOutProperties<EM>>,
+      },
     })
   }
 }
-
-
-

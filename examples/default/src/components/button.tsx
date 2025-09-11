@@ -1,5 +1,5 @@
 import { ChevronRight } from '@react-three/uikit-lucide'
-import { Button } from '@/button.js'
+import { Button } from '@react-three/uikit-default'
 
 export function ButtonDemo() {
   return (

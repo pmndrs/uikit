@@ -22,7 +22,7 @@ const fontWeightNames = {
   'extra-black': 950,
 }
 
-export type FontWeight = keyof typeof fontWeightNames | number | (string & {})
+export type FontWeight = keyof typeof fontWeightNames | number | ({} & string)
 
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight; fontFamilies?: FontFamilies }
 

@@ -185,6 +185,9 @@ importers:
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide/core
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
@@ -206,12 +209,18 @@ importers:
 
   examples/default:
     dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react
+      '@react-three/uikit-default':
+        specifier: workspace:^
+        version: link:../../packages/kits/default/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/react

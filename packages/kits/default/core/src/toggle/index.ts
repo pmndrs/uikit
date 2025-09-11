@@ -4,18 +4,14 @@ import {
   ThreeEventMap,
   InProperties,
   BaseOutProperties,
-  getProperty,
   RenderContext,
+  UnionizeVariants,
 } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 
-const toggleVariants = {
-  default: {
-    hover: undefined,
-    borderWidth: undefined,
-    borderColor: undefined,
-  },
+const _toggleVariants = {
+  default: {},
   outline: {
     borderWidth: 1,
     borderColor: colors.input,
@@ -24,6 +20,7 @@ const toggleVariants = {
     },
   },
 }
+const toggleVariants = _toggleVariants as UnionizeVariants<typeof _toggleVariants>
 
 const toggleSizes = {
   default: { height: 40, paddingX: 12 },
@@ -47,6 +44,11 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   ToggleOutProperties<EM>
 > {
+  public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
+  public readonly currentSignal = computed(
+    () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
+  )
+
   constructor(
     inputProperties?: InProperties<ToggleOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -62,55 +64,48 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           if (this.properties.peek().disabled) {
             return
           }
-          const isChecked = this.getCheckedSignal().peek()
+          const isChecked = this.currentSignal.peek()
           if (this.properties.peek().checked == null) {
-            this.getUncontrolledSignal().value = !isChecked
+            this.uncontrolledSignal.value = !isChecked
           }
           this.properties.peek().onCheckedChange?.(!isChecked)
         },
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: borderRadius.md,
-        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
-        backgroundColor: computed(() => (this.getCheckedSignal().value ? colors.accent.value : undefined)),
-        hover: computed(() => {
-          if (this.properties.signal.disabled?.value) return undefined
-          const variant = this.properties.signal.variant?.value ?? 'default'
-          return { backgroundColor: toggleVariants[variant].hover?.backgroundColor?.value ?? colors.muted.value }
-        }),
-        color: computed(() => (this.getCheckedSignal().value ? colors.accentForeground.value : undefined)),
-        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
+        cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
+        backgroundColor: computed(() => (this.currentSignal.value ? colors.accent.value : undefined)),
+        hover: {
+          backgroundColor: computed(() => {
+            if (this.properties.value.disabled) return undefined
+            const variant = this.properties.value.variant ?? 'default'
+            return toggleVariants[variant].hover?.backgroundColor?.value ?? colors.muted.value
+          }),
+        },
+        color: computed(() => (this.currentSignal.value ? colors.accentForeground.value : undefined)),
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
         fontSize: 14,
         lineHeight: '20px',
         fontWeight: 'medium',
-        disabled: computed(() => this.properties.signal.disabled?.value),
+        disabled: computed(() => this.properties.value.disabled),
         borderWidth: computed(() => {
-          const variant = this.properties.signal.variant?.value ?? 'default'
-          return toggleVariants[variant].borderWidth
+          const variant = this.properties.value.variant ?? 'default'
+          return toggleVariants[variant]?.borderWidth
         }),
         borderColor: computed(() => {
-          const variant = this.properties.signal.variant?.value ?? 'default'
-          return toggleVariants[variant].borderColor?.value
+          const variant = this.properties.value.variant ?? 'default'
+          return toggleVariants[variant]?.borderColor?.value
         }),
         height: computed(() => {
-          const size = this.properties.signal.size?.value ?? 'default'
+          const size = this.properties.value.size ?? 'default'
           return toggleSizes[size].height
         }),
         paddingX: computed(() => {
-          const size = this.properties.signal.size?.value ?? 'default'
+          const size = this.properties.value.size ?? 'default'
           return toggleSizes[size].paddingX
         }),
         ...config?.defaultOverrides,
-      } as InProperties<ToggleOutProperties<EM>>,
+      },
     })
-  }
-
-  private getUncontrolledSignal() {
-    return getProperty(this, 'uncontrolled', () => signal(this.properties.peek().defaultChecked ?? false))
-  }
-
-  private getCheckedSignal() {
-    const uncontrolled = this.getUncontrolledSignal()
-    return getProperty(this, 'checked', () => computed(() => this.properties.value.checked ?? uncontrolled.value))
   }
 }

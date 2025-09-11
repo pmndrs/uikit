@@ -7,17 +7,13 @@ export type AvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InPrope
 
 export type AvatarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ImageOutProperties<EM, string | Texture>
 
-export class Avatar<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends AvatarOutProperties<EM> = AvatarOutProperties<EM>,
-> extends Image<T, EM, OutProperties> {
+export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Image<T, EM, AvatarOutProperties<EM>> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<AvatarOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<AvatarOutProperties<EM>>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -30,7 +26,7 @@ export class Avatar<
         objectFit: 'cover',
         borderRadius: 20,
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
   }
 }

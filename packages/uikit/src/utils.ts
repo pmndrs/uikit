@@ -301,3 +301,11 @@ export function withOpacity(value: Signal<ColorRepresentation> | ColorRepresenta
     return result
   })
 }
+
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never
+type IntersectValues<T extends Record<PropertyKey, unknown>> = UnionToIntersection<T[keyof T]>
+type RecursivePartial<T> = T extends Signal<unknown> ? T : { [K in keyof T]?: RecursivePartial<T[K]> }
+export type UnionizeVariants<T extends Record<PropertyKey, unknown>> = Record<
+  keyof T,
+  RecursivePartial<IntersectValues<T>>
+>

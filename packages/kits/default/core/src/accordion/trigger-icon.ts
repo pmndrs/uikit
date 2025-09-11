@@ -1,4 +1,11 @@
-import { SvgOutProperties, SvgProperties, ThreeEventMap, InProperties, RenderContext } from '@pmndrs/uikit'
+import {
+  SvgOutProperties,
+  SvgProperties,
+  ThreeEventMap,
+  InProperties,
+  RenderContext,
+  BaseOutProperties,
+} from '@pmndrs/uikit'
 import { ChevronDown } from '@pmndrs/uikit-lucide'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
@@ -6,17 +13,17 @@ import { AccordionItem } from './item.js'
 
 export type AccordionTriggerIconProperties<EM extends ThreeEventMap = ThreeEventMap> = SvgProperties<EM>
 
-export class AccordionTriggerIcon<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>,
-> extends ChevronDown<T, EM, OutProperties> {
+export class AccordionTriggerIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends ChevronDown<
+  T,
+  EM,
+  SvgOutProperties<EM>
+> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<SvgProperties<EM> | string>,
+    inputProperties?: InProperties<SvgOutProperties<EM>>,
+    initialClasses?: Array<BaseOutProperties<EM> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<SvgOutProperties<EM>>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -34,9 +41,7 @@ export class AccordionTriggerIcon<
           return item.properties.value.value === accordion.openItemValue.value ? 180 : 0
         }),
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
   }
 }
-
-

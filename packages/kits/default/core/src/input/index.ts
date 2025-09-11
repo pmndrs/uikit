@@ -35,8 +35,8 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         paddingX: 12,
         paddingY: 8,
         lineHeight: '20px',
-        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
-        disabled: computed(() => this.properties.signal.disabled?.value),
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.value.disabled),
         ...config?.defaultOverrides,
       },
     })

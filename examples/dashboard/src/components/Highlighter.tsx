@@ -42,12 +42,12 @@ export const Highlighter: ForwardRefExoticComponent<
         highlightRef.current.setProperties({
           visibility: 'visible',
           transformTranslateX: computed(
-            () => transformation.value.translation.x / properties.signal.pixelSize.value - 0.5 * width.value,
+            () => transformation.value.translation.x / properties.value.pixelSize - 0.5 * width.value,
           ),
           transformTranslateY: computed(
-            () => -transformation.value.translation.y / properties.signal.pixelSize.value - 0.5 * height.value,
+            () => -transformation.value.translation.y / properties.value.pixelSize - 0.5 * height.value,
           ),
-          transformTranslateZ: computed(() => transformation.value.translation.z / properties.signal.pixelSize.value),
+          transformTranslateZ: computed(() => transformation.value.translation.z / properties.value.pixelSize),
 
           transformScaleZ: computed(() => transformation.value.scale.z),
           transformRotateX: computed(() => transformation.value.rotation.x),
@@ -60,8 +60,13 @@ export const Highlighter: ForwardRefExoticComponent<
       }}
       onPointerLeave={(e) => {
         highlightRef.current?.setProperties({ visibility: 'hidden' })
-
         readReactive(onPointerLeave)?.(e)
+      }}
+      onClick={(e) => {
+        if (!(e.object instanceof VanillaContainer)) {
+          return
+        }
+        console.log(e.object)
       }}
     >
       {children}

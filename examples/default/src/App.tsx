@@ -2,13 +2,17 @@ import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Fullscreen, Text, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { Copy, Moon, Sun, SunMoon } from '@react-three/uikit-lucide'
-
-import { Defaults, colors } from '@/theme.js'
-import { Button } from '@/button.js'
-import { Card } from '@/card.js'
-import { Separator } from '@/separator.js'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
-import { DialogAnchor } from '@/dialog.js'
+import {
+  colors,
+  Button,
+  Card,
+  Separator,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  defaultProperties,
+} from '@react-three/uikit-default'
 import { TooltipDemo } from './components/tooltip.js'
 import { AccordionDemo } from './components/accordion.js'
 import { AlertDemo } from './components/alert.js'
@@ -85,70 +89,66 @@ export default function App() {
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
-      <Defaults>
-        <Fullscreen
-          flexDirection="column"
-          scrollbarColor="black"
-          backgroundColor={colors.background}
-          alignItems="center"
-          padding={32}
-        >
-          <DialogAnchor>
-            <Tabs alignSelf="stretch" flexGrow={1} value={component} onValueChange={setComponent}>
-              <TabsList height={55} paddingBottom={10} overflow="scroll" maxWidth="100%">
-                {Object.keys(componentPages).map((name) => (
-                  <TabsTrigger flexShrink={0} value={name} key={name}>
-                    <Text>
-                      {name[0].toUpperCase()}
-                      {name.slice(1)}
-                    </Text>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {Object.entries(componentPages).map(([name, Component]) => (
-                <TabsContent
-                  flexDirection="column"
-                  flexGrow={1}
-                  alignItems="center"
-                  justifyContent="center"
-                  value={name}
-                  key={name}
-                >
-                  <Component />
-                </TabsContent>
-              ))}
-            </Tabs>
-            <Card padding={8} flexDirection="row" gap={8} alignItems="center">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  setPreferredColorScheme(pcs === 'light' ? 'dark' : pcs === 'dark' ? 'system' : 'light')
-                  updatePCS(getPreferredColorScheme())
-                }}
-              >
-                {pcs === 'dark' ? <Moon /> : pcs === 'system' ? <SunMoon /> : <Sun />}
-              </Button>
-              <Separator orientation="vertical" />
-              <Text padding={8}>
-                import {'{'} {`${component[0].toUpperCase()}${component.slice(1)}`} {'}'} from
-                "@react-three/uikit-default";
-              </Text>
-              <Button
-                onClick={() =>
-                  navigator.clipboard.writeText(
-                    `import { ${component[0].toUpperCase()}${component.slice(1)} } from "@react-three/uikit-default"`,
-                  )
-                }
-                size="icon"
-                variant="secondary"
-              >
-                <Copy />
-              </Button>
-            </Card>
-          </DialogAnchor>
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        flexDirection="column"
+        backgroundColor={colors.background}
+        alignItems="center"
+        padding={32}
+        {...defaultProperties}
+      >
+        <Tabs alignSelf="stretch" flexGrow={1} value={component} onValueChange={(value) => setComponent(value as any)}>
+          <TabsList height={55} paddingBottom={10} overflow="scroll" maxWidth="100%">
+            {Object.keys(componentPages).map((name) => (
+              <TabsTrigger flexShrink={0} value={name} key={name}>
+                <Text>
+                  {name[0]!.toUpperCase()}
+                  {name.slice(1)}
+                </Text>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {Object.entries(componentPages).map(([name, Component]) => (
+            <TabsContent
+              flexDirection="column"
+              flexGrow={1}
+              alignItems="center"
+              justifyContent="center"
+              value={name}
+              key={name}
+            >
+              <Component />
+            </TabsContent>
+          ))}
+        </Tabs>
+        <Card padding={8} flexDirection="row" gap={8} alignItems="center">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => {
+              setPreferredColorScheme(pcs === 'light' ? 'dark' : pcs === 'dark' ? 'system' : 'light')
+              updatePCS(getPreferredColorScheme())
+            }}
+          >
+            {pcs === 'dark' ? <Moon /> : pcs === 'system' ? <SunMoon /> : <Sun />}
+          </Button>
+          <Separator orientation="vertical" />
+          <Text padding={8}>
+            import {'{'} {`${component[0]!.toUpperCase()}${component.slice(1)}`} {'}'} from
+            "@react-three/uikit-default";
+          </Text>
+          <Button
+            onClick={() =>
+              navigator.clipboard.writeText(
+                `import { ${component[0]!.toUpperCase()}${component.slice(1)} } from "@react-three/uikit-default"`,
+              )
+            }
+            size="icon"
+            variant="secondary"
+          >
+            <Copy />
+          </Button>
+        </Card>
+      </Fullscreen>
     </Canvas>
   )
 }

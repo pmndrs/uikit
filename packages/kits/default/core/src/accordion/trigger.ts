@@ -5,14 +5,13 @@ export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap>
 export class AccordionTrigger<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
 > extends Container<T, EM> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<BaseOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides: InProperties<OutProperties>
+      defaultOverrides: InProperties<BaseOutProperties<EM>>
     },
   ) {
     super(inputProperties, initialClasses, {

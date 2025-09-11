@@ -1,6 +1,5 @@
 import { Text, Container } from '@react-three/uikit'
-import { Checkbox } from '@/checkbox.js'
-import { Label } from '@/label.js'
+import { Label, Checkbox } from '@react-three/uikit-default'
 
 export function CheckboxDemo() {
   return (

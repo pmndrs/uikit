@@ -33,7 +33,7 @@ async function main() {
       const name = `${getName(componentFileName === 'index.ts' ? `${componentFolderName}.ts` : `${componentFolderName}-${componentFileName}`)}`
       const canHaveChildren = !componentsWithoutChildren.includes(name)
       let code = `
-import { ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react'
+import { ForwardRefExoticComponent, PropsWithoutRef, ReactNode, RefAttributes } from 'react'
 import { ${name} as Vanilla${name}, ${name}Properties as Vanilla${name}Properties } from '@pmndrs/uikit-default'
 import { build } from '@react-three/uikit'
 

@@ -42,7 +42,7 @@ import { ClassList, getStarProperties, StyleSheet } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
 import { inheritedPropertyKeys } from '../properties/inheritance.js'
-import type { Container } from './index.js'
+import { Container } from './index.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { getLayerIndex } from '../properties/layer.js'
 
@@ -103,10 +103,13 @@ export class Component<
     this.matrixAutoUpdate = false
 
     //setting up the parent signal
-    const updateParentSignal = () =>
-      (this.parentContainer.value = this.parent instanceof Parent ? (this.parent as any) : undefined)
-    this.addEventListener('added', updateParentSignal)
-    this.addEventListener('removed', updateParentSignal)
+    const updateParentState = () => {
+      this.parentContainer.value = this.parent instanceof Container ? (this.parent as Container) : undefined
+      ;(this.properties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
+      ;(this.starProperties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
+    }
+    this.addEventListener('added', updateParentState)
+    this.addEventListener('removed', updateParentState)
 
     this.root = buildRootContext(this, config?.renderContext)
 
@@ -117,7 +120,23 @@ export class Component<
       conditionals,
       config?.defaults ?? (componentDefaults as OutProperties),
     )
-    this.properties.setLayersWithConditionals({ type: 'default-overrides' }, config?.defaultOverrides)
+    this.properties.setLayersWithConditionals({ type: 'default-overrides' }, {
+      width: computed(() => {
+        const sizeX = this.properties.value.sizeX
+        if (sizeX == null) {
+          return undefined
+        }
+        return sizeX / this.properties.value.pixelSize
+      }),
+      height: computed(() => {
+        const sizeY = this.properties.value.sizeY
+        if (sizeY == null) {
+          return undefined
+        }
+        return sizeY / this.properties.value.pixelSize
+      }),
+      ...config?.defaultOverrides,
+    } as InProperties<OutProperties>)
     abortableEffect(() => {
       const parentProprties = this.parentContainer.value?.properties
       const layerIndex = getLayerIndex({ type: 'inheritance' })
@@ -160,7 +179,7 @@ export class Component<
     // Reactively apply ID-based classes when id property changes
     let currentIdClass: string | undefined
     abortableEffect(() => {
-      const elementId = this.properties.signal.id?.value
+      const elementId = this.properties.value.id
 
       // Remove old ID class if it exists
       if (currentIdClass) {

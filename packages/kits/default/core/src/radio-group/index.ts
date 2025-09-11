@@ -1,13 +1,5 @@
-import {
-  Container,
-  ThreeEventMap,
-  InProperties,
-  BaseOutProperties,
-  Properties,
-  getProperty,
-  RenderContext,
-} from '@pmndrs/uikit'
-import { signal, computed, Signal } from '@preact/signals-core'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { signal, computed } from '@preact/signals-core'
 
 export type RadioGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   value?: string
@@ -22,6 +14,11 @@ export class RadioGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   EM,
   RadioGroupOutProperties<EM>
 > {
+  public readonly uncontrolledSignal = signal<string | undefined>(undefined)
+  public readonly currentSignal = computed(
+    () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue,
+  )
+
   constructor(
     inputProperties?: RadioGroupProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -36,25 +33,6 @@ export class RadioGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       },
     })
   }
-
-  getUncontrolledSignal() {
-    return getProperty(this, 'uncontrolled', () => computeDefaultValue(this.properties.peek().defaultValue))
-  }
-
-  getCurrentValueSignal() {
-    return getProperty(this, 'currentValue', () => computeCurrentValue(this.properties, this.getUncontrolledSignal()))
-  }
-}
-
-function computeDefaultValue(defaultValue: string | undefined) {
-  return signal<string | undefined>(defaultValue)
-}
-
-function computeCurrentValue(
-  properties: Properties<RadioGroupOutProperties>,
-  uncontrolled: Signal<string | undefined>,
-) {
-  return computed(() => properties.value.value ?? uncontrolled.value)
 }
 
 export * from './item.js'

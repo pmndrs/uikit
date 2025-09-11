@@ -1,4 +1,4 @@
-import { Input } from '@/input.js'
+import { Input } from '@react-three/uikit-default'
 
 export default function InputDemo() {
   return <Input width={200} placeholder="Email" />

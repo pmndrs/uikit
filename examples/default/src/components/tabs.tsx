@@ -1,8 +1,18 @@
 import { Text, Container } from '@react-three/uikit'
-import { Button } from '@/button.js'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
-import { Label } from '@/label.js'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/tabs.js'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Label,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@react-three/uikit-default'
 
 export function TabsDemo() {
   return (

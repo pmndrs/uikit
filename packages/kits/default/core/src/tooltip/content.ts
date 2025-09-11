@@ -29,7 +29,7 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaultOverrides: {
         positionType: 'absolute',
         positionBottom: '100%',
-        marginBottom: computed(() => this.properties.signal.sideOffset?.value ?? 4),
+        marginBottom: computed(() => this.properties.value.sideOffset ?? 4),
         zIndex: 50,
         overflow: 'hidden',
         borderRadius: borderRadius.md,

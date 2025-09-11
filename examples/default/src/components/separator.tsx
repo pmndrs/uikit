@@ -1,6 +1,5 @@
-import { DefaultProperties, Text, Container } from '@react-three/uikit'
-import { colors } from '@/theme.js'
-import { Separator } from '@/separator.js'
+import { Text, Container } from '@react-three/uikit'
+import { colors, Separator } from '@react-three/uikit-default'
 
 export function SeparatorDemo() {
   return (
@@ -9,19 +8,23 @@ export function SeparatorDemo() {
         <Text fontSize={14} lineHeight="100%">
           Radix Primitives
         </Text>
-        <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+        <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
           An open-source UI component library.
         </Text>
       </Container>
       <Separator marginY={16} />
-      <Container flexDirection="row" height={20} alignItems="center" gap={16}>
-        <DefaultProperties fontSize={14} lineHeight={20}>
-          <Text>Blog</Text>
-          <Separator orientation="vertical" />
-          <Text>Docs</Text>
-          <Separator orientation="vertical" />
-          <Text>Source</Text>
-        </DefaultProperties>
+      <Container
+        flexDirection="row"
+        height={20}
+        alignItems="center"
+        gap={16}
+        {...{ '*': { fontSize: 14, lineHeight: 20 } }}
+      >
+        <Text>Blog</Text>
+        <Separator orientation="vertical" />
+        <Text>Docs</Text>
+        <Separator orientation="vertical" />
+        <Text>Source</Text>
       </Container>
     </Container>
   )

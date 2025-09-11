@@ -130,7 +130,7 @@ export function CardPage() {
                   <Text fontSize={14} lineHeight="100%">
                     Push Notifications
                   </Text>
-                  <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+                  <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
                     Send notifications to device.
                   </Text>
                 </Container>
@@ -158,7 +158,7 @@ export function CardPage() {
                       <Text fontSize={14} lineHeight="100%">
                         {notification.title}
                       </Text>
-                      <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+                      <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
                         {notification.description}
                       </Text>
                     </Container>

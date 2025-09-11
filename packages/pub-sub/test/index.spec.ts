@@ -15,6 +15,7 @@ describe('PropertiesPubSub', () => {
 
   beforeEach(() => {
     pubSub = new PropertiesImplementation<InTestProps, OutTestProps>((key, value, set) => set(key, value), {})
+    pubSub.setEnabled(true)
   })
 
   describe('normal set/get operations', () => {
@@ -201,6 +202,9 @@ describe('PropertiesPubSub', () => {
         {},
       )
 
+      parentPubSub.setEnabled(true)
+      childPubSub.setEnabled(true)
+
       // Set up parent with a value
       parentPubSub.set(0, 'color', 'red')
 
@@ -223,6 +227,9 @@ describe('PropertiesPubSub', () => {
         (key, value, set) => set(key, value),
         {},
       )
+
+      parentPubSub.setEnabled(true)
+      childPubSub.setEnabled(true)
 
       // Set up parent with a value
       parentPubSub.set(1, 'color', 'red')
@@ -270,6 +277,7 @@ describe('PropertiesPubSub', () => {
           set(key, value)
         }
       }, {})
+      pubSub.setEnabled(true)
     })
 
     it('should alias borderWidth to all sides', () => {
@@ -412,6 +420,7 @@ describe('PropertiesPubSub', () => {
           size: 100,
         },
       )
+      pubSub.setEnabled(true)
 
       expect(pubSub.value.color).to.equal('default-red')
       expect(pubSub.value.size).to.equal(100)
@@ -426,6 +435,7 @@ describe('PropertiesPubSub', () => {
           size: 100,
         },
       )
+      pubSub.setEnabled(true)
 
       pubSub.set(0, 'color', 'blue')
       expect(pubSub.value.color).to.equal('blue')
@@ -440,6 +450,7 @@ describe('PropertiesPubSub', () => {
           size: 100,
         },
       )
+      pubSub.setEnabled(true)
 
       pubSub.set(0, 'color', 'blue')
       expect(pubSub.value.color).to.equal('blue')
@@ -448,24 +459,12 @@ describe('PropertiesPubSub', () => {
       expect(pubSub.value.color).to.equal('default-red')
     })
 
-    it('should handle signal default values', () => {
-      const defaultColorSignal = new Signal('default-red')
-      const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
-        (key, value, set) => set(key, value as any),
-        { color: defaultColorSignal, size: 100 },
-      )
-
-      expect(pubSub.value.color).to.equal('default-red')
-
-      defaultColorSignal.value = 'default-blue'
-      expect(pubSub.value.color).to.equal('default-blue')
-    })
-
     it('should handle multiple layers falling back to default', () => {
       const pubSub = new PropertiesImplementation<InDefaultTestProps, OutDefaultTestProps>(
         (key, value, set) => set(key, value as any),
         { color: 'default-red', size: 100 },
       )
+      pubSub.setEnabled(true)
 
       pubSub.set(2, 'color', 'red')
       pubSub.set(1, 'color', 'green')
@@ -490,6 +489,7 @@ describe('PropertiesPubSub', () => {
           size: 100,
         },
       )
+      pubSub.setEnabled(true)
 
       const colorSignal = pubSub.signal.color
       expect(colorSignal.value).to.equal('default-red')
@@ -561,6 +561,68 @@ describe('PropertiesPubSub', () => {
       )
 
       expect(pubSubWithDefaults.peek().color).to.equal('default-red')
+    })
+  })
+
+  describe('enable/disable', () => {
+    it('should return defaults while disabled and apply values after enable', () => {
+      type Out = { color?: string; size?: number }
+      type In = { [K in keyof Out]?: Out[K] | Signal<Out[K] | undefined> }
+
+      const ps = new PropertiesImplementation<In, Out>((key, value, set) => set(key, value as any), {
+        color: 'default-red',
+        size: 42,
+      })
+
+      // Initially disabled → defaults
+      expect(ps.value.color).to.equal('default-red')
+      expect(ps.value.size).to.equal(42)
+
+      ps.set(0, 'color', 'blue')
+      ps.set(0, 'size', 7)
+
+      // Still disabled → still defaults
+      expect(ps.value.color).to.equal('default-red')
+      expect(ps.value.size).to.equal(42)
+
+      ps.setEnabled(true)
+
+      // After enable → applied values
+      expect(ps.value.color).to.equal('blue')
+      expect(ps.value.size).to.equal(7)
+    })
+
+    it('should revert to defaults when disabled and persist mutations for next enable', () => {
+      type Out = { color?: string; size?: number }
+      type In = { [K in keyof Out]?: Out[K] | Signal<Out[K] | undefined> }
+
+      const ps = new PropertiesImplementation<In, Out>((key, value, set) => set(key, value as any), {
+        color: 'default-red',
+        size: 1,
+      })
+
+      ps.setEnabled(true)
+      ps.set(0, 'color', 'red')
+      ps.set(0, 'size', 2)
+      expect(ps.value.color).to.equal('red')
+      expect(ps.value.size).to.equal(2)
+
+      ps.setEnabled(false)
+      // While disabled → defaults visible
+      expect(ps.value.color).to.equal('default-red')
+      expect(ps.value.size).to.equal(1)
+
+      // Mutate while disabled
+      ps.set(0, 'color', 'green')
+      ps.set(0, 'size', 3)
+      // Still disabled → still defaults
+      expect(ps.value.color).to.equal('default-red')
+      expect(ps.value.size).to.equal(1)
+
+      ps.setEnabled(true)
+      // After re-enable → latest mutations applied
+      expect(ps.value.color).to.equal('green')
+      expect(ps.value.size).to.equal(3)
     })
   })
 

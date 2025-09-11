@@ -25,9 +25,9 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
-        cursor: computed(() => (this.properties.signal.disabled?.value ? undefined : 'pointer')),
+        cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
         onClick: computed(() =>
-          this.properties.signal.disabled?.value
+          this.properties.value.disabled
             ? undefined
             : () => {
                 const radioGroup = this.parentContainer.peek()
@@ -36,7 +36,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
                 }
                 const value = this.properties.peek().value
                 if (radioGroup.properties.peek().value == null) {
-                  radioGroup.getUncontrolledSignal().value = value
+                  radioGroup.uncontrolledSignal.value = value
                 }
                 radioGroup.properties.peek().onValueChange?.(value)
               },
@@ -44,15 +44,15 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        opacity: computed(() => (this.properties.signal.disabled?.value ? 0.5 : undefined)),
-        disabled: computed(() => this.properties.signal.disabled?.value),
+        opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
+        disabled: computed(() => this.properties.value.disabled),
         ...config?.defaultOverrides,
       },
     })
     const isSelected = computed(
       () =>
         this.parentContainer.value instanceof RadioGroup &&
-        this.parentContainer.value.getCurrentValueSignal().value === this.properties.value.value,
+        this.parentContainer.value.currentSignal.value === this.properties.value.value,
     )
 
     const radioButton = new Container(undefined, undefined, {
@@ -83,6 +83,3 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     super.add(radioButton)
   }
 }
-
-
-

@@ -42,7 +42,7 @@ describe('ID-based class auto-application', () => {
     expect(container.classList.contains('__id__button2')).to.be.false
 
     // Change the id property
-    container.properties.signal.id.value = 'button2'
+    container.setProperties({ id: 'button2' })
 
     // Should remove old class and add new class
     expect(container.classList.contains('__id__button1')).to.be.false
@@ -58,7 +58,7 @@ describe('ID-based class auto-application', () => {
     expect(container.classList.contains('__id__myButton')).to.be.true
 
     // Clear the id property
-    container.properties.signal.id.value = undefined
+    container.setProperties({ id: undefined })
 
     // Should remove the ID class
     expect(container.classList.contains('__id__myButton')).to.be.false
@@ -73,7 +73,7 @@ describe('ID-based class auto-application', () => {
     expect(container.classList.contains('__id__existingButton')).to.be.true
 
     // Change to id with no corresponding style
-    container.properties.signal.id.value = 'nonExistentButton'
+    container.setProperties({ id: 'nonExistentButton' })
 
     // Should remove old class and not add new one
     expect(container.classList.contains('__id__existingButton')).to.be.false
@@ -90,8 +90,8 @@ describe('ID-based class auto-application', () => {
 
     // Need to trigger re-evaluation by changing id (we don't watch StyleSheet changes)
     // First change to different id, then back to trigger the effect
-    container.properties.signal.id.value = 'temp'
-    container.properties.signal.id.value = 'laterButton'
+    container.setProperties({ id: 'temp' })
+    container.setProperties({ id: 'laterButton' })
 
     // Should now apply the class
     expect(container.classList.contains('__id__laterButton')).to.be.true
@@ -111,7 +111,7 @@ describe('ID-based class auto-application', () => {
     expect(container.classList.contains('another-class')).to.be.true
 
     // Change id
-    container.properties.signal.id.value = undefined
+    container.setProperties({ id: undefined })
 
     // Should only remove ID class, keep manual classes
     expect(container.classList.contains('__id__mixedButton')).to.be.false

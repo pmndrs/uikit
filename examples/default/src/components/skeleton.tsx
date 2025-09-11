@@ -1,5 +1,5 @@
 import { Container } from '@react-three/uikit'
-import { Skeleton } from '@/skeleton.js'
+import { Skeleton } from '@react-three/uikit-default'
 
 export function SkeletonDemo() {
   return (

@@ -27,7 +27,7 @@ export function AlbumArtwork({
         <Text fontWeight="medium" fontSize={14} lineHeight="100%">
           {album.name}
         </Text>
-        <Text fontSize={12} lineHeight={16} color={colors.mutedForeground}>
+        <Text fontSize={12} lineHeight="16px" color={colors.mutedForeground}>
           {album.artist}
         </Text>
       </Container>

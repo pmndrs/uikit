@@ -4,7 +4,6 @@ import {
   InProperties,
   BaseOutProperties,
   Properties,
-  getProperty,
   withOpacity,
 } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
@@ -22,6 +21,13 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   DialogOutProperties<EM>
 > {
+
+
+  public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
+  public readonly currentSignal = computed(
+    () => this.properties.value.open ?? this.uncontrolledSignal.value ?? this.properties.value.defaultOpen,
+  )
+
   constructor(
     inputProperties?: InProperties<DialogOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -35,7 +41,7 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         onPointerLeave: (e: any) => e.stopPropagation(),
         onWheel: (e: any) => e.stopPropagation(),
         positionType: 'absolute',
-        display: computed(() => (this.getCurrentOpenSignal().value ? 'flex' : 'none')),
+        display: computed(() => (this.currentSignal.value ? 'flex' : 'none')),
         inset: 0,
         zIndex: 50,
         backgroundColor: withOpacity('black', 0.8),
@@ -49,18 +55,10 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     })
   }
 
-  private getUncontrolledSignal() {
-    return getProperty(this, 'uncontrolled', () => computeDefaultOpen(this.properties.peek().defaultOpen))
-  }
-
-  private getCurrentOpenSignal() {
-    return getProperty(this, 'currentOpen', () => computeCurrentOpen(this.properties, this.getUncontrolledSignal()))
-  }
-
   setOpen(open: boolean) {
     const props = this.properties.peek()
     if (props.open == null) {
-      this.getUncontrolledSignal().value = open
+      this.uncontrolledSignal.value = open
     }
     props.onOpenChange?.(open)
   }

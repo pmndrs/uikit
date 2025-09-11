@@ -1,25 +1,9 @@
-import {
-  Container,
-  ContainerProperties,
-  ThreeEventMap,
-  InProperties,
-  BaseOutProperties,
-  RenderContext,
-} from '@pmndrs/uikit'
-
-const toggleVariants = {
-  default: {},
-  outline: {},
-}
-const toggleSizes = {
-  default: { height: 40, paddingX: 12 },
-  sm: { height: 36, paddingX: 10 },
-  lg: { height: 44, paddingX: 20 },
-} satisfies { [Key in string]: ContainerProperties }
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import type { ToggleSize, ToggleVariant } from './item.js'
 
 export type ToggleGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
-  variant?: keyof typeof toggleVariants
-  size?: keyof typeof toggleSizes
+  variant?: ToggleVariant
+  size?: ToggleSize
 } & BaseOutProperties<EM>
 
 export type ToggleGroupProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ToggleGroupOutProperties<EM>>

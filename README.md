@@ -1,3 +1,12 @@
+Release Todo:
+
+[ ] frameloop="demand" working
+[ ] Default kit give access to children as props (e.g. slider.dot)
+[ ] Default Kit fully tested
+[ ] all examples working again
+[ ] Horizon Kit
+[ ] fix the highlighter - indication that event order is incorrect
+
 <p align="center">
   <img src="./docs/getting-started/logo.svg" width="100" />
 </p>

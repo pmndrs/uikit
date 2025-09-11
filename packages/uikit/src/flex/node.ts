@@ -75,12 +75,12 @@ export class FlexNode {
     }, component.abortSignal)
 
     abortableEffect(() => {
-      const parentNode = component.parentContainer.value?.node
-      if (parentNode == null) {
+      const parentContainer = component.parentContainer.value
+      if (parentContainer == null) {
         return
       }
-      parentNode.addChild(this)
-      return () => parentNode.removeChild(this)
+      parentContainer.node.addChild(this)
+      return () => parentContainer.node.removeChild(this)
     }, component.abortSignal)
   }
 

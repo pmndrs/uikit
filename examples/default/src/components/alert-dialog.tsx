@@ -1,6 +1,6 @@
 import { Text } from '@react-three/uikit'
-import { Button } from '@/button.js'
 import {
+  Button,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/alert-dialog.js'
+} from '@react-three/uikit-default'
 
 export function AlertDialogDemo() {
   return (

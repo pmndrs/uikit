@@ -436,10 +436,10 @@ function getClippingPlanesFragment(instanced: boolean): string {
         
         vec2 uvFlipped = vec2(vUv.x, 1.0 - vUv.y);
         vec4 v_outsideDistance = vec4(
-            vUv.y,
-            (1.0 - vUv.x) * aspectRatio,
-            1.0 - vUv.y,
-            vUv.x * aspectRatio
+            uvFlipped.y,
+            (1.0 - uvFlipped.x) * aspectRatio,
+            1.0 - uvFlipped.y,
+            uvFlipped.x * aspectRatio
         );
         vec4 v_borderDistance = v_outsideDistance - borderSize;
   

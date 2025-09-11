@@ -1,4 +1,4 @@
-import { Video } from '@/video.js'
+import { Video } from '@react-three/uikit-default'
 
 export function VideoDemo() {
   return (

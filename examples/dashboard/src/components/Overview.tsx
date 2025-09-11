@@ -66,7 +66,7 @@ export function Overview() {
         justifyContent="space-between"
       >
         {yAxisLabels.map((label) => (
-          <Text color={colors.mutedForeground} fontSize={12} lineHeight={16} key={label}>
+          <Text color={colors.mutedForeground} fontSize={12} lineHeight="16px" key={label}>
             {label}
           </Text>
         ))}
@@ -82,7 +82,7 @@ export function Overview() {
                 width="100%"
               />
             </Container>
-            <Text color={colors.mutedForeground} fontSize={12} lineHeight={16}>
+            <Text color={colors.mutedForeground} fontSize={12} lineHeight="16px">
               {name}
             </Text>
           </Container>

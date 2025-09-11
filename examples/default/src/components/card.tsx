@@ -1,9 +1,16 @@
 import { Text, Container } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
-import { colors } from '@/theme.js'
-import { Button } from '@/button.js'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
-import { Switch } from '@/switch.js'
+import {
+  colors,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Switch,
+} from '@react-three/uikit-default'
 
 const notifications = [
   {
@@ -38,7 +45,7 @@ export function CardDemo() {
             <Text fontSize={14} lineHeight="100%">
               Push Notifications
             </Text>
-            <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+            <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
               Send notifications to device.
             </Text>
           </Container>
@@ -59,7 +66,7 @@ export function CardDemo() {
                 <Text fontSize={14} lineHeight="100%">
                   {notification.title}
                 </Text>
-                <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+                <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
                   {notification.description}
                 </Text>
               </Container>

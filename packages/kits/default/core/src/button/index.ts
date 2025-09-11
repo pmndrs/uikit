@@ -5,6 +5,7 @@ import {
   InProperties,
   RenderContext,
   ThreeEventMap,
+  UnionizeVariants,
   withOpacity,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
@@ -16,7 +17,7 @@ type ButtonVariantProps = Pick<
 >
 type ButtonSizeProps = Pick<ContainerProperties, 'height' | 'width' | 'paddingX' | 'paddingY'>
 
-const buttonVariants: Record<string, ButtonVariantProps> = {
+const _buttonVariants = {
   default: {
     hover: {
       backgroundColor: withOpacity(colors.primary, 0.9),
@@ -54,17 +55,18 @@ const buttonVariants: Record<string, ButtonVariantProps> = {
     },
   },
   link: {
-    hover: undefined,
     color: colors.primary,
   }, //TODO: underline-offset-4 hover:underline",
-}
+} satisfies Record<string, ButtonVariantProps>
+const buttonVariants = _buttonVariants as UnionizeVariants<typeof _buttonVariants>
 
-const buttonSizes: Record<string, ButtonSizeProps> = {
+const _buttonSizes = {
   default: { height: 40, paddingX: 16, paddingY: 8 },
   sm: { height: 36, paddingX: 12 },
   lg: { height: 42, paddingX: 32 },
   icon: { height: 40, width: 40 },
-}
+} satisfies Record<string, ButtonSizeProps>
+const buttonSizes = _buttonSizes as UnionizeVariants<typeof _buttonSizes>
 
 export type ButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   variant?: keyof typeof buttonVariants
@@ -74,25 +76,25 @@ export type ButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Base
 
 export type ButtonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ButtonOutProperties<EM>>
 
-export class Button<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends ButtonOutProperties<EM> = ButtonOutProperties<EM>,
-> extends Container<T, EM, OutProperties> {
+export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+  T,
+  EM,
+  ButtonOutProperties<EM>
+> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<ButtonOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<ButtonOutProperties<EM>>
     },
   ) {
     const borderW = computed(() => {
-      const variant = this.properties.signal.variant?.value ?? 'default'
+      const variant = this.properties.value.variant ?? 'default'
       return buttonVariants[variant]?.borderWidth
     })
     const sizeProps = computed(() => {
-      const size = this.properties.signal.size?.value ?? 'default'
+      const size = this.properties.value.size ?? 'default'
       return buttonSizes[size]
     })
     const paddingX = computed(() => sizeProps.value?.paddingX)
@@ -110,19 +112,19 @@ export class Button<
         wordBreak: 'keep-all',
         hover: {
           backgroundColor: computed(
-            () => buttonVariants[this.properties.signal.variant?.value ?? 'default']?.hover?.backgroundColor,
+            () => buttonVariants[this.properties.value.variant ?? 'default'].hover?.backgroundColor?.value,
           ),
-          color: computed(() => buttonVariants[this.properties.signal.variant?.value ?? 'default']?.hover?.color),
+          color: computed(() => buttonVariants[this.properties.value.variant ?? 'default'].hover?.color?.value),
         },
         backgroundColor: computed(
-          () => buttonVariants[this.properties.signal.variant?.value ?? 'default']?.backgroundColor,
+          () => buttonVariants[this.properties.value.variant ?? 'default'].backgroundColor?.value,
         ),
-        color: computed(() => buttonVariants[this.properties.signal.variant?.value ?? 'default']?.color),
+        color: computed(() => buttonVariants[this.properties.value.variant ?? 'default'].color?.value),
         borderTopWidth: borderW,
         borderRightWidth: borderW,
         borderBottomWidth: borderW,
         borderLeftWidth: borderW,
-        borderColor: computed(() => buttonVariants[this.properties.signal.variant?.value ?? 'default']?.borderColor),
+        borderColor: computed(() => buttonVariants[this.properties.value.variant ?? 'default'].borderColor?.value),
         // size-derived
         height: computed(() => sizeProps.value?.height),
         width: computed(() => sizeProps.value?.width),
@@ -131,10 +133,10 @@ export class Button<
         paddingTop: paddingY,
         paddingBottom: paddingY,
         // disabled-derived
-        opacity: computed(() => ((this.properties.signal.disabled?.value ?? false) ? 0.5 : 1)),
-        cursor: computed(() => ((this.properties.signal.disabled?.value ?? false) ? 'default' : 'pointer')),
+        opacity: computed(() => ((this.properties.value.disabled ?? false) ? 0.5 : 1)),
+        cursor: computed(() => ((this.properties.value.disabled ?? false) ? 'default' : 'pointer')),
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
   }
 }

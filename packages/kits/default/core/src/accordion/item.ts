@@ -9,17 +9,17 @@ export type AccordionItemProperties<EM extends ThreeEventMap = ThreeEventMap> = 
   AccordionItemOutProperties<EM>
 >
 
-export class AccordionItem<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends AccordionItemOutProperties<EM> = AccordionItemOutProperties<EM>,
-> extends Container<T, EM, AccordionItemOutProperties<EM>> {
+export class AccordionItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+  T,
+  EM,
+  AccordionItemOutProperties<EM>
+> {
   constructor(
     inputProperties?: InProperties<AccordionItemOutProperties<EM>>,
-    initialClasses?: (string | InProperties<OutProperties>)[],
+    initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[],
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<AccordionItemOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

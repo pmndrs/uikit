@@ -130,16 +130,16 @@ function AuthenticationPage() {
               marginRight={8}
             />
 
-            <Text fontSize={18} lineHeight={28} fontWeight="medium">
+            <Text fontSize={18} lineHeight="28px" fontWeight="medium">
               Acme Inc
             </Text>
           </Container>
           <Container flexDirection="column" marginTop="auto">
             <Container flexDirection="column" gap={8}>
-              <Text fontSize={18} lineHeight={28}>
+              <Text fontSize={18} lineHeight="28px">
                 "Culpa eiusmod ut ipsum sunt velit labore minim eu. Occaecat magna mollit aliqua cupidatat."
               </Text>
-              <Text fontSize={14} lineHeight={20}>
+              <Text fontSize={14} lineHeight="20px">
                 Max Mustermann
               </Text>
             </Container>
@@ -157,16 +157,16 @@ function AuthenticationPage() {
         >
           <Container alignItems="center" flexDirection="column" gap={8}>
             <DefaultProperties textAlign="center">
-              <Text fontSize={24} lineHeight={32} fontWeight="semi-bold" letterSpacing={-0.4}>
+              <Text fontSize={24} lineHeight="32px" fontWeight="semi-bold" letterSpacing={-0.4}>
                 Create an account
               </Text>
-              <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+              <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
                 Enter your email below to create your account
               </Text>
             </DefaultProperties>
           </Container>
           <UserAuthForm />
-          <Text paddingX={32} textAlign="center" fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+          <Text paddingX={32} textAlign="center" fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
             By clicking continue, you agree to our Terms of Service and Privacy Policy.
           </Text>
         </Container>

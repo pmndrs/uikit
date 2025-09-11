@@ -6,13 +6,14 @@ import {
   ThreeEventMap,
   withOpacity,
   RenderContext,
+  UnionizeVariants,
 } from '@pmndrs/uikit'
 import { colors } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
 type BadgeVariantProps = Pick<ContainerProperties, 'hover' | 'backgroundColor' | 'color'>
 
-const badgeVariants: Record<string, BadgeVariantProps> = {
+const _badgeVariants = {
   default: {
     backgroundColor: colors.primary,
     color: colors.primaryForeground,
@@ -34,10 +35,10 @@ const badgeVariants: Record<string, BadgeVariantProps> = {
       backgroundColor: withOpacity(colors.destructive, 0.8),
     },
   },
-  outline: {
-    hover: undefined,
-  },
-}
+  outline: {},
+} satisfies Record<string, BadgeVariantProps>
+
+const badgeVariants = _badgeVariants as UnionizeVariants<typeof _badgeVariants>
 
 export type BadgeProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BadgeOutProperties<EM>>
 
@@ -45,17 +46,13 @@ export type BadgeOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseO
   variant?: keyof typeof badgeVariants
 }
 
-export class Badge<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends BadgeOutProperties<EM> = BadgeOutProperties<EM>,
-> extends Container<T, EM, BadgeOutProperties<EM>> {
+export class Badge<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, BadgeOutProperties<EM>> {
   constructor(
-    inputProperties?: InProperties<OutProperties>,
+    inputProperties?: InProperties<BadgeOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<BadgeOutProperties<EM>>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -68,17 +65,17 @@ export class Badge<
         lineHeight: '16px',
         fontWeight: 'semi-bold',
         backgroundColor: computed(
-          () => badgeVariants[this.properties.signal.variant.value ?? 'default']?.backgroundColor,
+          () => badgeVariants[this.properties.value.variant ?? 'default'].backgroundColor?.value,
         ),
-        color: computed(() => badgeVariants[this.properties.signal.variant.value ?? 'default']?.color),
+        color: computed(() => badgeVariants[this.properties.value.variant ?? 'default'].color?.value),
         hover: {
           backgroundColor: computed(
-            () => badgeVariants[this.properties.signal.variant.value ?? 'default']?.hover?.backgroundColor,
+            () => badgeVariants[this.properties.value.variant ?? 'default'].hover?.backgroundColor?.value,
           ),
         },
         borderWidth: 1,
         ...config?.defaultOverrides,
-      } as InProperties<OutProperties>,
+      },
     })
   }
 }

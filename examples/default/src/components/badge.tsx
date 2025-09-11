@@ -1,5 +1,5 @@
 import { Text } from '@react-three/uikit'
-import { Badge } from '@/badge.js'
+import { Badge } from '@react-three/uikit-default'
 
 export function BadgeDemo() {
   return (

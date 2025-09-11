@@ -50,7 +50,7 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
             <Text fontWeight="medium" fontSize={14} lineHeight="100%">
               Push Notifications
             </Text>
-            <Text fontWeight="medium" fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+            <Text fontWeight="medium" fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
               Send notifications to device.
             </Text>
           </Container>
@@ -71,7 +71,7 @@ export function UserNav({ open, setOpen }: { open: boolean; setOpen: (open: bool
                 <Text fontSize={14} lineHeight="100%">
                   {notification.title}
                 </Text>
-                <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
+                <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
                   {notification.description}
                 </Text>
               </Container>
