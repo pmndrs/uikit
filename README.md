@@ -12,9 +12,9 @@ Release Todo:
 [ ] update docs for 1.0
 
 Todo before swapping the branches
-[ ] input html element not removed?
+[x] input html element not removed?
 [x] fix text growing bug
-[ ] setup cicd pipeline to push
+[x] setup cicd pipeline to push
 
 <p align="center">
   <img src="./docs/getting-started/logo.svg" width="100" />

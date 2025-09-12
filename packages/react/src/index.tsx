@@ -71,14 +71,14 @@ export {
   Textarea as VanillaTextarea,
 } from '@pmndrs/uikit'
 
-export const Container = build<VanillaContainer, ContainerProperties>(true, VanillaContainer)
-export const Content = build<VanillaContent, ContentProperties>(true, VanillaContent)
-export const Custom = build<VanillaCustom, CustomProperties>(true, VanillaCustom)
-export const Image = build<VanillaImage, ImageProperties>(false, VanillaImage)
-export const Video = build<VanillaVideo, VideoProperties>(false, VanillaVideo)
-export const Input = build<VanillaInput, InputProperties>(false, VanillaInput)
-export const Svg = build<VanillaSvg, SvgProperties>(false, VanillaSvg)
-export const Textarea = build<VanillaTextarea, TextareaProperties>(false, VanillaTextarea)
+export const Container = build<VanillaContainer, ContainerProperties>(VanillaContainer)
+export const Content = build<VanillaContent, ContentProperties>(VanillaContent)
+export const Custom = build<VanillaCustom, CustomProperties>(VanillaCustom)
+export const Image = build<VanillaImage, ImageProperties>(VanillaImage)
+export const Video = build<VanillaVideo, VideoProperties>(VanillaVideo)
+export const Input = build<VanillaInput, InputProperties>(VanillaInput)
+export const Svg = build<VanillaSvg, SvgProperties>(VanillaSvg)
+export const Textarea = build<VanillaTextarea, TextareaProperties>(VanillaTextarea)
 
 extend({ VanillaFullscreen })
 

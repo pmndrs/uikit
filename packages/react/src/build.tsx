@@ -22,33 +22,17 @@ declare module 'three' {
   }
 }
 
-export function build<T extends Component, P>(canHaveChildren: boolean, Component: { new (): T }) {
-  return forwardRef<T, P>(canHaveChildren ? buildWithChildren<T, P>(Component) : buildWithoutChildren<T, P>(Component))
-}
-
-function buildWithChildren<T, P>(Component: { new (): Component }): ForwardRefRenderFunction<T, PropsWithoutRef<P>> {
+export function build<T extends Component, P>(Component: { new (): T }) {
   extend({ [`Vanilla${Component.name}`]: Component })
-  return ({ children, ...props }: any, forwardRef) => {
+  return forwardRef<T, P>(({ children, ...props }: any, forwardRef) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const ref = useRef<Component>(null)
     useImperativeHandle(forwardRef, () => ref.current! as T, [])
     useSetup(ref, props)
     const renderContext = useRenderContext()
-    return jsx(`vanilla${Component.name}` as any, { ref, children, args: [undefined, undefined, { renderContext }] })
-  }
-}
-
-function buildWithoutChildren<T, P>(Component: {
-  new (inputProperties?: any, initialClasses?: any, config?: { renderContext: RenderContext }): Component
-}): ForwardRefRenderFunction<T, PropsWithoutRef<P>> {
-  return (props, ref) => {
-    const renderContext = useRenderContext()
-    const component = useMemo(() => new Component(undefined, undefined, { renderContext }), [renderContext])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useImperativeHandle(ref, () => component as T, [])
-    useSetup({ current: component }, props)
-    return <primitive object={component} />
-  }
+    const args = useMemo(() => [undefined, undefined, { renderContext }], [renderContext])
+    return jsx(`vanilla${Component.name}` as any, { ref, children, args })
+  })
 }
 
 export function useRenderContext() {

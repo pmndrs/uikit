@@ -5,6 +5,7 @@
     "@react-three/uikit-lucide": "workspace:^",
     "@react-three/uikit-default": "workspace:^",
     "@pmndrs/uikit": "workspace:^",
+    "@pmndrs/uikit-lucide": "workspace:^",
     "zustand": "^4.5.2"
   },
   "scripts": {

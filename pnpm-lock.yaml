@@ -119,6 +119,9 @@ importers:
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide/core
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react

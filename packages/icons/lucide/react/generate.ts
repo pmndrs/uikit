@@ -16,7 +16,7 @@ import { SvgProperties, build } from '@react-three/uikit'
 
 export const ${name}Icon: ForwardRefExoticComponent<
   PropsWithoutRef<SvgProperties> & RefAttributes<Vanilla${name}Icon>
-> = /*@__PURE__*/ build<Vanilla${name}Icon, SvgProperties>(false, Vanilla${name}Icon)
+> = /*@__PURE__*/ build<Vanilla${name}Icon, SvgProperties>(Vanilla${name}Icon)
 export const ${name}: ForwardRefExoticComponent<
   PropsWithoutRef<SvgProperties> & RefAttributes<Vanilla${name}Icon>
 > = ${name}Icon

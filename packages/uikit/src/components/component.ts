@@ -329,6 +329,7 @@ export class Component<
   }
 
   dispose(): void {
+    console.log('dispose')
     this.abortController.abort()
   }
 }

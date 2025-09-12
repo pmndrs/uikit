@@ -4,6 +4,7 @@ import { colors, Button, defaultProperties } from '@react-three/uikit-default'
 import { UserAuthForm } from './components/user-auth-form.js'
 import { noEvents, PointerEvents } from '@react-three/xr'
 import { create } from 'zustand'
+import { useState } from 'react'
 
 setPreferredColorScheme('light')
 
