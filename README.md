@@ -7,6 +7,8 @@ Release Todo:
 [ ] Horizon Kit
 [ ] fix the highlighter - indication that event order is incorrect  
 [ ] set visible to false on the object if children are only text and containers
+[x] SuspendingImage & SuspendingVideo (including all the fixes)
+[ ] cherry pick - more msdfonts (b00a71b), fix incorrect default value in docs (5ceabf9), optimized text rendering (2d9b55b)
 
 <p align="center">
   <img src="./docs/getting-started/logo.svg" width="100" />

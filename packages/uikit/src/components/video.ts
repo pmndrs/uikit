@@ -47,9 +47,8 @@ export class Video<
       return element
     })
     abortableEffect(() => {
-      const src = this.properties.value.src
       const element = notYetLoadedElement.value
-      if (src instanceof HTMLVideoElement || element == null) {
+      if (element == null) {
         return
       }
       element.playsInline = true
@@ -60,18 +59,11 @@ export class Video<
       element.loop = this.properties.value.loop ?? false
       element.autoplay = this.properties.value.autoplay ?? false
       element.crossOrigin = this.properties.value.crossOrigin ?? null
-      //update src
-
-      if (src == null) {
-        element.removeAttribute('src')
-        element.removeAttribute('srcObject')
+      const src = this.properties.value.src
+      if (src instanceof HTMLVideoElement) {
         return
       }
-      if (typeof src === 'string') {
-        element.src = src
-      } else if (src instanceof MediaStream) {
-        element.srcObject = src
-      }
+      updateVideoElementSrc(element, src)
     }, this.abortSignal)
     abortableEffect(() => {
       const element = notYetLoadedElement.value
@@ -124,4 +116,17 @@ async function loadVideoElement(element: HTMLVideoElement | undefined) {
     await new Promise((resolve) => (element.onloadedmetadata = resolve))
   }
   return element
+}
+
+export function updateVideoElementSrc(element: HTMLVideoElement, src: Exclude<VideoSrc, HTMLVideoElement> | undefined) {
+  if (src == null) {
+    element.removeAttribute('src')
+    element.removeAttribute('srcObject')
+    return
+  }
+  if (typeof src === 'string') {
+    element.src = src
+    return
+  }
+  element.srcObject = src
 }

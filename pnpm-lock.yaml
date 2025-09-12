@@ -148,13 +148,13 @@ importers:
         version: 1.5.0(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(react@18.3.1)(three@0.178.0)
       '@react-three/uikit':
         specifier: 0.8.21
-        version: 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+        version: 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       '@react-three/uikit-default':
         specifier: 0.8.21
-        version: 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+        version: 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       '@react-three/uikit-lucide':
         specifier: 0.8.21
-        version: 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+        version: 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       '@splinetool/r3f-spline':
         specifier: ^1.0.2
         version: 1.0.2(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@splinetool/loader@1.9.59(three@0.178.0))
@@ -365,6 +365,9 @@ importers:
       react:
         specifier: '>=18'
         version: 19.0.0
+      suspend-react:
+        specifier: ^0.1.3
+        version: 0.1.3(react@19.0.0)
       zustand:
         specifier: ^5.0.6
         version: 5.0.6(@types/react@19.1.8)(react@19.0.0)(use-sync-external-store@1.4.0(react@19.0.0))
@@ -7069,14 +7072,14 @@ snapshots:
 
   '@pmndrs/pointer-events@6.6.16': {}
 
-  '@pmndrs/uikit@0.8.21(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))':
+  '@pmndrs/uikit@0.8.21(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:
       '@pmndrs/msdfonts': 0.8.21
       '@preact/signals-core': 1.8.0
       inline-style-parser: 0.2.4
       node-html-parser: 6.1.13
       three: 0.178.0
-      tw-to-css: 0.0.12(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+      tw-to-css: 0.0.12(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       yoga-layout: 3.2.1
     transitivePeerDependencies:
       - ts-node
@@ -7278,10 +7281,10 @@ snapshots:
       three: 0.178.0
       three-stdlib: 2.35.12(three@0.178.0)
 
-  '@react-three/uikit-default@0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))':
+  '@react-three/uikit-default@0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:
-      '@react-three/uikit': 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
-      '@react-three/uikit-lucide': 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+      '@react-three/uikit': 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
+      '@react-three/uikit-lucide': 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       tunnel-rat: 0.1.2(@types/react@18.3.18)(react@18.3.1)
     transitivePeerDependencies:
       - '@react-three/fiber'
@@ -7291,9 +7294,9 @@ snapshots:
       - three
       - ts-node
 
-  '@react-three/uikit-lucide@0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))':
+  '@react-three/uikit-lucide@0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:
-      '@react-three/uikit': 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+      '@react-three/uikit': 0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
     transitivePeerDependencies:
       - '@react-three/fiber'
       - '@types/react'
@@ -7302,9 +7305,9 @@ snapshots:
       - three
       - ts-node
 
-  '@react-three/uikit@0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))':
+  '@react-three/uikit@0.8.21(@react-three/fiber@8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0))(@types/react@18.3.18)(react@18.3.1)(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:
-      '@pmndrs/uikit': 0.8.21(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3))
+      '@pmndrs/uikit': 0.8.21(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
       '@preact/signals-core': 1.8.0
       '@react-three/fiber': 8.17.12(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.178.0)
       chalk: 5.4.1
@@ -10905,6 +10908,14 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.5.1
 
+  postcss-load-config@4.0.2(postcss@8.5.1)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3)):
+    dependencies:
+      lilconfig: 3.1.3
+      yaml: 2.7.0
+    optionalDependencies:
+      postcss: 8.5.1
+      ts-node: 10.9.2(@types/node@20.17.16)(typescript@5.7.3)
+
   postcss-load-config@4.0.2(postcss@8.5.1)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3)):
     dependencies:
       lilconfig: 3.1.3
@@ -11592,6 +11603,34 @@ snapshots:
       '@pkgr/core': 0.1.1
       tslib: 2.8.1
 
+  tailwindcss@3.3.2(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3)):
+    dependencies:
+      '@alloc/quick-lru': 5.2.0
+      arg: 5.0.2
+      chokidar: 3.6.0
+      didyoumean: 1.2.2
+      dlv: 1.1.3
+      fast-glob: 3.3.3
+      glob-parent: 6.0.2
+      is-glob: 4.0.3
+      jiti: 1.21.7
+      lilconfig: 2.1.0
+      micromatch: 4.0.8
+      normalize-path: 3.0.0
+      object-hash: 3.0.0
+      picocolors: 1.1.1
+      postcss: 8.5.1
+      postcss-import: 15.1.0(postcss@8.5.1)
+      postcss-js: 4.0.1(postcss@8.5.1)
+      postcss-load-config: 4.0.2(postcss@8.5.1)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
+      postcss-nested: 6.2.0(postcss@8.5.1)
+      postcss-selector-parser: 6.1.2
+      postcss-value-parser: 4.2.0
+      resolve: 1.22.10
+      sucrase: 3.35.0
+    transitivePeerDependencies:
+      - ts-node
+
   tailwindcss@3.3.2(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
@@ -11894,6 +11933,14 @@ snapshots:
       - '@types/react'
       - immer
       - react
+
+  tw-to-css@0.0.12(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3)):
+    dependencies:
+      postcss: 8.4.31
+      postcss-css-variables: 0.18.0(postcss@8.4.31)
+      tailwindcss: 3.3.2(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))
+    transitivePeerDependencies:
+      - ts-node
 
   tw-to-css@0.0.12(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.8.3)):
     dependencies:
