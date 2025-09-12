@@ -68,7 +68,11 @@ jobs:
         run: pnpm publish --access public --no-git-checks --tag alpha
 
       - name: Deploy Uikit-Lucide Vanilla Package
-        working-directory: ./packages/icons/lucide/vanilla
+        working-directory: ./packages/icons/lucide/core
+        run: pnpm publish --access public --no-git-checks --tag alpha
+
+      - name: Deploy Uikit-Default Vanilla Package
+        working-directory: ./packages/kits/default/core
         run: pnpm publish --access public --no-git-checks --tag alpha
 
       - name: Deploy Uikit React Package
@@ -80,5 +84,5 @@ jobs:
         run: pnpm publish --access public --no-git-checks --tag alpha
 
       - name: Deploy Uikit-Default React Package
-        working-directory: ./packages/kits/default
+        working-directory: ./packages/kits/default/react
         run: pnpm publish --access public --no-git-checks --tag alpha
