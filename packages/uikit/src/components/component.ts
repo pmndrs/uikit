@@ -342,9 +342,3 @@ export type EventMap = Object3DEventMap & {
     Exclude<EventHandlers[Key], undefined>
   >[0]
 }
-
-export class Parent<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  Properties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-> extends Component<T, EM, Properties> {}

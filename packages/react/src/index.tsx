@@ -60,6 +60,7 @@ export type FullscreenProperties = VanillaFullscreenProperties<ThreeEventMap> & 
 
 export {
   readReactive,
+  Component as VanillaComponent,
   Container as VanillaContainer,
   Content as VanillaContent,
   Custom as VanillaCustom,

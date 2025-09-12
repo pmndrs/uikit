@@ -1,4 +1,4 @@
-import { Container, ContainerProperties, readReactive, VanillaContainer } from '@react-three/uikit'
+import { Container, ContainerProperties, readReactive, VanillaComponent, VanillaContainer } from '@react-three/uikit'
 import { forwardRef, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes, useRef } from 'react'
 import { computed } from '@preact/signals-core'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
@@ -21,7 +21,7 @@ export const Highlighter: ForwardRefExoticComponent<
       height="100%"
       {...props}
       onPointerOver={(e) => {
-        if (!(e.object instanceof VanillaContainer) || highlightRef.current == null) {
+        if (!(e.object instanceof VanillaComponent) || highlightRef.current == null) {
           return
         }
         const { globalMatrix, properties, size } = e.object as VanillaContainer
@@ -66,7 +66,6 @@ export const Highlighter: ForwardRefExoticComponent<
         if (!(e.object instanceof VanillaContainer)) {
           return
         }
-        console.log(e.object)
       }}
     >
       {children}

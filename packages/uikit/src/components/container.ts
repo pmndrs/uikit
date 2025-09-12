@@ -17,7 +17,7 @@ import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { BaseOutProperties, InProperties } from '../properties/index.js'
 import { RenderContext } from '../context.js'
-import { Parent } from './component.js'
+import { Component } from './index.js'
 
 export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -27,7 +27,7 @@ export class Container<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
   OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-> extends Parent<T, EM, OutProperties> {
+> extends Component<T, EM, OutProperties> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
