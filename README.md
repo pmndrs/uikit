@@ -13,7 +13,7 @@ Release Todo:
 
 Todo before swapping the branches
 [ ] input html element not removed?
-[ ] fix text growing bug
+[x] fix text growing bug
 [ ] setup cicd pipeline to push
 
 <p align="center">

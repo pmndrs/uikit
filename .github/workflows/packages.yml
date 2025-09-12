@@ -61,29 +61,28 @@ jobs:
 
       - name: Deploy msdfonts Package
         working-directory: ./packages/msdfonts
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+        run: pnpm publish --access public --no-git-checks --tag alpha
 
       - name: Deploy Uikit Vanilla Package
         working-directory: ./packages/uikit
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
-      
+        run: pnpm publish --access public --no-git-checks --tag alpha
       - name: Deploy Uikit-Lucide Vanilla Package
         working-directory: ./packages/icons/lucide/vanilla
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}   
+        run: pnpm publish --access public --no-git-checks --tag alpha  
 
       - name: Deploy Uikit React Package
         working-directory: ./packages/react
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+        run: pnpm publish --access public --no-git-checks --tag alpha
       
       - name: Deploy Uikit-Lucide React Package
         working-directory: ./packages/icons/lucide/react
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+        run: pnpm publish --access public --no-git-checks --tag alpha
           
       - name: Deploy Uikit-Default React Package
         working-directory: ./packages/kits/default
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+        run: pnpm publish --access public --no-git-checks --tag alpha
           
       - name: Deploy Uikit-Apfel React Package
         working-directory: ./packages/kits/apfel
-        run: pnpm publish --access public --no-git-checks --tag ${{ steps.gitversion.outputs.preReleaseLabel == '' && 'latest' || steps.gitversion.outputs.preReleaseLabel }}
+        run: pnpm publish --access public --no-git-checks --tag alpha
           
