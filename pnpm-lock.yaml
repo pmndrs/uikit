@@ -230,9 +230,18 @@ importers:
 
   examples/market:
     dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide/core
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react
+      '@react-three/uikit-default':
+        specifier: workspace:^
+        version: link:../../packages/kits/default/react
       '@react-three/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/react

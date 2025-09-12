@@ -2,6 +2,7 @@ import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContex
 import { computed } from '@preact/signals-core'
 import { Tabs, TabsList } from './index.js'
 import { borderRadius, colors } from '../theme.js'
+import { PhoneForwarded } from '@pmndrs/uikit-lucide'
 
 export type TabsTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   disabled?: boolean
@@ -24,12 +25,11 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     },
   ) {
     const active = computed(() => {
-      const tabs = this.parentContainer.value?.parentContainer.value
+      const tabs = this.parentContainer.value?.parentContainer.value?.parentContainer.value
       if (!(tabs instanceof Tabs)) {
         return false
       }
-      const val = this.properties.value.value
-      return val != null && val === tabs.currentSignal.value
+      return this.properties.value.value === tabs.currentSignal.value
     })
     super(inputProperties, initialClasses, {
       ...config,

@@ -1,11 +1,17 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Container, Text, Fullscreen, DefaultProperties } from '@react-three/uikit'
+import { Container, Text, Fullscreen } from '@react-three/uikit'
 import { CirclePlus } from '@react-three/uikit-lucide'
-import { Defaults, colors } from '@/theme.js'
-import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/tabs.js'
-import { Separator } from '@/separator.js'
-import { Button } from '@/button.js'
-import { Video } from '@/video.js'
+import {
+  colors,
+  Tabs,
+  TabsList,
+  TabsContent,
+  TabsTrigger,
+  Separator,
+  Button,
+  Video,
+  defaultProperties,
+} from '@react-three/uikit-default'
 import { AlbumArtwork } from './components/album-artwork.js'
 import { listenNowAlbums, madeForYouAlbums } from './data/albums.js'
 import { Sidebar } from './components/sidebar.js'
@@ -14,6 +20,8 @@ import { Menu } from './components/menu.js'
 import { create } from 'zustand'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
+//TODO: support frameloop="demand"
+
 export default function App() {
   return (
     <>
@@ -21,19 +29,14 @@ export default function App() {
       <Canvas
         flat
         events={noEvents}
-        frameloop="demand"
         camera={{ position: [0, 0, 18], fov: 35 }}
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}
       >
         <PointerEvents />
         <CountFrames />
-        <Fullscreen flexDirection="column">
-          <Defaults>
-            <DefaultProperties>
-              <MarketPage />
-            </DefaultProperties>
-          </Defaults>
+        <Fullscreen flexDirection="column" {...defaultProperties}>
+          <MarketPage />
         </Fullscreen>
       </Canvas>
     </>
@@ -103,7 +106,7 @@ export function MarketPage() {
               </Container>
               <Separator marginY={16} />
               <Container flexShrink={1} flexDirection="row" overflow="scroll" gap={16} paddingBottom={16}>
-                <Video controls borderRadius={6} flexShrink={0} src="example.mp4" />
+                <Video height={200} controls borderRadius={6} flexShrink={0} src="example.mp4" />
                 {madeForYouAlbums.map((album) => (
                   <AlbumArtwork key={album.name} album={album} aspectRatio="square" width={150} height={150} />
                 ))}
