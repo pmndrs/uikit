@@ -82,7 +82,3 @@ jobs:
         working-directory: ./packages/kits/default
         run: pnpm publish --access public --no-git-checks --tag alpha
           
-      - name: Deploy Uikit-Apfel React Package
-        working-directory: ./packages/kits/apfel
-        run: pnpm publish --access public --no-git-checks --tag alpha
-          

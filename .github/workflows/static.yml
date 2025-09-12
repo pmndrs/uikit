@@ -132,14 +132,12 @@ jobs:
 
       - name: Copy Examples
         run: |
-          mkdir -p public/examples/apfel
           mkdir -p public/examples/card
           mkdir -p public/examples/dashboard
           mkdir -p public/examples/default
           mkdir -p public/examples/lucide
           mkdir -p public/examples/market
           mkdir -p public/examples/auth
-          cp -r ./examples/apfel/dist/* ./public/examples/apfel
           cp -r ./examples/card/dist/* ./public/examples/card
           cp -r ./examples/dashboard/dist/* ./public/examples/dashboard
           cp -r ./examples/default/dist/* ./public/examples/default

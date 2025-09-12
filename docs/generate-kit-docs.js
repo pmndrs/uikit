@@ -1,4 +1,3 @@
-import ApfelRegistry from '../packages/kits/apfel/src/registry.json' assert { type: 'json' }
 import DefaultRegistry from '../packages/kits/default/src/registry.json' assert { type: 'json' }
 import { readFileSync, writeFileSync } from 'fs'
 
@@ -71,9 +70,6 @@ for (const component of Object.keys(DefaultRegistry)) {
   writeFileSync(`default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
 }
 
-for (const component of Object.keys(ApfelRegistry)) {
-  writeFileSync(`apfel-kit/${component}.mdx`, generateMarkdown(i++, 'apfel', component))
-}
 function capitalize(s) {
   return s[0].toUpperCase() + s.slice(1)
 }

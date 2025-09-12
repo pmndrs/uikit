@@ -70,11 +70,11 @@ Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getti
 
 We provide multiple kits containing **themable pre-styled components**.
 
-| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
-| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              | [View All Components](https://docs.pmnd.rs/uikit/apfel-kit/button)               |
-| `npm i @react-three/uikit-default`                                                   | `npm i @react-three/uikit-apfel`                                                 |
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                |
+| ------------------------------------------------------------------------------------ |
+| ![Overview over all default components](./docs/getting-started/default-overview.jpg) |
+| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              |
+| `npm i @react-three/uikit-default`                                                   |
 
 ## Migration guides
 
