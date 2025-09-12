@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "paths": {
-      "@/*": ["../../packages/kits/default/src/*"]
-    }
+    "jsx": "react-jsx"
   }
 }

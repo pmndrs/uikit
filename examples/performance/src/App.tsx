@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { DefaultProperties, Container, Text, Root, ComponentInternals } from '@react-three/uikit'
+import { Container, Text, VanillaContainer } from '@react-three/uikit'
 import { OrbitControls } from '@react-three/drei'
 import { noEvents, PointerEvents } from '@react-three/xr'
 import { suspend } from 'suspend-react'
@@ -8,7 +8,7 @@ import { effect, signal } from '@preact/signals-core'
 import { Color } from 'three'
 
 const size = 2.4 * 1920
-const elements = 60000
+const elements = 30000
 
 export default function App() {
   const getPixel = suspend(loadGetPixel, ['img.png'])
@@ -17,15 +17,13 @@ export default function App() {
       <color attach="background" args={['black']} />
       <PointerEvents />
       <OrbitControls />
-      <Root width={size} height={size} positionType="relative">
-        <DefaultProperties fontSize={4}>
-          <Container positionType="absolute" gap={1} justifyContent="space-between" flexWrap="wrap" inset={0}>
-            {new Array(elements).fill(null).map((_, i) => (
-              <Pixel key={i} getPixel={getPixel} />
-            ))}
-          </Container>
-        </DefaultProperties>
-      </Root>
+      <Container width={size} height={size} positionType="relative" {...{ '*': { fontSize: 4 } }}>
+        <Container positionType="absolute" gap={1} justifyContent="space-between" flexWrap="wrap" inset={0}>
+          {new Array(elements).fill(null).map((_, i) => (
+            <Pixel key={i} getPixel={getPixel} />
+          ))}
+        </Container>
+      </Container>
     </Canvas>
   )
 }
@@ -35,14 +33,14 @@ type GetPixel = (x: number, y: number) => [number, number, number]
 function Pixel({ getPixel }: { getPixel: GetPixel }) {
   const borderWidth = Math.random() * 1
   const color = useMemo(() => signal(new Color('black')), [])
-  const ref = useRef<ComponentInternals>(null)
+  const ref = useRef<VanillaContainer>(null)
   useEffect(() => {
     const internals = ref.current
     if (internals == null) {
       return
     }
     return effect(() => {
-      const center = internals.center.value
+      const center = internals.relativeCenter.value
       if (center == null) {
         return
       }
