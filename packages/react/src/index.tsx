@@ -14,7 +14,7 @@ declare module '@react-three/fiber' {
 }
 
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { build, useSetup } from './build.js'
+import { build, useRenderContext, useSetup } from './build.js'
 import {
   Container as VanillaContainer,
   ContainerProperties as VanillaContainerProperties,
@@ -111,8 +111,10 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
     const ref = useRef<VanillaFullscreen>(null)
     useImperativeHandle(forwardRef, () => ref.current!, [])
     useSetup(ref, props)
+    const renderContext = useRenderContext()
+    const args = useMemo(() => [renderer, undefined, undefined, { renderContext }] as const, [renderer, renderContext])
     return createPortal(
-      <vanillaFullscreen args={[renderer]} ref={ref}>
+      <vanillaFullscreen args={args} ref={ref}>
         {children}
       </vanillaFullscreen>,
       camera,

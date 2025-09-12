@@ -2,6 +2,7 @@ import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContex
 import { computed } from '@preact/signals-core'
 import { colors } from '../theme.js'
 import { RadioGroup } from './index.js'
+import { searchFor } from '../utils.js'
 
 export type RadioGroupItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   disabled?: boolean
@@ -50,9 +51,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       },
     })
     const isSelected = computed(
-      () =>
-        this.parentContainer.value instanceof RadioGroup &&
-        this.parentContainer.value.currentSignal.value === this.properties.value.value,
+      () => searchFor(this, RadioGroup, 2)?.currentSignal.value === this.properties.value.value,
     )
 
     const radioButton = new Container(undefined, undefined, {

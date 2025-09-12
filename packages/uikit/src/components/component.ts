@@ -316,13 +316,16 @@ export class Component<
   }
 
   update(delta: number) {
-    if (this.root.peek().component != this) {
+    const root = this.root.peek()
+    if (root.component != this) {
       //we only call .update on the root component => if not the root component return
       return
     }
+    root.isUpdateRunning = true
     for (const onFrame of this.root.peek().onFrameSet) {
       onFrame(delta)
     }
+    root.isUpdateRunning = false
   }
 
   dispose(): void {

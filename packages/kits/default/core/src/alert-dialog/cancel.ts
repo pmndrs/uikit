@@ -3,6 +3,7 @@ import { borderRadius, colors } from '../theme.js'
 import { AlertDialog } from './index.js'
 import { AlertDialogFooter } from './footer.js'
 import { AlertDialogContent } from './content.js'
+import { searchFor } from '../utils.js'
 
 export type AlertDialogCancelOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -51,21 +52,10 @@ export class AlertDialogCancel<T = {}, EM extends ThreeEventMap = ThreeEventMap>
   }
 
   private closeDialog() {
-    const footer = this.parentContainer.value
-    if (!(footer instanceof AlertDialogFooter)) {
-      throw new Error(`AlertDialogCancel must be a child of AlertDialogFooter`)
+    const dialog = searchFor(this, AlertDialog, 5)
+    if (dialog == null) {
+      throw new Error(`AlertDialogAction must be a decendant of AlertDialog (max 5 steps deep)`)
     }
-
-    const content = footer.parentContainer.value
-    if (!(content instanceof AlertDialogContent)) {
-      throw new Error(`AlertDialogFooter must be a child of AlertDialogContent`)
-    }
-
-    const dialog = content.parentContainer.value
-    if (!(dialog instanceof AlertDialog)) {
-      throw new Error(`AlertDialogContent must be a child of AlertDialog`)
-    }
-
     dialog.setOpen(false)
   }
 }

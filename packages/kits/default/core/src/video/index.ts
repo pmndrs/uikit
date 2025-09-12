@@ -15,6 +15,7 @@ import { Slider } from '../slider/index.js'
 import { Button } from '../button/index.js'
 import { colors } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
+import { searchFor } from '../utils.js'
 
 export type VideoOutProperties<EM extends ThreeEventMap> = BaseVideoOutProperties<EM> & {
   controls?: boolean
@@ -93,9 +94,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
-        display: computed(() =>
-          this.parentContainer.value instanceof Video && this.parentContainer.value.interacting.value ? 'flex' : 'none',
-        ),
+        display: computed(() => (searchFor(this, Video, 2)?.interacting.value ? 'flex' : 'none')),
         zIndex: 1,
         positionType: 'absolute',
         padding: 8,
@@ -108,9 +107,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
         ...config?.defaultOverrides,
       },
     })
-    const videoElementSignal = computed(() =>
-      this.parentContainer.value instanceof Video ? this.parentContainer.value.video.element.value : undefined,
-    )
+    const videoElementSignal = computed(() => searchFor(this, Video, 2)?.video.element.value)
 
     const paused = signal(false)
     const muted = signal(false)

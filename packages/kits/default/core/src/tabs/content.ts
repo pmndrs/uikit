@@ -1,6 +1,7 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
+import { searchFor } from '../utils.js'
 
 export type TabsContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   value: string
@@ -19,11 +20,8 @@ export class TabsContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TabsContentOutProperties<EM>> },
   ) {
     const isVisible = computed(() => {
-      const tabs = this.parentContainer.value
-      if (!(tabs instanceof Tabs)) {
-        return false
-      }
-      return this.properties.value.value === tabs.currentSignal.value
+      const tabs = searchFor(this, Tabs, 2)
+      return this.properties.value.value === tabs?.currentSignal.value
     })
     super(inputProperties, initialClasses, {
       ...config,

@@ -20,8 +20,6 @@ import { Menu } from './components/menu.js'
 import { create } from 'zustand'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
-//TODO: support frameloop="demand"
-
 export default function App() {
   return (
     <>
@@ -29,6 +27,7 @@ export default function App() {
       <Canvas
         flat
         events={noEvents}
+        frameloop="demand"
         camera={{ position: [0, 0, 18], fov: 35 }}
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}

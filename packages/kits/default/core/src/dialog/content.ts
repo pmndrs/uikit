@@ -2,6 +2,7 @@ import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContex
 import { borderRadius, colors } from '../theme.js'
 import { X } from '@pmndrs/uikit-lucide'
 import { Dialog } from './index.js'
+import { searchFor } from '../utils.js'
 
 export type DialogContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -56,9 +57,9 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   }
 
   private closeDialog() {
-    const dialog = this.parentContainer.value
-    if (!(dialog instanceof Dialog)) {
-      throw new Error(`DialogContent must be a child of Dialog`)
+    const dialog = searchFor(this, Dialog, 2)
+    if (dialog == null) {
+      throw new Error(`DialogContent must be a decendant of Dialog (max 2 steps deep)`)
     }
     dialog.setOpen(false)
   }

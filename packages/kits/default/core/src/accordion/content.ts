@@ -2,6 +2,7 @@ import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMa
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
+import { searchFor } from '../utils.js'
 
 export type AccordionContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -26,11 +27,12 @@ export class AccordionContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
         paddingBottom: 16,
         overflow: 'hidden',
         display: computed(() => {
-          const item = this.parentContainer.value
-          if (!(item instanceof AccordionItem)) return 'none'
-          const accordion = item.parentContainer.value
-          if (!(accordion instanceof Accordion)) return 'none'
-          return item.properties.value.value === accordion.openItemValue.value ? 'flex' : 'none'
+          const item = searchFor(this, AccordionItem, 2)
+          if (item == null) {
+            return 'none'
+          }
+          const accordion = searchFor(item, Accordion, 2)
+          return item.properties.value.value === accordion?.openItemValue.value ? 'flex' : 'none'
         }),
         ...config?.defaultOverrides,
       },

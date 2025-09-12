@@ -9,6 +9,7 @@ import {
 import { computed, signal } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 import { ToggleGroup } from './index.js'
+import { searchFor } from '../utils.js'
 
 const _toggleVariants = {
   default: {},
@@ -101,12 +102,12 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
   }
 
   private getGroupVariant(): keyof typeof toggleVariants {
-    const parent = this.parentContainer.value
-    return (parent instanceof ToggleGroup ? parent.properties.value.variant : undefined) ?? 'default'
+    const toggleGroup = searchFor(this, ToggleGroup, 2)
+    return toggleGroup?.properties.value.variant ?? 'default'
   }
 
   private getGroupSize(): keyof typeof toggleSizes {
-    const parent = this.parentContainer.value
-    return (parent instanceof ToggleGroup ? parent.properties.value.size : undefined) ?? 'default'
+    const toggleGroup = searchFor(this, ToggleGroup, 2)
+    return toggleGroup?.properties.value.size ?? 'default'
   }
 }

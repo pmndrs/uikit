@@ -28,8 +28,6 @@ import { Highlighter } from './components/Highlighter.js'
 
 setPreferredColorScheme('light')
 
-//TODO: test with frameloop="demand"
-
 export default function App() {
   const [open, setOpen] = useState(false)
   return (
@@ -37,6 +35,7 @@ export default function App() {
       <FrameCounter />
       <Canvas
         events={noEvents}
+        frameloop="demand"
         flat
         camera={{ position: [0, 0, 18], fov: 35, zoom: 100 }}
         style={{ height: '100dvh', touchAction: 'none' }}

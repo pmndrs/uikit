@@ -1,4 +1,4 @@
-import { Component, EventHandlers, reversePainterSortStable } from '@pmndrs/uikit'
+import { Component, EventHandlers, RenderContext, reversePainterSortStable } from '@pmndrs/uikit'
 import { effect } from '@preact/signals-core'
 import { extend, RootStore, useFrame, useStore, useThree } from '@react-three/fiber'
 import {
@@ -22,8 +22,6 @@ declare module 'three' {
   }
 }
 
-//TODO: pass renderContext from r3f
-
 export function build<T extends Component, P>(canHaveChildren: boolean, Component: { new (): T }) {
   return forwardRef<T, P>(canHaveChildren ? buildWithChildren<T, P>(Component) : buildWithoutChildren<T, P>(Component))
 }
@@ -35,18 +33,27 @@ function buildWithChildren<T, P>(Component: { new (): Component }): ForwardRefRe
     const ref = useRef<Component>(null)
     useImperativeHandle(forwardRef, () => ref.current! as T, [])
     useSetup(ref, props)
-    return jsx(`vanilla${Component.name}` as any, { ref, children })
+    const renderContext = useRenderContext()
+    return jsx(`vanilla${Component.name}` as any, { ref, children, args: [undefined, undefined, { renderContext }] })
   }
 }
 
-function buildWithoutChildren<T, P>(Component: { new (): Component }): ForwardRefRenderFunction<T, PropsWithoutRef<P>> {
+function buildWithoutChildren<T, P>(Component: {
+  new (inputProperties?: any, initialClasses?: any, config?: { renderContext: RenderContext }): Component
+}): ForwardRefRenderFunction<T, PropsWithoutRef<P>> {
   return (props, ref) => {
-    const component = useMemo(() => new Component(), [])
+    const renderContext = useRenderContext()
+    const component = useMemo(() => new Component(undefined, undefined, { renderContext }), [renderContext])
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useImperativeHandle(ref, () => component as T, [])
     useSetup({ current: component }, props)
     return <primitive object={component} />
   }
+}
+
+export function useRenderContext() {
+  const invalidate = useThree((s) => s.invalidate)
+  return useMemo<RenderContext>(() => ({ requestFrame: invalidate }), [invalidate])
 }
 
 export function useSetup(ref: { current: Component | null }, props: any) {

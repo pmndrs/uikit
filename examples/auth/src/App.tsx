@@ -7,14 +7,13 @@ import { create } from 'zustand'
 
 setPreferredColorScheme('light')
 
-//TODO: enable frameloop="demand"
-
 export default function App() {
   return (
     <>
       <FrameCounter />
       <Canvas
         flat
+        frameloop="demand"
         camera={{ position: [0, 0, 18], fov: 35 }}
         style={{ height: '100dvh', touchAction: 'none' }}
         gl={{ localClippingEnabled: true }}
@@ -76,7 +75,6 @@ function AuthenticationPage() {
         flexGrow={1}
         flexBasis={0}
         maxWidth={0}
-        ref={(x) => console.log('y', x)}
         overflow="hidden"
         height="100%"
         flexDirection="column"

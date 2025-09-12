@@ -2,6 +2,7 @@ import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContex
 import { borderRadius, colors } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Tooltip } from './index.js'
+import { searchFor } from '../utils.js'
 
 export type TooltipContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
   TooltipContentOutProperties<EM>
@@ -41,9 +42,7 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
         fontSize: 14,
         lineHeight: '20px',
         color: colors.popoverForeground,
-        display: computed(() =>
-          this.parentContainer.value instanceof Tooltip && this.parentContainer.value.open.value ? 'flex' : 'none',
-        ),
+        display: computed(() => (searchFor(this, Tooltip, 2)?.open.value ? 'flex' : 'none')),
         ...config?.defaultOverrides,
       },
     })

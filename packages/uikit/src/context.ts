@@ -8,17 +8,18 @@ import { Component } from './components/component.js'
 import { Properties } from './properties/index.js'
 
 export type RenderContext = {
-  requestRender: () => void
   requestFrame: () => void
 }
 
 export type RootContext = WithReversePainterSortStableCache & {
   requestCalculateLayout: () => void
+  requestRender: () => void
   component: Component
   glyphGroupManager: GlyphGroupManager
   panelGroupManager: PanelGroupManager
   onFrameSet: Set<(delta: number) => void>
   onUpdateMatrixWorldSet: Set<() => void>
+  isUpdateRunning: boolean
 } & Partial<RenderContext>
 
 export function buildRootContext(
@@ -53,9 +54,17 @@ export function buildRootContext(
 
 function createRootContext(component: Component, renderContext: RenderContext | undefined) {
   const ctx: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'> = {
+    isUpdateRunning: false,
     onFrameSet: new Set<(delta: number) => void>(),
-    ...renderContext,
-
+    requestFrame: renderContext?.requestFrame,
+    requestRender() {
+      if (ctx.isUpdateRunning) {
+        //request render unnecassary -> while render after updates ran
+        return
+      }
+      //not updating -> requesting a new frame so we will render after updating
+      renderContext?.requestFrame()
+    },
     onUpdateMatrixWorldSet: new Set<() => void>(),
     requestCalculateLayout: () => {},
     component,
