@@ -1,21 +1,3 @@
-Release Todo:
-
-[x] frameloop="demand" working
-[ ] Default kit give access to children as props (e.g. slider.dot)
-[x] Default Kit fully tested  
-[x] all examples working again  
-[ ] Horizon Kit
-[x] fix the highlighter - indication that event order is incorrect  
-[ ] set visible to false on the object if children are only text and containers
-[x] SuspendingImage & SuspendingVideo (including all the fixes)
-[x] cherry pick - more msdfonts (b00a71b), fix incorrect default value in docs (5ceabf9), optimized text rendering (2d9b55b)
-[ ] update docs for 1.0
-
-Todo before swapping the branches
-[x] input html element not removed?
-[x] fix text growing bug
-[x] setup cicd pipeline to push
-
 <p align="center">
   <img src="./docs/getting-started/logo.svg" width="100" />
 </p>
