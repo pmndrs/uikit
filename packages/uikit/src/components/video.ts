@@ -69,7 +69,7 @@ export class Video<
       }
       if (typeof src === 'string') {
         element.src = src
-      } else {
+      } else if (src instanceof MediaStream) {
         element.srcObject = src
       }
     }, this.abortSignal)
