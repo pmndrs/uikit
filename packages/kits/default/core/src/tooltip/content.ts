@@ -49,5 +49,3 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     })
   }
 }
-
-

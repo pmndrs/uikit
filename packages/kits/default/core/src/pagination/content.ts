@@ -23,5 +23,3 @@ export class PaginationContent<T = {}, EM extends ThreeEventMap = ThreeEventMap>
     })
   }
 }
-
-

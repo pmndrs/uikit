@@ -28,9 +28,9 @@
   "scripts": {
     "build": "tsc",
     "check:prettier": "prettier --check .",
-    "check:eslint": "eslint '**/*.{tsx,ts}'",
+    "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
     "fix:prettier": "prettier --write .",
-    "fix:eslint": "eslint '**/*.{tsx,ts}' --fix"
+    "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix"
   },
   "devDependencies": {
     "@preact/signals-core": "^1.5.1"

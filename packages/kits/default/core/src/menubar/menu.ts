@@ -16,5 +16,3 @@ export class MenubarMenu<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     })
   }
 }
-
-

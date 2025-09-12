@@ -26,12 +26,8 @@ export class Separator<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
       defaultOverrides: {
         flexShrink: 0,
         backgroundColor: colors.border,
-        width: computed(() =>
-          (this.properties.value.orientation ?? 'horizontal') === 'horizontal' ? '100%' : 1,
-        ),
-        height: computed(() =>
-          (this.properties.value.orientation ?? 'horizontal') === 'horizontal' ? 1 : '100%',
-        ),
+        width: computed(() => ((this.properties.value.orientation ?? 'horizontal') === 'horizontal' ? '100%' : 1)),
+        height: computed(() => ((this.properties.value.orientation ?? 'horizontal') === 'horizontal' ? 1 : '100%')),
         ...config?.defaultOverrides,
       },
     })

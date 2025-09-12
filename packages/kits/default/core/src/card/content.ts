@@ -22,5 +22,3 @@ export class CardContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     })
   }
 }
-
-

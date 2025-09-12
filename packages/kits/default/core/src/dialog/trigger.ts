@@ -32,5 +32,3 @@ export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     })
   }
 }
-
-

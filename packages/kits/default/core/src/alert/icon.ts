@@ -23,5 +23,3 @@ export class AlertIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     })
   }
 }
-
-

@@ -1,4 +1,11 @@
-import { Container, ContainerProperties, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import {
+  Container,
+  ContainerProperties,
+  ThreeEventMap,
+  InProperties,
+  BaseOutProperties,
+  RenderContext,
+} from '@pmndrs/uikit'
 import { borderRadius, colors } from '../theme.js'
 
 export type TabsListProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
@@ -25,5 +32,3 @@ export class TabsList<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     })
   }
 }
-
-

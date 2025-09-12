@@ -32,6 +32,3 @@ export class AlertDialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap
     })
   }
 }
-
-
-

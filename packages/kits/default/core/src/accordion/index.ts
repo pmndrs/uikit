@@ -10,10 +10,7 @@ import { signal } from '@preact/signals-core'
 
 export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
-export class Accordion<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-> extends Container<T, EM> {
+export class Accordion<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   readonly openItemValue = signal<string | undefined>(undefined)
 
   constructor(

@@ -1,4 +1,11 @@
-import { Container, ContainerProperties, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import {
+  Container,
+  ContainerProperties,
+  ThreeEventMap,
+  InProperties,
+  BaseOutProperties,
+  RenderContext,
+} from '@pmndrs/uikit'
 import { borderRadius, colors } from '../theme.js'
 
 export type MenubarTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>

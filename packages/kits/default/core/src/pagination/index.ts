@@ -25,9 +25,9 @@ export class Pagination<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
   }
 }
 
-export * from './content'
-export * from './item'
-export * from './link'
-export * from './previous'
-export * from './next'
-export * from './ellipsis'
+export * from './content.js'
+export * from './item.js'
+export * from './link.js'
+export * from './previous.js'
+export * from './next.js'
+export * from './ellipsis.js'

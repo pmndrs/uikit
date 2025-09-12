@@ -24,5 +24,3 @@ export class AlertDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
     })
   }
 }
-
-

@@ -41,5 +41,5 @@ export class Tooltip<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
   }
 }
 
-export * from './trigger'
-export * from './content'
+export * from './trigger.js'
+export * from './content.js'

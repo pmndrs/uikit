@@ -2,11 +2,18 @@ import { Environment, MeshPortalMaterial, PerspectiveCamera } from '@react-three
 import { Canvas, extend, useFrame } from '@react-three/fiber'
 import { Root, Container, Text, setPreferredColorScheme, Content, Fullscreen } from '@react-three/uikit'
 import { BellRing, Check } from '@react-three/uikit-lucide'
-import { Defaults, colors } from '@/theme.js'
-import { Avatar } from '@/avatar.js'
-import { Button } from '@/button.js'
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/card.js'
-import { Switch } from '@/switch.js'
+import {
+  Defaults,
+  colors,
+  Avatar,
+  Button,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Switch,
+} from '@react-three/uikit-default'
 import { useMemo, useRef } from 'react'
 import { signal } from '@preact/signals-core'
 import { easing, geometry } from 'maath'
@@ -130,7 +137,7 @@ export function CardPage() {
                   <Text fontSize={14} lineHeight="100%">
                     Push Notifications
                   </Text>
-                  <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
+                  <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                     Send notifications to device.
                   </Text>
                 </Container>
@@ -158,7 +165,7 @@ export function CardPage() {
                       <Text fontSize={14} lineHeight="100%">
                         {notification.title}
                       </Text>
-                      <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
+                      <Text fontSize={14} lineHeight={20} color={colors.mutedForeground}>
                         {notification.description}
                       </Text>
                     </Container>

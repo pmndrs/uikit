@@ -26,5 +26,3 @@ export class AlertTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     })
   }
 }
-
-

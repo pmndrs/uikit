@@ -26,6 +26,3 @@ export class DialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
     })
   }
 }
-
-
-

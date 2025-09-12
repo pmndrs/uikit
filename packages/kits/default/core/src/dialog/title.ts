@@ -26,5 +26,3 @@ export class DialogTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     })
   }
 }
-
-

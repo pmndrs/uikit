@@ -24,5 +24,3 @@ export class CardFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     })
   }
 }
-
-

@@ -27,6 +27,3 @@ export class DialogFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
     })
   }
 }
-
-
-

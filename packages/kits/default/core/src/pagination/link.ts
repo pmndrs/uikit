@@ -1,4 +1,12 @@
-import { Container, ContainerProperties, ThreeEventMap, InProperties, BaseOutProperties, RenderContext, UnionizeVariants } from '@pmndrs/uikit'
+import {
+  Container,
+  ContainerProperties,
+  ThreeEventMap,
+  InProperties,
+  BaseOutProperties,
+  RenderContext,
+  UnionizeVariants,
+} from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 
@@ -61,5 +69,3 @@ export class PaginationLink<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     })
   }
 }
-
-

@@ -7,5 +7,3 @@ export class PaginationItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
   EM,
   BaseOutProperties<EM>
 > {}
-
-

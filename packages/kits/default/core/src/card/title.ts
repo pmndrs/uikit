@@ -24,5 +24,3 @@ export class CardTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     })
   }
 }
-
-

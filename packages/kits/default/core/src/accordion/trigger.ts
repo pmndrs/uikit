@@ -1,11 +1,15 @@
-import { BaseOutProperties, Container, ContainerProperties, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  Container,
+  ContainerProperties,
+  InProperties,
+  RenderContext,
+  ThreeEventMap,
+} from '@pmndrs/uikit'
 
 export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
-export class AccordionTrigger<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-> extends Container<T, EM> {
+export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   constructor(
     inputProperties?: InProperties<BaseOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -32,6 +36,3 @@ export class AccordionTrigger<
     })
   }
 }
-
-
-

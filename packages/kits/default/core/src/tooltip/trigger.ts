@@ -21,6 +21,3 @@ export class TooltipTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     })
   }
 }
-
-
-

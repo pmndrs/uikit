@@ -31,4 +31,4 @@ export class ToggleGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
   }
 }
 
-export * from './item'
+export * from './item.js'

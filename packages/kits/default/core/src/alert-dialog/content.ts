@@ -37,6 +37,3 @@ export class AlertDialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap
     })
   }
 }
-
-
-

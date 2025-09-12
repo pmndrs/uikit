@@ -26,6 +26,3 @@ export class AlertDialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap>
     })
   }
 }
-
-
-
