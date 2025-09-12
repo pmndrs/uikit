@@ -63,9 +63,10 @@ export const Highlighter: ForwardRefExoticComponent<
         readReactive(onPointerLeave)?.(e)
       }}
       onClick={(e) => {
-        if (!(e.object instanceof VanillaContainer)) {
+        if (!(e.object instanceof VanillaComponent)) {
           return
         }
+        console.log(e.object)
       }}
     >
       {children}
