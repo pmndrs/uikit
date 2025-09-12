@@ -1,6 +1,6 @@
 {
     "name": "@pmndrs/msdfonts",
-    "version": "0.8.19",
+    "version": "0.0.0",
     "description": "base64 msdf fonts distributed as npm package",
     "files": [
       "dist"

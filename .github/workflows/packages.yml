@@ -30,7 +30,7 @@ jobs:
 
       - uses: gittools/actions/gitversion/setup@v0
         with:
-          versionSpec: "5.x"
+          versionSpec: '5.x'
 
       - name: Install Dependencies
         run: pnpm install
@@ -39,7 +39,7 @@ jobs:
         run: |
           pnpm -r check:prettier
           pnpm -r check:eslint
-      
+
       - name: Build
         run: |
           pnpm -r convert
@@ -66,19 +66,19 @@ jobs:
       - name: Deploy Uikit Vanilla Package
         working-directory: ./packages/uikit
         run: pnpm publish --access public --no-git-checks --tag alpha
+
       - name: Deploy Uikit-Lucide Vanilla Package
         working-directory: ./packages/icons/lucide/vanilla
-        run: pnpm publish --access public --no-git-checks --tag alpha  
+        run: pnpm publish --access public --no-git-checks --tag alpha
 
       - name: Deploy Uikit React Package
         working-directory: ./packages/react
         run: pnpm publish --access public --no-git-checks --tag alpha
-      
+
       - name: Deploy Uikit-Lucide React Package
         working-directory: ./packages/icons/lucide/react
         run: pnpm publish --access public --no-git-checks --tag alpha
-          
+
       - name: Deploy Uikit-Default React Package
         working-directory: ./packages/kits/default
         run: pnpm publish --access public --no-git-checks --tag alpha
-          
