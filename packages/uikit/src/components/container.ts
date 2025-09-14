@@ -15,7 +15,7 @@ import {
 } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { Component } from './index.js'
 
@@ -46,6 +46,7 @@ export class Container<
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     const scrollHandlers = signal<ScrollEventHandlers | undefined>(undefined)

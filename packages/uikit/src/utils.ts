@@ -86,6 +86,7 @@ const eventHandlerKeys: Array<keyof EventHandlers> = [
 
 export function computedHandlers(
   properties: Properties,
+  starProperties: Properties,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
   dynamicHandlers?: Signal<EventHandlers | undefined>,
@@ -99,8 +100,20 @@ export function computedHandlers(
       }
     }
     addHandlers(handlers, dynamicHandlers?.value)
-    addHoverHandlers(handlers, properties, hoveredSignal, properties.usedConditionals.hover)
-    addActiveHandlers(handlers, properties, activeSignal, properties.usedConditionals.active)
+    addHoverHandlers(
+      handlers,
+      properties,
+      hoveredSignal,
+      properties.usedConditionals.hover,
+      starProperties.usedConditionals.hover,
+    )
+    addActiveHandlers(
+      handlers,
+      properties,
+      activeSignal,
+      properties.usedConditionals.active,
+      starProperties.usedConditionals.active,
+    )
     return handlers
   })
 }

@@ -5,9 +5,10 @@
     "@pmndrs/pointer-events": "^6.6.16",
     "@pmndrs/uikit": "workspace:^",
     "@pmndrs/uikit-lucide": "workspace:^",
+    "@pmndrs/uikit-horizon": "workspace:^",
     "@pmndrs/uikit-default": "workspace:^"
   },
   "scripts": {
-    "dev": "vite --host"
+    "dev": "vite"
   }
 }

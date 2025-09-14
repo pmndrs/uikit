@@ -305,7 +305,13 @@ export function setMeasureFunc(node: Node, func: MeasureFunction | undefined) {
     node.setMeasureFunc(null)
     return
   }
-  node.setMeasureFunc(func)
+  node.setMeasureFunc((width, widthMode, height, heightMode) => {
+    const result = func(width, widthMode, height, heightMode)
+    //this is necassary because rounding values down will lead to unnecassary text line breaks
+    result.width = Math.ceil(result.width * PointScaleFactor) / PointScaleFactor
+    result.height = Math.ceil(result.height * PointScaleFactor) / PointScaleFactor
+    return result
+  })
   node.markDirty()
 }
 

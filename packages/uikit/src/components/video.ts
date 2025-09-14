@@ -2,7 +2,7 @@ import { ImageOutProperties, Image } from './image.js'
 import { SRGBColorSpace, VideoTexture } from 'three'
 import { computed, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { RenderContext } from '../context.js'
 
@@ -25,7 +25,8 @@ export class Video<
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultsOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<OutProperties>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

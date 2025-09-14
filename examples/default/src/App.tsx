@@ -2,17 +2,7 @@ import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Fullscreen, Text, getPreferredColorScheme, setPreferredColorScheme } from '@react-three/uikit'
 import { Copy, Moon, Sun, SunMoon } from '@react-three/uikit-lucide'
-import {
-  colors,
-  Button,
-  Card,
-  Separator,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  defaultProperties,
-} from '@react-three/uikit-default'
+import { colors, Button, Card, Separator, Tabs, TabsContent, TabsList, TabsTrigger } from '@react-three/uikit-default'
 import { TooltipDemo } from './components/tooltip.js'
 import { AccordionDemo } from './components/accordion.js'
 import { AlertDemo } from './components/alert.js'
@@ -89,13 +79,7 @@ export default function App() {
       <color attach="background" args={['black']} />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={0} position={[5, 1, 10]} />
-      <Fullscreen
-        flexDirection="column"
-        backgroundColor={colors.background}
-        alignItems="center"
-        padding={32}
-        {...defaultProperties}
-      >
+      <Fullscreen flexDirection="column" backgroundColor={colors.background} alignItems="center" padding={32}>
         <Tabs alignSelf="stretch" flexGrow={1} value={component} onValueChange={(value) => setComponent(value as any)}>
           <TabsList height={55} paddingBottom={10} overflow="scroll" maxWidth="100%">
             {Object.keys(componentPages).map((name) => (

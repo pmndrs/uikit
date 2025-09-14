@@ -1,0 +1,46 @@
+{
+    "name": "@pmndrs/uikit-horizon",
+    "description": "Horizon kit for @pmndrs/uikit based on the Reality Labs Design System (RLDS)",
+    "version": "0.0.0",
+    "license": "SEE LICENSE IN LICENSE",
+    "homepage": "https://github.com/pmndrs/uikit",
+    "author": "Bela Bohlender",
+    "keywords": [
+      "uikit",
+      "horizon",
+      "rlds",
+      "three.js",
+      "userinterface",
+      "flexbox",
+      "yoga",
+      "typescript"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git@github.com:pmndrs/uikit.git"
+    },
+    "files": [
+      "dist"
+    ],
+    "main": "src/index.ts",
+    "publishConfig": {
+      "main": "dist/index.js"
+    },
+    "scripts": {
+      "build": "tsc",
+      "check:prettier": "prettier --check .",
+      "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
+      "fix:prettier": "prettier --write .",
+      "fix:eslint": "eslint 'src/**/*.{tsx,ts}' --fix",
+      "convert-theme": "node packages/kits/horizon/core/src/generate-theme.mjs"
+    },
+    "devDependencies": {
+      "@preact/signals-core": "^1.5.1"
+    },
+    "type": "module",
+    "dependencies": {
+      "@pmndrs/uikit": "workspace:^",
+      "@pmndrs/uikit-lucide": "workspace:^"
+    }
+  }
+  

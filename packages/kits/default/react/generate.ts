@@ -62,8 +62,7 @@ export const ${name}: ForwardRefExoticComponent<
     componentFolderNames
       .filter((componentFolderName) => !componentFolderName.endsWith('.ts'))
       .map((componentFolderName) => `export * from "./${componentFolderName}/index.js";`)
-      .join('\n') +
-      `\n\nexport { theme, setTheme, colors, defaultThemes, defaultProperties, borderRadius } from '@pmndrs/uikit-default'`,
+      .join('\n') + `\n\nexport { theme, setTheme, colors, defaultThemes, borderRadius } from '@pmndrs/uikit-default'`,
   )
 }
 

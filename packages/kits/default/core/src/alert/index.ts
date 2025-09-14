@@ -7,7 +7,7 @@ import {
   RenderContext,
   UnionizeVariants,
 } from '@pmndrs/uikit'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
 const _alertVariants = {
@@ -49,6 +49,7 @@ export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         backgroundColor: computed(
           () => alertVariants[this.properties.value.variant ?? 'default'].backgroundColor?.value,
         ),
+        ...componentDefaults,
         color: computed(() => alertVariants[this.properties.value.variant ?? 'default'].color?.value),
         ...config?.defaultOverrides,
       },

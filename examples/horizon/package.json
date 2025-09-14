@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@pmndrs/uikit": "workspace:^",
+    "@pmndrs/uikit-lucide": "workspace:^",
+    "@preact/signals-core": "^1.5.1",
+    "@react-three/uikit": "workspace:^",
+    "@react-three/uikit-horizon": "workspace:^",
+    "@react-three/uikit-lucide": "workspace:^"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  }
+}

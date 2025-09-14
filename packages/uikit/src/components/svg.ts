@@ -4,7 +4,7 @@ import { BoundingBox, Content, ContentOutProperties } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { Object3D } from 'three/src/Three.Core.js'
 
@@ -27,6 +27,7 @@ export class Svg<
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     const boundingBox = signal<BoundingBox | undefined>(undefined)

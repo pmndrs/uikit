@@ -67,6 +67,7 @@ export class Input<
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       multiline?: boolean
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     const text = signal('')

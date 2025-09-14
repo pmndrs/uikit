@@ -9,30 +9,32 @@ const MaxClassAmount = 1000
 export const LayersSectionSize = MaxClassAmount + 2
 
 //layer sections
-//0. sm
-//1. md
-//2. lg
-//3. xl
-//4. 2xl
-//5. dark
-//6. hover
-//7. active
-//8. focus
-//9. base
-//- start inheritance
+//0. important
+//1. focus
+//2. active
+//3. hover
+//4. dark
+//5. 2xl
+//6. xl
+//7. lg
+//8. md
+//9. sm
+//10. base
+//- star inheritance
 //- inheritance
 
 const SectionStartIndexMap = {
-  sm: LayersSectionSize * 0,
-  md: LayersSectionSize * 1,
-  lg: LayersSectionSize * 2,
-  xl: LayersSectionSize * 3,
-  '2xl': LayersSectionSize * 4,
-  dark: LayersSectionSize * 5,
-  hover: LayersSectionSize * 6,
-  active: LayersSectionSize * 7,
-  focus: LayersSectionSize * 8,
-  base: LayersSectionSize * 9,
+  important: LayersSectionSize * 0,
+  focus: LayersSectionSize * 1,
+  active: LayersSectionSize * 2,
+  hover: LayersSectionSize * 3,
+  dark: LayersSectionSize * 4,
+  '2xl': LayersSectionSize * 5,
+  xl: LayersSectionSize * 6,
+  lg: LayersSectionSize * 7,
+  md: LayersSectionSize * 8,
+  sm: LayersSectionSize * 9,
+  base: LayersSectionSize * 10,
 }
 
 export const SpecialLayerSections = Object.keys(SectionStartIndexMap).filter((layer) => layer != 'base') as Array<
@@ -42,9 +44,9 @@ export const SpecialLayerSections = Object.keys(SectionStartIndexMap).filter((la
 export function getLayerIndex(identifier: LayerIdentifier) {
   if (identifier.type != 'class' && identifier.type != 'default-overrides' && identifier.type != 'base') {
     if (identifier.type === 'star-inheritance') {
-      return LayersSectionSize * 10
+      return LayersSectionSize * 11
     }
-    return LayersSectionSize * 10 + 1
+    return LayersSectionSize * 11 + 1
   }
   const sectionStartIndex = SectionStartIndexMap[identifier.section]
   if (identifier.type != 'class') {

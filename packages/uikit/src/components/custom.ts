@@ -2,7 +2,7 @@ import { computed } from '@preact/signals-core'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { ThreeEventMap } from '../events.js'
 import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
-import { BaseOutProperties, InProperties } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
 import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
@@ -24,6 +24,7 @@ export class Custom<
       material?: Material
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     super(inputProperties, initialClasses, { hasNonUikitChildren: false, ...config })

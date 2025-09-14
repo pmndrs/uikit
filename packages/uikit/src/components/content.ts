@@ -62,6 +62,7 @@ export class Content<
       boundingBox?: Signal<BoundingBox | undefined>
       defaultOverrides?: InProperties<OutProperties>
       renderContext?: RenderContext
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     const defaultAspectRatio = signal<number | undefined>(undefined)

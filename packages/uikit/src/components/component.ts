@@ -35,7 +35,13 @@ import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
 import { allAliases } from '../properties/alias.js'
 import { createConditionals } from '../properties/conditional.js'
-import { BaseOutProperties, InProperties, Properties, PropertiesImplementation } from '../properties/index.js'
+import {
+  BaseOutProperties,
+  InProperties,
+  Properties,
+  PropertiesImplementation,
+  WithSignal,
+} from '../properties/index.js'
 import { computedTransformMatrix } from '../transform.js'
 import { setupCursorCleanup } from '../hover.js'
 import { ClassList, getStarProperties, StyleSheet } from './classes.js'
@@ -96,7 +102,7 @@ export class Component<
       hasFocus?: Signal<boolean>
       defaultOverrides?: InProperties<OutProperties>
       hasNonUikitChildren?: boolean
-      defaults?: OutProperties
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     super(panelGeometry, config?.material)
@@ -217,7 +223,13 @@ export class Component<
     )
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)
 
-    this.handlers = computedHandlers(this.properties, this.hoveredList, this.activeList, config?.dynamicHandlers)
+    this.handlers = computedHandlers(
+      this.properties,
+      this.starProperties,
+      this.hoveredList,
+      this.activeList,
+      config?.dynamicHandlers,
+    )
     this.ancestorsHaveListenersSignal = computedAncestorsHaveListeners(this.parentContainer, this.handlers)
 
     this.globalPanelMatrix = computedPanelMatrix(this.properties, this.globalMatrix, this.size, undefined)
@@ -329,7 +341,7 @@ export class Component<
   }
 
   dispose(): void {
-    console.log('dispose')
+    this.parent?.remove(this)
     this.abortController.abort()
   }
 }

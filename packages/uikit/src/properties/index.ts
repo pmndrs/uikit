@@ -3,7 +3,7 @@ import {
   Properties as BaseProperties,
 } from '@pmndrs/uikit-pub-sub'
 import { Aliases, AddAllAliases } from './alias.js'
-import { Conditionals, WithConditionals } from './conditional.js'
+import { Conditionals, WithConditionalsAndImportant, WithImportant } from './conditional.js'
 import { batch, computed, signal, Signal } from '@preact/signals-core'
 import { YogaProperties } from '../flex/index.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
@@ -76,22 +76,20 @@ export type AnchorProperties = {
 }
 
 export type WithSignal<T> = {
-  [K in keyof T]?: T[K] | Signal<T[K]>
+  [K in keyof T]: T[K] | Signal<T[K]>
 }
 
-export type WithInheritance<T, OutProperties> = T & {
-  '*'?: OutProperties extends BaseOutProperties<infer EM>
-    ? AddAllAliases<WithSignal<Partial<BaseOutProperties<EM>>>>
-    : never
+export type WithInheritance<T> = T & {
+  '*'?: T
 }
 
 export type WithInitial<T> = { [Key in keyof T]: T[Key] | 'initial' }
 
 export type InProperties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  WithConditionals<WithInheritance<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties>> & {}
+  WithInheritance<WithConditionalsAndImportant<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>>> & {}
 
 export type Properties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  BaseProperties<AddAllAliases<WithSignal<Partial<OutProperties>>>, OutProperties> & {
+  BaseProperties<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties> & {
     get usedConditionals(): {
       hover: Signal<boolean>
       active: Signal<boolean>
@@ -105,7 +103,7 @@ export type Properties<OutProperties extends BaseOutProperties<ThreeEventMap> = 
 export class PropertiesImplementation<
     OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   >
-  extends BasePropertiesImplementation<AddAllAliases<WithSignal<Partial<OutProperties>>>, OutProperties>
+  extends BasePropertiesImplementation<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties>
   implements Properties<OutProperties>
 {
   public readonly usedConditionals = {
@@ -116,7 +114,7 @@ export class PropertiesImplementation<
   constructor(
     aliases: Aliases,
     private readonly conditionals: Conditionals,
-    defaults?: OutProperties,
+    defaults?: WithSignal<OutProperties>,
   ) {
     super(
       (key, value, set) => {
@@ -149,15 +147,18 @@ export class PropertiesImplementation<
           this.setLayer(layerIndex, undefined)
           continue
         }
-        const getConditional = this.conditionals[layerSection]!
-        const conditionalComputedProperties: Partial<AddAllAliases<WithSignal<Partial<OutProperties>>>> = {}
-        const conditionalProperties = properties[layerSection]!
-        for (const [key, value] of Object.entries(conditionalProperties)) {
-          conditionalComputedProperties[key as keyof AddAllAliases<WithSignal<OutProperties>>] = computed(() =>
-            getConditional() ? (value instanceof Signal ? value.value : value) : undefined,
-          ) as any
+        const getConditional = this.conditionals[layerSection]
+        let conditionalProperties = properties[layerSection]! as AddAllAliases<
+          WithSignal<WithInitial<Partial<OutProperties>>>
+        >
+        if (getConditional != null) {
+          for (const [key, value] of Object.entries(conditionalProperties)) {
+            conditionalProperties[key as keyof AddAllAliases<WithSignal<OutProperties>>] = computed(() =>
+              getConditional() ? (value instanceof Signal ? value.value : value) : undefined,
+            ) as any
+          }
         }
-        this.setLayer(layerIndex, conditionalComputedProperties)
+        this.setLayer(layerIndex, conditionalProperties)
       }
     })
   }

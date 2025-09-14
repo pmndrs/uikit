@@ -1,6 +1,6 @@
 import { RenderContext } from '../context.js'
 import { ThreeEventMap } from '../events.js'
-import { InProperties, BaseOutProperties } from '../properties/index.js'
+import { InProperties, BaseOutProperties, WithSignal } from '../properties/index.js'
 import { Input, InputOutProperties } from './input.js'
 
 export type TextareaProperties<EM extends ThreeEventMap> = InProperties<InputOutProperties<EM>>
@@ -17,7 +17,8 @@ export class Textarea<
     initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[],
     config?: {
       renderContext?: RenderContext
-      defaultsOverrides?: InProperties<OutProperties>
+      defaultOverrides?: InProperties<OutProperties>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     super(inputProperties, initialClasses, { multiline: true, ...config })

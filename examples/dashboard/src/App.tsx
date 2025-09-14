@@ -14,7 +14,6 @@ import {
   CardContent,
   CardDescription,
   colors,
-  defaultProperties,
 } from '@react-three/uikit-default'
 import { CalendarDateRangePicker } from './components/DateRangePicker.js'
 import { MainNav } from './components/MainNav.js'
@@ -43,12 +42,7 @@ export default function App() {
       >
         <CountFrames />
         <PointerEvents />
-        <Fullscreen
-          distanceToCamera={1}
-          backgroundColor={0xffffff}
-          dark={{ backgroundColor: 0x0 }}
-          {...defaultProperties}
-        >
+        <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
           <Highlighter>
             <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
               <DashboardPage open={open} setOpen={setOpen} />

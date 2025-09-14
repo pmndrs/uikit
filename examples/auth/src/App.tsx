@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Container, Fullscreen, Text, setPreferredColorScheme, canvasInputProps, Svg } from '@react-three/uikit'
-import { colors, Button, defaultProperties } from '@react-three/uikit-default'
+import { colors, Button } from '@react-three/uikit-default'
 import { UserAuthForm } from './components/user-auth-form.js'
 import { noEvents, PointerEvents } from '@react-three/xr'
 import { create } from 'zustand'
@@ -23,7 +23,7 @@ export default function App() {
       >
         <CountFrames />
         <PointerEvents />
-        <Fullscreen backgroundColor={colors.background} {...defaultProperties}>
+        <Fullscreen backgroundColor={colors.background}>
           <AuthenticationPage />
         </Fullscreen>
       </Canvas>

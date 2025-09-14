@@ -15,11 +15,17 @@ export function addHoverHandlers(
   target: EventHandlers,
   properties: Properties,
   hoveredSignal: Signal<Array<number>>,
-  hasHoverConditionalProperties: Signal<boolean>,
+  hasHoverConditionalInProperties: Signal<boolean>,
+  hasHoverConditionalInStarProperties: Signal<boolean>,
 ): void {
   const cursor = properties.value.cursor
   const onHoverChange = properties.value.onHoverChange
-  if (!hasHoverConditionalProperties.value && onHoverChange == null && cursor == null) {
+  if (
+    !hasHoverConditionalInStarProperties.value &&
+    !hasHoverConditionalInProperties.value &&
+    onHoverChange == null &&
+    cursor == null
+  ) {
     //no need to trigger a "push" by writing to .value because nobody should listen to hoveredSignal anyways
     hoveredSignal.value.length = 0
     return

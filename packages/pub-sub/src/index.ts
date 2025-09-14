@@ -45,7 +45,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       set: <K2 extends keyof Out>(key: K2, value: Out[K2] | Signal<Out[K2]>) => void,
       layerIndex: number,
     ) => void,
-    private readonly defaults?: Out,
+    private readonly defaults?: { [Key in keyof Out]: Out[Key] | Signal<Out[Key]> },
     private readonly onLayerIndicesChanged?: () => void,
   ) {
     this.propertyKeys = defaults == null ? [] : (Array.from(Object.keys(defaults)) as Array<keyof Out>)
@@ -81,7 +81,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
         //we have not published the value from this layer
         continue
       }
-      //no need to check if we are enabled, because if we are not enabled, the layerIndex is Infinity, which makes the previous "if" already continue
+      //no need to check if we are enabled, because if we are not enabled, the layerIndex is Number.MAX_SAFE_INTEGER, which makes the previous "if" already continue
       this.update(key, propertyState)
     }
   }
@@ -171,27 +171,32 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     target.cleanup = undefined
     const defaultValue = this.defaults?.[key]
     const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
-    const result = !this.enabled
-      ? ([defaultValue, Infinity] as const)
-      : selectLayerValue(
-          0,
-          layerIndicies,
-          this.propertiesLayers,
-          key,
-          defaultValue,
-          (layerIndex) =>
-            (target.cleanup = effect(() => {
-              const [value, index] = selectLayerValue(
-                layerIndex,
-                layerIndicies,
-                this.propertiesLayers,
-                key,
-                defaultValue,
-              )!
-              target.signal.value = value
-              target.layerIndex = index
-            })),
-        )!
+    let result: readonly [any, number] | undefined
+    if (this.enabled) {
+      result = selectLayerValue(
+        0,
+        layerIndicies,
+        this.propertiesLayers,
+        key,
+        defaultValue,
+        (layerIndex) =>
+          (target.cleanup = effect(() => {
+            const [value, index] = selectLayerValue(
+              layerIndex,
+              layerIndicies,
+              this.propertiesLayers,
+              key,
+              defaultValue,
+            )!
+            target.signal.value = value
+            target.layerIndex = index
+          })),
+      )
+    } else if (defaultValue instanceof Signal) {
+      result = [defaultValue.peek(), Infinity]
+    } else {
+      result = [defaultValue, Number.MAX_SAFE_INTEGER]
+    }
     if (result == null) {
       return
     }
@@ -235,11 +240,11 @@ function selectLayerValue(
   let layerIndex: number
   const layerIndicies = sortedLayerIndexArray[Symbol.iterator]()
   do {
-    layerIndex = layerIndicies.next().value ?? Infinity
+    layerIndex = layerIndicies.next().value ?? Number.MAX_SAFE_INTEGER
     if (layerIndex < startLayerIndex) {
       continue
     }
-    value = layerIndex === Infinity ? defaultValue : propertiesLayers.get(layerIndex)![key]
+    value = layerIndex === Number.MAX_SAFE_INTEGER ? defaultValue : propertiesLayers.get(layerIndex)![key]
     if (typeof value === 'object' && value instanceof Signal) {
       if (onSignal != null) {
         onSignal(layerIndex)
@@ -250,7 +255,7 @@ function selectLayerValue(
     if (value !== undefined) {
       break
     }
-  } while (layerIndex != Infinity)
+  } while (layerIndex != Number.MAX_SAFE_INTEGER)
   if (value === 'initial') {
     value = defaultValue
   }

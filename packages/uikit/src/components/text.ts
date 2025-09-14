@@ -51,6 +51,7 @@ export class Text<
       caretTransformation?: Signal<CaretTransformation | undefined>
       instancedTextRef?: { current?: InstancedText }
       hasFocus?: Signal<boolean>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

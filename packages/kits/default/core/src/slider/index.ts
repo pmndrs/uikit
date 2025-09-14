@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { Signal, signal, computed } from '@preact/signals-core'
+import { signal, computed } from '@preact/signals-core'
 import { colors } from '../theme.js'
 import { Vector3 } from 'three'
 
@@ -49,36 +49,44 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: any) => {
+            : (e: EM['pointer']) => {
                 if (this.downPointerId != null) {
                   return
                 }
                 this.downPointerId = e.pointerId
-                this.handleSetValue(e, this.uncontrolledSignal, this.properties.peek().onValueChange)
-                ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+                this.handleSetValue(e)
+                if (
+                  'target' in e &&
+                  e.target != null &&
+                  typeof e.target === 'object' &&
+                  'setPointerCapture' in e.target &&
+                  typeof e.target.setPointerCapture === 'function'
+                ) {
+                  e.target.setPointerCapture(e.pointerId)
+                }
               }
         }),
         onPointerMove: computed(() => {
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: any) => {
+            : (e: EM['pointer']) => {
                 if (this.downPointerId != e.pointerId) {
                   return
                 }
-                this.handleSetValue(e, this.uncontrolledSignal, this.properties.peek().onValueChange)
+                this.handleSetValue(e)
               }
         }),
         onPointerUp: computed(() => {
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: any) => {
+            : (e: EM['pointer']) => {
                 if (this.downPointerId == null) {
                   return
                 }
                 this.downPointerId = undefined
-                e.stopPropagation()
+                e.stopPropagation?.()
               }
         }),
         ...config?.defaultOverrides,
@@ -140,7 +148,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     super.add(thumb)
   }
 
-  private handleSetValue(e: any, uncontrolled: Signal<number | undefined>, onValueChange?: (value: number) => void) {
+  private handleSetValue(e: { stopPropagation?: () => void; point: Vector3 }) {
     vectorHelper.copy(e.point)
     this.worldToLocal(vectorHelper)
     const minValue = this.properties.peek().min ?? 0
@@ -154,10 +162,10 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       maxValue,
     )
     if (this.properties.peek().value == null) {
-      uncontrolled.value = newValue
+      this.uncontrolledSignal.value = newValue
     }
-    onValueChange?.(newValue)
-    e.stopPropagation()
+    this.properties.peek().onValueChange?.(newValue)
+    e.stopPropagation?.()
   }
 
   add(): this {

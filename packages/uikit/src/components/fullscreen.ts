@@ -28,6 +28,7 @@ export class Fullscreen<
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     const sizeX = signal(0)

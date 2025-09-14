@@ -47,6 +47,7 @@ export class Image<
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       loadTexture?: boolean
+      defaults?: WithSignal<OutProperties>
     },
   ) {
     const aspectRatio = signal<number | undefined>(undefined)

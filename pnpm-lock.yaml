@@ -222,6 +222,27 @@ importers:
         specifier: workspace:^
         version: link:../../packages/icons/lucide/react
 
+  examples/horizon:
+    dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide/core
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.8.0
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../packages/react
+      '@react-three/uikit-horizon':
+        specifier: workspace:^
+        version: link:../../packages/kits/horizon/react
+      '@react-three/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../packages/icons/lucide/react
+
   examples/lucide:
     dependencies:
       '@pmndrs/uikit':
@@ -290,6 +311,9 @@ importers:
       '@pmndrs/uikit-default':
         specifier: workspace:^
         version: link:../../packages/kits/default/core
+      '@pmndrs/uikit-horizon':
+        specifier: workspace:^
+        version: link:../../packages/kits/horizon/core
       '@pmndrs/uikit-lucide':
         specifier: workspace:^
         version: link:../../packages/icons/lucide/core
@@ -334,6 +358,28 @@ importers:
   packages/kits/default/react:
     dependencies:
       '@pmndrs/uikit-default':
+        specifier: workspace:^
+        version: link:../core
+      '@react-three/uikit':
+        specifier: workspace:^
+        version: link:../../../react
+
+  packages/kits/horizon/core:
+    dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../../uikit
+      '@pmndrs/uikit-lucide':
+        specifier: workspace:^
+        version: link:../../../icons/lucide/core
+    devDependencies:
+      '@preact/signals-core':
+        specifier: ^1.5.1
+        version: 1.8.0
+
+  packages/kits/horizon/react:
+    dependencies:
+      '@pmndrs/uikit-horizon':
         specifier: workspace:^
         version: link:../core
       '@react-three/uikit':

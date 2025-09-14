@@ -10,9 +10,14 @@ export function addActiveHandlers(
   target: EventHandlers,
   properties: Properties,
   activeSignal: Signal<Array<number>>,
-  hasActiveConditionalProperties: Signal<boolean>,
+  hasActiveConditionalInProperties: Signal<boolean>,
+  hasActiveConditionalInStarProperties: Signal<boolean>,
 ): void {
-  if (!hasActiveConditionalProperties.value && properties.value.onActiveChange == null) {
+  if (
+    !hasActiveConditionalInStarProperties.value &&
+    !hasActiveConditionalInProperties.value &&
+    properties.value.onActiveChange == null
+  ) {
     return
   }
 

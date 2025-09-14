@@ -73,11 +73,14 @@ function createFocusPropertyTransformers(hasFocusSignal?: Signal<boolean>): Cond
   }
 }
 
-export type WithConditionals<T> = WithHover<T> &
+export type WithImportant<T> = T & { important?: T }
+
+export type WithConditionalsAndImportant<T> = WithHover<T> &
   WithResponsive<T> &
   WithPreferredColorScheme<T> &
   WithActive<T> &
-  WithFocus<T>
+  WithFocus<T> &
+  WithImportant<T>
 
 export const conditionalKeys = ['dark', 'hover', 'active', 'focus', ...breakPointKeys]
 
