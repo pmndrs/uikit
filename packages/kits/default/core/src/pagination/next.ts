@@ -1,7 +1,7 @@
 import { InProperties, BaseOutProperties, RenderContext, ThreeEventMap, Text } from '@pmndrs/uikit'
 import { ChevronRight } from '@pmndrs/uikit-lucide'
 import { PaginationLink, PaginationLinkOutProperties } from './link.js'
-import { componentDefaults, textDefaults } from '../theme.js'
+import { componentDefaults, contentDefaults, textDefaults } from '../theme.js'
 
 export type PaginationNextProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   InProperties<PaginationLinkOutProperties<EM>>,
@@ -32,7 +32,7 @@ export class PaginationNext<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     super.add(textElement)
 
     const chevronIcon = new ChevronRight(undefined, undefined, {
-      defaults: componentDefaults,
+      defaults: contentDefaults,
       defaultOverrides: {
         width: 16,
         height: 16,

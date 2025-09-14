@@ -13,7 +13,7 @@ import { signal, computed } from '@preact/signals-core'
 import { Play, Pause, VolumeX, Volume2 } from '@pmndrs/uikit-lucide'
 import { Slider } from '../slider/index.js'
 import { Button } from '../button/index.js'
-import { colors, componentDefaults, imageDefaults, textDefaults } from '../theme.js'
+import { colors, componentDefaults, contentDefaults, imageDefaults, textDefaults } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
 import { searchFor } from '../utils.js'
 
@@ -184,7 +184,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       },
     })
     const pauseIcon = new Pause(undefined, undefined, {
-      defaults: componentDefaults,
+      defaults: contentDefaults,
       defaultOverrides: {
         cursor: 'pointer',
         width: 16,
@@ -192,7 +192,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       },
     })
     const playIcon = new Play(undefined, undefined, {
-      defaults: componentDefaults,
+      defaults: contentDefaults,
       defaultOverrides: {
         cursor: 'pointer',
         width: 16,
@@ -223,7 +223,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       },
     })
     const volume2Icon = new Volume2(undefined, undefined, {
-      defaults: componentDefaults,
+      defaults: contentDefaults,
       defaultOverrides: {
         cursor: 'pointer',
         width: 16,
@@ -231,7 +231,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       },
     })
     const volumeXIcon = new VolumeX(undefined, undefined, {
-      defaults: componentDefaults,
+      defaults: contentDefaults,
       defaultOverrides: {
         cursor: 'pointer',
         width: 16,

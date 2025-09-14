@@ -7,6 +7,7 @@ import {
   imageDefaults as baseImageDefaults,
   inputDefaults as baseInputDefaults,
   textDefaults as baseTextDefaults,
+  contentDefaults as baseContentDefaults,
 } from '@pmndrs/uikit'
 import { Color, ColorRepresentation } from 'three'
 
@@ -403,7 +404,7 @@ const additionalDefaults = {
   lineHeight: '150%',
   borderColor: colors.border,
   color: colors.foreground,
-}
+} as const
 
 export const componentDefaults = {
   ...baseComponentDefaults,
@@ -422,5 +423,10 @@ export const textDefaults = {
 
 export const imageDefaults = {
   ...baseImageDefaults,
+  ...additionalDefaults,
+} as const
+
+export const contentDefaults = {
+  ...baseContentDefaults,
   ...additionalDefaults,
 } as const

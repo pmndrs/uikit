@@ -1,7 +1,7 @@
 import { ThreeEventMap, InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
 import { Ellipsis } from '@pmndrs/uikit-lucide'
 import { Object3D } from 'three/src/Three.Core.js'
-import { componentDefaults } from '../theme.js'
+import { componentDefaults, contentDefaults } from '../theme.js'
 
 export type PaginationEllipsisProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   InProperties<BaseOutProperties<EM>>,
@@ -32,7 +32,7 @@ export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap
 
     super.add(
       new Ellipsis(undefined, undefined, {
-        defaults: componentDefaults,
+        defaults: contentDefaults,
         defaultOverrides: {
           width: 16,
           height: 16,

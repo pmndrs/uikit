@@ -11,7 +11,7 @@ import {
 import { computed } from '@preact/signals-core'
 import { lightTheme } from '../theme.js'
 
-type ButtonVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'hover' | 'color'>
+type ButtonVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'hover' | 'color' | 'active' | 'important'>
 const _buttonVariants = {
   primary: {
     backgroundColor: lightTheme.component.button.primary.background.fill.default,
@@ -19,6 +19,10 @@ const _buttonVariants = {
     hover: {
       backgroundColor: lightTheme.component.button.primary.background.fill.hovered,
       color: lightTheme.component.button.primary.label.hovered,
+    },
+    active: {
+      backgroundColor: lightTheme.component.button.primary.background.fill.pressed,
+      color: lightTheme.component.button.primary.label.pressed,
     },
   },
   secondary: {
@@ -28,6 +32,10 @@ const _buttonVariants = {
       backgroundColor: lightTheme.component.button.secondary.background.fill.hovered,
       color: lightTheme.component.button.secondary.label.hovered,
     },
+    active: {
+      backgroundColor: lightTheme.component.button.secondary.background.fill.pressed,
+      color: lightTheme.component.button.secondary.label.pressed,
+    },
   },
   tertiary: {
     backgroundColor: lightTheme.component.button.tertiary.background.fill.default,
@@ -35,6 +43,10 @@ const _buttonVariants = {
     hover: {
       backgroundColor: lightTheme.component.button.tertiary.background.fill.hovered,
       color: lightTheme.component.button.tertiary.label.hovered,
+    },
+    active: {
+      backgroundColor: lightTheme.component.button.tertiary.background.fill.pressed,
+      color: lightTheme.component.button.tertiary.label.pressed,
     },
   },
   onMedia: {
@@ -44,6 +56,10 @@ const _buttonVariants = {
       backgroundColor: lightTheme.component.button.onMedia.background.fill.hovered,
       color: lightTheme.component.button.onMedia.label.hovered,
     },
+    active: {
+      backgroundColor: lightTheme.component.button.onMedia.background.fill.pressed,
+      color: lightTheme.component.button.onMedia.label.pressed,
+    },
   },
   positive: {
     backgroundColor: lightTheme.component.button.positive.background.fill.default,
@@ -52,6 +68,10 @@ const _buttonVariants = {
       backgroundColor: lightTheme.component.button.positive.background.fill.hovered,
       color: lightTheme.component.button.positive.label.hovered,
     },
+    active: {
+      backgroundColor: lightTheme.component.button.positive.background.fill.pressed,
+      color: lightTheme.component.button.positive.label.pressed,
+    },
   },
   negative: {
     backgroundColor: lightTheme.component.button.negative.background.fill.default,
@@ -59,6 +79,14 @@ const _buttonVariants = {
     hover: {
       backgroundColor: lightTheme.component.button.negative.background.fill.hovered,
       color: lightTheme.component.button.negative.label.hovered,
+    },
+    active: {
+      backgroundColor: lightTheme.component.button.negative.background.fill.pressed,
+      color: lightTheme.component.button.negative.label.pressed,
+    },
+    important: {
+      backgroundColor: lightTheme.component.button.negative.background.fill.disabled,
+      color: lightTheme.component.button.negative.label.disabled,
     },
   },
 } satisfies Record<string, ButtonVariantProps>
@@ -129,6 +157,24 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
             () => buttonVariants[this.properties.value.variant ?? 'primary'].hover?.backgroundColor?.value,
           ),
         },
+        active: {
+          color: computed(() => buttonVariants[this.properties.value.variant ?? 'primary'].active?.color?.value),
+          backgroundColor: computed(
+            () => buttonVariants[this.properties.value.variant ?? 'primary'].active?.backgroundColor?.value,
+          ),
+        },
+        important: {
+          backgroundColor: computed(() =>
+            this.properties.value.disabled === true
+              ? lightTheme.component.button.negative.background.fill.disabled.value
+              : undefined,
+          ),
+          color: computed(() =>
+            this.properties.value.disabled === true
+              ? lightTheme.component.button.negative.label.disabled.value
+              : undefined,
+          ),
+        },
         height,
         fontSize: computed(() => buttonSizes[this.properties.value.size ?? 'md'].fontSize),
         lineHeight: computed(() => buttonSizes[this.properties.value.size ?? 'md'].lineHeight),
@@ -148,20 +194,4 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   }
 }
 
-export function getButtonIconProperties(getIcon: () => Component) {
-  const size = computed(() => {
-    const btn = getIcon().parentContainer.value
-    if (!(btn instanceof Button)) {
-      return 24
-    }
-    const size = btn.properties.value.size ?? 'md'
-    if (size === 'md') {
-      return 24
-    }
-    return 16
-  })
-  return {
-    width: size,
-    height: size,
-  }
-}
+export * from './icon.js'

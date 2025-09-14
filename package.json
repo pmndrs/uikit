@@ -44,5 +44,8 @@
       "core-js",
       "sharp"
     ]
+  },
+  "scripts": {
+    "build:all": "pnpm -r build"
   }
 }
