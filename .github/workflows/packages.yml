@@ -79,6 +79,10 @@ jobs:
         working-directory: ./packages/kits/default/core
         run: pnpm publish --access public --no-git-checks --tag alpha
 
+      - name: Deploy Uikit-Horizon Vanilla Package
+        working-directory: ./packages/kits/horizon/core
+        run: pnpm publish --access public --no-git-checks --tag alpha
+
       - name: Deploy Uikit React Package
         working-directory: ./packages/react
         run: pnpm publish --access public --no-git-checks --tag alpha
@@ -89,4 +93,8 @@ jobs:
 
       - name: Deploy Uikit-Default React Package
         working-directory: ./packages/kits/default/react
+        run: pnpm publish --access public --no-git-checks --tag alpha
+
+      - name: Deploy Uikit-Horizon React Package
+        working-directory: ./packages/kits/horizon/react
         run: pnpm publish --access public --no-git-checks --tag alpha
