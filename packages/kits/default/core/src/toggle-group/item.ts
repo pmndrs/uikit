@@ -7,7 +7,7 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { ToggleGroup } from './index.js'
 import { searchFor } from '../utils.js'
 
@@ -63,6 +63,7 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onClick: () => {

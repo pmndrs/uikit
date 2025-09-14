@@ -1,4 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type AlertTitleProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -13,6 +14,7 @@ export class AlertTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         marginBottom: 4,

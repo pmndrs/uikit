@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type DialogDescriptionOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -18,6 +18,7 @@ export class DialogDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap>
     config?: { renderContext?: any; defaultOverrides?: InProperties<DialogDescriptionOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         fontSize: 14,

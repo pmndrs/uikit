@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AlertDialogDescriptionOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -21,6 +21,7 @@ export class AlertDialogDescription<T = {}, EM extends ThreeEventMap = ThreeEven
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         fontSize: 14,

@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { X } from '@pmndrs/uikit-lucide'
 import { Dialog } from './index.js'
 import { searchFor } from '../utils.js'
@@ -23,6 +23,7 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     config?: { renderContext?: any; defaultOverrides?: InProperties<DialogContentOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onClick: (e: any) => e.stopPropagation(),

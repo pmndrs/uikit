@@ -8,9 +8,10 @@ import {
   InputOutProperties as BaseInputOutProperties,
   RenderContext,
   withOpacity,
+  inputDefaults,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults, textDefaults } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
 
 export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
@@ -26,6 +27,7 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<InputOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: inputDefaults,
       ...config,
       defaultOverrides: {
         height: 40,
@@ -51,15 +53,24 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     })
     // Create input implementation
     const inputImpl = new InputImpl(undefined, undefined, {
+      defaults: inputDefaults,
       multiline: false,
       defaultOverrides: {
-        disabled: computed(() => this.properties.value.disabled),
+        defaultValue: this.properties.signal.defaultValue,
+        value: this.properties.signal.value,
+        disabled: this.properties.signal.disabled,
+        tabIndex: this.properties.signal.tabIndex,
+        autocomplete: this.properties.signal.autocomplete,
+        type: this.properties.signal.type,
+        onValueChange: this.properties.signal.onValueChange,
+        onFocusChange: this.properties.signal.onFocusChange,
       },
     })
     super.add(inputImpl)
 
     // Always create placeholder text
     const placeholderText = new Text(undefined, undefined, {
+      defaults: textDefaults,
       defaultOverrides: {
         color: colors.mutedForeground,
         inset: 0,

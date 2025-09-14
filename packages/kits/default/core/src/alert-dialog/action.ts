@@ -1,8 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext, withOpacity } from '@pmndrs/uikit'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { AlertDialog } from './index.js'
-import { AlertDialogFooter } from './footer.js'
-import { AlertDialogContent } from './content.js'
 import { searchFor } from '../utils.js'
 
 export type AlertDialogActionOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
@@ -22,6 +20,7 @@ export class AlertDialogAction<T = {}, EM extends ThreeEventMap = ThreeEventMap>
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogActionOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         borderRadius: borderRadius.md,

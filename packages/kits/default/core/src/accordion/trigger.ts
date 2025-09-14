@@ -6,6 +6,7 @@ import {
   RenderContext,
   ThreeEventMap,
 } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
@@ -19,6 +20,7 @@ export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexDirection: 'row',

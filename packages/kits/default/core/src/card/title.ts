@@ -1,4 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type CardTitleProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -13,6 +14,7 @@ export class CardTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         fontWeight: 'semi-bold',

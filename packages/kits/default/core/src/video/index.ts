@@ -13,7 +13,7 @@ import { signal, computed } from '@preact/signals-core'
 import { Play, Pause, VolumeX, Volume2 } from '@pmndrs/uikit-lucide'
 import { Slider } from '../slider/index.js'
 import { Button } from '../button/index.js'
-import { colors } from '../theme.js'
+import { colors, componentDefaults, imageDefaults, textDefaults } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
 import { searchFor } from '../utils.js'
 
@@ -35,6 +35,7 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     config?: { renderContext?: any; defaultOverrides?: InProperties<VideoOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: imageDefaults,
       ...config,
       defaultOverrides: {
         positionType: 'relative',
@@ -45,16 +46,30 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     })
 
     super.add(
-      (this.video = new VideoImpl({
-        width: '100%',
-        height: '100%',
-        src: this.properties.signal.src,
+      (this.video = new VideoImpl(undefined, undefined, {
+        defaults: imageDefaults,
+        defaultOverrides: {
+          volume: this.properties.signal.volume,
+          preservesPitch: this.properties.signal.preservesPitch,
+          playbackRate: this.properties.signal.playbackRate,
+          muted: this.properties.signal.muted,
+          loop: this.properties.signal.loop,
+          autoplay: this.properties.signal.autoplay,
+          crossOrigin: this.properties.signal.crossOrigin,
+          width: '100%',
+          height: '100%',
+          src: this.properties.signal.src,
+        },
       })),
     )
 
     super.add(
-      new VideoControls({
-        display: computed(() => (this.interacting.value && (this.properties.value.controls ?? true) ? 'flex' : 'none')),
+      new VideoControls(undefined, undefined, {
+        defaultOverrides: {
+          display: computed(() =>
+            this.interacting.value && (this.properties.value.controls ?? true) ? 'flex' : 'none',
+          ),
+        },
       }),
     )
   }
@@ -92,6 +107,7 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         display: computed(() => (searchFor(this, Video, 2)?.interacting.value ? 'flex' : 'none')),
@@ -141,36 +157,47 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     }, this.abortSignal)
 
     // Setup control container
-    const controlsContainer = new Container({
-      flexDirection: 'row',
-      alignItems: 'center',
+    const controlsContainer = new Container(undefined, undefined, {
+      defaults: componentDefaults,
+      defaultOverrides: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
     })
 
     // Setup play button
-    const playButton = new Button({
-      size: 'icon',
-      variant: 'ghost',
-      marginRight: 8,
-      onClick: () => {
-        const videoElement = videoElementSignal.peek()
-        if (videoElement) {
-          if (paused.value) {
-            videoElement.play()
-          } else {
-            videoElement.pause()
+    const playButton = new Button(undefined, undefined, {
+      defaultOverrides: {
+        size: 'icon',
+        variant: 'ghost',
+        marginRight: 8,
+        onClick: () => {
+          const videoElement = videoElementSignal.peek()
+          if (videoElement) {
+            if (paused.value) {
+              videoElement.play()
+            } else {
+              videoElement.pause()
+            }
           }
-        }
+        },
       },
     })
-    const pauseIcon = new Pause({
-      cursor: 'pointer',
-      width: 16,
-      height: 16,
+    const pauseIcon = new Pause(undefined, undefined, {
+      defaults: componentDefaults,
+      defaultOverrides: {
+        cursor: 'pointer',
+        width: 16,
+        height: 16,
+      },
     })
-    const playIcon = new Play({
-      cursor: 'pointer',
-      width: 16,
-      height: 16,
+    const playIcon = new Play(undefined, undefined, {
+      defaults: componentDefaults,
+      defaultOverrides: {
+        cursor: 'pointer',
+        width: 16,
+        height: 16,
+      },
     })
     abortableEffect(() => {
       playButton.clear()
@@ -182,26 +209,34 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     }, this.abortSignal)
 
     // Setup mute button
-    const muteButton = new Button({
-      size: 'icon',
-      variant: 'ghost',
-      marginRight: 8,
-      onClick: () => {
-        const videoElement = videoElementSignal.peek()
-        if (videoElement) {
-          videoElement.muted = !muted.peek()
-        }
+    const muteButton = new Button(undefined, undefined, {
+      defaultOverrides: {
+        size: 'icon',
+        variant: 'ghost',
+        marginRight: 8,
+        onClick: () => {
+          const videoElement = videoElementSignal.peek()
+          if (videoElement) {
+            videoElement.muted = !muted.peek()
+          }
+        },
       },
     })
-    const volume2Icon = new Volume2({
-      cursor: 'pointer',
-      width: 16,
-      height: 16,
+    const volume2Icon = new Volume2(undefined, undefined, {
+      defaults: componentDefaults,
+      defaultOverrides: {
+        cursor: 'pointer',
+        width: 16,
+        height: 16,
+      },
     })
-    const volumeXIcon = new VolumeX({
-      cursor: 'pointer',
-      width: 16,
-      height: 16,
+    const volumeXIcon = new VolumeX(undefined, undefined, {
+      defaults: componentDefaults,
+      defaultOverrides: {
+        cursor: 'pointer',
+        width: 16,
+        height: 16,
+      },
     })
     abortableEffect(() => {
       muteButton.clear()
@@ -213,30 +248,38 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     }, this.abortSignal)
 
     // Setup spacer
-    const spacer = new Container({
-      flexGrow: 1,
+    const spacer = new Container(undefined, undefined, {
+      defaults: componentDefaults,
+      defaultOverrides: {
+        flexGrow: 1,
+      },
     })
 
     // Setup time text
-    const timeText = new Text({
-      marginRight: 16,
-      fontSize: 12,
-      text: computed(() => `${formatDuration(timeSignal.value)} / ${formatDuration(durationSignal.value)}`),
+    const timeText = new Text(undefined, undefined, {
+      defaults: textDefaults,
+      defaultOverrides: {
+        marginRight: 16,
+        fontSize: 12,
+        text: computed(() => `${formatDuration(timeSignal.value)} / ${formatDuration(durationSignal.value)}`),
+      },
     })
 
     // Setup slider
-    const slider = new Slider({
-      min: 0,
-      margin: 16,
-      marginTop: 8,
-      width: 'initial',
-      max: durationSignal,
-      value: timeSignal,
-      onValueChange: (t: number) => {
-        const videoElement = videoElementSignal.peek()
-        if (videoElement) {
-          videoElement.currentTime = t
-        }
+    const slider = new Slider(undefined, undefined, {
+      defaultOverrides: {
+        min: 0,
+        margin: 16,
+        marginTop: 8,
+        width: 'initial',
+        max: durationSignal,
+        value: timeSignal,
+        onValueChange: (t: number) => {
+          const videoElement = videoElementSignal.peek()
+          if (videoElement) {
+            videoElement.currentTime = t
+          }
+        },
       },
     })
 

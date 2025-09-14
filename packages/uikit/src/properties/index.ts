@@ -176,3 +176,5 @@ function hasConditional(
   }
   return false
 }
+
+export { componentDefaults } from './defaults.js'

@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 export type AlertDialogContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -18,6 +18,7 @@ export class AlertDialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogContentOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onClick: (e) => {

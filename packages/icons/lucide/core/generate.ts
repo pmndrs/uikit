@@ -22,6 +22,7 @@ async function main() {
           config?: {
             renderContext?: RenderContext
             defaultOverrides?: InProperties<OutProperties>
+            defaults?: WithSignal<OutProperties>
           },
         ) {
           super(inputProperties, initialClasses, {

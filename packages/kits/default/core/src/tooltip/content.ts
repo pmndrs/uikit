@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Tooltip } from './index.js'
 import { searchFor } from '../utils.js'
@@ -26,6 +26,7 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         positionType: 'absolute',

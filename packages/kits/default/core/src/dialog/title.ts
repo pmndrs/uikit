@@ -1,4 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type DialogTitleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -15,6 +16,7 @@ export class DialogTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
     config?: { renderContext?: any; defaultOverrides?: InProperties<DialogTitleOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         fontSize: 18,

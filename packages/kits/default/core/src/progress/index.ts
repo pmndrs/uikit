@@ -1,6 +1,6 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type ProgressOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   value?: number
@@ -19,6 +19,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     config?: { defaultOverrides?: InProperties<ProgressOutProperties<EM>>; renderContext?: RenderContext },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         height: 16,
@@ -33,6 +34,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     })
     super.add(
       new Container(undefined, undefined, {
+        defaults: componentDefaults,
         defaultOverrides: {
           height: '100%',
           borderBottomLeftRadius: 1000,

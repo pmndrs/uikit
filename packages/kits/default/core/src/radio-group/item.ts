@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 import { RadioGroup } from './index.js'
 import { searchFor } from '../utils.js'
 
@@ -24,6 +24,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<RadioGroupItemOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
@@ -55,6 +56,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     )
 
     const radioButton = new Container(undefined, undefined, {
+      defaults: componentDefaults,
       defaultOverrides: {
         aspectRatio: 1,
         height: 16,
@@ -68,6 +70,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       },
     })
     const radioDot = new Container(undefined, undefined, {
+      defaults: componentDefaults,
       defaultOverrides: {
         borderRadius: 1000,
         aspectRatio: 1,

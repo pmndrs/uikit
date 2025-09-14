@@ -52,7 +52,7 @@ export class Image<
   ) {
     const aspectRatio = signal<number | undefined>(undefined)
     super(inputProperties, initialClasses, {
-      defaults: imageDefaults as OutProperties,
+      defaults: imageDefaults as WithSignal<OutProperties>,
       hasNonUikitChildren: false,
       ...config,
       defaultOverrides: { aspectRatio, ...config?.defaultOverrides } as InProperties<OutProperties>,

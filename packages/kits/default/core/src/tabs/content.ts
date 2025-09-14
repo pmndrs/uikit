@@ -2,9 +2,10 @@ import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContex
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
 import { searchFor } from '../utils.js'
+import { componentDefaults } from '../theme.js'
 
 export type TabsContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
-  value: string
+  value?: string
 }
 
 export type TabsContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TabsContentOutProperties<EM>>
@@ -24,6 +25,7 @@ export class TabsContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       return this.properties.value.value === tabs?.currentSignal.value
     })
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         marginTop: 8,

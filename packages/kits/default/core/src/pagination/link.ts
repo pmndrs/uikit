@@ -8,7 +8,7 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 type PaginationSizeProps = Pick<ContainerProperties, 'height' | 'width' | 'paddingX' | 'paddingY'>
 
@@ -47,6 +47,7 @@ export class PaginationLink<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     const paddingY = computed(() => sizeProps.value?.paddingY)
     const isActive = computed(() => this.properties.value.isActive ?? false)
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         cursor: 'pointer',

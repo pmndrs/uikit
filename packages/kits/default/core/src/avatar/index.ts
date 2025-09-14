@@ -1,4 +1,12 @@
-import { Image, ImageOutProperties, InProperties, ThreeEventMap, RenderContext, BaseOutProperties } from '@pmndrs/uikit'
+import {
+  Image,
+  ImageOutProperties,
+  InProperties,
+  ThreeEventMap,
+  RenderContext,
+  BaseOutProperties,
+  imageDefaults,
+} from '@pmndrs/uikit'
 import { Texture } from 'three'
 
 export type AvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
@@ -17,6 +25,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Im
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: imageDefaults,
       ...config,
       defaultOverrides: {
         width: 40,

@@ -38,6 +38,7 @@ export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexDirection: 'column',
@@ -49,7 +50,6 @@ export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         backgroundColor: computed(
           () => alertVariants[this.properties.value.variant ?? 'default'].backgroundColor?.value,
         ),
-        ...componentDefaults,
         color: computed(() => alertVariants[this.properties.value.variant ?? 'default'].color?.value),
         ...config?.defaultOverrides,
       },

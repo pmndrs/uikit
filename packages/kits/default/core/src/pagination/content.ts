@@ -1,4 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type PaginationContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -13,6 +14,7 @@ export class PaginationContent<T = {}, EM extends ThreeEventMap = ThreeEventMap>
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexDirection: 'row',

@@ -1,5 +1,6 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
 import { signal } from '@preact/signals-core'
+import { componentDefaults } from '../theme.js'
 
 export type TooltipProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -13,6 +14,7 @@ export class Tooltip<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onPointerOver: () => {

@@ -1,7 +1,7 @@
 import { InProperties, BaseOutProperties, Container, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
 import { Check } from '@pmndrs/uikit-lucide'
 import { signal, computed } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 export type CheckboxOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   checked?: boolean
@@ -31,6 +31,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         alignItems: 'center',
@@ -60,6 +61,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
 
     super.add(
       new Check(undefined, undefined, {
+        defaults: componentDefaults,
         defaultOverrides: {
           color: computed(() => (this.currentSignal.value ? colors.primaryForeground.value : undefined)),
           opacity: computed(() => (this.currentSignal.value ? (this.properties.value.disabled ? 0.5 : undefined) : 0)),

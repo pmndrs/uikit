@@ -8,7 +8,7 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 const _toggleVariants = {
   default: {},
@@ -58,6 +58,7 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onClick: () => {

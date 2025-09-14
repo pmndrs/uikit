@@ -1,5 +1,6 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, withOpacity } from '@pmndrs/uikit'
-import { signal, computed, Signal } from '@preact/signals-core'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, withOpacity } from '@pmndrs/uikit'
+import { signal, computed } from '@preact/signals-core'
+import { componentDefaults } from '../theme.js'
 
 export type DialogOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   open?: boolean
@@ -25,6 +26,7 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     config?: { renderContext?: any; defaultOverrides?: InProperties<DialogOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onPointerMove: (e: any) => e.stopPropagation(),

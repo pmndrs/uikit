@@ -1,6 +1,7 @@
 import { InProperties, BaseOutProperties, RenderContext, ThreeEventMap, Text } from '@pmndrs/uikit'
 import { ChevronLeft } from '@pmndrs/uikit-lucide'
 import { PaginationLink, PaginationLinkOutProperties } from './link.js'
+import { componentDefaults, textDefaults } from '../theme.js'
 
 export type PaginationPreviousProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   InProperties<PaginationLinkOutProperties<EM>>,
@@ -28,6 +29,7 @@ export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap
     })
 
     const chevronIcon = new ChevronLeft(undefined, undefined, {
+      defaults: componentDefaults,
       defaultOverrides: {
         width: 16,
         height: 16,
@@ -35,7 +37,10 @@ export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap
     })
     super.add(chevronIcon)
 
-    const textElement = new Text(undefined, undefined, { defaultOverrides: { text: 'Previous' } })
+    const textElement = new Text(undefined, undefined, {
+      defaults: textDefaults,
+      defaultOverrides: { text: 'Previous' },
+    })
     super.add(textElement)
   }
 

@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
 export type SeparatorProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SeperatorOutProperties<EM>>
@@ -22,6 +22,7 @@ export class Separator<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexShrink: 0,

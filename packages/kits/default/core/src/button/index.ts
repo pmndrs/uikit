@@ -9,7 +9,7 @@ import {
   withOpacity,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 type ButtonVariantProps = Pick<
   ContainerProperties,
@@ -100,6 +100,7 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     const paddingX = computed(() => sizeProps.value?.paddingX)
     const paddingY = computed(() => sizeProps.value?.paddingY)
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         borderRadius: borderRadius.md,

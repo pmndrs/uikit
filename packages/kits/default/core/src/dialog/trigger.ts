@@ -1,5 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import type { Dialog } from './index.js'
+import { componentDefaults } from '../theme.js'
 
 export type DialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   dialog?: Dialog
@@ -20,6 +21,7 @@ export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<DialogTriggerOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onClick: () => {

@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type CardDescriptionProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -14,6 +14,7 @@ export class CardDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
     config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         fontSize: 14,

@@ -1,4 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type AlertDialogFooterOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -17,6 +18,7 @@ export class AlertDialogFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap>
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogFooterOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexDirection: 'column-reverse',

@@ -6,7 +6,7 @@ import {
   BaseOutProperties,
   RenderContext,
 } from '@pmndrs/uikit'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 export type MenubarTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
@@ -17,6 +17,7 @@ export class MenubarTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         hover: { backgroundColor: colors.accent },

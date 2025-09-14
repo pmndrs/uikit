@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
 
 export type SwitchOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
@@ -28,6 +28,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<SwitchOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         height: 24,
@@ -57,6 +58,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     })
     super.add(
       new Container(undefined, undefined, {
+        defaults: componentDefaults,
         defaultOverrides: {
           width: 20,
           height: 20,

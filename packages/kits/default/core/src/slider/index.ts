@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
-import { colors } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 import { Vector3 } from 'three'
 
 const vectorHelper = new Vector3()
@@ -38,6 +38,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         positionType: 'relative',
@@ -102,6 +103,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     // Create track
     const track = new Container(undefined, undefined, {
+      defaults: componentDefaults,
       defaultOverrides: {
         height: 8,
         positionType: 'absolute',
@@ -115,6 +117,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     // Create fill
     const fill = new Container(undefined, undefined, {
+      defaults: componentDefaults,
       defaultOverrides: {
         height: '100%',
         width: percentage,
@@ -128,6 +131,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     // Create thumb
     const thumb = new Container(undefined, undefined, {
+      defaults: componentDefaults,
       defaultOverrides: {
         zIndexOffset: 100,
         positionType: 'absolute',

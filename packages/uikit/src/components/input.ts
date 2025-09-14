@@ -41,9 +41,20 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   type: InputType
   onValueChange?: (value: string) => void
   onFocusChange?: (focus: boolean) => void
-} & Omit<Partial<HTMLInputElement>, 'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active'>
+} & Omit<
+    Partial<HTMLInputElement>,
+    'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active' | 'checked' | 'defaultChecked'
+  >
 
 export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
+
+export const inputDefaults: InputOutProperties = {
+  ...textDefaults,
+  type: 'text',
+  disabled: false,
+  tabIndex: 0,
+  autocomplete: '',
+}
 
 export class Input<
   T = {},
@@ -82,6 +93,7 @@ export class Input<
     const hasFocus = signal<boolean>(false)
 
     super(inputProperties, initialClasses, {
+      defaults: inputDefaults as WithSignal<OutProperties>,
       dynamicHandlers: selectionHandlers,
       selectionRange,
       selectionTransformations,
@@ -91,10 +103,6 @@ export class Input<
       ...config,
       defaultOverrides: {
         cursor: 'text',
-        type: 'text',
-        disabled: false,
-        tabIndex: 0,
-        autocomplete: '',
         ...({ text } as any),
         caretColor,
         ...config?.defaultOverrides,
@@ -311,7 +319,6 @@ function setupHtmlInputElement(
   abortableEffect(() => void (element.disabled = properties.value.disabled), abortSignal)
   abortableEffect(() => void (element.tabIndex = properties.value.tabIndex), abortSignal)
   abortableEffect(() => void (element.autocomplete = properties.value.autocomplete), abortSignal)
-  abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
   abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
 }
 

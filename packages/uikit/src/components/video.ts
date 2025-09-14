@@ -9,7 +9,7 @@ import { RenderContext } from '../context.js'
 export type VideoSrc = HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | HTMLVideoElement
 
 export type VideoOutProperties<EM extends ThreeEventMap> = ImageOutProperties<EM, VideoSrc> &
-  Omit<HTMLVideoElement, 'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active'>
+  Omit<Partial<HTMLVideoElement>, 'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active'>
 
 export type VideoProperties<EM extends ThreeEventMap> = InProperties<VideoOutProperties<EM>>
 

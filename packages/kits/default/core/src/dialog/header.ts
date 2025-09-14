@@ -1,4 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
+import { componentDefaults } from '../theme.js'
 
 export type DialogHeaderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -17,6 +18,7 @@ export class DialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
     config?: { renderContext?: any; defaultOverrides?: InProperties<DialogHeaderOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexDirection: 'column',

@@ -1,7 +1,7 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs, TabsList } from './index.js'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { PhoneForwarded } from '@pmndrs/uikit-lucide'
 import { searchFor } from '../utils.js'
 
@@ -30,6 +30,7 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       return this.properties.value.value === tabs?.currentSignal.value
     })
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         onClick: computed(() => {

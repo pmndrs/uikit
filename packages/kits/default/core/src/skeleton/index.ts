@@ -7,7 +7,7 @@ import {
   RenderContext,
 } from '@pmndrs/uikit'
 import { Signal, signal } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, componentDefaults } from '../theme.js'
 
 export type SkeletonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -26,6 +26,7 @@ export class Skeleton<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   ) {
     const opacity = signal(1)
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         borderRadius: borderRadius.md,

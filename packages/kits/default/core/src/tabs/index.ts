@@ -1,5 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
+import { componentDefaults } from '../theme.js'
 
 export type TabsOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   value?: string
@@ -21,6 +22,7 @@ export class Tabs<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Cont
     config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TabsOutProperties<EM>> },
   ) {
     super(inputProperties, initialClasses, {
+      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         flexDirection: 'column',
