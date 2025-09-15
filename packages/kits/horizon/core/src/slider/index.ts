@@ -240,7 +240,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         },
       })
       this.thumb.add(icon)
-      return () => icon.dispose()
+      this.icon = icon
+      return () => {
+        icon.dispose()
+        this.icon = icon
+      }
     }, this.abortSignal)
 
     this.labels = new Container(undefined, undefined, {

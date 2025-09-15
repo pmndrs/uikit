@@ -43,6 +43,7 @@ export class ButtonIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
           width: size,
           height: size,
         },
+        ...config?.defaultOverrides,
       },
     })
   }

@@ -41,6 +41,7 @@ export class ButtonLabelSubtext<T = {}, EM extends ThreeEventMap = ThreeEventMap
           }
           return lightTheme.component.button[button.properties.value.variant ?? 'primary'].subtext.default.value
         }),
+        ...config?.defaultOverrides,
       },
     })
   }

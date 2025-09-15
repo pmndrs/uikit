@@ -1,5 +1,5 @@
 import { InProperties, BaseOutProperties, Container, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
-import { Check } from '@pmndrs/uikit-lucide'
+import { CheckIcon } from '@pmndrs/uikit-lucide'
 import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults, contentDefaults } from '../theme.js'
 
@@ -21,7 +21,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
-  public readonly icon: InstanceType<typeof Check>
+  public readonly icon: CheckIcon
 
   constructor(
     inputProperties?: InProperties<CheckboxOutProperties<EM>>,
@@ -61,7 +61,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     })
 
     super.add(
-      (this.icon = new Check(undefined, undefined, {
+      (this.icon = new CheckIcon(undefined, undefined, {
         defaults: contentDefaults,
         defaultOverrides: {
           color: computed(() => (this.currentSignal.value ? colors.primaryForeground.value : undefined)),

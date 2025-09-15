@@ -27,6 +27,7 @@ export class ButtonLabel<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       ...config,
       defaultOverrides: {
         flexDirection: 'column',
+        ...config?.defaultOverrides,
       },
     })
   }

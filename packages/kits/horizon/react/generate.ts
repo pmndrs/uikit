@@ -12,6 +12,7 @@ const componentsWithoutChildren = [
   'ProgressBarStepperStep',
   'Slider',
   'Toggle',
+  'Badge',
 ]
 
 async function main() {

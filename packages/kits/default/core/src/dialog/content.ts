@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
-import { X } from '@pmndrs/uikit-lucide'
+import { XIcon } from '@pmndrs/uikit-lucide'
 import { Dialog } from './index.js'
 import { searchFor } from '../utils.js'
 
@@ -15,7 +15,7 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   EM,
   DialogContentOutProperties<EM>
 > {
-  public readonly closeButton: InstanceType<typeof X>
+  public readonly closeButton: XIcon
 
   constructor(
     inputProperties?: DialogContentProperties<EM>,
@@ -39,7 +39,7 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       },
     })
 
-    this.closeButton = new X({
+    this.closeButton = new XIcon({
       color: colors.mutedForeground,
       onClick: () => this.closeDialog(),
       cursor: 'pointer',

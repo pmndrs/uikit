@@ -1,9 +1,20 @@
 import { AmbientLight, Color, DirectionalLight, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
 import { reversePainterSortStable, setPreferredColorScheme, Fullscreen, Text } from '@pmndrs/uikit'
-import { IceCreamBowlIcon, PlusIcon } from '@pmndrs/uikit-lucide'
+import { IceCreamBowlIcon, MicIcon, PlusIcon, SearchIcon } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
-import { Avatar, Button, ButtonIcon, ButtonLabel, ButtonLabelSubtext, Slider, Toggle } from '@pmndrs/uikit-horizon'
+import {
+  Avatar,
+  Badge,
+  Button,
+  ButtonIcon,
+  ButtonLabel,
+  ButtonLabelSubtext,
+  Input,
+  InputField,
+  Slider,
+  Toggle,
+} from '@pmndrs/uikit-horizon'
 
 // init
 
@@ -25,7 +36,7 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 setPreferredColorScheme('dark')
 
 //UI
-const root = new Fullscreen(renderer, { padding: 16 })
+const root = new Fullscreen(renderer, { alignItems: 'center', justifyContent: 'center' })
 camera.add(root)
 scene.add(camera)
 
@@ -38,6 +49,28 @@ scene.add(directionalLight)
 const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
+
+root.add(
+  new InputField({
+    leftIcon: SearchIcon,
+    rightIcon: MicIcon,
+    label: 'HelperText',
+    width: 561,
+  }),
+)
+
+/*root.add(
+  new Input({
+    width: 217,
+    leftIcon: SearchIcon,
+    rightIcon: MicIcon,
+    size: 'large',
+    variant: 'search',
+    textAlign: 'center',
+  }),
+)*/
+
+//root.add(new Badge({ variant: 'secondary', label: 'Label', icon: PlusIcon }))
 
 //root.add(new Toggle())
 

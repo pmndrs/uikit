@@ -98,16 +98,20 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     //avatar image
     super.add(
-      (this.image = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(undefined, undefined, {
-        defaultOverrides: {
-          width: '100%',
-          height: '100%',
-          aspectRatio: 1,
-          borderRadius: 1000,
-          borderColor: 'initial',
-          src: this.properties.signal.src,
+      (this.image = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(
+        undefined,
+        undefined,
+        {
+          defaultOverrides: {
+            width: '100%',
+            height: '100%',
+            aspectRatio: 1,
+            borderRadius: 1000,
+            borderColor: 'initial',
+            src: this.properties.signal.src,
+          },
         },
-      })),
+      )),
     )
 
     //active attribution
@@ -146,18 +150,22 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         return
       }
       const attributionSrcWidth = computed(() => avatarSizes[this.properties.value.size ?? 'md'].attributionSrcWidth)
-      const attributionImage = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(undefined, undefined, {
-        defaultOverrides: {
-          src,
-          positionType: 'absolute',
-          positionBottom: cattributionActiveMargin,
-          positionRight: cattributionActiveMargin,
-          flexShrink: 0,
-          width: attributionSrcWidth,
-          height: attributionSrcWidth,
-          aspectRatio: 1,
+      const attributionImage = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(
+        undefined,
+        undefined,
+        {
+          defaultOverrides: {
+            src,
+            positionType: 'absolute',
+            positionBottom: cattributionActiveMargin,
+            positionRight: cattributionActiveMargin,
+            flexShrink: 0,
+            width: attributionSrcWidth,
+            height: attributionSrcWidth,
+            aspectRatio: 1,
+          },
         },
-      })
+      )
       super.add(attributionImage)
       this.attributionImage = attributionImage
       return () => attributionImage.dispose()
