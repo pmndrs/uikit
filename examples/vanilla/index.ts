@@ -1,9 +1,9 @@
 import { AmbientLight, Color, DirectionalLight, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, setPreferredColorScheme, Fullscreen } from '@pmndrs/uikit'
-import { IceCreamBowlIcon } from '@pmndrs/uikit-lucide'
+import { reversePainterSortStable, setPreferredColorScheme, Fullscreen, Text } from '@pmndrs/uikit'
+import { IceCreamBowlIcon, PlusIcon } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
-import { Avatar, Slider } from '@pmndrs/uikit-horizon'
+import { Avatar, Button, ButtonIcon, ButtonLabel, ButtonLabelSubtext, Slider, Toggle } from '@pmndrs/uikit-horizon'
 
 // init
 
@@ -39,13 +39,21 @@ const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
 
-/*
-const btn = new Button({})
-const plusIcon: PlusIcon = new PlusIcon({ backgroundColor: 'red', ...getButtonIconProperties(() => plusIcon) })
-btn.add(plusIcon)
-btn.add(new Text({ text: 'Press me!' }))
-root.add(btn)
-*/
+//root.add(new Toggle())
+
+/*const btn = new Button()
+const plusIcon: PlusIcon = new PlusIcon()
+console.log(plusIcon)
+const btnIcon = new ButtonIcon()
+btnIcon.add(plusIcon)
+btn.add(btnIcon)
+const label = new ButtonLabel()
+label.add(new Text({ text: 'Label' }))
+const subtext = new ButtonLabelSubtext()
+label.add(subtext)
+subtext.add(new Text({ text: 'Subtext' }))
+btn.add(label)
+root.add(btn)*/
 
 /*const stepper = new ProgressBarStepper({ width: 400 })
 root.add(stepper)

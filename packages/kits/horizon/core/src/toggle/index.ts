@@ -37,26 +37,30 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         height: 24,
         width: 40,
         justifyContent: computed(() => (this.currentSignal.value ? 'flex-end' : 'flex-start')),
-        backgroundColor: computed(() =>
-          this.currentSignal.value
-            ? lightTheme.component.toggle.background.selected.value
-            : lightTheme.component.toggle.background.default.value,
-        ),
         '*': {
-          backgroundColor: computed(() =>
-            this.currentSignal.value
-              ? lightTheme.component.toggle.handle.selected.value
-              : lightTheme.component.toggle.handle.default.value,
-          ),
+          backgroundColor: lightTheme.component.toggle.handle.default.value,
           hover: {
+            backgroundColor: lightTheme.component.toggle.handle.hovered.value,
+          },
+          active: {
+            backgroundColor: lightTheme.component.toggle.handle.pressed.value,
+          },
+          important: {
             backgroundColor: computed(() =>
-              this.currentSignal.value ? undefined : lightTheme.component.toggle.handle.hovered.value,
+              this.currentSignal.value ? lightTheme.component.toggle.handle.selected.value : undefined,
             ),
           },
         },
+        backgroundColor: lightTheme.component.toggle.background.default.value,
         hover: {
+          backgroundColor: lightTheme.component.toggle.background.hovered.value,
+        },
+        active: {
+          backgroundColor: lightTheme.component.toggle.background.pressed.value,
+        },
+        important: {
           backgroundColor: computed(() =>
-            this.currentSignal.value ? undefined : lightTheme.component.toggle.background.hovered.value,
+            this.currentSignal.value ? lightTheme.component.toggle.background.selected.value : undefined,
           ),
         },
         onClick: () => {

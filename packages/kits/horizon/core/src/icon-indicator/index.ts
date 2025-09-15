@@ -1,17 +1,14 @@
 import {
   BaseOutProperties,
   Container,
-  ContainerProperties,
   InProperties,
   RenderContext,
   Svg,
-  SvgOutProperties,
   SvgProperties,
   ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
-import { Check } from '@pmndrs/uikit-lucide'
-import { computed, signal } from '@preact/signals-core'
+import { computed } from '@preact/signals-core'
 import { lightTheme } from '../theme.js'
 
 type IconIndicatorVariantProps = Pick<SvgProperties, 'content' | 'color'>

@@ -30,7 +30,7 @@ const IdentityQuaternion = new Quaternion()
 const IdentityMatrix = new Matrix4()
 
 const box3Helper = new Box3()
-const smallValue = new Vector3().setScalar(0.001)
+const smallValue = new Vector3().setScalar(0.000001)
 
 const positionHelper = new Vector3()
 const scaleHelper = new Vector3()
@@ -47,7 +47,7 @@ export class Content<
   EM extends ThreeEventMap = ThreeEventMap,
   OutProperties extends ContentOutProperties<EM> = ContentOutProperties<EM>,
 > extends Component<T, EM, OutProperties> {
-  readonly boundingBox = signal<BoundingBox>({ size: new Vector3(1, 1, 1), center: new Vector3(0, 0, 0) })
+  readonly boundingBox: Signal<BoundingBox | undefined>
   readonly clippingPlanes: Array<Plane>
 
   private readonly childrenMatrix = new Matrix4()
@@ -72,14 +72,15 @@ export class Content<
       ...config,
       defaultOverrides: { aspectRatio: defaultAspectRatio, ...config?.defaultOverrides } as InProperties<OutProperties>,
     })
+    this.boundingBox =
+      config?.boundingBox ?? signal<BoundingBox>({ size: new Vector3(1, 1.01, 1), center: new Vector3(0, 0, 0) })
 
     abortableEffect(() => {
-      if (!this.properties.value.keepAspectRatio) {
+      if (!this.properties.value.keepAspectRatio || this.boundingBox.value == null) {
         defaultAspectRatio.value = undefined
         return
       }
-      const boundingBox = config?.boundingBox?.value ?? this.boundingBox.value
-      defaultAspectRatio.value = boundingBox.size.x / boundingBox.size.y
+      defaultAspectRatio.value = this.boundingBox.value.size.x / this.boundingBox.value.size.y
     }, this.abortSignal)
     this.material.visible = false
 
@@ -110,7 +111,12 @@ export class Content<
     )
 
     abortableEffect(() => {
-      if (this.size.value == null || this.paddingInset.value == null || this.borderInset.value == null) {
+      if (
+        this.size.value == null ||
+        this.paddingInset.value == null ||
+        this.borderInset.value == null ||
+        this.boundingBox.value == null
+      ) {
         this.childrenMatrix.copy(IdentityMatrix)
         return
       }

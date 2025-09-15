@@ -40,14 +40,16 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         height: 16,
         flexShrink: 0,
         borderRadius: 4,
-        backgroundColor: computed(() =>
-          this.currentSignal.value
-            ? lightTheme.component.checkbox.selected.background.selected.value
-            : lightTheme.component.checkbox.selected.background.default.value,
-        ),
+        backgroundColor: lightTheme.component.checkbox.selected.background.default.value,
         hover: {
+          backgroundColor: lightTheme.component.checkbox.selected.background.hover.value,
+        },
+        active: {
+          backgroundColor: lightTheme.component.checkbox.selected.background.pressed.value,
+        },
+        important: {
           backgroundColor: computed(() =>
-            this.currentSignal.value ? undefined : lightTheme.component.checkbox.selected.background.hover.value,
+            this.currentSignal.value ? lightTheme.component.checkbox.selected.background.selected.value : undefined,
           ),
         },
         onClick: () => {

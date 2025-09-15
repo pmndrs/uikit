@@ -96,7 +96,7 @@ type ButtonSizeProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHe
 const _buttonSizes = {
   md: {
     height: 44,
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: '20px',
     minWidth: 80,
   },
@@ -195,3 +195,5 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 }
 
 export * from './icon.js'
+export * from './label.js'
+export * from './label-subtext.js'

@@ -111,8 +111,8 @@ async function loadSvg({
   if (viewBoxNumbers?.length === 4) {
     const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
     boundingBox = {
-      center: new Vector3(width / 2 + minX, -height / 2 - minY, 0.001),
-      size: new Vector3(width, height, 0.001),
+      center: new Vector3(width / 2 + minX, -height / 2 - minY, 0),
+      size: new Vector3(width, height, 0.00001),
     }
   }
 
