@@ -12,6 +12,8 @@ import {
   ButtonLabelSubtext,
   Input,
   InputField,
+  RadioGroup,
+  RadioGroupItem,
   Slider,
   Toggle,
 } from '@pmndrs/uikit-horizon'
@@ -50,14 +52,21 @@ const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
 
-root.add(
+const radioGroup = new RadioGroup({ defaultValue: '1' })
+const radioGroupitem1 = new RadioGroupItem({ value: '1' })
+const radioGroupitem2 = new RadioGroupItem({ value: '2' })
+const radioGroupitem3 = new RadioGroupItem({ value: '3' })
+radioGroup.add(radioGroupitem1, radioGroupitem2, radioGroupitem3)
+root.add(radioGroup)
+
+/*root.add(
   new InputField({
     leftIcon: SearchIcon,
     rightIcon: MicIcon,
     label: 'HelperText',
     width: 561,
   }),
-)
+)*/
 
 /*root.add(
   new Input({

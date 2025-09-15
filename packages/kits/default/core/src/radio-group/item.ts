@@ -34,8 +34,8 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
           this.properties.value.disabled
             ? undefined
             : () => {
-                const radioGroup = this.parentContainer.peek()
-                if (!(radioGroup instanceof RadioGroup)) {
+                const radioGroup = searchFor(this, RadioGroup, 2)
+                if (radioGroup == null) {
                   return
                 }
                 const value = this.properties.peek().value
