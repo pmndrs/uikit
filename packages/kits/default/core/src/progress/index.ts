@@ -13,7 +13,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   EM,
   ProgressOutProperties<EM>
 > {
-  public readonly fill!: Container
+  public readonly fill: Container
   constructor(
     inputProperties?: InProperties<ProgressOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -47,6 +47,11 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         },
       })),
     )
+  }
+
+  dispose(): void {
+    this.fill.dispose()
+    super.dispose()
   }
 
   add(): this {

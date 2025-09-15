@@ -9,8 +9,8 @@ export type PaginationPreviousProperties<EM extends ThreeEventMap = ThreeEventMa
 >
 
 export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends PaginationLink<T, EM> {
-  public readonly label!: Text
-  public readonly icon!: InstanceType<typeof ChevronLeft>
+  public readonly label: Text
+  public readonly icon: InstanceType<typeof ChevronLeft>
   constructor(
     inputProperties?: InProperties<PaginationLinkOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -46,6 +46,12 @@ export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap
     })
     this.label = textElement
     super.add(this.label)
+  }
+
+  dispose(): void {
+    this.icon.dispose()
+    this.label.dispose()
+    super.dispose()
   }
 
   add(): never {

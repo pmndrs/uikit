@@ -57,6 +57,11 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     this.add(this.closeButton)
   }
 
+  dispose(): void {
+    this.closeButton.dispose()
+    super.dispose()
+  }
+
   private closeDialog() {
     const dialog = searchFor(this, Dialog, 2)
     if (dialog == null) {

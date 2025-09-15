@@ -9,8 +9,8 @@ export type PaginationNextProperties<EM extends ThreeEventMap = ThreeEventMap> =
 >
 
 export class PaginationNext<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends PaginationLink<T, EM> {
-  public readonly label!: Text
-  public readonly icon!: InstanceType<typeof ChevronRight>
+  public readonly label: Text
+  public readonly icon: InstanceType<typeof ChevronRight>
   constructor(
     inputProperties?: InProperties<PaginationLinkOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -43,6 +43,11 @@ export class PaginationNext<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     })
     this.icon = chevronIcon
     super.add(this.icon)
+  }
+  dispose(): void {
+    this.icon.dispose()
+    this.label.dispose()
+    super.dispose()
   }
   add(): never {
     throw new Error('PaginationNext does not support adding children. The component has predefined content.')

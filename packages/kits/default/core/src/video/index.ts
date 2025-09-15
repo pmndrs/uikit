@@ -28,7 +28,7 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   private timeoutRef?: NodeJS.Timeout
 
   readonly video: VideoImpl
-  public readonly controls!: VideoControls
+  public readonly controls: VideoControls
 
   constructor(
     inputProperties?: VideoProperties<EM>,

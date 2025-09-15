@@ -18,8 +18,8 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
   EM,
   RadioGroupItemOutProperties<EM>
 > {
-  public readonly radioButton!: Container
-  public readonly radioDot!: Container
+  public readonly radioButton: Container
+  public readonly radioDot: Container
   constructor(
     inputProperties?: RadioGroupItemProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -85,5 +85,11 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
 
     this.radioButton.add(this.radioDot)
     super.add(this.radioButton)
+  }
+
+  dispose(): void {
+    this.radioDot.dispose()
+    this.radioButton.dispose()
+    super.dispose()
   }
 }

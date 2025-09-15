@@ -21,8 +21,8 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
 export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<InputOutProperties<EM>>
 
 export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, InputOutProperties<EM>> {
-  public readonly input!: InputImpl
-  public readonly placeholder!: Text
+  public readonly input: InputImpl
+  public readonly placeholder: Text
   constructor(
     inputProperties?: InProperties<InputOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -84,6 +84,12 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     })
     this.placeholder = placeholderText
     super.add(this.placeholder)
+  }
+
+  dispose(): void {
+    this.placeholder.dispose()
+    this.input.dispose()
+    super.dispose()
   }
 
   add(...object: Object3D[]): this {

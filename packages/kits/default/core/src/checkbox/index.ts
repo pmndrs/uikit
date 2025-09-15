@@ -21,7 +21,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
-  public readonly icon!: InstanceType<typeof Check>
+  public readonly icon: InstanceType<typeof Check>
 
   constructor(
     inputProperties?: InProperties<CheckboxOutProperties<EM>>,
@@ -71,6 +71,11 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         },
       })),
     )
+  }
+
+  dispose(): void {
+    this.icon.dispose()
+    super.dispose()
   }
 
   add(): this {

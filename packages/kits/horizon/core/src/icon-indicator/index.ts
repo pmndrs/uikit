@@ -52,7 +52,7 @@ export class IconIndicator<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   EM,
   IconIndicatorOutProperties<EM>
 > {
-  public readonly icon!: Svg
+  public readonly icon: Svg
   constructor(
     inputProperties?: InProperties<IconIndicatorOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -80,6 +80,11 @@ export class IconIndicator<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
         },
       })),
     )
+  }
+
+  dispose(): void {
+    this.icon.dispose()
+    super.dispose()
   }
 
   add(): this {

@@ -70,15 +70,14 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   )
   private downPointerId?: number
 
-  public readonly touchTarget!: Container
-  public readonly track!: Container
-  public readonly progress!: Container
-  public readonly fill!: Container
-  public readonly thumb!: Container
-  public readonly thumbText!: Text
-  public readonly labels!: Container
-  public readonly leftLabel!: Text
-  public readonly rightLabel!: Text
+  public readonly touchTarget: Container
+  public readonly track: Container
+  public readonly progress: Container
+  public readonly thumb: Container
+  public readonly thumbText: Text
+  public readonly labels: Container
+  public readonly leftLabel: Text
+  public readonly rightLabel: Text
   public icon?: Component
 
   constructor(
@@ -292,6 +291,19 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     }
     this.properties.peek().onValueChange?.(newValue)
     e.stopPropagation?.()
+  }
+
+  dispose(): void {
+    this.leftLabel.dispose()
+    this.rightLabel.dispose()
+    this.thumbText.dispose()
+    this.thumb.dispose()
+    this.progress.dispose()
+    this.track.dispose()
+    this.touchTarget.dispose()
+    this.icon?.dispose()
+    this.labels.dispose()
+    super.dispose()
   }
 
   add(): this {

@@ -21,7 +21,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
-  public readonly handle!: Container
+  public readonly handle: Container
 
   constructor(
     inputProperties?: InProperties<SwitchOutProperties<EM>>,
@@ -69,6 +69,11 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         },
       })),
     )
+  }
+
+  dispose(): void {
+    this.handle.dispose()
+    super.dispose()
   }
 
   add(...object: Object3D[]): this {

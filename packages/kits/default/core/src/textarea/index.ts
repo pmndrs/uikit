@@ -24,8 +24,8 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   EM,
   TextareaOutProperties<EM>
 > {
-  public readonly input!: InputImpl
-  public readonly placeholder!: Text
+  public readonly input: InputImpl
+  public readonly placeholder: Text
   constructor(
     inputProperties?: InProperties<TextareaOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -89,6 +89,12 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     })
     this.placeholder = placeholderText
     super.add(this.placeholder)
+  }
+
+  dispose(): void {
+    this.placeholder.dispose()
+    this.input.dispose()
+    super.dispose()
   }
 
   add(...object: Object3D[]): this {

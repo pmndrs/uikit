@@ -11,7 +11,7 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
   EM,
   ProgressBarOutProperties<EM>
 > {
-  public readonly fill!: Container
+  public readonly fill: Container
   constructor(
     inputProperties?: InProperties<ProgressBarOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -40,6 +40,11 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
         },
       })),
     )
+  }
+
+  dispose(): void {
+    this.fill.dispose()
+    super.dispose()
   }
 
   add(): this {

@@ -43,9 +43,9 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   AvatarOutProperties<EM>
 > {
-  public readonly focusRing!: Container
-  public readonly image!: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
-  public readonly activeBadge!: Container
+  public readonly focusRing: Container
+  public readonly image: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
+  public readonly activeBadge: Container
   public attributionImage?: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
   constructor(
     inputProperties?: InProperties<AvatarOutProperties<EM>>,
@@ -162,6 +162,14 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       this.attributionImage = attributionImage
       return () => attributionImage.dispose()
     }, this.abortSignal)
+  }
+
+  dispose(): void {
+    this.attributionImage?.dispose()
+    this.activeBadge.dispose()
+    this.image.dispose()
+    this.focusRing.dispose()
+    super.dispose()
   }
 
   add(): this {

@@ -29,9 +29,9 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0,
   )
 
-  public readonly track!: Container
-  public readonly fill!: Container
-  public readonly thumb!: Container
+  public readonly track: Container
+  public readonly fill: Container
+  public readonly thumb: Container
 
   constructor(
     inputProperties?: InProperties<SliderOutProperties<EM>>,
@@ -174,6 +174,13 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     }
     this.properties.peek().onValueChange?.(newValue)
     e.stopPropagation?.()
+  }
+
+  dispose(): void {
+    this.thumb.dispose()
+    this.fill.dispose()
+    this.track.dispose()
+    super.dispose()
   }
 
   add(): this {
