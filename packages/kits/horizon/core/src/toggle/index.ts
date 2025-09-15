@@ -18,6 +18,7 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
+  public readonly handle!: Container
 
   constructor(
     inputProperties?: InProperties<ToggleOutProperties<EM>>,
@@ -77,14 +78,14 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
     super.add(
-      new Container(undefined, undefined, {
+      (this.handle = new Container(undefined, undefined, {
         defaultOverrides: {
           flexShrink: 0,
           width: 20,
           height: 20,
           borderRadius: 1000,
         },
-      }),
+      })),
     )
   }
 

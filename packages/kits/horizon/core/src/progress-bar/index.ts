@@ -11,6 +11,7 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
   EM,
   ProgressBarOutProperties<EM>
 > {
+  public readonly fill!: Container
   constructor(
     inputProperties?: InProperties<ProgressBarOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -29,7 +30,7 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       },
     })
     super.add(
-      new Container(undefined, undefined, {
+      (this.fill = new Container(undefined, undefined, {
         defaultOverrides: {
           height: 12,
           borderRadius: 1000,
@@ -37,7 +38,7 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
           width: computed(() => `${this.properties.value.value ?? 0}%` as const),
           minWidth: 12,
         },
-      }),
+      })),
     )
   }
 

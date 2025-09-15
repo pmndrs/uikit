@@ -52,6 +52,7 @@ export class IconIndicator<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   EM,
   IconIndicatorOutProperties<EM>
 > {
+  public readonly icon!: Svg
   constructor(
     inputProperties?: InProperties<IconIndicatorOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -70,14 +71,14 @@ export class IconIndicator<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       },
     })
     super.add(
-      new Svg(undefined, undefined, {
+      (this.icon = new Svg(undefined, undefined, {
         defaultOverrides: {
           width: 20,
           height: 20,
           content: computed(() => iconIndicatorVariants[this.properties.value.variant ?? 'none'].content),
           color: computed(() => iconIndicatorVariants[this.properties.value.variant ?? 'none'].color?.value),
         },
-      }),
+      })),
     )
   }
 

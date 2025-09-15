@@ -21,6 +21,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
+  public readonly icon!: InstanceType<typeof Check>
 
   constructor(
     inputProperties?: InProperties<CheckboxOutProperties<EM>>,
@@ -60,7 +61,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     })
 
     super.add(
-      new Check(undefined, undefined, {
+      (this.icon = new Check(undefined, undefined, {
         defaults: contentDefaults,
         defaultOverrides: {
           color: computed(() => (this.currentSignal.value ? colors.primaryForeground.value : undefined)),
@@ -68,7 +69,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
           width: 14,
           height: 14,
         },
-      }),
+      })),
     )
   }
 

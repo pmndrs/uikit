@@ -18,6 +18,8 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
   EM,
   RadioGroupItemOutProperties<EM>
 > {
+  public readonly radioButton!: Container
+  public readonly radioDot!: Container
   constructor(
     inputProperties?: RadioGroupItemProperties<EM>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -55,7 +57,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       () => searchFor(this, RadioGroup, 2)?.currentSignal.value === this.properties.value.value,
     )
 
-    const radioButton = new Container(undefined, undefined, {
+    this.radioButton = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
         aspectRatio: 1,
@@ -69,7 +71,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
         justifyContent: 'center',
       },
     })
-    const radioDot = new Container(undefined, undefined, {
+    this.radioDot = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
         borderRadius: 1000,
@@ -81,7 +83,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       },
     })
 
-    radioButton.add(radioDot)
-    super.add(radioButton)
+    this.radioButton.add(this.radioDot)
+    super.add(this.radioButton)
   }
 }

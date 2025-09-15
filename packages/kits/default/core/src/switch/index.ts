@@ -21,6 +21,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
+  public readonly handle!: Container
 
   constructor(
     inputProperties?: InProperties<SwitchOutProperties<EM>>,
@@ -57,7 +58,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
     super.add(
-      new Container(undefined, undefined, {
+      (this.handle = new Container(undefined, undefined, {
         defaults: componentDefaults,
         defaultOverrides: {
           width: 20,
@@ -66,7 +67,7 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           transformTranslateX: computed(() => (this.currentSignal.value ? 20 : 0)),
           backgroundColor: colors.background,
         },
-      }),
+      })),
     )
   }
 

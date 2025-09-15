@@ -28,6 +28,7 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   private timeoutRef?: NodeJS.Timeout
 
   readonly video: VideoImpl
+  public readonly controls!: VideoControls
 
   constructor(
     inputProperties?: VideoProperties<EM>,
@@ -64,13 +65,13 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     )
 
     super.add(
-      new VideoControls(undefined, undefined, {
+      (this.controls = new VideoControls(undefined, undefined, {
         defaultOverrides: {
           display: computed(() =>
             this.interacting.value && (this.properties.value.controls ?? true) ? 'flex' : 'none',
           ),
         },
-      }),
+      })),
     )
   }
 

@@ -24,6 +24,8 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   EM,
   TextareaOutProperties<EM>
 > {
+  public readonly input!: InputImpl
+  public readonly placeholder!: Text
   constructor(
     inputProperties?: InProperties<TextareaOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -70,7 +72,8 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         onFocusChange: this.properties.signal.onFocusChange,
       },
     })
-    super.add(inputImpl)
+    this.input = inputImpl
+    super.add(this.input)
 
     // Always create placeholder text
     const placeholderText = new Text(undefined, undefined, {
@@ -84,7 +87,8 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         display: computed(() => (inputImpl.currentSignal.value.length === 0 ? 'flex' : 'none')),
       },
     })
-    super.add(placeholderText)
+    this.placeholder = placeholderText
+    super.add(this.placeholder)
   }
 
   add(...object: Object3D[]): this {

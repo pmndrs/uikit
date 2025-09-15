@@ -70,6 +70,17 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   )
   private downPointerId?: number
 
+  public readonly touchTarget!: Container
+  public readonly track!: Container
+  public readonly progress!: Container
+  public readonly fill!: Container
+  public readonly thumb!: Container
+  public readonly thumbText!: Text
+  public readonly labels!: Container
+  public readonly leftLabel!: Text
+  public readonly rightLabel!: Text
+  public icon?: Component
+
   constructor(
     inputProperties?: InProperties<SliderOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -125,7 +136,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       return format
     })
 
-    const touchTarget = new Container(undefined, undefined, {
+    this.touchTarget = new Container(undefined, undefined, {
       defaultOverrides: {
         width: '100%',
         height: computed(() => (this.properties.value.size === 'lg' ? 48 : 64)),
@@ -142,7 +153,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
 
-    const sliderTrack = new Container(undefined, undefined, {
+    this.track = new Container(undefined, undefined, {
       defaultOverrides: {
         width: '100%',
         borderRadius: 1000,
@@ -150,7 +161,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         height: computed(() => sliderHeights[this.properties.value.size ?? 'md']),
       },
     })
-    touchTarget.add(sliderTrack)
+    this.touchTarget.add(this.track)
 
     const percentage = computed(() => {
       const min = this.properties.value.min ?? 0
@@ -159,7 +170,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       return `${(100 * (this.currentSignal.value - min)) / range}%` as const
     })
 
-    const sliderProgress = new Container(undefined, undefined, {
+    this.progress = new Container(undefined, undefined, {
       defaultOverrides: {
         borderRadius: 1000,
         flexShrink: 0,
@@ -167,7 +178,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         minWidth: computed(() =>
           Math.max(
             sliderHeights[this.properties.value.size ?? 'md'],
-            2 * sliderProcessPaddingXs[this.properties.value.size ?? 'md'] + (sliderThumb.size.value?.[0] ?? 0),
+            2 * sliderProcessPaddingXs[this.properties.value.size ?? 'md'] + (this.thumb.size.value?.[0] ?? 0),
           ),
         ),
         width: percentage,
@@ -178,9 +189,10 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         paddingX: computed(() => sliderProcessPaddingXs[this.properties.value.size ?? 'md']),
       },
     })
-    sliderTrack.add(sliderProgress)
+    this.track.add(this.progress)
+    ;(this as any).fill = this.progress
 
-    const sliderThumb = new Container(undefined, undefined, {
+    this.thumb = new Container(undefined, undefined, {
       defaultOverrides: {
         flexShrink: 0,
         borderRadius: 1000,
@@ -192,9 +204,9 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         positionType: 'relative',
       },
     })
-    sliderProgress.add(sliderThumb)
+    this.progress.add(this.thumb)
 
-    const sliderThumbText = new Text(undefined, undefined, {
+    this.thumbText = new Text(undefined, undefined, {
       defaultOverrides: {
         color: lightTheme.component.slider.handle.label,
         fontWeight: 700,
@@ -207,7 +219,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         text: computed(() => format.value(this.currentSignal.value)),
       },
     })
-    sliderThumb.add(sliderThumbText)
+    this.thumb.add(this.thumbText)
 
     //setting up the icon
     abortableEffect(() => {
@@ -228,11 +240,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           transformTranslateY: '-50%',
         },
       })
-      sliderThumb.add(icon)
+      this.thumb.add(icon)
       return () => icon.dispose()
     }, this.abortSignal)
 
-    const labels = new Container(undefined, undefined, {
+    this.labels = new Container(undefined, undefined, {
       defaultOverrides: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -243,23 +255,23 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
 
-    labels.add(
-      new Text(undefined, undefined, {
+    this.labels.add(
+      (this.leftLabel = new Text(undefined, undefined, {
         defaultOverrides: {
           text: computed(() => this.properties.signal.leftLabel.value ?? format.value(this.properties.value.min ?? 0)),
         },
-      }),
-      new Text(undefined, undefined, {
+      })),
+      (this.rightLabel = new Text(undefined, undefined, {
         defaultOverrides: {
           text: computed(
             () => this.properties.signal.rightLabel.value ?? format.value(this.properties.value.max ?? 100),
           ),
         },
-      }),
+      })),
     )
 
-    super.add(touchTarget)
-    super.add(labels)
+    super.add(this.touchTarget)
+    super.add(this.labels)
   }
 
   private handleSetValue(e: { stopPropagation?: () => void; point: Vector3 }) {

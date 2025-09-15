@@ -9,6 +9,7 @@ export type PaginationEllipsisProperties<EM extends ThreeEventMap = ThreeEventMa
 >
 
 export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
+  public readonly icon!: InstanceType<typeof Ellipsis>
   constructor(
     inputProperties?: InProperties<BaseOutProperties<EM>>,
     initialClasses?: Array<BaseOutProperties<EM> | string>,
@@ -31,13 +32,13 @@ export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap
     })
 
     super.add(
-      new Ellipsis(undefined, undefined, {
+      (this.icon = new Ellipsis(undefined, undefined, {
         defaults: contentDefaults,
         defaultOverrides: {
           width: 16,
           height: 16,
         },
-      }),
+      })),
     )
   }
 

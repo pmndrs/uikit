@@ -15,7 +15,7 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
   EM,
   DialogContentOutProperties<EM>
 > {
-  private closeButton: InstanceType<typeof X>
+  public readonly closeButton: InstanceType<typeof X>
 
   constructor(
     inputProperties?: DialogContentProperties<EM>,

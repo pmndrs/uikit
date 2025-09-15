@@ -43,6 +43,10 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   EM,
   AvatarOutProperties<EM>
 > {
+  public readonly focusRing!: Container
+  public readonly image!: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
+  public readonly activeBadge!: Container
+  public attributionImage?: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
   constructor(
     inputProperties?: InProperties<AvatarOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -82,19 +86,19 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     //focus ring
     const focusRingBorderWidth = computed(() => avatarSizes[this.properties.value.size ?? 'md'].borderWidth!)
     super.add(
-      new Container(undefined, undefined, {
+      (this.focusRing = new Container(undefined, undefined, {
         defaultOverrides: {
           borderWidth: focusRingBorderWidth,
           positionType: 'absolute',
           borderRadius: 1000,
           inset: computed(() => -2 - focusRingBorderWidth.value),
         },
-      }),
+      })),
     )
 
     //avatar image
     super.add(
-      new Image(undefined, undefined, {
+      (this.image = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(undefined, undefined, {
         defaultOverrides: {
           width: '100%',
           height: '100%',
@@ -103,7 +107,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           borderColor: 'initial',
           src: this.properties.signal.src,
         },
-      }),
+      })),
     )
 
     //active attribution
@@ -114,7 +118,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       () => avatarSizes[this.properties.value.size ?? 'md'].attributionActiveMargin,
     )
     super.add(
-      new Container(undefined, undefined, {
+      (this.activeBadge = new Container(undefined, undefined, {
         defaultOverrides: {
           display: computed(() =>
             (this.properties.value.attributionActive ?? false) && this.properties.value.attributionSrc == null
@@ -132,7 +136,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           positionBottom: cattributionActiveMargin,
           positionRight: cattributionActiveMargin,
         },
-      }),
+      })),
     )
 
     //src attribution
@@ -142,7 +146,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         return
       }
       const attributionSrcWidth = computed(() => avatarSizes[this.properties.value.size ?? 'md'].attributionSrcWidth)
-      const attributionImage = new Image(undefined, undefined, {
+      const attributionImage = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(undefined, undefined, {
         defaultOverrides: {
           src,
           positionType: 'absolute',
@@ -155,6 +159,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         },
       })
       super.add(attributionImage)
+      this.attributionImage = attributionImage
       return () => attributionImage.dispose()
     }, this.abortSignal)
   }

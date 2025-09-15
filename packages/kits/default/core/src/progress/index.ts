@@ -13,6 +13,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   EM,
   ProgressOutProperties<EM>
 > {
+  public readonly fill!: Container
   constructor(
     inputProperties?: InProperties<ProgressOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -33,7 +34,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       },
     })
     super.add(
-      new Container(undefined, undefined, {
+      (this.fill = new Container(undefined, undefined, {
         defaults: componentDefaults,
         defaultOverrides: {
           height: '100%',
@@ -44,7 +45,7 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
           backgroundColor: colors.primary,
           width: computed(() => `${this.properties.value.value ?? 0}%` as const),
         },
-      }),
+      })),
     )
   }
 

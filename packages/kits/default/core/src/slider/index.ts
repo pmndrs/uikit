@@ -29,6 +29,10 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0,
   )
 
+  public readonly track!: Container
+  public readonly fill!: Container
+  public readonly thumb!: Container
+
   constructor(
     inputProperties?: InProperties<SliderOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -102,7 +106,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     })
 
     // Create track
-    const track = new Container(undefined, undefined, {
+    this.track = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
         height: 8,
@@ -116,7 +120,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     })
 
     // Create fill
-    const fill = new Container(undefined, undefined, {
+    this.fill = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
         height: '100%',
@@ -126,11 +130,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
 
-    track.add(fill)
-    super.add(track)
+    this.track.add(this.fill)
+    super.add(this.track)
 
     // Create thumb
-    const thumb = new Container(undefined, undefined, {
+    this.thumb = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
         zIndexOffset: 100,
@@ -149,7 +153,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       },
     })
 
-    super.add(thumb)
+    super.add(this.thumb)
   }
 
   private handleSetValue(e: { stopPropagation?: () => void; point: Vector3 }) {

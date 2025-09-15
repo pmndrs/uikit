@@ -21,6 +21,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
+  public readonly icon!: InstanceType<typeof Check>
 
   constructor(
     inputProperties?: InProperties<CheckboxOutProperties<EM>>,
@@ -66,7 +67,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       },
     })
     super.add(
-      new Check(undefined, undefined, {
+      (this.icon = new Check(undefined, undefined, {
         defaultOverrides: {
           display: computed(() => (this.currentSignal.value ? 'flex' : 'none')),
           color: lightTheme.component.checkbox.selected.icon.selected,
@@ -74,7 +75,7 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
           width: 12,
           height: 12,
         },
-      }),
+      })),
     )
   }
 

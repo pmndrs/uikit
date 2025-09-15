@@ -21,6 +21,8 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
 export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<InputOutProperties<EM>>
 
 export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, InputOutProperties<EM>> {
+  public readonly input!: InputImpl
+  public readonly placeholder!: Text
   constructor(
     inputProperties?: InProperties<InputOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
@@ -66,7 +68,8 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         onFocusChange: this.properties.signal.onFocusChange,
       },
     })
-    super.add(inputImpl)
+    this.input = inputImpl
+    super.add(this.input)
 
     // Always create placeholder text
     const placeholderText = new Text(undefined, undefined, {
@@ -79,7 +82,8 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         display: computed(() => (inputImpl.currentSignal.value.length === 0 ? 'flex' : 'none')),
       },
     })
-    super.add(placeholderText)
+    this.placeholder = placeholderText
+    super.add(this.placeholder)
   }
 
   add(...object: Object3D[]): this {
