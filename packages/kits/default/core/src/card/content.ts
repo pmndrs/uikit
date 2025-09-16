@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type CardContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -17,6 +17,9 @@ export class CardContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         padding: 24,
         paddingTop: 0,
         ...config?.defaultOverrides,

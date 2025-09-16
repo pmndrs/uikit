@@ -1,6 +1,6 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type LabelOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   disabled?: boolean
@@ -21,6 +21,9 @@ export class Label<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         fontWeight: 'medium',
         fontSize: 14,
         lineHeight: '100%',

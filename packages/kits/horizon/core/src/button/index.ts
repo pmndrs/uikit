@@ -170,9 +170,7 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
               : undefined,
           ),
           color: computed(() =>
-            this.properties.value.disabled === true
-              ? theme.component.button.negative.label.disabled.value
-              : undefined,
+            this.properties.value.disabled === true ? theme.component.button.negative.label.disabled.value : undefined,
           ),
         },
         height,

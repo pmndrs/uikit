@@ -7,7 +7,7 @@ import {
   ThreeEventMap,
 } from '@pmndrs/uikit'
 import { signal } from '@preact/signals-core'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
@@ -26,6 +26,9 @@ export class Accordion<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'column',
         ...config?.defaultOverrides,
       },

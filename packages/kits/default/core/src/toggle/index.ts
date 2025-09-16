@@ -61,6 +61,9 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onClick: () => {
           if (this.properties.peek().disabled) {
             return

@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type PaginationProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -17,6 +17,9 @@ export class Pagination<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         marginX: 'auto',
         flexDirection: 'row',
         width: '100%',

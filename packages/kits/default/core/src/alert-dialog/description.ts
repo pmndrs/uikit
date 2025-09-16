@@ -24,6 +24,9 @@ export class AlertDialogDescription<T = {}, EM extends ThreeEventMap = ThreeEven
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         fontSize: 14,
         lineHeight: '20px',
         color: colors.mutedForeground,

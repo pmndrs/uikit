@@ -21,6 +21,9 @@ export class AlertDialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onClick: (e) => {
           e.stopPropagation?.()
         },

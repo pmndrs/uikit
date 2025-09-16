@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type CardFooterProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -17,6 +17,9 @@ export class CardFooter<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         alignItems: 'center',
         padding: 24,

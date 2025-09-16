@@ -6,7 +6,7 @@ import {
   RenderContext,
   ThreeEventMap,
 } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 
@@ -23,6 +23,9 @@ export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         flexGrow: 1,
         flexShrink: 1,

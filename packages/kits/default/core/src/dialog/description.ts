@@ -21,6 +21,9 @@ export class DialogDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap>
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         fontSize: 14,
         lineHeight: '20px',
         color: colors.mutedForeground,

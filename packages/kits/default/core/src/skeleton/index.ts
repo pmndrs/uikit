@@ -29,6 +29,9 @@ export class Skeleton<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         borderRadius: borderRadius.md,
         backgroundColor: colors.muted,
         opacity,

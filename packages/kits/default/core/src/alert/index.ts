@@ -41,6 +41,9 @@ export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'column',
         positionType: 'relative',
         width: '100%',

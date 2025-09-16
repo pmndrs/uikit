@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type TooltipTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -17,6 +17,9 @@ export class TooltipTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         alignSelf: 'stretch',
         ...config?.defaultOverrides,
       },

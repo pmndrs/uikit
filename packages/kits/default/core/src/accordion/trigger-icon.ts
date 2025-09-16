@@ -11,7 +11,7 @@ import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
 import { searchFor } from '../utils.js'
-import { contentDefaults } from '../theme.js'
+import { colors, contentDefaults } from '../theme.js'
 
 export type AccordionTriggerIconProperties<EM extends ThreeEventMap = ThreeEventMap> = SvgProperties<EM>
 
@@ -32,6 +32,9 @@ export class AccordionTriggerIcon<T = {}, EM extends ThreeEventMap = ThreeEventM
       defaults: contentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         width: 16,
         height: 16,
         flexShrink: 0,

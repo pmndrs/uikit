@@ -103,6 +103,9 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         borderRadius: borderRadius.md,
         alignItems: 'center',
         justifyContent: 'center',

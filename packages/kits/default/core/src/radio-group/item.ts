@@ -29,6 +29,9 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
         onClick: computed(() =>
           this.properties.value.disabled
@@ -60,6 +63,9 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     this.radioButton = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         aspectRatio: 1,
         height: 16,
         width: 16,
@@ -74,6 +80,9 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     this.radioDot = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         borderRadius: 1000,
         aspectRatio: 1,
         backgroundColor: colors.primary,

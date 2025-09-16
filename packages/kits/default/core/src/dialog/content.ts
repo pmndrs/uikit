@@ -26,6 +26,9 @@ export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onClick: (e: any) => e.stopPropagation(),
         positionType: 'relative',
         flexDirection: 'column',

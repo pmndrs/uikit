@@ -32,6 +32,9 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         height: 24,
         width: 44,
         flexShrink: 0,
@@ -61,6 +64,9 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       (this.handle = new Container(undefined, undefined, {
         defaults: componentDefaults,
         defaultOverrides: {
+          '*': {
+            borderColor: colors.border,
+          },
           width: 20,
           height: 20,
           borderRadius: 1000,

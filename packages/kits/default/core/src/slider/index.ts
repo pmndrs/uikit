@@ -45,6 +45,9 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         positionType: 'relative',
         flexDirection: 'column',
         height: 8,
@@ -109,6 +112,9 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     this.track = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         height: 8,
         positionType: 'absolute',
         positionLeft: 0,
@@ -123,6 +129,9 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     this.fill = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         height: '100%',
         width: percentage,
         borderRadius: 1000,
@@ -137,6 +146,9 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
     this.thumb = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         zIndexOffset: 100,
         positionType: 'absolute',
         positionLeft: percentage,

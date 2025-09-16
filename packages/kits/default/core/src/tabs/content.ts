@@ -2,7 +2,7 @@ import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContex
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
 import { searchFor } from '../utils.js'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type TabsContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   value?: string
@@ -28,6 +28,9 @@ export class TabsContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         marginTop: 8,
         display: computed(() => (isVisible.value ? 'flex' : 'none')),
         ...config?.defaultOverrides,

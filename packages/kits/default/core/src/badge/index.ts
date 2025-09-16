@@ -59,6 +59,9 @@ export class Badge<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         borderRadius: 1000,
         paddingX: 10,
         paddingY: 2,

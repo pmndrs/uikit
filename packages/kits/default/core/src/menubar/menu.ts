@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export class MenubarMenu<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   constructor(
@@ -11,6 +11,9 @@ export class MenubarMenu<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         alignItems: 'center',
         ...config?.defaultOverrides,

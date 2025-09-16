@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AlertIconProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -17,6 +17,9 @@ export class AlertIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         positionLeft: 16,
         positionTop: 16,
         positionType: 'absolute',

@@ -29,6 +29,9 @@ export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         positionType: 'absolute',
         positionBottom: '100%',
         marginBottom: computed(() => this.properties.value.sideOffset ?? 4),

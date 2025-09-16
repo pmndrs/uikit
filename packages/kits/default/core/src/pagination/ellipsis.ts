@@ -1,7 +1,7 @@
 import { ThreeEventMap, InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
 import { Ellipsis } from '@pmndrs/uikit-lucide'
 import { Object3D } from 'three/src/Three.Core.js'
-import { componentDefaults, contentDefaults } from '../theme.js'
+import { colors, componentDefaults, contentDefaults } from '../theme.js'
 
 export type PaginationEllipsisProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   InProperties<BaseOutProperties<EM>>,
@@ -22,6 +22,9 @@ export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         height: 36,
         width: 36,
@@ -35,6 +38,9 @@ export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap
       (this.icon = new Ellipsis(undefined, undefined, {
         defaults: contentDefaults,
         defaultOverrides: {
+          '*': {
+            borderColor: colors.border,
+          },
           width: 16,
           height: 16,
         },

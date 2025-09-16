@@ -6,10 +6,9 @@ import {
   InputOutProperties as BaseInputOutProperties,
   RenderContext,
   withOpacity,
-  inputDefaults,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { borderRadius, colors } from '../theme.js'
+import { borderRadius, colors, inputDefaults } from '../theme.js'
 
 export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseInputOutProperties<EM>
 
@@ -25,6 +24,9 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Inp
       defaults: inputDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         height: 40,
         positionType: 'relative',
         overflow: 'scroll',
@@ -45,5 +47,6 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Inp
         ...config?.defaultOverrides,
       },
     })
+    console
   }
 }

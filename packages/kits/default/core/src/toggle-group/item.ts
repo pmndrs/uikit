@@ -66,6 +66,9 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onClick: () => {
           if (this.properties.peek().disabled) {
             return

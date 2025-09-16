@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type DialogTitleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -19,6 +19,9 @@ export class DialogTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         fontSize: 18,
         lineHeight: '100%',
         letterSpacing: -0.4,

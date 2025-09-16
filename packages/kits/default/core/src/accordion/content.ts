@@ -3,7 +3,7 @@ import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
 import { searchFor } from '../utils.js'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AccordionContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 
@@ -24,6 +24,9 @@ export class AccordionContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> 
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         paddingTop: 0,
         fontSize: 14,
         paddingBottom: 16,

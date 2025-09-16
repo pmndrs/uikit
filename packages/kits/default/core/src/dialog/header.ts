@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type DialogHeaderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -21,6 +21,9 @@ export class DialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'column',
         gap: 6,
         ...config?.defaultOverrides,

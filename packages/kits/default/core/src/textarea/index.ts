@@ -46,6 +46,7 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         borderWidth: 1,
         opacity: computed(() => (this.properties.value.disabled ? 0.5 : undefined)),
         '*': {
+          borderColor: colors.border,
           height: '100%',
           width: '100%',
           fontSize: 14,
@@ -61,6 +62,9 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       defaults: inputDefaults,
       multiline: true,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         verticalAlign: 'top',
         defaultValue: this.properties.signal.defaultValue,
         value: this.properties.signal.value,
@@ -79,6 +83,9 @@ export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
     const placeholderText = new Text(undefined, undefined, {
       defaults: textDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         color: colors.mutedForeground,
         inset: 0,
         verticalAlign: 'top',

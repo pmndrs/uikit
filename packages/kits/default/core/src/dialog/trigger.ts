@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import type { Dialog } from './index.js'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type DialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   dialog?: Dialog
@@ -24,6 +24,9 @@ export class DialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onClick: () => {
           this.properties.peek().dialog?.setOpen(true)
         },

@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type RadioGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   value?: string
@@ -29,6 +29,9 @@ export class RadioGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'column',
         gap: 8,
         ...config?.defaultOverrides,

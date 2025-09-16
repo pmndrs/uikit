@@ -13,6 +13,9 @@ export class Card<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Cont
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'column',
         borderRadius: borderRadius.lg,
         borderWidth: 1,

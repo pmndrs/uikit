@@ -1,6 +1,6 @@
 import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
 import { Accordion } from './index.js'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AccordionItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   value?: string
@@ -27,6 +27,9 @@ export class AccordionItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: 'pointer',
         flexDirection: 'column',
         onClick: () => {

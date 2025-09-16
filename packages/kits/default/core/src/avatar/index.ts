@@ -8,6 +8,7 @@ import {
   imageDefaults,
 } from '@pmndrs/uikit'
 import { Texture } from 'three'
+import { colors } from '../theme.js'
 
 export type AvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
   ImageOutProperties<EM, string | Texture>
@@ -28,6 +29,9 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Im
       defaults: imageDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         width: 40,
         height: 40,
         flexShrink: 0,

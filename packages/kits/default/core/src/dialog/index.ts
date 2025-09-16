@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, withOpacity } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type DialogOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   open?: boolean
@@ -29,6 +29,9 @@ export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onPointerMove: (e: any) => e.stopPropagation(),
         onPointerEnter: (e: any) => e.stopPropagation(),
         onPointerLeave: (e: any) => e.stopPropagation(),

@@ -1,5 +1,5 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type AlertDialogHeaderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 
@@ -21,6 +21,9 @@ export class AlertDialogHeader<T = {}, EM extends ThreeEventMap = ThreeEventMap>
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'column',
         gap: 6,
         ...config?.defaultOverrides,

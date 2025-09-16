@@ -17,6 +17,9 @@ export class CardDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         fontSize: 14,
         lineHeight: '20px',
         color: colors.mutedForeground,

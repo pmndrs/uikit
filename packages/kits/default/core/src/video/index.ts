@@ -39,6 +39,9 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       defaults: imageDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         positionType: 'relative',
         onPointerMove: () => this.onInteract(),
         onPointerDown: () => this.onInteract(),
@@ -50,6 +53,9 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
       (this.video = new VideoImpl(undefined, undefined, {
         defaults: imageDefaults,
         defaultOverrides: {
+          '*': {
+            borderColor: colors.border,
+          },
           volume: this.properties.signal.volume,
           preservesPitch: this.properties.signal.preservesPitch,
           playbackRate: this.properties.signal.playbackRate,
@@ -67,6 +73,9 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     super.add(
       (this.controls = new VideoControls(undefined, undefined, {
         defaultOverrides: {
+          '*': {
+            borderColor: colors.border,
+          },
           display: computed(() =>
             this.interacting.value && (this.properties.value.controls ?? true) ? 'flex' : 'none',
           ),
@@ -111,6 +120,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         display: computed(() => (searchFor(this, Video, 2)?.interacting.value ? 'flex' : 'none')),
         zIndex: 1,
         positionType: 'absolute',
@@ -161,6 +173,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const controlsContainer = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         alignItems: 'center',
       },
@@ -169,6 +184,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     // Setup play button
     const playButton = new Button(undefined, undefined, {
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         size: 'icon',
         variant: 'ghost',
         marginRight: 8,
@@ -187,6 +205,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const pauseIcon = new Pause(undefined, undefined, {
       defaults: contentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: 'pointer',
         width: 16,
         height: 16,
@@ -195,6 +216,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const playIcon = new Play(undefined, undefined, {
       defaults: contentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: 'pointer',
         width: 16,
         height: 16,
@@ -212,6 +236,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     // Setup mute button
     const muteButton = new Button(undefined, undefined, {
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         size: 'icon',
         variant: 'ghost',
         marginRight: 8,
@@ -226,6 +253,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const volume2Icon = new Volume2(undefined, undefined, {
       defaults: contentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: 'pointer',
         width: 16,
         height: 16,
@@ -234,6 +264,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const volumeXIcon = new VolumeX(undefined, undefined, {
       defaults: contentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: 'pointer',
         width: 16,
         height: 16,
@@ -252,6 +285,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const spacer = new Container(undefined, undefined, {
       defaults: componentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexGrow: 1,
       },
     })
@@ -260,6 +296,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     const timeText = new Text(undefined, undefined, {
       defaults: textDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         marginRight: 16,
         fontSize: 12,
         text: computed(() => `${formatDuration(timeSignal.value)} / ${formatDuration(durationSignal.value)}`),
@@ -269,6 +308,9 @@ export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> ext
     // Setup slider
     const slider = new Slider(undefined, undefined, {
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         min: 0,
         margin: 16,
         marginTop: 8,

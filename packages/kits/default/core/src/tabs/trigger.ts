@@ -33,6 +33,9 @@ export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         onClick: computed(() => {
           return (this.properties.value.disabled ?? false)
             ? undefined

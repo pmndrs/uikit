@@ -66,9 +66,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         '*': {
           important: {
             borderColor: computed(() =>
-              this.properties.value.selected === true
-                ? theme.component.avatar.focusRing.selected.value
-                : undefined,
+              this.properties.value.selected === true ? theme.component.avatar.focusRing.selected.value : undefined,
             ),
           },
           active: {

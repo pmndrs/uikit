@@ -23,6 +23,9 @@ export class AlertDialogCancel<T = {}, EM extends ThreeEventMap = ThreeEventMap>
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         borderRadius: borderRadius.md,
         height: 40,
         paddingX: 16,

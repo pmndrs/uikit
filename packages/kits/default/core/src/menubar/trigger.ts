@@ -20,6 +20,9 @@ export class MenubarTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         hover: { backgroundColor: colors.accent },
         flexDirection: 'row',
         alignItems: 'center',

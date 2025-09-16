@@ -20,6 +20,9 @@ export class TabsList<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         height: 40,
         flexDirection: 'row',
         alignItems: 'center',

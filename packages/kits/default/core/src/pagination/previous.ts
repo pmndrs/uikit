@@ -1,7 +1,7 @@
 import { InProperties, BaseOutProperties, RenderContext, ThreeEventMap, Text } from '@pmndrs/uikit'
 import { ChevronLeft } from '@pmndrs/uikit-lucide'
 import { PaginationLink, PaginationLinkOutProperties } from './link.js'
-import { contentDefaults, textDefaults } from '../theme.js'
+import { colors, contentDefaults, textDefaults } from '../theme.js'
 
 export type PaginationPreviousProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   InProperties<PaginationLinkOutProperties<EM>>,
@@ -22,6 +22,9 @@ export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         size: 'default',
         flexDirection: 'row',
         gap: 4,
@@ -33,6 +36,9 @@ export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap
     const chevronIcon = new ChevronLeft(undefined, undefined, {
       defaults: contentDefaults,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         width: 16,
         height: 16,
       },
@@ -42,7 +48,12 @@ export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap
 
     const textElement = new Text(undefined, undefined, {
       defaults: textDefaults,
-      defaultOverrides: { text: 'Previous' },
+      defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
+        text: 'Previous',
+      },
     })
     this.label = textElement
     super.add(this.label)

@@ -50,6 +50,9 @@ export class PaginationLink<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         cursor: 'pointer',
         borderRadius: borderRadius.md,
         alignItems: 'center',

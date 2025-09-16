@@ -35,6 +35,9 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         alignItems: 'center',
         justifyContent: 'center',
         cursor: computed(() => (this.properties.value.disabled ? undefined : 'pointer')),
@@ -64,6 +67,9 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       (this.icon = new CheckIcon(undefined, undefined, {
         defaults: contentDefaults,
         defaultOverrides: {
+          '*': {
+            borderColor: colors.border,
+          },
           color: computed(() => (this.currentSignal.value ? colors.primaryForeground.value : undefined)),
           opacity: computed(() => (this.currentSignal.value ? (this.properties.value.disabled ? 0.5 : undefined) : 0)),
           width: 14,

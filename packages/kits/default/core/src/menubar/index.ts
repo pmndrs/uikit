@@ -11,6 +11,9 @@ export class Menubar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends C
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         height: 40,
         alignItems: 'center',

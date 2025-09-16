@@ -1,6 +1,6 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import type { ToggleSize, ToggleVariant } from './item.js'
-import { componentDefaults } from '../theme.js'
+import { colors, componentDefaults } from '../theme.js'
 
 export type ToggleGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   variant?: ToggleVariant
@@ -23,6 +23,9 @@ export class ToggleGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',

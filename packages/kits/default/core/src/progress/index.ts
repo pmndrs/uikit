@@ -23,6 +23,9 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       defaults: componentDefaults,
       ...config,
       defaultOverrides: {
+        '*': {
+          borderColor: colors.border,
+        },
         height: 16,
         width: '100%',
         borderBottomLeftRadius: 1000,
@@ -37,6 +40,9 @@ export class Progress<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
       (this.fill = new Container(undefined, undefined, {
         defaults: componentDefaults,
         defaultOverrides: {
+          '*': {
+            borderColor: colors.border,
+          },
           height: '100%',
           borderBottomLeftRadius: 1000,
           borderBottomRightRadius: 1000,
