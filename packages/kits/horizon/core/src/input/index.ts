@@ -15,12 +15,12 @@ import { lightTheme } from '../theme.js'
 
 type InputVariantProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHeight'>
 const _inputSizes = {
-  large: {
+  lg: {
     height: 48,
     fontSize: 14,
     lineHeight: '20px',
   },
-  small: {
+  sm: {
     height: 32,
     fontSize: 12,
     lineHeight: '16px',
@@ -30,7 +30,7 @@ const inputSizes = _inputSizes as UnionizeVariants<typeof _inputSizes>
 
 export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   /**
-   * @default "large"
+   * @default "lg"
    */
   size?: keyof typeof inputSizes
   variant: 'search' | 'text'
@@ -80,12 +80,12 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         gap: 12,
         flexDirection: 'row',
         alignItems: 'center',
-        fontSize: computed(() => inputSizes[this.properties.value.size ?? 'large'].fontSize),
-        lineHeight: computed(() => inputSizes[this.properties.value.size ?? 'large'].lineHeight),
+        fontSize: computed(() => inputSizes[this.properties.value.size ?? 'lg'].fontSize),
+        lineHeight: computed(() => inputSizes[this.properties.value.size ?? 'lg'].lineHeight),
         fontWeight: 500,
         color: lightTheme.component.textInput.label.default,
         paddingX: 16,
-        height: computed(() => inputSizes[this.properties.value.size ?? 'large'].height),
+        height: computed(() => inputSizes[this.properties.value.size ?? 'lg'].height),
         borderRadius: 8,
         backgroundColor: computed(() => {
           if (this.input.hasFocus.value) {
@@ -102,9 +102,7 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
     })
     this.addEventListener('click', () => this.input.focus())
     const iconSize = computed(() =>
-      (this.properties.value.variant ?? 'text') === 'search' && (this.properties.value.size ?? 'large') === 'large'
-        ? 24
-        : 16,
+      (this.properties.value.variant ?? 'text') === 'search' && (this.properties.value.size ?? 'lg') === 'lg' ? 24 : 16,
     )
     this.leftIconPlaceholder = new Container()
     super.add(this.leftIconPlaceholder)

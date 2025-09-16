@@ -10,6 +10,12 @@ import {
   ButtonIcon,
   ButtonLabel,
   ButtonLabelSubtext,
+  Dropdown,
+  DropdownAvatar,
+  DropdownButton,
+  DropdownList,
+  DropdownListItem,
+  DropdownTextValue,
   Input,
   InputField,
   RadioGroup,
@@ -52,12 +58,28 @@ const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
 
-const radioGroup = new RadioGroup({ defaultValue: '1' })
+const dropdown = new Dropdown({ size: 'sm' })
+dropdown.add(new DropdownTextValue({ placeholder: 'Select' }))
+dropdown.add(new DropdownButton())
+const list = new DropdownList()
+const listItem1 = new DropdownListItem()
+listItem1.add(new Text({ text: 'Nothing' }))
+list.add(listItem1)
+const listItem2 = new DropdownListItem({ value: 'Item1' })
+listItem2.add(new Text({ text: 'Item1' }))
+list.add(listItem2)
+dropdown.add(list)
+root.add(dropdown)
+
+/*const radioGroup = new RadioGroup({ defaultValue: '1' })
 const radioGroupitem1 = new RadioGroupItem({ value: '1' })
+radioGroupitem1.add(new Text({ text: 'Item1' }))
 const radioGroupitem2 = new RadioGroupItem({ value: '2' })
+radioGroupitem2.add(new Text({ text: 'Item2' }))
 const radioGroupitem3 = new RadioGroupItem({ value: '3' })
+radioGroupitem3.add(new Text({ text: 'Item3' }))
 radioGroup.add(radioGroupitem1, radioGroupitem2, radioGroupitem3)
-root.add(radioGroup)
+root.add(radioGroup)*/
 
 /*root.add(
   new InputField({
@@ -73,7 +95,7 @@ root.add(radioGroup)
     width: 217,
     leftIcon: SearchIcon,
     rightIcon: MicIcon,
-    size: 'large',
+    size: 'lg',
     variant: 'search',
     textAlign: 'center',
   }),

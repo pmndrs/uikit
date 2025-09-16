@@ -86,7 +86,7 @@ export class InputField<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       hovered,
       defaultOverrides: {
         textAlign: 'left',
-        size: 'large',
+        size: 'lg',
         variant: 'text',
         leftIcon: this.properties.signal.leftIcon,
         rightIcon: this.properties.signal.rightIcon,

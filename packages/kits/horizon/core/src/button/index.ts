@@ -94,7 +94,7 @@ const buttonVariants = _buttonVariants as UnionizeVariants<typeof _buttonVariant
 
 type ButtonSizeProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHeight' | 'minWidth'>
 const _buttonSizes = {
-  md: {
+  lg: {
     height: 44,
     fontSize: 14,
     lineHeight: '20px',
@@ -115,7 +115,7 @@ export type ButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Base
    */
   variant?: keyof typeof buttonVariants
   /**
-   * @default "md"
+   * @default "lg"
    */
   size?: keyof typeof buttonSizes
   /**
@@ -143,7 +143,7 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaultOverrides?: InProperties<ButtonOutProperties<EM>>
     },
   ) {
-    const height = computed(() => buttonSizes[this.properties.value.size ?? 'md'].height)
+    const height = computed(() => buttonSizes[this.properties.value.size ?? 'lg'].height)
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
@@ -176,9 +176,9 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           ),
         },
         height,
-        fontSize: computed(() => buttonSizes[this.properties.value.size ?? 'md'].fontSize),
-        lineHeight: computed(() => buttonSizes[this.properties.value.size ?? 'md'].lineHeight),
-        minWidth: computed(() => buttonSizes[this.properties.value.size ?? 'md'].minWidth),
+        fontSize: computed(() => buttonSizes[this.properties.value.size ?? 'lg'].fontSize),
+        lineHeight: computed(() => buttonSizes[this.properties.value.size ?? 'lg'].lineHeight),
+        minWidth: computed(() => buttonSizes[this.properties.value.size ?? 'lg'].minWidth),
         width: computed(() => ((this.properties.value.icon ?? false) ? height.value : undefined)),
         fontWeight: 500,
         flexDirection: 'row',

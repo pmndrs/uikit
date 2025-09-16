@@ -8,35 +8,40 @@ import {
   WithSignal,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { Button } from './index.js'
+import { Dropdown } from './index.js'
 
-export class ButtonIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
+export type DropdownIconOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+
+export type DropdownIconProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
+  DropdownIconOutProperties<EM>
+>
+
+export class DropdownIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
   EM,
   BaseOutProperties<EM>
 > {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
+    inputProperties?: InProperties<DropdownIconOutProperties<EM>>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BaseOutProperties<EM>>
-      defaults?: WithSignal<BaseOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownIconOutProperties<EM>>
+      defaults?: WithSignal<DropdownIconOutProperties<EM>>
     },
   ) {
     const size = computed(() => {
-      const btn = this.parentContainer.value
-      if (!(btn instanceof Button)) {
+      const dropdown = this.parentContainer.value
+      if (!(dropdown instanceof Dropdown)) {
         return 24
       }
-      const size = btn.properties.value.size ?? 'lg'
+      const size = dropdown.properties.value.size ?? 'lg'
       if (size === 'lg') {
         return 24
       }
       return 16
     })
     super(inputProperties, initialClasses, {
-      defaults: componentDefaults,
       ...config,
       defaultOverrides: {
         '*': {

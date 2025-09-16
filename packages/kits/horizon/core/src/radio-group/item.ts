@@ -26,10 +26,14 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
     super(inputProperties, initialClasses, {
       ...config,
       defaultOverrides: {
+        fontSize: 14,
+        lineHeight: '20px',
+        color: lightTheme.semantic.text.primary,
+        fontWeight: 500,
         cursor: 'pointer',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 6,
         onClick: (e) => {
           e.stopPropagation?.()
           const radioGroup = this.parentContainer.peek()
