@@ -8,7 +8,7 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 type DropdownSizeProps = Pick<ContainerProperties, 'paddingX' | 'paddingY' | 'fontSize' | 'lineHeight'>
 const _dropdownSizes = {
@@ -77,30 +77,30 @@ export class Dropdown<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
         paddingX: computed(() => dropdownSizes[this.properties.value.size ?? 'lg'].paddingX),
         paddingY: computed(() => dropdownSizes[this.properties.value.size ?? 'lg'].paddingY),
         fontWeight: 500,
-        backgroundColor: lightTheme.component.selectionDropdown.background.fill.default,
-        color: lightTheme.component.selectionDropdown.label.default,
+        backgroundColor: theme.component.selectionDropdown.background.fill.default,
+        color: theme.component.selectionDropdown.label.default,
         hover: {
-          backgroundColor: lightTheme.component.selectionDropdown.background.fill.hovered,
-          color: lightTheme.component.selectionDropdown.label.hovered,
+          backgroundColor: theme.component.selectionDropdown.background.fill.hovered,
+          color: theme.component.selectionDropdown.label.hovered,
         },
         active: {
-          backgroundColor: lightTheme.component.selectionDropdown.background.fill.pressed,
-          color: lightTheme.component.selectionDropdown.label.pressed,
+          backgroundColor: theme.component.selectionDropdown.background.fill.pressed,
+          color: theme.component.selectionDropdown.label.pressed,
         },
         important: {
           backgroundColor: computed(() =>
             this.currentSignal.value == null
               ? this.currentOpenSignal.value
-                ? lightTheme.component.selectionDropdown.background.fill.hovered.value
+                ? theme.component.selectionDropdown.background.fill.hovered.value
                 : undefined
-              : lightTheme.component.selectionDropdown.background.fill.selected.value,
+              : theme.component.selectionDropdown.background.fill.selected.value,
           ),
           color: computed(() =>
             this.currentSignal.value == null
               ? this.currentOpenSignal.value
-                ? lightTheme.component.selectionDropdown.label.hovered.value
+                ? theme.component.selectionDropdown.label.hovered.value
                 : undefined
-              : lightTheme.component.selectionDropdown.label.selected.value,
+              : theme.component.selectionDropdown.label.selected.value,
           ),
         },
         flexDirection: 'row',

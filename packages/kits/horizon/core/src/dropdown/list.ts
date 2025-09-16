@@ -1,5 +1,5 @@
 import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap, WithSignal } from '@pmndrs/uikit'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 
@@ -26,8 +26,8 @@ export class DropdownList<T = {}, EM extends ThreeEventMap = ThreeEventMap> exte
       ...config,
       defaultOverrides: {
         minWidth: '100%',
-        backgroundColor: lightTheme.component.selectionDropdown.background.fill.hovered,
-        color: lightTheme.component.selectionDropdown.label.hovered,
+        backgroundColor: theme.component.selectionDropdown.background.fill.hovered,
+        color: theme.component.selectionDropdown.label.hovered,
         display: computed(() =>
           this.parentContainer.value instanceof Dropdown && this.parentContainer.value.currentOpenSignal.value
             ? 'flex'

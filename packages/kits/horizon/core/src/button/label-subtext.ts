@@ -9,7 +9,7 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Button } from './index.js'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 export class ButtonLabelSubtext<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
   T,
@@ -37,9 +37,9 @@ export class ButtonLabelSubtext<T = {}, EM extends ThreeEventMap = ThreeEventMap
             return undefined
           }
           if (button.properties.value.disabled === true) {
-            lightTheme.component.button[button.properties.value.variant ?? 'primary'].subtext.disabled.value
+            theme.component.button[button.properties.value.variant ?? 'primary'].subtext.disabled.value
           }
-          return lightTheme.component.button[button.properties.value.variant ?? 'primary'].subtext.default.value
+          return theme.component.button[button.properties.value.variant ?? 'primary'].subtext.default.value
         }),
         ...config?.defaultOverrides,
       },

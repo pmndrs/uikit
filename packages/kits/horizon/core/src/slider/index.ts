@@ -9,7 +9,7 @@ import {
   ThreeEventMap,
 } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 import { Vector3 } from 'three'
 
 const vectorHelper = new Vector3()
@@ -143,10 +143,10 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         alignItems: 'center',
         '*': {
           hover: {
-            backgroundColor: lightTheme.component.slider.handle.background.hover,
+            backgroundColor: theme.component.slider.handle.background.hover,
           },
           active: {
-            backgroundColor: lightTheme.component.slider.handle.background.pressed,
+            backgroundColor: theme.component.slider.handle.background.pressed,
           },
         },
       },
@@ -156,7 +156,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaultOverrides: {
         width: '100%',
         borderRadius: 1000,
-        backgroundColor: lightTheme.component.slider.background,
+        backgroundColor: theme.component.slider.background,
         height: computed(() => sliderHeights[this.properties.value.size ?? 'md']),
       },
     })
@@ -173,7 +173,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       defaultOverrides: {
         borderRadius: 1000,
         flexShrink: 0,
-        backgroundColor: lightTheme.component.slider.foreground.default,
+        backgroundColor: theme.component.slider.foreground.default,
         minWidth: computed(() =>
           Math.max(
             sliderHeights[this.properties.value.size ?? 'md'],
@@ -207,7 +207,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     this.thumbText = new Text(undefined, undefined, {
       defaultOverrides: {
-        color: lightTheme.component.slider.handle.label,
+        color: theme.component.slider.handle.label,
         fontWeight: 700,
         lineHeight: '20px',
         backgroundColor: 'initial',
@@ -228,7 +228,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
       }
       const icon = new Icon(undefined, undefined, {
         defaultOverrides: {
-          color: lightTheme.component.slider.handle.icon,
+          color: theme.component.slider.handle.icon,
           backgroundColor: 'initial',
           width: 24,
           height: 24,
@@ -253,7 +253,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         justifyContent: 'space-between',
         fontSize: 12,
         lineHeight: '16px',
-        color: lightTheme.component.slider.label,
+        color: theme.component.slider.label,
         fontWeight: 500,
       },
     })

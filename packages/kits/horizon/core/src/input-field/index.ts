@@ -8,7 +8,7 @@ import {
   Text,
 } from '@pmndrs/uikit'
 import { Input, InputOutProperties } from '../input/index.js'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
 export type InputFieldOutProperties<EM extends ThreeEventMap = ThreeEventMap> = InputOutProperties<EM> & {
@@ -61,12 +61,12 @@ export class InputField<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
         hover: {},
         backgroundColor: computed(() => {
           if (this.input.input.hasFocus.value) {
-            return lightTheme.component.inputField.background.default.value
+            return theme.component.inputField.background.default.value
           }
           if (hovered.value) {
-            return lightTheme.component.inputField.background.hovered.value
+            return theme.component.inputField.background.hovered.value
           }
-          return lightTheme.component.inputField.background.default.value
+          return theme.component.inputField.background.default.value
         }),
         ...config?.defaultOverrides,
       },
@@ -78,7 +78,7 @@ export class InputField<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
         fontSize: 12,
         lineHeight: '16px',
         fontWeight: 500,
-        color: lightTheme.component.inputField.label,
+        color: theme.component.inputField.label,
       },
     })
     super.add(this.label)

@@ -10,7 +10,7 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { Texture } from 'three'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
 const _avatarSizes = {
@@ -67,17 +67,17 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           important: {
             borderColor: computed(() =>
               this.properties.value.selected === true
-                ? lightTheme.component.avatar.focusRing.selected.value
+                ? theme.component.avatar.focusRing.selected.value
                 : undefined,
             ),
           },
           active: {
-            borderColor: lightTheme.component.avatar.focusRing.pressed,
+            borderColor: theme.component.avatar.focusRing.pressed,
           },
           hover: {
-            borderColor: lightTheme.component.avatar.focusRing.hovered,
+            borderColor: theme.component.avatar.focusRing.hovered,
           },
-          borderColor: lightTheme.component.avatar.focusRing.default,
+          borderColor: theme.component.avatar.focusRing.default,
         },
         ...config?.defaultOverrides,
       },
@@ -133,7 +133,7 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           width: attributionActiveWidth,
           height: attributionActiveWidth,
           flexShrink: 0,
-          backgroundColor: lightTheme.component.avatar.badge.active,
+          backgroundColor: theme.component.avatar.badge.active,
           positionType: 'absolute',
           borderColor: 'initial',
           borderRadius: 1000,

@@ -1,6 +1,6 @@
 import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 export type ProgressBarStepperStepOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   value?: boolean
@@ -27,8 +27,8 @@ export class ProgressBarStepperStep<T = {}, EM extends ThreeEventMap = ThreeEven
         flexGrow: 1,
         backgroundColor: computed(() =>
           this.properties.value.value
-            ? lightTheme.component.progressBar.determinate.fill.fill.value
-            : lightTheme.component.progressBar.determinate.background.background.value,
+            ? theme.component.progressBar.determinate.fill.fill.value
+            : theme.component.progressBar.determinate.background.background.value,
         ),
         ...config?.defaultOverrides,
       },

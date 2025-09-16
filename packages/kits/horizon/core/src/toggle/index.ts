@@ -1,6 +1,6 @@
 import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 export type ToggleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   checked?: boolean
@@ -39,29 +39,29 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         width: 40,
         justifyContent: computed(() => (this.currentSignal.value ? 'flex-end' : 'flex-start')),
         '*': {
-          backgroundColor: lightTheme.component.toggle.handle.default.value,
+          backgroundColor: theme.component.toggle.handle.default.value,
           hover: {
-            backgroundColor: lightTheme.component.toggle.handle.hovered.value,
+            backgroundColor: theme.component.toggle.handle.hovered.value,
           },
           active: {
-            backgroundColor: lightTheme.component.toggle.handle.pressed.value,
+            backgroundColor: theme.component.toggle.handle.pressed.value,
           },
           important: {
             backgroundColor: computed(() =>
-              this.currentSignal.value ? lightTheme.component.toggle.handle.selected.value : undefined,
+              this.currentSignal.value ? theme.component.toggle.handle.selected.value : undefined,
             ),
           },
         },
-        backgroundColor: lightTheme.component.toggle.background.default.value,
+        backgroundColor: theme.component.toggle.background.default.value,
         hover: {
-          backgroundColor: lightTheme.component.toggle.background.hovered.value,
+          backgroundColor: theme.component.toggle.background.hovered.value,
         },
         active: {
-          backgroundColor: lightTheme.component.toggle.background.pressed.value,
+          backgroundColor: theme.component.toggle.background.pressed.value,
         },
         important: {
           backgroundColor: computed(() =>
-            this.currentSignal.value ? lightTheme.component.toggle.background.selected.value : undefined,
+            this.currentSignal.value ? theme.component.toggle.background.selected.value : undefined,
           ),
         },
         onClick: () => {

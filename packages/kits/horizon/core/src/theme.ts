@@ -1,6 +1,10 @@
-import { withOpacity } from '@pmndrs/uikit'
+import { withOpacity, getPreferredColorScheme, isDarkMode } from '@pmndrs/uikit'
+import { computed, Signal } from '@preact/signals-core'
 
-export const lightTheme = {
+const lightTheme = {
+  plate: {
+    background: withOpacity('#ffffff', 1),
+  },
   component: {
     button: {
       primary: {
@@ -1456,7 +1460,10 @@ export const lightTheme = {
   },
 } as const
 
-export const darkTheme = {
+const darkTheme = {
+  plate: {
+    background: withOpacity('#414141', 1),
+  },
   component: {
     button: {
       primary: {
@@ -2370,13 +2377,13 @@ export const darkTheme = {
       },
     },
     inputField: {
-      label: withOpacity('#272727', 0.699999988079071),
-      icon: withOpacity('#272727', 0.699999988079071),
-      inputField: withOpacity('#272727', 0.05000000074505806),
+      label: withOpacity('#ffffff', 0.699999988079071),
+      icon: withOpacity('#ffffff', 0.699999988079071),
+      inputField: withOpacity('#ffffff', 0.05000000074505806),
       background: {
-        default: withOpacity('#272727', 0.05000000074505806),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
+        default: withOpacity('#ffffff', 0.05000000074505806),
+        hovered: withOpacity('#ffffff', 0.10000000149011612),
+        pressed: withOpacity('#ffffff', 0.20000000298023224),
       },
     },
     popover: {
@@ -2911,3 +2918,16 @@ export const darkTheme = {
     },
   },
 } as const
+
+function merge(light: any, dark: any) {
+  if (light instanceof Signal) {
+    return computed(() => (isDarkMode.value ? (dark as Signal).value : light.value))
+  }
+  const result: any = {}
+  for (const key in light) {
+    result[key] = merge(light[key], dark[key])
+  }
+  return result
+}
+
+export const theme = merge(lightTheme, darkTheme) as unknown as typeof lightTheme

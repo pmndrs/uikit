@@ -1,7 +1,7 @@
 import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { RadioGroup } from './index.js'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 export type RadioGroupItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   value?: string
@@ -28,7 +28,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaultOverrides: {
         fontSize: 14,
         lineHeight: '20px',
-        color: lightTheme.semantic.text.primary,
+        color: theme.semantic.text.primary,
         fontWeight: 500,
         cursor: 'pointer',
         flexDirection: 'row',
@@ -61,18 +61,18 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
         borderWidth: 4,
         borderRadius: 1000,
         borderColor: computed(() =>
-          isSelected.value ? lightTheme.component.radioButtons.background.selected.value : undefined,
+          isSelected.value ? theme.component.radioButtons.background.selected.value : undefined,
         ),
-        backgroundColor: lightTheme.component.radioButtons.background.default,
+        backgroundColor: theme.component.radioButtons.background.default,
         hover: {
-          backgroundColor: lightTheme.component.radioButtons.background.hovered,
+          backgroundColor: theme.component.radioButtons.background.hovered,
         },
         active: {
-          backgroundColor: lightTheme.component.radioButtons.background.pressed,
+          backgroundColor: theme.component.radioButtons.background.pressed,
         },
         important: {
           backgroundColor: computed(() =>
-            isSelected.value ? lightTheme.component.radioButtons.icon.selected.value : undefined,
+            isSelected.value ? theme.component.radioButtons.icon.selected.value : undefined,
           ),
         },
       },

@@ -9,84 +9,84 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 type ButtonVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'hover' | 'color' | 'active' | 'important'>
 const _buttonVariants = {
   primary: {
-    backgroundColor: lightTheme.component.button.primary.background.fill.default,
-    color: lightTheme.component.button.primary.label.default,
+    backgroundColor: theme.component.button.primary.background.fill.default,
+    color: theme.component.button.primary.label.default,
     hover: {
-      backgroundColor: lightTheme.component.button.primary.background.fill.hovered,
-      color: lightTheme.component.button.primary.label.hovered,
+      backgroundColor: theme.component.button.primary.background.fill.hovered,
+      color: theme.component.button.primary.label.hovered,
     },
     active: {
-      backgroundColor: lightTheme.component.button.primary.background.fill.pressed,
-      color: lightTheme.component.button.primary.label.pressed,
+      backgroundColor: theme.component.button.primary.background.fill.pressed,
+      color: theme.component.button.primary.label.pressed,
     },
   },
   secondary: {
-    backgroundColor: lightTheme.component.button.secondary.background.fill.default,
-    color: lightTheme.component.button.secondary.label.default,
+    backgroundColor: theme.component.button.secondary.background.fill.default,
+    color: theme.component.button.secondary.label.default,
     hover: {
-      backgroundColor: lightTheme.component.button.secondary.background.fill.hovered,
-      color: lightTheme.component.button.secondary.label.hovered,
+      backgroundColor: theme.component.button.secondary.background.fill.hovered,
+      color: theme.component.button.secondary.label.hovered,
     },
     active: {
-      backgroundColor: lightTheme.component.button.secondary.background.fill.pressed,
-      color: lightTheme.component.button.secondary.label.pressed,
+      backgroundColor: theme.component.button.secondary.background.fill.pressed,
+      color: theme.component.button.secondary.label.pressed,
     },
   },
   tertiary: {
-    backgroundColor: lightTheme.component.button.tertiary.background.fill.default,
-    color: lightTheme.component.button.tertiary.label.default,
+    backgroundColor: theme.component.button.tertiary.background.fill.default,
+    color: theme.component.button.tertiary.label.default,
     hover: {
-      backgroundColor: lightTheme.component.button.tertiary.background.fill.hovered,
-      color: lightTheme.component.button.tertiary.label.hovered,
+      backgroundColor: theme.component.button.tertiary.background.fill.hovered,
+      color: theme.component.button.tertiary.label.hovered,
     },
     active: {
-      backgroundColor: lightTheme.component.button.tertiary.background.fill.pressed,
-      color: lightTheme.component.button.tertiary.label.pressed,
+      backgroundColor: theme.component.button.tertiary.background.fill.pressed,
+      color: theme.component.button.tertiary.label.pressed,
     },
   },
   onMedia: {
-    backgroundColor: lightTheme.component.button.onMedia.background.fill.default,
-    color: lightTheme.component.button.onMedia.label.default,
+    backgroundColor: theme.component.button.onMedia.background.fill.default,
+    color: theme.component.button.onMedia.label.default,
     hover: {
-      backgroundColor: lightTheme.component.button.onMedia.background.fill.hovered,
-      color: lightTheme.component.button.onMedia.label.hovered,
+      backgroundColor: theme.component.button.onMedia.background.fill.hovered,
+      color: theme.component.button.onMedia.label.hovered,
     },
     active: {
-      backgroundColor: lightTheme.component.button.onMedia.background.fill.pressed,
-      color: lightTheme.component.button.onMedia.label.pressed,
+      backgroundColor: theme.component.button.onMedia.background.fill.pressed,
+      color: theme.component.button.onMedia.label.pressed,
     },
   },
   positive: {
-    backgroundColor: lightTheme.component.button.positive.background.fill.default,
-    color: lightTheme.component.button.positive.label.default,
+    backgroundColor: theme.component.button.positive.background.fill.default,
+    color: theme.component.button.positive.label.default,
     hover: {
-      backgroundColor: lightTheme.component.button.positive.background.fill.hovered,
-      color: lightTheme.component.button.positive.label.hovered,
+      backgroundColor: theme.component.button.positive.background.fill.hovered,
+      color: theme.component.button.positive.label.hovered,
     },
     active: {
-      backgroundColor: lightTheme.component.button.positive.background.fill.pressed,
-      color: lightTheme.component.button.positive.label.pressed,
+      backgroundColor: theme.component.button.positive.background.fill.pressed,
+      color: theme.component.button.positive.label.pressed,
     },
   },
   negative: {
-    backgroundColor: lightTheme.component.button.negative.background.fill.default,
-    color: lightTheme.component.button.negative.label.default,
+    backgroundColor: theme.component.button.negative.background.fill.default,
+    color: theme.component.button.negative.label.default,
     hover: {
-      backgroundColor: lightTheme.component.button.negative.background.fill.hovered,
-      color: lightTheme.component.button.negative.label.hovered,
+      backgroundColor: theme.component.button.negative.background.fill.hovered,
+      color: theme.component.button.negative.label.hovered,
     },
     active: {
-      backgroundColor: lightTheme.component.button.negative.background.fill.pressed,
-      color: lightTheme.component.button.negative.label.pressed,
+      backgroundColor: theme.component.button.negative.background.fill.pressed,
+      color: theme.component.button.negative.label.pressed,
     },
     important: {
-      backgroundColor: lightTheme.component.button.negative.background.fill.disabled,
-      color: lightTheme.component.button.negative.label.disabled,
+      backgroundColor: theme.component.button.negative.background.fill.disabled,
+      color: theme.component.button.negative.label.disabled,
     },
   },
 } satisfies Record<string, ButtonVariantProps>
@@ -166,12 +166,12 @@ export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         important: {
           backgroundColor: computed(() =>
             this.properties.value.disabled === true
-              ? lightTheme.component.button.negative.background.fill.disabled.value
+              ? theme.component.button.negative.background.fill.disabled.value
               : undefined,
           ),
           color: computed(() =>
             this.properties.value.disabled === true
-              ? lightTheme.component.button.negative.label.disabled.value
+              ? theme.component.button.negative.label.disabled.value
               : undefined,
           ),
         },

@@ -12,7 +12,7 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed, ReadonlySignal } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 type InputVariantProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHeight'>
 const _inputSizes = {
@@ -87,20 +87,20 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         fontWeight: 500,
         color: computed(() =>
           (this.properties.value.variant ?? 'text') === 'text'
-            ? lightTheme.component.textInput.label.default.value
-            : lightTheme.component.search.label.value,
+            ? theme.component.textInput.label.default.value
+            : theme.component.search.label.value,
         ),
         paddingX: 16,
         height: computed(() => inputSizes[this.properties.value.size ?? 'lg'].height),
         borderRadius: 8,
         backgroundColor: computed(() => {
           if (this.input.hasFocus.value) {
-            return lightTheme.component.textInput.background.typing.value
+            return theme.component.textInput.background.typing.value
           }
           if (hovered.value) {
-            return lightTheme.component.textInput.background.hovered.value
+            return theme.component.textInput.background.hovered.value
           }
-          return lightTheme.component.textInput.background.default.value
+          return theme.component.textInput.background.default.value
         }),
 
         ...config?.defaultOverrides,
@@ -119,11 +119,11 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         textAlign: this.properties.signal.textAlign,
         minWidth: 100,
         focus: {
-          color: lightTheme.component.textInput.label.typing,
+          color: theme.component.textInput.label.typing,
         },
-        caretColor: lightTheme.component.textInput.cursor,
+        caretColor: theme.component.textInput.cursor,
         placeholderStyle: {
-          color: lightTheme.semantic.text.placeholder,
+          color: theme.semantic.text.placeholder,
         },
         placeholder: this.properties.signal.placeholder,
         defaultValue: this.properties.signal.defaultValue,
@@ -142,10 +142,10 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
 
     const iconColor = computed(() =>
       (this.properties.value.variant ?? 'text') === 'search'
-        ? lightTheme.component.search.icon.value
+        ? theme.component.search.icon.value
         : this.input.hasFocus
-          ? lightTheme.component.textInput.label.typing.value
-          : lightTheme.component.textInput.label.default.value,
+          ? theme.component.textInput.label.typing.value
+          : theme.component.textInput.label.default.value,
     )
 
     abortableEffect(() => {

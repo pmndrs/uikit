@@ -11,25 +11,25 @@ import {
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 type BadgeVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'color'>
 const _badgeVariants = {
   primary: {
-    backgroundColor: lightTheme.component.badges.primary.background,
-    color: lightTheme.component.badges.primary.label,
+    backgroundColor: theme.component.badges.primary.background,
+    color: theme.component.badges.primary.label,
   },
   secondary: {
-    backgroundColor: lightTheme.component.badges.secondary.background,
-    color: lightTheme.component.badges.secondary.label,
+    backgroundColor: theme.component.badges.secondary.background,
+    color: theme.component.badges.secondary.label,
   },
   positive: {
-    backgroundColor: lightTheme.component.badges.positive.background,
-    color: lightTheme.component.badges.positive.label,
+    backgroundColor: theme.component.badges.positive.background,
+    color: theme.component.badges.positive.label,
   },
   negative: {
-    backgroundColor: lightTheme.component.badges.background.background,
-    color: lightTheme.component.badges.background.label,
+    backgroundColor: theme.component.badges.background.background,
+    color: theme.component.badges.background.label,
   },
 } satisfies Record<string, BadgeVariantProps>
 const badgeVariants = _badgeVariants as UnionizeVariants<typeof _badgeVariants>

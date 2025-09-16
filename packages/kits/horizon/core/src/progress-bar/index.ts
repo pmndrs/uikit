@@ -1,6 +1,6 @@
 import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { lightTheme } from '../theme.js'
+import { theme } from '../theme.js'
 
 export type ProgressBarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
   value?: number
@@ -25,7 +25,7 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
       defaultOverrides: {
         borderRadius: 1000,
         height: 12,
-        backgroundColor: lightTheme.component.progressBar.determinate.background.background.value,
+        backgroundColor: theme.component.progressBar.determinate.background.background.value,
         ...config?.defaultOverrides,
       },
     })
@@ -34,7 +34,7 @@ export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> exten
         defaultOverrides: {
           height: 12,
           borderRadius: 1000,
-          backgroundColor: lightTheme.component.progressBar.determinate.fill.fill.value,
+          backgroundColor: theme.component.progressBar.determinate.fill.fill.value,
           width: computed(() => `${this.properties.value.value ?? 0}%` as const),
           minWidth: 12,
         },

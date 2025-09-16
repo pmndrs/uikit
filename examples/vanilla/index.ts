@@ -10,6 +10,7 @@ import {
   ButtonIcon,
   ButtonLabel,
   ButtonLabelSubtext,
+  Checkbox,
   Dropdown,
   DropdownAvatar,
   DropdownButton,
@@ -21,6 +22,7 @@ import {
   RadioGroup,
   RadioGroupItem,
   Slider,
+  theme,
   Toggle,
 } from '@pmndrs/uikit-horizon'
 
@@ -44,7 +46,11 @@ const renderer = new WebGLRenderer({ antialias: true, canvas })
 setPreferredColorScheme('dark')
 
 //UI
-const root = new Fullscreen(renderer, { alignItems: 'center', justifyContent: 'center' })
+const root = new Fullscreen(renderer, {
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.plate.background,
+})
 camera.add(root)
 scene.add(camera)
 
@@ -57,6 +63,9 @@ scene.add(directionalLight)
 const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
+
+root.add(new Checkbox({ variant: 'normal', marginRight: 16 }))
+root.add(new Checkbox({ variant: 'onMedia' }))
 
 /*const dropdown = new Dropdown({ size: 'sm' })
 dropdown.add(new DropdownTextValue({ placeholder: 'Select' }))
@@ -81,7 +90,7 @@ radioGroupitem3.add(new Text({ text: 'Item3' }))
 radioGroup.add(radioGroupitem1, radioGroupitem2, radioGroupitem3)
 root.add(radioGroup)*/
 
-root.add(
+/*root.add(
   new InputField({
     leftIcon: SearchIcon,
     rightIcon: MicIcon,
@@ -89,7 +98,7 @@ root.add(
     placeholder: 'Enter something',
     width: 561,
   }),
-)
+)*/
 
 /*root.add(
   new Input({
