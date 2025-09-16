@@ -1,5 +1,5 @@
 import { AmbientLight, Color, DirectionalLight, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, setPreferredColorScheme, Fullscreen, Text } from '@pmndrs/uikit'
+import { reversePainterSortStable, setPreferredColorScheme, Fullscreen, Text, Container } from '@pmndrs/uikit'
 import { IceCreamBowlIcon, MicIcon, PlusIcon, SearchIcon } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
@@ -19,6 +19,7 @@ import {
   DropdownTextValue,
   Input,
   InputField,
+  Panel,
   RadioGroup,
   RadioGroupItem,
   Slider,
@@ -43,16 +44,19 @@ const orbit = new OrbitHandles(canvas, camera)
 orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
-setPreferredColorScheme('dark')
+setPreferredColorScheme('light')
 
 //UI
-const root = new Fullscreen(renderer, {
+const fullscreen = new Fullscreen(renderer, {
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: theme.plate.background,
 })
-camera.add(root)
+camera.add(fullscreen)
 scene.add(camera)
+console.log(fullscreen)
+
+const root = new Panel({ padding: 64, alignItems: 'center', flexDirection: 'row', gap: 8 })
+fullscreen.add(root)
 
 // Add directional light
 const directionalLight = new DirectionalLight(0xffffff, 1)
@@ -64,10 +68,9 @@ const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
 
-root.add(new Checkbox({ variant: 'normal', marginRight: 16 }))
-root.add(new Checkbox({ variant: 'onMedia' }))
+root.add(new Checkbox({ variant: 'normal' }))
 
-/*const dropdown = new Dropdown({ size: 'sm' })
+const dropdown = new Dropdown({ size: 'sm' })
 dropdown.add(new DropdownTextValue({ placeholder: 'Select' }))
 dropdown.add(new DropdownButton())
 const list = new DropdownList()
@@ -78,7 +81,7 @@ const listItem2 = new DropdownListItem({ value: 'Item1' })
 listItem2.add(new Text({ text: 'Item1' }))
 list.add(listItem2)
 dropdown.add(list)
-root.add(dropdown)*/
+root.add(dropdown)
 
 /*const radioGroup = new RadioGroup({ defaultValue: '1' })
 const radioGroupitem1 = new RadioGroupItem({ value: '1' })
@@ -168,7 +171,7 @@ function animation(time: number) {
 
   update()
   orbit.update(delta)
-  root.update(delta)
+  fullscreen.update(delta)
 
   renderer.render(scene, camera)
 }

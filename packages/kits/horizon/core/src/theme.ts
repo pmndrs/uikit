@@ -1,10 +1,7 @@
-import { withOpacity, getPreferredColorScheme, isDarkMode } from '@pmndrs/uikit'
+import { isDarkMode, withOpacity } from '@pmndrs/uikit'
 import { computed, Signal } from '@preact/signals-core'
 
 const lightTheme = {
-  plate: {
-    background: withOpacity('#ffffff', 1),
-  },
   component: {
     button: {
       primary: {
@@ -22,22 +19,22 @@ const lightTheme = {
           },
         },
         label: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          disabled: withOpacity('#ffffff', 0.6000000238418579),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          disabled: withOpacity('#ffffff', 0.6),
         },
       },
       secondary: {
@@ -45,20 +42,20 @@ const lightTheme = {
           default: withOpacity('#272727', 1),
           hovered: withOpacity('#272727', 1),
           pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          disabled: withOpacity('#272727', 0.3),
         },
         icon: {
           default: withOpacity('#272727', 1),
           hovered: withOpacity('#272727', 1),
           pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          disabled: withOpacity('#272727', 0.3),
         },
         background: {
           fill: {
-            default: withOpacity('#272727', 0.05000000074505806),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.20000000298023224),
-            disabled: withOpacity('#272727', 0.05000000074505806),
+            default: withOpacity('#272727', 0.05),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.2),
+            disabled: withOpacity('#272727', 0.05),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -67,10 +64,10 @@ const lightTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          disabled: withOpacity('#272727', 0.3),
         },
       },
       tertiary: {
@@ -78,19 +75,19 @@ const lightTheme = {
           default: withOpacity('#272727', 1),
           hovered: withOpacity('#272727', 1),
           pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          disabled: withOpacity('#272727', 0.3),
         },
         icon: {
           default: withOpacity('#272727', 1),
           hovered: withOpacity('#272727', 1),
           pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          disabled: withOpacity('#272727', 0.3),
         },
         background: {
           fill: {
             default: withOpacity('#272727', 0),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.15000000596046448),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.15),
             disabled: withOpacity('#272727', 0),
           },
           border: {
@@ -100,30 +97,30 @@ const lightTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          disabled: withOpacity('#272727', 0.3),
         },
       },
       onMedia: {
         label: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          disabled: withOpacity('#ffffff', 0.3499999940395355),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.35),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          disabled: withOpacity('#ffffff', 0.3499999940395355),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.35),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#ffffff', 0.10000000149011612),
-            pressed: withOpacity('#ffffff', 0.20000000298023224),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
             disabled: withOpacity('#ffffff', 0),
           },
           border: {
@@ -133,23 +130,23 @@ const lightTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          disabled: withOpacity('#ffffff', 0.3499999940395355),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          disabled: withOpacity('#ffffff', 0.35),
         },
       },
       positive: {
         label: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
         background: {
@@ -166,23 +163,23 @@ const lightTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
           disabled: withOpacity('#f2f2f2', 1),
         },
       },
       negative: {
         label: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
         background: {
@@ -199,9 +196,9 @@ const lightTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
           disabled: withOpacity('#f2f2f2', 1),
         },
       },
@@ -211,13 +208,13 @@ const lightTheme = {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
       icon: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
         ring: {
           stop1: withOpacity('#014ed0', 1),
           stop2: withOpacity('#31d3f3', 1),
@@ -226,9 +223,9 @@ const lightTheme = {
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
+          selected: withOpacity('#272727', 0.9),
         },
         border: {
           default: withOpacity('#ffffff', 0),
@@ -256,14 +253,14 @@ const lightTheme = {
     },
     toggle: {
       background: {
-        default: withOpacity('#272727', 0.3499999940395355),
-        hovered: withOpacity('#272727', 0.44999998807907104),
-        pressed: withOpacity('#272727', 0.550000011920929),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        default: withOpacity('#272727', 0.35),
+        hovered: withOpacity('#272727', 0.45),
+        pressed: withOpacity('#272727', 0.55),
+        selected: withOpacity('#272727', 0.9),
       },
       handle: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.949999988079071),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.95),
         pressed: withOpacity('#ffffff', 1),
         selected: withOpacity('#ffffff', 1),
       },
@@ -271,37 +268,37 @@ const lightTheme = {
     checkbox: {
       selected: {
         background: {
-          default: withOpacity('#272727', 0.3499999940395355),
-          hover: withOpacity('#272727', 0.44999998807907104),
-          pressed: withOpacity('#272727', 0.550000011920929),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#272727', 0.35),
+          hover: withOpacity('#272727', 0.45),
+          pressed: withOpacity('#272727', 0.55),
+          selected: withOpacity('#272727', 0.9),
         },
         icon: {
           default: withOpacity('#ffffff', 0),
           hover: withOpacity('#ffffff', 0),
           pressed: withOpacity('#ffffff', 0),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          selected: withOpacity('#ffffff', 0.9),
         },
       },
     },
     radioButtons: {
       background: {
-        default: withOpacity('#272727', 0.3499999940395355),
-        hovered: withOpacity('#272727', 0.44999998807907104),
-        pressed: withOpacity('#272727', 0.550000011920929),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        default: withOpacity('#272727', 0.35),
+        hovered: withOpacity('#272727', 0.45),
+        pressed: withOpacity('#272727', 0.55),
+        selected: withOpacity('#272727', 0.9),
       },
       icon: {
         default: withOpacity('#ffffff', 0),
         hovered: withOpacity('#ffffff', 0),
         pressed: withOpacity('#ffffff', 0),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
     },
     progressBar: {
       indeterminate: {
         background: {
-          background: withOpacity('#272727', 0.10000000149011612),
+          background: withOpacity('#272727', 0.1),
         },
         fill: {
           stop1: withOpacity('#272727', 1),
@@ -314,28 +311,28 @@ const lightTheme = {
           fill: withOpacity('#272727', 1),
         },
         background: {
-          background: withOpacity('#272727', 0.10000000149011612),
+          background: withOpacity('#272727', 0.1),
         },
       },
       quickReplies: {
         label: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#ffffff', 0.9),
         },
         icon: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#ffffff', 0.9),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.20000000298023224),
-            selected: withOpacity('#272727', 0.8999999761581421),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.2),
+            selected: withOpacity('#272727', 0.9),
           },
           border: {
             default: withOpacity('#ffffff', 0),
@@ -344,7 +341,7 @@ const lightTheme = {
             selected: withOpacity('#ffffff', 0),
           },
         },
-        dividers: withOpacity('#272727', 0.10000000149011612),
+        dividers: withOpacity('#272727', 0.1),
       },
     },
     menu: {
@@ -352,28 +349,28 @@ const lightTheme = {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
       icon: {
-        default: withOpacity('#272727', 0.699999988079071),
-        hovered: withOpacity('#272727', 0.699999988079071),
-        pressed: withOpacity('#272727', 0.699999988079071),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#272727', 0.7),
+        hovered: withOpacity('#272727', 0.7),
+        pressed: withOpacity('#272727', 0.7),
+        selected: withOpacity('#ffffff', 0.9),
       },
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
+          selected: withOpacity('#272727', 0.9),
         },
       },
       sectionHeader: withOpacity('#272727', 1),
       subtitle: {
-        default: withOpacity('#272727', 0.699999988079071),
-        hovered: withOpacity('#272727', 0.699999988079071),
-        pressed: withOpacity('#272727', 0.699999988079071),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#272727', 0.7),
+        hovered: withOpacity('#272727', 0.7),
+        pressed: withOpacity('#272727', 0.7),
+        selected: withOpacity('#ffffff', 0.9),
       },
       toggle: {
         title: {
@@ -391,30 +388,30 @@ const lightTheme = {
           },
         },
         icon: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#272727', 0.699999988079071),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#272727', 0.7),
         },
         subtitle: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#272727', 0.699999988079071),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#272727', 0.7),
         },
       },
       labelIcon: {
         label: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#ffffff', 0.9),
         },
         icon: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#ffffff', 0.9),
         },
       },
     },
@@ -424,19 +421,19 @@ const lightTheme = {
           default: withOpacity('#272727', 1),
           hovered: withOpacity('#272727', 1),
           pressed: withOpacity('#272727', 1),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          selected: withOpacity('#ffffff', 0.9),
         },
         icon: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#ffffff', 0.9),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.20000000298023224),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.2),
             selected: withOpacity('#272727', 1),
           },
           border: {
@@ -455,16 +452,16 @@ const lightTheme = {
           selected: withOpacity('#272727', 1),
         },
         icon: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          selected: withOpacity('#272727', 0.9),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.20000000298023224),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.2),
             selected: withOpacity('#272727', 0),
           },
           border: {
@@ -479,31 +476,31 @@ const lightTheme = {
     badges: {
       primary: {
         background: withOpacity('#272727', 1),
-        label: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        label: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#ffffff', 0.9),
       },
       secondary: {
-        background: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.9),
         label: withOpacity('#272727', 1),
         icon: withOpacity('#272727', 1),
       },
       positive: {
         background: withOpacity('#0b8a1b', 1),
-        label: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        label: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#ffffff', 0.9),
       },
       background: {
         background: withOpacity('#dd1535', 1),
-        label: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        label: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#ffffff', 0.9),
       },
     },
     imageCards: {
       background: {
         fill: {
           default: withOpacity('#272727', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
           selected: withOpacity('#272727', 0),
         },
         border: {
@@ -515,90 +512,90 @@ const lightTheme = {
       },
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
-        metadata: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
+        metadata: withOpacity('#272727', 0.7),
         rating: {
           primary: withOpacity('#272727', 1),
-          secondary: withOpacity('#272727', 0.699999988079071),
+          secondary: withOpacity('#272727', 0.7),
         },
         price: {
           primary: withOpacity('#272727', 1),
-          secondary: withOpacity('#272727', 0.699999988079071),
+          secondary: withOpacity('#272727', 0.7),
         },
       },
       icon: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
     },
     tiles: {
       label: {
         onMedia: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.699999988079071),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.7),
         },
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
       icon: {
         onMedia: {
           primary: withOpacity('#ffffff', 1),
         },
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
       eventHeader: {
         label: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
+          primary: withOpacity('#ffffff', 0.9),
           month: withOpacity('#dd1535', 1),
           date: withOpacity('#272727', 1),
         },
         background: {
-          primary: withOpacity('#000000', 0.6000000238418579),
-          date: withOpacity('#ffffff', 0.8999999761581421),
+          primary: withOpacity('#000000', 0.6),
+          date: withOpacity('#ffffff', 0.9),
         },
         notification: {
           indicator: withOpacity('#dd1535', 1),
         },
       },
       background: {
-        primary: withOpacity('#272727', 0.05000000074505806),
+        primary: withOpacity('#272727', 0.05),
       },
       mediaThumbnail: {
-        border: withOpacity('#272727', 0.10000000149011612),
+        border: withOpacity('#272727', 0.1),
       },
       check: {
-        background: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.9),
         icon: withOpacity('#272727', 1),
       },
     },
     segmentedControl: {
       background: {
         default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
         selected: withOpacity('#272727', 1),
       },
       icon: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
       label: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
       selected: {
-        background: withOpacity('#272727', 0.05000000074505806),
+        background: withOpacity('#272727', 0.05),
       },
     },
     progressRing: {
       background: {
         active: withOpacity('#272727', 1),
-        inactive: withOpacity('#272727', 0.10000000149011612),
+        inactive: withOpacity('#272727', 0.1),
       },
       icon: {
         fill: withOpacity('#272727', 1),
@@ -610,9 +607,9 @@ const lightTheme = {
       },
       focusRing: {
         default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
+        selected: withOpacity('#272727', 0.9),
       },
     },
     facepile: {
@@ -620,9 +617,9 @@ const lightTheme = {
     },
     peopleCard: {
       label: {
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
         primary: withOpacity('#272727', 1),
-        tertiary: withOpacity('#272727', 0.699999988079071),
+        tertiary: withOpacity('#272727', 0.7),
       },
       badge: {
         active: withOpacity('#0b8a1b', 1),
@@ -631,107 +628,107 @@ const lightTheme = {
     onMediaCheckbox: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        pressed: withOpacity('#ffffff', 0.20000000298023224),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
         selected: withOpacity('#ffffff', 1),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
     },
     syncButton: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
+        hovered: withOpacity('#ffffff', 0.1),
         pressed: withOpacity('#ffffff', 0),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
       },
       progressRing: {
-        background: withOpacity('#ffffff', 0.30000001192092896),
-        fill: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.3),
+        fill: withOpacity('#ffffff', 0.9),
       },
     },
     galleryTile: {
       icon: withOpacity('#ffffff', 1),
-      label: withOpacity('#ffffff', 0.8999999761581421),
+      label: withOpacity('#ffffff', 0.9),
     },
     search: {
-      label: withOpacity('#272727', 0.699999988079071),
+      label: withOpacity('#272727', 0.7),
       cursor: withOpacity('#0173ec', 1),
       background: {
-        default: withOpacity('#272727', 0.05000000074505806),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        typing: withOpacity('#272727', 0.05000000074505806),
+        default: withOpacity('#272727', 0.05),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
+        typing: withOpacity('#272727', 0.05),
       },
       icon: withOpacity('#272727', 1),
     },
     slider: {
-      label: withOpacity('#272727', 0.699999988079071),
-      background: withOpacity('#272727', 0.05000000074505806),
+      label: withOpacity('#272727', 0.7),
+      background: withOpacity('#272727', 0.05),
       icon: withOpacity('#272727', 1),
       handle: {
         background: {
-          hover: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
+          hover: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
           default: withOpacity('#ffffff', 0),
         },
-        icon: withOpacity('#ffffff', 0.8999999761581421),
-        label: withOpacity('#ffffff', 0.8999999761581421),
+        icon: withOpacity('#ffffff', 0.9),
+        label: withOpacity('#ffffff', 0.9),
       },
       foreground: {
         default: withOpacity('#272727', 1),
       },
     },
     typehead: {
-      icon: withOpacity('#272727', 0.699999988079071),
-      label: withOpacity('#272727', 0.699999988079071),
+      icon: withOpacity('#272727', 0.7),
+      label: withOpacity('#272727', 0.7),
       background: {
         default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.15000000596046448),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.15),
       },
     },
     inputKeys: {
       letter: {
         background: {
-          default: withOpacity('#272727', 0.05000000074505806),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          hovered: withOpacity('#272727', 0.10000000149011612),
+          default: withOpacity('#272727', 0.05),
+          pressed: withOpacity('#272727', 0.2),
+          hovered: withOpacity('#272727', 0.1),
         },
         label: {
           primary: withOpacity('#272727', 1),
-          secondary: withOpacity('#272727', 0.30000001192092896),
+          secondary: withOpacity('#272727', 0.3),
         },
       },
       icon: {
         background: {
-          default: withOpacity('#272727', 0.05000000074505806),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
+          default: withOpacity('#272727', 0.05),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
         },
         icon: {
-          default: withOpacity('#272727', 0.8999999761581421),
-          hovered: withOpacity('#272727', 0.8999999761581421),
-          pressed: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#272727', 0.9),
+          hovered: withOpacity('#272727', 0.9),
+          pressed: withOpacity('#272727', 0.9),
         },
       },
       alt: {
         background: {
           default: withOpacity('#ffffff', 1),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
         },
         label: {
           primary: withOpacity('#272727', 1),
-          secondary: withOpacity('#272727', 0.30000001192092896),
+          secondary: withOpacity('#272727', 0.3),
         },
       },
       primary: {
@@ -741,16 +738,16 @@ const lightTheme = {
           pressed: withOpacity('#747474', 1),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
         },
       },
       spaceBar: {
         background: {
-          default: withOpacity('#272727', 0.05000000074505806),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
+          default: withOpacity('#272727', 0.05),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
         },
       },
     },
@@ -770,10 +767,10 @@ const lightTheme = {
           stop1: withOpacity('#ffffff', 1),
           stop2: withOpacity('#f2f2f2', 1),
         },
-        border: withOpacity('#272727', 0.10000000149011612),
+        border: withOpacity('#272727', 0.1),
       },
-      dividers: withOpacity('#272727', 0.10000000149011612),
-      label: withOpacity('#272727', 0.699999988079071),
+      dividers: withOpacity('#272727', 0.1),
+      label: withOpacity('#272727', 0.7),
     },
     tooltip: {
       background: {
@@ -785,25 +782,25 @@ const lightTheme = {
       },
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
     },
     infoCells: {
-      background: withOpacity('#272727', 0.05000000074505806),
-      icon: withOpacity('#272727', 0.699999988079071),
-      subheadline: withOpacity('#272727', 0.699999988079071),
-      label: withOpacity('#272727', 0.699999988079071),
+      background: withOpacity('#272727', 0.05),
+      icon: withOpacity('#272727', 0.7),
+      subheadline: withOpacity('#272727', 0.7),
+      label: withOpacity('#272727', 0.7),
     },
     listCells: {
       background: {
-        default: withOpacity('#272727', 0.05000000074505806),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
+        default: withOpacity('#272727', 0.05),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
       },
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
-        secondaryTextIcon: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
+        secondaryTextIcon: withOpacity('#272727', 0.7),
       },
       attribute: {
         primary: withOpacity('#272727', 1),
@@ -815,11 +812,11 @@ const lightTheme = {
         stop2: withOpacity('#f2f2f2', 1),
       },
       statusElements: {
-        time: withOpacity('#272727', 0.699999988079071),
+        time: withOpacity('#272727', 0.7),
         wifi: withOpacity('#272727', 1),
         battery: withOpacity('#272727', 1),
       },
-      divider: withOpacity('#272727', 0.10000000149011612),
+      divider: withOpacity('#272727', 0.1),
     },
     achievementRow: {
       background: {
@@ -827,10 +824,10 @@ const lightTheme = {
       },
       label: {
         primary: withOpacity('#272727', 1),
-        rating: withOpacity('#272727', 0.699999988079071),
-        category: withOpacity('#272727', 0.699999988079071),
-        description: withOpacity('#272727', 0.699999988079071),
-        achievements: withOpacity('#272727', 0.699999988079071),
+        rating: withOpacity('#272727', 0.7),
+        category: withOpacity('#272727', 0.7),
+        description: withOpacity('#272727', 0.7),
+        achievements: withOpacity('#272727', 0.7),
         progress: withOpacity('#272727', 1),
       },
       icon: {
@@ -840,28 +837,28 @@ const lightTheme = {
     browserTab: {
       background: {
         default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
+        selected: withOpacity('#272727', 0.9),
       },
       label: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
     },
     browserToolBar: {
-      icon: withOpacity('#272727', 0.699999988079071),
+      icon: withOpacity('#272727', 0.7),
     },
     browserTopBar: {
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
       icon: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
     },
     dialogModals: {
@@ -871,7 +868,7 @@ const lightTheme = {
       },
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
         link: withOpacity('#0173ec', 1),
       },
       icon: {
@@ -885,52 +882,52 @@ const lightTheme = {
       },
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
     },
     heroImage: {
       label: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
       pagination: {
-        active: withOpacity('#ffffff', 0.8999999761581421),
-        inactive: withOpacity('#ffffff', 0.30000001192092896),
+        active: withOpacity('#ffffff', 0.9),
+        inactive: withOpacity('#ffffff', 0.3),
       },
     },
     listHeader: {
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
     },
     mediaControls: {
       icon: {
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        icon: withOpacity('#ffffff', 0.9),
         progressBar: {
-          foreground: withOpacity('#ffffff', 0.8999999761581421),
-          background: withOpacity('#ffffff', 0.30000001192092896),
+          foreground: withOpacity('#ffffff', 0.9),
+          background: withOpacity('#ffffff', 0.3),
         },
       },
       playButton: {
-        background: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.9),
         icon: withOpacity('#272727', 1),
       },
     },
     inputField: {
-      label: withOpacity('#272727', 0.699999988079071),
-      icon: withOpacity('#272727', 0.699999988079071),
-      inputField: withOpacity('#272727', 0.05000000074505806),
+      label: withOpacity('#272727', 0.7),
+      icon: withOpacity('#272727', 0.7),
+      inputField: withOpacity('#272727', 0.05),
       background: {
-        default: withOpacity('#272727', 0.05000000074505806),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
+        default: withOpacity('#272727', 0.05),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
       },
     },
     popover: {
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
       background: {
         stop1: withOpacity('#ffffff', 1),
@@ -941,7 +938,7 @@ const lightTheme = {
     sectionHeader: {
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
     },
     scrollbars: {
@@ -951,7 +948,7 @@ const lightTheme = {
     },
     bottomButton: {
       label: {
-        primary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#272727', 0.7),
         link: withOpacity('#0173ec', 1),
       },
     },
@@ -962,9 +959,9 @@ const lightTheme = {
       },
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
-      divider: withOpacity('#272727', 0.10000000149011612),
+      divider: withOpacity('#272727', 0.1),
     },
     toast: {
       toast: {
@@ -974,14 +971,14 @@ const lightTheme = {
           delete: withOpacity('#dd1535', 1),
           label: {
             primary: withOpacity('#272727', 1),
-            secondary: withOpacity('#272727', 0.699999988079071),
+            secondary: withOpacity('#272727', 0.7),
           },
           icon: {
             primary: withOpacity('#272727', 1),
           },
         },
         slider: {
-          background: withOpacity('#272727', 0.10000000149011612),
+          background: withOpacity('#272727', 0.1),
           forground: withOpacity('#272727', 1),
         },
       },
@@ -1007,11 +1004,11 @@ const lightTheme = {
       },
     },
     avatarTile: {
-      background: withOpacity('#272727', 0.05000000074505806),
+      background: withOpacity('#272727', 0.05),
       selectedBorder: withOpacity('#272727', 1),
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
       multiselect: {
         background: withOpacity('#272727', 1),
@@ -1020,71 +1017,71 @@ const lightTheme = {
       },
       icon: withOpacity('#272727', 1),
       reward: {
-        background: withOpacity('#000000', 0.05000000074505806),
+        background: withOpacity('#000000', 0.05),
         gradient: withOpacity('#6441d2', 1),
         label: {
           primary: withOpacity('#272727', 1),
-          secondary: withOpacity('#272727', 0.699999988079071),
+          secondary: withOpacity('#272727', 0.7),
         },
         slider: {
           background: withOpacity('#e2e4ea', 1),
           foreground: withOpacity('#6441d2', 1),
         },
-        icon: withOpacity('#272727', 0.699999988079071),
+        icon: withOpacity('#272727', 0.7),
       },
     },
     avatarSideNav: {
       background: {
         default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        hovered: withOpacity('#272727', 0.1),
+        selected: withOpacity('#272727', 0.9),
       },
       icon: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
       attribute: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
       label: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        selected: withOpacity('#ffffff', 0.9),
       },
     },
     avatarLoader: {
       fill: withOpacity('#272727', 1),
-      background: withOpacity('#272727', 0.10000000149011612),
+      background: withOpacity('#272727', 0.1),
     },
     avatarColorPickerSwatch: {
       selectedState: withOpacity('#272727', 1),
-      icon: withOpacity('#ffffff', 0.8999999761581421),
+      icon: withOpacity('#ffffff', 0.9),
       noneBackground: withOpacity('#272727', 1),
     },
     avatarSlider: {
       label: withOpacity('#272727', 1),
-      icon: withOpacity('#272727', 0.699999988079071),
+      icon: withOpacity('#272727', 0.7),
       slider: {
-        background: withOpacity('#272727', 0.05000000074505806),
-        label: withOpacity('#272727', 0.699999988079071),
+        background: withOpacity('#272727', 0.05),
+        label: withOpacity('#272727', 0.7),
         icon: withOpacity('#272727', 1),
         foreground: {
-          default: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#272727', 0.9),
         },
         handle: {
-          icon: withOpacity('#ffffff', 0.8999999761581421),
-          label: withOpacity('#ffffff', 0.8999999761581421),
+          icon: withOpacity('#ffffff', 0.9),
+          label: withOpacity('#ffffff', 0.9),
         },
       },
-      background: withOpacity('#272727', 0.05000000074505806),
+      background: withOpacity('#272727', 0.05),
     },
     avatarSectionHeader: {
       label: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        secondary: withOpacity('#272727', 0.7),
       },
       icon: withOpacity('#272727', 1),
     },
@@ -1092,59 +1089,59 @@ const lightTheme = {
       background: {
         chips: {
           default: withOpacity('#272727', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
+          selected: withOpacity('#272727', 0.9),
         },
         picker: {
-          default: withOpacity('#272727', 0.05000000074505806),
+          default: withOpacity('#272727', 0.05),
         },
       },
       icon: {
-        default: withOpacity('#272727', 0.699999988079071),
-        hovered: withOpacity('#272727', 0.8500000238418579),
-        pressed: withOpacity('#272727', 0.8999999761581421),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#272727', 0.7),
+        hovered: withOpacity('#272727', 0.85),
+        pressed: withOpacity('#272727', 0.9),
+        selected: withOpacity('#ffffff', 0.9),
       },
       label: {
-        default: withOpacity('#272727', 0.699999988079071),
-        hovered: withOpacity('#272727', 0.699999988079071),
-        pressed: withOpacity('#272727', 0.699999988079071),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#272727', 0.7),
+        hovered: withOpacity('#272727', 0.7),
+        pressed: withOpacity('#272727', 0.7),
+        selected: withOpacity('#ffffff', 0.9),
       },
       selected: {
-        background: withOpacity('#272727', 0.05000000074505806),
+        background: withOpacity('#272727', 0.05),
       },
     },
     emptyStateIllustration: {
       icon: {
         primary: withOpacity('#272727', 0.5),
-        secondary: withOpacity('#272727', 0.8999999761581421),
+        secondary: withOpacity('#272727', 0.9),
       },
-      abstractStars: withOpacity('#272727', 0.15000000596046448),
-      shimmer: withOpacity('#272727', 0.07999999821186066),
+      abstractStars: withOpacity('#272727', 0.15),
+      shimmer: withOpacity('#272727', 0.08),
     },
     navigationOverflowMenu: {
       label: {
         default: withOpacity('#272727', 1),
         hovered: withOpacity('#272727', 1),
         pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
-        disabled: withOpacity('#272727', 0.30000001192092896),
+        selected: withOpacity('#ffffff', 0.9),
+        disabled: withOpacity('#272727', 0.3),
       },
       icon: {
-        default: withOpacity('#272727', 0.699999988079071),
-        hovered: withOpacity('#272727', 0.699999988079071),
-        pressed: withOpacity('#272727', 0.699999988079071),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
-        disabled: withOpacity('#272727', 0.30000001192092896),
+        default: withOpacity('#272727', 0.7),
+        hovered: withOpacity('#272727', 0.7),
+        pressed: withOpacity('#272727', 0.7),
+        selected: withOpacity('#ffffff', 0.9),
+        disabled: withOpacity('#272727', 0.3),
       },
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
+          selected: withOpacity('#272727', 0.9),
           disabled: withOpacity('#ffffff', 0),
         },
         border: {
@@ -1250,18 +1247,18 @@ const lightTheme = {
     },
     textInput: {
       label: {
-        default: withOpacity('#272727', 0.699999988079071),
-        hover: withOpacity('#272727', 0.699999988079071),
-        pressed: withOpacity('#272727', 0.699999988079071),
+        default: withOpacity('#272727', 0.7),
+        hover: withOpacity('#272727', 0.7),
+        pressed: withOpacity('#272727', 0.7),
         typing: withOpacity('#272727', 1),
       },
       cursor: withOpacity('#0173ec', 1),
-      icon: withOpacity('#272727', 0.699999988079071),
+      icon: withOpacity('#272727', 0.7),
       background: {
-        default: withOpacity('#272727', 0.05000000074505806),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        typing: withOpacity('#272727', 0.05000000074505806),
+        default: withOpacity('#272727', 0.05),
+        hovered: withOpacity('#272727', 0.1),
+        pressed: withOpacity('#272727', 0.2),
+        typing: withOpacity('#272727', 0.05),
       },
     },
     navigationAppTile: {
@@ -1316,163 +1313,160 @@ const lightTheme = {
       },
       uninstalledScrim: withOpacity('#ffffff', 1),
     },
-  },
-  semantic: {
-    ui: {
-      focusring: {
-        default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        selected: withOpacity('#272727', 0.8999999761581421),
-      },
-      primary: {
-        text: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
-        background: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#5a5a5a', 1),
-          pressed: withOpacity('#747474', 1),
-        },
-      },
-      secondary: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#272727', 0.05000000074505806),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-        },
-      },
-      tertiary: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#272727', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.15000000596046448),
-        },
-      },
-      disabled: {
-        text: withOpacity('#f2f2f2', 1),
-        icon: withOpacity('#f2f2f2', 1),
-        background: {
-          default: withOpacity('#c0c0c0', 1),
-          hovered: withOpacity('#c0c0c0', 1),
-          pressed: withOpacity('#c0c0c0', 1),
-        },
-      },
-      selected: {
-        text: withOpacity('#f2f2f2', 1),
-        icon: withOpacity('#f2f2f2', 1),
-        background: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#000000', 0.8999999761581421),
-          pressed: withOpacity('#000000', 0.949999988079071),
-        },
-      },
-      deselected: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#272727', 0.05000000074505806),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.15000000596046448),
-        },
-      },
-      onMedia: {
-        text: withOpacity('#f2f2f2', 1),
-        icon: withOpacity('#f2f2f2', 1),
-        background: {
-          default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
-        },
-      },
-    },
-    status: {
-      notification: withOpacity('#0173ec', 1),
-      hidden: withOpacity('#8e8e8e', 1),
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      warning: withOpacity('#a94302', 1),
-      privacy: withOpacity('#6441d2', 1),
-    },
-    text: {
-      primary: withOpacity('#272727', 1),
-      secondary: withOpacity('#272727', 0.699999988079071),
-      placeholder: withOpacity('#272727', 0.30000001192092896),
-      disabled: withOpacity('#272727', 0.30000001192092896),
-      link: withOpacity('#0173ec', 1),
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      warning: withOpacity('#a94302', 1),
-      primaryOnMedia: withOpacity('#ffffff', 0.8999999761581421),
-      secondaryOnMedia: withOpacity('#ffffff', 0.699999988079071),
-    },
-    icon: {
-      primary: withOpacity('#272727', 1),
-      secondary: withOpacity('#272727', 0.699999988079071),
-      placeholder: withOpacity('#272727', 0.30000001192092896),
-      disabled: withOpacity('#272727', 0.30000001192092896),
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      warning: withOpacity('#a94302', 1),
-      onMedia: withOpacity('#ffffff', 0.8999999761581421),
-      secondaryOnMedia: withOpacity('#ffffff', 0.699999988079071),
-    },
-    background: {
-      primary: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
-      },
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      privacy: withOpacity('#6441d2', 1),
+    semantic: {
       ui: {
+        focusring: {
+          default: withOpacity('#272727', 0),
+          hovered: withOpacity('#272727', 0.1),
+          pressed: withOpacity('#272727', 0.2),
+          selected: withOpacity('#272727', 0.9),
+        },
+        primary: {
+          text: withOpacity('#ffffff', 0.9),
+          icon: withOpacity('#ffffff', 0.9),
+          background: {
+            default: withOpacity('#272727', 1),
+            hovered: withOpacity('#5a5a5a', 1),
+            pressed: withOpacity('#747474', 1),
+          },
+        },
+        secondary: {
+          text: withOpacity('#272727', 1),
+          icon: withOpacity('#272727', 1),
+          background: {
+            default: withOpacity('#272727', 0.05),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.2),
+          },
+        },
+        tertiary: {
+          text: withOpacity('#272727', 1),
+          icon: withOpacity('#272727', 1),
+          background: {
+            default: withOpacity('#272727', 0),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.15),
+          },
+        },
+        disabled: {
+          text: withOpacity('#f2f2f2', 1),
+          icon: withOpacity('#f2f2f2', 1),
+          background: {
+            default: withOpacity('#c0c0c0', 1),
+            hovered: withOpacity('#c0c0c0', 1),
+            pressed: withOpacity('#c0c0c0', 1),
+          },
+        },
+        selected: {
+          text: withOpacity('#f2f2f2', 1),
+          icon: withOpacity('#f2f2f2', 1),
+          background: {
+            default: withOpacity('#272727', 1),
+            hovered: withOpacity('#000000', 0.9),
+            pressed: withOpacity('#000000', 0.95),
+          },
+        },
+        deselected: {
+          text: withOpacity('#272727', 1),
+          icon: withOpacity('#272727', 1),
+          background: {
+            default: withOpacity('#272727', 0.05),
+            hovered: withOpacity('#272727', 0.1),
+            pressed: withOpacity('#272727', 0.15),
+          },
+        },
+        onMedia: {
+          text: withOpacity('#f2f2f2', 1),
+          icon: withOpacity('#f2f2f2', 1),
+          background: {
+            default: withOpacity('#ffffff', 0),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+          },
+        },
+      },
+      status: {
+        notification: withOpacity('#0173ec', 1),
+        hidden: withOpacity('#8e8e8e', 1),
+        positive: withOpacity('#0b8a1b', 1),
+        negative: withOpacity('#dd1535', 1),
+        warning: withOpacity('#a94302', 1),
+        privacy: withOpacity('#6441d2', 1),
+      },
+      text: {
         primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.05000000074505806),
+        secondary: withOpacity('#272727', 0.7),
+        placeholder: withOpacity('#272727', 0.3),
+        disabled: withOpacity('#272727', 0.3),
+        link: withOpacity('#0173ec', 1),
+        positive: withOpacity('#0b8a1b', 1),
+        negative: withOpacity('#dd1535', 1),
+        warning: withOpacity('#a94302', 1),
+        primaryOnMedia: withOpacity('#ffffff', 0.9),
+        secondaryOnMedia: withOpacity('#ffffff', 0.7),
       },
-    },
-    shadows: {
-      punchedIn: {
-        dropShadow: withOpacity('#ffffff', 1),
-        innerShadow: withOpacity('#272727', 0.05000000074505806),
+      icon: {
+        primary: withOpacity('#272727', 1),
+        secondary: withOpacity('#272727', 0.7),
+        placeholder: withOpacity('#272727', 0.3),
+        disabled: withOpacity('#272727', 0.3),
+        positive: withOpacity('#0b8a1b', 1),
+        negative: withOpacity('#dd1535', 1),
+        warning: withOpacity('#a94302', 1),
+        onMedia: withOpacity('#ffffff', 0.9),
+        secondaryOnMedia: withOpacity('#ffffff', 0.7),
       },
-      beveled: {
-        left: withOpacity('#ffffff', 1),
-        right: withOpacity('#272727', 0.05000000074505806),
+      background: {
+        primary: {
+          stop1: withOpacity('#ffffff', 1),
+          stop2: withOpacity('#f2f2f2', 1),
+        },
+        positive: withOpacity('#0b8a1b', 1),
+        negative: withOpacity('#dd1535', 1),
+        privacy: withOpacity('#6441d2', 1),
+        ui: {
+          primary: withOpacity('#272727', 1),
+          secondary: withOpacity('#272727', 0.05),
+        },
       },
-      dropShadow: {
-        innerShadow: {
+      shadows: {
+        punchedIn: {
+          dropShadow: withOpacity('#ffffff', 1),
+          innerShadow: withOpacity('#272727', 0.05),
+        },
+        beveled: {
           left: withOpacity('#ffffff', 1),
-          right: withOpacity('#272727', 0.05000000074505806),
+          right: withOpacity('#272727', 0.05),
         },
         dropShadow: {
-          top: withOpacity('#272727', 0.05000000074505806),
-          bottom: withOpacity('#272727', 0.05000000074505806),
+          innerShadow: {
+            left: withOpacity('#ffffff', 1),
+            right: withOpacity('#272727', 0.05),
+          },
+          dropShadow: {
+            top: withOpacity('#272727', 0.05),
+            bottom: withOpacity('#272727', 0.05),
+          },
         },
-      },
-      panel: {
-        innerShadow: withOpacity('#272727', 0.10000000149011612),
-        innerShadow2: withOpacity('#ffffff', 1),
+        panel: {
+          innerShadow: withOpacity('#272727', 0.1),
+          innerShadow2: withOpacity('#ffffff', 1),
+        },
       },
     },
   },
 } as const
 
 const darkTheme = {
-  plate: {
-    background: withOpacity('#414141', 1),
-  },
   component: {
     button: {
       primary: {
         background: {
           fill: {
-            default: withOpacity('#272727', 1),
-            hovered: withOpacity('#5a5a5a', 1),
-            pressed: withOpacity('#747474', 1),
-            disabled: withOpacity('#c0c0c0', 1),
+            default: withOpacity('#ffffff', 0.9),
+            hovered: withOpacity('#d9d9d9', 1),
+            pressed: withOpacity('#c0c0c0', 1),
+            disabled: withOpacity('#5a5a5a', 1),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -1481,43 +1475,43 @@ const darkTheme = {
           },
         },
         label: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#272727', 1),
+          hovered: withOpacity('#272727', 1),
+          pressed: withOpacity('#272727', 1),
+          disabled: withOpacity('#ffffff', 0.3),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#272727', 1),
+          hovered: withOpacity('#272727', 1),
+          pressed: withOpacity('#272727', 1),
           disabled: withOpacity('#f2f2f2', 1),
         },
         subtext: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#272727', 0.7),
+          hovered: withOpacity('#272727', 0.7),
+          pressed: withOpacity('#272727', 0.7),
+          disabled: withOpacity('#ffffff', 0.3),
         },
       },
       secondary: {
         label: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#272727', 1),
-          pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.3),
         },
         icon: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#272727', 1),
-          pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.3),
         },
         background: {
           fill: {
-            default: withOpacity('#272727', 0.05000000074505806),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.20000000298023224),
-            disabled: withOpacity('#272727', 0.05000000074505806),
+            default: withOpacity('#ffffff', 0.05),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+            disabled: withOpacity('#ffffff', 0.05),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -1526,63 +1520,30 @@ const darkTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#272727', 0.699999988079071),
-          hovered: withOpacity('#272727', 0.699999988079071),
-          pressed: withOpacity('#272727', 0.699999988079071),
-          disabled: withOpacity('#272727', 0.699999988079071),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          disabled: withOpacity('#ffffff', 0.7),
         },
       },
       tertiary: {
         label: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#272727', 1),
-          pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.3),
         },
         icon: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#272727', 1),
-          pressed: withOpacity('#272727', 1),
-          disabled: withOpacity('#272727', 0.30000001192092896),
-        },
-        background: {
-          fill: {
-            default: withOpacity('#272727', 0),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.15000000596046448),
-            disabled: withOpacity('#272727', 0),
-          },
-          border: {
-            default: withOpacity('#000000', 0),
-            hovered: withOpacity('#000000', 0),
-            pressed: withOpacity('#000000', 0),
-          },
-        },
-        subtext: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          disabled: withOpacity('#ffffff', 0.699999988079071),
-        },
-      },
-      onMedia: {
-        label: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          disabled: withOpacity('#ffffff', 0.3499999940395355),
-        },
-        icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          disabled: withOpacity('#ffffff', 0.3499999940395355),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.3),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#ffffff', 0.10000000149011612),
-            pressed: withOpacity('#ffffff', 0.20000000298023224),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.15),
             disabled: withOpacity('#ffffff', 0),
           },
           border: {
@@ -1592,10 +1553,43 @@ const darkTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          disabled: withOpacity('#ffffff', 0.3499999940395355),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          disabled: withOpacity('#ffffff', 0.7),
+        },
+      },
+      onMedia: {
+        label: {
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.35),
+        },
+        icon: {
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.35),
+        },
+        background: {
+          fill: {
+            default: withOpacity('#ffffff', 0),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+            disabled: withOpacity('#ffffff', 0),
+          },
+          border: {
+            default: withOpacity('#000000', 0),
+            hovered: withOpacity('#000000', 0),
+            pressed: withOpacity('#000000', 0),
+          },
+        },
+        subtext: {
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          disabled: withOpacity('#ffffff', 0.35),
         },
       },
       positive: {
@@ -1613,10 +1607,10 @@ const darkTheme = {
         },
         background: {
           fill: {
-            default: withOpacity('#0b8a1b', 1),
+            default: withOpacity('#2ad116', 1),
             hovered: withOpacity('#006622', 1),
             pressed: withOpacity('#003d1e', 1),
-            disabled: withOpacity('#c0c0c0', 1),
+            disabled: withOpacity('#5a5a5a', 1),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -1625,9 +1619,9 @@ const darkTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
       },
@@ -1646,10 +1640,10 @@ const darkTheme = {
         },
         background: {
           fill: {
-            default: withOpacity('#dd1535', 1),
+            default: withOpacity('#f7818c', 1),
             hovered: withOpacity('#f45b6b', 1),
             pressed: withOpacity('#ec374e', 1),
-            disabled: withOpacity('#c0c0c0', 1),
+            disabled: withOpacity('#5a5a5a', 1),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -1658,25 +1652,25 @@ const darkTheme = {
           },
         },
         subtext: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#f2f2f2', 1),
         },
       },
     },
     selectionDropdown: {
       label: {
-        default: withOpacity('#272727', 1),
-        hovered: withOpacity('#272727', 1),
-        pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
+        selected: withOpacity('#272727', 1),
       },
       icon: {
-        default: withOpacity('#272727', 1),
-        hovered: withOpacity('#272727', 1),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
+        selected: withOpacity('#272727', 1),
         ring: {
           stop1: withOpacity('#014ed0', 1),
           stop2: withOpacity('#31d3f3', 1),
@@ -1685,9 +1679,9 @@ const darkTheme = {
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
+          selected: withOpacity('#ffffff', 0.9),
         },
         border: {
           default: withOpacity('#000000', 0),
@@ -1706,23 +1700,23 @@ const darkTheme = {
       },
       background: {
         fill: {
-          good: withOpacity('#0b8a1b', 1),
-          poor: withOpacity('#a94302', 1),
-          bad: withOpacity('#dd1535', 1),
-          none: withOpacity('#ffffff', 0.8999999761581421),
+          good: withOpacity('#2ad116', 1),
+          poor: withOpacity('#fc9435', 1),
+          bad: withOpacity('#f7818c', 1),
+          none: withOpacity('#ffffff', 0.9),
         },
       },
     },
     toggle: {
       background: {
-        default: withOpacity('#ffffff', 0.15000000596046448),
+        default: withOpacity('#ffffff', 0.15),
         hovered: withOpacity('#ffffff', 0.25),
-        pressed: withOpacity('#ffffff', 0.3499999940395355),
+        pressed: withOpacity('#ffffff', 0.35),
         selected: withOpacity('#000000', 1),
       },
       handle: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.949999988079071),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.95),
         pressed: withOpacity('#ffffff', 1),
         selected: withOpacity('#ffffff', 1),
       },
@@ -1730,71 +1724,71 @@ const darkTheme = {
     checkbox: {
       selected: {
         background: {
-          default: withOpacity('#ffffff', 0.15000000596046448),
+          default: withOpacity('#ffffff', 0.15),
           hover: withOpacity('#ffffff', 0.25),
-          pressed: withOpacity('#ffffff', 0.3499999940395355),
+          pressed: withOpacity('#ffffff', 0.35),
           selected: withOpacity('#ffffff', 1),
         },
         icon: {
           default: withOpacity('#272727', 0),
           hover: withOpacity('#272727', 0),
           pressed: withOpacity('#272727', 0),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          selected: withOpacity('#272727', 0.9),
         },
       },
     },
     radioButtons: {
       background: {
-        default: withOpacity('#ffffff', 0.15000000596046448),
+        default: withOpacity('#ffffff', 0.15),
         hovered: withOpacity('#ffffff', 0.25),
-        pressed: withOpacity('#ffffff', 0.3499999940395355),
+        pressed: withOpacity('#ffffff', 0.35),
         selected: withOpacity('#ffffff', 1),
       },
       icon: {
         default: withOpacity('#272727', 0),
         hovered: withOpacity('#272727', 0),
         pressed: withOpacity('#272727', 0),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        selected: withOpacity('#272727', 0.9),
       },
     },
     progressBar: {
       indeterminate: {
         background: {
-          background: withOpacity('#000000', 0.10000000149011612),
+          background: withOpacity('#000000', 0.1),
         },
         fill: {
-          stop1: withOpacity('#ffffff', 0.699999988079071),
-          stop2: withOpacity('#ffffff', 0.8999999761581421),
-          stop3: withOpacity('#ffffff', 0.699999988079071),
+          stop1: withOpacity('#ffffff', 0.7),
+          stop2: withOpacity('#ffffff', 0.9),
+          stop3: withOpacity('#ffffff', 0.7),
         },
       },
       determinate: {
         fill: {
-          fill: withOpacity('#ffffff', 0.8999999761581421),
+          fill: withOpacity('#ffffff', 0.9),
         },
         background: {
-          background: withOpacity('#000000', 0.10000000149011612),
+          background: withOpacity('#000000', 0.1),
         },
       },
       quickReplies: {
         label: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          selected: withOpacity('#272727', 0.9),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#272727', 0.9),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#ffffff', 0.10000000149011612),
-            pressed: withOpacity('#ffffff', 0.20000000298023224),
-            selected: withOpacity('#ffffff', 0.8999999761581421),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+            selected: withOpacity('#ffffff', 0.9),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -1803,43 +1797,43 @@ const darkTheme = {
             selected: withOpacity('#000000', 0),
           },
         },
-        dividers: withOpacity('#ffffff', 0.10000000149011612),
+        dividers: withOpacity('#ffffff', 0.1),
       },
     },
     menu: {
       title: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
+          selected: withOpacity('#ffffff', 0.9),
         },
       },
-      sectionHeader: withOpacity('#ffffff', 0.8999999761581421),
+      sectionHeader: withOpacity('#ffffff', 0.9),
       subtitle: {
-        default: withOpacity('#ffffff', 0.699999988079071),
-        hovered: withOpacity('#ffffff', 0.699999988079071),
-        pressed: withOpacity('#ffffff', 0.699999988079071),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.7),
+        hovered: withOpacity('#ffffff', 0.7),
+        pressed: withOpacity('#ffffff', 0.7),
+        selected: withOpacity('#272727', 0.9),
       },
       toggle: {
         title: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#ffffff', 0.9),
         },
         background: {
           fill: {
@@ -1850,53 +1844,53 @@ const darkTheme = {
           },
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#ffffff', 0.9),
         },
         subtitle: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          selected: withOpacity('#ffffff', 0.699999988079071),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          selected: withOpacity('#ffffff', 0.7),
         },
       },
       labelIcon: {
         label: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          selected: withOpacity('#272727', 0.9),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.699999988079071),
-          hovered: withOpacity('#ffffff', 0.699999988079071),
-          pressed: withOpacity('#ffffff', 0.699999988079071),
-          selected: withOpacity('#272727', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.7),
+          hovered: withOpacity('#ffffff', 0.7),
+          pressed: withOpacity('#ffffff', 0.7),
+          selected: withOpacity('#272727', 0.9),
         },
       },
     },
     sideNavigation: {
       sideNavItem: {
         label: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#272727', 1),
-          pressed: withOpacity('#272727', 1),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#272727', 1),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#272727', 1),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#272727', 0.10000000149011612),
-            pressed: withOpacity('#272727', 0.20000000298023224),
-            selected: withOpacity('#272727', 1),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+            selected: withOpacity('#ffffff', 0.9),
           },
           border: {
             default: withOpacity('#000000', 0),
@@ -1908,22 +1902,22 @@ const darkTheme = {
       },
       label: {
         label: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#272727', 1),
-          pressed: withOpacity('#272727', 1),
-          selected: withOpacity('#272727', 1),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#ffffff', 0.9),
         },
         icon: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#ffffff', 0.8999999761581421),
-          pressed: withOpacity('#ffffff', 0.8999999761581421),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#ffffff', 0.9),
+          pressed: withOpacity('#ffffff', 0.9),
+          selected: withOpacity('#ffffff', 0.9),
         },
         background: {
           fill: {
             default: withOpacity('#ffffff', 0),
-            hovered: withOpacity('#ffffff', 0.10000000149011612),
-            pressed: withOpacity('#ffffff', 0.20000000298023224),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
             selected: withOpacity('#ffffff', 0),
           },
           border: {
@@ -1937,32 +1931,32 @@ const darkTheme = {
     },
     badges: {
       primary: {
-        background: withOpacity('#272727', 1),
-        label: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
-      },
-      secondary: {
-        background: withOpacity('#272727', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.9),
         label: withOpacity('#272727', 1),
         icon: withOpacity('#272727', 1),
       },
+      secondary: {
+        background: withOpacity('#272727', 0.9),
+        label: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#ffffff', 0.9),
+      },
       positive: {
         background: withOpacity('#0b8a1b', 1),
-        label: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        label: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#ffffff', 0.9),
       },
       background: {
         background: withOpacity('#dd1535', 1),
-        label: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        label: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#ffffff', 0.9),
       },
     },
     imageCards: {
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
           selected: withOpacity('#ffffff', 0),
         },
         border: {
@@ -1973,208 +1967,208 @@ const darkTheme = {
         },
       },
       label: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.699999988079071),
-        metadata: withOpacity('#ffffff', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
+        metadata: withOpacity('#ffffff', 0.7),
         rating: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.699999988079071),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.7),
         },
         price: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.699999988079071),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.7),
         },
       },
       icon: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
     },
     tiles: {
       label: {
         onMedia: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.699999988079071),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.7),
         },
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.8999999761581421),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.9),
       },
       icon: {
         onMedia: {
           primary: withOpacity('#ffffff', 1),
         },
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.8999999761581421),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.9),
       },
       eventHeader: {
         label: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
+          primary: withOpacity('#ffffff', 0.9),
           month: withOpacity('#dd1535', 1),
           date: withOpacity('#272727', 1),
         },
         background: {
-          primary: withOpacity('#000000', 0.6000000238418579),
-          date: withOpacity('#ffffff', 0.8999999761581421),
+          primary: withOpacity('#000000', 0.6),
+          date: withOpacity('#ffffff', 0.9),
         },
         notification: {
           indicator: withOpacity('#dd1535', 1),
         },
       },
       background: {
-        primary: withOpacity('#000000', 0.10000000149011612),
+        primary: withOpacity('#000000', 0.1),
       },
       mediaThumbnail: {
-        border: withOpacity('#272727', 0.10000000149011612),
+        border: withOpacity('#272727', 0.1),
       },
       check: {
-        background: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.9),
         icon: withOpacity('#272727', 1),
       },
     },
     segmentedControl: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        selected: withOpacity('#272727', 1),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
+        selected: withOpacity('#ffffff', 0.9),
       },
       icon: {
-        default: withOpacity('#272727', 1),
-        hovered: withOpacity('#272727', 1),
-        pressed: withOpacity('#272727', 1),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
       label: {
-        default: withOpacity('#272727', 1),
-        hovered: withOpacity('#272727', 1),
-        pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
+        selected: withOpacity('#272727', 1),
       },
       selected: {
-        background: withOpacity('#000000', 0.10000000149011612),
+        background: withOpacity('#000000', 0.1),
       },
     },
     progressRing: {
       background: {
-        active: withOpacity('#ffffff', 0.8999999761581421),
-        inactive: withOpacity('#ffffff', 0.10000000149011612),
+        active: withOpacity('#ffffff', 0.9),
+        inactive: withOpacity('#ffffff', 0.1),
       },
       icon: {
-        fill: withOpacity('#ffffff', 0.8999999761581421),
+        fill: withOpacity('#ffffff', 0.9),
       },
     },
     avatar: {
       badge: {
-        active: withOpacity('#0b8a1b', 1),
+        active: withOpacity('#2ad116', 1),
       },
       focusRing: {
-        default: withOpacity('#272727', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
+        selected: withOpacity('#ffffff', 0.7),
       },
     },
     facepile: {
-      label: withOpacity('#272727', 1),
+      label: withOpacity('#ffffff', 0.9),
     },
     peopleCard: {
       label: {
-        secondary: withOpacity('#272727', 0.699999988079071),
-        primary: withOpacity('#272727', 1),
-        tertiary: withOpacity('#ffffff', 0.699999988079071),
+        secondary: withOpacity('#ffffff', 0.7),
+        primary: withOpacity('#ffffff', 0.9),
+        tertiary: withOpacity('#ffffff', 0.7),
       },
       badge: {
-        active: withOpacity('#0b8a1b', 1),
+        active: withOpacity('#2ad116', 1),
       },
     },
     onMediaCheckbox: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        pressed: withOpacity('#ffffff', 0.20000000298023224),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
         selected: withOpacity('#ffffff', 1),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
     },
     syncButton: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
+        hovered: withOpacity('#ffffff', 0.1),
         pressed: withOpacity('#ffffff', 0),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
       },
       progressRing: {
-        background: withOpacity('#ffffff', 0.30000001192092896),
-        fill: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.3),
+        fill: withOpacity('#ffffff', 0.9),
       },
     },
     galleryTile: {
       icon: withOpacity('#ffffff', 1),
-      label: withOpacity('#ffffff', 0.8999999761581421),
+      label: withOpacity('#ffffff', 0.9),
     },
     search: {
-      label: withOpacity('#ffffff', 0.8999999761581421),
-      cursor: withOpacity('#0173ec', 1),
+      label: withOpacity('#ffffff', 0.9),
+      cursor: withOpacity('#64b5ff', 1),
       background: {
-        default: withOpacity('#000000', 0.15000000596046448),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        pressed: withOpacity('#ffffff', 0.20000000298023224),
-        typing: withOpacity('#000000', 0.15000000596046448),
+        default: withOpacity('#000000', 0.15),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
+        typing: withOpacity('#000000', 0.15),
       },
-      icon: withOpacity('#272727', 1),
+      icon: withOpacity('#ffffff', 0.9),
     },
     slider: {
-      label: withOpacity('#ffffff', 0.699999988079071),
-      background: withOpacity('#000000', 0.10000000149011612),
-      icon: withOpacity('#ffffff', 0.8999999761581421),
+      label: withOpacity('#ffffff', 0.7),
+      background: withOpacity('#000000', 0.1),
+      icon: withOpacity('#ffffff', 0.9),
       handle: {
         background: {
-          hover: withOpacity('#000000', 0.10000000149011612),
-          pressed: withOpacity('#000000', 0.20000000298023224),
+          hover: withOpacity('#000000', 0.1),
+          pressed: withOpacity('#000000', 0.2),
           default: withOpacity('#000000', 0),
         },
         icon: withOpacity('#272727', 1),
         label: withOpacity('#272727', 1),
       },
       foreground: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
       },
     },
     typehead: {
-      icon: withOpacity('#ffffff', 0.8999999761581421),
-      label: withOpacity('#ffffff', 0.699999988079071),
+      icon: withOpacity('#ffffff', 0.9),
+      label: withOpacity('#ffffff', 0.7),
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.15000000596046448),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.15),
       },
     },
     inputKeys: {
       letter: {
         background: {
-          default: withOpacity('#ffffff', 0.05000000074505806),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
+          default: withOpacity('#ffffff', 0.05),
+          pressed: withOpacity('#ffffff', 0.2),
+          hovered: withOpacity('#ffffff', 0.1),
         },
         label: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.30000001192092896),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.3),
         },
       },
       icon: {
         background: {
-          default: withOpacity('#ffffff', 0.05000000074505806),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
+          default: withOpacity('#ffffff', 0.05),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
         },
         icon: {
           default: withOpacity('#ffffff', 1),
@@ -2185,19 +2179,19 @@ const darkTheme = {
       alt: {
         background: {
           default: withOpacity('#414141', 1),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
         },
         label: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.30000001192092896),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.3),
         },
       },
       primary: {
         background: {
-          default: withOpacity('#272727', 1),
-          hovered: withOpacity('#5a5a5a', 1),
-          pressed: withOpacity('#747474', 1),
+          default: withOpacity('#ffffff', 0.9),
+          hovered: withOpacity('#d9d9d9', 1),
+          pressed: withOpacity('#c0c0c0', 1),
         },
         icon: {
           default: withOpacity('#272727', 1),
@@ -2207,9 +2201,9 @@ const darkTheme = {
       },
       spaceBar: {
         background: {
-          default: withOpacity('#ffffff', 0.05000000074505806),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
+          default: withOpacity('#ffffff', 0.05),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
         },
       },
     },
@@ -2221,7 +2215,7 @@ const darkTheme = {
           border: withOpacity('#ffffff', 1),
         },
       },
-      label: withOpacity('#272727', 1),
+      label: withOpacity('#ffffff', 0.9),
     },
     inputKeyboard: {
       background: {
@@ -2229,219 +2223,219 @@ const darkTheme = {
           stop1: withOpacity('#414141', 1),
           stop2: withOpacity('#272727', 1),
         },
-        border: withOpacity('#ffffff', 0.10000000149011612),
+        border: withOpacity('#ffffff', 0.1),
       },
-      dividers: withOpacity('#ffffff', 0.10000000149011612),
-      label: withOpacity('#ffffff', 0.699999988079071),
+      dividers: withOpacity('#ffffff', 0.1),
+      label: withOpacity('#ffffff', 0.7),
     },
     tooltip: {
       background: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
+        stop1: withOpacity('#414141', 1),
+        stop2: withOpacity('#272727', 1),
       },
       icon: {
-        default: withOpacity('#272727', 1),
+        default: withOpacity('#ffffff', 0.9),
       },
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
     },
     infoCells: {
-      background: withOpacity('#272727', 0.10000000149011612),
-      icon: withOpacity('#272727', 0.699999988079071),
-      subheadline: withOpacity('#ffffff', 0.699999988079071),
-      label: withOpacity('#272727', 0.699999988079071),
+      background: withOpacity('#272727', 0.1),
+      icon: withOpacity('#ffffff', 0.7),
+      subheadline: withOpacity('#ffffff', 0.7),
+      label: withOpacity('#ffffff', 0.7),
     },
     listCells: {
       background: {
-        default: withOpacity('#000000', 0.10000000149011612),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
+        default: withOpacity('#000000', 0.1),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
       },
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
-        secondaryTextIcon: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
+        secondaryTextIcon: withOpacity('#ffffff', 0.7),
       },
       attribute: {
-        primary: withOpacity('#272727', 1),
+        primary: withOpacity('#ffffff', 0.9),
       },
     },
     auiNavigationBar: {
       background: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
+        stop1: withOpacity('#414141', 1),
+        stop2: withOpacity('#272727', 1),
       },
       statusElements: {
-        time: withOpacity('#272727', 0.699999988079071),
-        wifi: withOpacity('#272727', 1),
-        battery: withOpacity('#272727', 1),
+        time: withOpacity('#ffffff', 0.7),
+        wifi: withOpacity('#ffffff', 0.9),
+        battery: withOpacity('#ffffff', 0.9),
       },
-      divider: withOpacity('#ffffff', 0.10000000149011612),
+      divider: withOpacity('#ffffff', 0.1),
     },
     achievementRow: {
       background: {
         default: withOpacity('#ffffff', 0),
       },
       label: {
-        primary: withOpacity('#272727', 1),
-        rating: withOpacity('#272727', 0.699999988079071),
-        category: withOpacity('#272727', 0.699999988079071),
-        description: withOpacity('#272727', 0.699999988079071),
-        achievements: withOpacity('#272727', 0.699999988079071),
-        progress: withOpacity('#272727', 1),
+        primary: withOpacity('#ffffff', 0.9),
+        rating: withOpacity('#ffffff', 0.7),
+        category: withOpacity('#ffffff', 0.7),
+        description: withOpacity('#ffffff', 0.7),
+        achievements: withOpacity('#ffffff', 0.7),
+        progress: withOpacity('#ffffff', 0.9),
       },
       icon: {
-        rating: withOpacity('#272727', 1),
+        rating: withOpacity('#ffffff', 0.9),
       },
     },
     browserTab: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#272727', 0.10000000149011612),
-        pressed: withOpacity('#272727', 0.20000000298023224),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
+        selected: withOpacity('#ffffff', 0.9),
       },
       label: {
-        default: withOpacity('#272727', 1),
-        hovered: withOpacity('#272727', 1),
-        pressed: withOpacity('#272727', 1),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
     },
     browserToolBar: {
-      icon: withOpacity('#272727', 0.699999988079071),
+      icon: withOpacity('#ffffff', 0.7),
     },
     browserTopBar: {
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 1),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.9),
       },
       icon: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
     },
     dialogModals: {
       background: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
+        stop1: withOpacity('#414141', 1),
+        stop2: withOpacity('#272727', 1),
       },
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
-        link: withOpacity('#0173ec', 1),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
+        link: withOpacity('#64b5ff', 1),
       },
       icon: {
-        primary: withOpacity('#272727', 1),
+        primary: withOpacity('#ffffff', 0.9),
       },
     },
     fullPanelModals: {
       background: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
+        stop1: withOpacity('#414141', 1),
+        stop2: withOpacity('#272727', 1),
       },
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
     },
     heroImage: {
       label: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
       pagination: {
-        active: withOpacity('#ffffff', 0.8999999761581421),
-        inactive: withOpacity('#ffffff', 0.30000001192092896),
+        active: withOpacity('#ffffff', 0.9),
+        inactive: withOpacity('#ffffff', 0.3),
       },
     },
     listHeader: {
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
     },
     mediaControls: {
       icon: {
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        icon: withOpacity('#ffffff', 0.9),
         progressBar: {
-          foreground: withOpacity('#ffffff', 0.8999999761581421),
-          background: withOpacity('#ffffff', 0.30000001192092896),
+          foreground: withOpacity('#ffffff', 0.9),
+          background: withOpacity('#ffffff', 0.3),
         },
       },
       playButton: {
-        background: withOpacity('#ffffff', 0.8999999761581421),
-        icon: withOpacity('#272727', 0.8999999761581421),
+        background: withOpacity('#ffffff', 0.9),
+        icon: withOpacity('#272727', 0.9),
       },
     },
     inputField: {
-      label: withOpacity('#ffffff', 0.699999988079071),
-      icon: withOpacity('#ffffff', 0.699999988079071),
-      inputField: withOpacity('#ffffff', 0.05000000074505806),
+      label: withOpacity('#ffffff', 0.7),
+      icon: withOpacity('#ffffff', 0.7),
+      inputField: withOpacity('#ffffff', 0.05),
       background: {
-        default: withOpacity('#ffffff', 0.05000000074505806),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        pressed: withOpacity('#ffffff', 0.20000000298023224),
+        default: withOpacity('#ffffff', 0.05),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
       },
     },
     popover: {
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
       background: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
+        stop1: withOpacity('#414141', 1),
+        stop2: withOpacity('#272727', 1),
       },
-      icon: withOpacity('#272727', 1),
+      icon: withOpacity('#ffffff', 0.9),
     },
     sectionHeader: {
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
     },
     scrollbars: {
       background: {
-        fill: withOpacity('#272727', 1),
+        fill: withOpacity('#ffffff', 0.9),
       },
     },
     bottomButton: {
       label: {
-        primary: withOpacity('#272727', 0.699999988079071),
-        link: withOpacity('#0173ec', 1),
+        primary: withOpacity('#ffffff', 0.7),
+        link: withOpacity('#64b5ff', 1),
       },
     },
     sidesheet: {
       background: {
-        stop1: withOpacity('#ffffff', 1),
-        stop2: withOpacity('#f2f2f2', 1),
+        stop1: withOpacity('#414141', 1),
+        stop2: withOpacity('#272727', 1),
       },
       label: {
-        primary: withOpacity('#272727', 1),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
-      divider: withOpacity('#ffffff', 0.10000000149011612),
+      divider: withOpacity('#ffffff', 0.1),
     },
     toast: {
       toast: {
         background: {
-          stop1: withOpacity('#ffffff', 1),
-          stop2: withOpacity('#f2f2f2', 1),
+          stop1: withOpacity('#414141', 1),
+          stop2: withOpacity('#272727', 1),
           delete: withOpacity('#dd1535', 1),
           label: {
-            primary: withOpacity('#272727', 1),
-            secondary: withOpacity('#272727', 0.699999988079071),
+            primary: withOpacity('#ffffff', 0.9),
+            secondary: withOpacity('#ffffff', 0.7),
           },
           icon: {
-            primary: withOpacity('#272727', 1),
+            primary: withOpacity('#ffffff', 0.9),
           },
         },
         slider: {
-          background: withOpacity('#000000', 0.10000000149011612),
-          forground: withOpacity('#ffffff', 0.8999999761581421),
+          background: withOpacity('#000000', 0.1),
+          forground: withOpacity('#ffffff', 0.9),
         },
       },
     },
@@ -2466,144 +2460,144 @@ const darkTheme = {
       },
     },
     avatarTile: {
-      background: withOpacity('#000000', 0.10000000149011612),
-      selectedBorder: withOpacity('#ffffff', 0.8999999761581421),
+      background: withOpacity('#000000', 0.1),
+      selectedBorder: withOpacity('#ffffff', 0.9),
       label: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
       multiselect: {
         background: withOpacity('#ffffff', 1),
         icon: withOpacity('#272727', 1),
         border: withOpacity('#414141', 1),
       },
-      icon: withOpacity('#ffffff', 0.8999999761581421),
+      icon: withOpacity('#ffffff', 0.9),
       reward: {
-        background: withOpacity('#000000', 0.10000000149011612),
-        gradient: withOpacity('#6441d2', 1),
+        background: withOpacity('#000000', 0.1),
+        gradient: withOpacity('#9c94f8', 1),
         label: {
-          primary: withOpacity('#ffffff', 0.8999999761581421),
-          secondary: withOpacity('#ffffff', 0.699999988079071),
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.7),
         },
         slider: {
           background: withOpacity('#e2e4ea', 1),
           foreground: withOpacity('#6441d2', 1),
         },
-        icon: withOpacity('#272727', 0.699999988079071),
+        icon: withOpacity('#ffffff', 0.7),
       },
     },
     avatarSideNav: {
       background: {
         default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
+        hovered: withOpacity('#ffffff', 0.1),
+        selected: withOpacity('#ffffff', 0.9),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
       attribute: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
       label: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        selected: withOpacity('#272727', 0.9),
       },
     },
     avatarLoader: {
-      fill: withOpacity('#ffffff', 0.8999999761581421),
-      background: withOpacity('#ffffff', 0.10000000149011612),
+      fill: withOpacity('#ffffff', 0.9),
+      background: withOpacity('#ffffff', 0.1),
     },
     avatarColorPickerSwatch: {
-      selectedState: withOpacity('#ffffff', 0.8999999761581421),
-      icon: withOpacity('#ffffff', 0.8999999761581421),
+      selectedState: withOpacity('#ffffff', 0.9),
+      icon: withOpacity('#ffffff', 0.9),
       noneBackground: withOpacity('#272727', 1),
     },
     avatarSlider: {
-      label: withOpacity('#ffffff', 0.8999999761581421),
-      icon: withOpacity('#ffffff', 0.699999988079071),
+      label: withOpacity('#ffffff', 0.9),
+      icon: withOpacity('#ffffff', 0.7),
       slider: {
-        background: withOpacity('#000000', 0.10000000149011612),
-        label: withOpacity('#ffffff', 0.699999988079071),
-        icon: withOpacity('#ffffff', 0.8999999761581421),
+        background: withOpacity('#000000', 0.1),
+        label: withOpacity('#ffffff', 0.7),
+        icon: withOpacity('#ffffff', 0.9),
         foreground: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
+          default: withOpacity('#ffffff', 0.9),
         },
         handle: {
           icon: withOpacity('#272727', 1),
           label: withOpacity('#272727', 1),
         },
       },
-      background: withOpacity('#000000', 0.10000000149011612),
+      background: withOpacity('#000000', 0.1),
     },
     avatarSectionHeader: {
       label: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#272727', 0.699999988079071),
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
       },
-      icon: withOpacity('#ffffff', 0.8999999761581421),
+      icon: withOpacity('#ffffff', 0.9),
     },
     avatarSegmentedControl: {
       background: {
         chips: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#ffffff', 0.8999999761581421),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
+          selected: withOpacity('#ffffff', 0.9),
         },
         picker: {
-          default: withOpacity('#000000', 0.10000000149011612),
+          default: withOpacity('#000000', 0.1),
         },
       },
       icon: {
-        default: withOpacity('#ffffff', 0.699999988079071),
-        hovered: withOpacity('#ffffff', 0.800000011920929),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.7),
+        hovered: withOpacity('#ffffff', 0.8),
+        pressed: withOpacity('#ffffff', 0.9),
         selected: withOpacity('#272727', 1),
       },
       label: {
-        default: withOpacity('#ffffff', 0.699999988079071),
-        hovered: withOpacity('#ffffff', 0.699999988079071),
-        pressed: withOpacity('#ffffff', 0.699999988079071),
-        selected: withOpacity('#272727', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.7),
+        hovered: withOpacity('#ffffff', 0.7),
+        pressed: withOpacity('#ffffff', 0.7),
+        selected: withOpacity('#272727', 0.9),
       },
       selected: {
-        background: withOpacity('#000000', 0.10000000149011612),
+        background: withOpacity('#000000', 0.1),
       },
     },
     emptyStateIllustration: {
       icon: {
         primary: withOpacity('#ffffff', 0.5),
-        secondary: withOpacity('#ffffff', 0.8999999761581421),
+        secondary: withOpacity('#ffffff', 0.9),
       },
-      abstractStars: withOpacity('#ffffff', 0.15000000596046448),
-      shimmer: withOpacity('#ffffff', 0.10000000149011612),
+      abstractStars: withOpacity('#ffffff', 0.15),
+      shimmer: withOpacity('#ffffff', 0.1),
     },
     navigationOverflowMenu: {
       label: {
-        default: withOpacity('#272727', 1),
-        hovered: withOpacity('#272727', 1),
-        pressed: withOpacity('#272727', 1),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
-        disabled: withOpacity('#ffffff', 0.10000000149011612),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
+        selected: withOpacity('#272727', 1),
+        disabled: withOpacity('#ffffff', 0.1),
       },
       icon: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hovered: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
-        selected: withOpacity('#ffffff', 0.8999999761581421),
-        disabled: withOpacity('#ffffff', 0.10000000149011612),
+        default: withOpacity('#ffffff', 0.9),
+        hovered: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
+        selected: withOpacity('#272727', 1),
+        disabled: withOpacity('#ffffff', 0.1),
       },
       background: {
         fill: {
           default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#272727', 0.10000000149011612),
-          pressed: withOpacity('#272727', 0.20000000298023224),
-          selected: withOpacity('#272727', 1),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
+          selected: withOpacity('#ffffff', 0.9),
           disabled: withOpacity('#272727', 0),
         },
         border: {
@@ -2709,18 +2703,18 @@ const darkTheme = {
     },
     textInput: {
       label: {
-        default: withOpacity('#ffffff', 0.8999999761581421),
-        hover: withOpacity('#ffffff', 0.8999999761581421),
-        pressed: withOpacity('#ffffff', 0.8999999761581421),
+        default: withOpacity('#ffffff', 0.9),
+        hover: withOpacity('#ffffff', 0.9),
+        pressed: withOpacity('#ffffff', 0.9),
         typing: withOpacity('#ffffff', 1),
       },
-      cursor: withOpacity('#0173ec', 1),
-      icon: withOpacity('#ffffff', 0.699999988079071),
+      cursor: withOpacity('#64b5ff', 1),
+      icon: withOpacity('#ffffff', 0.7),
       background: {
-        default: withOpacity('#ffffff', 0.05000000074505806),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        pressed: withOpacity('#ffffff', 0.20000000298023224),
-        typing: withOpacity('#ffffff', 0.05000000074505806),
+        default: withOpacity('#ffffff', 0.05),
+        hovered: withOpacity('#ffffff', 0.1),
+        pressed: withOpacity('#ffffff', 0.2),
+        typing: withOpacity('#ffffff', 0.05),
       },
     },
     navigationAppTile: {
@@ -2775,157 +2769,167 @@ const darkTheme = {
       },
       uninstalledScrim: withOpacity('#ffffff', 1),
     },
-  },
-  semantic: {
-    ui: {
-      focusring: {
-        default: withOpacity('#ffffff', 0),
-        hovered: withOpacity('#ffffff', 0.10000000149011612),
-        pressed: withOpacity('#ffffff', 0.20000000298023224),
-        selected: withOpacity('#ffffff', 0.699999988079071),
-      },
-      primary: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#ffffff', 0.8999999761581421),
-          hovered: withOpacity('#d9d9d9', 1),
-          pressed: withOpacity('#c0c0c0', 1),
-        },
-      },
-      secondary: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#ffffff', 0.05000000074505806),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
-        },
-      },
-      tertiary: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.15000000596046448),
-        },
-      },
-      disabled: {
-        text: withOpacity('#8e8e8e', 1),
-        icon: withOpacity('#8e8e8e', 1),
-        background: {
-          default: withOpacity('#5a5a5a', 1),
-          hovered: withOpacity('#5a5a5a', 1),
-          pressed: withOpacity('#5a5a5a', 1),
-        },
-      },
-      selected: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#ffffff', 1),
-          hovered: withOpacity('#f2f2f2', 1),
-          pressed: withOpacity('#d9d9d9', 1),
-        },
-      },
-      deselected: {
-        text: withOpacity('#272727', 1),
-        icon: withOpacity('#272727', 1),
-        background: {
-          default: withOpacity('#ffffff', 0.05000000074505806),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.15000000596046448),
-        },
-      },
-      onMedia: {
-        text: withOpacity('#f2f2f2', 1),
-        icon: withOpacity('#f2f2f2', 1),
-        background: {
-          default: withOpacity('#ffffff', 0),
-          hovered: withOpacity('#ffffff', 0.10000000149011612),
-          pressed: withOpacity('#ffffff', 0.20000000298023224),
-        },
-      },
-    },
-    status: {
-      notification: withOpacity('#64b5ff', 1),
-      hidden: withOpacity('#8e8e8e', 1),
-      positive: withOpacity('#2ad116', 1),
-      negative: withOpacity('#f7818c', 1),
-      warning: withOpacity('#fc9435', 1),
-      privacy: withOpacity('#9c94f8', 1),
-    },
-    text: {
-      primary: withOpacity('#ffffff', 0.8999999761581421),
-      secondary: withOpacity('#ffffff', 0.699999988079071),
-      placeholder: withOpacity('#ffffff', 0.30000001192092896),
-      disabled: withOpacity('#ffffff', 0.30000001192092896),
-      link: withOpacity('#64b5ff', 1),
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      warning: withOpacity('#a94302', 1),
-      primaryOnMedia: withOpacity('#ffffff', 0.8999999761581421),
-      secondaryOnMedia: withOpacity('#ffffff', 0.699999988079071),
-    },
-    icon: {
-      primary: withOpacity('#ffffff', 0.8999999761581421),
-      secondary: withOpacity('#ffffff', 0.699999988079071),
-      placeholder: withOpacity('#ffffff', 0.30000001192092896),
-      disabled: withOpacity('#ffffff', 0.30000001192092896),
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      warning: withOpacity('#a94302', 1),
-      onMedia: withOpacity('#ffffff', 0.8999999761581421),
-      secondaryOnMedia: withOpacity('#ffffff', 0.699999988079071),
-    },
-    background: {
-      primary: {
-        stop1: withOpacity('#414141', 1),
-        stop2: withOpacity('#272727', 1),
-      },
-      positive: withOpacity('#0b8a1b', 1),
-      negative: withOpacity('#dd1535', 1),
-      privacy: withOpacity('#6441d2', 1),
+    semantic: {
       ui: {
-        primary: withOpacity('#ffffff', 0.8999999761581421),
-        secondary: withOpacity('#ffffff', 0.05000000074505806),
+        focusring: {
+          default: withOpacity('#ffffff', 0),
+          hovered: withOpacity('#ffffff', 0.1),
+          pressed: withOpacity('#ffffff', 0.2),
+          selected: withOpacity('#ffffff', 0.7),
+        },
+        primary: {
+          text: withOpacity('#272727', 1),
+          icon: withOpacity('#272727', 1),
+          background: {
+            default: withOpacity('#ffffff', 0.9),
+            hovered: withOpacity('#d9d9d9', 1),
+            pressed: withOpacity('#c0c0c0', 1),
+          },
+        },
+        secondary: {
+          text: withOpacity('#ffffff', 0.9),
+          icon: withOpacity('#ffffff', 0.9),
+          background: {
+            default: withOpacity('#ffffff', 0.05),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+          },
+        },
+        tertiary: {
+          text: withOpacity('#ffffff', 0.9),
+          icon: withOpacity('#ffffff', 0.9),
+          background: {
+            default: withOpacity('#ffffff', 0),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.15),
+          },
+        },
+        disabled: {
+          text: withOpacity('#8e8e8e', 1),
+          icon: withOpacity('#8e8e8e', 1),
+          background: {
+            default: withOpacity('#5a5a5a', 1),
+            hovered: withOpacity('#5a5a5a', 1),
+            pressed: withOpacity('#5a5a5a', 1),
+          },
+        },
+        selected: {
+          text: withOpacity('#272727', 1),
+          icon: withOpacity('#272727', 1),
+          background: {
+            default: withOpacity('#ffffff', 1),
+            hovered: withOpacity('#f2f2f2', 1),
+            pressed: withOpacity('#d9d9d9', 1),
+          },
+        },
+        deselected: {
+          text: withOpacity('#ffffff', 0.9),
+          icon: withOpacity('#ffffff', 0.9),
+          background: {
+            default: withOpacity('#ffffff', 0.05),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.15),
+          },
+        },
+        onMedia: {
+          text: withOpacity('#f2f2f2', 1),
+          icon: withOpacity('#f2f2f2', 1),
+          background: {
+            default: withOpacity('#ffffff', 0),
+            hovered: withOpacity('#ffffff', 0.1),
+            pressed: withOpacity('#ffffff', 0.2),
+          },
+        },
       },
-    },
-    shadows: {
-      punchedIn: {
-        dropShadow: withOpacity('#ffffff', 0.10000000149011612),
-        innerShadow: withOpacity('#000000', 0.10000000149011612),
+      status: {
+        notification: withOpacity('#64b5ff', 1),
+        hidden: withOpacity('#8e8e8e', 1),
+        positive: withOpacity('#2ad116', 1),
+        negative: withOpacity('#f7818c', 1),
+        warning: withOpacity('#fc9435', 1),
+        privacy: withOpacity('#9c94f8', 1),
       },
-      beveled: {
-        left: withOpacity('#ffffff', 0.10000000149011612),
-        right: withOpacity('#000000', 0.10000000149011612),
+      text: {
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
+        placeholder: withOpacity('#ffffff', 0.3),
+        disabled: withOpacity('#ffffff', 0.3),
+        link: withOpacity('#64b5ff', 1),
+        positive: withOpacity('#2ad116', 1),
+        negative: withOpacity('#f7818c', 1),
+        warning: withOpacity('#fc9435', 1),
+        primaryOnMedia: withOpacity('#ffffff', 0.9),
+        secondaryOnMedia: withOpacity('#ffffff', 0.7),
       },
-      dropShadow: {
-        innerShadow: {
-          left: withOpacity('#ffffff', 0.10000000149011612),
-          right: withOpacity('#000000', 0.10000000149011612),
+      icon: {
+        primary: withOpacity('#ffffff', 0.9),
+        secondary: withOpacity('#ffffff', 0.7),
+        placeholder: withOpacity('#ffffff', 0.3),
+        disabled: withOpacity('#ffffff', 0.3),
+        positive: withOpacity('#2ad116', 1),
+        negative: withOpacity('#f7818c', 1),
+        warning: withOpacity('#fc9435', 1),
+        onMedia: withOpacity('#ffffff', 0.9),
+        secondaryOnMedia: withOpacity('#ffffff', 0.7),
+      },
+      background: {
+        primary: {
+          stop1: withOpacity('#414141', 1),
+          stop2: withOpacity('#272727', 1),
+        },
+        positive: withOpacity('#2ad116', 1),
+        negative: withOpacity('#f7818c', 1),
+        privacy: withOpacity('#9c94f8', 1),
+        ui: {
+          primary: withOpacity('#ffffff', 0.9),
+          secondary: withOpacity('#ffffff', 0.05),
+        },
+      },
+      shadows: {
+        punchedIn: {
+          dropShadow: withOpacity('#ffffff', 0.1),
+          innerShadow: withOpacity('#000000', 0.1),
+        },
+        beveled: {
+          left: withOpacity('#ffffff', 0.1),
+          right: withOpacity('#000000', 0.1),
         },
         dropShadow: {
-          top: withOpacity('#000000', 0.10000000149011612),
-          bottom: withOpacity('#000000', 0.20000000298023224),
+          innerShadow: {
+            left: withOpacity('#ffffff', 0.1),
+            right: withOpacity('#000000', 0.1),
+          },
+          dropShadow: {
+            top: withOpacity('#000000', 0.1),
+            bottom: withOpacity('#000000', 0.2),
+          },
         },
-      },
-      panel: {
-        innerShadow: withOpacity('#000000', 0.10000000149011612),
-        innerShadow2: withOpacity('#ffffff', 0.10000000149011612),
+        panel: {
+          innerShadow: withOpacity('#000000', 0.1),
+          innerShadow2: withOpacity('#ffffff', 0.1),
+        },
       },
     },
   },
 } as const
 
 function merge(light: any, dark: any) {
-  if (light instanceof Signal) {
-    return computed(() => (isDarkMode.value ? (dark as Signal).value : light.value))
+  const isSignal = (v: any): v is Signal => v instanceof Signal
+  const isPlainObject = (v: any) => v != null && typeof v === 'object' && !isSignal(v)
+
+  // Leaf nodes or mismatched structures: return a reactive chooser
+  if (!isPlainObject(light) || !isPlainObject(dark)) {
+    return computed(() => {
+      const l = isSignal(light) ? light.value : light
+      const d = isSignal(dark) ? (dark as Signal).value : dark
+      return isDarkMode.value ? d : l
+    })
   }
+
   const result: any = {}
-  for (const key in light) {
-    result[key] = merge(light[key], dark[key])
+  const keys = new Set([...Object.keys(light || {}), ...Object.keys(dark || {})])
+  for (const key of keys) {
+    result[key] = merge(light[key], dark?.[key])
   }
   return result
 }
