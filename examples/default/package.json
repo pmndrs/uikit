@@ -8,7 +8,7 @@
     "@react-three/uikit-default": "workspace:^"
   },
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
     "build": "vite build"
   }
 }

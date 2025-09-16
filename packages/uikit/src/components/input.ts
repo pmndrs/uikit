@@ -33,6 +33,7 @@ export const canvasInputProps = {
 export type InputType = 'text' | 'password' | 'number'
 
 export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<TextOutProperties<EM>, 'text'> & {
+  placeholder?: string
   defaultValue?: string
   value?: string
   disabled: boolean
@@ -43,7 +44,7 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
   onFocusChange?: (focus: boolean) => void
 } & Omit<
     Partial<HTMLInputElement>,
-    'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active' | 'checked' | 'defaultChecked'
+    'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active' | 'checked' | 'defaultChecked' | 'size'
   >
 
 export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
@@ -81,7 +82,6 @@ export class Input<
       defaults?: WithSignal<OutProperties>
     },
   ) {
-    const text = signal('')
     const caretColor = signal<InputOutProperties<EM>['caretColor']>(undefined)
     const selectionHandlers = signal<EventHandlers | undefined>(undefined)
 
@@ -100,10 +100,19 @@ export class Input<
       caretTransformation,
       instancedTextRef,
       hasFocus,
+      isPlaceholder: computed(() => this.currentSignal.value.length === 0),
       ...config,
       defaultOverrides: {
         cursor: 'text',
-        ...({ text } as any),
+        ...({
+          text: computed(() =>
+            this.currentSignal.value.length === 0
+              ? this.properties.value.placeholder
+              : this.properties.value.type === 'password'
+                ? '*'.repeat(this.currentSignal.value.length ?? 0)
+                : this.currentSignal.value,
+          ),
+        } as any),
         caretColor,
         ...config?.defaultOverrides,
       } as InProperties<OutProperties>,
@@ -111,15 +120,6 @@ export class Input<
     this.selectionRange = selectionRange
     this.hasFocus = hasFocus
     abortableEffect(() => void (caretColor.value = this.properties.value.color), this.abortSignal)
-
-    abortableEffect(
-      () =>
-        void (text.value =
-          this.properties.value.type === 'password'
-            ? '*'.repeat(this.currentSignal.value.length ?? 0)
-            : this.currentSignal.value),
-      this.abortSignal,
-    )
 
     setupSelectionHandlers(
       selectionHandlers,

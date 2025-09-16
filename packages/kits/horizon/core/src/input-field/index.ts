@@ -7,11 +7,11 @@ import {
   ThreeEventMap,
   Text,
 } from '@pmndrs/uikit'
-import { Input } from '../input/index.js'
+import { Input, InputOutProperties } from '../input/index.js'
 import { lightTheme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
-export type InputFieldOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type InputFieldOutProperties<EM extends ThreeEventMap = ThreeEventMap> = InputOutProperties<EM> & {
   label?: string
   leftIcon?: {
     new (
@@ -85,6 +85,15 @@ export class InputField<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
     this.input = new Input<{}, EM>(undefined, undefined, {
       hovered,
       defaultOverrides: {
+        placeholder: this.properties.signal.placeholder,
+        defaultValue: this.properties.signal.defaultValue,
+        value: this.properties.signal.value,
+        disabled: this.properties.signal.disabled,
+        tabIndex: this.properties.signal.tabIndex,
+        autocomplete: this.properties.signal.autocomplete,
+        type: this.properties.signal.type,
+        onValueChange: this.properties.signal.onValueChange,
+        onFocusChange: this.properties.signal.onFocusChange,
         textAlign: 'left',
         size: 'lg',
         variant: 'text',

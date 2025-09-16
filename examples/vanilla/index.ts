@@ -58,7 +58,7 @@ const pointLight = new PointLight(0xffffff, 1)
 pointLight.position.set(-5, 5, -5)
 scene.add(pointLight)
 
-const dropdown = new Dropdown({ size: 'sm' })
+/*const dropdown = new Dropdown({ size: 'sm' })
 dropdown.add(new DropdownTextValue({ placeholder: 'Select' }))
 dropdown.add(new DropdownButton())
 const list = new DropdownList()
@@ -69,7 +69,7 @@ const listItem2 = new DropdownListItem({ value: 'Item1' })
 listItem2.add(new Text({ text: 'Item1' }))
 list.add(listItem2)
 dropdown.add(list)
-root.add(dropdown)
+root.add(dropdown)*/
 
 /*const radioGroup = new RadioGroup({ defaultValue: '1' })
 const radioGroupitem1 = new RadioGroupItem({ value: '1' })
@@ -81,14 +81,15 @@ radioGroupitem3.add(new Text({ text: 'Item3' }))
 radioGroup.add(radioGroupitem1, radioGroupitem2, radioGroupitem3)
 root.add(radioGroup)*/
 
-/*root.add(
+root.add(
   new InputField({
     leftIcon: SearchIcon,
     rightIcon: MicIcon,
     label: 'HelperText',
+    placeholder: 'Enter something',
     width: 561,
   }),
-)*/
+)
 
 /*root.add(
   new Input({
@@ -107,7 +108,6 @@ root.add(radioGroup)*/
 
 /*const btn = new Button()
 const plusIcon: PlusIcon = new PlusIcon()
-console.log(plusIcon)
 const btnIcon = new ButtonIcon()
 btnIcon.add(plusIcon)
 btn.add(btnIcon)

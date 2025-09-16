@@ -100,6 +100,7 @@ export class Component<
       renderContext?: RenderContext
       dynamicHandlers?: Signal<EventHandlers | undefined>
       hasFocus?: Signal<boolean>
+      isPlaceholder?: Signal<boolean>
       defaultOverrides?: InProperties<OutProperties>
       hasNonUikitChildren?: boolean
       defaults?: WithSignal<OutProperties>
@@ -120,7 +121,13 @@ export class Component<
     this.root = buildRootContext(this, config?.renderContext)
 
     //properties
-    const conditionals = createConditionals(this.root, this.hoveredList, this.activeList, config?.hasFocus)
+    const conditionals = createConditionals(
+      this.root,
+      this.hoveredList,
+      this.activeList,
+      config?.hasFocus,
+      config?.isPlaceholder,
+    )
     this.properties = new PropertiesImplementation<OutProperties>(
       allAliases,
       conditionals,

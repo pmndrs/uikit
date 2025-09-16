@@ -7,6 +7,7 @@ import {
   InProperties,
   RenderContext,
   Input as InputImpl,
+  InputOutProperties as BaseInputOutProperties,
   ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
@@ -28,7 +29,7 @@ const _inputSizes = {
 } satisfies Record<string, InputVariantProps>
 const inputSizes = _inputSizes as UnionizeVariants<typeof _inputSizes>
 
-export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseInputOutProperties<EM> & {
   /**
    * @default "lg"
    */
@@ -49,6 +50,7 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseO
       config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
     ): Component
   }
+  placeholder?: string
 }
 
 export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<InputOutProperties<EM>>
@@ -83,7 +85,11 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         fontSize: computed(() => inputSizes[this.properties.value.size ?? 'lg'].fontSize),
         lineHeight: computed(() => inputSizes[this.properties.value.size ?? 'lg'].lineHeight),
         fontWeight: 500,
-        color: lightTheme.component.textInput.label.default,
+        color: computed(() =>
+          (this.properties.value.variant ?? 'text') === 'text'
+            ? lightTheme.component.textInput.label.default.value
+            : lightTheme.component.search.label.value,
+        ),
         paddingX: 16,
         height: computed(() => inputSizes[this.properties.value.size ?? 'lg'].height),
         borderRadius: 8,
@@ -116,6 +122,18 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
           color: lightTheme.component.textInput.label.typing,
         },
         caretColor: lightTheme.component.textInput.cursor,
+        placeholderStyle: {
+          color: lightTheme.semantic.text.placeholder,
+        },
+        placeholder: this.properties.signal.placeholder,
+        defaultValue: this.properties.signal.defaultValue,
+        value: this.properties.signal.value,
+        disabled: this.properties.signal.disabled,
+        tabIndex: this.properties.signal.tabIndex,
+        autocomplete: this.properties.signal.autocomplete,
+        type: this.properties.signal.type,
+        onValueChange: this.properties.signal.onValueChange,
+        onFocusChange: this.properties.signal.onFocusChange,
       },
     })
     super.add(this.input)
@@ -132,7 +150,6 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
 
     abortableEffect(() => {
       const LeftIcon = this.properties.value.leftIcon
-      console.log(LeftIcon)
       if (LeftIcon == null) {
         return
       }

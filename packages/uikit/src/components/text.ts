@@ -52,6 +52,7 @@ export class Text<
       instancedTextRef?: { current?: InstancedText }
       hasFocus?: Signal<boolean>
       defaults?: WithSignal<OutProperties>
+      isPlaceholder?: Signal<boolean>
     },
   ) {
     super(inputProperties, initialClasses, {

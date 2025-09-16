@@ -73,6 +73,21 @@ function createFocusPropertyTransformers(hasFocusSignal?: Signal<boolean>): Cond
   }
 }
 
+type WithPlaceholderStyle<T> = T & {
+  placeholderStyle?: T
+}
+
+function createPlaceholderPropertyTransformers(isPlaceholder?: Signal<boolean>): Conditionals {
+  if (isPlaceholder == null) {
+    return {
+      placeholderStyle: () => false,
+    }
+  }
+  return {
+    placeholderStyle: () => isPlaceholder.value,
+  }
+}
+
 export type WithImportant<T> = T & { important?: T }
 
 export type WithConditionalsAndImportant<T> = WithHover<T> &
@@ -80,7 +95,8 @@ export type WithConditionalsAndImportant<T> = WithHover<T> &
   WithPreferredColorScheme<T> &
   WithActive<T> &
   WithFocus<T> &
-  WithImportant<T>
+  WithImportant<T> &
+  WithPlaceholderStyle<T>
 
 export const conditionalKeys = ['dark', 'hover', 'active', 'focus', ...breakPointKeys]
 
@@ -89,6 +105,7 @@ export function createConditionals(
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
   hasFocusSignal?: Signal<boolean>,
+  isPlaceholderSignal?: Signal<boolean>,
 ) {
   return {
     ...preferredColorSchemeConditionals,
@@ -96,5 +113,6 @@ export function createConditionals(
     ...createHoverConditionals(hoveredSignal),
     ...createActivePropertyTransfomers(activeSignal),
     ...createFocusPropertyTransformers(hasFocusSignal),
+    ...createPlaceholderPropertyTransformers(isPlaceholderSignal),
   }
 }
