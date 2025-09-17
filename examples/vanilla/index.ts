@@ -1,30 +1,20 @@
 import { AmbientLight, Color, DirectionalLight, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, setPreferredColorScheme, Fullscreen, Text, Container } from '@pmndrs/uikit'
-import { IceCreamBowlIcon, MicIcon, PlusIcon, SearchIcon } from '@pmndrs/uikit-lucide'
+import { reversePainterSortStable, Fullscreen, Text } from '@pmndrs/uikit'
+import { PlusIcon } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 import {
-  Avatar,
-  Badge,
   Button,
   ButtonIcon,
   ButtonLabel,
   ButtonLabelSubtext,
   Checkbox,
   Dropdown,
-  DropdownAvatar,
   DropdownButton,
   DropdownList,
   DropdownListItem,
   DropdownTextValue,
-  Input,
-  InputField,
   Panel,
-  RadioGroup,
-  RadioGroupItem,
-  Slider,
-  theme,
-  Toggle,
 } from '@pmndrs/uikit-horizon'
 
 // init
@@ -44,7 +34,6 @@ const orbit = new OrbitHandles(canvas, camera)
 orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
-setPreferredColorScheme('dark')
 
 //UI
 const fullscreen = new Fullscreen(renderer, {
