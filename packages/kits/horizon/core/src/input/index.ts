@@ -123,7 +123,7 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
         },
         caretColor: theme.component.textInput.cursor,
         placeholderStyle: {
-          color: theme.semantic.text.placeholder,
+          color: theme.component.semantic.text.placeholder,
         },
         placeholder: this.properties.signal.placeholder,
         defaultValue: this.properties.signal.defaultValue,

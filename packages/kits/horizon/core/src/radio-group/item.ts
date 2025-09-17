@@ -28,7 +28,7 @@ export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> ex
       defaultOverrides: {
         fontSize: 14,
         lineHeight: '20px',
-        color: theme.semantic.text.primary,
+        color: theme.component.semantic.text.primary,
         fontWeight: 500,
         cursor: 'pointer',
         flexDirection: 'row',
