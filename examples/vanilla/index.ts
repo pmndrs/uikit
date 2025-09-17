@@ -44,7 +44,7 @@ const orbit = new OrbitHandles(canvas, camera)
 orbit.bind(scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
-setPreferredColorScheme('light')
+setPreferredColorScheme('dark')
 
 //UI
 const fullscreen = new Fullscreen(renderer, {
@@ -118,7 +118,7 @@ root.add(radioGroup)*/
 
 //root.add(new Toggle())
 
-/*const btn = new Button()
+const btn = new Button()
 const plusIcon: PlusIcon = new PlusIcon()
 const btnIcon = new ButtonIcon()
 btnIcon.add(plusIcon)
@@ -129,7 +129,7 @@ const subtext = new ButtonLabelSubtext()
 label.add(subtext)
 subtext.add(new Text({ text: 'Subtext' }))
 btn.add(label)
-root.add(btn)*/
+root.add(btn)
 
 /*const stepper = new ProgressBarStepper({ width: 400 })
 root.add(stepper)

@@ -2,8 +2,8 @@
 
 //one layer section consists of (1004 layers)
 //0. component base properties
-//...1-1000. component classes
-//1001. component default overrides
+//...1-MaxClassAmount component classes
+//MaxClassAmount + 1 component default overrides
 
 const MaxClassAmount = 1000
 export const LayersSectionSize = MaxClassAmount + 2
@@ -53,7 +53,7 @@ export function getLayerIndex(identifier: LayerIdentifier) {
   const sectionStartIndex = SectionStartIndexMap[identifier.section]
   if (identifier.type != 'class') {
     if (identifier.type === 'default-overrides') {
-      return sectionStartIndex + MaxClassAmount
+      return sectionStartIndex + MaxClassAmount + 1
     }
     return sectionStartIndex
   }
