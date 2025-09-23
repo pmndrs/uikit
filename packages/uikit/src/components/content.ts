@@ -131,22 +131,20 @@ export class Content<
       const innerWidth = width - leftInset - rightInset
       const innerHeight = height - topInset - bottomInset
 
-      const boundingBox = config?.boundingBox?.value ?? this.boundingBox.value
-
       const pixelSize = this.properties.value.pixelSize
       scaleHelper
         .set(
           innerWidth * pixelSize,
           innerHeight * pixelSize,
           this.properties.value.keepAspectRatio
-            ? (innerHeight * pixelSize * boundingBox.size.z) / boundingBox.size.y
-            : boundingBox.size.z,
+            ? (innerHeight * pixelSize * this.boundingBox.value.size.z) / this.boundingBox.value.size.y
+            : this.boundingBox.value.size.z,
         )
-        .divide(boundingBox.size)
+        .divide(this.boundingBox.value.size)
 
-      positionHelper.copy(boundingBox.center).negate()
+      positionHelper.copy(this.boundingBox.value.center).negate()
 
-      positionHelper.z -= alignmentZMap[this.properties.value.depthAlign] * boundingBox.size.z
+      positionHelper.z -= alignmentZMap[this.properties.value.depthAlign] * this.boundingBox.value.size.z
       positionHelper.multiply(scaleHelper)
       positionHelper.add(
         vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),
@@ -181,7 +179,7 @@ export class Content<
 
     const remeasureOnChildrenChange = this.config?.remeasureOnChildrenChange ?? RemeasureOnChildrenChangeDefault
     if (remeasureOnChildrenChange) {
-      const onChildrenChanged = this.notifyAncestorsChanged.bind(this)
+      const onChildrenChanged = this.debounceNotifyAncestorsChanged.bind(this)
       this.addEventListener('childadded', onChildrenChanged)
       this.addEventListener('childremoved', onChildrenChanged)
       this.abortSignal.addEventListener('abort', () => {
@@ -192,36 +190,69 @@ export class Content<
   }
 
   private updateChildMatrixWorld(child: Object3D) {
+    child.updateMatrix()
     child.matrixWorld
       .copy(child.matrix)
       .premultiply(this.childrenMatrix)
       .premultiply(this.globalMatrix.peek() ?? IdentityMatrix)
       .premultiply(this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix)
+    for (const childChild of child.children) {
+      childChild.updateMatrixWorld(true)
+    }
+  }
+
+  private timeoutRef?: number
+
+  private debounceNotifyAncestorsChanged() {
+    if (this.timeoutRef != null) {
+      return
+    }
+    this.timeoutRef = setTimeout(this.notifyAncestorsChanged.bind(this), 0) as any
   }
 
   notifyAncestorsChanged() {
+    this.timeoutRef = undefined
     applyAppearancePropertiesToGroup(
       this.properties,
       this,
       this.config?.depthWriteDefault ?? DepthWriteDefaultDefault,
       this.config?.supportFillProperty ?? SupportFillPropertyDefault,
     )
-    this.traverse((child) => {
-      if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
+    this.traverse((descendant) => {
+      if (
+        descendant instanceof InstancedGlyphMesh ||
+        descendant instanceof InstancedPanelMesh ||
+        !(descendant instanceof Mesh)
+      ) {
         return
       }
-      setupRenderOrder(child, this.root, this.orderInfo)
-      child.material.clippingPlanes = this.clippingPlanes
-      child.material.needsUpdate = true
-      child.material.transparent = true
-      child.matrixAutoUpdate = false
-      child.updateMatrixWorld = this.updateChildMatrixWorld.bind(this, child)
-      child.raycast = makeClippedCast(this, child.raycast.bind(child), this.root, this.parentContainer, this.orderInfo)
-      child.spherecast =
-        child.spherecast != null
-          ? makeClippedCast(this, child.spherecast, this.root, this.parentContainer, this.orderInfo)
+      setupRenderOrder(descendant, this.root, this.orderInfo)
+      descendant.material.clippingPlanes = this.clippingPlanes
+      descendant.material.needsUpdate = true
+      descendant.material.transparent = true
+      descendant.matrixAutoUpdate = false
+      descendant.raycast = makeClippedCast(
+        this,
+        descendant.raycast.bind(descendant),
+        this.root,
+        this.parentContainer,
+        this.orderInfo,
+      )
+      descendant.spherecast =
+        descendant.spherecast != null
+          ? makeClippedCast(
+              this,
+              descendant.spherecast?.bind(descendant),
+              this.root,
+              this.parentContainer,
+              this.orderInfo,
+            )
           : undefined
     })
+
+    for (const child of this.children) {
+      child.updateMatrixWorld = this.updateChildMatrixWorld.bind(this, child)
+    }
 
     if (this.config?.boundingBox == null) {
       //no need to compute the bounding box ourselves
@@ -230,10 +261,9 @@ export class Content<
         if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh) {
           continue
         }
-        const parent = child.parent
         child.parent = null
         box3Helper.expandByObject(child)
-        child.parent = parent
+        child.parent = this
       }
 
       const size = new Vector3()
@@ -244,6 +274,14 @@ export class Content<
     }
 
     this.root.peek().requestRender?.()
+  }
+
+  dispose(): void {
+    if (this.timeoutRef != null) {
+      this.timeoutRef = undefined
+      clearInterval(this.timeoutRef)
+    }
+    super.dispose()
   }
 }
 

@@ -6,7 +6,6 @@ import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
-import { Object3D } from 'three/src/Three.Core.js'
 
 export type SvgOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ContentOutProperties<EM> & {
   keepAspectRatio?: boolean

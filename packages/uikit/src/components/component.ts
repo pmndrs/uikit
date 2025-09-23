@@ -310,15 +310,7 @@ export class Component<
   }
 
   updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
-    if (updateParents) {
-      this.parent?.updateWorldMatrix(true, false)
-    }
     this.updateMatrixWorld()
-    if (updateChildren) {
-      for (const child of this.children) {
-        child.updateWorldMatrix(false, true)
-      }
-    }
   }
 
   setProperties(inputProperties: InProperties<OutProperties>) {

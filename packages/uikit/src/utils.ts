@@ -185,7 +185,7 @@ export function setupMatrixWorldUpdate(
     }, abortSignal)
   }
   abortableEffect(() => {
-    const onFrame = () => {
+    const updateMatrixWorld = () => {
       if (globalPanelMatrixSignal != null) {
         computeMatrixWorld(
           object.matrixWorld,
@@ -199,8 +199,8 @@ export function setupMatrixWorldUpdate(
       }
     }
     const root = rootSignal.value
-    root.onUpdateMatrixWorldSet.add(onFrame)
-    return () => root.onUpdateMatrixWorldSet.delete(onFrame)
+    root.onUpdateMatrixWorldSet.add(updateMatrixWorld)
+    return () => root.onUpdateMatrixWorldSet.delete(updateMatrixWorld)
   }, abortSignal)
 }
 
@@ -307,10 +307,13 @@ export function computedBorderInset(properties: Properties, keys: ReadonlyArray<
   )
 }
 
-export function withOpacity(value: Signal<ColorRepresentation> | ColorRepresentation, opacity: number) {
+export function withOpacity(
+  value: Signal<ColorRepresentation> | ColorRepresentation,
+  opacity: number | Signal<number>,
+) {
   return computed<ColorRepresentation>(() => {
     const result: Vector4Tuple = [0, 0, 0, 0]
-    writeColor(result, 0, readReactive(value), opacity)
+    writeColor(result, 0, readReactive(value), readReactive(opacity))
     return result
   })
 }

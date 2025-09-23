@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Container, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
+import { Environment, Gltf } from '@react-three/drei'
+import { Container, Content, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 import {
   Button,
@@ -40,6 +41,7 @@ export default function App() {
         style={{ height: '100dvh', touchAction: 'none' }}
         orthographic
       >
+        <Environment preset="studio" environmentIntensity={2} />
         <CountFrames />
         <PointerEvents />
         <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
@@ -141,18 +143,15 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                   >
                     <CardTitle>
                       <Text fontSize={14} lineHeight="20px">
-                        Total Revenue
+                        It's a macbook
                       </Text>
                     </CardTitle>
                     <DollarSign width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
-                  <CardContent flexShrink={0} flexDirection="column">
-                    <Text fontSize={24} lineHeight="32px">
-                      $45,231.89
-                    </Text>
-                    <Text fontSize={12} lineHeight="16px" color={colors.mutedForeground}>
-                      +20.1% from last month
-                    </Text>
+                  <CardContent alignItems="center" flexShrink={0} flexDirection="column">
+                    <Content width="50%" depthAlign="front" color="initial" keepAspectRatio>
+                      <Gltf rotation-y={(30 / 180) * Math.PI} rotation-x={(30 / 180) * Math.PI} src="./mac-draco.glb" />
+                    </Content>
                   </CardContent>
                 </Card>
                 <Card flexDirection="column" flexBasis={0} flexGrow={1}>

@@ -64,10 +64,12 @@ export {
   Container as VanillaContainer,
   Content as VanillaContent,
   Custom as VanillaCustom,
+  Fullscreen as VanillaFullscreen,
   Image as VanillaImage,
   Video as VanillaVideo,
   Input as VanillaInput,
   Svg as VanillaSvg,
+  Text as VanillaText,
   Textarea as VanillaTextarea,
 } from '@pmndrs/uikit'
 
