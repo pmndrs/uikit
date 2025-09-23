@@ -78,7 +78,7 @@ export function createInstancedText(
       ),
       text.properties as any,
       layoutSignal,
-      text.globalMatrix,
+      text.globalTextMatrix,
       text.isVisible,
       parentClippingRect,
       selectionRange,

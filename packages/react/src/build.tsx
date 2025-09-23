@@ -1,15 +1,7 @@
 import { Component, EventHandlers, RenderContext, reversePainterSortStable } from '@pmndrs/uikit'
 import { effect } from '@preact/signals-core'
 import { extend, RootStore, useFrame, useStore, useThree } from '@react-three/fiber'
-import {
-  forwardRef,
-  ForwardRefRenderFunction,
-  PropsWithoutRef,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { jsx } from 'react/jsx-runtime'
 
 declare module 'three' {
@@ -22,8 +14,8 @@ declare module 'three' {
   }
 }
 
-export function build<T extends Component, P>(Component: { new (): T }) {
-  extend({ [`Vanilla${Component.name}`]: Component })
+export function build<T extends Component, P>(Component: { new (): T }, name = Component.name) {
+  extend({ [`Vanilla${name}`]: Component })
   return forwardRef<T, P>(({ children, ...props }: any, forwardRef) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const ref = useRef<Component>(null)
@@ -31,7 +23,7 @@ export function build<T extends Component, P>(Component: { new (): T }) {
     useSetup(ref, props)
     const renderContext = useRenderContext()
     const args = useMemo(() => [undefined, undefined, { renderContext }], [renderContext])
-    return jsx(`vanilla${Component.name}` as any, { ref, children, args })
+    return jsx(`vanilla${name}` as any, { ref, children, args })
   })
 }
 

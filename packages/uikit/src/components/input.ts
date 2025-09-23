@@ -146,7 +146,7 @@ export class Input<
 
     setupCaret(
       this.properties,
-      this.globalMatrix,
+      this.globalTextMatrix,
       caretTransformation,
       this.isVisible,
       this.backgroundOrderInfo,
@@ -159,7 +159,7 @@ export class Input<
     createSelection(
       this.properties,
       this.root,
-      this.globalMatrix,
+      this.globalTextMatrix,
       selectionTransformations,
       this.isVisible,
       this.backgroundOrderInfo,

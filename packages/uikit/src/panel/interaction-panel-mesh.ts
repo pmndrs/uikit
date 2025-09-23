@@ -44,12 +44,10 @@ export function makePanelSpherecast(
   return (sphere, intersects) => {
     const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
     sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
-    if (
-      !sphereHelper.intersectsSphere(sphere) ||
-      !computeMatrixWorld(object.matrixWorld, rootParentMatrixWorld, globalPanelMatrixSignal.peek())
-    ) {
+    if (!sphereHelper.intersectsSphere(sphere)) {
       return
     }
+    object.updateMatrixWorld(true)
     vectorHelper.copy(sphere.center).applyMatrix4(matrixHelper.copy(object.matrixWorld).invert())
     vectorHelper.x = clamp(vectorHelper.x, -0.5, 0.5)
     vectorHelper.y = clamp(vectorHelper.y, -0.5, 0.5)

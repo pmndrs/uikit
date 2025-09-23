@@ -19,7 +19,7 @@ import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
 import { abortableEffect } from '../utils.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
-import { Vector2Tuple } from 'three'
+import { Matrix4, Quaternion, Vector2Tuple, Vector3 } from 'three'
 import { CaretTransformation } from '../caret.js'
 import { SelectionTransformation } from '../selection.js'
 
@@ -30,6 +30,11 @@ export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InPropert
 
 export const textDefaults = { ...componentDefaults, ...additionalTextDefaults }
 
+const IdentityMatrix = new Matrix4()
+const IdentityQuaternion = new Quaternion()
+const IdentityScale = new Vector3(1, 1, 1)
+const positionHelper = new Vector3()
+
 export class Text<
   T = {},
   EM extends ThreeEventMap = ThreeEventMap,
@@ -38,6 +43,8 @@ export class Text<
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
+
+  readonly globalTextMatrix: Signal<Matrix4 | undefined>
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
@@ -65,6 +72,27 @@ export class Text<
     const parentClippingRect = computed(() => this.parentContainer.value?.clippingRect.value)
 
     this.backgroundGroupDeps = computedPanelGroupDependencies(this.properties)
+
+    this.globalTextMatrix = computed(() => {
+      if (this.paddingInset.value == null || this.borderInset.value == null) {
+        return IdentityMatrix
+      }
+
+      const [pTop, pRight, pBottom, pLeft] = this.paddingInset.value
+      const [bTop, bRight, bBottom, bLeft] = this.borderInset.value
+
+      const topInset = pTop + bTop
+      const rightInset = pRight + bRight
+      const bottomInset = pBottom + bBottom
+      const leftInset = pLeft + bLeft
+
+      const pixelSize = this.properties.value.pixelSize
+
+      positionHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0)
+      return new Matrix4()
+        .compose(positionHelper, IdentityQuaternion, IdentityScale)
+        .premultiply(this.globalMatrix.value ?? IdentityMatrix)
+    })
 
     setupOrderInfo(
       this.backgroundOrderInfo,

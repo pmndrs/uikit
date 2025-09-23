@@ -304,8 +304,11 @@ export class Component<
   }
 
   updateMatrixWorld() {
-    for (const update of this.root.value.onUpdateMatrixWorldSet) {
-      update()
+    computeMatrixWorld(this.matrixWorld, this.root.peek().component.matrixWorld, this.globalMatrix.peek())
+    if (this.root.peek().component === this) {
+      for (const update of this.root.value.onUpdateMatrixWorldSet) {
+        update()
+      }
     }
   }
 

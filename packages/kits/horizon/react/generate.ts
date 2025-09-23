@@ -42,7 +42,7 @@ export type ${name}Properties = Vanilla${name}Properties${canHaveChildren ? '& {
 
 export const ${name}: ForwardRefExoticComponent<
   PropsWithoutRef<${name}Properties> & RefAttributes<Vanilla${name}>
-> = /*@__PURE__*/ build<Vanilla${name}, ${name}Properties>(Vanilla${name})
+> = /*@__PURE__*/ build<Vanilla${name}, ${name}Properties>(Vanilla${name}, "VanillaHorizon${name}")
     `
       if (componentFileName === 'index.ts') {
         code += '\n'
