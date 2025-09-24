@@ -155,24 +155,8 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
   }) as T[K]
 }
 
-export function computeMatrixWorld(
-  target: Matrix4,
-  rootObjectParentMatrixWorld: Matrix4 | undefined,
-  globalPanelMatrix: Matrix4 | undefined,
-) {
-  if (globalPanelMatrix == null) {
-    return false
-  }
-  if (rootObjectParentMatrixWorld == null) {
-    target.copy(globalPanelMatrix)
-  } else {
-    target.multiplyMatrices(rootObjectParentMatrixWorld, globalPanelMatrix)
-  }
-  return true
-}
-
 export function setupMatrixWorldUpdate(
-  object: Object3D,
+  component: Component,
   rootSignal: Signal<RootContext>,
   globalPanelMatrixSignal: Signal<Matrix4 | undefined> | undefined,
   abortSignal: AbortSignal,
@@ -185,20 +169,11 @@ export function setupMatrixWorldUpdate(
     }, abortSignal)
   }
   abortableEffect(() => {
-    const updateMatrixWorld = () => {
-      if (globalPanelMatrixSignal != null) {
-        computeMatrixWorld(
-          object.matrixWorld,
-          rootSignal.peek().component.parent?.matrixWorld,
-          globalPanelMatrixSignal.peek(),
-        )
-      }
-      const length = object.children.length
-      for (let i = 0; i < length; i++) {
-        object.children[i]!.updateMatrixWorld(true)
-      }
-    }
     const root = rootSignal.value
+    if (root.component === component) {
+      return
+    }
+    const updateMatrixWorld = component.updateWorldMatrix.bind(component, false, true)
     root.onUpdateMatrixWorldSet.add(updateMatrixWorld)
     return () => root.onUpdateMatrixWorldSet.delete(updateMatrixWorld)
   }, abortSignal)

@@ -3,7 +3,7 @@ import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { RootContext } from '../context.js'
-import { abortableEffect, computeMatrixWorld } from '../utils.js'
+import { abortableEffect } from '../utils.js'
 import { Container } from '../components/container.js'
 import { Component } from '../components/component.js'
 

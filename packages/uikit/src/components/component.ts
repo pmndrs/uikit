@@ -18,7 +18,6 @@ import {
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
-  computeMatrixWorld,
   setupPointerEvents,
 } from '../utils.js'
 import {
@@ -292,28 +291,35 @@ export class Component<
     //TODO: enable configuring the return value
     const rootParentMatrixWorld = this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix
     sphereHelper.copy(this.boundingSphere).applyMatrix4(rootParentMatrixWorld)
-    if (
-      !raycaster.ray.intersectsSphere(sphereHelper) ||
-      !computeMatrixWorld(this.matrixWorld, rootParentMatrixWorld, this.globalPanelMatrix.peek())
-    ) {
+    if (!raycaster.ray.intersectsSphere(sphereHelper)) {
       return false
     }
+    this.updateWorldMatrix(false, true, false)
 
     super.raycast(raycaster, intersects)
     return false
   }
 
   updateMatrixWorld() {
-    computeMatrixWorld(this.matrixWorld, this.root.peek().component.matrixWorld, this.globalMatrix.peek())
-    if (this.root.peek().component === this) {
+    this.updateWorldMatrix(false, true)
+  }
+
+  updateWorldMatrix(updateParents: boolean, updateChildren: boolean, updateRoot = true): void {
+    const rootParent = this.root.peek().component.parent
+    if (updateParents) {
+      rootParent?.updateWorldMatrix(true, false)
+    }
+
+    this.matrixWorld.multiplyMatrices(
+      rootParent?.matrixWorld ?? IdentityMatrix,
+      this.globalPanelMatrix.peek() ?? IdentityMatrix,
+    )
+
+    if (updateChildren && this.root.peek().component === this && updateRoot) {
       for (const update of this.root.value.onUpdateMatrixWorldSet) {
         update()
       }
     }
-  }
-
-  updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
-    this.updateMatrixWorld()
   }
 
   setProperties(inputProperties: InProperties<OutProperties>) {

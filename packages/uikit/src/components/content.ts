@@ -189,15 +189,24 @@ export class Content<
     }
   }
 
-  private updateChildMatrixWorld(child: Object3D) {
+  private childUpdateWorldMatrix(child: Object3D, updateParents: boolean, updateChildren: boolean) {
+    if (!(child.parent instanceof Content)) {
+      Object3D.prototype.updateWorldMatrix.apply(child, [updateParents, updateChildren])
+      return
+    }
+    if (updateParents) {
+      this.updateWorldMatrix(true, false)
+    }
     child.updateMatrix()
     child.matrixWorld
       .copy(child.matrix)
       .premultiply(this.childrenMatrix)
       .premultiply(this.globalMatrix.peek() ?? IdentityMatrix)
       .premultiply(this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix)
-    for (const childChild of child.children) {
-      childChild.updateMatrixWorld(true)
+    if (updateChildren) {
+      for (const childChild of child.children) {
+        childChild.updateMatrixWorld(true)
+      }
     }
   }
 
@@ -251,7 +260,8 @@ export class Content<
     })
 
     for (const child of this.children) {
-      child.updateMatrixWorld = this.updateChildMatrixWorld.bind(this, child)
+      child.updateMatrixWorld = this.childUpdateWorldMatrix.bind(this, child, false, true)
+      child.updateWorldMatrix = this.childUpdateWorldMatrix.bind(this, child)
     }
 
     if (this.config?.boundingBox == null) {
@@ -274,6 +284,15 @@ export class Content<
     }
 
     this.root.peek().requestRender?.()
+  }
+
+  updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
+    super.updateWorldMatrix(updateParents, updateChildren)
+    if (updateChildren) {
+      for (const child of this.children) {
+        child.updateWorldMatrix(false, true)
+      }
+    }
   }
 
   dispose(): void {
