@@ -398,7 +398,7 @@ for (const anyKey in defaultThemes['default']) {
   colors[key] = computed(() => computeThemeProperty(key))
 }
 
-const additionalDefaults = {
+export const defaults = {
   scrollbarColor: withOpacity(colors.foreground, 0.3),
   scrollbarBorderRadius: 4,
   lineHeight: '150%',
@@ -408,25 +408,25 @@ const additionalDefaults = {
 
 export const componentDefaults = {
   ...baseComponentDefaults,
-  ...additionalDefaults,
+  ...defaults,
 } as const
 
 export const inputDefaults = {
   ...baseInputDefaults,
-  ...additionalDefaults,
+  ...defaults,
 } as const
 
 export const textDefaults = {
   ...baseTextDefaults,
-  ...additionalDefaults,
+  ...defaults,
 }
 
 export const imageDefaults = {
   ...baseImageDefaults,
-  ...additionalDefaults,
+  ...defaults,
 } as const
 
 export const contentDefaults = {
   ...baseContentDefaults,
-  ...additionalDefaults,
+  ...defaults,
 } as const

@@ -1,7 +1,17 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Container, Text, Fullscreen } from '@react-three/uikit'
 import { CirclePlus } from '@react-three/uikit-lucide'
-import { colors, Tabs, TabsList, TabsContent, TabsTrigger, Separator, Button, Video } from '@react-three/uikit-default'
+import {
+  colors,
+  Tabs,
+  TabsList,
+  TabsContent,
+  TabsTrigger,
+  Separator,
+  Button,
+  Video,
+  defaults,
+} from '@react-three/uikit-default'
 import { AlbumArtwork } from './components/album-artwork.js'
 import { listenNowAlbums, madeForYouAlbums } from './data/albums.js'
 import { Sidebar } from './components/sidebar.js'
@@ -34,7 +44,7 @@ export default function App() {
 
 export function MarketPage() {
   return (
-    <Container height="100%" flexDirection="column">
+    <Container height="100%" flexDirection="column" {...defaults}>
       <Menu />
       <Container flexBasis={0} flexGrow={1} borderTopWidth={1} backgroundColor={colors.background} flexDirection="row">
         <Sidebar marginTop={16} playlists={playlists} />

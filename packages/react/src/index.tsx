@@ -41,6 +41,7 @@ import {
 import { Signal } from '@preact/signals-core'
 import { createPortal, extend, ThreeElement, useFrame, useLoader, useStore, useThree } from '@react-three/fiber'
 import { SRGBColorSpace, TextureLoader } from 'three'
+import { jsx } from 'react/jsx-runtime'
 
 export type ContainerProperties = VanillaContainerProperties & { children?: ReactNode }
 export type ContentProperties = VanillaContentProperties & { children?: ReactNode }
@@ -113,11 +114,11 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
     const renderer = useThree((s) => s.gl)
     const ref = useRef<VanillaFullscreen>(null)
     useImperativeHandle(forwardRef, () => ref.current!, [])
-    useSetup(ref, props)
     const renderContext = useRenderContext()
-    const args = useMemo(() => [renderer, undefined, undefined, { renderContext }] as const, [renderer, renderContext])
+    const args = useMemo(() => [renderer, undefined, undefined, { renderContext }], [renderer, renderContext])
+    const outProps = useSetup(ref, props, args)
     return createPortal(
-      <vanillaFullscreen args={args} ref={ref}>
+      <vanillaFullscreen {...outProps} ref={ref}>
         {children}
       </vanillaFullscreen>,
       camera,
@@ -125,13 +126,15 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
   },
 )
 
-export const Text = forwardRef<VanillaText, TextProperties>(({ children, ...props }, ref) => {
-  props.text = children
-  const text = useMemo(() => new VanillaText(), [])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useImperativeHandle(ref, () => text, [])
-  useSetup({ current: text }, props)
-  return <primitive object={text} />
+extend({ VanillaText })
+
+export const Text = forwardRef<VanillaText, TextProperties>(({ children, ...props }, forwardRef) => {
+  const ref = useRef<VanillaText>(null)
+  useImperativeHandle(forwardRef, () => ref.current!, [])
+  const renderContext = useRenderContext()
+  const args = useMemo(() => [undefined, undefined, { renderContext }], [renderContext])
+  const outProps = useSetup(ref, { ...props, text: children }, args)
+  return jsx(`vanillaText` as any, { ...outProps, ref })
 })
 
 export type SuspendingImageProperties = Omit<ImageProperties, 'src'> & {
@@ -150,3 +153,4 @@ export const SuspendingImage = forwardRef<VanillaImage, SuspendingImagePropertie
 
 export * from './portal.js'
 export * from './build.js'
+export * from './deprecated.js'

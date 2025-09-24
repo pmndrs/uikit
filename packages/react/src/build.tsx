@@ -1,16 +1,12 @@
 import { Component, EventHandlers, RenderContext, reversePainterSortStable } from '@pmndrs/uikit'
 import { effect } from '@preact/signals-core'
-import { extend, RootStore, useFrame, useStore, useThree } from '@react-three/fiber'
+import { extend, RootStore, useFrame, useStore, useThree, Instance, applyProps } from '@react-three/fiber'
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { jsx } from 'react/jsx-runtime'
 
 declare module 'three' {
   interface Object3D {
-    __r3f?: {
-      root: RootStore
-      eventCount: number
-      handlers: EventHandlers
-    }
+    __r3f?: Instance
   }
 }
 
@@ -20,10 +16,10 @@ export function build<T extends Component, P>(Component: { new (): T }, name = C
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const ref = useRef<Component>(null)
     useImperativeHandle(forwardRef, () => ref.current! as T, [])
-    useSetup(ref, props)
     const renderContext = useRenderContext()
     const args = useMemo(() => [undefined, undefined, { renderContext }], [renderContext])
-    return jsx(`vanilla${name}` as any, { ref, children, args })
+    const outProps = useSetup(ref, props, args)
+    return jsx(`vanilla${name}` as any, { ref, children, ...outProps })
   })
 }
 
@@ -32,7 +28,10 @@ export function useRenderContext() {
   return useMemo<RenderContext>(() => ({ requestFrame: invalidate }), [invalidate])
 }
 
-export function useSetup(ref: { current: Component | null }, props: any) {
+/**
+ * @returns the props that should be applied to the component
+ */
+export function useSetup(ref: { current: Component | null }, inProps: any, args: Array<any>): any {
   useFrame((_, delta) => {
     ref.current?.update(delta * 1000)
   })
@@ -42,45 +41,34 @@ export function useSetup(ref: { current: Component | null }, props: any) {
     renderer.setTransparentSort(reversePainterSortStable)
   }, [renderer])
   useEffect(() => {
-    ref.current?.resetProperties(props)
+    ref.current?.resetProperties(inProps)
   })
-  const root = useStore()
+  const outPropsRef = useRef<{ args: Array<any> } & EventHandlers>({ args })
   useEffect(() => {
     const container = ref.current
     if (container == null) {
       return undefined
     }
-    return effect(() => {
+    const unsubscribe = effect(() => {
       const { value: handlers } = container.handlers
       const eventCount = Object.keys(handlers).length
       if (eventCount === 0) {
+        outPropsRef.current = { args }
+        applyProps(container, outPropsRef.current)
         return
       }
       if (container.__r3f == null) {
-        container.__r3f = {
-          eventCount,
-          root,
-          handlers,
-        }
+        throw new Error(`missing __r3f attribute`)
       }
-      container.__r3f.handlers = { ...handlers }
-      if (handlers.onDblClick != null) {
-        //patch that in react land "dblclick" is called doubleclick
-        ;(container.__r3f.handlers as any).onDoubleClick = handlers.onDblClick
-      }
-      container.__r3f.eventCount = eventCount
-
-      root.getState().internal.interaction.push(container)
-
-      return () => {
-        const rootState = root.getState()
-        const index = rootState.internal.interaction.indexOf(container)
-        if (index === -1) {
-          return
-        }
-        rootState.internal.interaction.splice(index, 1)
-      }
+      outPropsRef.current = { args, ...handlers }
+      applyProps(container, outPropsRef.current)
     })
+    return () => {
+      unsubscribe()
+      outPropsRef.current = { args }
+      applyProps(container, outPropsRef.current)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [args])
+  return outPropsRef.current
 }

@@ -16,3 +16,4 @@ export { type ColorRepresentation, readReactive, type UnionizeVariants, withOpac
 export type { CaretTransformation } from './caret.js'
 export type { SelectionTransformation } from './selection.js'
 export * from './properties/index.js'
+export type { FontFamilies, FontWeight, FontFamilyWeightMap } from './text/index.js'

@@ -87,29 +87,6 @@ function FrameCounter() {
 export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   return (
     <Container flexShrink={0} flexDirection="column">
-      <Container gap={20}>
-        <Input
-          borderWidth={2}
-          borderRadius={6}
-          borderColor="gray"
-          paddingTop={2}
-          paddingBottom={30}
-          paddingLeft={10}
-          paddingRight={30}
-          defaultValue="Text Container"
-        />
-        <Text
-          borderWidth={2}
-          borderRadius={6}
-          borderColor="gray"
-          paddingTop={2}
-          paddingBottom={30}
-          paddingLeft={10}
-          paddingRight={30}
-        >
-          Text Container
-        </Text>
-      </Container>
       <Container flexShrink={0} flexDirection="column" borderBottomWidth={1}>
         <Container height={64} alignItems="center" flexDirection="row" paddingX={16}>
           <TeamSwitcher />
