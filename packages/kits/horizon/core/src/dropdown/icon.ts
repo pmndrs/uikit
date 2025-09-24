@@ -1,33 +1,19 @@
-import {
-  BaseOutProperties,
-  componentDefaults,
-  Container,
-  InProperties,
-  RenderContext,
-  ThreeEventMap,
-  WithSignal,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 
-export type DropdownIconOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type DropdownIconOutProperties = BaseOutProperties
 
-export type DropdownIconProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DropdownIconOutProperties<EM>
->
+export type DropdownIconProperties = InProperties<DropdownIconOutProperties>
 
-export class DropdownIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class DropdownIcon extends Container<BaseOutProperties> {
   constructor(
-    inputProperties?: InProperties<DropdownIconOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownIconOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownIconOutProperties<EM>>
-      defaults?: WithSignal<DropdownIconOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownIconOutProperties>
+      defaults?: WithSignal<DropdownIconOutProperties>
     },
   ) {
     const size = computed(() => {

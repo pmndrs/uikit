@@ -1,25 +1,19 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap, WithSignal } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { Dropdown } from './index.js'
 
-export type DropdownListItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type DropdownListItemOutProperties = BaseOutProperties & {
   value?: string
 }
 
-export type DropdownListItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DropdownListItemOutProperties<EM>
->
-export class DropdownListItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DropdownListItemOutProperties<EM>
-> {
+export type DropdownListItemProperties = InProperties<DropdownListItemOutProperties>
+export class DropdownListItem extends Container<DropdownListItemOutProperties> {
   constructor(
-    inputProperties?: InProperties<DropdownListItemOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownListItemOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownListItemOutProperties<EM>>
-      defaults?: WithSignal<DropdownListItemOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownListItemOutProperties>
+      defaults?: WithSignal<DropdownListItemOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

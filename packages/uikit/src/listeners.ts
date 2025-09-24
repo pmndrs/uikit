@@ -2,9 +2,9 @@ import { Signal } from '@preact/signals-core'
 import { Vector2Tuple } from 'three'
 import { ThreeMouseEvent, ThreePointerEvent } from './events.js'
 
-export type Listeners = ScrollListeners & HoverListeners & ActiveListeners
+export type ListenersProperties = ScrollListenersProperties & HoverListenersProperties & ActiveListenersProperties
 
-export type ScrollListeners = {
+export type ScrollListenersProperties = {
   /**
    * scroll listener called right before the new scroll position is set when a scroll event is caused
    * @param scrollX the new scroll x position
@@ -21,9 +21,9 @@ export type ScrollListeners = {
   ) => boolean | void
 }
 
-export type HoverListeners = {
+export type HoverListenersProperties = {
   onHoverChange?: (hover: boolean) => void
 }
-export type ActiveListeners = {
+export type ActiveListenersProperties = {
   onActiveChange?: (active: boolean) => void
 }

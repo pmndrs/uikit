@@ -1,21 +1,18 @@
 import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { batch, Signal, signal } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 
-export type FullscreenProperties<EM extends ThreeEventMap> = InProperties<FullscreenOutProperties<EM>>
+export type FullscreenProperties = InProperties<FullscreenOutProperties>
 
-export type FullscreenOutProperties<EM extends ThreeEventMap> = BaseOutProperties<EM> & { distanceToCamera?: number }
+export type FullscreenOutProperties = BaseOutProperties & { distanceToCamera?: number }
 
 const vectorHelper = new Vector2()
 
 export class Fullscreen<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends FullscreenOutProperties<EM> = FullscreenOutProperties<EM>,
-> extends Container<T, EM, OutProperties> {
+  OutProperties extends FullscreenOutProperties = FullscreenOutProperties,
+> extends Container<OutProperties> {
   private readonly sizeX: Signal<number>
   private readonly sizeY: Signal<number>
   private readonly transformTranslateZ: Signal<number>
@@ -24,7 +21,7 @@ export class Fullscreen<
   constructor(
     private renderer: WebGLRenderer,
     properties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>

@@ -1,24 +1,20 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
 import { searchFor } from '../utils.js'
 import { colors, componentDefaults } from '../theme.js'
 
-export type TabsContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type TabsContentOutProperties = BaseOutProperties & {
   value?: string
 }
 
-export type TabsContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TabsContentOutProperties<EM>>
+export type TabsContentProperties = InProperties<TabsContentOutProperties>
 
-export class TabsContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  TabsContentOutProperties<EM>
-> {
+export class TabsContent extends Container<TabsContentOutProperties> {
   constructor(
-    inputProperties?: TabsContentProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TabsContentOutProperties<EM>> },
+    inputProperties?: TabsContentProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TabsContentOutProperties> },
   ) {
     const isVisible = computed(() => {
       const tabs = searchFor(this, Tabs, 2)

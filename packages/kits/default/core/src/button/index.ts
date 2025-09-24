@@ -4,7 +4,6 @@ import {
   ContainerProperties,
   InProperties,
   RenderContext,
-  ThreeEventMap,
   UnionizeVariants,
   withOpacity,
 } from '@pmndrs/uikit'
@@ -68,25 +67,21 @@ const _buttonSizes = {
 } satisfies Record<string, ButtonSizeProps>
 const buttonSizes = _buttonSizes as UnionizeVariants<typeof _buttonSizes>
 
-export type ButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type ButtonOutProperties = BaseOutProperties & {
   variant?: keyof typeof buttonVariants
   size?: keyof typeof buttonSizes
   disabled?: boolean
 }
 
-export type ButtonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ButtonOutProperties<EM>>
+export type ButtonProperties = InProperties<ButtonOutProperties>
 
-export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ButtonOutProperties<EM>
-> {
+export class Button extends Container<ButtonOutProperties> {
   constructor(
-    inputProperties?: InProperties<ButtonOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<ButtonOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ButtonOutProperties<EM>>
+      defaultOverrides?: InProperties<ButtonOutProperties>
     },
   ) {
     const borderW = computed(() => {

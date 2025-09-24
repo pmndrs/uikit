@@ -1,29 +1,25 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, withOpacity } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, withOpacity } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 
-export type DialogOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type DialogOutProperties = {
   open?: boolean
   onOpenChange?: (open: boolean) => void
   defaultOpen?: boolean
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type DialogProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<DialogOutProperties<EM>>
+export type DialogProperties = InProperties<DialogOutProperties>
 
-export class Dialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DialogOutProperties<EM>
-> {
+export class Dialog extends Container<DialogOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.open ?? this.uncontrolledSignal.value ?? this.properties.value.defaultOpen,
   )
 
   constructor(
-    inputProperties?: InProperties<DialogOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogOutProperties<EM>> },
+    inputProperties?: InProperties<DialogOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

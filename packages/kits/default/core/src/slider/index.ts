@@ -1,11 +1,11 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
-import { Vector3 } from 'three'
+import { Object3DEventMap, Vector3 } from 'three'
 
 const vectorHelper = new Vector3()
 
-export type SliderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type SliderOutProperties = {
   disabled?: boolean
   value?: number
   min?: number
@@ -13,15 +13,11 @@ export type SliderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
   step?: number
   defaultValue?: number
   onValueChange?: (value: number) => void
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type SliderProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SliderOutProperties<EM>>
+export type SliderProperties = InProperties<SliderOutProperties>
 
-export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  SliderOutProperties<EM>
-> {
+export class Slider extends Container<SliderOutProperties> {
   private downPointerId?: number
 
   public readonly uncontrolledSignal = signal<number | undefined>(undefined)
@@ -34,11 +30,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public readonly thumb: Container
 
   constructor(
-    inputProperties?: InProperties<SliderOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<SliderOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<SliderOutProperties<EM>>
+      defaultOverrides?: InProperties<SliderOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -57,7 +53,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: EM['pointer']) => {
+            : (e: Object3DEventMap['pointerDown']) => {
                 if (this.downPointerId != null) {
                   return
                 }
@@ -78,7 +74,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: EM['pointer']) => {
+            : (e: Object3DEventMap['pointerMove']) => {
                 if (this.downPointerId != e.pointerId) {
                   return
                 }
@@ -89,7 +85,7 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: EM['pointer']) => {
+            : (e: Object3DEventMap['pointerUp']) => {
                 if (this.downPointerId == null) {
                   return
                 }

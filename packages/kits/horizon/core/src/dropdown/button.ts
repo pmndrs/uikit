@@ -1,25 +1,19 @@
-import { BaseOutProperties, InProperties, RenderContext, SvgOutProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, InProperties, RenderContext, SvgOutProperties } from '@pmndrs/uikit'
 import { ChevronDownIcon } from '@pmndrs/uikit-lucide'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 
-export type DropdownButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = SvgOutProperties<EM>
+export type DropdownButtonOutProperties = SvgOutProperties
 
-export type DropdownButtonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DropdownButtonOutProperties<EM>
->
+export type DropdownButtonProperties = InProperties<DropdownButtonOutProperties>
 
-export class DropdownButton<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends ChevronDownIcon<
-  T,
-  EM,
-  DropdownButtonOutProperties<EM>
-> {
+export class DropdownButton extends ChevronDownIcon<DropdownButtonOutProperties> {
   constructor(
-    inputProperties?: InProperties<DropdownButtonOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownButtonOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownButtonOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownButtonOutProperties>
     },
   ) {
     const size = computed(() => {

@@ -1,28 +1,23 @@
 import { ImageOutProperties, Image } from './image.js'
 import { SRGBColorSpace, VideoTexture } from 'three'
 import { computed, signal } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { RenderContext } from '../context.js'
 
 export type VideoSrc = HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | HTMLVideoElement
 
-export type VideoOutProperties<EM extends ThreeEventMap> = ImageOutProperties<EM, VideoSrc> &
+export type VideoOutProperties = ImageOutProperties<VideoSrc> &
   Omit<Partial<HTMLVideoElement>, 'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active'>
 
-export type VideoProperties<EM extends ThreeEventMap> = InProperties<VideoOutProperties<EM>>
+export type VideoProperties = InProperties<VideoOutProperties>
 
-export class Video<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends VideoOutProperties<EM> = VideoOutProperties<EM>,
-> extends Image<T, EM, OutProperties> {
+export class Video<OutProperties extends VideoOutProperties = VideoOutProperties> extends Image<OutProperties> {
   readonly element = signal<HTMLVideoElement | undefined>()
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>

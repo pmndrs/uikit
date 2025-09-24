@@ -1,27 +1,15 @@
-import {
-  BaseOutProperties,
-  componentDefaults,
-  Container,
-  InProperties,
-  RenderContext,
-  ThreeEventMap,
-  WithSignal,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Button } from './index.js'
 
-export class ButtonIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class ButtonIcon extends Container<BaseOutProperties> {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<BaseOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BaseOutProperties<EM>>
-      defaults?: WithSignal<BaseOutProperties<EM>>
+      defaultOverrides?: InProperties<BaseOutProperties>
+      defaults?: WithSignal<BaseOutProperties>
     },
   ) {
     const size = computed(() => {

@@ -1,24 +1,20 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
-export type SeparatorProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SeperatorOutProperties<EM>>
+export type SeparatorProperties = InProperties<SeperatorOutProperties>
 
-export type SeperatorOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type SeperatorOutProperties = BaseOutProperties & {
   orientation?: 'horizontal' | 'vertical'
 }
 
-export class Separator<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  SeperatorOutProperties<EM>
-> {
+export class Separator extends Container<SeperatorOutProperties> {
   constructor(
-    inputProperties?: InProperties<SeperatorOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<SeperatorOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: any
-      defaultOverrides?: InProperties<SeperatorOutProperties<EM>>
+      defaultOverrides?: InProperties<SeperatorOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

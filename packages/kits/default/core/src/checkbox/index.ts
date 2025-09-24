@@ -1,22 +1,18 @@
-import { InProperties, BaseOutProperties, Container, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { InProperties, BaseOutProperties, Container, RenderContext } from '@pmndrs/uikit'
 import { CheckIcon } from '@pmndrs/uikit-lucide'
 import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults, contentDefaults } from '../theme.js'
 
-export type CheckboxOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type CheckboxOutProperties = BaseOutProperties & {
   checked?: boolean
   disabled?: boolean
   onCheckedChange?: (checked: boolean) => void
   defaultChecked?: boolean
 }
 
-export type CheckboxProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<CheckboxOutProperties<EM>>
+export type CheckboxProperties = InProperties<CheckboxOutProperties>
 
-export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  CheckboxOutProperties<EM>
-> {
+export class Checkbox extends Container<CheckboxOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
@@ -24,11 +20,11 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   public readonly icon: CheckIcon
 
   constructor(
-    inputProperties?: InProperties<CheckboxOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<CheckboxOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<CheckboxOutProperties<EM>>
+      defaultOverrides?: InProperties<CheckboxOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

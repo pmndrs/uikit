@@ -1,13 +1,13 @@
 import { Signal } from '@preact/signals-core'
 import { Properties } from './properties/index.js'
-import { EventHandlers, ThreePointerEvent } from './events.js'
+import { EventHandlersProperties, ThreePointerEvent } from './events.js'
 import { addHandler } from './utils.js'
 
 /**
  * must be executed inside effect/computed
  */
 export function addActiveHandlers(
-  target: EventHandlers,
+  target: EventHandlersProperties,
   properties: Properties,
   activeSignal: Signal<Array<number>>,
   hasActiveConditionalInProperties: Signal<boolean>,
@@ -29,6 +29,9 @@ export function addActiveHandlers(
     properties.peek().onActiveChange?.(false)
   }
   addHandler('onPointerDown', target, ({ pointerId }) => {
+    if (pointerId == null) {
+      return
+    }
     activeSignal.value = [pointerId, ...activeSignal.value]
     if (activeSignal.value.length != 1) {
       return

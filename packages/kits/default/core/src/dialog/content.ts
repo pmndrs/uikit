@@ -1,26 +1,20 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { XIcon } from '@pmndrs/uikit-lucide'
 import { Dialog } from './index.js'
 import { searchFor } from '../utils.js'
 
-export type DialogContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type DialogContentOutProperties = BaseOutProperties
 
-export type DialogContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DialogContentOutProperties<EM>
->
+export type DialogContentProperties = InProperties<DialogContentOutProperties>
 
-export class DialogContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DialogContentOutProperties<EM>
-> {
+export class DialogContent extends Container<DialogContentOutProperties> {
   public readonly closeButton: XIcon
 
   constructor(
-    inputProperties?: DialogContentProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogContentOutProperties<EM>> },
+    inputProperties?: DialogContentProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogContentOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

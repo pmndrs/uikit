@@ -1,25 +1,18 @@
-import {
-  BaseOutProperties,
-  Container,
-  ContainerProperties,
-  InProperties,
-  RenderContext,
-  ThreeEventMap,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, Container, ContainerProperties, InProperties, RenderContext } from '@pmndrs/uikit'
 import { signal } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 
-export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
+export type AccordionProperties = ContainerProperties
 
-export class Accordion<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
+export class Accordion extends Container {
   readonly openItemValue = signal<string | undefined>(undefined)
 
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
-    initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[],
+    inputProperties?: InProperties<BaseOutProperties>,
+    initialClasses?: (string | InProperties<BaseOutProperties>)[],
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BaseOutProperties<EM>>
+      defaultOverrides?: InProperties<BaseOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

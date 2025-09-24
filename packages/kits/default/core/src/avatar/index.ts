@@ -1,28 +1,18 @@
-import {
-  Image,
-  ImageOutProperties,
-  InProperties,
-  ThreeEventMap,
-  RenderContext,
-  BaseOutProperties,
-  imageDefaults,
-} from '@pmndrs/uikit'
+import { Image, ImageOutProperties, InProperties, RenderContext, BaseOutProperties, imageDefaults } from '@pmndrs/uikit'
 import { Texture } from 'three'
 import { colors } from '../theme.js'
 
-export type AvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  ImageOutProperties<EM, string | Texture>
->
+export type AvatarProperties = InProperties<ImageOutProperties<string | Texture>>
 
-export type AvatarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = ImageOutProperties<EM, string | Texture>
+export type AvatarOutProperties = ImageOutProperties<string | Texture>
 
-export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Image<T, EM, AvatarOutProperties<EM>> {
+export class Avatar extends Image<AvatarOutProperties> {
   constructor(
-    inputProperties?: InProperties<AvatarOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<AvatarOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<AvatarOutProperties<EM>>
+      defaultOverrides?: InProperties<AvatarOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

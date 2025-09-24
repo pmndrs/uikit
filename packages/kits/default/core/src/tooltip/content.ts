@@ -1,28 +1,22 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Tooltip } from './index.js'
 import { searchFor } from '../utils.js'
 
-export type TooltipContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  TooltipContentOutProperties<EM>
->
+export type TooltipContentProperties = InProperties<TooltipContentOutProperties>
 
-export type TooltipContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type TooltipContentOutProperties = BaseOutProperties & {
   sideOffset?: number
 }
 
-export class TooltipContent<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  TooltipContentOutProperties<EM>
-> {
+export class TooltipContent extends Container<TooltipContentOutProperties> {
   constructor(
-    inputProperties?: TooltipContentProperties<EM>,
-    initialClasses?: Array<InProperties<TooltipContentOutProperties<EM>> | string>,
+    inputProperties?: TooltipContentProperties,
+    initialClasses?: Array<InProperties<TooltipContentOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<TooltipContentOutProperties<EM>>
+      defaultOverrides?: InProperties<TooltipContentOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

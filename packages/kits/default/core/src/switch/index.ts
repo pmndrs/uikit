@@ -1,22 +1,18 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, Properties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
 
-export type SwitchOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type SwitchOutProperties = {
   checked?: boolean
   disabled?: boolean
   defaultChecked?: boolean
   onCheckedChange?: (checked: boolean) => void
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type SwitchProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<SwitchOutProperties<EM>>
+export type SwitchProperties = InProperties<SwitchOutProperties>
 
-export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  SwitchOutProperties<EM>
-> {
+export class Switch extends Container<SwitchOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
@@ -24,9 +20,9 @@ export class Switch<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public readonly handle: Container
 
   constructor(
-    inputProperties?: InProperties<SwitchOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<SwitchOutProperties<EM>> },
+    inputProperties?: InProperties<SwitchOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<SwitchOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

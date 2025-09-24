@@ -2,7 +2,6 @@ import {
   InProperties,
   VideoOutProperties as BaseVideoOutProperties,
   Container,
-  ThreeEventMap,
   Video as VideoImpl,
   Text,
   BaseOutProperties,
@@ -17,13 +16,13 @@ import { colors, componentDefaults, contentDefaults, imageDefaults, textDefaults
 import { Object3D } from 'three/src/Three.js'
 import { searchFor } from '../utils.js'
 
-export type VideoOutProperties<EM extends ThreeEventMap> = BaseVideoOutProperties<EM> & {
+export type VideoOutProperties = BaseVideoOutProperties & {
   controls?: boolean
 }
 
-export type VideoProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<VideoOutProperties<EM>>
+export type VideoProperties = InProperties<VideoOutProperties>
 
-export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, VideoOutProperties<EM>> {
+export class Video extends Container<VideoOutProperties> {
   readonly interacting = signal(false)
   private timeoutRef?: NodeJS.Timeout
 
@@ -31,9 +30,9 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   public readonly controls: VideoControls
 
   constructor(
-    inputProperties?: VideoProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: any; defaultOverrides?: InProperties<VideoOutProperties<EM>> },
+    inputProperties?: VideoProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<VideoOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: imageDefaults,
@@ -104,17 +103,13 @@ export class Video<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   }
 }
 
-export type VideoControlsProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type VideoControlsProperties = InProperties<BaseOutProperties>
 
-export class VideoControls<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class VideoControls extends Container<BaseOutProperties> {
   constructor(
-    inputProperties?: VideoControlsProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+    inputProperties?: VideoControlsProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<BaseOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

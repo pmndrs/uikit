@@ -1,17 +1,13 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 
-export type TooltipTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type TooltipTriggerProperties = InProperties<BaseOutProperties>
 
-export class TooltipTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class TooltipTrigger extends Container<BaseOutProperties> {
   constructor(
-    inputProperties?: TooltipTriggerProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+    inputProperties?: TooltipTriggerProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

@@ -1,9 +1,8 @@
 import { Dialog, DialogProperties } from '../dialog/index.js'
-import type { ThreeEventMap } from '@pmndrs/uikit'
 
-export type AlertDialogProperties<EM extends ThreeEventMap = ThreeEventMap> = DialogProperties<EM>
+export type AlertDialogProperties = DialogProperties
 
-export class AlertDialog<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Dialog<T, EM> {}
+export class AlertDialog extends Dialog {}
 
 export * from './trigger.js'
 export * from './content.js'

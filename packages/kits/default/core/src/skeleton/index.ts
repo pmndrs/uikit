@@ -1,28 +1,17 @@
-import {
-  abortableEffect,
-  BaseOutProperties,
-  Container,
-  InProperties,
-  ThreeEventMap,
-  RenderContext,
-} from '@pmndrs/uikit'
+import { abortableEffect, BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { Signal, signal } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 
-export type SkeletonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type SkeletonProperties = InProperties<BaseOutProperties>
 
-export class Skeleton<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class Skeleton extends Container<BaseOutProperties> {
   private readonly opacity: Signal<number>
   private time = 0
 
   constructor(
-    inputProperties?: SkeletonProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+    inputProperties?: SkeletonProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties> },
   ) {
     const opacity = signal(1)
     super(inputProperties, initialClasses, {

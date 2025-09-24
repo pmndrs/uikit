@@ -1,7 +1,6 @@
 import {
   Container,
   ContainerProperties,
-  ThreeEventMap,
   InProperties,
   BaseOutProperties,
   RenderContext,
@@ -28,33 +27,29 @@ const toggleSizes = {
   lg: { height: 44, paddingX: 20 },
 } satisfies { [Key in string]: ContainerProperties }
 
-export type ToggleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type ToggleOutProperties = {
   checked?: boolean
   disabled?: boolean
   defaultChecked?: boolean
   onCheckedChange?: (checked: boolean) => void
   variant?: keyof typeof toggleVariants
   size?: keyof typeof toggleSizes
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type ToggleProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ToggleOutProperties<EM>>
+export type ToggleProperties = InProperties<ToggleOutProperties>
 
-export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ToggleOutProperties<EM>
-> {
+export class Toggle extends Container<ToggleOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
 
   constructor(
-    inputProperties?: InProperties<ToggleOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<ToggleOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ToggleOutProperties<EM>>
+      defaultOverrides?: InProperties<ToggleOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

@@ -3,7 +3,6 @@ import {
   Container,
   ContainerProperties,
   InProperties,
-  ThreeEventMap,
   withOpacity,
   RenderContext,
   UnionizeVariants,
@@ -40,19 +39,19 @@ const _badgeVariants = {
 
 const badgeVariants = _badgeVariants as UnionizeVariants<typeof _badgeVariants>
 
-export type BadgeProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BadgeOutProperties<EM>>
+export type BadgeProperties = InProperties<BadgeOutProperties>
 
-export type BadgeOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type BadgeOutProperties = BaseOutProperties & {
   variant?: keyof typeof badgeVariants
 }
 
-export class Badge<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, BadgeOutProperties<EM>> {
+export class Badge extends Container<BadgeOutProperties> {
   constructor(
-    inputProperties?: InProperties<BadgeOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<BadgeOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BadgeOutProperties<EM>>
+      defaultOverrides?: InProperties<BadgeOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

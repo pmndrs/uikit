@@ -1,8 +1,8 @@
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
-import { EventHandlers, ThreeEventMap, ThreePointerEvent } from '../events.js'
+import { EventHandlersProperties, ThreePointerEvent } from '../events.js'
 import { Component } from './component.js'
 import { Vector2, Vector2Tuple } from 'three'
-import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
+import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { InstancedText } from '../text/index.js'
 import { abortableEffect } from '../utils.js'
 import { Text, TextOutProperties, textDefaults } from './text.js'
@@ -32,7 +32,7 @@ export const canvasInputProps = {
 
 export type InputType = 'text' | 'password' | 'number'
 
-export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<TextOutProperties<EM>, 'text'> & {
+export type InputOutProperties = Omit<TextOutProperties, 'text'> & {
   placeholder?: string
   defaultValue?: string
   value?: string
@@ -47,7 +47,7 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
     'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active' | 'checked' | 'defaultChecked' | 'size'
   >
 
-export type InputProperties<EM extends ThreeEventMap> = Omit<InProperties<InputOutProperties<EM>>, 'text'>
+export type InputProperties = Omit<InProperties<InputOutProperties>, 'text'>
 
 export const inputDefaults: InputOutProperties = {
   ...textDefaults,
@@ -57,11 +57,7 @@ export const inputDefaults: InputOutProperties = {
   autocomplete: '',
 }
 
-export class Input<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends InputOutProperties<EM> = InputOutProperties<EM>,
-> extends Text<T, EM, OutProperties> {
+export class Input<OutProperties extends InputOutProperties = InputOutProperties> extends Text<OutProperties> {
   readonly element: HTMLInputElement | HTMLTextAreaElement
 
   readonly selectionRange: Signal<Vector2Tuple | undefined>
@@ -74,7 +70,7 @@ export class Input<
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
@@ -82,8 +78,8 @@ export class Input<
       defaults?: WithSignal<OutProperties>
     },
   ) {
-    const caretColor = signal<InputOutProperties<EM>['caretColor']>(undefined)
-    const selectionHandlers = signal<EventHandlers | undefined>(undefined)
+    const caretColor = signal<InputOutProperties['caretColor']>(undefined)
+    const selectionHandlers = signal<EventHandlersProperties | undefined>(undefined)
 
     const selectionTransformations = signal<Array<SelectionTransformation>>([])
     const caretTransformation = signal<CaretTransformation | undefined>(undefined)
@@ -194,8 +190,8 @@ export class Input<
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })
 
 export function setupSelectionHandlers(
-  target: Signal<EventHandlers | undefined>,
-  properties: ReadonlyProperties<InputOutProperties<ThreeEventMap>>,
+  target: Signal<EventHandlersProperties | undefined>,
+  properties: ReadonlyProperties<InputOutProperties>,
   text: ReadonlySignal<string>,
   component: Component,
   instancedTextRef: { current?: InstancedText },
@@ -207,7 +203,7 @@ export function setupSelectionHandlers(
       target.value = undefined
       return
     }
-    let dragState: { startCharIndex: number; pointerId: number } | undefined
+    let dragState: { startCharIndex: number; pointerId?: number } | undefined
     const onPointerFinish = (e: ThreePointerEvent) => {
       if (dragState == null || dragState.pointerId != e.pointerId) {
         return
@@ -257,7 +253,12 @@ export function setupSelectionHandlers(
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (e) => {
-        if (dragState?.pointerId != e.pointerId || e.uv == null || instancedTextRef.current == null) {
+        if (
+          dragState == null ||
+          dragState?.pointerId != e.pointerId ||
+          e.uv == null ||
+          instancedTextRef.current == null
+        ) {
           return
         }
         e.stopImmediatePropagation?.()
@@ -308,7 +309,7 @@ export function createHtmlInputElement(
 }
 
 function setupHtmlInputElement(
-  properties: ReadonlyProperties<InputOutProperties<ThreeEventMap>>,
+  properties: ReadonlyProperties<InputOutProperties>,
   element: HTMLInputElement | HTMLTextAreaElement,
   value: Signal<string>,
   abortSignal: AbortSignal,

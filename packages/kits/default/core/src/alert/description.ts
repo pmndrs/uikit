@@ -1,17 +1,13 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 
-export type AlertDescriptionProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type AlertDescriptionProperties = InProperties<BaseOutProperties>
 
-export class AlertDescription<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  BaseOutProperties<EM>
-> {
+export class AlertDescription extends Container<BaseOutProperties> {
   constructor(
-    inputProperties?: AlertDescriptionProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+    inputProperties?: AlertDescriptionProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<BaseOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

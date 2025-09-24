@@ -8,7 +8,6 @@ import {
   RenderContext,
   Input as InputImpl,
   InputOutProperties as BaseInputOutProperties,
-  ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed, ReadonlySignal } from '@preact/signals-core'
@@ -29,7 +28,7 @@ const _inputSizes = {
 } satisfies Record<string, InputVariantProps>
 const inputSizes = _inputSizes as UnionizeVariants<typeof _inputSizes>
 
-export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseInputOutProperties<EM> & {
+export type InputOutProperties = BaseInputOutProperties & {
   /**
    * @default "lg"
    */
@@ -40,22 +39,22 @@ export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseI
     new (
       inputProperties: any,
       initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+      config: { defaultOverrides?: InProperties<BaseOutProperties> },
     ): Component
   }
   rightIcon?: {
     new (
       inputProperties: any,
       initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+      config: { defaultOverrides?: InProperties<BaseOutProperties> },
     ): Component
   }
   placeholder?: string
 }
 
-export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<InputOutProperties<EM>>
+export type InputProperties = InProperties<InputOutProperties>
 
-export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, InputOutProperties<EM>> {
+export class Input extends Container<InputOutProperties> {
   public readonly input: InputImpl
   public readonly leftIconPlaceholder: Container
   public leftIcon?: Component
@@ -63,11 +62,11 @@ export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Con
   public rightIcon?: Component
 
   constructor(
-    inputProperties?: InProperties<InputOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<InputOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<InputOutProperties<EM>>
+      defaultOverrides?: InProperties<InputOutProperties>
       hovered?: ReadonlySignal<boolean>
     },
   ) {

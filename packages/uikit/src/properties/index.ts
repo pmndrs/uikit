@@ -11,9 +11,9 @@ import { ZIndexProperties } from '../order.js'
 import { TransformProperties } from '../transform.js'
 import { ScrollbarProperties } from '../scroll.js'
 import { PanelGroupProperties, PointerEventsProperties } from '../panel/index.js'
-import { Listeners } from '../listeners.js'
-import { EventHandlers, ThreeEventMap } from '../events.js'
-import { ComponentDefaults } from './defaults.js'
+import { ListenersProperties } from '../listeners.js'
+import { EventHandlersProperties } from '../events.js'
+import { ComponentDefaultsProperties } from './defaults.js'
 import { FontFamilyProperties, GlyphProperties, TextAlignProperties } from '../text/index.js'
 import { CaretProperties } from '../caret.js'
 import { alignmentXMap, alignmentYMap, ColorRepresentation, VisibilityProperties } from '../utils.js'
@@ -26,7 +26,7 @@ import {
   LayersSectionSize,
 } from './layer.js'
 
-export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
+export type BaseOutProperties = YogaProperties &
   PanelProperties &
   ZIndexProperties &
   TransformProperties &
@@ -34,8 +34,8 @@ export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   PanelGroupProperties &
   VisibilityProperties &
   PointerEventsProperties &
-  Listeners &
-  EventHandlers<EM> &
+  ListenersProperties &
+  EventHandlersProperties &
   TextAlignProperties &
   AppearanceProperties &
   FontFamilyProperties &
@@ -46,7 +46,7 @@ export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   AnchorProperties &
   CursorProperties &
   IdProperties &
-  ComponentDefaults
+  ComponentDefaultsProperties
 
 export type CursorProperties = {
   cursor?: string
@@ -56,7 +56,7 @@ export type IdProperties = {
   id?: string
 }
 
-export type UikitPropertyKeys = keyof BaseOutProperties<ThreeEventMap>
+export type UikitPropertyKeys = keyof BaseOutProperties
 
 export type AppearanceProperties = {
   fill?: ColorRepresentation
@@ -85,24 +85,25 @@ export type WithInheritance<T> = T & {
 
 export type WithInitial<T> = { [Key in keyof T]: T[Key] | 'initial' }
 
-export type InProperties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  WithInheritance<WithConditionalsAndImportant<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>>> & {}
+export type InProperties<OutProperties extends BaseOutProperties = BaseOutProperties> = WithInheritance<
+  WithConditionalsAndImportant<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>>
+> & {}
 
-export type Properties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  BaseProperties<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties> & {
-    get usedConditionals(): {
-      hover: Signal<boolean>
-      active: Signal<boolean>
-    }
-    setLayersWithConditionals(
-      layerInSectionIdentifier: LayerInSectionIdentifier,
-      properties: InProperties<OutProperties> | undefined,
-    ): void
+export type Properties<OutProperties extends BaseOutProperties = BaseOutProperties> = BaseProperties<
+  AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>,
+  OutProperties
+> & {
+  get usedConditionals(): {
+    hover: Signal<boolean>
+    active: Signal<boolean>
   }
+  setLayersWithConditionals(
+    layerInSectionIdentifier: LayerInSectionIdentifier,
+    properties: InProperties<OutProperties> | undefined,
+  ): void
+}
 
-export class PropertiesImplementation<
-    OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
-  >
+export class PropertiesImplementation<OutProperties extends BaseOutProperties = BaseOutProperties>
   extends BasePropertiesImplementation<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties>
   implements Properties<OutProperties>
 {

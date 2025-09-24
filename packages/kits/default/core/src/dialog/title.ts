@@ -1,19 +1,15 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 
-export type DialogTitleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type DialogTitleOutProperties = BaseOutProperties
 
-export type DialogTitleProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<DialogTitleOutProperties<EM>>
+export type DialogTitleProperties = InProperties<DialogTitleOutProperties>
 
-export class DialogTitle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DialogTitleOutProperties<EM>
-> {
+export class DialogTitle extends Container<DialogTitleOutProperties> {
   constructor(
-    inputProperties?: DialogTitleProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogTitleOutProperties<EM>> },
+    inputProperties?: DialogTitleProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: any; defaultOverrides?: InProperties<DialogTitleOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

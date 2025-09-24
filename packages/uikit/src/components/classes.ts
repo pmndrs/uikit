@@ -1,5 +1,4 @@
 import { batch } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
 import { BaseOutProperties, InProperties, Properties } from '../properties/index.js'
 import { conditionalKeys } from '../properties/conditional.js'
 import { LayerInSectionIdentifier } from '../properties/layer.js'
@@ -92,7 +91,7 @@ export class ClassList {
   }
 }
 
-export function getStarProperties<T extends BaseOutProperties<ThreeEventMap>>(properties: InProperties<T> | undefined) {
+export function getStarProperties<T extends BaseOutProperties>(properties: InProperties<T> | undefined) {
   if (properties == null) {
     return undefined
   }

@@ -6,36 +6,26 @@ import {
   RenderContext,
   Text,
   TextOutProperties,
-  ThreeEventMap,
   WithSignal,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 import { PhoneForwarded } from '@pmndrs/uikit-lucide'
 
-export type DropdownTextValueOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
-  TextOutProperties<EM>,
-  'text'
-> & {
+export type DropdownTextValueOutProperties = Omit<TextOutProperties, 'text'> & {
   placeholder?: string
 }
 
-export type DropdownTextValueProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DropdownTextValueOutProperties<EM>
->
+export type DropdownTextValueProperties = InProperties<DropdownTextValueOutProperties>
 
-export class DropdownTextValue<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Text<
-  T,
-  EM,
-  DropdownTextValueOutProperties<EM> & { text?: string }
-> {
+export class DropdownTextValue extends Text<DropdownTextValueOutProperties & { text?: string }> {
   constructor(
-    inputProperties?: InProperties<DropdownTextValueOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownTextValueOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownTextValueOutProperties<EM>>
-      defaults?: WithSignal<DropdownTextValueOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownTextValueOutProperties>
+      defaults?: WithSignal<DropdownTextValueOutProperties>
     },
   ) {
     const text = computed(() => {

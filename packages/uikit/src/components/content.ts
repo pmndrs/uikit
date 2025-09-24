@@ -1,5 +1,4 @@
 import { computed, Signal, signal } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
 import { Box3, Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, Vector3 } from 'three'
 import { ElementType, OrderInfo, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
@@ -21,10 +20,9 @@ export const contentDefaults = {
   keepAspectRatio: true,
 }
 
-export type ContentOutProperties<EM extends ThreeEventMap = ThreeEventMap> = typeof contentDefaults &
-  BaseOutProperties<EM>
+export type ContentOutProperties = typeof contentDefaults & BaseOutProperties
 
-export type ContentProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ContentOutProperties<EM>>
+export type ContentProperties = InProperties<ContentOutProperties>
 
 const IdentityQuaternion = new Quaternion()
 const IdentityMatrix = new Matrix4()
@@ -43,10 +41,8 @@ const DepthWriteDefaultDefault = true
 const SupportFillPropertyDefault = false
 
 export class Content<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends ContentOutProperties<EM> = ContentOutProperties<EM>,
-> extends Component<T, EM, OutProperties> {
+  OutProperties extends ContentOutProperties = ContentOutProperties,
+> extends Component<OutProperties> {
   readonly boundingBox: Signal<BoundingBox | undefined>
   readonly clippingPlanes: Array<Plane>
 
@@ -54,7 +50,7 @@ export class Content<
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     private readonly config?: {
       remeasureOnChildrenChange?: boolean
       depthWriteDefault?: boolean

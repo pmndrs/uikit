@@ -36,7 +36,6 @@ import {
   TextProperties as VanillaTextProperties,
   Textarea as VanillaTextarea,
   TextareaProperties as VanillaTextareaProperties,
-  ThreeEventMap,
 } from '@pmndrs/uikit'
 import { Signal } from '@preact/signals-core'
 import { createPortal, extend, ThreeElement, useFrame, useLoader, useStore, useThree } from '@react-three/fiber'
@@ -46,15 +45,15 @@ import { jsx } from 'react/jsx-runtime'
 export type ContainerProperties = VanillaContainerProperties & { children?: ReactNode }
 export type ContentProperties = VanillaContentProperties & { children?: ReactNode }
 export type CustomProperties = VanillaCustomProperties & { children?: ReactNode }
-export type ImageProperties = VanillaImageProperties<ThreeEventMap>
-export type VideoProperties = VanillaVideoProperties<ThreeEventMap>
-export type InputProperties = VanillaInputProperties<ThreeEventMap>
+export type ImageProperties = VanillaImageProperties
+export type VideoProperties = VanillaVideoProperties
+export type InputProperties = VanillaInputProperties
 export type SvgProperties = VanillaSvgProperties
-export type TextareaProperties = VanillaTextareaProperties<ThreeEventMap>
-export type TextProperties = VanillaTextProperties<ThreeEventMap> & {
+export type TextareaProperties = VanillaTextareaProperties
+export type TextProperties = VanillaTextProperties & {
   children?: string | string[] | Signal<string | string[] | undefined>
 }
-export type FullscreenProperties = VanillaFullscreenProperties<ThreeEventMap> & {
+export type FullscreenProperties = VanillaFullscreenProperties & {
   children?: ReactNode
   attachCamera?: boolean
 }

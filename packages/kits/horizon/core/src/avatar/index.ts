@@ -2,7 +2,6 @@ import {
   Image,
   ImageOutProperties,
   InProperties,
-  ThreeEventMap,
   RenderContext,
   BaseOutProperties,
   Container,
@@ -22,9 +21,9 @@ const _avatarSizes = {
 }
 const avatarSizes = _avatarSizes as UnionizeVariants<typeof _avatarSizes>
 
-export type AvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<AvatarOutProperties<EM>>
+export type AvatarProperties = InProperties<AvatarOutProperties>
 
-export type AvatarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type AvatarOutProperties = BaseOutProperties & {
   src?: string
   /**
    * @default false
@@ -38,21 +37,17 @@ export type AvatarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Base
   selected?: boolean
 }
 
-export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  AvatarOutProperties<EM>
-> {
+export class Avatar extends Container<AvatarOutProperties> {
   public readonly focusRing: Container
-  public readonly image: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
+  public readonly image: Image<ImageOutProperties<string | Texture>>
   public readonly activeBadge: Container
-  public attributionImage?: Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>
+  public attributionImage?: Image<ImageOutProperties<string | Texture>>
   constructor(
-    inputProperties?: InProperties<AvatarOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<AvatarOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<AvatarOutProperties<EM>>
+      defaultOverrides?: InProperties<AvatarOutProperties>
     },
   ) {
     const height = computed(() => avatarSizes[this.properties.value.size ?? 'md'].height)
@@ -96,20 +91,16 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
 
     //avatar image
     super.add(
-      (this.image = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(
-        undefined,
-        undefined,
-        {
-          defaultOverrides: {
-            width: '100%',
-            height: '100%',
-            aspectRatio: 1,
-            borderRadius: 1000,
-            borderColor: 'initial',
-            src: this.properties.signal.src,
-          },
+      (this.image = new Image<ImageOutProperties<string | Texture>>(undefined, undefined, {
+        defaultOverrides: {
+          width: '100%',
+          height: '100%',
+          aspectRatio: 1,
+          borderRadius: 1000,
+          borderColor: 'initial',
+          src: this.properties.signal.src,
         },
-      )),
+      })),
     )
 
     //active attribution
@@ -148,22 +139,18 @@ export class Avatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
         return
       }
       const attributionSrcWidth = computed(() => avatarSizes[this.properties.value.size ?? 'md'].attributionSrcWidth)
-      const attributionImage = new Image<{}, ThreeEventMap, ImageOutProperties<ThreeEventMap, string | Texture>>(
-        undefined,
-        undefined,
-        {
-          defaultOverrides: {
-            src,
-            positionType: 'absolute',
-            positionBottom: cattributionActiveMargin,
-            positionRight: cattributionActiveMargin,
-            flexShrink: 0,
-            width: attributionSrcWidth,
-            height: attributionSrcWidth,
-            aspectRatio: 1,
-          },
+      const attributionImage = new Image<ImageOutProperties<string | Texture>>(undefined, undefined, {
+        defaultOverrides: {
+          src,
+          positionType: 'absolute',
+          positionBottom: cattributionActiveMargin,
+          positionRight: cattributionActiveMargin,
+          flexShrink: 0,
+          width: attributionSrcWidth,
+          height: attributionSrcWidth,
+          aspectRatio: 1,
         },
-      )
+      })
       super.add(attributionImage)
       this.attributionImage = attributionImage
       return () => attributionImage.dispose()

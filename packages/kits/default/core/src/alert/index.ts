@@ -3,7 +3,6 @@ import {
   Container,
   ContainerProperties,
   InProperties,
-  ThreeEventMap,
   RenderContext,
   UnionizeVariants,
 } from '@pmndrs/uikit'
@@ -22,19 +21,19 @@ const _alertVariants = {
 } satisfies { [Key in string]: ContainerProperties }
 const alertVariants = _alertVariants as UnionizeVariants<typeof _alertVariants>
 
-export type AlertProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<AlertOutProperties<EM>>
+export type AlertProperties = InProperties<AlertOutProperties>
 
-export type AlertOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type AlertOutProperties = BaseOutProperties & {
   variant?: keyof typeof alertVariants
 }
 
-export class Alert<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, AlertOutProperties<EM>> {
+export class Alert extends Container<AlertOutProperties> {
   constructor(
-    inputProperties?: InProperties<AlertOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<AlertOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<AlertOutProperties<EM>>
+      defaultOverrides?: InProperties<AlertOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

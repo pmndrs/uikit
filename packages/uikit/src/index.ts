@@ -1,4 +1,4 @@
-export type { EventHandlers, ThreePointerEvent as ThreeEvent, ThreeEventMap } from './events.js'
+export type { EventHandlersProperties as EventHandlers, ThreePointerEvent as ThreeEvent } from './events.js'
 export { reversePainterSortStable } from './order.js'
 export { abortableEffect } from './utils.js'
 export {
@@ -10,7 +10,7 @@ export {
 } from './preferred-color-scheme.js'
 export type { RenderContext } from './context.js'
 export type { MaterialClass, GlassMaterial, MetalMaterial, PlasticMaterial } from './panel/index.js'
-export type { Listeners, ScrollListeners } from './listeners.js'
+export type { ListenersProperties as Listeners, ScrollListenersProperties as ScrollListeners } from './listeners.js'
 export * from './components/index.js'
 export { type ColorRepresentation, readReactive, type UnionizeVariants, withOpacity } from './utils.js'
 export type { CaretTransformation } from './caret.js'

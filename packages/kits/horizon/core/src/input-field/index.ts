@@ -1,50 +1,38 @@
-import {
-  BaseOutProperties,
-  Component,
-  Container,
-  InProperties,
-  RenderContext,
-  ThreeEventMap,
-  Text,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, Component, Container, InProperties, RenderContext, Text } from '@pmndrs/uikit'
 import { Input, InputOutProperties } from '../input/index.js'
 import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 
-export type InputFieldOutProperties<EM extends ThreeEventMap = ThreeEventMap> = InputOutProperties<EM> & {
+export type InputFieldOutProperties = InputOutProperties & {
   label?: string
   leftIcon?: {
     new (
       InputFieldProperties: any,
       initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+      config: { defaultOverrides?: InProperties<BaseOutProperties> },
     ): Component
   }
   rightIcon?: {
     new (
       InputFieldProperties: any,
       initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+      config: { defaultOverrides?: InProperties<BaseOutProperties> },
     ): Component
   }
 }
 
-export type InputFieldProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<InputFieldOutProperties<EM>>
+export type InputFieldProperties = InProperties<InputFieldOutProperties>
 
-export class InputField<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  InputFieldOutProperties<EM>
-> {
-  public readonly label: Text<{}, EM>
-  public readonly input: Input<{}, EM>
+export class InputField extends Container<InputFieldOutProperties> {
+  public readonly label: Text
+  public readonly input: Input
 
   constructor(
-    InputFieldProperties?: InProperties<InputFieldOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    InputFieldProperties?: InProperties<InputFieldOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<InputFieldOutProperties<EM>>
+      defaultOverrides?: InProperties<InputFieldOutProperties>
     },
   ) {
     const hovered = computed(() => this.hoveredList.value.length > 0)
@@ -82,7 +70,7 @@ export class InputField<T = {}, EM extends ThreeEventMap = ThreeEventMap> extend
       },
     })
     super.add(this.label)
-    this.input = new Input<{}, EM>(undefined, undefined, {
+    this.input = new Input(undefined, undefined, {
       hovered,
       defaultOverrides: {
         placeholder: this.properties.signal.placeholder,

@@ -7,7 +7,6 @@ import {
   InProperties,
   RenderContext,
   Text,
-  ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
@@ -34,7 +33,7 @@ const _badgeVariants = {
 } satisfies Record<string, BadgeVariantProps>
 const badgeVariants = _badgeVariants as UnionizeVariants<typeof _badgeVariants>
 
-export type BadgeOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type BadgeOutProperties = BaseOutProperties & {
   /**
    * @default "primary"
    */
@@ -44,24 +43,24 @@ export type BadgeOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseO
     new (
       inputProperties: any,
       initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+      config: { defaultOverrides?: InProperties<BaseOutProperties> },
     ): Component
   }
 }
 
-export type BadgeProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BadgeOutProperties<EM>>
+export type BadgeProperties = InProperties<BadgeOutProperties>
 
-export class Badge<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, BadgeOutProperties<EM>> {
+export class Badge extends Container<BadgeOutProperties> {
   public readonly label: Text
   public readonly iconPlaceholder: Container
   public icon?: Component
 
   constructor(
-    inputProperties?: InProperties<BadgeOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<BadgeOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BadgeOutProperties<EM>>
+      defaultOverrides?: InProperties<BadgeOutProperties>
     },
   ) {
     const width = computed(() => {

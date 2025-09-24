@@ -1,21 +1,18 @@
-import { ThreeEventMap, InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
+import { InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
 import { Ellipsis } from '@pmndrs/uikit-lucide'
 import { Object3D } from 'three/src/Three.Core.js'
 import { colors, componentDefaults, contentDefaults } from '../theme.js'
 
-export type PaginationEllipsisProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
-  InProperties<BaseOutProperties<EM>>,
-  'children'
->
+export type PaginationEllipsisProperties = Omit<InProperties<BaseOutProperties>, 'children'>
 
-export class PaginationEllipsis<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
+export class PaginationEllipsis extends Container {
   public readonly icon: InstanceType<typeof Ellipsis>
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
-    initialClasses?: Array<BaseOutProperties<EM> | string>,
+    inputProperties?: InProperties<BaseOutProperties>,
+    initialClasses?: Array<BaseOutProperties | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BaseOutProperties<EM>>
+      defaultOverrides?: InProperties<BaseOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

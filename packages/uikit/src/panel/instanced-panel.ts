@@ -9,7 +9,6 @@ import { OrderInfo } from '../order.js'
 import { PanelMaterialConfig } from './panel-material.js'
 import { BaseOutProperties, Properties } from '../properties/index.js'
 import { RootContext } from '../context.js'
-import { ThreeEventMap } from '../events.js'
 
 export type PanelProperties = {
   borderTopLeftRadius?: number
@@ -122,7 +121,7 @@ export class InstancedPanel {
           setters[key as string]!(
             instanceData.array,
             instanceData.itemSize * index,
-            properties.value[key as keyof BaseOutProperties<ThreeEventMap>],
+            properties.value[key as keyof BaseOutProperties],
             size,
             properties.signal.opacity,
             instanceDataAddUpdateRange,

@@ -1,23 +1,17 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { Accordion } from './index.js'
 import { colors, componentDefaults } from '../theme.js'
 
-export type AccordionItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type AccordionItemOutProperties = BaseOutProperties & {
   value?: string
 }
 
-export type AccordionItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  AccordionItemOutProperties<EM>
->
+export type AccordionItemProperties = InProperties<AccordionItemOutProperties>
 
-export class AccordionItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  AccordionItemOutProperties<EM>
-> {
+export class AccordionItem extends Container<AccordionItemOutProperties> {
   constructor(
-    inputProperties?: InProperties<AccordionItemOutProperties<EM>>,
-    initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[],
+    inputProperties?: InProperties<AccordionItemOutProperties>,
+    initialClasses?: (string | InProperties<BaseOutProperties>)[],
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<AccordionItemOutProperties>

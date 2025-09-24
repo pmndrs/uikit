@@ -1,11 +1,4 @@
-import {
-  SvgOutProperties,
-  SvgProperties,
-  ThreeEventMap,
-  InProperties,
-  RenderContext,
-  BaseOutProperties,
-} from '@pmndrs/uikit'
+import { SvgOutProperties, SvgProperties, InProperties, RenderContext, BaseOutProperties } from '@pmndrs/uikit'
 import { ChevronDown } from '@pmndrs/uikit-lucide'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
@@ -13,19 +6,15 @@ import { AccordionItem } from './item.js'
 import { searchFor } from '../utils.js'
 import { colors, contentDefaults } from '../theme.js'
 
-export type AccordionTriggerIconProperties<EM extends ThreeEventMap = ThreeEventMap> = SvgProperties<EM>
+export type AccordionTriggerIconProperties = SvgProperties
 
-export class AccordionTriggerIcon<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends ChevronDown<
-  T,
-  EM,
-  SvgOutProperties<EM>
-> {
+export class AccordionTriggerIcon extends ChevronDown<SvgOutProperties> {
   constructor(
-    inputProperties?: InProperties<SvgOutProperties<EM>>,
-    initialClasses?: Array<BaseOutProperties<EM> | string>,
+    inputProperties?: InProperties<SvgOutProperties>,
+    initialClasses?: Array<BaseOutProperties | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<SvgOutProperties<EM>>
+      defaultOverrides?: InProperties<SvgOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

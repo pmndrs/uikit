@@ -16,7 +16,6 @@ import { GlyphLayout, GlyphOutProperties, buildGlyphLayout, computedCustomLayout
 import { SelectionTransformation } from '../../selection.js'
 import { CaretTransformation } from '../../caret.js'
 import { BaseOutProperties, Properties } from '../../properties/index.js'
-import { ThreeEventMap } from '../../events.js'
 import { Text } from '../../components/text.js'
 
 export type TextAlignProperties = {
@@ -30,7 +29,7 @@ export const additionalTextDefaults = {
 export type AdditionalTextDefaults = typeof additionalTextDefaults
 
 export function createInstancedText(
-  text: Text<{}, any>,
+  text: Text,
   parentClippingRect: Signal<ClippingRect | undefined> | undefined,
   selectionRange: Signal<Vector2Tuple | undefined> | undefined,
   selectionTransformations: Signal<Array<SelectionTransformation>> | undefined,
@@ -106,7 +105,7 @@ export class InstancedText {
 
   constructor(
     private group: InstancedGlyphGroup,
-    private properties: Properties<AdditionalTextDefaults & BaseOutProperties<ThreeEventMap>>,
+    private properties: Properties<AdditionalTextDefaults & BaseOutProperties>,
     private layoutSignal: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
     isVisible: Signal<boolean>,

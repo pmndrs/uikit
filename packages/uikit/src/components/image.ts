@@ -1,5 +1,4 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
 import { SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
@@ -26,23 +25,21 @@ export const imageDefaults = {
   keepAspectRatio: true,
 }
 
-export type ImageOutProperties<EM extends ThreeEventMap, Src> = BaseOutProperties<EM> & {
+export type ImageOutProperties<Src> = BaseOutProperties & {
   src?: Src
   aspectRatio?: number
 } & typeof imageDefaults
 
-export type ImageProperties<EM extends ThreeEventMap> = InProperties<ImageOutProperties<EM, string | Texture>>
+export type ImageProperties = InProperties<ImageOutProperties<string | Texture>>
 
 export class Image<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends ImageOutProperties<EM, unknown> = ImageOutProperties<EM, string | Texture>,
-> extends Component<T, EM, OutProperties> {
+  OutProperties extends ImageOutProperties<unknown> = ImageOutProperties<string | Texture>,
+> extends Component<OutProperties> {
   readonly texture = signal<Texture | undefined>(undefined)
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>

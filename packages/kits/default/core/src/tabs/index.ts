@@ -1,25 +1,25 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 
-export type TabsOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type TabsOutProperties = BaseOutProperties & {
   value?: string
   onValueChange?: (value: string) => void
   defaultValue?: string
 }
 
-export type TabsProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TabsOutProperties<EM>>
+export type TabsProperties = InProperties<TabsOutProperties>
 
-export class Tabs<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, TabsOutProperties<EM>> {
+export class Tabs extends Container<TabsOutProperties> {
   public readonly uncontrolledSignal = signal<string | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue,
   )
 
   constructor(
-    inputProperties?: InProperties<TabsOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TabsOutProperties<EM>> },
+    inputProperties?: InProperties<TabsOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TabsOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

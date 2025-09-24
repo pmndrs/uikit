@@ -6,7 +6,6 @@ import {
   InProperties,
   RenderContext,
   Text,
-  ThreeEventMap,
 } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
@@ -18,7 +17,7 @@ export function percentageFormatting(value: number): string {
   return `${value.toFixed(0)}%`
 }
 
-export type SliderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type SliderOutProperties = BaseOutProperties & {
   value?: number
   onValueChange?: (value: number) => void
   valueFormat?: 'percentage' | ((value: number) => string)
@@ -36,7 +35,7 @@ export type SliderOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Base
     new (
       inputProperties: any,
       initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties<EM>> },
+      config: { defaultOverrides?: InProperties<BaseOutProperties> },
     ): Component
   }
 }
@@ -59,11 +58,7 @@ const sliderProcessPaddingXs: Record<Exclude<SliderOutProperties['size'], undefi
   lg: 4,
 }
 
-export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  SliderOutProperties<EM>
-> {
+export class Slider extends Container<SliderOutProperties> {
   public readonly uncontrolledSignal = signal<number | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0,
@@ -81,11 +76,11 @@ export class Slider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public icon?: Component
 
   constructor(
-    inputProperties?: InProperties<SliderOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<SliderOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<SliderOutProperties<EM>>
+      defaultOverrides?: InProperties<SliderOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

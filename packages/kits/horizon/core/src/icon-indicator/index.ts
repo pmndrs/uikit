@@ -5,7 +5,6 @@ import {
   RenderContext,
   Svg,
   SvgProperties,
-  ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
@@ -40,25 +39,21 @@ const _iconIndicatorVariants = {
 } satisfies Record<string, IconIndicatorVariantProps>
 const iconIndicatorVariants = _iconIndicatorVariants as UnionizeVariants<typeof _iconIndicatorVariants>
 
-export type IconIndicatorOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type IconIndicatorOutProperties = BaseOutProperties & {
   /**
    * @default none
    */
   variant?: keyof typeof iconIndicatorVariants
 }
 
-export class IconIndicator<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  IconIndicatorOutProperties<EM>
-> {
+export class IconIndicator extends Container<IconIndicatorOutProperties> {
   public readonly icon: Svg
   constructor(
-    inputProperties?: InProperties<IconIndicatorOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<IconIndicatorOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<IconIndicatorOutProperties<EM>>
+      defaultOverrides?: InProperties<IconIndicatorOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

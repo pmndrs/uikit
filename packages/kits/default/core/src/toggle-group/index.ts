@@ -1,23 +1,19 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import type { ToggleSize, ToggleVariant } from './item.js'
 import { colors, componentDefaults } from '../theme.js'
 
-export type ToggleGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type ToggleGroupOutProperties = {
   variant?: ToggleVariant
   size?: ToggleSize
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type ToggleGroupProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ToggleGroupOutProperties<EM>>
+export type ToggleGroupProperties = InProperties<ToggleGroupOutProperties>
 
-export class ToggleGroup<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ToggleGroupOutProperties<EM>
-> {
+export class ToggleGroup extends Container<ToggleGroupOutProperties> {
   constructor(
-    inputProperties?: ToggleGroupProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<ToggleGroupOutProperties<EM>> },
+    inputProperties?: ToggleGroupProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<ToggleGroupOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

@@ -1,20 +1,15 @@
 import { RenderContext } from '../context.js'
-import { ThreeEventMap } from '../events.js'
 import { InProperties, BaseOutProperties, WithSignal } from '../properties/index.js'
 import { Input, InputOutProperties } from './input.js'
 
-export type TextareaProperties<EM extends ThreeEventMap> = InProperties<InputOutProperties<EM>>
+export type TextareaProperties = InProperties<InputOutProperties>
 
-export type TextareaOutProperties<EM extends ThreeEventMap> = InputOutProperties<EM>
+export type TextareaOutProperties = InputOutProperties
 
-export class Textarea<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends InputOutProperties<EM> = InputOutProperties<EM>,
-> extends Input<T, EM, OutProperties> {
+export class Textarea<OutProperties extends InputOutProperties = InputOutProperties> extends Input<OutProperties> {
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: (string | InProperties<BaseOutProperties<EM>>)[],
+    initialClasses?: (string | InProperties<BaseOutProperties>)[],
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>

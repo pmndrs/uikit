@@ -13,12 +13,12 @@ async function main() {
     const svg = raw.toString()
     const code = `
       /* eslint-disable no-shadow-restricted-names */
-      import { RenderContext, Svg, SvgProperties, ThreeEventMap, SvgOutProperties, InProperties, WithSignal } from '@pmndrs/uikit'
+      import { RenderContext, Svg, SvgProperties, SvgOutProperties, InProperties, WithSignal } from '@pmndrs/uikit'
       const content = \`${svg}\`;
-      export class ${name}Icon<T = {}, EM extends ThreeEventMap = ThreeEventMap, OutProperties extends SvgOutProperties<EM> = SvgOutProperties<EM>> extends Svg<T, EM, OutProperties> {
+      export class ${name}Icon<OutProperties extends SvgOutProperties = SvgOutProperties> extends Svg<OutProperties> {
         constructor(
           inputProperties?: InProperties<OutProperties>,
-          initialClasses?: Array<SvgProperties<EM> | string>,
+          initialClasses?: Array<SvgProperties | string>,
           config?: {
             renderContext?: RenderContext
             defaultOverrides?: InProperties<OutProperties>

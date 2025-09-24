@@ -8,7 +8,7 @@ import { computedPanelMatrix, PanelProperties, setupInstancedPanel } from './pan
 import { ElementType, OrderInfo, setupOrderInfo } from './order.js'
 import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
 import { PanelGroupProperties } from './panel/instanced-panel-group.js'
-import { EventHandlers, ThreeMouseEvent, ThreePointerEvent } from './events.js'
+import { EventHandlersProperties, ThreeMouseEvent, ThreePointerEvent } from './events.js'
 import { Properties } from './properties/index.js'
 import { Container } from './components/container.js'
 
@@ -16,7 +16,7 @@ const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
 
 export type ScrollEventHandlers = Pick<
-  EventHandlers,
+  EventHandlersProperties,
   'onPointerDown' | 'onPointerUp' | 'onPointerMove' | 'onWheel' | 'onPointerLeave' | 'onPointerCancel'
 >
 
@@ -47,7 +47,7 @@ export function computedAnyAncestorScrollable(parentSignal: Signal<Container | u
 
 export function setupScrollHandlers(
   target: Signal<ScrollEventHandlers | undefined>,
-  container: Container<any, any>,
+  container: Container,
   abortSignal: AbortSignal,
 ) {
   const isScrollable = computed(() => container.scrollable.value.some((scrollable) => scrollable) ?? false)
@@ -61,7 +61,11 @@ export function setupScrollHandlers(
       if ('releasePointerCapture' in container && typeof container.releasePointerCapture === 'function') {
         container.releasePointerCapture(event.pointerId)
       }
-      if (!container.downPointerMap.delete(event.pointerId) || container.scrollPosition.value == null) {
+      if (
+        event.pointerId == null ||
+        !container.downPointerMap.delete(event.pointerId) ||
+        container.scrollPosition.value == null
+      ) {
         return
       }
       event.stopImmediatePropagation?.()
@@ -93,7 +97,7 @@ export function setupScrollHandlers(
             )
           : undefined
 
-        if (ponterIsMouse && scrollbarAxisIndex == null) {
+        if (event.pointerId == null || (ponterIsMouse && scrollbarAxisIndex == null)) {
           return
         }
 
@@ -120,6 +124,9 @@ export function setupScrollHandlers(
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
       onPointerMove: (event) => {
+        if (event.pointerId == null) {
+          return
+        }
         const prevInteraction = container.downPointerMap.get(event.pointerId)
         if (prevInteraction == null) {
           return
@@ -214,7 +221,7 @@ function scroll(
   container.scrollPosition.value = [newX, newY]
 }
 
-export function setupScroll(container: Container<{}, any>) {
+export function setupScroll(container: Container) {
   const onFrame = (delta: number) => {
     if (container.downPointerMap.size > 0 || container.scrollPosition.value == null) {
       return
@@ -342,7 +349,7 @@ const scrollbarBorderPropertyKeys = [
 ] as const
 
 export function setupScrollbars(
-  container: Container<{}, any>,
+  container: Container,
   parentClippingRect: Signal<ClippingRect | undefined>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,

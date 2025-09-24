@@ -4,7 +4,6 @@ import {
   ContainerProperties,
   InProperties,
   RenderContext,
-  ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { CheckIcon } from '@pmndrs/uikit-lucide'
@@ -73,7 +72,7 @@ const _checkboxVariants = {
 } satisfies Record<string, CheckboxVariantProps>
 const checboxVariants = _checkboxVariants as UnionizeVariants<typeof _checkboxVariants>
 
-export type CheckboxOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type CheckboxOutProperties = BaseOutProperties & {
   checked?: boolean
   disabled?: boolean
   variant?: keyof typeof checboxVariants
@@ -81,11 +80,7 @@ export type CheckboxOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Ba
   defaultChecked?: boolean
 }
 
-export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  CheckboxOutProperties<EM>
-> {
+export class Checkbox extends Container<CheckboxOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
@@ -94,11 +89,11 @@ export class Checkbox<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   public readonly defaultOnMediaRing: Container
 
   constructor(
-    inputProperties?: InProperties<CheckboxOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<CheckboxOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<CheckboxOutProperties<EM>>
+      defaultOverrides?: InProperties<CheckboxOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

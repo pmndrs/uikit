@@ -5,7 +5,6 @@ import { Signal, computed } from '@preact/signals-core'
 import { MeasureMode } from 'yoga-layout/load'
 import { Properties } from '../properties/index.js'
 import { CustomLayouting } from '../flex/index.js'
-import { ThreeEventMap } from '../events.js'
 import { TextOutProperties } from '../components/text.js'
 
 export type GlyphLayoutLine = {
@@ -56,7 +55,7 @@ export type GlyphOutProperties = {
 }
 
 export function computedCustomLayouting(
-  properties: Properties<TextOutProperties<ThreeEventMap>>,
+  properties: Properties<TextOutProperties>,
   fontSignal: Signal<Font | undefined>,
   propertiesRef: { current: GlyphOutProperties | undefined },
 ) {

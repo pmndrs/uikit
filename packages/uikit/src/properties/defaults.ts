@@ -26,4 +26,4 @@ export const componentDefaults = {
   anchorY: 'center' as keyof typeof alignmentYMap,
 }
 
-export type ComponentDefaults = typeof componentDefaults
+export type ComponentDefaultsProperties = typeof componentDefaults

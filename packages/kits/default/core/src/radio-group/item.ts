@@ -1,29 +1,23 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { RadioGroup } from './index.js'
 import { searchFor } from '../utils.js'
 
-export type RadioGroupItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type RadioGroupItemOutProperties = {
   disabled?: boolean
   value?: string
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type RadioGroupItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  RadioGroupItemOutProperties<EM>
->
+export type RadioGroupItemProperties = InProperties<RadioGroupItemOutProperties>
 
-export class RadioGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  RadioGroupItemOutProperties<EM>
-> {
+export class RadioGroupItem extends Container<RadioGroupItemOutProperties> {
   public readonly radioButton: Container
   public readonly radioDot: Container
   constructor(
-    inputProperties?: RadioGroupItemProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<RadioGroupItemOutProperties<EM>> },
+    inputProperties?: RadioGroupItemProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<RadioGroupItemOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

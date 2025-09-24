@@ -1,6 +1,5 @@
 import { computed } from '@preact/signals-core'
 import { createGlobalClippingPlanes } from '../clipping.js'
-import { ThreeEventMap } from '../events.js'
 import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
@@ -8,18 +7,14 @@ import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
 import { RenderContext } from '../context.js'
 
-export type CustomProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type CustomProperties = InProperties<BaseOutProperties>
 
-export type CustomOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type CustomOutProperties = BaseOutProperties
 
-export class Custom<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-> extends Component<T, EM, OutProperties> {
+export class Custom<OutProperties extends BaseOutProperties = BaseOutProperties> extends Component<OutProperties> {
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       material?: Material
       renderContext?: RenderContext

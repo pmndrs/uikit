@@ -4,7 +4,6 @@ import {
   ContainerProperties,
   InProperties,
   RenderContext,
-  ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
@@ -27,7 +26,7 @@ const _dropdownSizes = {
 } satisfies Record<string, DropdownSizeProps>
 const dropdownSizes = _dropdownSizes as UnionizeVariants<typeof _dropdownSizes>
 
-export type DropdownOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type DropdownOutProperties = BaseOutProperties & {
   /**
    * @default "lg"
    */
@@ -41,13 +40,9 @@ export type DropdownOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Ba
   defaultOpen?: string
 }
 
-export type DropdownProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<DropdownOutProperties<EM>>
+export type DropdownProperties = InProperties<DropdownOutProperties>
 
-export class Dropdown<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DropdownOutProperties<EM>
-> {
+export class Dropdown extends Container<DropdownOutProperties> {
   public readonly uncontrolledSignal = signal<string | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue,
@@ -59,11 +54,11 @@ export class Dropdown<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends 
   )
 
   constructor(
-    inputProperties?: InProperties<DropdownOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

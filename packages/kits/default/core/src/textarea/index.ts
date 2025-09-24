@@ -4,7 +4,6 @@ import {
   Container,
   Input as InputImpl,
   Text,
-  ThreeEventMap,
   InputOutProperties as BaseInputOutProperties,
   RenderContext,
   withOpacity,
@@ -13,23 +12,19 @@ import { computed } from '@preact/signals-core'
 import { borderRadius, colors, inputDefaults, textDefaults } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'
 
-export type TextareaOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type TextareaOutProperties = {
   placeholder?: string
-} & BaseInputOutProperties<EM>
+} & BaseInputOutProperties
 
-export type TextareaProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TextareaOutProperties<EM>>
+export type TextareaProperties = InProperties<TextareaOutProperties>
 
-export class Textarea<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  TextareaOutProperties<EM>
-> {
+export class Textarea extends Container<TextareaOutProperties> {
   public readonly input: InputImpl
   public readonly placeholder: Text
   constructor(
-    inputProperties?: InProperties<TextareaOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TextareaOutProperties<EM>> },
+    inputProperties?: InProperties<TextareaOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<TextareaOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: inputDefaults,

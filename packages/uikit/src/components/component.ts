@@ -1,5 +1,5 @@
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
-import { EventHandlers, ThreeEventMap } from '../events.js'
+import { EventHandlersProperties } from '../events.js'
 import {
   BufferGeometry,
   Intersection,
@@ -54,18 +54,13 @@ import { getLayerIndex } from '../properties/layer.js'
 const IdentityMatrix = new Matrix4()
 const sphereHelper = new Sphere()
 
-export class Component<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-> extends Mesh<
+export class Component<OutProperties extends BaseOutProperties = BaseOutProperties> extends Mesh<
   BufferGeometry,
-  Material,
-  EventMap & { childadded: { child: Object3D }; childremoved: { child: Object3D } } & T
+  Material
 > {
   private abortController = new AbortController()
 
-  readonly handlers: ReadonlySignal<EventHandlers>
+  readonly handlers: ReadonlySignal<EventHandlersProperties>
   readonly orderInfo = signal<OrderInfo | undefined>(undefined)
   readonly isVisible: Signal<boolean>
   readonly isClipped: Signal<boolean>
@@ -93,11 +88,11 @@ export class Component<
 
   constructor(
     private inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       material?: Material
       renderContext?: RenderContext
-      dynamicHandlers?: Signal<EventHandlers | undefined>
+      dynamicHandlers?: Signal<EventHandlersProperties | undefined>
       hasFocus?: Signal<boolean>
       isPlaceholder?: Signal<boolean>
       defaultOverrides?: InProperties<OutProperties>
@@ -263,11 +258,17 @@ export class Component<
     abortableEffect(() => {
       const { value } = this.handlers
       for (const key in value) {
-        this.addEventListener(keyToEventName(key as keyof EventHandlers), value[key as keyof EventHandlers] as any)
+        this.addEventListener(
+          keyToEventName(key as keyof EventHandlersProperties),
+          value[key as keyof EventHandlersProperties] as any,
+        )
       }
       return () => {
         for (const key in value) {
-          this.removeEventListener(keyToEventName(key as keyof EventHandlers), value[key as keyof EventHandlers] as any)
+          this.removeEventListener(
+            keyToEventName(key as keyof EventHandlersProperties),
+            value[key as keyof EventHandlersProperties] as any,
+          )
         }
       }
     }, this.abortSignal)
@@ -354,12 +355,6 @@ export class Component<
   }
 }
 
-function keyToEventName(key: keyof EventHandlers) {
-  return key.slice(2).toLowerCase() as keyof EventMap
-}
-
-export type EventMap = Object3DEventMap & {
-  [Key in keyof EventHandlers as Lowercase<Key extends `on${infer K}` ? K : never>]-?: Parameters<
-    Exclude<EventHandlers[Key], undefined>
-  >[0]
+function keyToEventName(key: keyof EventHandlersProperties) {
+  return key.slice(2).toLowerCase() as keyof Object3DEventMap
 }

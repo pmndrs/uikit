@@ -5,7 +5,6 @@ import {
   ContainerProperties,
   InProperties,
   RenderContext,
-  ThreeEventMap,
   UnionizeVariants,
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
@@ -109,7 +108,7 @@ const _buttonSizes = {
 } satisfies Record<string, ButtonSizeProps>
 const buttonSizes = _buttonSizes as UnionizeVariants<typeof _buttonSizes>
 
-export type ButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type ButtonOutProperties = BaseOutProperties & {
   /**
    * @default "primary"
    */
@@ -128,19 +127,15 @@ export type ButtonOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Base
   icon?: boolean
 }
 
-export type ButtonProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<ButtonOutProperties<EM>>
+export type ButtonProperties = InProperties<ButtonOutProperties>
 
-export class Button<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ButtonOutProperties<EM>
-> {
+export class Button extends Container<ButtonOutProperties> {
   constructor(
-    inputProperties?: InProperties<ButtonOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<ButtonOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ButtonOutProperties<EM>>
+      defaultOverrides?: InProperties<ButtonOutProperties>
     },
   ) {
     const height = computed(() => buttonSizes[this.properties.value.size ?? 'lg'].height)

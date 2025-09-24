@@ -1,30 +1,20 @@
-import {
-  BaseOutProperties,
-  componentDefaults,
-  Container,
-  InProperties,
-  RenderContext,
-  ThreeEventMap,
-  WithSignal,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 import { Avatar, AvatarOutProperties } from '../avatar/index.js'
 
-export type DropdownAvatarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = AvatarOutProperties<EM>
+export type DropdownAvatarOutProperties = AvatarOutProperties
 
-export type DropdownAvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DropdownAvatarOutProperties<EM>
->
+export type DropdownAvatarProperties = InProperties<DropdownAvatarOutProperties>
 
-export class DropdownAvatar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Avatar<T, EM> {
+export class DropdownAvatar extends Avatar {
   constructor(
-    inputProperties?: InProperties<DropdownAvatarOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownAvatarOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownAvatarOutProperties<EM>>
-      defaults?: WithSignal<DropdownAvatarOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownAvatarOutProperties>
+      defaults?: WithSignal<DropdownAvatarOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

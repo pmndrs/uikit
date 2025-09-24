@@ -1,24 +1,18 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { AlertDialog } from './index.js'
 import { colors, componentDefaults } from '../theme.js'
 
-export type AlertDialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type AlertDialogTriggerOutProperties = BaseOutProperties & {
   dialog?: AlertDialog
 }
 
-export type AlertDialogTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  AlertDialogTriggerOutProperties<EM>
->
+export type AlertDialogTriggerProperties = InProperties<AlertDialogTriggerOutProperties>
 
-export class AlertDialogTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  AlertDialogTriggerOutProperties<EM>
-> {
+export class AlertDialogTrigger extends Container<AlertDialogTriggerOutProperties> {
   constructor(
-    inputProperties?: AlertDialogTriggerProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogTriggerOutProperties<EM>> },
+    inputProperties?: AlertDialogTriggerProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<AlertDialogTriggerOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: componentDefaults,

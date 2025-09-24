@@ -1,7 +1,6 @@
 import {
   Container,
   ContainerProperties,
-  ThreeEventMap,
   InProperties,
   BaseOutProperties,
   RenderContext,
@@ -20,26 +19,20 @@ const _paginationSizes = {
 } satisfies Record<string, PaginationSizeProps>
 const paginationSizes = _paginationSizes as UnionizeVariants<typeof _paginationSizes>
 
-export type PaginationLinkOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type PaginationLinkOutProperties = BaseOutProperties & {
   size?: keyof typeof paginationSizes
   isActive?: boolean
 }
 
-export type PaginationLinkProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  PaginationLinkOutProperties<EM>
->
+export type PaginationLinkProperties = InProperties<PaginationLinkOutProperties>
 
-export class PaginationLink<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  PaginationLinkOutProperties<EM>
-> {
+export class PaginationLink extends Container<PaginationLinkOutProperties> {
   constructor(
-    inputProperties?: PaginationLinkProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: PaginationLinkProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<PaginationLinkOutProperties<EM>>
+      defaultOverrides?: InProperties<PaginationLinkOutProperties>
     },
   ) {
     const sizeProps = computed(() => paginationSizes[this.properties.value.size ?? 'default'])

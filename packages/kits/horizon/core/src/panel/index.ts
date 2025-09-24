@@ -1,18 +1,18 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { DarkBackgroundMaterial, panelMaterialClass } from '../background-material.js'
 import { MeshBasicMaterial } from 'three'
 
-export type PanelOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type PanelOutProperties = BaseOutProperties
 
-export type PanelProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<PanelOutProperties<EM>>
+export type PanelProperties = InProperties<PanelOutProperties>
 
-export class Panel<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, BaseOutProperties<EM>> {
+export class Panel extends Container<BaseOutProperties> {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<BaseOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<BaseOutProperties<EM>>
+      defaultOverrides?: InProperties<BaseOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

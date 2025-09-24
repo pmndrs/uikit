@@ -1,5 +1,5 @@
 import { computed, signal, Signal } from '@preact/signals-core'
-import { EventHandlers, ThreeEventMap } from '../events.js'
+import { EventHandlersProperties } from '../events.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
 import { ElementType, OrderInfo, setupOrderInfo } from '../order.js'
@@ -23,10 +23,9 @@ import { Matrix4, Quaternion, Vector2Tuple, Vector3 } from 'three'
 import { CaretTransformation } from '../caret.js'
 import { SelectionTransformation } from '../selection.js'
 
-export type TextOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> &
-  AdditionalTextDefaults & { text?: string | Array<string> }
+export type TextOutProperties = BaseOutProperties & AdditionalTextDefaults & { text?: string | Array<string> }
 
-export type TextProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TextOutProperties<EM>>
+export type TextProperties = InProperties<TextOutProperties>
 
 export const textDefaults = { ...componentDefaults, ...additionalTextDefaults }
 
@@ -35,11 +34,7 @@ const IdentityQuaternion = new Quaternion()
 const IdentityScale = new Vector3(1, 1, 1)
 const positionHelper = new Vector3()
 
-export class Text<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends TextOutProperties<EM> = TextOutProperties<EM>,
-> extends Component<T, EM, OutProperties> {
+export class Text<OutProperties extends TextOutProperties = TextOutProperties> extends Component<OutProperties> {
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
@@ -48,11 +43,11 @@ export class Text<
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
-      dynamicHandlers?: Signal<EventHandlers | undefined>
+      dynamicHandlers?: Signal<EventHandlersProperties | undefined>
       selectionRange?: Signal<Vector2Tuple | undefined>
       selectionTransformations?: Signal<Array<SelectionTransformation>>
       caretTransformation?: Signal<CaretTransformation | undefined>

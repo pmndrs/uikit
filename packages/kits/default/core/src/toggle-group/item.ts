@@ -1,11 +1,4 @@
-import {
-  Container,
-  ThreeEventMap,
-  InProperties,
-  BaseOutProperties,
-  RenderContext,
-  UnionizeVariants,
-} from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, UnionizeVariants } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { ToggleGroup } from './index.js'
@@ -33,33 +26,27 @@ const toggleSizes = {
 
 export type ToggleSize = keyof typeof toggleSizes
 
-export type ToggleGroupItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type ToggleGroupItemOutProperties = {
   checked?: boolean
   onCheckedChange?: (checked: boolean) => void
   disabled?: boolean
   defaultChecked?: boolean
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type ToggleGroupItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  ToggleGroupItemOutProperties<EM>
->
+export type ToggleGroupItemProperties = InProperties<ToggleGroupItemOutProperties>
 
-export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ToggleGroupItemOutProperties<EM>
-> {
+export class ToggleGroupItem extends Container<ToggleGroupItemOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
   )
 
   constructor(
-    inputProperties?: ToggleGroupItemProperties<EM>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: ToggleGroupItemProperties,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ToggleGroupItemOutProperties<EM>>
+      defaultOverrides?: InProperties<ToggleGroupItemOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {
@@ -101,7 +88,7 @@ export class ToggleGroupItem<T = {}, EM extends ThreeEventMap = ThreeEventMap> e
         fontSize: 14,
         lineHeight: '20px',
         ...config?.defaultOverrides,
-      } as InProperties<ToggleGroupItemOutProperties<EM>>,
+      } as InProperties<ToggleGroupItemOutProperties>,
     })
   }
 

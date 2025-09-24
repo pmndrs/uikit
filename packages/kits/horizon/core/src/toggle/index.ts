@@ -1,19 +1,15 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
 
-export type ToggleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type ToggleOutProperties = BaseOutProperties & {
   checked?: boolean
   disabled?: boolean
   onCheckedChange?: (checked: boolean) => void
   defaultChecked?: boolean
 }
 
-export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ToggleOutProperties<EM>
-> {
+export class Toggle extends Container<ToggleOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(
     () => this.properties.value.checked ?? this.uncontrolledSignal.value ?? this.properties.value.defaultChecked,
@@ -21,11 +17,11 @@ export class Toggle<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Co
   public readonly handle: Container
 
   constructor(
-    inputProperties?: InProperties<ToggleOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<ToggleOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ToggleOutProperties<EM>>
+      defaultOverrides?: InProperties<ToggleOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

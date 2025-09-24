@@ -1,24 +1,20 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
 
-export type DividerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<DividerOutProperties<EM>>
+export type DividerProperties = InProperties<DividerOutProperties>
 
-export type DividerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type DividerOutProperties = BaseOutProperties & {
   orientation?: 'horizontal' | 'vertical'
 }
 
-export class Divider<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DividerOutProperties<EM>
-> {
+export class Divider extends Container<DividerOutProperties> {
   constructor(
-    inputProperties?: InProperties<DividerOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DividerOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: any
-      defaultOverrides?: InProperties<DividerOutProperties<EM>>
+      defaultOverrides?: InProperties<DividerOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

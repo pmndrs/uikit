@@ -1,18 +1,14 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 
-export type ProgressBarStepperOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type ProgressBarStepperOutProperties = BaseOutProperties
 
-export class ProgressBarStepper<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ProgressBarStepperOutProperties<EM>
-> {
+export class ProgressBarStepper extends Container<ProgressBarStepperOutProperties> {
   constructor(
-    inputProperties?: InProperties<ProgressBarStepperOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<ProgressBarStepperOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ProgressBarStepperOutProperties<EM>>
+      defaultOverrides?: InProperties<ProgressBarStepperOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

@@ -2,7 +2,7 @@ import { computed, effect, ReadonlySignal, Signal } from '@preact/signals-core'
 import { Vector2Tuple, Color, Vector3Tuple, Vector3, Matrix4, Object3D, Vector4Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { BaseOutProperties, Properties } from './properties/index.js'
-import { EventHandlers, ThreeEventMap } from './events.js'
+import { EventHandlersProperties } from './events.js'
 import { addActiveHandlers } from './active.js'
 import { addHoverHandlers } from './hover.js'
 import { AllowedPointerEventsType } from './panel/interaction-panel-mesh.js'
@@ -69,7 +69,7 @@ export function loadResourceWithParams<P, R, A extends Array<unknown>>(
   }, abortSignal)
 }
 
-const eventHandlerKeys: Array<keyof EventHandlers> = [
+const eventHandlerKeys: Array<keyof EventHandlersProperties> = [
   'onClick',
   'onContextMenu',
   'onDblClick',
@@ -89,12 +89,12 @@ export function computedHandlers(
   starProperties: Properties,
   hoveredSignal: Signal<Array<number>>,
   activeSignal: Signal<Array<number>>,
-  dynamicHandlers?: Signal<EventHandlers | undefined>,
+  dynamicHandlers?: Signal<EventHandlersProperties | undefined>,
 ) {
   return computed(() => {
-    const handlers: EventHandlers = {}
+    const handlers: EventHandlersProperties = {}
     for (const key of eventHandlerKeys) {
-      const handler = properties.value[key as keyof EventHandlers]
+      const handler = properties.value[key as keyof EventHandlersProperties]
       if (handler != null) {
         handlers[key] = handler as any
       }
@@ -120,16 +120,16 @@ export function computedHandlers(
 
 export function computedAncestorsHaveListeners(
   parent: Signal<Container | undefined>,
-  handlers: ReadonlySignal<EventHandlers>,
+  handlers: ReadonlySignal<EventHandlersProperties>,
 ) {
   return computed(
     () => (parent.value?.ancestorsHaveListenersSignal.value ?? false) || Object.keys(handlers.value).length > 0,
   )
 }
 
-export function addHandlers(target: EventHandlers, handlers: EventHandlers | undefined): void {
+export function addHandlers(target: EventHandlersProperties, handlers: EventHandlersProperties | undefined): void {
   for (const key in handlers) {
-    addHandler(key as keyof EventHandlers, target, handlers[key as keyof EventHandlers])
+    addHandler(key as keyof EventHandlersProperties, target, handlers[key as keyof EventHandlersProperties])
   }
 }
 
@@ -277,9 +277,7 @@ export function readReactive<T>(value: T | 'initial' | Signal<T | 'initial'>): T
 }
 
 export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {
-  return computed(
-    () => keys.map((key) => properties.value[key as keyof BaseOutProperties<ThreeEventMap>] ?? 0) as Inset,
-  )
+  return computed(() => keys.map((key) => properties.value[key as keyof BaseOutProperties] ?? 0) as Inset)
 }
 
 export function withOpacity(

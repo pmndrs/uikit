@@ -1,23 +1,19 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
 
-export type ProgressBarOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type ProgressBarOutProperties = BaseOutProperties & {
   value?: number
 }
 
-export class ProgressBar<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  ProgressBarOutProperties<EM>
-> {
+export class ProgressBar extends Container<ProgressBarOutProperties> {
   public readonly fill: Container
   constructor(
-    inputProperties?: InProperties<ProgressBarOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<ProgressBarOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<ProgressBarOutProperties<EM>>
+      defaultOverrides?: InProperties<ProgressBarOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

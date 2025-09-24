@@ -1,5 +1,5 @@
 import { Signal } from '@preact/signals-core'
-import { EventHandlers } from './events.js'
+import { EventHandlersProperties } from './events.js'
 import { Properties } from './properties/index.js'
 import { addHandler } from './utils.js'
 
@@ -12,7 +12,7 @@ export function setupCursorCleanup(hoveredSignal: Signal<Array<number>>, abortSi
  * must be executed inside effect/computed
  */
 export function addHoverHandlers(
-  target: EventHandlers,
+  target: EventHandlersProperties,
   properties: Properties,
   hoveredSignal: Signal<Array<number>>,
   hasHoverConditionalInProperties: Signal<boolean>,
@@ -31,6 +31,9 @@ export function addHoverHandlers(
     return
   }
   addHandler('onPointerOver', target, ({ pointerId }) => {
+    if (pointerId == null) {
+      return
+    }
     hoveredSignal.value = [pointerId, ...hoveredSignal.value]
     if (hoveredSignal.value.length === 1) {
       onHoverChange?.(true)

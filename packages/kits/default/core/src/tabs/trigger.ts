@@ -1,28 +1,24 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs, TabsList } from './index.js'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { PhoneForwarded } from '@pmndrs/uikit-lucide'
 import { searchFor } from '../utils.js'
 
-export type TabsTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {
+export type TabsTriggerOutProperties = BaseOutProperties & {
   disabled?: boolean
   value?: string
 }
 
-export type TabsTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<TabsTriggerOutProperties<EM>>
+export type TabsTriggerProperties = InProperties<TabsTriggerOutProperties>
 
-export class TabsTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  TabsTriggerOutProperties<EM>
-> {
+export class TabsTrigger extends Container<TabsTriggerOutProperties> {
   constructor(
-    inputProperties?: InProperties<TabsTriggerOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<TabsTriggerOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<TabsTriggerOutProperties<EM>>
+      defaultOverrides?: InProperties<TabsTriggerOutProperties>
     },
   ) {
     const active = computed(() => {

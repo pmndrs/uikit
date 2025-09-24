@@ -3,16 +3,9 @@ import { Video, VanillaVideo, Image, VanillaImage } from './index.js'
 import { useLoader } from '@react-three/fiber'
 import { SRGBColorSpace, TextureLoader } from 'three'
 import { suspend } from 'suspend-react'
-import {
-  ImageOutProperties,
-  InProperties,
-  ThreeEventMap,
-  updateVideoElementSrc,
-  VideoOutProperties,
-  VideoSrc,
-} from '@pmndrs/uikit'
+import { ImageOutProperties, InProperties, updateVideoElementSrc, VideoOutProperties, VideoSrc } from '@pmndrs/uikit'
 
-export type SuspendingImageProperties = InProperties<Omit<ImageOutProperties<ThreeEventMap, never>, 'src'>> & {
+export type SuspendingImageProperties = InProperties<Omit<ImageOutProperties<never>, 'src'>> & {
   src: string
 }
 
@@ -27,7 +20,7 @@ export const SuspendingImage: (props: SuspendingImageProperties & RefAttributes<
     return <Image ref={ref} src={texture} {...props} />
   })
 
-export type SuspendingVideoProperties = InProperties<Omit<VideoOutProperties<ThreeEventMap>, 'src'>> & {
+export type SuspendingVideoProperties = InProperties<Omit<VideoOutProperties, 'src'>> & {
   src: Exclude<VideoSrc, HTMLVideoElement>
 }
 

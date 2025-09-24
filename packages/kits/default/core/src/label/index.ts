@@ -1,20 +1,20 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 
-export type LabelOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {
+export type LabelOutProperties = {
   disabled?: boolean
-} & BaseOutProperties<EM>
+} & BaseOutProperties
 
-export type LabelProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<LabelOutProperties<EM>>
+export type LabelProperties = InProperties<LabelOutProperties>
 
-export class Label<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM, LabelOutProperties<EM>> {
+export class Label extends Container<LabelOutProperties> {
   constructor(
-    inputProperties?: InProperties<LabelOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<LabelOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: any
-      defaultOverrides?: InProperties<LabelOutProperties<EM>>
+      defaultOverrides?: InProperties<LabelOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

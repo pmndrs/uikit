@@ -1,22 +1,15 @@
-import {
-  BaseOutProperties,
-  Container,
-  ContainerProperties,
-  InProperties,
-  RenderContext,
-  ThreeEventMap,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, Container, ContainerProperties, InProperties, RenderContext } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 
-export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
+export type AccordionTriggerProperties = ContainerProperties
 
-export class AccordionTrigger<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
+export class AccordionTrigger extends Container {
   constructor(
-    inputProperties?: InProperties<BaseOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<BaseOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides: InProperties<BaseOutProperties<EM>>
+      defaultOverrides: InProperties<BaseOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

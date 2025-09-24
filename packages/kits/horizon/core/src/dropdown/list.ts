@@ -1,25 +1,19 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap, WithSignal } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 
-export type DropdownListOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type DropdownListOutProperties = BaseOutProperties
 
-export type DropdownListProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<
-  DropdownListOutProperties<EM>
->
-export class DropdownList<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<
-  T,
-  EM,
-  DropdownListOutProperties<EM>
-> {
+export type DropdownListProperties = InProperties<DropdownListOutProperties>
+export class DropdownList extends Container<DropdownListOutProperties> {
   constructor(
-    inputProperties?: InProperties<DropdownListOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<DropdownListOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<DropdownListOutProperties<EM>>
-      defaults?: WithSignal<DropdownListOutProperties<EM>>
+      defaultOverrides?: InProperties<DropdownListOutProperties>
+      defaults?: WithSignal<DropdownListOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

@@ -2,7 +2,6 @@ import {
   InProperties,
   BaseOutProperties,
   Input as InputImpl,
-  ThreeEventMap,
   InputOutProperties as BaseInputOutProperties,
   RenderContext,
   withOpacity,
@@ -10,15 +9,15 @@ import {
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors, inputDefaults } from '../theme.js'
 
-export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseInputOutProperties<EM>
+export type InputOutProperties = BaseInputOutProperties
 
-export type InputProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<InputOutProperties<EM>>
+export type InputProperties = InProperties<InputOutProperties>
 
-export class Input<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends InputImpl<T, EM, InputOutProperties<EM>> {
+export class Input extends InputImpl<InputOutProperties> {
   constructor(
-    inputProperties?: InProperties<InputOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
-    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<InputOutProperties<EM>> },
+    inputProperties?: InProperties<InputOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    config?: { renderContext?: RenderContext; defaultOverrides?: InProperties<InputOutProperties> },
   ) {
     super(inputProperties, initialClasses, {
       defaults: inputDefaults,

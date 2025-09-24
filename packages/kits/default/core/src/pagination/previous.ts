@@ -1,22 +1,19 @@
-import { InProperties, BaseOutProperties, RenderContext, ThreeEventMap, Text } from '@pmndrs/uikit'
+import { InProperties, BaseOutProperties, RenderContext, Text } from '@pmndrs/uikit'
 import { ChevronLeft } from '@pmndrs/uikit-lucide'
 import { PaginationLink, PaginationLinkOutProperties } from './link.js'
 import { colors, contentDefaults, textDefaults } from '../theme.js'
 
-export type PaginationPreviousProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<
-  InProperties<PaginationLinkOutProperties<EM>>,
-  'children'
->
+export type PaginationPreviousProperties = Omit<InProperties<PaginationLinkOutProperties>, 'children'>
 
-export class PaginationPrevious<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends PaginationLink<T, EM> {
+export class PaginationPrevious extends PaginationLink {
   public readonly label: Text
   public readonly icon: InstanceType<typeof ChevronLeft>
   constructor(
-    inputProperties?: InProperties<PaginationLinkOutProperties<EM>>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    inputProperties?: InProperties<PaginationLinkOutProperties>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
-      defaultOverrides?: InProperties<PaginationLinkOutProperties<EM>>
+      defaultOverrides?: InProperties<PaginationLinkOutProperties>
     },
   ) {
     super(inputProperties, initialClasses, {

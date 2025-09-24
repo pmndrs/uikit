@@ -1,5 +1,4 @@
 import { computed, signal, Signal } from '@preact/signals-core'
-import { ThreeEventMap } from '../events.js'
 import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
 import { ClippingRect, computedClippingRect } from '../clipping.js'
 import { ElementType, setupOrderInfo } from '../order.js'
@@ -19,15 +18,11 @@ import { BaseOutProperties, InProperties, WithSignal } from '../properties/index
 import { RenderContext } from '../context.js'
 import { Component } from './index.js'
 
-export type ContainerProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
+export type ContainerProperties = InProperties<BaseOutProperties>
 
-export type ContainerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
+export type ContainerOutProperties = BaseOutProperties
 
-export class Container<
-  T = {},
-  EM extends ThreeEventMap = ThreeEventMap,
-  OutProperties extends BaseOutProperties<EM> = BaseOutProperties<EM>,
-> extends Component<T, EM, OutProperties> {
+export class Container<OutProperties extends BaseOutProperties = BaseOutProperties> extends Component<OutProperties> {
   readonly downPointerMap = new Map<
     number,
     | { type: 'scroll-bar'; localPoint: Vector3; axisIndex: number }
@@ -42,7 +37,7 @@ export class Container<
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
+    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
