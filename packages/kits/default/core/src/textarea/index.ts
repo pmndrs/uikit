@@ -10,7 +10,7 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors, inputDefaults, textDefaults } from '../theme.js'
-import { Object3D } from 'three/src/Three.js'
+import type { Object3D } from 'three'
 
 export type TextareaOutProperties = {
   placeholder?: string

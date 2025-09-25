@@ -125,8 +125,8 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       return propertyState.signal.peek()
     }
     const defaultValue = this.defaults?.[key]
-    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
-    const [result] = untracked(() => selectLayerValue(0, layerIndicies, this.propertiesLayers, key, defaultValue)!)
+    const layerIndices = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
+    const [result] = untracked(() => selectLayerValue(0, layerIndices, this.propertiesLayers, key, defaultValue)!)
     return result
   }
 
@@ -170,12 +170,11 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     target.cleanup?.()
     target.cleanup = undefined
     const defaultValue = this.defaults?.[key]
-    const layerIndicies = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
     let result: readonly [any, number] | undefined
     if (this.enabled) {
       result = selectLayerValue(
         0,
-        layerIndicies,
+        Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
         this.propertiesLayers,
         key,
         defaultValue,
@@ -183,7 +182,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
           (target.cleanup = effect(() => {
             const [value, index] = selectLayerValue(
               layerIndex,
-              layerIndicies,
+              Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
               this.propertiesLayers,
               key,
               defaultValue,

@@ -1,5 +1,5 @@
 import { computed, effect, ReadonlySignal, Signal } from '@preact/signals-core'
-import { Vector2Tuple, Color, Vector3Tuple, Vector3, Matrix4, Object3D, Vector4Tuple } from 'three'
+import { Object3D, Vector2Tuple, Color, Vector3Tuple, Vector3, Matrix4, Vector4Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { BaseOutProperties, Properties } from './properties/index.js'
 import { EventHandlersProperties } from './events.js'
@@ -10,6 +10,28 @@ import { Component } from './components/component.js'
 import { Container } from './components/container.js'
 import { RootContext } from './context.js'
 import { writeColor } from './panel/index.js'
+
+export function searchFor<T>(
+  from: Component | Object3D,
+  _class: { new (...args: Array<any>): T },
+  maxSteps: number,
+  allowNonUikit = false,
+): T | undefined {
+  if (from instanceof _class) {
+    return from
+  }
+  let parent: Object3D | undefined | null
+  if (from instanceof Component) {
+    parent = from.parentContainer.value
+  }
+  if (allowNonUikit) {
+    parent ??= from.parent
+  }
+  if (maxSteps === 0 || parent == null) {
+    return undefined
+  }
+  return searchFor(parent, _class, maxSteps - 1, allowNonUikit)
+}
 
 export function computedGlobalMatrix(
   parentMatrix: Signal<Matrix4 | undefined>,
@@ -268,12 +290,12 @@ export function fitNormalizedContentInside(
   scaleTarget.setScalar((innerWidth * pixelSize) / aspectRatio)
 }
 
-export function readReactive<T>(value: T | 'initial' | Signal<T | 'initial'>): T {
+export function readReactive<T>(value: T | 'initial' | ReadonlySignal<T | 'initial'>): T {
   value = value instanceof Signal ? value.value : value
   if (value === 'initial') {
     return undefined as T
   }
-  return value
+  return value as T
 }
 
 export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {
@@ -281,7 +303,7 @@ export function computedBorderInset(properties: Properties, keys: ReadonlyArray<
 }
 
 export function withOpacity(
-  value: Signal<ColorRepresentation> | ColorRepresentation,
+  value: ReadonlySignal<ColorRepresentation> | ColorRepresentation,
   opacity: number | Signal<number>,
 ) {
   return computed<ColorRepresentation>(() => {

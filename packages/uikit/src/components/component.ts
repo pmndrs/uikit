@@ -47,7 +47,7 @@ import { ClassList, getStarProperties, StyleSheet } from './classes.js'
 import { InstancedGlyphMesh } from '../text/index.js'
 import { buildRootContext, buildRootMatrix, RenderContext, RootContext } from '../context.js'
 import { inheritedPropertyKeys } from '../properties/inheritance.js'
-import { Container } from './index.js'
+import type { Container } from './container.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { getLayerIndex } from '../properties/layer.js'
 
@@ -105,7 +105,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
 
     //setting up the parent signal
     const updateParentState = () => {
-      this.parentContainer.value = this.parent instanceof Container ? (this.parent as Container) : undefined
+      this.parentContainer.value = this.parent instanceof Component ? (this.parent as Container) : undefined
       ;(this.properties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
       ;(this.starProperties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
     }

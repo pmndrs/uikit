@@ -1,7 +1,6 @@
-import { Container, InProperties, BaseOutProperties, RenderContext, withOpacity } from '@pmndrs/uikit'
+import { searchFor, Container, InProperties, BaseOutProperties, RenderContext, withOpacity } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { AlertDialog } from './index.js'
-import { searchFor } from '../utils.js'
 
 export type AlertDialogActionOutProperties = BaseOutProperties
 

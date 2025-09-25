@@ -1,8 +1,7 @@
-import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
+import { searchFor, BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
-import { searchFor } from '../utils.js'
 import { colors, componentDefaults } from '../theme.js'
 
 export type AccordionContentProperties = InProperties<BaseOutProperties>

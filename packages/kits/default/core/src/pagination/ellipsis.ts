@@ -1,7 +1,7 @@
 import { InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
 import { Ellipsis } from '@pmndrs/uikit-lucide'
-import { Object3D } from 'three/src/Three.Core.js'
 import { colors, componentDefaults, contentDefaults } from '../theme.js'
+import type { Object3D } from 'three'
 
 export type PaginationEllipsisProperties = Omit<InProperties<BaseOutProperties>, 'children'>
 

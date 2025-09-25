@@ -1,7 +1,6 @@
-import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
-import { searchFor } from '../utils.js'
 import { colors, componentDefaults } from '../theme.js'
 
 export type TabsContentOutProperties = BaseOutProperties & {

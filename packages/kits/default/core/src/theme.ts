@@ -388,7 +388,7 @@ function computeThemeProperty<T extends keyof Omit<Theme, 'dark'>>(key: T) {
 }
 
 export const colors = {} as {
-  -readonly [Key in keyof Omit<Theme, 'dark' | 'radius'>]: Signal<ColorRepresentation>
+  -readonly [Key in keyof Omit<Theme, 'dark' | 'radius'>]: ReadonlySignal<ColorRepresentation>
 }
 for (const anyKey in defaultThemes['default']) {
   const key = anyKey as keyof (typeof defaultThemes)['default']

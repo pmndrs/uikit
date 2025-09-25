@@ -1,8 +1,7 @@
-import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { XIcon } from '@pmndrs/uikit-lucide'
 import { Dialog } from './index.js'
-import { searchFor } from '../utils.js'
 
 export type DialogContentOutProperties = BaseOutProperties
 

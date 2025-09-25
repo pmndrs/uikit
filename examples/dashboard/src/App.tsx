@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Gltf } from '@react-three/drei'
+import { Environment, Gltf, PerspectiveCamera } from '@react-three/drei'
 import { Container, Content, Fullscreen, Input, Text, setPreferredColorScheme } from '@react-three/uikit'
-import { Activity, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
+import { Activity, BellRing, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 import {
   Button,
   Card,
@@ -15,6 +15,14 @@ import {
   CardContent,
   CardDescription,
   colors,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  Switch,
+  DialogFooter,
+  VanillaDialog,
 } from '@react-three/uikit-default'
 import { CalendarDateRangePicker } from './components/DateRangePicker.js'
 import { MainNav } from './components/MainNav.js'
@@ -28,8 +36,24 @@ import { Highlighter } from './components/Highlighter.js'
 
 setPreferredColorScheme('light')
 
+const notifications = [
+  {
+    title: 'Your call has been confirmed.',
+    description: '1 hour ago',
+  },
+  {
+    title: 'You have a new message!',
+    description: '1 hour ago',
+  },
+  {
+    title: 'Your subscription is expiring soon!',
+    description: '2 hours ago',
+  },
+]
+
 export default function App() {
   const [open, setOpen] = useState(false)
+  const [dialog, setDialog] = useState<VanillaDialog | null>(null)
   return (
     <>
       <FrameCounter />
@@ -37,17 +61,82 @@ export default function App() {
         events={noEvents}
         frameloop="demand"
         flat
-        camera={{ position: [0, 0, 18], fov: 35, zoom: 100 }}
+        camera={{ position: [0, 0, 18], fov: 35 }}
         style={{ height: '100dvh', touchAction: 'none' }}
-        orthographic
       >
+        <PerspectiveCamera fov={50} makeDefault={open} />
+        <PerspectiveCamera fov={40} makeDefault={!open} />
         <Environment preset="studio" environmentIntensity={2} />
         <CountFrames />
         <PointerEvents />
-        <Fullscreen distanceToCamera={1} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
+        <Fullscreen distanceToCamera={100} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
+          <Dialog
+            renderOrder={1}
+            depthTest={false}
+            {...{ '*': { renderOrder: 1, depthTest: false } }}
+            ref={(ref) => setDialog(ref)}
+            open={open}
+            onOpenChange={setOpen}
+          >
+            <DialogContent positionType="relative" sm={{ maxWidth: 425 }}>
+              <DialogHeader>
+                <DialogTitle>
+                  <Text>Edit profile</Text>
+                </DialogTitle>
+                <DialogDescription>
+                  <Text>Make changes to your profile here. Click save when you're done.</Text>
+                </DialogDescription>
+              </DialogHeader>
+              <Container flexDirection="row" alignItems="center" gap={16} borderRadius={6} borderWidth={1} padding={16}>
+                <BellRing />
+                <Container gap={4}>
+                  <Text fontWeight="medium" fontSize={14} lineHeight="100%">
+                    Push Notifications
+                  </Text>
+                  <Text fontWeight="medium" fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
+                    Send notifications to device.
+                  </Text>
+                </Container>
+                <Switch />
+              </Container>
+              <Container flexDirection="column">
+                {notifications.map((notification, index) => (
+                  <Container
+                    key={index}
+                    marginBottom={index === notifications.length - 1 ? 0 : 16}
+                    paddingBottom={index === notifications.length - 1 ? 0 : 16}
+                    alignItems="flex-start"
+                    flexDirection="row"
+                    gap={17}
+                  >
+                    <Container
+                      height={8}
+                      width={8}
+                      transformTranslateY={4}
+                      borderRadius={1000}
+                      backgroundColor={0x0ea5e9}
+                    />
+                    <Container flexDirection="column" gap={4}>
+                      <Text fontSize={14} lineHeight="100%">
+                        {notification.title}
+                      </Text>
+                      <Text fontSize={14} lineHeight="20px" color={colors.mutedForeground}>
+                        {notification.description}
+                      </Text>
+                    </Container>
+                  </Container>
+                ))}
+              </Container>
+              <DialogFooter>
+                <Button onClick={() => setOpen(false)}>
+                  <Text>Save changes</Text>
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <Highlighter>
             <Container flexDirection="column" width="100%" height="100%" overflow="scroll">
-              <DashboardPage open={open} setOpen={setOpen} />
+              <DashboardPage dialog={dialog} />
             </Container>
           </Highlighter>
         </Fullscreen>
@@ -69,8 +158,8 @@ function FrameCounter() {
     <div
       style={{
         position: 'absolute',
-        top: 0,
-        right: 0,
+        bottom: 0,
+        left: 0,
         backgroundColor: 'black',
         fontSize: '2rem',
         padding: '0.5rem 1rem',
@@ -84,7 +173,7 @@ function FrameCounter() {
   )
 }
 
-export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
+export function DashboardPage({ dialog }: { dialog: VanillaDialog | null }) {
   return (
     <Container flexShrink={0} flexDirection="column">
       <Container flexShrink={0} flexDirection="column" borderBottomWidth={1}>
@@ -99,7 +188,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
             >
               <Text>Source Code</Text>
             </Button>
-            <UserNav open={open} setOpen={setOpen} />
+            <UserNav dialog={dialog} />
           </Container>
         </Container>
       </Container>
@@ -149,7 +238,7 @@ export function DashboardPage({ open, setOpen }: { open: boolean; setOpen: (open
                     <DollarSign width={16} height={16} color={colors.mutedForeground} />
                   </CardHeader>
                   <CardContent alignItems="center" flexShrink={0} flexDirection="column">
-                    <Content width="50%" depthAlign="front" color="initial" keepAspectRatio>
+                    <Content width="50%" depthAlign="center" color="initial" keepAspectRatio>
                       <Gltf rotation-y={(30 / 180) * Math.PI} rotation-x={(30 / 180) * Math.PI} src="./mac-draco.glb" />
                     </Content>
                   </CardContent>

@@ -3,8 +3,8 @@ import {
   Properties as BaseProperties,
 } from '@pmndrs/uikit-pub-sub'
 import { Aliases, AddAllAliases } from './alias.js'
-import { Conditionals, WithConditionalsAndImportant, WithImportant } from './conditional.js'
-import { batch, computed, signal, Signal } from '@preact/signals-core'
+import { Conditionals, WithConditionalsAndImportant } from './conditional.js'
+import { batch, computed, ReadonlySignal, signal, Signal } from '@preact/signals-core'
 import { YogaProperties } from '../flex/index.js'
 import { PanelProperties } from '../panel/instanced-panel.js'
 import { ZIndexProperties } from '../order.js'
@@ -76,7 +76,7 @@ export type AnchorProperties = {
 }
 
 export type WithSignal<T> = {
-  [K in keyof T]: T[K] | Signal<T[K]>
+  [K in keyof T]: T[K] | ReadonlySignal<T[K]>
 }
 
 export type WithInheritance<T> = T & {

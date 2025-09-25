@@ -1,8 +1,7 @@
-import { Container, InProperties, BaseOutProperties, RenderContext, UnionizeVariants } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, UnionizeVariants, searchFor } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { ToggleGroup } from './index.js'
-import { searchFor } from '../utils.js'
 
 const _toggleVariants = {
   default: {},

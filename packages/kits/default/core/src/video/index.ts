@@ -7,14 +7,14 @@ import {
   BaseOutProperties,
   abortableEffect,
   withOpacity,
+  searchFor,
 } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { Play, Pause, VolumeX, Volume2 } from '@pmndrs/uikit-lucide'
 import { Slider } from '../slider/index.js'
 import { Button } from '../button/index.js'
 import { colors, componentDefaults, contentDefaults, imageDefaults, textDefaults } from '../theme.js'
-import { Object3D } from 'three/src/Three.js'
-import { searchFor } from '../utils.js'
+import type { Object3D } from 'three'
 
 export type VideoOutProperties = BaseVideoOutProperties & {
   controls?: boolean

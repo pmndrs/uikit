@@ -1,8 +1,7 @@
-import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Tooltip } from './index.js'
-import { searchFor } from '../utils.js'
 
 export type TooltipContentProperties = InProperties<TooltipContentOutProperties>
 

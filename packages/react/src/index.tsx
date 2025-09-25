@@ -37,9 +37,9 @@ import {
   Textarea as VanillaTextarea,
   TextareaProperties as VanillaTextareaProperties,
 } from '@pmndrs/uikit'
-import { Signal } from '@preact/signals-core'
+import { ReadonlySignal } from '@preact/signals-core'
 import { createPortal, extend, ThreeElement, useFrame, useLoader, useStore, useThree } from '@react-three/fiber'
-import { SRGBColorSpace, TextureLoader } from 'three'
+import { Object3D, SRGBColorSpace, TextureLoader } from 'three'
 import { jsx } from 'react/jsx-runtime'
 
 export type ContainerProperties = VanillaContainerProperties & { children?: ReactNode }
@@ -51,7 +51,7 @@ export type InputProperties = VanillaInputProperties
 export type SvgProperties = VanillaSvgProperties
 export type TextareaProperties = VanillaTextareaProperties
 export type TextProperties = VanillaTextProperties & {
-  children?: string | string[] | Signal<string | string[] | undefined>
+  children?: string | string[] | ReadonlySignal<string | string[] | undefined>
 }
 export type FullscreenProperties = VanillaFullscreenProperties & {
   children?: ReactNode
@@ -101,6 +101,7 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
         if (!hasAttached.current) {
           return
         }
+        hasAttached.current = false
         const { camera, scene } = store.getState()
         if (camera.parent != scene) {
           return
@@ -110,6 +111,9 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
       [store],
     )
     const camera = useThree((s) => s.camera)
+    const fullscreenWrapper = useMemo(() => new Object3D(), [])
+    fullscreenWrapper.parent?.remove(fullscreenWrapper)
+    camera.add(fullscreenWrapper)
     const renderer = useThree((s) => s.gl)
     const ref = useRef<VanillaFullscreen>(null)
     useImperativeHandle(forwardRef, () => ref.current!, [])
@@ -120,7 +124,7 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
       <vanillaFullscreen {...outProps} ref={ref}>
         {children}
       </vanillaFullscreen>,
-      camera,
+      fullscreenWrapper,
     )
   },
 )

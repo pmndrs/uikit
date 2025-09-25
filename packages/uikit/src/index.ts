@@ -1,6 +1,6 @@
 export type { EventHandlersProperties as EventHandlers, ThreePointerEvent as ThreeEvent } from './events.js'
 export { reversePainterSortStable } from './order.js'
-export { abortableEffect } from './utils.js'
+export { abortableEffect, searchFor } from './utils.js'
 export {
   basedOnPreferredColorScheme,
   setPreferredColorScheme,

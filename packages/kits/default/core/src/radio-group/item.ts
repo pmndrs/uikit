@@ -1,8 +1,7 @@
-import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { RadioGroup } from './index.js'
-import { searchFor } from '../utils.js'
 
 export type RadioGroupItemOutProperties = {
   disabled?: boolean

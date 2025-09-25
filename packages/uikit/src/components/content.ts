@@ -235,7 +235,6 @@ export class Content<
       descendant.material.clippingPlanes = this.clippingPlanes
       descendant.material.needsUpdate = true
       descendant.material.transparent = true
-      descendant.matrixAutoUpdate = false
       descendant.raycast = makeClippedCast(
         this,
         descendant.raycast.bind(descendant),

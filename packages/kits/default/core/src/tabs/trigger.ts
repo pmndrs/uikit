@@ -1,9 +1,7 @@
-import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
-import { Tabs, TabsList } from './index.js'
+import { Tabs } from './index.js'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
-import { PhoneForwarded } from '@pmndrs/uikit-lucide'
-import { searchFor } from '../utils.js'
 
 export type TabsTriggerOutProperties = BaseOutProperties & {
   disabled?: boolean

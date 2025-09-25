@@ -1,9 +1,15 @@
-import { SvgOutProperties, SvgProperties, InProperties, RenderContext, BaseOutProperties } from '@pmndrs/uikit'
+import {
+  searchFor,
+  SvgOutProperties,
+  SvgProperties,
+  InProperties,
+  RenderContext,
+  BaseOutProperties,
+} from '@pmndrs/uikit'
 import { ChevronDown } from '@pmndrs/uikit-lucide'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
-import { searchFor } from '../utils.js'
 import { colors, contentDefaults } from '../theme.js'
 
 export type AccordionTriggerIconProperties = SvgProperties

@@ -6,7 +6,6 @@ import type { PanelGroupProperties } from '../panel/instanced-panel-group.js'
 export const componentDefaults = {
   scrollbarWidth: 10,
   visibility: 'visible' as Required<VisibilityProperties>['visibility'],
-  updateMatrixWorld: false,
   opacity: 1 as number | `${number}%`,
   depthTest: true,
   renderOrder: 0,

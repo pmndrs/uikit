@@ -1,7 +1,7 @@
-import { Container, InProperties, BaseOutProperties, Properties, RenderContext } from '@pmndrs/uikit'
-import { signal, computed, Signal } from '@preact/signals-core'
+import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
-import { Object3D } from 'three/src/Three.js'
+import type { Object3D } from 'three'
 
 export type SwitchOutProperties = {
   checked?: boolean

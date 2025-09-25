@@ -1,8 +1,9 @@
-import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
+import { Camera, OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { batch, Signal, signal } from '@preact/signals-core'
-import { Container } from './container.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
+import { searchFor } from '../utils.js'
+import { Container } from './index.js'
 
 export type FullscreenProperties = InProperties<FullscreenOutProperties>
 
@@ -53,7 +54,7 @@ export class Fullscreen<
 
   update(delta: number) {
     super.update(delta)
-    const camera = this.parent
+    const camera = searchFor(this, Camera, 2, true)
     if (!(camera instanceof PerspectiveCamera || camera instanceof OrthographicCamera)) {
       throw new Error(`fullscreen can only be added to a camera`)
     }
