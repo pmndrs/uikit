@@ -55,6 +55,7 @@ export const inputDefaults: InputOutProperties = {
   disabled: false,
   tabIndex: 0,
   autocomplete: '',
+  whiteSpace: 'pre',
 }
 
 export class Input<OutProperties extends InputOutProperties = InputOutProperties> extends Text<OutProperties> {

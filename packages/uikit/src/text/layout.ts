@@ -26,7 +26,11 @@ export type GlyphProperties = Partial<{
   lineHeight: number | string
   fontSize: number | string
   wordBreak: WordBreak
+  whiteSpace: WhiteSpace
+  tabSize: number
 }>
+
+export type WhiteSpace = 'normal' | 'collapse' | 'pre' | 'pre-line'
 
 export type WordBreak = keyof typeof wrappers
 
@@ -54,6 +58,11 @@ export type GlyphOutProperties = {
   wordBreak: WordBreak
 }
 
+const collapseRegex = /[\t\n ]+/gm
+const preLineCollapseNonLinefeedWhitespaceRegex = /[\t ]+/g
+const preLineCollapseLinefeedRegex = /[\t ]*\n[\t ]*/gm
+const preLineTrimNonLinefeedWhitespaceRegex = /^[ \t]+|[ \t]+$/g
+
 export function computedCustomLayouting(
   properties: Properties<TextOutProperties>,
   fontSignal: Signal<Font | undefined>,
@@ -66,8 +75,24 @@ export function computedCustomLayouting(
     }
     const textProperty = properties.value.text
     let text = Array.isArray(textProperty) ? textProperty.join('') : (textProperty ?? '')
-    //TODO: tab should be intergrated into the text layouting algorithm
-    text = text.replaceAll('\t', ' '.repeat(4))
+    const tabSize = properties.value.tabSize
+    const whiteSpace = properties.value.whiteSpace
+    switch (whiteSpace) {
+      case 'pre':
+        //since we preserve everything, we convert tabs to spaces
+        text = text.replaceAll('\t', ' '.repeat(tabSize))
+        break
+      case 'pre-line':
+        //preserving line feeds
+        text = text
+          .replaceAll(preLineCollapseNonLinefeedWhitespaceRegex, ' ')
+          .replaceAll(preLineCollapseLinefeedRegex, '\n')
+          .replaceAll(preLineTrimNonLinefeedWhitespaceRegex, '')
+        break
+      default:
+        text = text.replaceAll(collapseRegex, ' ').trim()
+        break
+    }
     const layoutProperties = buildGlyphOutProperties(font, text, properties.value)
     propertiesRef.current = layoutProperties
 

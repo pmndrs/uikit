@@ -1,5 +1,5 @@
 import { MeshBasicMaterial } from 'three'
-import type { FontWeight, GlyphProperties } from '../text/index.js'
+import type { FontWeight, GlyphProperties, WhiteSpace } from '../text/index.js'
 import { alignmentXMap, alignmentYMap, type VisibilityProperties } from '../utils.js'
 import type { PanelGroupProperties } from '../panel/instanced-panel-group.js'
 
@@ -23,6 +23,8 @@ export const componentDefaults = {
   pixelSize: 0.01,
   anchorX: 'center' as keyof typeof alignmentXMap,
   anchorY: 'center' as keyof typeof alignmentYMap,
+  tabSize: 8,
+  whiteSpace: 'normal' as WhiteSpace,
 }
 
 export type ComponentDefaultsProperties = typeof componentDefaults

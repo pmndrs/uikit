@@ -1,8 +1,7 @@
 import { getOffsetToNextGlyph } from '../utils.js'
-import { GlyphWrapper, skipWhitespace } from './index.js'
+import { GlyphWrapper } from './index.js'
 
 export const NowrapWrapper: GlyphWrapper = ({ text, fontSize, font, letterSpacing }, _, charIndex, target) => {
-  charIndex = skipWhitespace(text, charIndex)
   const firstIndex = charIndex
   target.charIndexOffset = firstIndex
   target.nonWhitespaceCharLength = 0
