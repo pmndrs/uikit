@@ -60,6 +60,8 @@ export type FullscreenProperties = VanillaFullscreenProperties & {
 
 export {
   readReactive,
+  type BaseOutProperties,
+  Component as VanillaComponent,
   Container as VanillaContainer,
   type ContainerProperties as VanillaContainerProperties,
   Content as VanillaContent,
