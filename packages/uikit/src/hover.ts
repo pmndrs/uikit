@@ -57,7 +57,7 @@ const cursorTypeStack: Array<string> = []
 function setCursorType(ref: unknown, type: string): void {
   cursorRefStack.push(ref)
   cursorTypeStack.push(type)
-  console.log('set; curent: ', ...cursorTypeStack)
+  //console.log('set; curent: ', ...cursorTypeStack)
   document.body.style.cursor = type
 }
 
@@ -68,6 +68,6 @@ function unsetCursorType(ref: unknown): void {
   }
   cursorRefStack.splice(index, 1)
   cursorTypeStack.splice(index, 1)
-  console.log('unset; curent: ', ...cursorTypeStack)
+  //console.log('unset; curent: ', ...cursorTypeStack)
   document.body.style.cursor = cursorTypeStack[cursorTypeStack.length - 1] ?? 'default'
 }
