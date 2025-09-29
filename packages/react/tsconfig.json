@@ -5,6 +5,5 @@
         "declaration": true,
         "skipLibCheck": true,
         "jsx": "react-jsx"
-    },
-    "include": ["src"]
+    }
 }

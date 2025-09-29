@@ -54,18 +54,24 @@ export function useSetup(ref: { current: Component | null }, inProps: any, args:
       const eventCount = Object.keys(handlers).length
       if (eventCount === 0) {
         outPropsRef.current = { args }
+        if (container.__r3f != null) {
+          container.__r3f.props = outPropsRef.current
+        }
         applyProps(container, outPropsRef.current)
         return
       }
       if (container.__r3f == null) {
         throw new Error(`missing __r3f attribute`)
       }
-      outPropsRef.current = { args, ...handlers }
+      container.__r3f.props = outPropsRef.current = { args, ...handlers }
       applyProps(container, outPropsRef.current)
     })
     return () => {
       unsubscribe()
       outPropsRef.current = { args }
+      if (container.__r3f != null) {
+        container.__r3f.props = outPropsRef.current
+      }
       applyProps(container, outPropsRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

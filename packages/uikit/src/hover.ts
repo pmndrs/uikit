@@ -30,7 +30,7 @@ export function addHoverHandlers(
     hoveredSignal.value.length = 0
     return
   }
-  addHandler('onPointerOver', target, ({ pointerId }) => {
+  addHandler('onPointerEnter', target, ({ pointerId }) => {
     if (pointerId == null) {
       return
     }
@@ -42,7 +42,7 @@ export function addHoverHandlers(
       setCursorType(hoveredSignal, cursor)
     }
   })
-  addHandler('onPointerOut', target, ({ pointerId }) => {
+  addHandler('onPointerLeave', target, ({ pointerId }) => {
     hoveredSignal.value = hoveredSignal.value.filter((id) => id != pointerId)
     if (hoveredSignal.value.length === 0) {
       onHoverChange?.(false)
@@ -57,6 +57,7 @@ const cursorTypeStack: Array<string> = []
 function setCursorType(ref: unknown, type: string): void {
   cursorRefStack.push(ref)
   cursorTypeStack.push(type)
+  console.log('set; curent: ', ...cursorTypeStack)
   document.body.style.cursor = type
 }
 
@@ -67,5 +68,6 @@ function unsetCursorType(ref: unknown): void {
   }
   cursorRefStack.splice(index, 1)
   cursorTypeStack.splice(index, 1)
+  console.log('unset; curent: ', ...cursorTypeStack)
   document.body.style.cursor = cursorTypeStack[cursorTypeStack.length - 1] ?? 'default'
 }

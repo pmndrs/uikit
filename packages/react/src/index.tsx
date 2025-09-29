@@ -60,17 +60,26 @@ export type FullscreenProperties = VanillaFullscreenProperties & {
 
 export {
   readReactive,
-  Component as VanillaComponent,
   Container as VanillaContainer,
+  type ContainerProperties as VanillaContainerProperties,
   Content as VanillaContent,
+  type ContentProperties as VanillaContentProperties,
   Custom as VanillaCustom,
+  type CustomProperties as VanillaCustomProperties,
   Fullscreen as VanillaFullscreen,
+  type FullscreenProperties as VanillaFullscreenProperties,
   Image as VanillaImage,
+  type ImageProperties as VanillaImageProperties,
   Video as VanillaVideo,
+  type VideoProperties as VanillaVideoProperties,
   Input as VanillaInput,
+  type InputProperties as VanillaInputProperties,
   Svg as VanillaSvg,
+  type SvgProperties as VanillaSvgProperties,
   Text as VanillaText,
+  type TextProperties as VanillaTextProperties,
   Textarea as VanillaTextarea,
+  type TextareaProperties as VanillaTextareaProperties,
 } from '@pmndrs/uikit'
 
 export const Container = build<VanillaContainer, ContainerProperties>(VanillaContainer)
