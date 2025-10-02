@@ -4,6 +4,7 @@
     "@preact/signals-core": "^1.5.1",
     "@react-three/uikit": "workspace:^",
     "@pmndrs/uikit": "workspace:^",
+    "@pmndrs/pointer-events": "6.6.26",
     "@react-three/uikit-lucide": "workspace:^",
     "@react-three/uikit-default": "workspace:^",
     "@pmndrs/uikit-lucide": "workspace:^",

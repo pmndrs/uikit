@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Gltf, PerspectiveCamera } from '@react-three/drei'
-import { Container, Content, Fullscreen, Input, Text, setPreferredColorScheme } from '@react-three/uikit'
+import { Container, Content, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
 import { Activity, BellRing, CreditCard, DollarSign, Users } from '@react-three/uikit-lucide'
 import {
   Button,
@@ -199,7 +199,12 @@ export function DashboardPage({ dialog }: { dialog: VanillaDialog | null }) {
           </Text>
           <Container flexDirection="row" gap={8} alignItems="center">
             <CalendarDateRangePicker />
-            <Button>
+            <Button
+              onClick={(e) => {
+                //e has the correct types as specified in types/three-augmented.d.ts - PointerEvent from pmndrs/pointer-events
+                console.log(e.pointerId)
+              }}
+            >
               <Text>Download</Text>
             </Button>
           </Container>
