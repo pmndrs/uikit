@@ -170,9 +170,6 @@ export function addHandler<T extends { [Key in string]?: (e: any) => void }, K e
   }
   target[key] = ((e) => {
     existingHandler(e as any)
-    if ('stopped' in e && e.stopped) {
-      return
-    }
     handler(e)
   }) as T[K]
 }
