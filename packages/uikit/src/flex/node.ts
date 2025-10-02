@@ -216,7 +216,7 @@ export class FlexNode {
     }
 
     this.component.overflow.value = this.yogaNode.getOverflow()
-    displayed &&= this.yogaNode.getDisplay() === Display.Flex
+    displayed &&= this.yogaNode.getDisplay() != Display.None
     this.component.displayed.value = displayed
 
     const width = this.yogaNode.getComputedWidth()
