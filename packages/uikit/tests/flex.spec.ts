@@ -167,8 +167,8 @@ describe('set & get properties', () => {
     // Create a minimal mock RootContext for testing
     mockRoot = {
       component: {
-        size: { value: [1920, 1080] }
-      }
+        size: { value: [1920, 1080] },
+      },
     }
   })
 
