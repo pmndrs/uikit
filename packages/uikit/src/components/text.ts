@@ -23,7 +23,8 @@ import { Matrix4, Quaternion, Vector2Tuple, Vector3 } from 'three'
 import { CaretTransformation } from '../caret.js'
 import { SelectionTransformation } from '../selection.js'
 
-export type TextOutProperties = BaseOutProperties & AdditionalTextDefaults & { text?: string | Array<string> }
+export type TextOutProperties = BaseOutProperties &
+  AdditionalTextDefaults & { text?: string | number | boolean | Array<string | number | boolean> }
 
 export type TextProperties = InProperties<TextOutProperties>
 
