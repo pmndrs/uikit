@@ -179,3 +179,5 @@ function hasConditional(
 }
 
 export { componentDefaults } from './defaults.js'
+export type { WithConditionalsAndImportant } from './conditional.js'
+export type { AddAllAliases, GetAliases, AllAliases } from './alias.js'
