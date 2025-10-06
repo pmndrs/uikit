@@ -18,8 +18,8 @@ importers:
         specifier: rc
         version: 9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0))
       '@react-three/xr':
-        specifier: ^6.5.4
-        version: 6.5.4(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)
+        specifier: ^6.6.27
+        version: 6.6.27(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)
       '@types/chai':
         specifier: ^4.3.10
         version: 4.3.20
@@ -180,8 +180,8 @@ importers:
   examples/dashboard:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: 6.6.26
-        version: 6.6.26
+        specifier: 6.6.27
+        version: 6.6.27
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -677,6 +677,9 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
+  '@bufbuild/protobuf@2.9.0':
+    resolution: {integrity: sha512-rnJenoStJ8nvmt9Gzye8nkYd6V22xUAnu4086ER7h1zJ508vStko4pMvDeQ446ilDTFpV5wnoc5YS7XvMwwMqA==}
+
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
@@ -953,10 +956,15 @@ packages:
     resolution: {integrity: sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==}
     engines: {node: '>=8'}
 
-  '@iwer/devui@0.2.1':
-    resolution: {integrity: sha512-fS4dxZn7FqBg77f9zQJxufG7gR6r2Q0TjCaCqLM1z0Br1Q/z/FjBJhUMRbTT4aKNRJIHdkRdTxIMWu8sLWca8Q==}
+  '@iwer/devui@1.1.2':
+    resolution: {integrity: sha512-ggF1lXSX14BTYP0QzB4xaurySr2PC+3+rtK/dpCR++giWquzFv2mBw3LW/PaCtdl5mqkZMrQ2GSwfUNg9ZoO+w==}
     peerDependencies:
-      iwer: ^1.0.3
+      iwer: ^2.0.1
+
+  '@iwer/sem@0.2.5':
+    resolution: {integrity: sha512-vMCfpu/7Qqc+hkBiGD9pxjeObgrhXOrL0KX94CA3yzJaU0dq0y49HXZT6fC+6X/jOmjaM3hjyE1m2h7ZmLzzyA==}
+    peerDependencies:
+      iwer: ^2.0.0
 
   '@jest/console@29.7.0':
     resolution: {integrity: sha512-5Ni4CU7XHQi32IJ398EEP4RrB8eV09sXP2ROqD4bksHrnTree52PsxvX8tpL8LvTZ3pFzXyPbNQReSN41CAhOg==}
@@ -1545,25 +1553,25 @@ packages:
   '@pmndrs/handle@6.6.16':
     resolution: {integrity: sha512-+//YQ9Hw3emvgAM3WuWEtbdPE6T4m1RBdfDIblPNb2iDGGPdnQXlVVfQL3DKeRjw3SDpVnitLN+cDAiaQb4HcQ==}
 
+  '@pmndrs/handle@6.6.27':
+    resolution: {integrity: sha512-8H+edpERV/5aKk3l2sArwbSfaW3G0K0ivVxcQa6cM/RpyAxG68tvQXk7lwoy93Yyj9RgkGUJOoVQay7ta5Oz9g==}
+
   '@pmndrs/msdfonts@0.8.21':
     resolution: {integrity: sha512-6SY68a5JnjTENJ0RnYuylJJPN2XTTnnhVTf7fngYr1dp4k+FOO5WHhrEWK0E44sU2KpR46GPAv6lt9U5qebhpQ==}
-
-  '@pmndrs/pointer-events@6.5.4':
-    resolution: {integrity: sha512-7h3NCyGgxr9NZmYtcaf9KdTvmhYaZYI4WhBKWjmutyl7yue9U6yOBxOWmzUYvAtMBGlQKeMHaBNtGE4ihmy8vQ==}
 
   '@pmndrs/pointer-events@6.6.16':
     resolution: {integrity: sha512-RhID/DVWGWguqcOyQk87EeRA4vNMS/9b9CqCRVpr4J10GfqW3iCCIwPpQkIqEDczxlUABgtZMmGHnoAbPHr3rQ==}
 
-  '@pmndrs/pointer-events@6.6.26':
-    resolution: {integrity: sha512-QfjWB5wD5sdFdt+ulfm3WH04dV4qYQfnxaLSvGk1G3GDERKJTzngEOlTjZxt3vDAzviYmGmGFjuKlnfkQpdhaw==}
+  '@pmndrs/pointer-events@6.6.27':
+    resolution: {integrity: sha512-3vi+BZQ+Kv63duWf7A4lcPJTFaAGL1Os+SjTO6FDOriZwnOLXTa3XtEuEqC3LFR7wV7Zs/qIY+onTP3TxtXSEQ==}
 
   '@pmndrs/uikit@0.8.21':
     resolution: {integrity: sha512-C61c2OmCKHwLNkun/ZJYadFQBswBPN19dAwyuawV02xkbHJZ9iZZlx0ywRRXrYWNYiM4Ut5TiPKJPVXIg0Z9+w==}
     peerDependencies:
       three: '>=0.160'
 
-  '@pmndrs/xr@6.5.4':
-    resolution: {integrity: sha512-k9libISr7Ke5TTOsr9gQbnK3SJE+QfFDQG1dvK0FDR7c6nz8FhnZXmB9CDG3MHP0c2zLGhdmNVkPq6MGKI353Q==}
+  '@pmndrs/xr@6.6.27':
+    resolution: {integrity: sha512-kUxyV1Z2frVvLZ6ogUF3VjEkwBrejY1S7Kl01XHRlvD//H8eiUtwHvzyHBe+moVwfFd5hu5Qq/Ei6Fn/e78ttg==}
     peerDependencies:
       three: '*'
 
@@ -1700,8 +1708,8 @@ packages:
       '@react-three/fiber': '>=8'
       react: '>=18'
 
-  '@react-three/xr@6.5.4':
-    resolution: {integrity: sha512-w7pUzISSdZIDj/4UEhQ+57RSuUtt1HL4MgSHu6Tqo0FBGFxuVwKlVwaIZGTzWo6sZPUfjdwqni8cwngl74C6vA==}
+  '@react-three/xr@6.6.27':
+    resolution: {integrity: sha512-ueUYxM+oEcpq5fsi590kAiuWb/G0RbUoqSD9xzYVcjVsp40qfXQnYsf6mtv6KRSiPwbSw8AU8Sme40U9EOVo3Q==}
     peerDependencies:
       '@react-three/fiber': '>=8'
       react: '>=18'
@@ -2634,6 +2642,10 @@ packages:
   caniuse-lite@1.0.30001695:
     resolution: {integrity: sha512-vHyLade6wTgI2u1ec3WQBxv+2BrTERV28UXQu9LO6lZ9pYeMk34vjXFLOxo1A4UBA8XTL4njRQZdno/yYaSmWw==}
 
+  case-anything@2.1.13:
+    resolution: {integrity: sha512-zlOQ80VrQ2Ue+ymH5OuM/DlDq64mEm+B9UTdHULv5osUMD6HalNTblf2b1u/m6QecjsnOkBpqVZ+XPwIVsy7Ng==}
+    engines: {node: '>=12.13'}
+
   centra@2.7.0:
     resolution: {integrity: sha512-PbFMgMSrmgx6uxCdm57RUos9Tc3fclMvhLSATYN39XsDV29B89zZ3KA89jmY0vwSGazyU+uerqwa6t+KaodPcg==}
 
@@ -2967,6 +2979,11 @@ packages:
   detect-gpu@5.0.66:
     resolution: {integrity: sha512-X6b8QYU3EeVEsr5xROLZVdqwoBe6Yg1z4SnJujRBh7BfWd+48FTsMwIqQFUiQSKdkScebtpDwueHZEkAalkbhg==}
 
+  detect-libc@1.0.3:
+    resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
+    engines: {node: '>=0.10'}
+    hasBin: true
+
   detect-libc@2.0.3:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
     engines: {node: '>=8'}
@@ -3030,6 +3047,9 @@ packages:
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
+
+  dprint-node@1.0.8:
+    resolution: {integrity: sha512-iVKnUtYfGrYcW1ZAlfR/F59cUVL8QIhWoBJoSjkkdua/dkWIgjZfiLMeTjiB06X0ZLkQ0M2C1VbUj/CxkIf1zg==}
 
   draco3d@1.5.7:
     resolution: {integrity: sha512-m6WCKt/erDXcw+70IJXnG7M3awwQPAsZvJGX5zY7beBqpELw6RDGkYVU0W43AFxye4pDZ5i2Lbyc/NNGqwjUVQ==}
@@ -4092,8 +4112,8 @@ packages:
     peerDependencies:
       react: ^19.0.0
 
-  iwer@1.1.1:
-    resolution: {integrity: sha512-yC2ATRmbGncXFTRiWXHIILq+5/kIxDeGIBPy9AYf45p9XKtHQ0ZAinPG9tfrdj+x4YGFDk5BymHDg8v9PvWz+w==}
+  iwer@2.1.1:
+    resolution: {integrity: sha512-3VuQhekh/3BMRlaS7FFjcTNjKOwURAgL7mu0HndU72mFNyRyHRpGfhXGZ1iJkjfq/vEw0v1b7fx8k1knGSQ5gQ==}
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
@@ -5633,8 +5653,8 @@ packages:
     peerDependencies:
       three: '>=0.128.0'
 
-  three@0.168.0:
-    resolution: {integrity: sha512-6m6jXtDwMJEK/GGMbAOTSAmxNdzKvvBzgd7q8bE/7Tr6m7PaBh5kKLrN7faWtlglXbzj7sVba48Idwx+NRsZXw==}
+  three@0.165.0:
+    resolution: {integrity: sha512-cc96IlVYGydeceu0e5xq70H8/yoVT/tXBxV/W8A/U6uOq7DXc4/s1Mkmnu6SqoYGhSRWWYFOhVwvq6V0VtbplA==}
 
   three@0.175.0:
     resolution: {integrity: sha512-nNE3pnTHxXN/Phw768u0Grr7W4+rumGg/H6PgeseNJojkJtmeHJfZWi41Gp2mpXl1pg1pf1zjwR4McM1jTqkpg==}
@@ -5783,6 +5803,16 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
+
+  ts-poet@6.12.0:
+    resolution: {integrity: sha512-xo+iRNMWqyvXpFTaOAvLPA5QAWO6TZrSUs5s4Odaya3epqofBu/fMLHEWl8jPmjhA0s9sgj9sNvF1BmaQlmQkA==}
+
+  ts-proto-descriptors@2.0.0:
+    resolution: {integrity: sha512-wHcTH3xIv11jxgkX5OyCSFfw27agpInAd6yh89hKG6zqIXnjW9SYqSER2CVQxdPj4czeOhGagNvZBEbJPy7qkw==}
+
+  ts-proto@2.7.7:
+    resolution: {integrity: sha512-/OfN9/Yriji2bbpOysZ/Jzc96isOKz+eBTJEcKaIZ0PR6x1TNgVm4Lz0zfbo+J0jwFO7fJjJyssefBPQ0o1V9A==}
+    hasBin: true
 
   ts-toolbelt@6.15.5:
     resolution: {integrity: sha512-FZIXf1ksVyLcfr7M317jbB67XFJhOO1YqdTcuGaq9q5jLUoTikukZ+98TPjKiP2jC5CgmYdWWYs0s2nLSU0/1A==}
@@ -6067,6 +6097,9 @@ packages:
   webidl-conversions@8.0.0:
     resolution: {integrity: sha512-n4W4YFyz5JzOfQeA8oN7dUYpR+MBP3PIUsn2jLjWXwK5ASUzt0Jc/A5sAUZoCYFJRGF0FBKJ+1JjN43rNdsQzA==}
     engines: {node: '>=20'}
+
+  webxr-layers-polyfill@1.1.0:
+    resolution: {integrity: sha512-GqWE6IFlut8a1Lnh9t1RPnOXud1rZ7wLPvWp7mqTDOYtgorXqlNMhEnI9EqjU33grBx0v3jm0Oc13opkAdmgMQ==}
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
@@ -6590,6 +6623,8 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
+  '@bufbuild/protobuf@2.9.0': {}
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -6746,11 +6781,11 @@ snapshots:
     dependencies:
       '@fortawesome/fontawesome-common-types': 6.6.0
 
-  '@fortawesome/react-fontawesome@0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@18.3.1)':
+  '@fortawesome/react-fontawesome@0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@19.1.0)':
     dependencies:
       '@fortawesome/fontawesome-svg-core': 6.6.0
       prop-types: 15.8.1
-      react: 18.3.1
+      react: 19.1.0
 
   '@humanwhocodes/config-array@0.13.0':
     dependencies:
@@ -6784,16 +6819,27 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@iwer/devui@0.2.1(iwer@1.1.1)':
+  '@iwer/devui@1.1.2(@types/react@19.0.8)(iwer@2.1.1)':
     dependencies:
       '@fortawesome/fontawesome-svg-core': 6.6.0
       '@fortawesome/free-solid-svg-icons': 6.6.0
-      '@fortawesome/react-fontawesome': 0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@18.3.1)
-      iwer: 1.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      styled-components: 6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      three: 0.168.0
+      '@fortawesome/react-fontawesome': 0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@19.1.0)
+      '@pmndrs/handle': 6.6.27(@types/react@19.0.8)(react@19.1.0)
+      '@pmndrs/pointer-events': 6.6.27
+      iwer: 2.1.1
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      styled-components: 6.1.13(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      three: 0.165.0
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+
+  '@iwer/sem@0.2.5(iwer@2.1.1)':
+    dependencies:
+      iwer: 2.1.1
+      three: 0.165.0
+      ts-proto: 2.7.7
 
   '@jest/console@29.7.0':
     dependencies:
@@ -7612,8 +7658,17 @@ snapshots:
 
   '@pmndrs/handle@6.6.16(@types/react@19.1.8)(react@19.1.0)':
     dependencies:
-      '@pmndrs/pointer-events': 6.6.26
+      '@pmndrs/pointer-events': 6.6.27
       zustand: 4.5.6(@types/react@19.1.8)(react@19.1.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - react
+
+  '@pmndrs/handle@6.6.27(@types/react@19.0.8)(react@19.1.0)':
+    dependencies:
+      '@pmndrs/pointer-events': 6.6.27
+      zustand: 4.5.6(@types/react@19.0.8)(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -7621,11 +7676,9 @@ snapshots:
 
   '@pmndrs/msdfonts@0.8.21': {}
 
-  '@pmndrs/pointer-events@6.5.4': {}
-
   '@pmndrs/pointer-events@6.6.16': {}
 
-  '@pmndrs/pointer-events@6.6.26': {}
+  '@pmndrs/pointer-events@6.6.27': {}
 
   '@pmndrs/uikit@0.8.21(three@0.178.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:
@@ -7639,11 +7692,12 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  '@pmndrs/xr@6.5.4(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)':
+  '@pmndrs/xr@6.6.27(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)':
     dependencies:
-      '@iwer/devui': 0.2.1(iwer@1.1.1)
-      '@pmndrs/pointer-events': 6.6.26
-      iwer: 1.1.1
+      '@iwer/devui': 1.1.2(@types/react@19.0.8)(iwer@2.1.1)
+      '@iwer/sem': 0.2.5(iwer@2.1.1)
+      '@pmndrs/pointer-events': 6.6.27
+      iwer: 2.1.1
       meshline: 3.3.1(three@0.175.0)
       three: 0.175.0
       zustand: 4.5.6(@types/react@19.0.8)(react@19.0.0)
@@ -7886,10 +7940,10 @@ snapshots:
       - three
       - ts-node
 
-  '@react-three/xr@6.5.4(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)':
+  '@react-three/xr@6.6.27(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)':
     dependencies:
-      '@pmndrs/pointer-events': 6.5.4
-      '@pmndrs/xr': 6.5.4(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)
+      '@pmndrs/pointer-events': 6.6.27
+      '@pmndrs/xr': 6.6.27(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)
       '@react-three/fiber': 9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -9028,6 +9082,8 @@ snapshots:
 
   caniuse-lite@1.0.30001695: {}
 
+  case-anything@2.1.13: {}
+
   centra@2.7.0:
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
@@ -9357,6 +9413,8 @@ snapshots:
     dependencies:
       webgl-constants: 1.1.1
 
+  detect-libc@1.0.3: {}
+
   detect-libc@2.0.3: {}
 
   detect-newline@3.1.0:
@@ -9412,6 +9470,10 @@ snapshots:
   dot-prop@5.3.0:
     dependencies:
       is-obj: 2.0.0
+
+  dprint-node@1.0.8:
+    dependencies:
+      detect-libc: 1.0.3
 
   draco3d@1.5.7: {}
 
@@ -10620,9 +10682,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  iwer@1.1.1:
+  iwer@2.1.1:
     dependencies:
       gl-matrix: 3.4.3
+      webxr-layers-polyfill: 1.1.0
 
   jackspeak@3.4.3:
     dependencies:
@@ -12397,7 +12460,7 @@ snapshots:
       '@tokenizer/token': 0.3.0
       peek-readable: 4.1.0
 
-  styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  styled-components@6.1.13(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@emotion/is-prop-valid': 1.2.2
       '@emotion/unitless': 0.8.1
@@ -12405,8 +12468,8 @@ snapshots:
       css-to-react-native: 3.2.0
       csstype: 3.1.3
       postcss: 8.4.38
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
       shallowequal: 1.1.0
       stylis: 4.3.2
       tslib: 2.6.2
@@ -12601,7 +12664,7 @@ snapshots:
       potpack: 1.0.2
       three: 0.178.0
 
-  three@0.168.0: {}
+  three@0.165.0: {}
 
   three@0.175.0: {}
 
@@ -12777,6 +12840,21 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     optional: true
+
+  ts-poet@6.12.0:
+    dependencies:
+      dprint-node: 1.0.8
+
+  ts-proto-descriptors@2.0.0:
+    dependencies:
+      '@bufbuild/protobuf': 2.9.0
+
+  ts-proto@2.7.7:
+    dependencies:
+      '@bufbuild/protobuf': 2.9.0
+      case-anything: 2.1.13
+      ts-poet: 6.12.0
+      ts-proto-descriptors: 2.0.0
 
   ts-toolbelt@6.15.5: {}
 
@@ -13125,6 +13203,10 @@ snapshots:
 
   webidl-conversions@8.0.0: {}
 
+  webxr-layers-polyfill@1.1.0:
+    dependencies:
+      gl-matrix: 3.4.3
+
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
@@ -13347,6 +13429,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.8
       react: 19.0.0
+
+  zustand@4.5.6(@types/react@19.0.8)(react@19.1.0):
+    dependencies:
+      use-sync-external-store: 1.4.0(react@19.1.0)
+    optionalDependencies:
+      '@types/react': 19.0.8
+      react: 19.1.0
 
   zustand@4.5.6(@types/react@19.1.8)(react@19.1.0):
     dependencies:

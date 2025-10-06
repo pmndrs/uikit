@@ -4,7 +4,7 @@
     "@react-three/drei": "^10.4.2",
     "@react-three/eslint-plugin": "^0.1.1",
     "@react-three/fiber": "rc",
-    "@react-three/xr": "^6.5.4",
+    "@react-three/xr": "^6.6.27",
     "@types/chai": "^4.3.10",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",

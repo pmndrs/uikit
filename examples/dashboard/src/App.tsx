@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type {} from '@pmndrs/pointer-events'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Environment, Gltf, PerspectiveCamera } from '@react-three/drei'
 import { Container, Content, Fullscreen, Text, setPreferredColorScheme } from '@react-three/uikit'
@@ -33,6 +34,7 @@ import { UserNav } from './components/UserNav.js'
 import { create } from 'zustand'
 import { noEvents, PointerEvents } from '@react-three/xr'
 import { Highlighter } from './components/Highlighter.js'
+import { Vector3 } from 'three'
 
 setPreferredColorScheme('light')
 
