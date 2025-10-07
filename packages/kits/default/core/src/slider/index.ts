@@ -53,7 +53,7 @@ export class Slider extends Container<SliderOutProperties> {
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: Object3DEventMap['pointerDown']) => {
+            : (e: Object3DEventMap['pointerdown']) => {
                 if (this.downPointerId != null) {
                   return
                 }
@@ -74,7 +74,7 @@ export class Slider extends Container<SliderOutProperties> {
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: Object3DEventMap['pointerMove']) => {
+            : (e: Object3DEventMap['pointermove']) => {
                 if (this.downPointerId != e.pointerId) {
                   return
                 }
@@ -85,7 +85,7 @@ export class Slider extends Container<SliderOutProperties> {
           const disabled = this.properties.value.disabled ?? false
           return disabled
             ? undefined
-            : (e: Object3DEventMap['pointerUp']) => {
+            : (e: Object3DEventMap['pointerup']) => {
                 if (this.downPointerId == null) {
                   return
                 }

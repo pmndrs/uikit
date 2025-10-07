@@ -5,19 +5,19 @@ declare module 'three' {
     childadded: { child: Object3D }
     childremoved: { child: Object3D }
     click: ThreeMouseEvent
-    contextMenu: ThreeMouseEvent
-    dblClick: ThreeMouseEvent
+    contextmenu: ThreeMouseEvent
+    dblclick: ThreeMouseEvent
 
     wheel: ThreeMouseEvent
 
-    pointerUp: ThreePointerEvent
-    pointerDown: ThreePointerEvent
-    pointerOver: ThreePointerEvent
-    pointerOut: ThreePointerEvent
-    pointerEnter: ThreePointerEvent
-    pointerLeave: ThreePointerEvent
-    pointerMove: ThreePointerEvent
-    pointerCancel: ThreePointerEvent
+    pointerup: ThreePointerEvent
+    pointerdown: ThreePointerEvent
+    pointerover: ThreePointerEvent
+    pointerout: ThreePointerEvent
+    pointerenter: ThreePointerEvent
+    pointerleave: ThreePointerEvent
+    pointermove: ThreePointerEvent
+    pointercancel: ThreePointerEvent
   }
 }
 
@@ -31,17 +31,17 @@ export type ThreePointerEvent = ThreeMouseEvent & { pointerId?: number }
 
 export type EventHandlersProperties = {
   onClick?: (event: Object3DEventMap['click']) => void
-  onContextMenu?: (event: Object3DEventMap['contextMenu']) => void
-  onDblClick?: (event: Object3DEventMap['dblClick']) => void
+  onContextMenu?: (event: Object3DEventMap['contextmenu']) => void
+  onDblClick?: (event: Object3DEventMap['dblclick']) => void
 
   onWheel?: (event: Object3DEventMap['wheel']) => void
 
-  onPointerUp?: (event: Object3DEventMap['pointerUp']) => void
-  onPointerDown?: (event: Object3DEventMap['pointerDown']) => void
-  onPointerOver?: (event: Object3DEventMap['pointerOver']) => void
-  onPointerOut?: (event: Object3DEventMap['pointerOut']) => void
-  onPointerEnter?: (event: Object3DEventMap['pointerEnter']) => void
-  onPointerLeave?: (event: Object3DEventMap['pointerLeave']) => void
-  onPointerMove?: (event: Object3DEventMap['pointerMove']) => void
-  onPointerCancel?: (event: Object3DEventMap['pointerCancel']) => void
+  onPointerUp?: (event: Object3DEventMap['pointerup']) => void
+  onPointerDown?: (event: Object3DEventMap['pointerdown']) => void
+  onPointerOver?: (event: Object3DEventMap['pointerover']) => void
+  onPointerOut?: (event: Object3DEventMap['pointerout']) => void
+  onPointerEnter?: (event: Object3DEventMap['pointerenter']) => void
+  onPointerLeave?: (event: Object3DEventMap['pointerleave']) => void
+  onPointerMove?: (event: Object3DEventMap['pointermove']) => void
+  onPointerCancel?: (event: Object3DEventMap['pointercancel']) => void
 }
