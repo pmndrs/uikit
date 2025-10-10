@@ -1,23 +1,17 @@
 import { Text } from '@react-three/uikit'
-import { Label, RadioGroup, RadioGroupItem } from '@react-three/uikit-default'
+import { RadioGroup, RadioGroupItem } from '@react-three/uikit-horizon'
 
 export function RadioGroupDemo() {
   return (
     <RadioGroup defaultValue="comfortable">
       <RadioGroupItem value="default">
-        <Label>
-          <Text>Default</Text>
-        </Label>
+        <Text>Default</Text>
       </RadioGroupItem>
       <RadioGroupItem value="comfortable">
-        <Label>
-          <Text>Comfortable</Text>
-        </Label>
+        <Text>Comfortable</Text>
       </RadioGroupItem>
       <RadioGroupItem value="compact">
-        <Label>
-          <Text>Compact</Text>
-        </Label>
+        <Text>Compact</Text>
       </RadioGroupItem>
     </RadioGroup>
   )

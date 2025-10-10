@@ -1,0 +1,60 @@
+---
+title: Radio-group
+description: How to use the Radio-group component from the Horizon kit.
+nav: 52
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': '<9',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-horizon': 'latest',
+      '@react-three/drei': '<10',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Text } from '@react-three/uikit'
+import { RadioGroup, RadioGroupItem } from '@react-three/uikit-horizon'
+
+function RadioGroupDemo() {
+  return (
+    <RadioGroup defaultValue="comfortable">
+      <RadioGroupItem value="default">
+        <Text>Default</Text>
+      </RadioGroupItem>
+      <RadioGroupItem value="comfortable">
+        <Text>Comfortable</Text>
+      </RadioGroupItem>
+      <RadioGroupItem value="compact">
+        <Text>Compact</Text>
+      </RadioGroupItem>
+    </RadioGroup>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <RadioGroupDemo />
+      </Fullscreen>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+import { Radio-group } from "@react-three/uikit-horizon";
+```

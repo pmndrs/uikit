@@ -9,6 +9,8 @@ export type ToggleOutProperties = BaseOutProperties & {
   defaultChecked?: boolean
 }
 
+export type ToggleProperties = InProperties<ToggleOutProperties>
+
 export class Toggle extends Container<ToggleOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(

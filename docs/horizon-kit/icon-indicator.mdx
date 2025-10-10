@@ -1,0 +1,57 @@
+---
+title: Icon-indicator
+description: How to use the Icon-indicator component from the Horizon kit.
+nav: 47
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': '<9',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-horizon': 'latest',
+      '@react-three/drei': '<10',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Container } from '@react-three/uikit'
+import { IconIndicator } from '@react-three/uikit-horizon'
+
+function IconIndicatorDemo() {
+  return (
+    <Container flexDirection="row" gap={8}>
+      <IconIndicator variant="none" />
+      <IconIndicator variant="good" />
+      <IconIndicator variant="poor" />
+      <IconIndicator variant="bad" />
+    </Container>
+  )
+}
+
+
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <IconIndicatorDemo />
+      </Fullscreen>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+import { Icon-indicator } from "@react-three/uikit-horizon";
+```

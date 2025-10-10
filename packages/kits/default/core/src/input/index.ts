@@ -29,7 +29,6 @@ export class Input extends InputImpl<InputOutProperties> {
         height: 40,
         positionType: 'relative',
         overflow: 'scroll',
-        scrollbarBackgroundColor: withOpacity('black', 0),
         scrollbarColor: withOpacity('black', 0),
         borderRadius: borderRadius.md,
         backgroundColor: colors.background,

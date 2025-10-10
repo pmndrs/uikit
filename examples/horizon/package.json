@@ -6,7 +6,9 @@
     "@preact/signals-core": "^1.5.1",
     "@react-three/uikit": "workspace:^",
     "@react-three/uikit-horizon": "workspace:^",
-    "@react-three/uikit-lucide": "workspace:^"
+    "@react-three/uikit-lucide": "workspace:^",
+    "@pmndrs/msdfonts": "workspace:^",
+    "nuqs": "^2.7.1"
   },
   "scripts": {
     "dev": "vite",

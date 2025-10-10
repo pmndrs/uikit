@@ -1,10 +1,19 @@
-import { ChevronRight } from '@react-three/uikit-lucide'
-import { Button } from '@react-three/uikit-default'
+import { Button, ButtonIcon, ButtonLabel, ButtonLabelSubtext } from '@react-three/uikit-horizon'
+import { Text } from '@react-three/uikit'
+import { GithubIcon } from '@react-three/uikit-lucide'
 
 export function ButtonDemo() {
   return (
-    <Button variant="outline" size="icon">
-      <ChevronRight width={16} height={16} />
+    <Button>
+      <ButtonIcon >
+        <GithubIcon />
+      </ButtonIcon>
+      <ButtonLabel>
+        <Text>Label</Text>
+        <ButtonLabelSubtext>
+          <Text>Subtext</Text>
+        </ButtonLabelSubtext>
+      </ButtonLabel>
     </Button>
   )
 }

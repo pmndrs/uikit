@@ -6,6 +6,8 @@ export type ProgressBarStepperStepOutProperties = BaseOutProperties & {
   value?: boolean
 }
 
+export type ProgressBarStepperStepProperties = InProperties<ProgressBarStepperStepOutProperties>
+
 export class ProgressBarStepperStep extends Container<ProgressBarStepperStepOutProperties> {
   constructor(
     inputProperties?: InProperties<ProgressBarStepperStepOutProperties>,

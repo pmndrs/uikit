@@ -11,6 +11,7 @@ import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
 
 type ButtonVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'hover' | 'color' | 'active' | 'important'>
+
 const _buttonVariants = {
   primary: {
     backgroundColor: theme.component.button.primary.background.fill.default,
@@ -184,6 +185,7 @@ export class Button extends Container<ButtonOutProperties> {
         ...config?.defaultOverrides,
       },
     })
+    console.log(this)
   }
 }
 

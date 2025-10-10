@@ -1,7 +1,17 @@
-import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  componentDefaults,
+  Container,
+  ContainerProperties,
+  InProperties,
+  RenderContext,
+  WithSignal,
+} from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Button } from './index.js'
 import { theme } from '../theme.js'
+
+export type ButtonLabelSubtextProperties = ContainerProperties
 
 export class ButtonLabelSubtext extends Container<BaseOutProperties> {
   constructor(

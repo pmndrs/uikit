@@ -1,7 +1,7 @@
 ---
 title: Separator
 description: How to use the Separator component from the Default kit.
-nav: 30
+nav: 31
 ---
 
 <Sandpack
@@ -18,10 +18,8 @@ nav: 30
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-import { Defaults, DialogAnchor } from "@react-three/uikit-default";
-import { DefaultProperties, Text, Container } from '@react-three/uikit'
-import { colors } from "@react-three/uikit-default"
-import { Separator } from "@react-three/uikit-default"
+import { Text, Container } from '@react-three/uikit'
+import { colors, Separator } from '@react-three/uikit-default'
 
 function SeparatorDemo() {
   return (
@@ -35,14 +33,18 @@ function SeparatorDemo() {
         </Text>
       </Container>
       <Separator marginY={16} />
-      <Container flexDirection="row" height={20} alignItems="center" gap={16}>
-        <DefaultProperties fontSize={14} lineHeight="20px">
-          <Text>Blog</Text>
-          <Separator orientation="vertical" />
-          <Text>Docs</Text>
-          <Separator orientation="vertical" />
-          <Text>Source</Text>
-        </DefaultProperties>
+      <Container
+        flexDirection="row"
+        height={20}
+        alignItems="center"
+        gap={16}
+        {...{ '*': { fontSize: 14, lineHeight: '20px' } }}
+      >
+        <Text>Blog</Text>
+        <Separator orientation="vertical" />
+        <Text>Docs</Text>
+        <Separator orientation="vertical" />
+        <Text>Source</Text>
       </Container>
     </Container>
   )
@@ -53,21 +55,14 @@ export default function App() {
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Defaults>
-        <Fullscreen
-          overflow="scroll"
-          scrollbarColor="black"
-          backgroundColor="white"
-          dark={{ backgroundColor: "black" }}
-          flexDirection="column"
-          gap={32}
-          paddingX={32}
-          alignItems="center"
-          padding={32}
-        >
-          <DialogAnchor><SeparatorDemo /></DialogAnchor>
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <SeparatorDemo />
+      </Fullscreen>
     </Canvas>
   )
 }`}}

@@ -1,7 +1,7 @@
 ---
 title: Pagination
 description: How to use the Pagination component from the Default kit.
-nav: 27
+nav: 28
 ---
 
 <Sandpack
@@ -18,7 +18,6 @@ nav: 27
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-import { Defaults, DialogAnchor } from "@react-three/uikit-default";
 import { Text } from '@react-three/uikit'
 import {
   Pagination,
@@ -28,7 +27,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@react-three/uikit-default"
+} from '@react-three/uikit-default'
 
 function PaginationDemo() {
   return (
@@ -68,21 +67,14 @@ export default function App() {
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Defaults>
-        <Fullscreen
-          overflow="scroll"
-          scrollbarColor="black"
-          backgroundColor="white"
-          dark={{ backgroundColor: "black" }}
-          flexDirection="column"
-          gap={32}
-          paddingX={32}
-          alignItems="center"
-          padding={32}
-        >
-          <DialogAnchor><PaginationDemo /></DialogAnchor>
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <PaginationDemo />
+      </Fullscreen>
     </Canvas>
   )
 }`}}

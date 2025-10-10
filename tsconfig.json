@@ -6,7 +6,6 @@
         "target": "ESNext",
         "declaration": true,
         "esModuleInterop": true,
-        "skipLibCheck": true,
         "noUncheckedIndexedAccess": true
     },
     "ts-node": {

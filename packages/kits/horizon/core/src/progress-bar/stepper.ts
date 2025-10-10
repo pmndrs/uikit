@@ -2,6 +2,8 @@ import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmnd
 
 export type ProgressBarStepperOutProperties = BaseOutProperties
 
+export type ProgressBarStepperProperties = InProperties<ProgressBarStepperOutProperties>
+
 export class ProgressBarStepper extends Container<ProgressBarStepperOutProperties> {
   constructor(
     inputProperties?: InProperties<ProgressBarStepperOutProperties>,

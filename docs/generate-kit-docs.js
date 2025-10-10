@@ -1,5 +1,4 @@
-import DefaultRegistry from '../packages/kits/default/src/registry.json' assert { type: 'json' }
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync } from 'fs'
 
 function generateMarkdown(nav, kit, component) {
   const content = readFileSync(`../examples/${kit}/src/components/${component}.tsx`)
@@ -33,28 +32,20 @@ nav: ${nav}
   files={{
     '/App.tsx': \`import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-import { Defaults${kit === 'default' ? ', DialogAnchor' : ''} } from "@react-three/uikit-${kit}";
 ${content}
 export default function App() {
   return (
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Defaults>
-        <Fullscreen
-          overflow="scroll"
-          scrollbarColor="black"
-          backgroundColor="white"
-          dark={{ backgroundColor: "black" }}
-          flexDirection="column"
-          gap={32}
-          paddingX={32}
-          alignItems="center"
-          padding={32}
-        >
-          ${kit === 'default' ? `<DialogAnchor><${componentName} /></DialogAnchor>` : `<${componentName} />`}
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <${componentName} />
+      </Fullscreen>
     </Canvas>
   )
 }\`}}
@@ -66,8 +57,21 @@ import { ${capitalize(component)} } from "@react-three/uikit-${kit}";
 }
 
 let i = 17
-for (const component of Object.keys(DefaultRegistry)) {
+const defaultComponentFiles = readdirSync('../examples/default/src/components', { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
+  .map((entry) => entry.name.replace(/\.tsx$/, ''))
+
+for (const component of defaultComponentFiles) {
   writeFileSync(`default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
+}
+
+
+const horizonComponentFiles = readdirSync('../examples/horizon/src/components', { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
+  .map((entry) => entry.name.replace(/\.tsx$/, ''))
+
+for (const component of horizonComponentFiles) {
+  writeFileSync(`horizon-kit/${component}.mdx`, generateMarkdown(i++, 'horizon', component))
 }
 
 function capitalize(s) {

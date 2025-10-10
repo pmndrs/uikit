@@ -36,27 +36,30 @@ import {
   TextProperties as VanillaTextProperties,
   Textarea as VanillaTextarea,
   TextareaProperties as VanillaTextareaProperties,
+  InProperties,
 } from '@pmndrs/uikit'
 import { ReadonlySignal } from '@preact/signals-core'
 import { createPortal, extend, ThreeElement, useFrame, useLoader, useStore, useThree } from '@react-three/fiber'
 import { Object3D, SRGBColorSpace, TextureLoader } from 'three'
 import { jsx } from 'react/jsx-runtime'
 
-export type ContainerProperties = VanillaContainerProperties & { children?: ReactNode }
-export type ContentProperties = VanillaContentProperties & { children?: ReactNode }
-export type CustomProperties = VanillaCustomProperties & { children?: ReactNode }
-export type ImageProperties = VanillaImageProperties
-export type VideoProperties = VanillaVideoProperties
-export type InputProperties = VanillaInputProperties
-export type SvgProperties = VanillaSvgProperties
-export type TextareaProperties = VanillaTextareaProperties
+export type ClassListProperties = { classList?: Array<string | InProperties> }
+
+export type ContainerProperties = VanillaContainerProperties & { children?: ReactNode } & ClassListProperties
+export type ContentProperties = VanillaContentProperties & { children?: ReactNode } & ClassListProperties
+export type CustomProperties = VanillaCustomProperties & { children?: ReactNode } & ClassListProperties
+export type ImageProperties = VanillaImageProperties & ClassListProperties
+export type VideoProperties = VanillaVideoProperties & ClassListProperties
+export type InputProperties = VanillaInputProperties & ClassListProperties
+export type SvgProperties = VanillaSvgProperties & ClassListProperties
+export type TextareaProperties = VanillaTextareaProperties & ClassListProperties
 export type TextProperties = VanillaTextProperties & {
   children?: string | string[] | ReadonlySignal<string | string[] | undefined>
-}
+} & ClassListProperties
 export type FullscreenProperties = VanillaFullscreenProperties & {
   children?: ReactNode
   attachCamera?: boolean
-}
+} & ClassListProperties
 
 export {
   readReactive,
@@ -152,20 +155,7 @@ export const Text = forwardRef<VanillaText, TextProperties>(({ children, ...prop
   return jsx(`vanillaText` as any, { ...outProps, ref })
 })
 
-export type SuspendingImageProperties = Omit<ImageProperties, 'src'> & {
-  src: string
-}
-
-/**
- * be aware that this component does not dispose the loaded texture
- */
-export const SuspendingImage = forwardRef<VanillaImage, SuspendingImageProperties>(({ src, ...props }, ref) => {
-  const texture = useLoader(TextureLoader, src)
-  texture.colorSpace = SRGBColorSpace
-  texture.matrixAutoUpdate = false
-  return <Image ref={ref} src={texture} {...props} />
-})
-
 export * from './portal.js'
 export * from './build.js'
+export * from './suspending.js'
 export * from './deprecated.js'

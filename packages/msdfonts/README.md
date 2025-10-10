@@ -7,7 +7,7 @@ base64 msdf fonts distributed as npm packages
 ```jsx
 import { inter } from '@pmndrs/msdfonts'
 
-;<FontFamilyProvider inter={inter}>{...children}</FontFamilyProvider>
+<Container fontFamilies={{ inter }}>{...children}</Container>
 ```
 
 # How to build

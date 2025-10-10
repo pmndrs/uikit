@@ -46,6 +46,8 @@ export type IconIndicatorOutProperties = BaseOutProperties & {
   variant?: keyof typeof iconIndicatorVariants
 }
 
+export type IconIndicatorProperties = InProperties<IconIndicatorOutProperties>
+
 export class IconIndicator extends Container<IconIndicatorOutProperties> {
   public readonly icon: Svg
   constructor(

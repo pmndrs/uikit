@@ -65,6 +65,10 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   readonly isVisible: Signal<boolean>
   readonly isClipped: Signal<boolean>
   readonly boundingSphere = new Sphere()
+  /**
+   * the properties of the this component
+   * e.g. get the final computed backgroundColor using `component.properties.value.backgroundColor`
+   */
   readonly properties: Properties<OutProperties>
   readonly starProperties: Properties<OutProperties>
   readonly node: FlexNode
@@ -188,25 +192,17 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       this.classList.add(...initialClasses)
     }
 
-    // Reactively apply ID-based classes when id property changes
-    let currentIdClass: string | undefined
     abortableEffect(() => {
       const elementId = this.properties.value.id
-
-      // Remove old ID class if it exists
-      if (currentIdClass) {
-        this.classList.remove(currentIdClass)
-        currentIdClass = undefined
+      if (elementId == null) {
+        return
       }
-
-      // Add new ID class if id exists and corresponding style exists
-      if (elementId && typeof elementId === 'string') {
-        const idClassName = `__id__${elementId}`
-        if (idClassName in StyleSheet) {
-          this.classList.add(idClassName)
-          currentIdClass = idClassName
-        }
+      const idClassName = `__id__${elementId}`
+      if (!(idClassName in StyleSheet)) {
+        return
       }
+      this.classList.add(idClassName)
+      return () => this.classList.remove(idClassName)
     }, this.abortSignal)
 
     this.node = new FlexNode(this)
@@ -323,6 +319,9 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
     }
   }
 
+  /**
+   * allows to extending the existing properties
+   */
   setProperties(inputProperties: InProperties<OutProperties>) {
     this.resetProperties({
       ...this.inputProperties,
@@ -330,12 +329,18 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
     })
   }
 
+  /**
+   * allows to overwrite the properties
+   */
   resetProperties(inputProperties?: InProperties<OutProperties>) {
     this.inputProperties = inputProperties
     this.properties.setLayersWithConditionals({ type: 'base' }, inputProperties)
     this.starProperties.setLayersWithConditionals({ type: 'base' }, getStarProperties(inputProperties))
   }
 
+  /**
+   * must only be called for the root component; the component that has a non-uikit component as a parent
+   */
   update(delta: number) {
     const root = this.root.peek()
     if (root.component != this) {

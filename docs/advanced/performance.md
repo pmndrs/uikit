@@ -6,9 +6,9 @@ nav: 12
 
 ## Avoid React Re-renders
 
-When frequently changing properties of uikit components and especially when animating properties on every frame. We recommend modifying properties using `ref.current.setStyle` or using a signal.
+When frequently changing properties of uikit components and especially when animating properties on every frame. We recommend modifying properties using `ref.current.setProperties({ ... })` or using a signal.
 
-### using `ref.current.setStyle`
+### using `ref.current.setProperties`
 
 This approach is similar to html/css. The following code shows how to animate the background color on every frame without interfering with react.
 
@@ -22,13 +22,13 @@ export function AnimateBackground() {
   const ref = useRef()
   useFrame(({ clock }) => {
     //continuously animate between 0 and 1
-    ref.current.setStyle({ backgroundColor: `rgba(255, 255, 255, ${Math.sin(clock.getElapsedTime()) / 2 + 0.5})` })
+    ref.current.setProperties({ backgroundColor: `rgba(255, 255, 255, ${Math.sin(clock.getElapsedTime()) / 2 + 0.5})` })
   })
   return <Container ref={ref} backgroundColor="rgba(255, 255, 255, 0)"></Container>
 }
 ```
 
-Setting executing `setStyle(undefined, true)` resets all changes back to the initial properties provided to the directly to the component.
+Setting executing `resetProperties({})` resets all changes back to the initial properties provided to the directly to the component.
 
 ### using signals
 

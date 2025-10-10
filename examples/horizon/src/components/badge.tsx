@@ -1,10 +1,12 @@
-import { Text } from '@react-three/uikit'
-import { Badge } from '@react-three/uikit-default'
+import { Container } from '@react-three/uikit'
+import { Badge } from '@react-three/uikit-horizon'
 
 export function BadgeDemo() {
   return (
-    <Badge>
-      <Text>Badge</Text>
-    </Badge>
+    <Container alignItems="center">
+      <Badge label="Badge" />
+    </Container>
   )
 }
+
+

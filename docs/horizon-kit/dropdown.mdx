@@ -1,0 +1,78 @@
+---
+title: Dropdown
+description: How to use the Dropdown component from the Horizon kit.
+nav: 46
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': '<9',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-horizon': 'latest',
+      '@react-three/drei': '<10',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Container, Text } from '@react-three/uikit'
+import {
+  Dropdown,
+  DropdownAvatar,
+  DropdownButton,
+  DropdownIcon,
+  DropdownList,
+  DropdownListItem,
+  DropdownTextValue,
+} from '@react-three/uikit-horizon'
+
+function DropdownDemo() {
+  return (
+    <Container gap={8}>
+      <Dropdown>
+        <DropdownAvatar src="./avatar.png" />
+        <DropdownTextValue placeholder="Select option" />
+        <DropdownIcon />
+        <DropdownButton />
+        <DropdownList>
+          <DropdownListItem value="Option A">
+            <Text>Option A</Text>
+          </DropdownListItem>
+          <DropdownListItem value="Option B">
+            <Text>Option B</Text>
+          </DropdownListItem>
+          <DropdownListItem value="Option C">
+            <Text>Option C</Text>
+          </DropdownListItem>
+        </DropdownList>
+      </Dropdown>
+    </Container>
+  )
+}
+
+
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <DropdownDemo />
+      </Fullscreen>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+import { Dropdown } from "@react-three/uikit-horizon";
+```

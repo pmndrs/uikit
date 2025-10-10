@@ -8,7 +8,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@react-three/uikit-lucide', '@pmndrs/uikit', '@pmndrs/uikit-lucide'],
   },
-  base: '/uikit/examples/default/',
+  base: '/uikit/examples/horizon/',
   resolve: {
     dedupe: ['@react-three/fiber', 'three', '@react-three/uikit', '@pmndrs/uikit'],
   },

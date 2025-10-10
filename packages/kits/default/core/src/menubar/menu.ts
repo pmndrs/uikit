@@ -1,5 +1,7 @@
-import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, ContainerProperties } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
+
+export type MenubarMenuProperties = ContainerProperties
 
 export class MenubarMenu extends Container {
   constructor(

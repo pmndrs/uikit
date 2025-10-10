@@ -20,6 +20,18 @@ export class ClassList {
     }
   }
 
+  set(...classes: typeof this.list): void {
+    const length = Math.max(classes.length, this.list.length)
+    this.list.length = classes.length
+    for (let classIndex = 0; classIndex < length; classIndex++) {
+      const identifier: LayerInSectionIdentifier = { type: 'class', classIndex }
+      const classRef = classes[classIndex]
+      let resolvedClass = classRef == null ? undefined : this.resolveClassRef(classRef)
+      this.properties.setLayersWithConditionals(identifier, resolvedClass)
+      this.starProperties.setLayersWithConditionals(identifier, resolvedClass)
+    }
+  }
+
   add(...classes: typeof this.list): void {
     batch(() => {
       for (const classRef of classes) {
@@ -29,8 +41,9 @@ export class ClassList {
         }
         this.list[classIndex] = classRef
         const identifier: LayerInSectionIdentifier = { type: 'class', classIndex }
-        this.properties.setLayersWithConditionals(identifier, this.resolveClassRef(classRef))
-        this.starProperties.setLayersWithConditionals(identifier, getStarProperties(this.resolveClassRef(classRef)))
+        const resolvedClass = this.resolveClassRef(classRef)
+        this.properties.setLayersWithConditionals(identifier, resolvedClass)
+        this.starProperties.setLayersWithConditionals(identifier, getStarProperties(resolvedClass))
       }
     })
   }

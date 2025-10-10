@@ -1,0 +1,60 @@
+---
+title: Progress
+description: How to use the Progress component from the Horizon kit.
+nav: 51
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': '<9',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-horizon': 'latest',
+      '@react-three/drei': '<10',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Container } from '@react-three/uikit'
+import { ProgressBar, ProgressBarStepper, ProgressBarStepperStep } from '@react-three/uikit-horizon'
+
+function ProgressDemo() {
+  return (
+    <Container gap={16} alignItems="center">
+      <ProgressBar width={240} value={66} />
+      <ProgressBarStepper width={300}>
+        <ProgressBarStepperStep value />
+        <ProgressBarStepperStep />
+        <ProgressBarStepperStep />
+        <ProgressBarStepperStep />
+      </ProgressBarStepper>
+    </Container>
+  )
+}
+
+
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <ProgressDemo />
+      </Fullscreen>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+import { Progress } from "@react-three/uikit-horizon";
+```

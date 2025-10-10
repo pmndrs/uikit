@@ -1,7 +1,7 @@
 ---
 title: Skeleton
 description: How to use the Skeleton component from the Default kit.
-nav: 31
+nav: 32
 ---
 
 <Sandpack
@@ -18,9 +18,8 @@ nav: 31
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-import { Defaults, DialogAnchor } from "@react-three/uikit-default";
 import { Container } from '@react-three/uikit'
-import { Skeleton } from "@react-three/uikit-default"
+import { Skeleton } from '@react-three/uikit-default'
 
 function SkeletonDemo() {
   return (
@@ -39,21 +38,14 @@ export default function App() {
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Defaults>
-        <Fullscreen
-          overflow="scroll"
-          scrollbarColor="black"
-          backgroundColor="white"
-          dark={{ backgroundColor: "black" }}
-          flexDirection="column"
-          gap={32}
-          paddingX={32}
-          alignItems="center"
-          padding={32}
-        >
-          <DialogAnchor><SkeletonDemo /></DialogAnchor>
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <SkeletonDemo />
+      </Fullscreen>
     </Canvas>
   )
 }`}}

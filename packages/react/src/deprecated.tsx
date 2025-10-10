@@ -1,6 +1,7 @@
 import { forwardRef, ReactNode } from 'react'
-import { Container, ContainerProperties, VanillaContainer } from './index.js'
+import { Container, ContainerProperties, VanillaContainer, VanillaSvg, SvgProperties, Svg } from './index.js'
 import { FontFamilies } from '@pmndrs/uikit'
+import { Signal } from '@preact/signals-core'
 
 /**
  * @deprecated Root is not necassary anymore, can be removed or replaced with a Container
@@ -30,3 +31,12 @@ export function FontFamilyProvider({ children, fontFamilies }: { fontFamilies?: 
     </Container>
   )
 }
+
+/**
+ * @deprecated Icon has be replaced with Svg, change the `text: ...` property to `content: ...`
+ */
+export const Icon = forwardRef<VanillaSvg, Omit<SvgProperties, 'src' | 'content'> & { text?: string | Signal<string> }>(
+  ({ text, ...props }, ref) => {
+    return <Svg ref={ref} {...props} content={text} />
+  },
+)

@@ -43,6 +43,15 @@ export function useSetup(ref: { current: Component | null }, inProps: any, args:
   useEffect(() => {
     ref.current?.resetProperties(inProps)
   })
+  useEffect(() => {
+    const classList = inProps.classList
+    const component = ref.current
+    if (!Array.isArray(classList) || component == null) {
+      component?.classList.set()
+      return
+    }
+    component.classList.set(...classList)
+  }, [JSON.stringify(inProps.classList)])
   const outPropsRef = useRef<{ args: Array<any> } & EventHandlers>({ args })
   useEffect(() => {
     const container = ref.current
@@ -54,17 +63,13 @@ export function useSetup(ref: { current: Component | null }, inProps: any, args:
       const eventCount = Object.keys(handlers).length
       if (eventCount === 0) {
         outPropsRef.current = { args }
-        if (container.__r3f != null) {
-          container.__r3f.props = outPropsRef.current
-        }
+      } else {
+        outPropsRef.current = { args, ...handlers }
+      }
+      if (container.__r3f != null) {
+        container.__r3f.props = outPropsRef.current
         applyProps(container, outPropsRef.current)
-        return
       }
-      if (container.__r3f == null) {
-        throw new Error(`missing __r3f attribute`)
-      }
-      container.__r3f.props = outPropsRef.current = { args, ...handlers }
-      applyProps(container, outPropsRef.current)
     })
     return () => {
       unsubscribe()

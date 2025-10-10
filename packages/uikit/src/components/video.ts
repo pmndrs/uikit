@@ -8,7 +8,10 @@ import { RenderContext } from '../context.js'
 export type VideoSrc = HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | HTMLVideoElement
 
 export type VideoOutProperties = ImageOutProperties<VideoSrc> &
-  Omit<Partial<HTMLVideoElement>, 'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active'>
+  Omit<
+    Partial<HTMLVideoElement>,
+    'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active' | 'classList'
+  >
 
 export type VideoProperties = InProperties<VideoOutProperties>
 

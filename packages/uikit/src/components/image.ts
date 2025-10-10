@@ -27,7 +27,6 @@ export const imageDefaults = {
 
 export type ImageOutProperties<Src> = BaseOutProperties & {
   src?: Src
-  aspectRatio?: number
 } & typeof imageDefaults
 
 export type ImageProperties = InProperties<ImageOutProperties<string | Texture>>

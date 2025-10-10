@@ -1,7 +1,7 @@
 ---
 title: Radio-group
 description: How to use the Radio-group component from the Default kit.
-nav: 29
+nav: 30
 ---
 
 <Sandpack
@@ -18,10 +18,8 @@ nav: 29
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-import { Defaults, DialogAnchor } from "@react-three/uikit-default";
 import { Text } from '@react-three/uikit'
-import { Label } from "@react-three/uikit-default"
-import { RadioGroup, RadioGroupItem } from "@react-three/uikit-default"
+import { Label, RadioGroup, RadioGroupItem } from '@react-three/uikit-default'
 
 function RadioGroupDemo() {
   return (
@@ -50,21 +48,14 @@ export default function App() {
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Defaults>
-        <Fullscreen
-          overflow="scroll"
-          scrollbarColor="black"
-          backgroundColor="white"
-          dark={{ backgroundColor: "black" }}
-          flexDirection="column"
-          gap={32}
-          paddingX={32}
-          alignItems="center"
-          padding={32}
-        >
-          <DialogAnchor><RadioGroupDemo /></DialogAnchor>
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <RadioGroupDemo />
+      </Fullscreen>
     </Canvas>
   )
 }`}}

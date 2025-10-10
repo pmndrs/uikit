@@ -16,10 +16,10 @@ Next, we create the `index.jsx` file and import the necessary dependencies.
 ```jsx showLineNumbers
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { Root, Container } from '@react-three/uikit'
+import { Container } from '@react-three/uikit'
 ```
 
-Now, we can start defining the actual layout. Every layout must start with a `Root` element (or an element that wraps the `Root` element, such as the `Fullscreen` component). In this example, the `Root` is of size 8 by 4 (three.js units). The `Root` has a horizontal (row) flex-direction, with 2 `Container` children, filling its width equally with a margin around them.
+Now, we can start defining the actual layout. In this example, the `Container` is of size 8 by 4 (three.js units). The `Container` has a horizontal (row) flex-direction, with 2 `Container` children, filling its width equally with a margin around them.
 
 More in-depth information on the Flexbox properties can be found [here](https://yogalayout.dev/docs/).
 
@@ -28,10 +28,10 @@ export default function App() {
   return (
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <OrbitControls />
-      <Root backgroundColor="red" sizeX={8} sizeY={4} flexDirection="row">
+      <Container backgroundColor="red" sizeX={8} sizeY={4} flexDirection="row">
         <Container flexGrow={1} margin={32} backgroundColor="green" />
         <Container flexGrow={1} margin={32} backgroundColor="blue" />
-      </Root>
+      </Container>
     </Canvas>
   )
 }
@@ -52,16 +52,16 @@ The final result will look like this:
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Root, Container } from "@react-three/uikit";
+import { Container } from "@react-three/uikit";
 
 export default function App() {
   return (
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <OrbitControls />
-      <Root backgroundColor="red" sizeX={8} sizeY={4} flexDirection="row">
+      <Container backgroundColor="red" sizeX={8} sizeY={4} flexDirection="row">
         <Container flexGrow={1} margin={32} backgroundColor="green" />
         <Container flexGrow={1} margin={32} backgroundColor="blue" />
-      </Root>
+      </Container>
     </Canvas>
   )
 }`}}

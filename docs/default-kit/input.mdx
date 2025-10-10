@@ -1,7 +1,7 @@
 ---
 title: Input
 description: How to use the Input component from the Default kit.
-nav: 38
+nav: 26
 ---
 
 <Sandpack
@@ -18,8 +18,8 @@ nav: 38
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-import { Defaults, DialogAnchor } from "@react-three/uikit-default";
-import { Input } from "@react-three/uikit-default"
+import { Container } from '@react-three/uikit'
+import { Input } from '@react-three/uikit-default'
 
 function InputDemo() {
   return <Input width={200} placeholder="Email" />
@@ -30,21 +30,14 @@ export default function App() {
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Defaults>
-        <Fullscreen
-          overflow="scroll"
-          scrollbarColor="black"
-          backgroundColor="white"
-          dark={{ backgroundColor: "black" }}
-          flexDirection="column"
-          gap={32}
-          paddingX={32}
-          alignItems="center"
-          padding={32}
-        >
-          <DialogAnchor><InputDemo /></DialogAnchor>
-        </Fullscreen>
-      </Defaults>
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <InputDemo />
+      </Fullscreen>
     </Canvas>
   )
 }`}}

@@ -20,7 +20,7 @@ In the following example, we are creating a text element with a material based o
   }}
   files={{"/App.tsx": `import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { Root, Text } from '@react-three/uikit'
+import { Text } from '@react-three/uikit'
 import { MeshPhongMaterial } from 'three'
 
 class FancyMaterial extends MeshPhongMaterial {
@@ -37,21 +37,19 @@ export default function App() {
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <OrbitControls />
       <directionalLight position={[1,0,1]} intensity={10} />
-      <Root>
-        <Text
-          backgroundColor="black"
-          color="white"
-          padding={24}
-          borderRadius={32}
-          fontSize={32}
-          borderColor="black"
-          borderBend={0.3}
-          borderWidth={8}
-          panelMaterialClass={FancyMaterial}
-        >
-          I look fancy
-        </Text>
-      </Root>
+      <Text
+        backgroundColor="black"
+        color="white"
+        padding={24}
+        borderRadius={32}
+        fontSize={32}
+        borderColor="black"
+        borderBend={0.3}
+        borderWidth={8}
+        panelMaterialClass={FancyMaterial}
+      >
+        I look fancy
+      </Text>
     </Canvas>
   )
 }`}}
@@ -62,7 +60,7 @@ Let's go through the above example step by step. First, we are importing the nec
 ```tsx showLineNumbers
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { Root, Text } from '@react-three/uikit'
+import { Text } from '@react-three/uikit'
 import { MeshPhongMaterial } from 'three'
 ```
 
@@ -79,28 +77,26 @@ class FancyMaterial extends MeshPhongMaterial {
 }
 ```
 
-Lastly, the UI can be defined using a `Root` and `Text` component.
+Lastly, the UI can be defined using a `Text` component.
 
 ```tsx {15} showLineNumbers=15
 export default function App() {
   return (
     <Canvas>
       <OrbitControls />
-      <Root>
-        <Text
-          backgroundColor="black"
-          color="white"
-          padding={24}
-          borderRadius={32}
-          fontSize={32}
-          borderColor="black"
-          borderBend={0.3}
-          borderWidth={8}
-          panelMaterialClass={FancyMaterial}
-        >
-          I look fancy
-        </Text>
-      </Root>
+      <Text
+        backgroundColor="black"
+        color="white"
+        padding={24}
+        borderRadius={32}
+        fontSize={32}
+        borderColor="black"
+        borderBend={0.3}
+        borderWidth={8}
+        panelMaterialClass={FancyMaterial}
+      >
+        I look fancy
+      </Text>
     </Canvas>
   )
 }

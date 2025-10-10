@@ -274,6 +274,10 @@ export class FlexNode {
       const xScrollable = maxScrollX > 0.5
       const yScrollable = maxScrollY > 0.5
 
+      if (yScrollable) {
+        console.log(maxScrollY)
+      }
+
       updateVector2Signal(
         this.component.maxScrollPosition,
         xScrollable ? maxScrollX : undefined,

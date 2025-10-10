@@ -33,7 +33,6 @@ export class Textarea extends Container<TextareaOutProperties> {
         minHeight: 80,
         positionType: 'relative',
         overflow: 'scroll',
-        scrollbarBackgroundColor: withOpacity('black', 0),
         scrollbarColor: withOpacity('black', 0),
         borderRadius: borderRadius.md,
         backgroundColor: colors.background,

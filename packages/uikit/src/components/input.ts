@@ -44,7 +44,17 @@ export type InputOutProperties = Omit<TextOutProperties, 'text'> & {
   onFocusChange?: (focus: boolean) => void
 } & Omit<
     Partial<HTMLInputElement>,
-    'width' | 'height' | 'value' | 'disabled' | 'type' | 'focus' | 'active' | 'checked' | 'defaultChecked' | 'size'
+    | 'width'
+    | 'height'
+    | 'value'
+    | 'disabled'
+    | 'type'
+    | 'focus'
+    | 'active'
+    | 'checked'
+    | 'defaultChecked'
+    | 'size'
+    | 'classList'
   >
 
 export type InputProperties = Omit<InProperties<InputOutProperties>, 'text'>

@@ -1,0 +1,61 @@
+---
+title: Button
+description: How to use the Button component from the Horizon kit.
+nav: 43
+---
+
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': '<9',
+      '@react-three/uikit': 'latest',
+      '@react-three/uikit-horizon': 'latest',
+      '@react-three/drei': '<10',
+    },
+  }}
+  files={{
+    '/App.tsx': `import { Canvas } from "@react-three/fiber";
+import { Fullscreen } from "@react-three/uikit";
+import { Button, ButtonIcon, ButtonLabel, ButtonLabelSubtext } from '@react-three/uikit-horizon'
+import { Text } from '@react-three/uikit'
+import { GithubIcon } from '@react-three/uikit-lucide'
+
+function ButtonDemo() {
+  return (
+    <Button>
+      <ButtonIcon>
+        <GithubIcon />
+      </ButtonIcon>
+      <ButtonLabel>
+        <Text>Label</Text>
+        <ButtonLabelSubtext>
+          <Text>Subtext</Text>
+        </ButtonLabelSubtext>
+      </ButtonLabel>
+    </Button>
+  )
+}
+
+export default function App() {
+  return (
+    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight intensity={1} position={[-5, 5, 10]} />
+      <Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        padding={32}
+      >
+        <ButtonDemo />
+      </Fullscreen>
+    </Canvas>
+  )
+}`}}
+/>
+
+```bash
+import { Button } from "@react-three/uikit-horizon";
+```

@@ -23,7 +23,7 @@ uikit renders scrollbars if the content overflows an element that has the proper
 | Property                         | Type                |
 | -------------------------------- | ------------------- |
 | scrollbarPanelMaterialClass      | Material class      |
-| scrollbarBackgroundColor         | ColorRepresentation |
+| scrollbarColor                   | ColorRepresentation |
 | scrollbarWidth                   | number              |
 | scrollbarBorderRadius            | number              |
 | scrollbarBorderLeftRadius        | number              |

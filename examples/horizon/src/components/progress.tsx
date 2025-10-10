@@ -1,13 +1,18 @@
-import { useEffect, useState } from 'react'
-import { Progress } from '@react-three/uikit-default'
+import { Container } from '@react-three/uikit'
+import { ProgressBar, ProgressBarStepper, ProgressBarStepperStep } from '@react-three/uikit-horizon'
 
 export function ProgressDemo() {
-  const [progress, setProgress] = useState(13)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setProgress(66), 1000)
-    return () => clearTimeout(timer)
-  }, [])
-
-  return <Progress value={progress} width={200} />
+  return (
+    <Container gap={16} alignItems="center">
+      <ProgressBar width={240} value={66} />
+      <ProgressBarStepper width={300}>
+        <ProgressBarStepperStep value />
+        <ProgressBarStepperStep />
+        <ProgressBarStepperStep />
+        <ProgressBarStepperStep />
+      </ProgressBarStepper>
+    </Container>
+  )
 }
+
+

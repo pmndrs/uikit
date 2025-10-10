@@ -6,6 +6,8 @@ export type ProgressBarOutProperties = BaseOutProperties & {
   value?: number
 }
 
+export type ProgressBarProperties = InProperties<ProgressBarOutProperties>
+
 export class ProgressBar extends Container<ProgressBarOutProperties> {
   public readonly fill: Container
   constructor(

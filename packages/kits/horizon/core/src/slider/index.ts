@@ -58,6 +58,8 @@ const sliderProcessPaddingXs: Record<Exclude<SliderOutProperties['size'], undefi
   lg: 4,
 }
 
+export type SliderProperties = InProperties<SliderOutProperties>
+
 export class Slider extends Container<SliderOutProperties> {
   public readonly uncontrolledSignal = signal<number | undefined>(undefined)
   public readonly currentSignal = computed(
@@ -164,6 +166,19 @@ export class Slider extends Container<SliderOutProperties> {
       return `${(100 * (this.currentSignal.value - min)) / range}%` as const
     })
 
+    this.thumb = new Container(undefined, undefined, {
+      defaultOverrides: {
+        flexShrink: 0,
+        borderRadius: 1000,
+        height: computed(() => sliderThumbHeights[this.properties.value.size ?? 'md']),
+        minWidth: computed(() => sliderThumbHeights[this.properties.value.size ?? 'md']),
+        paddingX: computed(() => (this.properties.value.size === 'lg' ? 16 : undefined)),
+        flexDirection: 'row',
+        alignItems: 'center',
+        positionType: 'relative',
+      },
+    })
+
     this.progress = new Container(undefined, undefined, {
       defaultOverrides: {
         borderRadius: 1000,
@@ -183,22 +198,9 @@ export class Slider extends Container<SliderOutProperties> {
         paddingX: computed(() => sliderProcessPaddingXs[this.properties.value.size ?? 'md']),
       },
     })
+    this.progress.add(this.thumb)
     this.track.add(this.progress)
     ;(this as any).fill = this.progress
-
-    this.thumb = new Container(undefined, undefined, {
-      defaultOverrides: {
-        flexShrink: 0,
-        borderRadius: 1000,
-        height: computed(() => sliderThumbHeights[this.properties.value.size ?? 'md']),
-        minWidth: computed(() => sliderThumbHeights[this.properties.value.size ?? 'md']),
-        paddingX: computed(() => (this.properties.value.size === 'lg' ? 16 : undefined)),
-        flexDirection: 'row',
-        alignItems: 'center',
-        positionType: 'relative',
-      },
-    })
-    this.progress.add(this.thumb)
 
     this.thumbText = new Text(undefined, undefined, {
       defaultOverrides: {

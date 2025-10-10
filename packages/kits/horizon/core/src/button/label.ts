@@ -1,4 +1,6 @@
-import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
+import { BaseOutProperties, componentDefaults, Container, ContainerProperties, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
+
+export type ButtonLabelProperties = ContainerProperties
 
 export class ButtonLabel extends Container<BaseOutProperties> {
   constructor(

@@ -80,6 +80,8 @@ export type CheckboxOutProperties = BaseOutProperties & {
   defaultChecked?: boolean
 }
 
+export type CheckboxProperties = InProperties<CheckboxOutProperties>
+
 export class Checkbox extends Container<CheckboxOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)
   public readonly currentSignal = computed(

@@ -1,6 +1,16 @@
-import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  componentDefaults,
+  Container,
+  ContainerProperties,
+  InProperties,
+  RenderContext,
+  WithSignal,
+} from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Button } from './index.js'
+
+export type ButtonIconProperties = ContainerProperties
 
 export class ButtonIcon extends Container<BaseOutProperties> {
   constructor(

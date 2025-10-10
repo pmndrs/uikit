@@ -1,5 +1,5 @@
 import { ReactNode, RefAttributes, forwardRef, useEffect } from 'react'
-import { Video, VanillaVideo, Image, VanillaImage } from './index.js'
+import { Video, VanillaVideo, Image, VanillaImage, ClassListProperties } from './index.js'
 import { useLoader } from '@react-three/fiber'
 import { SRGBColorSpace, TextureLoader } from 'three'
 import { suspend } from 'suspend-react'
@@ -7,7 +7,7 @@ import { ImageOutProperties, InProperties, updateVideoElementSrc, VideoOutProper
 
 export type SuspendingImageProperties = InProperties<Omit<ImageOutProperties<never>, 'src'>> & {
   src: string
-}
+} & ClassListProperties
 
 /**
  * be aware that this component does not dispose the loaded texture
@@ -22,7 +22,7 @@ export const SuspendingImage: (props: SuspendingImageProperties & RefAttributes<
 
 export type SuspendingVideoProperties = InProperties<Omit<VideoOutProperties, 'src'>> & {
   src: Exclude<VideoSrc, HTMLVideoElement>
-}
+} & ClassListProperties
 
 const loadVideoElementSymbol = Symbol('load-video-element')
 

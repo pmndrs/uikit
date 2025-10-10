@@ -1,13 +1,11 @@
-import { Text, Container } from '@react-three/uikit'
-import { Label, Checkbox } from '@react-three/uikit-default'
+import { Container, Text } from '@react-three/uikit'
+import { Checkbox } from '@react-three/uikit-horizon'
 
 export function CheckboxDemo() {
   return (
     <Container flexDirection="row" gap={8} alignItems="center">
       <Checkbox />
-      <Label>
-        <Text>Accept terms and conditions</Text>
-      </Label>
+      <Text>Accept terms and conditions</Text>
     </Container>
   )
 }
