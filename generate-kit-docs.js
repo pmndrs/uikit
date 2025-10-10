@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs'
 
 function generateMarkdown(nav, kit, component) {
-  const content = readFileSync(`../examples/${kit}/src/components/${component}.tsx`)
+  const content = readFileSync(`./examples/${kit}/src/components/${component}.tsx`)
     .toString()
     .replace(/export (default )?/, '')
     .replace(/from \'\@\/.*\'/g, `from "@react-three/uikit-${kit}"`)
@@ -57,21 +57,21 @@ import { ${capitalize(component)} } from "@react-three/uikit-${kit}";
 }
 
 let i = 17
-const defaultComponentFiles = readdirSync('../examples/default/src/components', { withFileTypes: true })
+const defaultComponentFiles = readdirSync('./examples/default/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
   .map((entry) => entry.name.replace(/\.tsx$/, ''))
 
 for (const component of defaultComponentFiles) {
-  writeFileSync(`default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
+  writeFileSync(`./docs/default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
 }
 
 
-const horizonComponentFiles = readdirSync('../examples/horizon/src/components', { withFileTypes: true })
+const horizonComponentFiles = readdirSync('./examples/horizon/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
   .map((entry) => entry.name.replace(/\.tsx$/, ''))
 
 for (const component of horizonComponentFiles) {
-  writeFileSync(`horizon-kit/${component}.mdx`, generateMarkdown(i++, 'horizon', component))
+  writeFileSync(`./docs/horizon-kit/${component}.mdx`, generateMarkdown(i++, 'horizon', component))
 }
 
 function capitalize(s) {
