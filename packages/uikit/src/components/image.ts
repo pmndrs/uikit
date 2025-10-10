@@ -82,7 +82,7 @@ export class Image<
       this.properties,
       this.borderInset,
       this.size,
-      computed(() => this.isVisible && this.texture.value != null),
+      computed(() => this.isVisible.value && this.texture.value != null),
     )
 
     const data = new Float32Array(16)
