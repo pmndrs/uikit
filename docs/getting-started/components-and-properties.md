@@ -151,13 +151,13 @@ Just like in html/css, all uikit components have a certain properties in common,
 | selectionBorderLeftWidth         | number                                                                                                                |
 | selectionBorderBottomWidth       | number                                                                                                                |
 | pointerEvents                    | "none", "auto", "listener"                                                                                            |
-| pointerEventsType                | "all" \| { allow: string \| string[] } \| { deny: string \| string[] } \| (fn)                                        |
+| pointerEventsType                | `"all", { allow: string, string[] }, { deny: string | string[] }, (fn)`                                        |
 | pointerEventsOrder               | number                                                                                                                |
 | anchorX                          | "left", "center", "middle", "right"                                                                                   |
 | anchorY                          | "top", "center", "middle", "bottom"                                                                                   |
 | id                               | string                                                                                                                |
 | cursor                           | string                                                                                                                |
-| fontFamilies                     | Record<string, Partial<Record<FontWeight, string \| FontInfo>>>                                                       |
+| fontFamilies                     | `Record<string, Partial<Record<FontWeight, string | FontInfo>>>`                                                       |
 
 </details>
 
@@ -181,7 +181,6 @@ The `Container` componet is a basic UI component that allows wrapping children a
 
 The Container has exactly all the base properties and nothing more.
 
-</details>
 
 ## Fullscreen
 
@@ -228,13 +227,14 @@ The `Image` component has the same properties and functionalities as a `Containe
 The default image doesn't use react's suspense but rather loads the image silently. To explicitly control how the image behaves when loaded, use the `SuspendingImage` component. The component can be used to display a fallback component while the image is loading. It has the same properties as the `Image` component.
 
 ```jsx showLineNumbers
-<Suspense fallback={
+<Suspense
+  fallback={
     <Container width={200} aspectRatio={1} alignItems="center" justifyContent="center">
-      <LoadingSpinner/>
+      <LoadingSpinner />
     </Container>
   }
 >
-  <SuspendingImage src="..." width={200}>
+  <SuspendingImage src="..." width={200} />
 </Suspense>
 ```
 
@@ -345,7 +345,7 @@ The `Content` component allows you to include any R3F/Three.js element into the 
 
 ```jsx showLineNumbers
 <Content width={100}>
-  <Gltf src="...">
+  <Gltf src="..." />
 </Content>
 ```
 
@@ -373,10 +373,10 @@ The `CustomContainer` component integrates a 2D panel with a custom material int
 
 In some cases you might want to overwrite the defaults for all descendants inside a component or need to overwrite set a property with a higher precendence then a property from a `hover` conditional.
 
-Using the `*` property, you can set property that overwrite the default for all descendants.
+Using the `'*'` property, you can set properties that overwrite the default for all descendants.
 
 ```jsx showLineNumbers
-<Fullscreen flexDirection="column" gap={8} {...{"*": backgroundColor: "red" }}>
+<Fullscreen flexDirection="column" gap={8} {...{ '*': { backgroundColor: 'red' } }}>
   <Container width={64} height={64} />
   <Container width={64} height={64} />
 </Fullscreen>
