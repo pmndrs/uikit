@@ -185,7 +185,6 @@ export class Button extends Container<ButtonOutProperties> {
         ...config?.defaultOverrides,
       },
     })
-    console.log(this)
   }
 }
 
