@@ -16,16 +16,20 @@ describe('ID-based class auto-application', () => {
       padding: 10,
     }
 
-    // Create container with id
+    // Create root and container with id
+    const root = new Container()
     const container = new Container({ id: 'myButton' })
+    root.add(container)
 
     // Should automatically have the ID class applied
     expect(container.classList.contains('__id__myButton')).to.be.true
   })
 
   it('should not apply ID class when no matching style exists', () => {
-    // Create container with id but no corresponding style
+    // Create root and container with id but no corresponding style
+    const root = new Container()
     const container = new Container({ id: 'nonExistentId' })
+    root.add(container)
 
     // Should NOT have any ID class applied
     expect(container.classList.contains('__id__nonExistentId')).to.be.false
@@ -36,8 +40,10 @@ describe('ID-based class auto-application', () => {
     StyleSheet['__id__button1'] = { color: 'red' }
     StyleSheet['__id__button2'] = { color: 'blue' }
 
-    // Create container with initial id
+    // Create root and container with initial id
+    const root = new Container()
     const container = new Container({ id: 'button1' })
+    root.add(container)
     expect(container.classList.contains('__id__button1')).to.be.true
     expect(container.classList.contains('__id__button2')).to.be.false
 
@@ -53,8 +59,10 @@ describe('ID-based class auto-application', () => {
     // Add ID style to StyleSheet
     StyleSheet['__id__myButton'] = { backgroundColor: 'blue' }
 
-    // Create container with id
+    // Create root and container with id
+    const root = new Container()
     const container = new Container({ id: 'myButton' })
+    root.add(container)
     expect(container.classList.contains('__id__myButton')).to.be.true
 
     // Clear the id property
@@ -68,8 +76,10 @@ describe('ID-based class auto-application', () => {
     // Add one ID style to StyleSheet
     StyleSheet['__id__existingButton'] = { color: 'green' }
 
-    // Create container with existing id
+    // Create root and container with existing id
+    const root = new Container()
     const container = new Container({ id: 'existingButton' })
+    root.add(container)
     expect(container.classList.contains('__id__existingButton')).to.be.true
 
     // Change to id with no corresponding style
@@ -81,8 +91,10 @@ describe('ID-based class auto-application', () => {
   })
 
   it('should work correctly when StyleSheet is updated after element creation', () => {
-    // Create container with id but no corresponding style yet
+    // Create root and container with id but no corresponding style yet
+    const root = new Container()
     const container = new Container({ id: 'laterButton' })
+    root.add(container)
     expect(container.classList.contains('__id__laterButton')).to.be.false
 
     // Add style to StyleSheet after element creation
@@ -101,8 +113,10 @@ describe('ID-based class auto-application', () => {
     // Add ID style to StyleSheet
     StyleSheet['__id__mixedButton'] = { color: 'purple' }
 
-    // Create container with both id and manual classes
+    // Create root and container with both id and manual classes
+    const root = new Container()
     const container = new Container({ id: 'mixedButton' })
+    root.add(container)
     container.classList.add('manual-class', 'another-class')
 
     // Should have both auto-applied ID class and manual classes
