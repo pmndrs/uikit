@@ -24,7 +24,7 @@ nav: ${nav}
     dependencies: {
       'three': 'latest',
       '@react-three/fiber': '<9',
-      '@react-three/uikit': 'latest',
+      '@react-three/uikit': '^1.0.43',
       '@react-three/uikit-${kit}': 'latest',
       '@react-three/drei': '<10',
     },
