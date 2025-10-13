@@ -151,13 +151,13 @@ Just like in html/css, all uikit components have a certain properties in common,
 | selectionBorderLeftWidth         | number                                                                                                                |
 | selectionBorderBottomWidth       | number                                                                                                                |
 | pointerEvents                    | "none", "auto", "listener"                                                                                            |
-| pointerEventsType                | `"all", { allow: string, string[] }, { deny: string | string[] }, (fn)`                                        |
+| pointerEventsType                | `"all", \{ allow: string, string[] \}, \{ deny: string | string[] \}, (fn)`                                        |
 | pointerEventsOrder               | number                                                                                                                |
 | anchorX                          | "left", "center", "middle", "right"                                                                                   |
 | anchorY                          | "top", "center", "middle", "bottom"                                                                                   |
 | id                               | string                                                                                                                |
 | cursor                           | string                                                                                                                |
-| fontFamilies                     | `Record<string, Partial<Record<FontWeight, string | FontInfo>>>`                                                       |
+| fontFamilies                     | `Record<string, Partial<Record<FontWeight, string \| FontInfo>>>`                                                       |
 
 </details>
 
