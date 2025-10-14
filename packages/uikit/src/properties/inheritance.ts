@@ -1,4 +1,7 @@
 export const inheritedPropertyKeys = [
+  'depthTest',
+  'depthWrite',
+  'renderOrder',
   'pixelSize',
   'opacity',
   'color',
@@ -48,4 +51,8 @@ export const inheritedPropertyKeys = [
   'selectionBorderBottomRightRadius',
   'selectionBorderColor',
   'selectionBorderBend',
+  //the following 3 properties need to be inheriting since we are building interactable descandents in the pointer events, so the interaction system might not run through the tree but access the descandents directly
+  'pointerEvents',
+  'pointerEventsType',
+  'pointerEventsOrder',
 ] as const

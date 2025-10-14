@@ -72,18 +72,11 @@ export default function App() {
         <CountFrames />
         <PointerEvents />
         <Fullscreen distanceToCamera={100} backgroundColor={0xffffff} dark={{ backgroundColor: 0x0 }}>
-          <Dialog
-            renderOrder={1}
-            depthTest={false}
-            {...{ '*': { renderOrder: 1, depthTest: false } }}
-            ref={(ref) => setDialog(ref)}
-            open={open}
-            onOpenChange={setOpen}
-          >
+          <Dialog renderOrder={1} depthTest={false} ref={(ref) => setDialog(ref)} open={open} onOpenChange={setOpen}>
             <DialogContent positionType="relative" sm={{ maxWidth: 425 }}>
               <DialogHeader>
                 <DialogTitle>
-                  <Text>Edit profile</Text>
+                  <Text ref={(x) => console.log(x)}>Edit profile</Text>
                 </DialogTitle>
                 <DialogDescription>
                   <Text>Make changes to your profile here. Click save when you're done.</Text>
