@@ -12,6 +12,7 @@ nav: 43
       '@react-three/fiber': '<9',
       '@react-three/uikit': '^1.0.44',
       '@react-three/uikit-horizon': '^1.0.44',
+      '@react-three/uikit-lucide': '^1.0.44',
       '@react-three/drei': '<10',
     },
   }}
@@ -26,7 +27,7 @@ import { GithubIcon } from '@react-three/uikit-lucide'
 function ButtonDemo() {
   return (
     <Button>
-      <ButtonIcon >
+      <ButtonIcon>
         <GithubIcon />
       </ButtonIcon>
       <ButtonLabel>
@@ -50,7 +51,7 @@ export default function App() {
         alignItems="center"
         justifyContent="center"
       >
-        <Panel padding={32}>
+        <Panel color="black" dark={{ color: "white" }} padding={32}>
           <ButtonDemo />
         </Panel>
       </Fullscreen>

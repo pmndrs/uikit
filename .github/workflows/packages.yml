@@ -61,40 +61,40 @@ jobs:
 
       - name: Deploy msdfonts Package
         working-directory: ./packages/msdfonts
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit PubSub Package
         working-directory: ./packages/pub-sub
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit Vanilla Package
         working-directory: ./packages/uikit
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit-Lucide Vanilla Package
         working-directory: ./packages/icons/lucide/core
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit-Default Vanilla Package
         working-directory: ./packages/kits/default/core
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit-Horizon Vanilla Package
         working-directory: ./packages/kits/horizon/core
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit React Package
         working-directory: ./packages/react
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit-Lucide React Package
         working-directory: ./packages/icons/lucide/react
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit-Default React Package
         working-directory: ./packages/kits/default/react
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest
 
       - name: Deploy Uikit-Horizon React Package
         working-directory: ./packages/kits/horizon/react
-        run: pnpm publish --access public --no-git-checks --tag alpha
+        run: pnpm publish --access public --no-git-checks --tag latest

@@ -5,7 +5,7 @@ import { GithubIcon } from '@react-three/uikit-lucide'
 export function ButtonDemo() {
   return (
     <Button>
-      <ButtonIcon >
+      <ButtonIcon>
         <GithubIcon />
       </ButtonIcon>
       <ButtonLabel>

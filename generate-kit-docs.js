@@ -26,6 +26,7 @@ nav: ${nav}
       '@react-three/fiber': '<9',
       '@react-three/uikit': '^1.0.44',
       '@react-three/uikit-${kit}': '^1.0.44',
+      '@react-three/uikit-lucide': '^1.0.44',
       '@react-three/drei': '<10',
     },
   }}
@@ -56,7 +57,7 @@ export default function App() {
         alignItems="center"
         justifyContent="center"
       >
-        <Panel padding={32}>
+        <Panel color="black" dark={{ color: "white" }} padding={32}>
           <${componentName} />
         </Panel>
       </Fullscreen>`
