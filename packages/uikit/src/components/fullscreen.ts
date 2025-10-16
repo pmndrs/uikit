@@ -3,7 +3,7 @@ import { batch, Signal, signal } from '@preact/signals-core'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { searchFor } from '../utils.js'
-import { Container } from './index.js'
+import { Container } from './container.js'
 
 export type FullscreenProperties = InProperties<FullscreenOutProperties>
 

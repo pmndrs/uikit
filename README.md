@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">uikit</h1>
-<h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
+<h3 align="center">Build performant 3D user interfaces for threejs.</h3>
 <br/>
 
 <p align="center">
@@ -23,14 +23,12 @@
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
-```bash
-npm install three @react-three/fiber @react-three/uikit
-```
-
 ### What does it look like?
 
 | A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./docs/getting-started/basic-example.gif) |
 | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+
+Source code when using `@react-three/uikit`:
 
 ```jsx
 import { createRoot } from 'react-dom/client'
@@ -50,10 +48,7 @@ createRoot(document.getElementById('root')).render(
 
 ## How to get started
 
-> Some familiarity with
-> react, threejs, and @react-three/fiber, is recommended.
-
-Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples)** to see uikit in action, or learn more about:
+If you are using `@react-three/fiber`, get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples)** to see uikit in action. If you want to use vanilla three.js, visit [this tutorial](https://pmndrs.github.io/uikit/docs/getting-started/vanilla). Alternatively, learn more about:
 
 - [All components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
 - [Interactivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
@@ -70,17 +65,15 @@ Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getti
 
 We provide multiple kits containing **themable pre-styled components**.
 
-| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                |
-| ------------------------------------------------------------------------------------ |
-| ![Overview over all default components](./docs/getting-started/default-overview.jpg) |
-| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              |
-| `npm i @react-three/uikit-default`                                                   |
+| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>horizon-kit</h3> _based on [RLDS](https://www.figma.com/de-de/community/file/1509641173090552632/meta-horizon-os-ui-set)_ |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all horizon components](./docs/getting-started/horizon-overview.png)                                          |
+| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              | [View All Components](https://docs.pmnd.rs/uikit/default-kit/avatar)                                                          |
+| install via `@react-three/uikit-default` or `@pmndrs/uikit-default`                  | install via `@react-three/uikit-horizon` or `@pmndrs/uikit-horizon`                                                           |
 
 ## Migration guides
 
-- from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
-- from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)
-- from [Tailwind](https://docs.pmnd.rs/uikit/migration/from-tailwind)
+- from [Uikit 0.\*](https://pmndrs.github.io/uikit/docs/migration/from-version-0)
 
 ## Sponsors
 

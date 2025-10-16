@@ -16,7 +16,7 @@ import { computedFontFamilies, FontFamilies } from '../text/font.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
-import { Component } from './index.js'
+import { Component } from './component.js'
 
 export type ContainerProperties = InProperties<BaseOutProperties>
 

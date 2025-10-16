@@ -1,5 +1,5 @@
 import { getOffsetToNextGlyph } from '../utils.js'
-import { GlyphWrapper } from './index.js'
+import type { GlyphWrapper } from './index.js'
 
 export const NowrapWrapper: GlyphWrapper = ({ text, fontSize, font, letterSpacing }, _, charIndex, target) => {
   const firstIndex = charIndex

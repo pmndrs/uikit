@@ -30,30 +30,30 @@ All uikit components have a common base class (`Component`), which exposes a set
 ### Properties
 
 | Name                           | Type                                      | Description                                                       |
-| ------------------------------ | ----------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
+| ------------------------------ | ----------------------------------------- | ----------------------------------------------------------------- |
 | `handlers`                     | `ReadonlySignal<EventHandlersProperties>` | Readonly event handlers attached to the component.                |
-| `orderInfo`                    | `Signal<OrderInfo                         | undefined>`                                                       | Render and layout ordering metadata.              |
+| `orderInfo`                    | `Signal<OrderInfo, undefined>`            | Render and layout ordering metadata.                              |
 | `isVisible`                    | `Signal<boolean>`                         | Whether the component is currently visible after layout/clipping. |
 | `isClipped`                    | `Signal<boolean>`                         | Whether the component is clipped by an ancestor.                  |
 | `boundingSphere`               | `Sphere`                                  | World-space bounds used for culling and hit testing.              |
 | `properties`                   | `Properties<OutProperties>`               | Computed, resolved properties (e.g. margins, padding, colors).    |
 | `starProperties`               | `Properties<OutProperties>`               | Internal resolved properties snapshot.                            |
 | `node`                         | `FlexNode`                                | Underlying Yoga flexbox node.                                     |
-| `size`                         | `Signal<Vector2Tuple                      | undefined>`                                                       | Current layout size; populated after an `update`. |
-| `relativeCenter`               | `Signal<Vector2Tuple                      | undefined>`                                                       | Center within local panel coordinates.            |
-| `borderInset`                  | `Signal<Inset                             | undefined>`                                                       | Computed border insets.                           |
+| `size`                         | `Signal<Vector2Tuple,undefined>`          | Current layout size; populated after an `update`.                 |
+| `relativeCenter`               | `Signal<Vector2Tuple,undefined>`          | Center within local panel coordinates.                            |
+| `borderInset`                  | `Signal<Inset,undefined>`                 | Computed border insets.                                           |
 | `overflow`                     | `Signal<Overflow>`                        | Overflow behavior for children.                                   |
 | `displayed`                    | `Signal<boolean>`                         | Whether the component participates in rendering.                  |
 | `scrollable`                   | `Signal<[boolean, boolean]>`              | Horizontal/vertical scrollability flags.                          |
-| `paddingInset`                 | `Signal<Inset                             | undefined>`                                                       | Computed padding insets.                          |
+| `paddingInset`                 | `Signal<Inset,undefined>`                 | Computed padding insets.                                          |
 | `maxScrollPosition`            | `Signal<Partial<Vector2Tuple>>`           | Maximum scroll positions.                                         |
 | `root`                         | `Signal<RootContext>`                     | Root context reference.                                           |
-| `parentContainer`              | `Signal<Container                         | undefined>`                                                       | Parent container, if any.                         |
+| `parentContainer`              | `Signal<Container,undefined>`             | Parent container, if any.                                         |
 | `hoveredList`                  | `Signal<Array<number>>`                   | Internal hover id stack.                                          |
 | `activeList`                   | `Signal<Array<number>>`                   | Internal active id stack.                                         |
 | `ancestorsHaveListenersSignal` | `Signal<boolean>`                         | Whether any ancestor listens for events.                          |
-| `globalMatrix`                 | `Signal<Matrix4                           | undefined>`                                                       | World transform.                                  |
-| `globalPanelMatrix`            | `Signal<Matrix4                           | undefined>`                                                       | Panel-space world transform.                      |
+| `globalMatrix`                 | `Signal<Matrix4, undefined>`              | World transform.                                                  |
+| `globalPanelMatrix`            | `Signal<Matrix4,undefined>`               | Panel-space world transform.                                      |
 | `abortSignal`                  | `AbortSignal`                             | Abort signal tied to this component's lifecycle.                  |
 | `classList`                    | `ClassList`                               | Utility to add/remove CSS-like classes.                           |
 
