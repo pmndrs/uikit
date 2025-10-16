@@ -1,5 +1,6 @@
 import { Box3, InstancedBufferAttribute, Material, Mesh, Object3DEventMap, PlaneGeometry, Sphere } from 'three'
 import { RootContext } from '../../context.js'
+import { computeWorldToGlobalMatrix } from '../../utils.js'
 
 export class InstancedGlyphMesh extends Mesh {
   public count = 0
@@ -10,14 +11,7 @@ export class InstancedGlyphMesh extends Mesh {
   public readonly boundingBox = new Box3()
   public readonly boundingSphere = new Sphere()
 
-  private readonly customUpdateMatrixWorld = () => {
-    const parent = this.root.component.parent
-    if (parent == null) {
-      this.matrixWorld.identity()
-    } else {
-      this.matrixWorld.copy(parent.matrixWorld)
-    }
-  }
+  private readonly customUpdateMatrixWorld = () => computeWorldToGlobalMatrix(this.root, this.matrixWorld)
 
   constructor(
     private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,

@@ -2,6 +2,7 @@ import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from '
 import { createPanelGeometry } from './utils.js'
 import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
 import { RootContext } from '../context.js'
+import { computeWorldToGlobalMatrix } from '../utils.js'
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0
@@ -12,14 +13,7 @@ export class InstancedPanelMesh extends Mesh {
   public readonly boundingBox = new Box3()
   public readonly boundingSphere = new Sphere()
 
-  private readonly customUpdateMatrixWorld = () => {
-    const parent = this.root.component.parent
-    if (parent == null) {
-      this.matrixWorld.identity()
-    } else {
-      this.matrixWorld.copy(parent.matrixWorld)
-    }
-  }
+  private readonly customUpdateMatrixWorld = () => computeWorldToGlobalMatrix(this.root, this.matrixWorld)
 
   constructor(
     private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,

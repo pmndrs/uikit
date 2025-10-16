@@ -3,7 +3,7 @@ import { Signal } from '@preact/signals-core'
 import { OrderInfo } from '../order.js'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { RootContext } from '../context.js'
-import { abortableEffect } from '../utils.js'
+import { abortableEffect, computeWorldToGlobalMatrix } from '../utils.js'
 import { Container } from '../components/container.js'
 import { Component } from '../components/component.js'
 
@@ -34,6 +34,7 @@ export type PointerEventsProperties = {
 
 const sphereHelper = new Sphere()
 const matrixHelper = new Matrix4()
+const worldToGlobalMatrixHelper = new Matrix4()
 
 export function makePanelSpherecast(
   root: Signal<RootContext>,
@@ -42,8 +43,9 @@ export function makePanelSpherecast(
   object: Object3D,
 ): Exclude<Mesh['spherecast'], undefined> {
   return (sphere, intersects) => {
-    const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
-    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
+    root.peek().component.updateMatrix()
+    computeWorldToGlobalMatrix(root.peek(), worldToGlobalMatrixHelper)
+    sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(worldToGlobalMatrixHelper)
     if (!sphereHelper.intersectsSphere(sphere)) {
       return
     }
@@ -117,7 +119,8 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
       return fnResult
     }
     const clippingPlanes = parent.peek()?.clippingRect?.peek()?.planes
-    const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
+    root.peek().component.updateMatrix()
+    computeWorldToGlobalMatrix(root.peek(), worldToGlobalMatrixHelper)
     outer: for (let i = intersects.length - 1; i >= oldLength; i--) {
       const intersection = intersects[i]!
       intersection.distance -=
@@ -129,7 +132,7 @@ export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['sphere
         continue
       }
       for (let ii = 0; ii < 4; ii++) {
-        planeHelper.copy(clippingPlanes[ii]!).applyMatrix4(rootParentMatrixWorld)
+        planeHelper.copy(clippingPlanes[ii]!).applyMatrix4(worldToGlobalMatrixHelper)
         if (planeHelper.distanceToPoint(intersection.point) < 0) {
           intersects.splice(i, 1)
           continue outer

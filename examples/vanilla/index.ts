@@ -1,5 +1,15 @@
-import { AmbientLight, Color, DirectionalLight, PerspectiveCamera, PointLight, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Fullscreen, Text } from '@pmndrs/uikit'
+import {
+  AmbientLight,
+  BoxGeometry,
+  Color,
+  DirectionalLight,
+  Mesh,
+  PerspectiveCamera,
+  PointLight,
+  Scene,
+  WebGLRenderer,
+} from 'three'
+import { reversePainterSortStable, Fullscreen, Text, Container } from '@pmndrs/uikit'
 import { PlusIcon } from '@pmndrs/uikit-lucide'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
@@ -36,13 +46,13 @@ orbit.bind(scene)
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 //UI
-const fullscreen = new Fullscreen(renderer, {
+const fullscreen = new Container({
   alignItems: 'center',
   justifyContent: 'center',
 })
-camera.add(fullscreen)
-scene.add(camera)
-console.log(fullscreen)
+fullscreen.scale.setScalar(1.5)
+fullscreen.position.y = 1.5
+scene.add(fullscreen)
 
 const root = new Panel({ padding: 64, alignItems: 'center', flexDirection: 'row', gap: 8 })
 fullscreen.add(root)

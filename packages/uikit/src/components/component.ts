@@ -18,6 +18,7 @@ import {
   computedGlobalMatrix,
   computedHandlers,
   computedIsVisible,
+  computeWorldToGlobalMatrix,
   setupPointerEvents,
 } from '../utils.js'
 import {
@@ -53,6 +54,8 @@ import { getLayerIndex } from '../properties/layer.js'
 
 const IdentityMatrix = new Matrix4()
 const sphereHelper = new Sphere()
+
+const worldToGlobalMatrixHelper = new Matrix4()
 
 export class Component<OutProperties extends BaseOutProperties = BaseOutProperties> extends Mesh<
   BufferGeometry,
@@ -285,13 +288,13 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   }
 
   raycast(raycaster: Raycaster, intersects: Intersection[]): unknown {
-    //TODO: enable configuring the return value
-    const rootParentMatrixWorld = this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix
-    sphereHelper.copy(this.boundingSphere).applyMatrix4(rootParentMatrixWorld)
+    this.root.peek().component.updateMatrix()
+    computeWorldToGlobalMatrix(this.root.peek(), worldToGlobalMatrixHelper)
+    sphereHelper.copy(this.boundingSphere).applyMatrix4(worldToGlobalMatrixHelper)
     if (!raycaster.ray.intersectsSphere(sphereHelper)) {
       return false
     }
-    this.updateWorldMatrix(false, true, false)
+    this.updateWorldMatrix(false, false)
 
     super.raycast(raycaster, intersects)
     return false
@@ -301,18 +304,21 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
     this.updateWorldMatrix(false, true)
   }
 
-  updateWorldMatrix(updateParents: boolean, updateChildren: boolean, updateRoot = true): void {
-    const rootParent = this.root.peek().component.parent
+  updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void {
+    const root = this.root.peek().component
+    const rootParent = root.parent
     if (updateParents) {
       rootParent?.updateWorldMatrix(true, false)
     }
 
-    this.matrixWorld.multiplyMatrices(
-      rootParent?.matrixWorld ?? IdentityMatrix,
-      this.globalPanelMatrix.peek() ?? IdentityMatrix,
-    )
+    if (this === root) {
+      root.updateMatrix()
+    }
 
-    if (updateChildren && this.root.peek().component === this && updateRoot) {
+    computeWorldToGlobalMatrix(this.root.peek(), worldToGlobalMatrixHelper)
+    this.matrixWorld.multiplyMatrices(worldToGlobalMatrixHelper, this.globalPanelMatrix.peek() ?? IdentityMatrix)
+
+    if (updateChildren && this.root.peek().component === this) {
       for (const update of this.root.value.onUpdateMatrixWorldSet) {
         update()
       }

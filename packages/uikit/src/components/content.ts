@@ -6,7 +6,7 @@ import { getDefaultPanelMaterialConfig, writeColor } from '../panel/panel-materi
 import { Component } from './component.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
-import { abortableEffect, alignmentZMap, setupMatrixWorldUpdate } from '../utils.js'
+import { abortableEffect, alignmentZMap, computeWorldToGlobalMatrix, setupMatrixWorldUpdate } from '../utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
 import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
@@ -193,12 +193,13 @@ export class Content<
     if (updateParents) {
       this.updateWorldMatrix(true, false)
     }
+    computeWorldToGlobalMatrix(this.root.value, child.matrixWorld)
+
+    child.matrixWorld.multiply(this.globalMatrix.peek() ?? IdentityMatrix).multiply(this.childrenMatrix)
+
     child.updateMatrix()
-    child.matrixWorld
-      .copy(child.matrix)
-      .premultiply(this.childrenMatrix)
-      .premultiply(this.globalMatrix.peek() ?? IdentityMatrix)
-      .premultiply(this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix)
+    child.matrixWorld.multiply(child.matrix)
+
     if (updateChildren) {
       for (const childChild of child.children) {
         childChild.updateMatrixWorld(true)

@@ -19,6 +19,7 @@ nav: 16
 - `*` property to set default properties for all descendants.
 - Input `placeholder` support.
 - `important` to raise style precedence (works with `*`).
+- support for modifying the position, scale, rotation directly on the outer most uikit component's removing the necessity to wrap every UI in a group to control its transformation in 3D space
 
 ## What changed
 - Properties that inherit in html/css now inherit in uikit as well.

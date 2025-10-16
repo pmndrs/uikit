@@ -317,3 +317,15 @@ export type UnionizeVariants<T extends Record<PropertyKey, unknown>> = Record<
   keyof T,
   RecursivePartial<IntersectValues<T>>
 >
+
+/**
+ * assumes component.root.component.parent.matrixWorld and component.root.component.matrix is updated
+ */
+export function computeWorldToGlobalMatrix(root: Pick<RootContext, 'component'>, target: Matrix4): void {
+  const rootComponent = root.component
+  if (rootComponent.parent == null) {
+    target.copy(rootComponent.matrix)
+    return
+  }
+  target.multiplyMatrices(rootComponent.parent.matrixWorld, rootComponent.matrix)
+}
