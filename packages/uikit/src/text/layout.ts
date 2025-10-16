@@ -74,7 +74,7 @@ export function computedCustomLayouting(
       return undefined
     }
     const textProperty = properties.value.text
-    let text = Array.isArray(textProperty) ? textProperty.join('') : (textProperty ?? '')
+    let text = Array.isArray(textProperty) ? textProperty.map(String).join('') : (String(textProperty) ?? '')
     const tabSize = properties.value.tabSize
     const whiteSpace = properties.value.whiteSpace
     switch (whiteSpace) {

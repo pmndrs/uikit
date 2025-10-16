@@ -54,7 +54,7 @@ export type InputProperties = VanillaInputProperties & ClassListProperties
 export type SvgProperties = VanillaSvgProperties & ClassListProperties
 export type TextareaProperties = VanillaTextareaProperties & ClassListProperties
 export type TextProperties = VanillaTextProperties & {
-  children?: string | string[] | ReadonlySignal<string | string[] | undefined>
+  children?: unknown
 } & ClassListProperties
 export type FullscreenProperties = VanillaFullscreenProperties & {
   children?: ReactNode
