@@ -24,28 +24,43 @@ nav: ${nav}
     dependencies: {
       'three': 'latest',
       '@react-three/fiber': '<9',
-      '@react-three/uikit': '^1.0.43',
-      '@react-three/uikit-${kit}': 'latest',
+      '@react-three/uikit': '^1.0.44',
+      '@react-three/uikit-${kit}': '^1.0.44',
       '@react-three/drei': '<10',
     },
   }}
   files={{
     '/App.tsx': \`import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
+${kit === 'default' ? `import { colors } from "@react-three/uikit-default";` : 'import { Panel } from "@react-three/uikit-horizon";'}
 ${content}
 export default function App() {
   return (
     <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[-5, 5, 10]} />
-      <Fullscreen
+      ${
+        kit === 'default'
+          ? `<Fullscreen
         overflow="scroll"
         flexDirection="column"
         alignItems="center"
         padding={32}
+        backgroundColor={colors.background}
       >
         <${componentName} />
-      </Fullscreen>
+      </Fullscreen>`
+          : `<Fullscreen
+        overflow="scroll"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Panel padding={32}>
+          <${componentName} />
+        </Panel>
+      </Fullscreen>`
+      }
     </Canvas>
   )
 }\`}}
@@ -64,7 +79,6 @@ const defaultComponentFiles = readdirSync('./examples/default/src/components', {
 for (const component of defaultComponentFiles) {
   writeFileSync(`./docs/default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
 }
-
 
 const horizonComponentFiles = readdirSync('./examples/horizon/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))

@@ -10,14 +10,15 @@ nav: 44
     dependencies: {
       'three': 'latest',
       '@react-three/fiber': '<9',
-      '@react-three/uikit': '^1.0.43',
-      '@react-three/uikit-horizon': 'latest',
+      '@react-three/uikit': '^1.0.44',
+      '@react-three/uikit-horizon': '^1.0.44',
       '@react-three/drei': '<10',
     },
   }}
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
+import { Panel } from "@react-three/uikit-horizon";
 import { Container, Text } from '@react-three/uikit'
 import { Checkbox } from '@react-three/uikit-horizon'
 
@@ -39,9 +40,11 @@ export default function App() {
         overflow="scroll"
         flexDirection="column"
         alignItems="center"
-        padding={32}
+        justifyContent="center"
       >
-        <CheckboxDemo />
+        <Panel padding={32}>
+          <CheckboxDemo />
+        </Panel>
       </Fullscreen>
     </Canvas>
   )

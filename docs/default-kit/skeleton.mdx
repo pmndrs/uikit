@@ -10,14 +10,15 @@ nav: 32
     dependencies: {
       'three': 'latest',
       '@react-three/fiber': '<9',
-      '@react-three/uikit': '^1.0.43',
-      '@react-three/uikit-default': 'latest',
+      '@react-three/uikit': '^1.0.44',
+      '@react-three/uikit-default': '^1.0.44',
       '@react-three/drei': '<10',
     },
   }}
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
+import { colors } from "@react-three/uikit-default";
 import { Container } from '@react-three/uikit'
 import { Skeleton } from '@react-three/uikit-default'
 
@@ -43,6 +44,7 @@ export default function App() {
         flexDirection="column"
         alignItems="center"
         padding={32}
+        backgroundColor={colors.background}
       >
         <SkeletonDemo />
       </Fullscreen>

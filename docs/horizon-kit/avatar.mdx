@@ -10,21 +10,26 @@ nav: 41
     dependencies: {
       'three': 'latest',
       '@react-three/fiber': '<9',
-      '@react-three/uikit': '^1.0.43',
-      '@react-three/uikit-horizon': 'latest',
+      '@react-three/uikit': '^1.0.44',
+      '@react-three/uikit-horizon': '^1.0.44',
       '@react-three/drei': '<10',
     },
   }}
   files={{
     '/App.tsx': `import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
+import { Panel } from "@react-three/uikit-horizon";
 import { Container } from '@react-three/uikit'
 import { Avatar } from '@react-three/uikit-horizon'
 
 function AvatarDemo() {
   return (
     <Container alignItems="center">
-      <Avatar src="./avatar.png" size="lg" attributionActive />
+      <Avatar
+        src="https://raw.githubusercontent.com/pmndrs/uikit/refs/heads/main/examples/horizon/public/avatar.png"
+        size="lg"
+        attributionActive
+      />
     </Container>
   )
 }
@@ -38,9 +43,11 @@ export default function App() {
         overflow="scroll"
         flexDirection="column"
         alignItems="center"
-        padding={32}
+        justifyContent="center"
       >
-        <AvatarDemo />
+        <Panel padding={32}>
+          <AvatarDemo />
+        </Panel>
       </Fullscreen>
     </Canvas>
   )
