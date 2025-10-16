@@ -74,7 +74,7 @@ export function computedCustomLayouting(
       return undefined
     }
     const textProperty = properties.value.text
-    let text = Array.isArray(textProperty) ? textProperty.map(String).join('') : (String(textProperty) ?? '')
+    let text = Array.isArray(textProperty) ? textProperty.map(toString).join('') : toString(textProperty)
     const tabSize = properties.value.tabSize
     const whiteSpace = properties.value.whiteSpace
     switch (whiteSpace) {
@@ -106,6 +106,16 @@ export function computedCustomLayouting(
         measureGlyphLayout(layoutProperties, widthMode === MeasureMode.Undefined ? undefined : width),
     }
   })
+}
+
+function toString(value: unknown) {
+  if (value instanceof Signal) {
+    value = value.value
+  }
+  if (value == null) {
+    return ''
+  }
+  return String(value)
 }
 
 const wrappers = {
