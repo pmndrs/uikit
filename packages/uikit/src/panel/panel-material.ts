@@ -57,7 +57,26 @@ export function createPanelMaterialConfig(
       'borderBottomLeftRadius' | 'borderTopLeftRadius' | 'borderBottomRightRadius' | 'borderTopRightRadius'
     >]?: (typeof defaultDefaults)[Key]
   },
-) {
+): {
+  hasProperty: (key: string) => boolean
+  defaultData: Float32Array
+  setters: {
+    [x: string]: (
+      data: TypedArray,
+      offset: number,
+      value: unknown,
+      size: Signal<Vector2Tuple | undefined>,
+      opacity: Signal<number | `${number}%`>,
+      onUpdate: ((start: number, count: number) => void) | undefined,
+    ) => void
+  }
+  computedIsVisibile: (
+    properties: Properties,
+    borderInset: Signal<Inset | undefined>,
+    size: Signal<Vector2Tuple | undefined>,
+    isVisible: Signal<boolean>,
+  ) => Signal<boolean>
+} {
   const defaults = { ...defaultDefaults, ...providedDefaults }
 
   const setters: {
