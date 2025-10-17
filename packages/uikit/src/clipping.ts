@@ -171,7 +171,7 @@ export function computedClippingRect(
 }
 
 export const NoClippingPlane = new Plane(new Vector3(-1, 0, 0), Number.MAX_SAFE_INTEGER)
-export const defaultClippingData = new Float32Array(16)
+export const defaultClippingData: Float32Array = new Float32Array(16)
 for (let i = 0; i < 4; i++) {
   NoClippingPlane.normal.toArray(defaultClippingData, i * 4)
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
