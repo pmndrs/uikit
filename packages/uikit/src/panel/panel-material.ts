@@ -77,7 +77,7 @@ export function createPanelMaterialConfig(
       fn(data, offset, (value ?? defaultValue) as any, size, opacity, onUpdate)
   }
 
-  const defaultData = new Float32Array(16) //filled with 0s by default
+  const defaultData: Float32Array = new Float32Array(16) //filled with 0s by default
   writeColor(defaultData, 4, defaults.backgroundColor, defaultOpacity, undefined)
   writeColor(defaultData, 9, defaults.borderColor, defaultOpacity, undefined)
   defaultData[13] = defaults.borderBend
