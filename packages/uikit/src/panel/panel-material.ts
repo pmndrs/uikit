@@ -12,6 +12,7 @@ import {
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
+import type { ReadonlySignal } from '@preact/signals-core'
 import { ColorRepresentation } from '../utils.js'
 import { Properties } from '../properties/index.js'
 import { Inset } from '../flex/index.js'
@@ -49,6 +50,15 @@ export function getDefaultPanelMaterialConfig() {
 
 const colorArrayHelper = [0, 0, 0, 0]
 
+type MaterialSetter = (
+  data: TypedArray,
+  offset: number,
+  value: unknown,
+  size: Signal<Vector2Tuple | undefined>,
+  opacity: Signal<number | `${number}%`>,
+  onUpdate: ((start: number, count: number) => void) | undefined,
+) => void
+
 export function createPanelMaterialConfig(
   keys: { [Key in keyof typeof materialSetters]?: string },
   providedDefaults?: {
@@ -60,35 +70,18 @@ export function createPanelMaterialConfig(
 ): {
   hasProperty: (key: string) => boolean
   defaultData: Float32Array
-  setters: {
-    [x: string]: (
-      data: TypedArray,
-      offset: number,
-      value: unknown,
-      size: Signal<Vector2Tuple | undefined>,
-      opacity: Signal<number | `${number}%`>,
-      onUpdate: ((start: number, count: number) => void) | undefined,
-    ) => void
-  }
+  setters: Record<string, MaterialSetter>
   computedIsVisibile: (
     properties: Properties,
     borderInset: Signal<Inset | undefined>,
     size: Signal<Vector2Tuple | undefined>,
     isVisible: Signal<boolean>,
-  ) => Signal<boolean>
+  ) => ReadonlySignal<boolean>
 } {
   const defaults = { ...defaultDefaults, ...providedDefaults }
 
-  const setters: {
-    [Key in string]: (
-      data: TypedArray,
-      offset: number,
-      value: unknown,
-      size: Signal<Vector2Tuple | undefined>,
-      opacity: Signal<number | `${number}%`>,
-      onUpdate: ((start: number, count: number) => void) | undefined,
-    ) => void
-  } = {}
+  const setters: Record<string, MaterialSetter> = {}
+
   for (const key in keys) {
     const fn = materialSetters[key as keyof typeof materialSetters]
     const defaultValue = defaults[key as keyof typeof materialSetters]
