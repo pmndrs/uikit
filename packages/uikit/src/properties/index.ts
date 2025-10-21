@@ -148,7 +148,7 @@ export class PropertiesImplementation<OutProperties extends BaseOutProperties = 
           this.setLayer(layerIndex, undefined)
           continue
         }
-        const getConditional = this.conditionals[layerSection]
+        const getConditional = layerSection != 'important' ? this.conditionals[layerSection] : undefined
         let conditionalProperties = properties[layerSection]! as AddAllAliases<
           WithSignal<WithInitial<Partial<OutProperties>>>
         >

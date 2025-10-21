@@ -34,7 +34,7 @@ import { computedIsClipped } from '../clipping.js'
 import { FlexNode, Inset } from '../flex/node.js'
 import { OrderInfo } from '../order.js'
 import { allAliases } from '../properties/alias.js'
-import { createConditionals } from '../properties/conditional.js'
+import { type Conditionals, createConditionals } from '../properties/conditional.js'
 import {
   BaseOutProperties,
   InProperties,
@@ -56,6 +56,30 @@ const IdentityMatrix = new Matrix4()
 const sphereHelper = new Sphere()
 
 const worldToGlobalMatrixHelper = new Matrix4()
+
+const returnFalseFunction = () => false
+
+let currentGlobalProperties: InProperties<BaseOutProperties> | undefined
+const baseLayerIndex = getLayerIndex({ type: 'base', section: 'base' })
+
+export function resetGlobalProperties(properties: InProperties<BaseOutProperties> | undefined) {
+  currentGlobalProperties = properties
+  globalProperties.setLayer(baseLayerIndex, currentGlobalProperties)
+}
+
+export function setGlobalProperties(properties: InProperties<BaseOutProperties> | undefined) {
+  resetGlobalProperties({
+    ...properties,
+    ...currentGlobalProperties,
+  })
+}
+
+const globalProperties = new PropertiesImplementation(
+  allAliases,
+  new Proxy({} as Conditionals, { get: () => returnFalseFunction }),
+)
+
+globalProperties.setEnabled(true)
 
 export class Component<OutProperties extends BaseOutProperties = BaseOutProperties> extends Mesh<
   BufferGeometry,

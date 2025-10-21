@@ -1,8 +1,9 @@
 import { Signal } from '@preact/signals-core'
 import { isDarkMode } from '../preferred-color-scheme.js'
 import { RootContext } from '../context.js'
+import type { SpecialLayerSections } from './layer.js'
 
-export type Conditionals = Record<string, () => boolean>
+export type Conditionals = Record<Exclude<(typeof SpecialLayerSections)[number], 'important'>, () => boolean>
 
 const breakPoints = {
   sm: 640,
@@ -18,8 +19,8 @@ type WithResponsive<T> = T & {
   [Key in keyof typeof breakPoints]?: T
 }
 
-function createResponsiveConditionals(root: Signal<RootContext>): Conditionals {
-  const conditionals: Conditionals = {}
+function createResponsiveConditionals(root: Signal<RootContext>) {
+  const conditionals: Pick<Conditionals, (typeof breakPointKeys)[number]> = {} as any
 
   for (let i = 0; i < breakPointKeysLength; i++) {
     const key = breakPointKeys[i]!
@@ -36,7 +37,7 @@ type WithHover<T> = T & {
   hover?: T
 }
 
-function createHoverConditionals(hoveredSignal: Signal<Array<number>>): Conditionals {
+function createHoverConditionals(hoveredSignal: Signal<Array<number>>): Pick<Conditionals, 'hover'> {
   return {
     hover: () => hoveredSignal.value.length > 0,
   }
@@ -46,7 +47,7 @@ type WithActive<T> = T & {
   active?: T
 }
 
-function createActivePropertyTransfomers(activeSignal: Signal<Array<number>>): Conditionals {
+function createActivePropertyTransfomers(activeSignal: Signal<Array<number>>): Pick<Conditionals, 'active'> {
   return {
     active: () => activeSignal.value.length > 0,
   }
@@ -54,7 +55,7 @@ function createActivePropertyTransfomers(activeSignal: Signal<Array<number>>): C
 
 type WithPreferredColorScheme<T> = { dark?: T } & T
 
-const preferredColorSchemeConditionals: Conditionals = {
+const preferredColorSchemeConditionals: Pick<Conditionals, 'dark'> = {
   dark: () => isDarkMode.value,
 }
 
@@ -62,7 +63,7 @@ type WithFocus<T> = T & {
   focus?: T
 }
 
-function createFocusPropertyTransformers(hasFocusSignal?: Signal<boolean>): Conditionals {
+function createFocusPropertyTransformers(hasFocusSignal?: Signal<boolean>): Pick<Conditionals, 'focus'> {
   if (hasFocusSignal == null) {
     return {
       focus: () => false,
@@ -77,7 +78,9 @@ type WithPlaceholderStyle<T> = T & {
   placeholderStyle?: T
 }
 
-function createPlaceholderPropertyTransformers(isPlaceholder?: Signal<boolean>): Conditionals {
+function createPlaceholderPropertyTransformers(
+  isPlaceholder?: Signal<boolean>,
+): Pick<Conditionals, 'placeholderStyle'> {
   if (isPlaceholder == null) {
     return {
       placeholderStyle: () => false,
@@ -106,7 +109,7 @@ export function createConditionals(
   activeSignal: Signal<Array<number>>,
   hasFocusSignal?: Signal<boolean>,
   isPlaceholderSignal?: Signal<boolean>,
-) {
+): Conditionals {
   return {
     ...preferredColorSchemeConditionals,
     ...createResponsiveConditionals(root),
