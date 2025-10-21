@@ -414,7 +414,7 @@ uikit allows you to declare properties that depend on the element's interaction 
 
 ## Preferred Color Schemes
 
-By default, uikit inherits the preferred color scheme from the browser. Developers and designers can use the preferred color scheme to support users' preference for dark and light modes. The preferred color scheme can be controlled using `setPreferredColorScheme` and `getPreferredColorScheme`. The function `basedOnPreferredColorScheme` lets you create themes containing colors that change depending on the preferred color scheme.
+By default, uikit inherits the preferred color scheme from the browser. Developers and designers can use the preferred color scheme to support users' preference for dark and light modes. The preferred color scheme can be controlled using `setPreferredColorScheme` and `getPreferredColorScheme`. The function `basedOnPreferredColorScheme` lets you create themes containing colors that change depending on the preferred color scheme. See also the [Globals page](./globals.mdx#preferred-color-scheme) for full API details.
 
 ```jsx showLineNumbers
 setPreferredColorScheme("light")
@@ -430,6 +430,23 @@ const theme = basedOnPreferredColorScheme({
 
 <Container backgroundColor={theme.primary} width={100} height={100} />
 ```
+
+### withOpacity
+
+When composing colors, you can derive an alpha-adjusted color using `withOpacity(color, opacity)`. It returns a reactive color value (signal) that updates if either the base color or the opacity is reactive.
+
+```tsx showLineNumbers
+import { withOpacity } from '@pmndrs/uikit'
+
+const translucent = withOpacity('#000', 0.35)
+
+// usage
+<Container backgroundColor={translucent} />
+```
+
+`withOpacity` accepts plain colors (`'#fff'`, numbers, `THREE.Color`, tuples) or `ReadonlySignal<ColorRepresentation>`, and an opacity number or `Signal<number>`.
+
+See also: [Globals](./globals.mdx).
 
 ## Event Properties
 

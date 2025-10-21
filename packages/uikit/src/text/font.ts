@@ -67,7 +67,13 @@ export function computedFont(
     let fontFamily = properties.value.fontFamily
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
-    const url = getMatchingFontUrl(fontFamilies[fontFamily as keyof FontFamilies]!, fontWeight)
+    const fontFamilyWeightMap = fontFamilies[fontFamily]
+    if (fontFamilyWeightMap == null) {
+      throw new Error(
+        `unknonw font family "${fontFamily}". Available font families are ${Object.keys(fontFamilies).join(', ')}`,
+      )
+    }
+    const url = getMatchingFontUrl(fontFamilyWeightMap, fontWeight)
     let aborted = false
     loadCachedFont(url, (font) => !aborted && (result.value = font))
     return () => (aborted = true)

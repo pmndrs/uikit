@@ -1,0 +1,106 @@
+---
+title: Globals
+description: Global APIs to control defaults, classes, and color scheme.
+nav: 3
+---
+
+### Overview
+
+uikit exposes a few global utilities that influence styling and behavior across your UI:
+
+- `setGlobalProperties`, `resetGlobalProperties`
+- `StyleSheet` (global class registry)
+- `setPreferredColorScheme`, `getPreferredColorScheme`, `basedOnPreferredColorScheme`, `isDarkMode`
+
+These are framework-agnostic (work in `@pmndrs/uikit` and `@react-three/uikit`).
+
+### Global properties
+
+Use `setGlobalProperties` to set default properties that apply to all components. This is useful for global defaults such as `fontFamilies`, base `color`, `pixelSize`, or shared layout values. Later calls merge into existing defaults; use `resetGlobalProperties` to overwrite.
+
+```tsx showLineNumbers
+import { setGlobalProperties, resetGlobalProperties } from '@pmndrs/uikit'
+
+// set or merge global defaults
+setGlobalProperties({
+  color: '#222',
+  fontFamilies: { default: { normal: '/fonts/Inter-Medium.woff' } },
+})
+
+// completely replace the global defaults
+resetGlobalProperties({
+  color: 'white',
+})
+```
+
+- **Merge behavior**: `setGlobalProperties(next)` merges on top of the current global properties, while `resetGlobalProperties(next)` replaces them entirely.
+- **Precedence**: component props > conditional props > `'*'` star props > global properties. Globals provide the lowest-precedence defaults.
+
+### Global `StyleSheet`
+
+`StyleSheet` is a global map of reusable classes. You can define named styles once and assign them via a component's `classList` (string names) or by passing inline objects.
+
+```tsx showLineNumbers
+import { StyleSheet } from '@pmndrs/uikit'
+
+// define classes globally
+StyleSheet.button = {
+  paddingX: 12,
+  paddingY: 8,
+  borderRadius: 8,
+}
+
+StyleSheet['btn-primary'] = {
+  backgroundColor: '#2563eb',
+  color: 'white',
+}
+
+// usage in React
+import { Container, Text } from '@react-three/uikit'
+
+function Button({ children }) {
+  return (
+    <Container classList={['button', 'btn-primary']}>
+      <Text>{children}</Text>
+    </Container>
+  )
+}
+```
+
+Notes:
+- Unknown class names log a warning and are ignored.
+- `classList` also accepts inline objects: `classList={[{ opacity: 0.8 }]}`.
+- Element `id` styles can be predeclared via `StyleSheet['__id__myId'] = { ... }` and will auto-apply to elements with `id="myId"`.
+
+### Preferred color scheme
+
+Control or react to dark/light mode preferences.
+
+```tsx showLineNumbers
+import {
+  setPreferredColorScheme,
+  getPreferredColorScheme,
+  basedOnPreferredColorScheme,
+  isDarkMode,
+} from '@pmndrs/uikit'
+
+setPreferredColorScheme('light') // 'light' | 'dark' | 'system'
+console.log(getPreferredColorScheme())
+
+const theme = basedOnPreferredColorScheme({
+  light: { background: 'white', foreground: '#222' },
+  dark: { background: '#111', foreground: 'white' },
+})
+
+// Signals update when the scheme changes
+// e.g. <Container backgroundColor={theme.background} color={theme.foreground} />
+```
+
+If you need a boolean in computed values, use `isDarkMode`.
+
+### Related
+
+- Learn about conditional properties like `dark` in [Components and Properties](./components-and-properties.md#conditional-properties).
+- See the color-scheme basics in [Preferred Color Schemes](./components-and-properties.md#preferred-color-schemes).
+
+
