@@ -67,10 +67,12 @@ export function computedFont(
     let fontFamily = properties.value.fontFamily
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
-    const fontFamilyWeightMap = fontFamilies[fontFamily]
+    let fontFamilyWeightMap = fontFamilies[fontFamily]
     if (fontFamilyWeightMap == null) {
-      throw new Error(
-        `unknonw font family "${fontFamily}". Available font families are ${Object.keys(fontFamilies).join(', ')}`,
+      const availableFontFamilyList = Object.keys(fontFamilies)
+      fontFamilyWeightMap = fontFamilies[availableFontFamilyList[0] as any]!
+      console.error(
+        `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`,
       )
     }
     const url = getMatchingFontUrl(fontFamilyWeightMap, fontWeight)
