@@ -60,20 +60,29 @@ export class Fullscreen<
     }
     const distanceToCamera = this.properties.peek().distanceToCamera ?? camera.near + 0.1
     batch(() => {
+      let pixelSize: number
       if (camera instanceof PerspectiveCamera) {
         const cameraHeight = 2 * Math.tan((Math.PI * camera.fov) / 360) * distanceToCamera!
-        this.pixelSize.value = cameraHeight / this.renderer.getSize(vectorHelper).y
+        pixelSize = cameraHeight / this.renderer.getSize(vectorHelper).y
         this.sizeY.value = cameraHeight
         this.sizeX.value = cameraHeight * camera.aspect
-      }
-      if (camera instanceof OrthographicCamera) {
+      } else if (camera instanceof OrthographicCamera) {
         const cameraHeight = (camera.top - camera.bottom) / camera.zoom
         const cameraWidth = (camera.right - camera.left) / camera.zoom
-        this.pixelSize.value = cameraHeight / this.renderer.getSize(vectorHelper).y
+        pixelSize = cameraHeight / this.renderer.getSize(vectorHelper).y
         this.sizeY.value = cameraHeight
         this.sizeX.value = cameraWidth
+      } else {
+        //to make TS happy, this else branch cannot happen
+        return
       }
-      this.transformTranslateZ.value = -distanceToCamera / this.pixelSize.value
+
+      //if we are in a screen-based xr session, apply the pixel ratio to the pixel size to display the UI in the same size as outside of XR
+      if (this.renderer.xr.getSession()?.interactionMode === 'screen-space') {
+        pixelSize *= this.renderer.getPixelRatio()
+      }
+      this.pixelSize.value = pixelSize
+      this.transformTranslateZ.value = -distanceToCamera / pixelSize
     })
   }
 }
