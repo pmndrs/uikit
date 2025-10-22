@@ -5,12 +5,13 @@ import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, setupRenderOrder } from '../../order.js'
 import { RootContext } from '../../context.js'
+import type { Component } from '../../components/component.js'
 
 export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
     private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
-    private readonly object: Object3D,
+    private readonly object: Component,
   ) {}
 
   init(abortSignal: AbortSignal) {
@@ -82,7 +83,7 @@ export class InstancedGlyphGroup {
   private timeTillDecimate?: number
 
   constructor(
-    private object: Object3D,
+    private object: Component,
     font: Font,
     public readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private orderInfo: OrderInfo,
@@ -258,7 +259,7 @@ export class InstancedGlyphGroup {
     //finalizing the new mesh
     setupRenderOrder(this.mesh, { peek: () => this.root }, { value: this.orderInfo })
     this.mesh.count = this.glyphs.length
-    this.object.add(this.mesh)
+    this.object.addUnsafe(this.mesh)
   }
 
   destroy() {

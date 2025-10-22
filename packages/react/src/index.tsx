@@ -37,6 +37,7 @@ import {
   Textarea as VanillaTextarea,
   TextareaProperties as VanillaTextareaProperties,
   InProperties,
+  TextOutProperties,
 } from '@pmndrs/uikit'
 import { ReadonlySignal } from '@preact/signals-core'
 import { createPortal, extend, ThreeElement, useFrame, useLoader, useStore, useThree } from '@react-three/fiber'
@@ -53,7 +54,7 @@ export type VideoProperties = VanillaVideoProperties & ClassListProperties
 export type InputProperties = VanillaInputProperties & ClassListProperties
 export type SvgProperties = VanillaSvgProperties & ClassListProperties
 export type TextareaProperties = VanillaTextareaProperties & ClassListProperties
-export type TextProperties = VanillaTextProperties & {
+export type TextProperties = InProperties<Omit<TextOutProperties, 'text'>> & {
   children?: unknown
 } & ClassListProperties
 export type FullscreenProperties = VanillaFullscreenProperties & {

@@ -388,6 +388,13 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
     this.parent?.remove(this)
     this.abortController.abort()
   }
+
+  /**
+   * only used for internally adding instanced panel group and instanced gylph group in case this component is a root component
+   */
+  addUnsafe(...object: Object3D[]): this {
+    return super.add(...object)
+  }
 }
 
 function keyToEventName(key: keyof EventHandlersProperties) {

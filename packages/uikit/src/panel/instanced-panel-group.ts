@@ -20,6 +20,7 @@ import { ElementType, OrderInfo, setupRenderOrder } from '../order.js'
 import { computed } from '@preact/signals-core'
 import { Properties } from '../properties/index.js'
 import { RootContext } from '../context.js'
+import type { Component } from '../components/component.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -99,7 +100,7 @@ export class PanelGroupManager {
 
   constructor(
     private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
-    private readonly object: Object3D,
+    private readonly object: Component,
   ) {}
 
   init(abortSignal: AbortSignal) {
@@ -200,7 +201,7 @@ export class InstancedPanelGroup {
   }
 
   constructor(
-    private readonly object: Object3D,
+    private readonly object: Component,
     public readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
