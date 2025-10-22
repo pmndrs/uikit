@@ -176,7 +176,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       ...config?.defaultOverrides,
     } as InProperties<OutProperties>)
     abortableEffect(() => {
-      const parentProprties = this.parentContainer.value?.properties ?? globalProperties
+      const parentProprties = this.parentContainer.value?.properties
       const layerIndex = getLayerIndex({ type: 'inheritance' })
       const cleanup = parentProprties?.subscribePropertyKeys((key) => {
         if (!inheritedPropertyKeys.includes(key as any)) {
@@ -198,7 +198,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
     )
 
     abortableEffect(() => {
-      const parentStarProprties = this.parentContainer.value?.starProperties
+      const parentStarProprties = this.parentContainer.value?.starProperties ?? globalProperties
       const layerIndex = getLayerIndex({ type: 'star-inheritance' })
       const cleanup = parentStarProprties?.subscribePropertyKeys((key) => {
         const signal = parentStarProprties.signal[key as keyof typeof parentStarProprties.signal]
