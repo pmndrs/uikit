@@ -176,7 +176,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       ...config?.defaultOverrides,
     } as InProperties<OutProperties>)
     abortableEffect(() => {
-      const parentProprties = this.parentContainer.value?.properties
+      const parentProprties = this.parentContainer.value?.properties ?? globalProperties
       const layerIndex = getLayerIndex({ type: 'inheritance' })
       const cleanup = parentProprties?.subscribePropertyKeys((key) => {
         if (!inheritedPropertyKeys.includes(key as any)) {
