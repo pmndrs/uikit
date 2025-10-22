@@ -79,7 +79,7 @@ export class Fullscreen<
 
       //if we are in a screen-based xr session, apply the pixel ratio to the pixel size to display the UI in the same size as outside of XR
       if (this.renderer.xr.getSession()?.interactionMode === 'screen-space') {
-        pixelSize *= this.renderer.getPixelRatio()
+        pixelSize *= window.devicePixelRatio
       }
       this.pixelSize.value = pixelSize
       this.transformTranslateZ.value = -distanceToCamera / pixelSize
