@@ -28,10 +28,6 @@ export class Dialog extends Container<DialogOutProperties> {
         '*': {
           borderColor: colors.border,
         },
-        onPointerMove: (e: any) => e.stopPropagation(),
-        onPointerEnter: (e: any) => e.stopPropagation(),
-        onPointerLeave: (e: any) => e.stopPropagation(),
-        onWheel: (e: any) => e.stopPropagation(),
         positionType: 'absolute',
         display: computed(() => (this.currentSignal.value ? 'flex' : 'none')),
         inset: 0,
@@ -39,12 +35,16 @@ export class Dialog extends Container<DialogOutProperties> {
         backgroundColor: withOpacity('black', 0.8),
         alignItems: 'center',
         justifyContent: 'center',
-        onClick: () => {
-          this.setOpen(false)
-        },
         ...config?.defaultOverrides,
       },
     })
+
+    const stopPropagationListener = (e: any) => e.stopPropagation()
+    this.addEventListener('pointermove', stopPropagationListener)
+    this.addEventListener('pointerenter', stopPropagationListener)
+    this.addEventListener('pointerleave', stopPropagationListener)
+    this.addEventListener('wheel', stopPropagationListener)
+    this.addEventListener('click', () => this.setOpen(false))
   }
 
   setOpen(open: boolean) {

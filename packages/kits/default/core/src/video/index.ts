@@ -42,11 +42,12 @@ export class Video extends Container<VideoOutProperties> {
           borderColor: colors.border,
         },
         positionType: 'relative',
-        onPointerMove: () => this.onInteract(),
-        onPointerDown: () => this.onInteract(),
         ...config?.defaultOverrides,
       },
     })
+
+    this.addEventListener('pointermove', this.onInteract.bind(this))
+    this.addEventListener('pointerdown', this.onInteract.bind(this))
 
     super.add(
       (this.video = new VideoImpl(undefined, undefined, {

@@ -90,38 +90,39 @@ export class Slider extends Container<SliderOutProperties> {
       defaultOverrides: {
         width: '100%',
         flexDirection: 'column',
-        //TODO: why does it not work when putting the following listeners on the touch target?
-        onPointerDown: (e) => {
-          if (this.downPointerId != null) {
-            return
-          }
-          this.downPointerId = e.pointerId
-          this.handleSetValue(e)
-          if (
-            'target' in e &&
-            e.target != null &&
-            typeof e.target === 'object' &&
-            'setPointerCapture' in e.target &&
-            typeof e.target.setPointerCapture === 'function'
-          ) {
-            e.target.setPointerCapture(e.pointerId)
-          }
-        },
-        onPointerMove: (e) => {
-          if (this.downPointerId != e.pointerId) {
-            return
-          }
-          this.handleSetValue(e)
-        },
-        onPointerUp: (e) => {
-          if (this.downPointerId == null) {
-            return
-          }
-          this.downPointerId = undefined
-          e.stopPropagation?.()
-        },
         ...config?.defaultOverrides,
       },
+    })
+    //TODO: why does it not work when putting the following listeners on the touch target?
+    this.addEventListener('pointerdown', (e) => {
+      if (this.downPointerId != null) {
+        return
+      }
+      this.downPointerId = e.pointerId
+      this.handleSetValue(e)
+      if (
+        'target' in e &&
+        e.target != null &&
+        typeof e.target === 'object' &&
+        'setPointerCapture' in e.target &&
+        typeof e.target.setPointerCapture === 'function'
+      ) {
+        e.target.setPointerCapture(e.pointerId)
+      }
+    })
+    this.addEventListener('pointermove', (e) => {
+      if (this.downPointerId != e.pointerId) {
+        return
+      }
+      this.handleSetValue(e)
+    })
+
+    this.addEventListener('pointerup', (e) => {
+      if (this.downPointerId == null) {
+        return
+      }
+      this.downPointerId = undefined
+      e.stopPropagation?.()
     })
 
     const format = computed(() => {

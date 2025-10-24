@@ -1,4 +1,4 @@
-import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, InProperties, BaseOutProperties, RenderContext, abortableEffect } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { Object3DEventMap, Vector3 } from 'three'
@@ -49,53 +49,52 @@ export class Slider extends Container<SliderOutProperties> {
         height: 8,
         width: '100%',
         alignItems: 'center',
-        onPointerDown: computed(() => {
-          const disabled = this.properties.value.disabled ?? false
-          return disabled
-            ? undefined
-            : (e: Object3DEventMap['pointerdown']) => {
-                if (this.downPointerId != null) {
-                  return
-                }
-                this.downPointerId = e.pointerId
-                this.handleSetValue(e)
-                if (
-                  'target' in e &&
-                  e.target != null &&
-                  typeof e.target === 'object' &&
-                  'setPointerCapture' in e.target &&
-                  typeof e.target.setPointerCapture === 'function'
-                ) {
-                  e.target.setPointerCapture(e.pointerId)
-                }
-              }
-        }),
-        onPointerMove: computed(() => {
-          const disabled = this.properties.value.disabled ?? false
-          return disabled
-            ? undefined
-            : (e: Object3DEventMap['pointermove']) => {
-                if (this.downPointerId != e.pointerId) {
-                  return
-                }
-                this.handleSetValue(e)
-              }
-        }),
-        onPointerUp: computed(() => {
-          const disabled = this.properties.value.disabled ?? false
-          return disabled
-            ? undefined
-            : (e: Object3DEventMap['pointerup']) => {
-                if (this.downPointerId == null) {
-                  return
-                }
-                this.downPointerId = undefined
-                e.stopPropagation?.()
-              }
-        }),
         ...config?.defaultOverrides,
       },
     })
+
+    abortableEffect(() => {
+      if (this.properties.value.disabled ?? false) {
+        return
+      }
+      const pointerUpListener = (e: Object3DEventMap['pointerup']) => {
+        if (this.downPointerId == null) {
+          return
+        }
+        this.downPointerId = undefined
+        e.stopPropagation?.()
+      }
+      const pointerDownListener = (e: Object3DEventMap['pointerdown']) => {
+        if (this.downPointerId != null) {
+          return
+        }
+        this.downPointerId = e.pointerId
+        this.handleSetValue(e)
+        if (
+          'target' in e &&
+          e.target != null &&
+          typeof e.target === 'object' &&
+          'setPointerCapture' in e.target &&
+          typeof e.target.setPointerCapture === 'function'
+        ) {
+          e.target.setPointerCapture(e.pointerId)
+        }
+      }
+      const pointerMoveListener = (e: Object3DEventMap['pointermove']) => {
+        if (this.downPointerId != e.pointerId) {
+          return
+        }
+        this.handleSetValue(e)
+      }
+      this.addEventListener('pointermove', pointerMoveListener)
+      this.addEventListener('pointerup', pointerUpListener)
+      this.addEventListener('pointerdown', pointerDownListener)
+      return () => {
+        this.removeEventListener('pointermove', pointerMoveListener)
+        this.removeEventListener('pointerup', pointerUpListener)
+        this.removeEventListener('pointerdown', pointerDownListener)
+      }
+    }, this.abortSignal)
 
     const percentage = computed(() => {
       const min = this.properties.value.min ?? 0

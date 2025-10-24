@@ -68,7 +68,7 @@ We provide multiple kits containing **themable pre-styled components**.
 | <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>horizon-kit</h3> _based on [RLDS](https://www.figma.com/de-de/community/file/1509641173090552632/meta-horizon-os-ui-set)_ |
 | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all horizon components](./docs/getting-started/horizon-overview.png)                                          |
-| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              | [View All Components](https://docs.pmnd.rs/uikit/default-kit/avatar)                                                          |
+| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              | [View All Components](https://docs.pmnd.rs/uikit/horizon-kit/avatar)                                                          |
 | install via `@react-three/uikit-default` or `@pmndrs/uikit-default`                  | install via `@react-three/uikit-horizon` or `@pmndrs/uikit-horizon`                                                           |
 
 ## Migration guides

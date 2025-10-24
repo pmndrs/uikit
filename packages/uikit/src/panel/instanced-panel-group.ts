@@ -346,7 +346,7 @@ export class InstancedPanelGroup {
     this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.panelGroupProperties.receiveShadow
     this.mesh.castShadow = this.panelGroupProperties.castShadow
-    this.object.add(this.mesh)
+    this.object.addUnsafe(this.mesh)
   }
 
   destroy() {
