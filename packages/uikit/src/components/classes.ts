@@ -28,7 +28,7 @@ export class ClassList {
       const classRef = classes[classIndex]
       let resolvedClass = classRef == null ? undefined : this.resolveClassRef(classRef)
       this.properties.setLayersWithConditionals(identifier, resolvedClass)
-      this.starProperties.setLayersWithConditionals(identifier, resolvedClass)
+      this.starProperties.setLayersWithConditionals(identifier, getStarProperties(resolvedClass))
     }
   }
 

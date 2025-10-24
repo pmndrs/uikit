@@ -48,6 +48,7 @@ export function getLayerIndex(identifier: LayerIdentifier) {
     if (identifier.type === 'star-inheritance') {
       return LayersSectionSize * 12
     }
+    //inheritance
     return LayersSectionSize * 12 + 1
   }
   const sectionStartIndex = SectionStartIndexMap[identifier.section]
