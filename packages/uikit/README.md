@@ -5,7 +5,7 @@
 [![Twitter](https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000)](https://twitter.com/pmndrs)
 [![Discord](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000)](https://discord.gg/ZZjjNvJ)
 
-![uikit banner](../docs/getting-started/banner.jpg)
+![uikit banner](./docs/getting-started/banner.jpg)
 
 Build performant 3D user interfaces for **Three.js** using **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
 
