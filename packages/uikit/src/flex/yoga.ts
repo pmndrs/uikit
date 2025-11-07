@@ -5,7 +5,7 @@ export const PointScaleFactor = 100
 
 export function createDefaultConfig(Config: Yoga['Config']) {
   const config = Config.create()
-  //config.setUseWebDefaults(true)
+  config.setUseWebDefaults(true)
   config.setPointScaleFactor(PointScaleFactor)
   config.setExperimentalFeatureEnabled(ExperimentalFeature.WebFlexBasis, true)
   return config
