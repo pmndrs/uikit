@@ -267,8 +267,8 @@ export function setupScroll(container: Container) {
 
   abortableEffect(() => {
     //this also needs to be executed when isScrollable is false since when the max scroll position is lower then the current scroll position, the onFrame callback will animate the scroll position back to 0
-    container.root.peek().onFrameSet.add(onFrame)
-    return () => container.root.peek().onFrameSet.delete(onFrame)
+    container.root.value.onFrameSet.add(onFrame)
+    return () => container.root.value.onFrameSet.delete(onFrame)
   }, container.abortSignal)
 }
 
