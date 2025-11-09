@@ -112,6 +112,9 @@ describe('ID-based class auto-application', () => {
   it('should not interfere with manually added classes', () => {
     // Add ID style to StyleSheet
     StyleSheet['__id__mixedButton'] = { color: 'purple' }
+    // Add manual classes to StyleSheet
+    StyleSheet['manual-class'] = { fontSize: 14 }
+    StyleSheet['another-class'] = { fontWeight: 'bold' }
 
     // Create root and container with both id and manual classes
     const root = new Container()
