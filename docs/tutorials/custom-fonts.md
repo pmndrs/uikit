@@ -12,12 +12,12 @@ There are two ways to generate MSDF fonts: using a web-based tool or using local
 
 ### Option 1: Web-based Tool
 
-You can use the MSDF Generator at https://msdf-staging.zap.works/ to convert your TTF font to MSDF format.
+You can use the MSDF Generator at https://msdf.zap.works/ to convert your TTF font to MSDF format.
 
 #### Steps:
 
 1. Download a `.ttf` file for the font family with the correct weights (e.g., `roboto-medium.ttf`).
-2. Open [https://msdf-staging.zap.works/](https://msdf-staging.zap.works/) in your browser.
+2. Open [https://msdf.zap.works/](https://msdf.zap.works/) in your browser.
 3. Upload your `.ttf` file.
 4. Click "Generate".
 5. The tool will generate a JSON file with the texture inlined as a base64 data URL.
