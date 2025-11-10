@@ -103,7 +103,7 @@ generateBMFont(
 )
 ```
 
-#### Implementing the generated font
+### Implementing the generated font
 
 Once you have generated the JSON file (using either method), you can add the font family via the `fontFamilies` property.
 
