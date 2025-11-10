@@ -4,9 +4,30 @@ description: How to build, set up, and use custom fonts.
 nav: 10
 ---
 
-The `Text` component enables rendering text using multi-channel signed distance functions (MSDF). By default, uikit provides the Inter font. A custom font can be converted from a `.ttf` file to an MSDF representation as a JSON and a corresponding texture using [msdf-bmfont-xml](https://www.npmjs.com/package/msdf-bmfont-xml).
+The `Text` component enables rendering text using multi-channel signed distance functions (MSDF). By default, uikit provides the Inter font. A custom font can be converted from a `.ttf` file to an MSDF representation as a JSON and a corresponding texture.
 
 ## How to set up custom fonts?
+
+There are two ways to generate MSDF fonts: using a web-based tool or using local tooling. The web-based option is recommended for most users as it's simpler and doesn't require installing any software.
+
+### Option 1: Web-based Tool
+
+You can use the MSDF Generator at https://msdf-staging.zap.works/ to convert your TTF font to MSDF format.
+
+#### Steps:
+
+1. Download a `.ttf` file for the font family with the correct weights (e.g., `roboto-medium.ttf`).
+2. Open [https://msdf-staging.zap.works/](https://msdf-staging.zap.works/) in your browser.
+3. Upload your `.ttf` file.
+4. Click "Generate".
+5. The tool will generate a JSON file with the texture inlined as a base64 data URL.
+6. Download the generated JSON file.
+
+The generated JSON file contains the MSDF texture embedded inline, so you don't need to manage separate texture files.
+
+### Option 2: Local Tooling
+
+If you prefer to use local tooling or need more control over the generation process, you can use [msdf-bmfont-xml](https://www.npmjs.com/package/msdf-bmfont-xml).
 
 This example shows how to compile the `Roboto` font family with the weight `medium`.
 
@@ -84,7 +105,9 @@ generateBMFont(
 
 #### Implementing the generated font
 
-Lastly, we add the font family via the `fontFamilies` property. It's necessary to host the `.json` file and the texture on the same URL and provide the URL to the `.json` file to the `fontFamilies` property.
+Once you have generated the JSON file (using either method), you can add the font family via the `fontFamilies` property.
+
+For web-generated fonts (Option 1), the texture is already inlined in the JSON file. For locally-generated fonts (Option 2), it's necessary to host the `.json` file and the texture on the same URL and provide the URL to the `.json` file to the `fontFamilies` property.
 
 Repeat the previous process for other weights, such as bold, to support different weights.
 
