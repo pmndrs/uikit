@@ -63,6 +63,7 @@ export class InstancedGlyph {
     this.index = index
     this.writeUpdatedMatrix()
     this.writeUV()
+    this.writeRenderSolid()
     this.updateColor(this.color, this.opacity)
     this.updateClippingRect(this.clippingRect)
   }
@@ -115,6 +116,7 @@ export class InstancedGlyph {
     if (this.glyphInfo != glyphInfo) {
       this.glyphInfo = glyphInfo
       this.writeUV()
+      this.writeRenderSolid()
     }
     this.x = x
     this.y = y
@@ -140,6 +142,18 @@ export class InstancedGlyph {
     glyphIntoToUV(this.glyphInfo, instanceUV.array, offset)
     instanceUV.addUpdateRange(offset, 4)
     instanceUV.needsUpdate = true
+    root.requestRender?.()
+  }
+
+  private writeRenderSolid(): void {
+    if (this.index == null || this.glyphInfo == null) {
+      return
+    }
+    const { instanceRenderSolid, root } = this.group
+    const offset = this.index * 1
+    instanceRenderSolid.array[offset] = this.glyphInfo.renderSolid ? 1.0 : 0.0
+    instanceRenderSolid.addUpdateRange(offset, 1)
+    instanceRenderSolid.needsUpdate = true
     root.requestRender?.()
   }
 

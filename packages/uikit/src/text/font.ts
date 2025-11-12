@@ -170,6 +170,55 @@ export type GlyphInfo = {
   uvHeight?: number
   uvX?: number
   uvY?: number
+  renderSolid?: boolean
+}
+
+function computeFallbackGlyphMetrics(
+  chars: Array<GlyphInfo>,
+): Pick<GlyphInfo, 'width' | 'height' | 'xoffset' | 'yoffset' | 'xadvance'> {
+  if (chars.length === 0) throw new Error('font has no glyphs')
+
+  let totalWidth = 0
+  let totalHeight = 0
+  let totalYOffset = 0
+  let totalXOffset = 0
+  let totalXAdvance = 0
+
+  for (const glyph of chars) {
+    totalWidth += glyph.width
+    totalHeight += glyph.height
+    totalYOffset += glyph.yoffset
+    totalXOffset += glyph.xoffset
+    totalXAdvance += glyph.xadvance
+  }
+
+  const count = chars.length
+  return {
+    width: totalWidth / count,
+    height: totalHeight / count,
+    xoffset: totalXOffset / count,
+    yoffset: totalYOffset / count,
+    xadvance: totalXAdvance / count,
+  }
+}
+
+function createFallbackGlyph(chars: Array<GlyphInfo>): GlyphInfo {
+  const metrics = computeFallbackGlyphMetrics(chars)
+  return {
+    id: 63,
+    index: 0,
+    char: '?',
+    width: metrics.width,
+    height: metrics.height,
+    x: 0,
+    y: 0,
+    xoffset: metrics.xoffset,
+    yoffset: metrics.yoffset,
+    xadvance: metrics.xadvance,
+    chnl: 15,
+    page: 0,
+    renderSolid: true,
+  }
 }
 
 export class Font {
@@ -188,6 +237,9 @@ export class Font {
     public page: Texture,
   ) {
     const { scaleW, scaleH, lineHeight } = info.common
+
+    // Ensure '?' glyph exists - create synthetic solid block if missing
+    if (!info.chars.some((g) => g.char === '?')) info.chars.push(createFallbackGlyph(info.chars))
 
     this.pageWidth = scaleW
     this.pageHeight = scaleH
@@ -213,11 +265,7 @@ export class Font {
       this.kerningMap.set(`${first}/${second}`, amount / size)
     }
 
-    const questionmarkGlyphInfo = this.glyphInfoMap.get('?')
-    if (questionmarkGlyphInfo == null) {
-      throw new Error("missing '?' glyph in font")
-    }
-    this.questionmarkGlyphInfo = questionmarkGlyphInfo
+    this.questionmarkGlyphInfo = this.glyphInfoMap.get('?')!
   }
 
   getGlyphInfo(char: string): GlyphInfo {
