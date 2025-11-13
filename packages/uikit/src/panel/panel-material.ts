@@ -24,10 +24,10 @@ type InstanceOf<T> = T extends { new (): infer K } ? K : never
 const defaultDefaults = {
   backgroundColor: 'transparent' as ColorRepresentation,
   borderColor: 'transparent' as ColorRepresentation,
-  borderBottomLeftRadius: 0,
-  borderTopLeftRadius: 0,
-  borderBottomRightRadius: 0,
-  borderTopRightRadius: 0,
+  borderBottomLeftRadius: 0 as number | string,
+  borderTopLeftRadius: 0 as number | string,
+  borderBottomRightRadius: 0 as number | string,
+  borderTopRightRadius: 0 as number | string,
   borderBend: 0,
 } satisfies { [Key in keyof typeof materialSetters]: unknown }
 
@@ -137,14 +137,15 @@ const materialSetters = {
     ),
 
   //8 = border radiuses
-  borderBottomLeftRadius: (d, o, p: number, { value: s }, _, u) => {
+  borderBottomLeftRadius: (d, o, p: number | string, { value: s }, _, u) => {
     s != null && writeBorderRadius(d, o + 8, 0, p, s[1], u)
   },
-  borderBottomRightRadius: (d, o, p: number, { value: s }, _, u) =>
+  borderBottomRightRadius: (d, o, p: number | string, { value: s }, _, u) =>
     s != null && writeBorderRadius(d, o + 8, 1, p, s[1], u),
-  borderTopRightRadius: (d, o, p: number, { value: s }, _, u) =>
+  borderTopRightRadius: (d, o, p: number | string, { value: s }, _, u) =>
     s != null && writeBorderRadius(d, o + 8, 2, p, s[1], u),
-  borderTopLeftRadius: (d, o, p: number, { value: s }, _, u) => s != null && writeBorderRadius(d, o + 8, 3, p, s[1], u),
+  borderTopLeftRadius: (d, o, p: number | string, { value: s }, _, u) =>
+    s != null && writeBorderRadius(d, o + 8, 3, p, s[1], u),
 
   //9 - 12 = border color
   borderColor: (d, o, p: ColorRepresentation, _, op, u) =>
@@ -181,11 +182,11 @@ function writeBorderRadius(
   data: TypedArray,
   offset: number,
   indexInFloat: number,
-  value: any,
+  value: number | string,
   height: number,
   onUpdate: ((start: number, count: number) => void) | undefined,
 ): void {
-  setBorderRadius(data, offset, indexInFloat, value, height)
+  setBorderRadius(data, offset, indexInFloat, Number(value), height)
   onUpdate?.(offset, 1)
 }
 

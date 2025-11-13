@@ -192,3 +192,6 @@ export class Input extends Container<InputOutProperties> {
     throw new Error(`the Input component can not have any children`)
   }
 }
+
+//alias that is currently are workarround for uikitml because
+export const HorizonInput = Input

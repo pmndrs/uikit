@@ -3,7 +3,7 @@ import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 
 export type ProgressOutProperties = {
-  value?: number
+  value?: number | string
 } & BaseOutProperties
 
 export type ProgressProperties = InProperties<ProgressOutProperties>
@@ -45,7 +45,7 @@ export class Progress extends Container<ProgressOutProperties> {
           borderTopRightRadius: 1000,
           borderTopLeftRadius: 1000,
           backgroundColor: colors.primary,
-          width: computed(() => `${this.properties.value.value ?? 0}%` as const),
+          width: computed(() => `${Number(this.properties.value.value ?? 0)}%` as const),
         },
       })),
     )

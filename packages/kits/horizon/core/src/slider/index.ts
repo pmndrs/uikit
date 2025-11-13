@@ -18,13 +18,13 @@ export function percentageFormatting(value: number): string {
 }
 
 export type SliderOutProperties = BaseOutProperties & {
-  value?: number
+  value?: number | string
   onValueChange?: (value: number) => void
   valueFormat?: 'percentage' | ((value: number) => string)
-  defaultValue?: number
-  min?: number
-  max?: number
-  step?: number
+  defaultValue?: number | string
+  min?: number | string
+  max?: number | string
+  step?: number | string
   /**
    * @default "md"
    */
@@ -62,8 +62,8 @@ export type SliderProperties = InProperties<SliderOutProperties>
 
 export class Slider extends Container<SliderOutProperties> {
   public readonly uncontrolledSignal = signal<number | undefined>(undefined)
-  public readonly currentSignal = computed(
-    () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0,
+  public readonly currentSignal = computed(() =>
+    Number(this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0),
   )
   private downPointerId?: number
 
@@ -161,8 +161,8 @@ export class Slider extends Container<SliderOutProperties> {
     this.touchTarget.add(this.track)
 
     const percentage = computed(() => {
-      const min = this.properties.value.min ?? 0
-      const max = this.properties.value.max ?? 100
+      const min = Number(this.properties.value.min ?? 0)
+      const max = Number(this.properties.value.max ?? 100)
       const range = max - min
       return `${(100 * (this.currentSignal.value - min)) / range}%` as const
     })
@@ -259,13 +259,15 @@ export class Slider extends Container<SliderOutProperties> {
     this.labels.add(
       (this.leftLabel = new Text(undefined, undefined, {
         defaultOverrides: {
-          text: computed(() => this.properties.signal.leftLabel.value ?? format.value(this.properties.value.min ?? 0)),
+          text: computed(
+            () => this.properties.signal.leftLabel.value ?? format.value(Number(this.properties.value.min ?? 0)),
+          ),
         },
       })),
       (this.rightLabel = new Text(undefined, undefined, {
         defaultOverrides: {
           text: computed(
-            () => this.properties.signal.rightLabel.value ?? format.value(this.properties.value.max ?? 100),
+            () => this.properties.signal.rightLabel.value ?? format.value(Number(this.properties.value.max ?? 100)),
           ),
         },
       })),
@@ -278,9 +280,9 @@ export class Slider extends Container<SliderOutProperties> {
   private handleSetValue(e: { stopPropagation?: () => void; point: Vector3 }) {
     vectorHelper.copy(e.point)
     this.worldToLocal(vectorHelper)
-    const minValue = this.properties.peek().min ?? 0
-    const maxValue = this.properties.peek().max ?? 100
-    const stepValue = this.properties.peek().step ?? 0.0001
+    const minValue = Number(this.properties.peek().min ?? 0)
+    const maxValue = Number(this.properties.peek().max ?? 100)
+    const stepValue = Number(this.properties.peek().step ?? 0.0001)
     const newValue = Math.min(
       Math.max(
         Math.round(((vectorHelper.x + 0.5) * (maxValue - minValue) + minValue) / stepValue) * stepValue,

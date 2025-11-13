@@ -6,7 +6,7 @@ import { Tooltip } from './index.js'
 export type TooltipContentProperties = InProperties<TooltipContentOutProperties>
 
 export type TooltipContentOutProperties = BaseOutProperties & {
-  sideOffset?: number
+  sideOffset?: number | string
 }
 
 export class TooltipContent extends Container<TooltipContentOutProperties> {
@@ -27,7 +27,7 @@ export class TooltipContent extends Container<TooltipContentOutProperties> {
         },
         positionType: 'absolute',
         positionBottom: '100%',
-        marginBottom: computed(() => this.properties.value.sideOffset ?? 4),
+        marginBottom: computed(() => Number(this.properties.value.sideOffset ?? 4)),
         zIndex: 50,
         overflow: 'hidden',
         borderRadius: borderRadius.md,
