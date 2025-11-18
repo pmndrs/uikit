@@ -66,14 +66,22 @@ export function computedFont(
     }
     let fontFamily = properties.value.fontFamily
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
+    const usingDefaultFontFamilies = fontFamiliesSignal.value == null
+    const customFontRequested = fontFamily != null
     fontFamily ??= Object.keys(fontFamilies)[0]!
     let fontFamilyWeightMap = fontFamilies[fontFamily]
     if (fontFamilyWeightMap == null) {
       const availableFontFamilyList = Object.keys(fontFamilies)
       fontFamilyWeightMap = fontFamilies[availableFontFamilyList[0] as any]!
-      console.error(
-        `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`,
-      )
+      const message = `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`
+
+      if (!usingDefaultFontFamilies) {
+        // fontFamilies explicitly set but requested font is missing
+        console.error(message)
+      } else if (customFontRequested) {
+        // Custom font requested but fontFamilies haven't loaded yet - warn, as this may resolve reactively
+        console.warn(message)
+      }
     }
     const url = getMatchingFontUrl(fontFamilyWeightMap, fontWeight)
     let aborted = false
