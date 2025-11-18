@@ -1,6 +1,6 @@
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray } from 'three'
-import { loadCachedFont } from './cache.js'
+import { loadCachedFont, registerFontFamilies, getFontFamily } from './cache.js'
 import { Properties } from '../properties/index.js'
 import { inter } from '@pmndrs/msdfonts'
 import { Container } from '../components/container.js'
@@ -31,6 +31,11 @@ const defaultFontFamiles: FontFamilies = {
 }
 
 export function computedFontFamilies(properties: Properties, parent: Signal<Container | undefined>) {
+  effect(() => {
+    const currentFontFamilies = properties.value.fontFamilies
+    if (currentFontFamilies != null) registerFontFamilies(currentFontFamilies)
+  })
+
   return computed(() => {
     const currentFontFamilies = properties.value.fontFamilies
     const inheritedFontFamilies = parent.value?.fontFamilies.value
@@ -65,22 +70,26 @@ export function computedFont(
       }
     }
     let fontFamily = properties.value.fontFamily
-    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
-    const usingDefaultFontFamilies = fontFamiliesSignal.value == null
-    const customFontRequested = fontFamily != null
+    const inheritedFontFamilies = fontFamiliesSignal.value
+    const fontFamilies = inheritedFontFamilies ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
-    let fontFamilyWeightMap = fontFamilies[fontFamily]
-    if (fontFamilyWeightMap == null) {
-      const availableFontFamilyList = Object.keys(fontFamilies)
-      fontFamilyWeightMap = fontFamilies[availableFontFamilyList[0] as any]!
-      const message = `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`
 
-      if (!usingDefaultFontFamilies) {
-        // fontFamilies explicitly set but requested font is missing
-        console.error(message)
-      } else if (customFontRequested) {
-        // Custom font requested but fontFamilies haven't loaded yet - warn, as this may resolve reactively
-        console.warn(message)
+    let fontFamilyWeightMap = fontFamilies[fontFamily]
+
+    if (fontFamilyWeightMap == null) {
+      // font inherited/defaults - check global
+      const fontInGlobalRegistry = getFontFamily(fontFamily)
+
+      if (fontInGlobalRegistry != null && inheritedFontFamilies == null) {
+        // TRANSIENT
+        fontFamilyWeightMap = fontInGlobalRegistry
+      } else {
+        // 404
+        const availableFontFamilyList = Object.keys(fontFamilies)
+        fontFamilyWeightMap = fontFamilies[availableFontFamilyList[0] as any]!
+        console.error(
+          `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`,
+        )
       }
     }
     const url = getMatchingFontUrl(fontFamilyWeightMap, fontWeight)

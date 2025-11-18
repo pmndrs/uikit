@@ -1,7 +1,9 @@
 import { TextureLoader } from 'three'
-import { Font, FontInfo } from './font.js'
+import { Font, FontInfo, FontFamilies } from './font.js'
+import { inter } from '@pmndrs/msdfonts'
 
 const fontCache = new Map<string | FontInfo, Set<(font: Font) => void> | Font>()
+const fontFamilyRegistry = new Map<string, FontFamilies[string]>([['inter', inter]])
 
 const textureLoader = new TextureLoader()
 
@@ -47,4 +49,22 @@ async function loadFont(fontInfoOrUrl: string | FontInfo): Promise<Font> {
   page.flipY = false
 
   return new Font(info, page)
+}
+
+export function registerFontFamilies(fontFamilies: FontFamilies): void {
+  for (const [familyName, weightMap] of Object.entries(fontFamilies)) fontFamilyRegistry.set(familyName, weightMap)
+}
+
+export function hasFontFamily(familyName: string): boolean {
+  return fontFamilyRegistry.has(familyName)
+}
+
+export function getFontFamily(familyName: string): FontFamilies[string] | undefined {
+  return fontFamilyRegistry.get(familyName)
+}
+
+export function clearFontCache(): void {
+  fontCache.clear()
+  fontFamilyRegistry.clear()
+  fontFamilyRegistry.set('inter', inter)
 }
