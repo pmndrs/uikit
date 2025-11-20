@@ -12,7 +12,7 @@ import {
 } from 'three'
 import { Constructor, setBorderRadius } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
-import { ColorRepresentation } from '../utils.js'
+import type { ColorRepresentation, Fix_TS_56_Float32Array } from '../utils.js'
 import { Properties } from '../properties/index.js'
 import { Inset } from '../flex/index.js'
 import { toAbsoluteNumber } from '../text/utils.js'
@@ -77,7 +77,7 @@ export function createPanelMaterialConfig(
       fn(data, offset, (value ?? defaultValue) as any, size, opacity, onUpdate)
   }
 
-  const defaultData: Float32Array = new Float32Array(16) //filled with 0s by default
+  const defaultData: Fix_TS_56_Float32Array = new Float32Array(16) //filled with 0s by default
   writeColor(defaultData, 4, defaults.backgroundColor, defaultOpacity, undefined)
   writeColor(defaultData, 9, defaults.borderColor, defaultOpacity, undefined)
   defaultData[13] = defaults.borderBend

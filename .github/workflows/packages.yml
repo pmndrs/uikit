@@ -46,6 +46,10 @@ jobs:
           pnpm -r generate
           pnpm -r build
 
+      - name: Test Uikit Typescript Declaration files (.d.ts)
+        working-directory: ./packages/uikit
+        run: pnpm run test:dts
+
       - name: Copy README
         run: cp ./README.md packages/react
 

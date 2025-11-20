@@ -4,6 +4,7 @@ import type { Box3, Line3, Matrix3, Sphere, Vector2Tuple } from 'three'
 import { Overflow } from 'yoga-layout/load'
 import { Container } from './components/container.js'
 import { Component } from './components/component.js'
+import { Fix_TS_56_Float32Array } from './utils.js'
 
 const dotLt45deg = Math.cos((45 / 180) * Math.PI)
 
@@ -171,7 +172,7 @@ export function computedClippingRect(
 }
 
 export const NoClippingPlane = new Plane(new Vector3(-1, 0, 0), Number.MAX_SAFE_INTEGER)
-export const defaultClippingData: Float32Array = new Float32Array(16)
+export const defaultClippingData: Fix_TS_56_Float32Array = new Float32Array(16)
 for (let i = 0; i < 4; i++) {
   NoClippingPlane.normal.toArray(defaultClippingData, i * 4)
   defaultClippingData[i * 4 + 3] = NoClippingPlane.constant
