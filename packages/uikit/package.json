@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test": "mocha ./tests/*.spec.ts",
-    "build": "tsc -p ./tsconfig.build.json",
+    "build": "tsc -p ./tsconfig.build.json && node --loader ts-node/esm scripts/fix-float32array-types.ts",
     "generate": "node --loader ts-node/esm scripts/flex-generate-setter.ts",
     "check:prettier": "prettier --check src scripts tests",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
