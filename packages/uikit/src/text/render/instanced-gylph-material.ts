@@ -22,6 +22,8 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
         attribute mat4 instanceClipping;
         varying mat4 clipping;
         varying vec3 localPosition;
+        attribute float instanceRenderSolid;
+        varying float renderSolid;
         ` + parameters.vertexShader
       parameters.vertexShader = parameters.vertexShader.replace(
         '#include <uv_vertex>',
@@ -29,7 +31,8 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
             fontUv = instanceUVOffset.xy + uv * instanceUVOffset.zw;
             rgba = instanceRGBA;
             clipping = instanceClipping;
-            localPosition = (instanceMatrix * vec4(position, 1.0)).xyz;`,
+            localPosition = (instanceMatrix * vec4(position, 1.0)).xyz;
+            renderSolid = instanceRenderSolid;`,
       )
       parameters.fragmentShader =
         `uniform sampler2D fontPage;
@@ -39,6 +42,7 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
         varying vec4 rgba;
         varying mat4 clipping;
         varying vec3 localPosition;
+        varying float renderSolid;
         float median(float r, float g, float b) {
             return max(min(r, g), min(max(r, g), b));
         }
@@ -72,11 +76,11 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
 
           float alpha = smoothstep(-aaDist, aaDist, dist);
 
-          if (alpha <= 0.0) discard;
+          if (alpha <= 0.0 && renderSolid <= 0.5) discard;
 
-          // Apply gamma correction to improve text appearance.
+          // Apply gamma correction to improve text appearance, or override for synthetic solid glyphs.
           float gamma = 1.3;
-          alpha = pow(alpha, 1.0 / gamma);
+          alpha = renderSolid > 0.5 ? 1.0 : pow(alpha, 1.0 / gamma);
 
           diffuseColor.a *= clipOpacity * alpha;
           diffuseColor *= rgba;

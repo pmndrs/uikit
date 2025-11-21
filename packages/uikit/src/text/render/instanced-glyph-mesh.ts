@@ -19,6 +19,7 @@ export class InstancedGlyphMesh extends Mesh {
     public readonly instanceRGBA: InstancedBufferAttribute,
     public readonly instanceUV: InstancedBufferAttribute,
     public readonly instanceClipping: InstancedBufferAttribute,
+    public readonly instanceRenderSolid: InstancedBufferAttribute,
     material: Material,
   ) {
     const planeGeometry = new PlaneGeometry()
@@ -28,6 +29,7 @@ export class InstancedGlyphMesh extends Mesh {
     planeGeometry.attributes.instanceUVOffset = instanceUV
     planeGeometry.attributes.instanceRGBA = instanceRGBA
     planeGeometry.attributes.instanceClipping = instanceClipping
+    planeGeometry.attributes.instanceRenderSolid = instanceRenderSolid
     this.frustumCulled = false
     root.onUpdateMatrixWorldSet.add(this.customUpdateMatrixWorld)
   }
