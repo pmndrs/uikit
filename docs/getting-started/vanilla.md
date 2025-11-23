@@ -1,6 +1,6 @@
 ---
 title: Vanilla Three.js
-description: Build your first layout with with uikit and vanilla threejs.
+description: Build your first layout with uikit and vanilla threejs.
 nav: 4
 ---
 
@@ -8,20 +8,7 @@ The vanilla version of uikit allows to build user interfaces with plain Three.js
 
 ### Differences to @react-three/uikit
 
-The vanilla version of uikit (`@pmndrs/uikit`) is the core part of uikit while the react version is a slim wrapper around it. Therefore all features that are available in react are available in vanilla threejs. The only difference is that, since three.js ships no event system, no event system is available out of the box. For interactivity, such as hover effects, developers have to attach their own event system by emitting pointer events to the UI elements:
-
-```js
-uiElement.dispatchEvent({
-    type: 'pointerover',
-    distance: 0,
-    nativeEvent: {} as any,
-    object: x,
-    point: new Vector3(),
-    pointerId: -1,
-})
-```
-
-We recommend the [@pmndrs/pointer-events](https://github.com/pmndrs/xr/tree/main/packages/pointer-events#readme) library for a framework agnostic three.js event system that is compatible with the W3C pointer events implementation.
+The vanilla version of uikit (`@pmndrs/uikit`) is the core part of uikit while the react version is a slim wrapper around it. Therefore all features that are available in react are available in vanilla threejs. The only difference is that, since three.js ships no event system, no event system is available out of the box. For interactivity, such as hover effects, attach a pointer event system that emits W3C-compatible events to your UI elements. We recommend [@pmndrs/pointer-events](https://github.com/pmndrs/xr/tree/main/packages/pointer-events#readme).
 
 ## The uikit `Component`
 
@@ -75,11 +62,13 @@ All uikit components have a common base class (`Component`), which exposes a set
 
 The first step is to install the dependencies.
 
-`npm i three @pmndrs/uikit`
+```bash
+pnpm add three @pmndrs/uikit
+```
 
-Next, we create the `index.js` file and import the necessary dependencies and setup a threejs scene.
+Next, create the `index.ts` file and import the necessary dependencies and set up a threejs scene.
 
-```js
+```ts
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { reversePainterSortStable, Container } from '@pmndrs/uikit'
 
@@ -90,47 +79,38 @@ const canvas = document.getElementById('root') as HTMLCanvasElement
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 ```
 
-Now, we can start defining the actual layout. In this example, the `Container` is of size 2 by 1 (three.js units). The `Container` has a horizontal (row) flex-direction, with 2 `Container` children, filling its width equally with a margin around them.
+Now, we can start defining the actual layout. In this example, the `Container` is of size 8 by 4 (three.js units). The `Container` has a horizontal (row) flex-direction, with 2 `Container` children, filling its width equally with a margin around them.
 
 More in-depth information on the Flexbox properties can be found [here](https://yogalayout.dev/docs/).
 
-```js
-const root = new Container(camera, renderer, undefined, {
-    flexDirection: "row",
-    padding: 10,
-    gap: 10
+```ts
+// Root container – add it to the scene; call root.update in your loop
+const root = new Container({
+  backgroundColor: "red",
+  sizeX: 8,
+  sizeY: 4,
+  flexDirection: "row",
 })
 scene.add(root)
 
-const defaultProperties = {
-    opacity: 0.5,
-}
-
-const container1 = new Container(
-    {
-        flexGrow: 1,
-        hover: { opacity: 1 }
-        backgroundColor: "red"
-    },
-    defaultProperties
-)
+const container1 = new Container({
+  flexGrow: 1,
+  margin: 32,
+  backgroundColor: "green",
+})
 root.add(container1)
 
-const container2 = new Container(
-    {
-        flexGrow: 1,
-        opacity: 0.5,
-        hover: { opacity: 1 },
-        backgroundColor: "blue"
-    },
-    defaultProperties
-)
+const container2 = new Container({
+  flexGrow: 1,
+  margin: 32,
+  backgroundColor: "blue",
+})
 root.add(container2)
 ```
 
 All properties of the user interface elements can be modified using `container.setProperties({...})`. The last step is to setup the frameloop, setup resizing, enable local clipping, and setup the transparency sort required for uikit. Notice that the root component needs to be updated every frame using `root.update(delta)`.
 
-```js
+```ts
 renderer.setAnimationLoop(animation)
 renderer.localClippingEnabled = true
 renderer.setTransparentSort(reversePainterSortStable)
@@ -154,7 +134,14 @@ function animation(time: number) {
 }
 ```
 
-If you use vite (`npm i vite`), you can create a `index.html` file, add the following content, and run `npx vite`.
+If you use Vite, install and run it:
+
+```bash
+pnpm add -D vite
+pnpm vite
+```
+
+Create an `index.html` file, add the following content:
 
 ```html
 <!doctype html>
@@ -163,7 +150,7 @@ If you use vite (`npm i vite`), you can create a `index.html` file, add the foll
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script type="module" src="index.jsx"></script>
+    <script type="module" src="index.ts"></script>
   </head>
   <body style="margin: 0;">
     <div id="root" style="width: 100dvw; height: 100dvh;"></div>
