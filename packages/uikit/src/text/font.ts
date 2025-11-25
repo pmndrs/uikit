@@ -196,17 +196,19 @@ export class Font {
     const { size } = info.info
 
     for (const glyph of info.chars) {
-      glyph.uvX = glyph.x / scaleW
-      glyph.uvY = glyph.y / scaleH
-      glyph.uvWidth = glyph.width / scaleW
-      glyph.uvHeight = glyph.height / scaleH
-      glyph.width /= size
-      glyph.height /= size
-      glyph.xadvance /= size
-      glyph.xoffset /= size
-      glyph.yoffset -= lineHeight - size
-      glyph.yoffset /= size
-      this.glyphInfoMap.set(glyph.char, glyph)
+      const normalizedGlyph: GlyphInfo = {
+        ...glyph,
+        uvX: glyph.x / scaleW,
+        uvY: glyph.y / scaleH,
+        uvWidth: glyph.width / scaleW,
+        uvHeight: glyph.height / scaleH,
+        width: glyph.width / size,
+        height: glyph.height / size,
+        xadvance: glyph.xadvance / size,
+        xoffset: glyph.xoffset / size,
+        yoffset: (glyph.yoffset - (lineHeight - size)) / size,
+      }
+      this.glyphInfoMap.set(normalizedGlyph.char, normalizedGlyph)
     }
 
     for (const { first, second, amount } of info.kernings) {
