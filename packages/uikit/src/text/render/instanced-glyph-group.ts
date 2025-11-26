@@ -72,6 +72,7 @@ export class InstancedGlyphGroup {
   public instanceUV!: InstancedBufferAttribute
   public instanceRGBA!: InstancedBufferAttribute
   public instanceClipping!: InstancedBufferAttribute
+  public instanceRenderSolid!: InstancedBufferAttribute
 
   private glyphs: Array<InstancedGlyph | undefined> = []
   private requestedGlyphs: Array<InstancedGlyph> = []
@@ -210,6 +211,7 @@ export class InstancedGlyphGroup {
     const uvArray = new Float32Array(newSize * 4)
     const rgbaArray = new Float32Array(newSize * 4)
     const clippingArray = new Float32Array(newSize * 16)
+    const renderSolidArray = new Float32Array(newSize * 1)
     this.instanceMatrix = new InstancedBufferAttribute(matrixArray, 16, false)
     this.instanceMatrix.setUsage(DynamicDrawUsage)
     this.instanceUV = new InstancedBufferAttribute(uvArray, 4, false)
@@ -218,6 +220,8 @@ export class InstancedGlyphGroup {
     this.instanceRGBA.setUsage(DynamicDrawUsage)
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
+    this.instanceRenderSolid = new InstancedBufferAttribute(renderSolidArray, 1, false)
+    this.instanceRenderSolid.setUsage(DynamicDrawUsage)
     const oldMesh = this.mesh
     this.mesh = new InstancedGlyphMesh(
       this.root,
@@ -225,6 +229,7 @@ export class InstancedGlyphGroup {
       this.instanceRGBA,
       this.instanceUV,
       this.instanceClipping,
+      this.instanceRenderSolid,
       this.instanceMaterial,
     )
     this.mesh.renderOrder = this.renderOrder
@@ -283,6 +288,7 @@ function copyBuffer(
   copy(target, start, end, oldMesh.instanceUV.array, newMesh.instanceUV.array, 4)
   copy(target, start, end, oldMesh.instanceRGBA.array, newMesh.instanceRGBA.array, 4)
   copy(target, start, end, oldMesh.instanceClipping.array, newMesh.instanceClipping.array, 16)
+  copy(target, start, end, oldMesh.instanceRenderSolid.array, newMesh.instanceRenderSolid.array, 1)
 }
 
 function copy(target: number, start: number, end: number, from: TypedArray, to: TypedArray, itemSize: number): void {

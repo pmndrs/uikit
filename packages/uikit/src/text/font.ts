@@ -170,13 +170,32 @@ export type GlyphInfo = {
   uvHeight?: number
   uvX?: number
   uvY?: number
+  renderSolid?: boolean
 }
+
+const MISSING_GLYPH: GlyphInfo = {
+  id: -1,
+  index: 0,
+  char: '',
+  chnl: 0,
+  page: 0,
+  x: 0,
+  y: 0,
+  width: 0.5,
+  height: 0.5,
+  xadvance: 0.6,
+  xoffset: 0,
+  yoffset: 0.3,
+  uvX: 0,
+  uvY: 0,
+  uvWidth: 0,
+  uvHeight: 0,
+  renderSolid: true,
+} as const
 
 export class Font {
   private glyphInfoMap = new Map<string, GlyphInfo>()
   private kerningMap = new Map<string, number>()
-
-  private questionmarkGlyphInfo: GlyphInfo
 
   //needed in the shader:
   public readonly pageWidth: number
@@ -188,12 +207,11 @@ export class Font {
     public page: Texture,
   ) {
     const { scaleW, scaleH, lineHeight } = info.common
+    const { size } = info.info
 
     this.pageWidth = scaleW
     this.pageHeight = scaleH
     this.distanceRange = info.distanceField.distanceRange
-
-    const { size } = info.info
 
     for (const glyph of info.chars) {
       const normalizedGlyph: GlyphInfo = {
@@ -214,20 +232,19 @@ export class Font {
     for (const { first, second, amount } of info.kernings) {
       this.kerningMap.set(`${first}/${second}`, amount / size)
     }
-
-    const questionmarkGlyphInfo = this.glyphInfoMap.get('?')
-    if (questionmarkGlyphInfo == null) {
-      throw new Error("missing '?' glyph in font")
-    }
-    this.questionmarkGlyphInfo = questionmarkGlyphInfo
   }
 
   getGlyphInfo(char: string): GlyphInfo {
-    return (
-      this.glyphInfoMap.get(char) ??
-      (char == '\n' ? this.glyphInfoMap.get(' ') : this.questionmarkGlyphInfo) ??
-      this.questionmarkGlyphInfo
-    )
+    const glyph = this.glyphInfoMap.get(char)
+    if (glyph) return glyph
+
+    if (char === '\n') {
+      const space = this.glyphInfoMap.get(' ')
+      if (space) return space
+    }
+
+    console.warn(`Missing glyph info for character "${char}"`)
+    return MISSING_GLYPH
   }
 
   getKerning(firstId: number, secondId: number): number {
