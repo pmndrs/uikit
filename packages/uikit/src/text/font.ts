@@ -173,59 +173,29 @@ export type GlyphInfo = {
   renderSolid?: boolean
 }
 
-function computeFallbackGlyphMetrics(
-  chars: Array<GlyphInfo>,
-): Pick<GlyphInfo, 'width' | 'height' | 'xoffset' | 'yoffset' | 'xadvance'> {
-  if (chars.length === 0) throw new Error('font has no glyphs')
-
-  let totalWidth = 0
-  let totalHeight = 0
-  let totalYOffset = 0
-  let totalXOffset = 0
-  let totalXAdvance = 0
-
-  for (const glyph of chars) {
-    totalWidth += glyph.width
-    totalHeight += glyph.height
-    totalYOffset += glyph.yoffset
-    totalXOffset += glyph.xoffset
-    totalXAdvance += glyph.xadvance
-  }
-
-  const count = chars.length
-  return {
-    width: totalWidth / count,
-    height: totalHeight / count,
-    xoffset: totalXOffset / count,
-    yoffset: totalYOffset / count,
-    xadvance: totalXAdvance / count,
-  }
-}
-
-function createFallbackGlyph(chars: Array<GlyphInfo>): GlyphInfo {
-  const metrics = computeFallbackGlyphMetrics(chars)
-  return {
-    id: 63,
-    index: 0,
-    char: '?',
-    width: metrics.width,
-    height: metrics.height,
-    x: 0,
-    y: 0,
-    xoffset: metrics.xoffset,
-    yoffset: metrics.yoffset,
-    xadvance: metrics.xadvance,
-    chnl: 15,
-    page: 0,
-    renderSolid: true,
-  }
-}
+const MISSING_GLYPH: GlyphInfo = {
+  id: -1,
+  index: 0,
+  char: '',
+  chnl: 0,
+  page: 0,
+  x: 0,
+  y: 0,
+  width: 0.5,
+  height: 0.5,
+  xadvance: 0.6,
+  xoffset: 0,
+  yoffset: 0.3,
+  uvX: 0,
+  uvY: 0,
+  uvWidth: 0,
+  uvHeight: 0,
+  renderSolid: true,
+} as const
 
 export class Font {
   private glyphInfoMap = new Map<string, GlyphInfo>()
   private kerningMap = new Map<string, number>()
-
-  private questionmarkGlyphInfo: GlyphInfo
 
   //needed in the shader:
   public readonly pageWidth: number
@@ -237,15 +207,11 @@ export class Font {
     public page: Texture,
   ) {
     const { scaleW, scaleH, lineHeight } = info.common
-
-    // Ensure '?' glyph exists - create synthetic solid block if missing
-    if (!info.chars.some((g) => g.char === '?')) info.chars.push(createFallbackGlyph(info.chars))
+    const { size } = info.info
 
     this.pageWidth = scaleW
     this.pageHeight = scaleH
     this.distanceRange = info.distanceField.distanceRange
-
-    const { size } = info.info
 
     for (const glyph of info.chars) {
       const normalizedGlyph: GlyphInfo = {
@@ -266,16 +232,19 @@ export class Font {
     for (const { first, second, amount } of info.kernings) {
       this.kerningMap.set(`${first}/${second}`, amount / size)
     }
-
-    this.questionmarkGlyphInfo = this.glyphInfoMap.get('?')!
   }
 
   getGlyphInfo(char: string): GlyphInfo {
-    return (
-      this.glyphInfoMap.get(char) ??
-      (char == '\n' ? this.glyphInfoMap.get(' ') : this.questionmarkGlyphInfo) ??
-      this.questionmarkGlyphInfo
-    )
+    const glyph = this.glyphInfoMap.get(char)
+    if (glyph) return glyph
+
+    if (char === '\n') {
+      const space = this.glyphInfoMap.get(' ')
+      if (space) return space
+    }
+
+    console.warn(`Missing glyph info for character "${char}"`)
+    return MISSING_GLYPH
   }
 
   getKerning(firstId: number, secondId: number): number {
