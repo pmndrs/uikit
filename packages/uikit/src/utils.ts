@@ -11,6 +11,8 @@ import { Container } from './components/container.js'
 import { RootContext } from './context.js'
 import { writeColor } from './panel/index.js'
 
+export type Fix_TS_56_Float32Array = Float32Array
+
 export function searchFor<T>(
   from: Component | Object3D,
   _class: { new (...args: Array<any>): T },

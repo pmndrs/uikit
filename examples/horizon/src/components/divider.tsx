@@ -49,5 +49,3 @@ export function DividerDemo() {
     </Container>
   )
 }
-
-

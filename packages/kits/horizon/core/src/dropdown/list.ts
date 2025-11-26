@@ -20,13 +20,17 @@ export class DropdownList extends Container<DropdownListOutProperties> {
       ...config,
       defaultOverrides: {
         minWidth: '100%',
-        backgroundColor: theme.component.selectionDropdown.background.fill.hovered,
+        backgroundColor: '#5c5c5c',
         color: theme.component.selectionDropdown.label.hovered,
         display: computed(() =>
           this.parentContainer.value instanceof Dropdown && this.parentContainer.value.currentOpenSignal.value
             ? 'flex'
             : 'none',
         ),
+        zIndex: 10000,
+        '*': {
+          zIndex: 10000,
+        },
         flexDirection: 'column',
         positionType: 'absolute',
         positionTop: '110%',

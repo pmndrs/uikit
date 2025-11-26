@@ -11,10 +11,10 @@ import { BaseOutProperties, Properties } from '../properties/index.js'
 import { RootContext } from '../context.js'
 
 export type PanelProperties = {
-  borderTopLeftRadius?: number
-  borderTopRightRadius?: number
-  borderBottomLeftRadius?: number
-  borderBottomRightRadius?: number
+  borderTopLeftRadius?: number | string
+  borderTopRightRadius?: number | string
+  borderBottomLeftRadius?: number | string
+  borderBottomRightRadius?: number | string
   opacity?: number | `${number}%`
   backgroundColor?: ColorRepresentation
   borderColor?: ColorRepresentation

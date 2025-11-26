@@ -7,11 +7,11 @@ const vectorHelper = new Vector3()
 
 export type SliderOutProperties = {
   disabled?: boolean
-  value?: number
-  min?: number
-  max?: number
-  step?: number
-  defaultValue?: number
+  value?: number | string
+  min?: number | string
+  max?: number | string
+  step?: number | string
+  defaultValue?: number | string
   onValueChange?: (value: number) => void
 } & BaseOutProperties
 
@@ -21,8 +21,8 @@ export class Slider extends Container<SliderOutProperties> {
   private downPointerId?: number
 
   public readonly uncontrolledSignal = signal<number | undefined>(undefined)
-  public readonly currentSignal = computed(
-    () => this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0,
+  public readonly currentSignal = computed(() =>
+    Number(this.properties.value.value ?? this.uncontrolledSignal.value ?? this.properties.value.defaultValue ?? 0),
   )
 
   public readonly track: Container
@@ -97,8 +97,8 @@ export class Slider extends Container<SliderOutProperties> {
     }, this.abortSignal)
 
     const percentage = computed(() => {
-      const min = this.properties.value.min ?? 0
-      const max = this.properties.value.max ?? 100
+      const min = Number(this.properties.value.min ?? 0)
+      const max = Number(this.properties.value.max ?? 100)
       const range = max - min
       return `${(100 * (this.currentSignal.value - min)) / range}%` as const
     })
@@ -166,9 +166,9 @@ export class Slider extends Container<SliderOutProperties> {
   private handleSetValue(e: { stopPropagation?: () => void; point: Vector3 }) {
     vectorHelper.copy(e.point)
     this.worldToLocal(vectorHelper)
-    const minValue = this.properties.peek().min ?? 0
-    const maxValue = this.properties.peek().max ?? 100
-    const stepValue = this.properties.peek().step ?? 1
+    const minValue = Number(this.properties.peek().min ?? 0)
+    const maxValue = Number(this.properties.peek().max ?? 100)
+    const stepValue = Number(this.properties.peek().step ?? 1)
     const newValue = Math.min(
       Math.max(
         Math.round(((vectorHelper.x + 0.5) * (maxValue - minValue) + minValue) / stepValue) * stepValue,

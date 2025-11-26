@@ -153,11 +153,12 @@ export class PropertiesImplementation<OutProperties extends BaseOutProperties = 
           WithSignal<WithInitial<Partial<OutProperties>>>
         >
         if (getConditional != null) {
-          for (const [key, value] of Object.entries(conditionalProperties)) {
-            conditionalProperties[key as keyof AddAllAliases<WithSignal<OutProperties>>] = computed(() =>
-              getConditional() ? (value instanceof Signal ? value.value : value) : undefined,
-            ) as any
-          }
+          conditionalProperties = Object.fromEntries(
+            Object.entries(conditionalProperties).map(([key, value]) => [
+              key,
+              computed(() => (getConditional() ? (value instanceof Signal ? value.value : value) : undefined)),
+            ]),
+          ) as AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>
         }
         this.setLayer(layerIndex, conditionalProperties)
       }
