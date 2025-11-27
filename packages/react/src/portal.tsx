@@ -244,6 +244,10 @@ function ChildrenToFBO({
     if (currentFBO == null || imageRef.current?.isVisible?.peek() != true) {
       return
     }
+    // Check if the render target has a valid size to prevent GL_INVALID_FRAMEBUFFER_OPERATION errors
+    if (currentFBO.width <= 0 || currentFBO.height <= 0) {
+      return
+    }
     if (frames === Infinity || count < frames) {
       oldAutoClear = state.gl.autoClear
       oldXrEnabled = state.gl.xr.enabled
