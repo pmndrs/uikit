@@ -6,9 +6,100 @@ nav: 10
 
 The `Text` component enables rendering text using multi-channel signed distance functions (MSDF). By default, uikit provides the Inter font. A custom font can be converted from a `.ttf` file to an MSDF representation as a JSON and a corresponding texture.
 
-## How to set up custom fonts?
+## Runtime TTF Loading
 
-There are two ways to generate MSDF fonts: using a web-based tool or using local tooling. The web-based option is recommended for most users as it's simpler and doesn't require installing any software.
+Load TTF files directly at runtime using `@pmndrs/uikit-ttf` (vanilla) or `@react-three/uikit-ttf` (React). These packages convert TTF fonts to MSDF format on-the-fly using WebAssembly.
+
+### React Three Fiber
+
+```bash
+npm install @react-three/uikit-ttf
+```
+
+```jsx
+import { Suspense } from 'react'
+import { useTTF } from '@react-three/uikit-ttf'
+import { Fullscreen, Text } from '@react-three/uikit'
+
+function UI() {
+  const fontFamilies = useTTF('/fonts/Roboto.ttf')
+
+  return (
+    <Fullscreen fontFamilies={fontFamilies}>
+      <Text fontSize={24}>Hello World</Text>
+    </Fullscreen>
+  )
+}
+
+function App() {
+  return (
+    <Suspense fallback={null}>
+      <UI />
+    </Suspense>
+  )
+}
+```
+
+### Vanilla Three.js
+
+```bash
+npm install @pmndrs/uikit-ttf
+```
+
+```js
+import { TTFLoader } from '@pmndrs/uikit-ttf'
+import { Container, Text } from '@pmndrs/uikit'
+
+const loader = new TTFLoader()
+const fontFamilies = await loader.loadAsync('/fonts/Roboto.ttf')
+
+const root = new Container({ fontFamilies })
+const text = new Text({ fontSize: 24, text: 'Hello World' })
+root.add(text)
+```
+
+### Options
+
+Both packages support the same options:
+
+| Option        | Default                   | Description                                              |
+| ------------- | ------------------------- | -------------------------------------------------------- |
+| `charset`     | `A-Za-z0-9` + punctuation | Characters to include in the atlas                       |
+| `fontSize`    | `48`                      | Glyph rasterization resolution (higher = more detail)    |
+| `textureSize` | `[512, 512]`              | Atlas dimensions `[width, height]`                       |
+| `fieldRange`  | `4`                       | Max encoded distance in pixels (higher = smoother edges) |
+| `fixOverlaps` | `true`                    | Fix overlapping contours in glyphs                       |
+
+```jsx
+// React
+const fontFamilies = useTTF('/fonts/Roboto.ttf', {
+  charset: 'ABCabc123',
+  fontSize: 64,
+  textureSize: [1024, 1024],
+})
+
+// Vanilla
+loader.setOptions({ charset: 'ABCabc123', fontSize: 64 })
+const fontFamilies = await loader.loadAsync('/fonts/Roboto.ttf')
+```
+
+### Multiple Fonts
+
+Merge multiple TTF files into a single MSDF atlas (useful for fallback fonts or language support):
+
+```jsx
+// React
+const fontFamilies = useTTF(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+
+// Vanilla
+const fontFamilies = await loader.loadMultipleAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+```
+
+---
+
+## Pre-generated MSDF Fonts
+
+There are two ways to generate MSDF fonts ahead of time: using a web-based tool or using local tooling. The web-based option is simpler and doesn't require installing any software.
 
 ### Option 1: Web-based Tool
 
@@ -112,12 +203,13 @@ For web-generated fonts (Option 1), the texture is already inlined in the JSON f
 Repeat the previous process for other weights, such as bold, to support different weights.
 
 ```tsx showLineNumbers
-<Container fontFamilies={{
-  roboto: {
-    medium: "url-to-medium.json",
-    bold: "url-to-bold.json",
-  }
-}}
+<Container
+  fontFamilies={{
+    roboto: {
+      medium: 'url-to-medium.json',
+      bold: 'url-to-bold.json',
+    },
+  }}
 >
   <Text fontFamily="roboto">Test123</Text>
 </Container>
