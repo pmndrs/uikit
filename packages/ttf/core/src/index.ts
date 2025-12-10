@@ -4,6 +4,7 @@ import { FileLoader, Loader, LoadingManager } from 'three'
 export type MSDFResult = GenerateFontResult
 
 export interface TTFLoaderOptions {
+  url?: string
   charset?: string
   fontSize?: number
   textureSize?: [number, number]
@@ -12,12 +13,13 @@ export interface TTFLoaderOptions {
   onProgress?: (progress: number, completed: number, total: number) => void
 }
 
-export interface TTFLoaderBatchOptions extends TTFLoaderOptions {
-  fonts?: Partial<TTFLoaderOptions>[]
+export interface TTFLoaderBatchOptions {
+  fonts?: TTFLoaderOptions[]
+  onProgress?: (progress: number, completed: number, total: number) => void
 }
 
-const DEFAULT_OPTIONS: Required<Omit<TTFLoaderOptions, 'onProgress'>> = {
-  charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,;:\'"()-[]{}@#$%&*+=/\\<>',
+const DEFAULT_OPTIONS: Required<Omit<TTFLoaderOptions, 'url' | 'onProgress'>> = {
+  charset: ' \tABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,;:\'"()-[]{}@#$%&*+=/\\<>',
   fontSize: 48,
   textureSize: [512, 512],
   fieldRange: 4,
@@ -88,12 +90,11 @@ export class TTFLoader extends Loader {
       const fontPromises = urls.map((url) => loader.loadAsync(url, onProgress))
       const [arrayBuffers] = await Promise.all([Promise.all(fontPromises), generator.initialize()])
 
-      const { fonts: perFontOptions, onProgress: progressCallback, ...globalOptions } = options
-      const finalGlobalOptions = { ...DEFAULT_OPTIONS, ...globalOptions }
+      const { fonts: perFontOptions, onProgress: progressCallback } = options
 
       const fonts = arrayBuffers.map((arrayBuffer, i) => {
-        const fontOverrides = perFontOptions?.[i] ?? {}
-        const mergedOptions = { ...finalGlobalOptions, ...fontOverrides }
+        const fontOptions = perFontOptions?.[i] ?? {}
+        const mergedOptions = { ...DEFAULT_OPTIONS, ...fontOptions }
         return {
           font: new Uint8Array(arrayBuffer as ArrayBuffer),
           charset: mergedOptions.charset,
@@ -106,8 +107,6 @@ export class TTFLoader extends Loader {
 
       const generateOptions = {
         fonts,
-        charset: finalGlobalOptions.charset,
-        fontSize: finalGlobalOptions.fontSize,
         ...(progressCallback ? { onProgress: progressCallback } : {}),
       } as Parameters<typeof generator.generate>[0]
 

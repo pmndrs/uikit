@@ -31,7 +31,6 @@ async function init() {
   root.position.z = -2
   scene.add(root)
 
-  // Use the font family name from the TTF file
 
   const title = new Text({
     fontSize: 48,

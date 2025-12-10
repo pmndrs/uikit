@@ -47,8 +47,8 @@ loader.setOptions({
 
 ## Multiple Fonts
 
-Merge multiple TTF files into a single MSDF atlas (useful for fallback fonts):
+Load multiple TTF files at once:
 
 ```jsx
-const msdf = await loader.loadMultipleAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'], { charset: 'ABCあいう' })
+const msdf = await loader.loadMultipleAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
 ```
