@@ -479,8 +479,8 @@ importers:
   packages/ttf/core:
     dependencies:
       '@zappar/msdf-generator':
-        specifier: ^1.2.3
-        version: 1.2.3
+        specifier: ^1.2.4
+        version: 1.2.4
       three:
         specifier: '>=0.162'
         version: 0.175.0
@@ -2368,8 +2368,8 @@ packages:
   '@webgpu/types@0.1.63':
     resolution: {integrity: sha512-s9Kuh0nE/2+nKrvmKNMB2fE5Zlr3DL2t3OFKM55v5jRcfCOxbkOHhQoshoFum5mmXIfEtRXtLCWmkeTJsVjE9w==}
 
-  '@zappar/msdf-generator@1.2.3':
-    resolution: {integrity: sha512-yKV8TPuU73Z8NBVX+4dVkJiukhVtLMtUiq5LNG5+4h3EPGicMcNRuh543xbJbPVS5XUvGfE0UAMHGUHkdLti1w==}
+  '@zappar/msdf-generator@1.2.4':
+    resolution: {integrity: sha512-6S/MCk0Ky0ipewZJw4xFEzH/2aYfWmPXEkTdBtNyDDfkbicrNwgJgtxZ4SnTDyNe9XHMqDA4sL9srRsgDLRMqA==}
     engines: {node: '>=18'}
 
   abbrev@1.1.1:
@@ -9092,7 +9092,7 @@ snapshots:
 
   '@webgpu/types@0.1.63': {}
 
-  '@zappar/msdf-generator@1.2.3':
+  '@zappar/msdf-generator@1.2.4':
     dependencies:
       comlink: 4.4.2
 

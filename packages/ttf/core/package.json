@@ -36,6 +36,6 @@
     "three": ">=0.162"
   },
   "dependencies": {
-    "@zappar/msdf-generator": "^1.2.3"
+    "@zappar/msdf-generator": "^1.2.4"
   }
 }
