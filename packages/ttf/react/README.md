@@ -26,7 +26,7 @@ function App() {
 Load multiple TTF files at once:
 
 ```jsx
-const font = useTTF(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+const fontFamilies = useTTF(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
 ```
 
 ## Options
@@ -34,7 +34,7 @@ const font = useTTF(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
 Pass an object instead of a string to customize MSDF generation:
 
 ```jsx
-const roboto = useTTF({ url: '/fonts/Roboto.ttf', fontSize: 64 })
+const fontFamilies = useTTF({ url: '/fonts/Roboto.ttf', fontSize: 64 })
 ```
 
 | Option        | Default                   | Description                                              |

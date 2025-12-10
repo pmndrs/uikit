@@ -19,23 +19,22 @@ renderer.setTransparentSort(reversePainterSortStable)
 
 async function init() {
   const loader = new TTFLoader()
-  const result = await loader.loadAsync(fontUrl)
+  const fontFamilies = await loader.loadAsync(fontUrl)
 
   const root = new Container({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 24,
-    fontFamilies: result,
+    fontFamilies,
   })
   root.position.z = -2
   scene.add(root)
 
-
   const title = new Text({
     fontSize: 48,
     color: 'white',
-    text: 'TTF Loader    Example',
+    text: 'TTF Loader Example',
   })
   root.add(title)
 

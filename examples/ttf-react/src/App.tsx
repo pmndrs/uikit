@@ -6,10 +6,10 @@ import fontUrl from '../BitcountPropSingle-Regular.ttf?url'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 function UI() {
-  const result = useTTF(fontUrl)
+  const fontFamilies = useTTF(fontUrl)
 
   return (
-    <Fullscreen flexDirection="column" alignItems="center" justifyContent="center" gap={24} fontFamilies={result}>
+    <Fullscreen flexDirection="column" alignItems="center" justifyContent="center" gap={24} fontFamilies={fontFamilies}>
       <Text fontSize={48} color="white">
         TTF Loader Example
       </Text>

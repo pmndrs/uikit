@@ -11,15 +11,11 @@ import { TTFLoader } from '@pmndrs/uikit-ttf'
 import { Container, Text } from '@pmndrs/uikit'
 
 const loader = new TTFLoader()
-const msdf = await loader.loadAsync('/fonts/Roboto.ttf')
+const fontFamilies = await loader.loadAsync('/fonts/Roboto.ttf')
 
-const root = new Container({
-  fontFamilies: {
-    roboto: msdf,
-  },
-})
+const root = new Container({ fontFamilies })
 
-const text = new Text({ fontFamily: 'roboto' }, 'Hello World')
+const text = new Text({ text: 'Hello World' })
 root.add(text)
 ```
 
@@ -50,5 +46,5 @@ loader.setOptions({
 Load multiple TTF files at once:
 
 ```jsx
-const msdf = await loader.loadMultipleAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+const fontFamilies = await loader.loadMultipleAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
 ```
