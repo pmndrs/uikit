@@ -4,11 +4,84 @@ description: How to build, set up, and use custom fonts.
 nav: 10
 ---
 
-The `Text` component enables rendering text using multi-channel signed distance functions (MSDF). By default, uikit provides the Inter font. A custom font can be converted from a `.ttf` file to an MSDF representation as a JSON and a corresponding texture.
+The `Text` component supports custom fonts. By default, uikit provides Inter. There are two ways to add your own:
 
-## How to set up custom fonts?
+| Approach                                   | Best for                        | Tradeoff                             |
+| ------------------------------------------ | ------------------------------- | ------------------------------------ |
+| [Runtime TTF](#runtime-ttf-loading)        | Dynamic fonts, fast iteration   | ~444KB loader, ~100-300ms generation |
+| [Pre-generated](#pre-generated-msdf-fonts) | Static fonts, production builds | One-time setup, no runtime cost      |
 
-There are two ways to generate MSDF fonts: using a web-based tool or using local tooling. The web-based option is recommended for most users as it's simpler and doesn't require installing any software.
+Under the hood, fonts are rendered using MSDF (multi-channel signed distance fields).
+
+## Runtime TTF Loading
+
+Load TTF files directly at runtime using the built-in `TTFLoader` (vanilla) or `useTTF` hook (React). These convert TTF fonts to MSDF format on-the-fly using WebAssembly.
+
+### React Three Fiber
+
+```jsx showLineNumbers
+import { Suspense } from 'react'
+import { useTTF, Fullscreen, Text } from '@react-three/uikit'
+
+function UI() {
+  const fontFamilies = useTTF('/fonts/Roboto.ttf')
+
+  return (
+    <Fullscreen fontFamilies={fontFamilies}>
+      <Text fontSize={24}>Hello World</Text>
+    </Fullscreen>
+  )
+}
+
+function App() {
+  return (
+    <Suspense fallback={null}>
+      <UI />
+    </Suspense>
+  )
+}
+```
+
+### Vanilla Three.js
+
+```js showLineNumbers
+import { TTFLoader, Container, Text } from '@pmndrs/uikit'
+
+const loader = new TTFLoader()
+const fontFamilies = await loader.loadAsync('/fonts/Roboto.ttf')
+
+const root = new Container({ fontFamilies })
+const text = new Text({ fontSize: 24, text: 'Hello World' })
+root.add(text)
+```
+
+### Multiple Fonts
+
+Load multiple TTF files at once by passing an array:
+
+```jsx showLineNumbers
+// React
+const fontFamilies = useTTF(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+
+// Vanilla
+const fontFamilies = await loader.loadAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+```
+
+### Options
+
+| Option        | Default                   | Description                                              |
+| ------------- | ------------------------- | -------------------------------------------------------- |
+| `charset`     | `A-Za-z0-9` + punctuation | Characters to include in the atlas                       |
+| `fontSize`    | `48`                      | Glyph rasterization resolution (higher = more detail)    |
+| `textureSize` | `[512, 512]`              | Atlas dimensions `[width, height]`                       |
+| `fieldRange`  | `4`                       | Max encoded distance in pixels (higher = smoother edges) |
+| `fixOverlaps` | `true`                    | Fix overlapping contours in glyphs                       |
+
+---
+
+## Pre-generated MSDF Fonts
+
+There are two ways to generate MSDF fonts ahead of time: using a web-based tool or using local tooling. The web-based option is simpler and doesn't require installing any software.
 
 ### Option 1: Web-based Tool
 
@@ -33,7 +106,7 @@ This example shows how to compile the `Roboto` font family with the weight `medi
 
 The first step is to download a `.ttf` file for the font family with the correct weights. After downloading the font to `roboto.ttf`, the overlaps need to be removed.
 
-> This is necessary because msdf-bmfont has a problem with overlapping paths, creating weird artificats.
+> This is necessary because msdf-bmfont has a problem with overlapping paths, creating weird artifacts.
 
 ##### Linux
 
@@ -61,7 +134,7 @@ npx msdf-bmfont -f json fixed-roboto.ttf -i charset.txt -m 256,512 -o public/rob
 example charset.txt:
 
 ```txt
- !\"#$%&'()*+,-./0123456789:;<=>?@ÄÖÜABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`äöüabcdefghijklmnopqrstuvwxyz{|}~ß§
+ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,;:'"()-[]{}@#$%&*+=/\<>
 ```
 
 > [!IMPORTANT]
@@ -75,7 +148,7 @@ If you are using some kind of hashes in your filenames, you won't be able to use
 import { writeFile } from 'fs/promises'
 import generateBMFont from 'msdf-bmfont-xml'
 
-const charset = '’|Wj@$()[]{}/\\w%MQm0fgipqy!#&123456789?ABCDEFGHIJKLNOPRSTUVXYZbdhkl;t<>aceos:nruvxz~+=_^*-"\',`. €£'
+const charset = ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,;:\'"()-[]{}@#$%&*+=/\\<>'
 
 generateBMFont(
   'src/assets/fonts/Inter-Bold.woff',
@@ -112,12 +185,13 @@ For web-generated fonts (Option 1), the texture is already inlined in the JSON f
 Repeat the previous process for other weights, such as bold, to support different weights.
 
 ```tsx showLineNumbers
-<Container fontFamilies={{
-  roboto: {
-    medium: "url-to-medium.json",
-    bold: "url-to-bold.json",
-  }
-}}
+<Container
+  fontFamilies={{
+    roboto: {
+      medium: 'url-to-medium.json',
+      bold: 'url-to-bold.json',
+    },
+  }}
 >
   <Text fontFamily="roboto">Test123</Text>
 </Container>

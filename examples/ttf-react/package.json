@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@react-three/uikit": "workspace:^"
+  },
+  "scripts": {
+    "dev": "vite"
+  }
+}
