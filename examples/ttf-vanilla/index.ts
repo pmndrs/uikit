@@ -1,7 +1,7 @@
 import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { reversePainterSortStable, Container, Text } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
-import { TTFLoader } from '@pmndrs/uikit-ttf'
+import { TTFLoader } from '@pmndrs/uikit'
 import fontUrl from './BitcountPropSingle-Regular.ttf?url'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)

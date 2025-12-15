@@ -1,8 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@react-three/uikit": "workspace:^",
-    "@react-three/uikit-ttf": "workspace:^"
+    "@react-three/uikit": "workspace:^"
   },
   "scripts": {
     "dev": "vite"

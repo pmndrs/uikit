@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Text, Fullscreen, Container } from '@react-three/uikit'
-import { useTTF } from '@react-three/uikit-ttf'
+import { useTTF } from '@react-three/uikit'
 import fontUrl from '../BitcountPropSingle-Regular.ttf?url'
 import { noEvents, PointerEvents } from '@react-three/xr'
 

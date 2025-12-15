@@ -305,9 +305,6 @@ importers:
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react
-      '@react-three/uikit-ttf':
-        specifier: workspace:^
-        version: link:../../packages/ttf/react
 
   examples/ttf-vanilla:
     dependencies:
@@ -317,9 +314,6 @@ importers:
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
-      '@pmndrs/uikit-ttf':
-        specifier: workspace:^
-        version: link:../../packages/ttf/core
 
   examples/uikit:
     dependencies:
@@ -476,27 +470,6 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@edge-runtime/vm@3.2.0)(@types/debug@4.1.12)(@types/node@20.17.16)(jsdom@27.0.0(postcss@8.5.1))(terser@5.43.1)
 
-  packages/ttf/core:
-    dependencies:
-      '@zappar/msdf-generator':
-        specifier: ^1.2.4
-        version: 1.2.4
-      three:
-        specifier: '>=0.162'
-        version: 0.175.0
-
-  packages/ttf/react:
-    dependencies:
-      '@pmndrs/uikit-ttf':
-        specifier: workspace:^
-        version: link:../core
-      react:
-        specifier: '>=18'
-        version: 19.1.0
-      suspend-react:
-        specifier: ^0.1.3
-        version: 0.1.3(react@19.1.0)
-
   packages/uikit:
     dependencies:
       '@pmndrs/msdfonts':
@@ -508,6 +481,9 @@ importers:
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
+      '@zappar/msdf-generator':
+        specifier: ^1.2.4
+        version: 1.2.4
       three:
         specifier: '>=0.162'
         version: 0.176.0

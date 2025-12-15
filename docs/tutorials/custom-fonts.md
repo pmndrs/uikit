@@ -15,18 +15,13 @@ Under the hood, fonts are rendered using MSDF (multi-channel signed distance fie
 
 ## Runtime TTF Loading
 
-Load TTF files directly at runtime using `@pmndrs/uikit-ttf` (vanilla) or `@react-three/uikit-ttf` (React). These packages convert TTF fonts to MSDF format on-the-fly using WebAssembly.
+Load TTF files directly at runtime using the built-in `TTFLoader` (vanilla) or `useTTF` hook (React). These convert TTF fonts to MSDF format on-the-fly using WebAssembly.
 
 ### React Three Fiber
 
-```bash
-npm install @react-three/uikit-ttf
-```
-
-```jsx
+```jsx showLineNumbers
 import { Suspense } from 'react'
-import { useTTF } from '@react-three/uikit-ttf'
-import { Fullscreen, Text } from '@react-three/uikit'
+import { useTTF, Fullscreen, Text } from '@react-three/uikit'
 
 function UI() {
   const fontFamilies = useTTF('/fonts/Roboto.ttf')
@@ -49,13 +44,8 @@ function App() {
 
 ### Vanilla Three.js
 
-```bash
-npm install @pmndrs/uikit-ttf
-```
-
-```js
-import { TTFLoader } from '@pmndrs/uikit-ttf'
-import { Container, Text } from '@pmndrs/uikit'
+```js showLineNumbers
+import { TTFLoader, Container, Text } from '@pmndrs/uikit'
 
 const loader = new TTFLoader()
 const fontFamilies = await loader.loadAsync('/fonts/Roboto.ttf')
@@ -67,14 +57,14 @@ root.add(text)
 
 ### Multiple Fonts
 
-Load multiple TTF files at once:
+Load multiple TTF files at once by passing an array:
 
-```jsx
+```jsx showLineNumbers
 // React
 const fontFamilies = useTTF(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
 
 // Vanilla
-const fontFamilies = await loader.loadMultipleAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
+const fontFamilies = await loader.loadAsync(['/fonts/Roboto.ttf', '/fonts/NotoSansJP.ttf'])
 ```
 
 ### Options

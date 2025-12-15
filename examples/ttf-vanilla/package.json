@@ -2,8 +2,7 @@
   "type": "module",
   "dependencies": {
     "@pmndrs/pointer-events": "^6.6.27",
-    "@pmndrs/uikit": "workspace:^",
-    "@pmndrs/uikit-ttf": "workspace:^"
+    "@pmndrs/uikit": "workspace:^"
   },
   "scripts": {
     "dev": "vite"
