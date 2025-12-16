@@ -60,10 +60,10 @@ export const rawTestValues = {
   alignItems: Align.FlexEnd,
   alignSelf: Align.SpaceAround,
   aspectRatio: 2,
-  borderBottom: 3,
-  borderLeft: 4,
-  borderRight: 5,
-  borderTop: 6,
+  borderBottomWidth: 3,
+  borderLeftWidth: 4,
+  borderRightWidth: 5,
+  borderTopWidth: 6,
   display: Display.None,
   flexBasis: 7,
   flexDirection: FlexDirection.RowReverse,
@@ -102,22 +102,24 @@ function capitalize(value: string): string {
 }
 
 function getRawValue(property: string, node: Node): any {
-  for (const propertyWithEdge of propertiesWithEdge) {
-    if (property.startsWith(propertyWithEdge)) {
-      if (property.endsWith('Top')) {
-        return flatten(node[`get${capitalize(property.slice(0, -3))}` as 'getBorder'](Edge.Top))
-      }
-      if (property.endsWith('Bottom')) {
-        return flatten(node[`get${capitalize(property.slice(0, -6))}` as 'getBorder'](Edge.Bottom))
-      }
-      if (property.endsWith('Right')) {
-        return flatten(node[`get${capitalize(property.slice(0, -5))}` as 'getBorder'](Edge.Right))
-      }
-      if (property.endsWith('Left')) {
-        return flatten(node[`get${capitalize(property.slice(0, -4))}` as 'getBorder'](Edge.Left))
-      }
+  // Handle properties with edges - these methods need Edge parameter
+  const edgeGetters: Record<string, (edge: Edge) => any> = {
+    border: (edge) => node.getBorder(edge),
+    padding: (edge) => node.getPadding(edge),
+    margin: (edge) => node.getMargin(edge),
+    position: (edge) => node.getPosition(edge),
+  }
+
+  for (const [prefix, getter] of Object.entries(edgeGetters)) {
+    if (property.startsWith(prefix)) {
+      if (property.endsWith('Top') || property.endsWith('TopWidth')) return flatten(getter(Edge.Top))
+      if (property.endsWith('Bottom') || property.endsWith('BottomWidth')) return flatten(getter(Edge.Bottom))
+      if (property.endsWith('Right') || property.endsWith('RightWidth')) return flatten(getter(Edge.Right))
+      if (property.endsWith('Left') || property.endsWith('LeftWidth')) return flatten(getter(Edge.Left))
     }
   }
+
+  // Handle regular properties - construct method name dynamically
   return flatten(node[`get${capitalize(property)}` as 'getWidth']())
 }
 
@@ -156,11 +158,18 @@ describe('set & get properties', () => {
   const rawValues: any = {}
   let yoga: Yoga
   let defaultYogaConfig: Config
+  let mockRoot: any
 
   before(async () => {
     yoga = await loadYoga()
     defaultYogaConfig = createDefaultConfig(yoga.Config)
     node = yoga.Node.create(defaultYogaConfig)
+    // Create a minimal mock RootContext for testing
+    mockRoot = {
+      component: {
+        size: { value: [1920, 1080] },
+      },
+    }
   })
 
   it('it re-arrange children', () => {
@@ -191,11 +200,11 @@ describe('set & get properties', () => {
   })
 
   it('it should throw an error', () => {
-    expect(() => setter.alignItems(node, 'centerx' as any), 'assign alignItems a unknown value').to.throw(
+    expect(() => setter.alignItems(mockRoot, node, 'centerx' as any), 'assign alignItems a unknown value').to.throw(
       `unexpected value centerx, expected auto, flex-start, center, flex-end, stretch, baseline, space-between, space-around`,
     )
 
-    expect(() => setter.alignItems(node, 1 as any), 'assign alignItems a wrong value type').to.throw(
+    expect(() => setter.alignItems(mockRoot, node, 1 as any), 'assign alignItems a wrong value type').to.throw(
       `unexpected value 1, expected auto, flex-start, center, flex-end, stretch, baseline, space-between, space-around`,
     )
   })
@@ -208,7 +217,7 @@ describe('set & get properties', () => {
 
   it('it should set new values', () => {
     ;(Object.entries(testValues) as Array<[keyof YogaProperties, any]>).forEach(([name, value]) =>
-      setter[name](node, value),
+      setter[name](mockRoot, node, value),
     )
     properties.forEach((property) =>
       expect(getRawValue(property, node), `compare ${property} to expected value`).to.equal(
@@ -218,7 +227,7 @@ describe('set & get properties', () => {
   })
 
   it('it should reset all values', () => {
-    ;(Object.keys(testValues) as Array<keyof YogaProperties>).forEach((name) => setter[name](node, undefined))
+    ;(Object.keys(testValues) as Array<keyof YogaProperties>).forEach((name) => setter[name](mockRoot, node, undefined))
     properties.forEach((property) => {
       expect(equal(getRawValue(property, node), rawValues[property]), `compare ${property} to the default value`).to.be
         .true
@@ -226,12 +235,12 @@ describe('set & get properties', () => {
   })
 
   it('it should set value as points or precentages', () => {
-    setter.width(node, 10.5)
+    setter.width(mockRoot, node, 10.5)
     expect(node.getWidth()).to.deep.equal({
       unit: Unit.Point,
       value: 10.5,
     })
-    setter.width(node, '50%')
+    setter.width(mockRoot, node, '50%')
     expect(node.getWidth()).to.deep.equal({
       unit: Unit.Percent,
       value: 50,
