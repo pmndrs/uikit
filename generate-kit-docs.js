@@ -1,16 +1,134 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs'
 
+function stripExportKeyword(source) {
+  return source
+    .split('\n')
+    .map((line) => {
+      const trimmed = line.trimStart()
+      const indent = line.slice(0, line.length - trimmed.length)
+      if (trimmed.startsWith('export default function ')) {
+        return `${indent}${trimmed.replace('export default ', '')}`
+      }
+      if (trimmed.startsWith('export function ')) {
+        return `${indent}${trimmed.replace('export ', '')}`
+      }
+      return line
+    })
+    .join('\n')
+}
+
+function replaceAliasImports(source, kit) {
+  const lines = source.split('\n')
+  const replacement = `@react-three/uikit-${kit}`
+
+  return lines
+    .map((line) => {
+      const singleIndex = line.indexOf("from '")
+      const doubleIndex = line.indexOf('from "')
+      const fromIndex =
+        singleIndex === -1 || (doubleIndex !== -1 && doubleIndex < singleIndex) ? doubleIndex : singleIndex
+      if (fromIndex === -1) {
+        return line
+      }
+      const quoteIndex = fromIndex + 5
+      const quote = line[quoteIndex]
+      const pathStart = quoteIndex + 1
+      const pathEnd = line.indexOf(quote, pathStart)
+      if (pathEnd === -1) {
+        return line
+      }
+      const path = line.slice(pathStart, pathEnd)
+      if (!path.startsWith('@/')) {
+        return line
+      }
+      const rewritten = `from ${quote}${replacement}${quote}`
+      return line.slice(0, fromIndex) + rewritten + line.slice(pathEnd + 1)
+    })
+    .join('\n')
+}
+
+function findComponentName(source) {
+  const match = source.match(/\bfunction\s+([A-Za-z0-9_$]+)\s*\(/)
+  return match ? match[1] : null
+}
+
+function getImportStatements(source) {
+  const statements = []
+  const lines = source.split('\n')
+  let current = ''
+  let inImport = false
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!inImport) {
+      if (!trimmed.startsWith('import ')) {
+        continue
+      }
+      current = line
+      inImport = !trimmed.includes(' from ')
+      if (!inImport) {
+        statements.push(current)
+        current = ''
+      }
+      continue
+    }
+
+    current += `\n${line}`
+    if (trimmed.includes(' from ')) {
+      statements.push(current)
+      current = ''
+      inImport = false
+    }
+  }
+
+  return statements
+}
+
+function hasNamedImport(source, moduleName, importName) {
+  const statements = getImportStatements(source)
+  for (const statement of statements) {
+    const matchesModule =
+      statement.includes(`from "${moduleName}"`) || statement.includes(`from '${moduleName}'`)
+    if (!matchesModule) {
+      continue
+    }
+    const braceStart = statement.indexOf('{')
+    const braceEnd = statement.indexOf('}')
+    if (braceStart === -1 || braceEnd === -1 || braceEnd < braceStart) {
+      continue
+    }
+    const names = statement
+      .slice(braceStart + 1, braceEnd)
+      .split(',')
+      .map((name) => name.trim().split(' ')[0])
+      .filter(Boolean)
+    if (names.includes(importName)) {
+      return true
+    }
+  }
+  return false
+}
+
 function generateMarkdown(nav, kit, component) {
-  const content = readFileSync(`./examples/${kit}/src/components/${component}.tsx`)
-    .toString()
-    .replace(/export (default )?/, '')
-    .replace(/from \'\@\/.*\'/g, `from "@react-three/uikit-${kit}"`)
-  const componentNameRegexResult = /function (.*)\(/.exec(content)
-  if (componentNameRegexResult == null) {
+  let content = readFileSync(`./examples/${kit}/src/components/${component}.tsx`).toString()
+  content = stripExportKeyword(content)
+  content = replaceAliasImports(content, kit)
+  const componentName = findComponentName(content)
+  if (componentName == null) {
     console.error(content)
     throw new Error()
   }
-  const componentName = componentNameRegexResult[1]
+  const needsColors =
+    kit === 'default' && !hasNamedImport(content, '@react-three/uikit-default', 'colors')
+  const needsPanel = kit === 'horizon' && !hasNamedImport(content, '@react-three/uikit-horizon', 'Panel')
+  const kitWrapperImport =
+    kit === 'default'
+      ? needsColors
+        ? `import { colors } from "@react-three/uikit-default";`
+        : ''
+      : needsPanel
+        ? 'import { Panel } from "@react-three/uikit-horizon";'
+        : ''
 
   return `---
 title: ${capitalize(component)}
@@ -33,7 +151,7 @@ nav: ${nav}
   files={{
     '/App.tsx': \`import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-${kit === 'default' ? `import { colors } from "@react-three/uikit-default";` : 'import { Panel } from "@react-three/uikit-horizon";'}
+${kitWrapperImport}
 ${content}
 export default function App() {
   return (
@@ -75,7 +193,7 @@ import { ${capitalize(component)} } from "@react-three/uikit-${kit}";
 let i = 17
 const defaultComponentFiles = readdirSync('./examples/default/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
-  .map((entry) => entry.name.replace(/\.tsx$/, ''))
+  .map((entry) => entry.name.slice(0, -4))
 
 for (const component of defaultComponentFiles) {
   writeFileSync(`./docs/default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
@@ -83,7 +201,7 @@ for (const component of defaultComponentFiles) {
 
 const horizonComponentFiles = readdirSync('./examples/horizon/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
-  .map((entry) => entry.name.replace(/\.tsx$/, ''))
+  .map((entry) => entry.name.slice(0, -4))
 
 for (const component of horizonComponentFiles) {
   writeFileSync(`./docs/horizon-kit/${component}.mdx`, generateMarkdown(i++, 'horizon', component))
