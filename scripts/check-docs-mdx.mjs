@@ -155,8 +155,7 @@ function findDuplicateImports(code, ts) {
 async function main() {
   await ensureDeps()
   const { compile } = await import('@mdx-js/mdx')
-  const tsModule = await import('typescript')
-  const ts = tsModule.default ?? tsModule
+  const ts = await import('typescript')
 
   const root = fileURLToPath(new URL('..', import.meta.url))
   const docsDir = join(root, 'docs')
