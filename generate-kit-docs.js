@@ -190,7 +190,7 @@ import { ${capitalize(component)} } from "@react-three/uikit-${kit}";
 let i = 17
 const defaultComponentFiles = readdirSync('./examples/default/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
-  .map((entry) => entry.name.slice(0, -4))
+  .map((entry) => entry.name.replace(/\.tsx$/, ''))
 
 for (const component of defaultComponentFiles) {
   writeFileSync(`./docs/default-kit/${component}.mdx`, generateMarkdown(i++, 'default', component))
@@ -198,7 +198,7 @@ for (const component of defaultComponentFiles) {
 
 const horizonComponentFiles = readdirSync('./examples/horizon/src/components', { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.tsx'))
-  .map((entry) => entry.name.slice(0, -4))
+  .map((entry) => entry.name.replace(/\.tsx$/, ''))
 
 for (const component of horizonComponentFiles) {
   writeFileSync(`./docs/horizon-kit/${component}.mdx`, generateMarkdown(i++, 'horizon', component))
