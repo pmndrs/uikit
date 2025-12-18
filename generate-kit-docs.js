@@ -87,8 +87,7 @@ function getImportStatements(source) {
 function hasNamedImport(source, moduleName, importName) {
   const statements = getImportStatements(source)
   for (const statement of statements) {
-    const matchesModule =
-      statement.includes(`from "${moduleName}"`) || statement.includes(`from '${moduleName}'`)
+    const matchesModule = statement.includes(`from "${moduleName}"`) || statement.includes(`from '${moduleName}'`)
     if (!matchesModule) {
       continue
     }
@@ -118,8 +117,7 @@ function generateMarkdown(nav, kit, component) {
     console.error(content)
     throw new Error()
   }
-  const needsColors =
-    kit === 'default' && !hasNamedImport(content, '@react-three/uikit-default', 'colors')
+  const needsColors = kit === 'default' && !hasNamedImport(content, '@react-three/uikit-default', 'colors')
   const needsPanel = kit === 'horizon' && !hasNamedImport(content, '@react-three/uikit-horizon', 'Panel')
   const kitWrapperImport =
     kit === 'default'
