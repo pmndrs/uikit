@@ -119,14 +119,13 @@ function generateMarkdown(nav, kit, component) {
   }
   const needsColors = kit === 'default' && !hasNamedImport(content, '@react-three/uikit-default', 'colors')
   const needsPanel = kit === 'horizon' && !hasNamedImport(content, '@react-three/uikit-horizon', 'Panel')
-  const kitWrapperImport =
-    kit === 'default'
-      ? needsColors
-        ? `import { colors } from "@react-three/uikit-default";`
-        : ''
-      : needsPanel
-        ? 'import { Panel } from "@react-three/uikit-horizon";'
-        : ''
+
+  let kitWrapperImport = ''
+  if (kit === 'default' && needsColors) {
+    kitWrapperImport = 'import { colors } from "@react-three/uikit-default";'
+  } else if (kit === 'horizon' && needsPanel) {
+    kitWrapperImport = 'import { Panel } from "@react-three/uikit-horizon";'
+  }
 
   return `---
 title: ${capitalize(component)}
