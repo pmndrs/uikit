@@ -1,16 +1,81 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs'
 
+function getImportStatements(source) {
+  const statements = []
+  const lines = source.split('\n')
+  let current = ''
+  let inImport = false
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!inImport) {
+      if (!trimmed.startsWith('import ')) {
+        continue
+      }
+      current = line
+      inImport = !trimmed.includes(' from ')
+      if (!inImport) {
+        statements.push(current)
+        current = ''
+      }
+      continue
+    }
+
+    current += `\n${line}`
+    if (trimmed.includes(' from ')) {
+      statements.push(current)
+      current = ''
+      inImport = false
+    }
+  }
+
+  return statements
+}
+
+function hasNamedImport(source, moduleName, importName) {
+  const statements = getImportStatements(source)
+  for (const statement of statements) {
+    const matchesModule = statement.includes(`from "${moduleName}"`) || statement.includes(`from '${moduleName}'`)
+    if (!matchesModule) {
+      continue
+    }
+    const braceStart = statement.indexOf('{')
+    const braceEnd = statement.indexOf('}')
+    if (braceStart === -1 || braceEnd === -1 || braceEnd < braceStart) {
+      continue
+    }
+    const names = statement
+      .slice(braceStart + 1, braceEnd)
+      .split(',')
+      .map((name) => name.trim().split(' ')[0])
+      .filter(Boolean)
+    if (names.includes(importName)) {
+      return true
+    }
+  }
+  return false
+}
+
 function generateMarkdown(nav, kit, component) {
   const content = readFileSync(`./examples/${kit}/src/components/${component}.tsx`)
     .toString()
     .replace(/export (default )?/, '')
-    .replace(/from \'\@\/.*\'/g, `from "@react-three/uikit-${kit}"`)
+    .replace(/from '\@\/.*'/g, `from "@react-three/uikit-${kit}"`)
   const componentNameRegexResult = /function (.*)\(/.exec(content)
   if (componentNameRegexResult == null) {
     console.error(content)
     throw new Error()
   }
   const componentName = componentNameRegexResult[1]
+  const needsColors = kit === 'default' && !hasNamedImport(content, '@react-three/uikit-default', 'colors')
+  const needsPanel = kit === 'horizon' && !hasNamedImport(content, '@react-three/uikit-horizon', 'Panel')
+
+  let kitWrapperImport = ''
+  if (kit === 'default' && needsColors) {
+    kitWrapperImport = 'import { colors } from "@react-three/uikit-default";'
+  } else if (kit === 'horizon' && needsPanel) {
+    kitWrapperImport = 'import { Panel } from "@react-three/uikit-horizon";'
+  }
 
   return `---
 title: ${capitalize(component)}
@@ -33,7 +98,7 @@ nav: ${nav}
   files={{
     '/App.tsx': \`import { Canvas } from "@react-three/fiber";
 import { Fullscreen } from "@react-three/uikit";
-${kit === 'default' ? `import { colors } from "@react-three/uikit-default";` : 'import { Panel } from "@react-three/uikit-horizon";'}
+${kitWrapperImport}
 ${content}
 export default function App() {
   return (
