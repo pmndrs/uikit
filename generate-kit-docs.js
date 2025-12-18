@@ -1,57 +1,5 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs'
 
-function stripExportKeyword(source) {
-  return source
-    .split('\n')
-    .map((line) => {
-      const trimmed = line.trimStart()
-      const indent = line.slice(0, line.length - trimmed.length)
-      if (trimmed.startsWith('export default function ')) {
-        return `${indent}${trimmed.replace('export default ', '')}`
-      }
-      if (trimmed.startsWith('export function ')) {
-        return `${indent}${trimmed.replace('export ', '')}`
-      }
-      return line
-    })
-    .join('\n')
-}
-
-function replaceAliasImports(source, kit) {
-  const lines = source.split('\n')
-  const replacement = `@react-three/uikit-${kit}`
-
-  return lines
-    .map((line) => {
-      const singleIndex = line.indexOf("from '")
-      const doubleIndex = line.indexOf('from "')
-      const fromIndex =
-        singleIndex === -1 || (doubleIndex !== -1 && doubleIndex < singleIndex) ? doubleIndex : singleIndex
-      if (fromIndex === -1) {
-        return line
-      }
-      const quoteIndex = fromIndex + 5
-      const quote = line[quoteIndex]
-      const pathStart = quoteIndex + 1
-      const pathEnd = line.indexOf(quote, pathStart)
-      if (pathEnd === -1) {
-        return line
-      }
-      const path = line.slice(pathStart, pathEnd)
-      if (!path.startsWith('@/')) {
-        return line
-      }
-      const rewritten = `from ${quote}${replacement}${quote}`
-      return line.slice(0, fromIndex) + rewritten + line.slice(pathEnd + 1)
-    })
-    .join('\n')
-}
-
-function findComponentName(source) {
-  const match = source.match(/\bfunction\s+([A-Za-z0-9_$]+)\s*\(/)
-  return match ? match[1] : null
-}
-
 function getImportStatements(source) {
   const statements = []
   const lines = source.split('\n')
@@ -109,14 +57,16 @@ function hasNamedImport(source, moduleName, importName) {
 }
 
 function generateMarkdown(nav, kit, component) {
-  let content = readFileSync(`./examples/${kit}/src/components/${component}.tsx`).toString()
-  content = stripExportKeyword(content)
-  content = replaceAliasImports(content, kit)
-  const componentName = findComponentName(content)
-  if (componentName == null) {
+  const content = readFileSync(`./examples/${kit}/src/components/${component}.tsx`)
+    .toString()
+    .replace(/export (default )?/, '')
+    .replace(/from '\@\/.*'/g, `from "@react-three/uikit-${kit}"`)
+  const componentNameRegexResult = /function (.*)\(/.exec(content)
+  if (componentNameRegexResult == null) {
     console.error(content)
     throw new Error()
   }
+  const componentName = componentNameRegexResult[1]
   const needsColors = kit === 'default' && !hasNamedImport(content, '@react-three/uikit-default', 'colors')
   const needsPanel = kit === 'horizon' && !hasNamedImport(content, '@react-three/uikit-horizon', 'Panel')
 
