@@ -106,12 +106,7 @@ function readTemplateLiteral(src, startIndex) {
 }
 
 function isCodeFile(filePath) {
-  return (
-    filePath.endsWith('.ts') ||
-    filePath.endsWith('.tsx') ||
-    filePath.endsWith('.js') ||
-    filePath.endsWith('.jsx')
-  )
+  return /\.(tsx?|jsx?)$/.test(filePath)
 }
 
 function findDuplicateImports(code, ts) {
