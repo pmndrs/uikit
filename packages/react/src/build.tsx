@@ -51,6 +51,7 @@ export function useSetup(ref: { current: Component | null }, inProps: any, args:
       return
     }
     component.classList.set(...classList)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(inProps.classList)])
   const outPropsRef = useRef<{ args: Array<any> } & EventHandlers>({ args })
   useEffect(() => {
