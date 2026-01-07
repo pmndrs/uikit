@@ -3,8 +3,8 @@
     "convert": "node --loader ts-node/esm ./convert.ts"
   },
   "devDependencies": {
-    "oslllo-svg-fixer": "^5.0.0",
-    "lucide-static": "^0.511.0"
+    "oslllo-svg-fixer": "^6.0.1",
+    "lucide-static": "^0.562.0"
   },
   "type": "module"
 }
