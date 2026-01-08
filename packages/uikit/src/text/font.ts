@@ -26,8 +26,21 @@ export type FontWeight = keyof typeof fontWeightNames | number | ({} & string)
 
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight; fontFamilies?: FontFamilies }
 
-const defaultFontFamiles: FontFamilies = {
+const defaultFontFamilies: FontFamilies = {
   inter,
+}
+
+function warnUnknownFontFamily(fontFamily: string, fontFamiliesSignal: Signal<FontFamilies | undefined>): void {
+  // fontFamilies prop may not have propagated when effect first runs
+  queueMicrotask(() => {
+    const fontFamilies = fontFamiliesSignal.peek() ?? defaultFontFamilies
+    if (fontFamilies[fontFamily] != null) return
+
+    const available = Object.keys(fontFamilies)
+    console.error(
+      `unknown font family "${fontFamily}". Available font families are ${available.map((name) => `"${name}"`).join(', ')}. Falling back to "${available[0]}".`,
+    )
+  })
 }
 
 export function computedFontFamilies(properties: Properties, parent: Signal<Container | undefined>) {
@@ -65,15 +78,13 @@ export function computedFont(
       }
     }
     let fontFamily = properties.value.fontFamily
-    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
+    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamilies
     fontFamily ??= Object.keys(fontFamilies)[0]!
     let fontFamilyWeightMap = fontFamilies[fontFamily]
     if (fontFamilyWeightMap == null) {
-      const availableFontFamilyList = Object.keys(fontFamilies)
-      fontFamilyWeightMap = fontFamilies[availableFontFamilyList[0] as any]!
-      console.error(
-        `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`,
-      )
+      const fallbackFamily = Object.keys(fontFamilies)[0]!
+      fontFamilyWeightMap = fontFamilies[fallbackFamily]!
+      warnUnknownFontFamily(fontFamily, fontFamiliesSignal)
     }
     const url = getMatchingFontUrl(fontFamilyWeightMap, fontWeight)
     let aborted = false
