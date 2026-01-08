@@ -31,5 +31,8 @@ jobs:
           pnpm -r check:prettier
           pnpm -r check:eslint
 
+      - name: Generate
+        run: pnpm -r generate
+
       - name: Build
         run: pnpm -r build
