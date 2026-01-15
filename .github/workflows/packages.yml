@@ -25,6 +25,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
           always-auth: true
 
+      - name: Update npm for OIDC trusted publishing
+        run: npm install -g npm@latest
+
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
