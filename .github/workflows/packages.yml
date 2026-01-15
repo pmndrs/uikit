@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write # Required for OIDC
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,6 +22,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
+          registry-url: https://registry.npmjs.org/
+          always-auth: true
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
@@ -59,9 +62,6 @@ jobs:
 
       - name: Set Version
         run: pnpm -r exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
 
       - name: Deploy msdfonts Package
         working-directory: ./packages/msdfonts
