@@ -13,6 +13,12 @@
     "r3f"
   ],
   "author": "Bela Bohlender",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/pmndrs/uikit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pmndrs/uikit"
+  },
   "scripts": {
     "generate": "node --loader ts-node/esm ./generate.ts",
     "build": "tsc -p ./tsconfig.build.json"

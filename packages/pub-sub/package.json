@@ -29,6 +29,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:pmndrs/uikit.git"
+    "url": "https://github.com/pmndrs/uikit"
   }
 }
