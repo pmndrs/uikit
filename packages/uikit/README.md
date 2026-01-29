@@ -1,18 +1,16 @@
-<h1>pmndrs/uikit</h1>
+<h1>@ni2khanna/uikit</h1>
 
-[![Version](https://img.shields.io/npm/v/@pmndrs/uikit?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@pmndrs/uikit)
-[![Downloads](https://img.shields.io/npm/dt/@pmndrs/uikit.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@pmndrs/uikit)
-[![Twitter](https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000)](https://twitter.com/pmndrs)
-[![Discord](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000)](https://discord.gg/ZZjjNvJ)
+[![Version](https://img.shields.io/npm/v/@ni2khanna/uikit?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@ni2khanna/uikit)
+[![Downloads](https://img.shields.io/npm/dt/@ni2khanna/uikit.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/@ni2khanna/uikit)
 
 ![uikit banner](./docs/getting-started/banner.jpg)
 
-Build performant 3D user interfaces for **Three.js** using **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more.
+Build performant 3D user interfaces for **Three.js** using **yoga** with support for nested scrolling, buttons, inputs, dropdowns, tabs, checkboxes, and more. A vanilla-first toolkit with React Three Fiber support.
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
 ```bash
-npm install three @pmndrs/uikit
+npm install three @ni2khanna/uikit
 ```
 
 ### What does it look like ?
@@ -22,7 +20,7 @@ npm install three @pmndrs/uikit
 
 ```jsx
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Root } from '@pmndrs/uikit'
+import { reversePainterSortStable, Container, Root } from '@ni2khanna/uikit'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 10

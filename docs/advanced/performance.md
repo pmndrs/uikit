@@ -4,49 +4,48 @@ description: Important considerations for building performant user interfaces wi
 nav: 12
 ---
 
-## Avoid React Re-renders
+## Avoid Unnecessary Property Updates
 
-When frequently changing properties of uikit components and especially when animating properties on every frame. We recommend modifying properties using `ref.current.setStyle` or using a signal.
+When frequently changing properties of uikit components and especially when animating properties on every frame, we recommend modifying properties using `setStyle` or using a signal.
 
-### using `ref.current.setStyle`
+### using `setStyle`
 
-This approach is similar to html/css. The following code shows how to animate the background color on every frame without interfering with react.
+This approach is similar to html/css. The following code shows how to animate the background color on every frame.
 
-```jsx showLineNumbers
-import { Container } from '@react-three/uikit'
-import { useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+```ts
+import { Container } from '@ni2khanna/uikit'
 import { signal } from '@preact/signals-core'
 
-export function AnimateBackground() {
-  const ref = useRef()
-  useFrame(({ clock }) => {
-    //continuously animate between 0 and 1
-    ref.current.setStyle({ backgroundColor: `rgba(255, 255, 255, ${Math.sin(clock.getElapsedTime()) / 2 + 0.5})` })
-  })
-  return <Container ref={ref} backgroundColor="rgba(255, 255, 255, 0)"></Container>
+const container = new Container({
+  backgroundColor: 'rgba(255, 255, 255, 0)',
+})
+
+// In your animation loop:
+function animate(time: number) {
+  const opacity = Math.sin(time * 0.001) / 2 + 0.5
+  container.setStyle({ backgroundColor: `rgba(255, 255, 255, ${opacity})` })
 }
 ```
 
-Setting executing `setStyle(undefined, true)` resets all changes back to the initial properties provided to the directly to the component.
+Calling `setStyle(undefined, true)` resets all changes back to the initial properties provided directly to the component.
 
 ### using signals
 
-This approach is similar to react-spring and allows to modify the properties of a uikit component without any property diffing. The following code shows how to animate the background color on every frame without interfering with react.
+This approach allows modifying properties of a uikit component without any property diffing. The following code shows how to animate the background color on every frame.
 
-```jsx showLineNumbers
-import { Container } from '@react-three/uikit'
-import { useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+```ts
+import { Container } from '@ni2khanna/uikit'
 import { signal } from '@preact/signals-core'
 
-export function AnimateBackground() {
-  const backgroundColor = useMemo(() => signal(0), [])
-  useFrame(({ clock }) => {
-    //continuously animate between 0 and 1
-    backgroundColor.value = `rgba(255, 255, 255, ${Math.sin(clock.getElapsedTime()) / 2 + 0.5})`
-  })
-  return <Container backgroundColor={backgroundColor}></Container>
+const backgroundColor = signal('rgba(255, 255, 255, 0)')
+
+const container = new Container({
+  backgroundColor,
+})
+
+// In your animation loop:
+function animate(time: number) {
+  backgroundColor.value = `rgba(255, 255, 255, ${Math.sin(time * 0.001) / 2 + 0.5})`
 }
 ```
 

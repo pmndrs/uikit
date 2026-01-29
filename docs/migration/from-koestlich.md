@@ -26,12 +26,7 @@ This guide is intended for developers migrating their user interface from Koestl
 
 ## Component Changes
 
-- **Object to Content Component**: The Object component is replaced with the Content component. The depth property has been removed. The Content component now allows any R3F (React Three Fiber) component to be placed inside. To mimic the behavior of the Object component, use
-    ```jsx
-    <Content>
-        <primitive object={'...'}>
-    </Content>
-    ```
+- **Object to Content Component**: The Object component is replaced with the Content component. The depth property has been removed. The Content component now allows any Three.js object to be placed inside. To mimic the behavior of the Object component, add a Three.js object as a child of the Content element.
 - **SVG Depth Removal**: The SVG component no longer has a depth property, as SVGs are considered 2D planes.
 - **Box Component Removal**: The Box component has been removed.
 - **DefaultStyleProvider**: DefaultStyleProvider is renamed to DefaultProperties

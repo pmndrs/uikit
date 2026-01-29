@@ -1,6 +1,6 @@
 {
   "name": "@ni2khanna/uikit-lucide",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "lucide icons for vanilla uikit",
   "files": [
     "dist"

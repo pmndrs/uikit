@@ -1,6 +1,6 @@
 {
     "name": "@ni2khanna/msdfonts",
-    "version": "0.8.19",
+    "version": "0.8.20",
     "description": "base64 msdf fonts distributed as npm package",
     "files": [
       "dist"

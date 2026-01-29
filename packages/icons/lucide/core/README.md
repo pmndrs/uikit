@@ -1,5 +1,5 @@
-# @pmndrs/uikit-lucide
+# @ni2khanna/uikit-lucide
 
-lucide icons for v3/uikit
+Lucide icons for @ni2khanna/uikit.
 
-`npm i @pmndrs/uikit-lucide`
+`npm i @ni2khanna/uikit-lucide`

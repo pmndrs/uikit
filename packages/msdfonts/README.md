@@ -2,12 +2,10 @@
 
 base64 msdf fonts distributed as npm packages
 
-# usage with R3/uikit
+# usage with @ni2khanna/uikit
 
-```jsx
-import { inter } from '@pmndrs/msdfonts'
-
-;<FontFamilyProvider inter={inter}>{...children}</FontFamilyProvider>
+```ts
+import { inter } from '@ni2khanna/msdfonts'
 ```
 
 # How to build

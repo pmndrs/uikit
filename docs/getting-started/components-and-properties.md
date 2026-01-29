@@ -408,7 +408,7 @@ The `Icon` component only differs from the `SVG` component in how the SVG conten
 
 ## Content
 
-The `Content` component allows you to include any R3F/Three.js element into the layout. Since the children inside the `Content` component can be 3-dimensional objects, their alignment on the z-axis can be controlled with the `depthAlign` property. By default the content will preserve the aspect ratio of the 3D objects. In case the 3D objects should be sized independent from its aspect ratio, set `keepAspectRatio={false}`.
+The `Content` component allows you to include any Three.js element into the layout. Since the children inside the `Content` component can be 3-dimensional objects, their alignment on the z-axis can be controlled with the `depthAlign` property. By default the content will preserve the aspect ratio of the 3D objects. In case the 3D objects should be sized independent from its aspect ratio, set `keepAspectRatio={false}`.
 
 ```jsx showLineNumbers
 <Root>
@@ -517,7 +517,7 @@ const theme = basedOnPreferredColorScheme({
 
 ## Event Properties
 
-All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three-fiber/api/events). Additionally, event handlers for `onSizeChange`, `onIsClippedChange`, and `onScroll` can be added to all components.
+All components support pointer and interaction event handlers. Additionally, event handlers for `onSizeChange`, `onIsClippedChange`, and `onScroll` can be added to all components.
 
 <details>
 <summary>View all event handlers</summary>

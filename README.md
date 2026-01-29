@@ -6,7 +6,7 @@
 <h3 align="center">Build performant 3D user interfaces for Three.js using vanilla TypeScript and yoga.</h3>
 <br/>
 
-> Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
+> A vanilla-first 3D UI toolkit with React Three Fiber support. Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
 ```bash
 npm install three @ni2khanna/uikit
@@ -16,11 +16,11 @@ npm install three @ni2khanna/uikit
 
 This is a fork of [`@pmndrs/uikit`](https://github.com/pmndrs/uikit) — the excellent 3D UI toolkit built by [Poimandres](https://github.com/pmndrs) and originally authored by [Bela Bohlender](https://github.com/bbohlender).
 
-This fork makes the following changes:
+This fork is a **vanilla-first** UIKit that also supports React Three Fiber:
 
-- **React removed** — all React, R3F (`@react-three/fiber`), and React component wrappers have been stripped out. The entire library is now pure vanilla TypeScript, usable with any Three.js setup without a framework dependency.
+- **Vanilla TypeScript core** — the core library is pure vanilla TypeScript, usable with any Three.js setup without a framework dependency. React Three Fiber bindings are available as an optional integration.
 - **WebGPU renderer support** — a dual material path (GLSL `onBeforeCompile` for WebGL, TSL node materials for WebGPU) enables the library to work with both `WebGLRenderer` and `WebGPURenderer` (Three.js r182+).
-- **Vanilla examples** — all examples have been rewritten as vanilla TypeScript (no JSX), demonstrating the imperative API directly.
+- **Vanilla examples** — all examples are written in vanilla TypeScript, demonstrating the imperative API directly.
 
 ## Packages
 
@@ -113,7 +113,7 @@ This project is a fork of [**@pmndrs/uikit**](https://github.com/pmndrs/uikit), 
 
 Original author: [Bela Bohlender](https://github.com/bbohlender) ([@bbohlender](https://github.com/bbohlender)).
 
-The upstream project provides the foundational architecture — yoga-based flexbox layout, MSDF text rendering, instanced panel rendering, theming, and the full default component kit. This fork builds on that work by removing the React dependency, adding WebGPU support, and providing a vanilla TypeScript API.
+The upstream project provides the foundational architecture — yoga-based flexbox layout, MSDF text rendering, instanced panel rendering, theming, and the full default component kit. This fork builds on that work by providing a vanilla-first TypeScript API with optional React Three Fiber support and adding WebGPU compatibility.
 
 Thank you to the entire pmndrs community and the original contributors for building and open-sourcing this library.
 

@@ -53,7 +53,7 @@ async function init() {
   const subtitle = new Text({
     fontSize: 24,
     color: 'gray',
-    text: 'Loading fonts at runtime with @pmndrs/uikit-ttf',
+    text: 'Loading fonts at runtime with @ni2khanna/uikit-ttf',
   })
   root.add(subtitle)
 

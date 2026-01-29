@@ -4,47 +4,49 @@ description: How to make the UI elements interactive.
 nav: 5
 ---
 
-Every UI component can receive the same events as [any other R3F element](https://docs.pmnd.rs/react-three-fiber/api/events). In addition to these event listeners, uikit provides properties such as `hover` and `active` for all components. These properties allow the element to overwrite other properties if it is hovered or clicked.
+Every UI component can receive pointer events. In addition to event listeners, uikit provides properties such as `hover` and `active` for all components. These properties allow the element to overwrite other properties if it is hovered or clicked.
 
-The following example shows a Root element that is `black` by default turns `red` when the user hovers and is `green` as long as the user clicks on it.
+The following example shows a Root element that is `black` by default, turns `red` when the user hovers, and is `green` as long as the user clicks on it.
 
-```jsx
-<Root
-  backgroundColor="black"
-  hover={{ backgroundColor: 'red' }}
-  active={{ backgroundColor: 'green' }}
-  sizeX={1}
-  sizeY={1}
-/>
+```ts
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { reversePainterSortStable, Root } from '@ni2khanna/uikit'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+
+const canvas = document.getElementById('root') as HTMLCanvasElement
+const renderer = new WebGLRenderer({ antialias: true, canvas })
+renderer.localClippingEnabled = true
+renderer.setTransparentSort(reversePainterSortStable)
+
+const camera = new PerspectiveCamera(70, 1, 0.01, 100)
+camera.position.z = 10
+const scene = new Scene()
+
+const { update } = forwardHtmlEvents(canvas, camera, scene)
+
+const root = new Root(camera, renderer, {
+  backgroundColor: 'black',
+  hover: { backgroundColor: 'red' },
+  active: { backgroundColor: 'green' },
+  sizeX: 1,
+  sizeY: 1,
+})
+scene.add(root)
+
+function updateSize() {
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+}
+updateSize()
+window.addEventListener('resize', updateSize)
+
+let prev: number | undefined
+renderer.setAnimationLoop((time: number) => {
+  const delta = prev == null ? 0 : time - prev
+  prev = time
+  update()
+  root.update(delta)
+  renderer.render(scene, camera)
+})
 ```
-
-<Sandpack
-  template="react-ts"
-  customSetup={{
-    dependencies: {
-      'three': 'latest',
-      '@react-three/fiber': '<9',
-      '@react-three/uikit': 'latest',
-      '@react-three/drei': '<10',
-    },
-  }}
-  files={{
-    '/App.tsx': `import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { Root, Container } from "@react-three/uikit";
-
-export default function App() {
-  return (
-    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
-      <OrbitControls />
-      <Root
-        backgroundColor="black"
-        hover={{ backgroundColor: 'red' }}
-        active={{ backgroundColor: 'green' }}
-        sizeX={1}
-        sizeY={1}
-    />
-    </Canvas>
-  )
-}`}}
-/>

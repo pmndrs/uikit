@@ -1,47 +1,65 @@
 ---
 title: Introduction
-description: Build performant 3D user interfaces for threejs using R3F and yoga.
+description: Build performant 3D user interfaces for Three.js using vanilla TypeScript and yoga.
 nav: 0
 ---
 
-> Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
+> A vanilla-first 3D UI toolkit. Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
 ```bash
-npm install three @react-three/fiber @react-three/uikit
+npm install three @ni2khanna/uikit
 ```
 
 ### What does it look like?
 
-<Sandpack
-  template="react-ts"
-  customSetup={{
-    dependencies: {
-      'three': 'latest',
-      '@react-three/fiber': '<9',
-      '@react-three/uikit': 'latest',
-      '@react-three/drei': '<10',
-    },
-  }}
-  files={{
-    '/App.tsx': `import { Canvas } from "@react-three/fiber";
-import { Fullscreen, Container } from "@react-three/uikit";
+```ts
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { reversePainterSortStable, Fullscreen, Container } from '@ni2khanna/uikit'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
-export default function App() {
-  return (
-    <Canvas style={{ position: "absolute", inset: "0", touchAction: "none" }} gl={{ localClippingEnabled: true }}>
-      <Fullscreen flexDirection="row" padding={10} gap={10}>
-        <Container flexGrow={1} opacity={0.5} hover={{ opacity: 1 }} backgroundColor="red" />
-        <Container flexGrow={1} opacity={0.5} hover={{ opacity: 1 }} backgroundColor="blue" />
-      </Fullscreen>
-    </Canvas>
-  )
-}`}}
-/>
+const canvas = document.getElementById('root') as HTMLCanvasElement
+const renderer = new WebGLRenderer({ antialias: true, canvas })
+renderer.localClippingEnabled = true
+renderer.setTransparentSort(reversePainterSortStable)
+
+const camera = new PerspectiveCamera(70, 1, 0.01, 100)
+camera.position.z = 5
+const scene = new Scene()
+scene.add(camera)
+
+const { update } = forwardHtmlEvents(canvas, camera, scene)
+
+const root = new Fullscreen(renderer, {
+  flexDirection: 'row',
+  padding: 10,
+  gap: 10,
+})
+camera.add(root)
+
+root.add(new Container({ flexGrow: 1, opacity: 0.5, hover: { opacity: 1 }, backgroundColor: 'red' }))
+root.add(new Container({ flexGrow: 1, opacity: 0.5, hover: { opacity: 1 }, backgroundColor: 'blue' }))
+
+function updateSize() {
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+}
+updateSize()
+window.addEventListener('resize', updateSize)
+
+let prev: number | undefined
+renderer.setAnimationLoop((time: number) => {
+  const delta = prev == null ? 0 : time - prev
+  prev = time
+  update()
+  root.update(delta)
+  renderer.render(scene, camera)
+})
+```
 
 ## How to get started
 
-> Some familiarity with
-> react, threejs, and @react-three/fiber, is recommended.
+> Some familiarity with Three.js is recommended.
 
 Get started with **[building your first layout](./first-layout.md)**, take a look at our **[examples](./examples.md)** to see uikit in action, or learn more about:
 
@@ -64,16 +82,10 @@ We provide multiple kits containing **themable pre-styled components**.
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
 | ![Overview over all default components](./default-overview.jpg)       | ![Overview over all apfel components](./apfel-overview.jpg) |
 | [View All Components](../default-kit/accordion.mdx)                   | [View All Components](../apfel-kit/button.mdx)              |
-| `npm i @react-three/uikit-default`                                    | `npm i @react-three/uikit-apfel`                            |
+| `npm i @ni2khanna/uikit-default`                                    | `npm i @ni2khanna/uikit-apfel`                            |
 
 ## Migration guides
 
 - from [Koestlich](../migration/from-koestlich.md)
 - from [HTML/CSS](../migration/from-html-css.md)
 - from [Tailwind](../migration/from-tailwind.md)
-
-## Sponsors
-
-This project is supported by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
-
-![Sponsors Overview](https://bbohlender.github.io/sponsors/screenshot.png)

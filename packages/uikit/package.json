@@ -2,7 +2,7 @@
   "name": "@ni2khanna/uikit",
   "type": "module",
   "description": "Build performant 3D user interfaces with Three.js and yoga. Extended from @pmndrs/uikit.",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",

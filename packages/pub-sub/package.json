@@ -1,7 +1,7 @@
 {
   "name": "@ni2khanna/uikit-pub-sub",
   "type": "module",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "dependencies": {
     "@preact/signals-core": "^1.8.0"
   },

@@ -1,39 +1,22 @@
 ---
 title: Vanilla Three.js
-description: Build your first layout with with uikit and vanilla threejs.
+description: Build your first layout with uikit and vanilla Three.js.
 nav: 4
 ---
 
-The vanilla version of uikit allows to build user interfaces with plain Three.js.
+uikit is a vanilla-first 3D UI toolkit for Three.js with optional React Three Fiber support. This guide covers building user interfaces with the vanilla TypeScript API.
 
-### Differences to @react-three/uikit
-
-The vanilla version of uikit (`@pmndrs/uikit`) is decoupled from react. Therefore features such providing defaults via context is not available. Furthermore, no event system is available out of the box. For interactivity, such as hover effects, developers have to attach their own event system by emitting pointer events to the UI elements:
-
-```js
-uiElement.dispatchEvent({
-    type: 'pointerover',
-    distance: 0,
-    nativeEvent: {} as any,
-    object: x,
-    point: new Vector3(),
-    pointerId: -1,
-})
-```
-
-Aside from interactivity and contexts, every feature is available.
-
-## Building a user interface with `@pmndrs/uikit`
+## Building a user interface with `@ni2khanna/uikit`
 
 The first step is to install the dependencies.
 
-`npm i three @pmndrs/uikit`
+`npm i three @ni2khanna/uikit`
 
 Next, we create the `index.js` file and import the necessary dependencies and setup a threejs scene.
 
 ```js
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { reversePainterSortStable, Container, Root } from '@pmndrs/uikit'
+import { reversePainterSortStable, Container, Root } from '@ni2khanna/uikit'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 10
