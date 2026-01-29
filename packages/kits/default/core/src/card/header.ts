@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@ni2khanna/uikit'
 
 export type CardHeaderProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 

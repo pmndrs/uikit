@@ -28,6 +28,7 @@ import {
   makePanelSpherecast,
   panelGeometry,
   setupBoundingSphere,
+  type AllowedPointerEventsType,
 } from '../panel/index.js'
 import { Overflow } from 'yoga-layout/load'
 import { computedIsClipped } from '../clipping.js'
@@ -85,6 +86,18 @@ export class Component<
   readonly globalPanelMatrix: Signal<Matrix4 | undefined>
   readonly abortSignal = this.abortController.signal
   readonly classList: ClassList
+
+  // Pointer event properties (assigned by setupPointerEvents in utils.ts)
+  defaultPointerEvents?: 'none' | 'auto' | 'listener'
+  ancestorsHaveListeners?: boolean
+  pointerEvents?: 'none' | 'auto' | 'listener'
+  pointerEventsOrder?: number
+  pointerEventsType?: AllowedPointerEventsType
+  intersectChildren?: boolean
+  interactableDescendants?: Array<Object3D<any>>
+
+  // Assigned in constructor by makeClippedCast
+  spherecast?: (...args: any[]) => any
 
   constructor(
     private inputProperties?: InProperties<OutProperties>,

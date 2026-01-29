@@ -2,7 +2,7 @@ import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { Texture, TypedArray } from 'three'
 import { loadCachedFont } from './cache.js'
 import { Properties } from '../properties/index.js'
-import { inter } from '@pmndrs/msdfonts'
+import { inter } from '@ni2khanna/msdfonts'
 import { Container } from '../components/container.js'
 
 export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>

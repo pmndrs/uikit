@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@ni2khanna/uikit'
 import { signal } from '@preact/signals-core'
 
 export type TooltipProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>

@@ -2,6 +2,7 @@ import { DynamicDrawUsage, InstancedBufferAttribute, Material, Object3D, TypedAr
 import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
 import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
+import { createGlyphNodeMaterial } from './instanced-glyph-node-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, setupRenderOrder } from '../../order.js'
 import { RootContext } from '../../context.js'
@@ -10,7 +11,7 @@ export class GlyphGroupManager {
   private map = new Map<Font, Map<string, InstancedGlyphGroup>>()
   constructor(
     private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
-    private readonly object: Object3D,
+    private readonly object: Object3D<any>,
   ) {}
 
   init(abortSignal: AbortSignal) {
@@ -90,7 +91,9 @@ export class InstancedGlyphGroup {
     depthWrite: boolean,
     private renderOrder: number,
   ) {
-    this.instanceMaterial = new InstancedGlyphMaterial(font)
+    this.instanceMaterial = root.useNodeMaterial
+      ? createGlyphNodeMaterial(font)
+      : new InstancedGlyphMaterial(font)
     this.instanceMaterial.depthTest = depthTest
     this.instanceMaterial.depthWrite = depthWrite
   }

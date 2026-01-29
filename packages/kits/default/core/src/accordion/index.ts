@@ -5,7 +5,7 @@ import {
   InProperties,
   RenderContext,
   ThreeEventMap,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { signal } from '@preact/signals-core'
 
 export type AccordionProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>

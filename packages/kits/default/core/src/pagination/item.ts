@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@ni2khanna/uikit'
 
 export type PaginationItemProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 

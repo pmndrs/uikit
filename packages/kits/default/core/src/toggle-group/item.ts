@@ -5,7 +5,7 @@ import {
   BaseOutProperties,
   RenderContext,
   UnionizeVariants,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 import { ToggleGroup } from './index.js'

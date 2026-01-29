@@ -159,7 +159,7 @@ export function computeMatrixWorld(
 }
 
 export function setupMatrixWorldUpdate(
-  object: Object3D,
+  object: Object3D<any>,
   rootSignal: Signal<RootContext>,
   globalPanelMatrixSignal: Signal<Matrix4 | undefined> | undefined,
   abortSignal: AbortSignal,

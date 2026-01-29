@@ -1,6 +1,6 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import { borderRadius, colors } from '../theme.js'
-import { X } from '@pmndrs/uikit-lucide'
+import { X } from '@ni2khanna/uikit-lucide'
 import { Dialog } from './index.js'
 import { searchFor } from '../utils.js'
 

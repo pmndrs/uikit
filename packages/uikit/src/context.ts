@@ -9,6 +9,7 @@ import { Properties } from './properties/index.js'
 
 export type RenderContext = {
   requestFrame: () => void
+  useNodeMaterial?: boolean
 }
 
 export type RootContext = WithReversePainterSortStableCache & {
@@ -20,6 +21,7 @@ export type RootContext = WithReversePainterSortStableCache & {
   onFrameSet: Set<(delta: number) => void>
   onUpdateMatrixWorldSet: Set<() => void>
   isUpdateRunning: boolean
+  useNodeMaterial: boolean
 } & Partial<RenderContext>
 
 export function buildRootContext(
@@ -55,6 +57,7 @@ export function buildRootContext(
 function createRootContext(component: Component, renderContext: RenderContext | undefined) {
   const ctx: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'> = {
     isUpdateRunning: false,
+    useNodeMaterial: renderContext?.useNodeMaterial ?? false,
     onFrameSet: new Set<(delta: number) => void>(),
     requestFrame: renderContext?.requestFrame,
     requestRender() {

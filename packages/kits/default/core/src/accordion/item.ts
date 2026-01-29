@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@ni2khanna/uikit'
 import { Accordion } from './index.js'
 
 export type AccordionItemOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {

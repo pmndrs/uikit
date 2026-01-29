@@ -1,5 +1,5 @@
 {
-  "name": "@pmndrs/uikit",
+  "name": "@ni2khanna/uikit",
   "type": "module",
   "description": "Build performant 3D user interfaces with Three.js and yoga.",
   "version": "1.0.28",
@@ -43,7 +43,7 @@
     "node-html-parser": "^6.1.13",
     "tw-to-css": "^0.0.12",
     "yoga-layout": "^3.2.1",
-    "@pmndrs/msdfonts": "workspace:^",
-    "@pmndrs/uikit-pub-sub": "workspace:^"
+    "@ni2khanna/msdfonts": "workspace:^",
+    "@ni2khanna/uikit-pub-sub": "workspace:^"
   }
 }

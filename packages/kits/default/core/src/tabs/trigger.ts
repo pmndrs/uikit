@@ -1,8 +1,8 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs, TabsList } from './index.js'
 import { borderRadius, colors } from '../theme.js'
-import { PhoneForwarded } from '@pmndrs/uikit-lucide'
+import { PhoneForwarded } from '@ni2khanna/uikit-lucide'
 import { searchFor } from '../utils.js'
 
 export type TabsTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {

@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import type { Dialog } from './index.js'
 
 export type DialogTriggerOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM> & {

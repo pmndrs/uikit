@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@ni2khanna/uikit'
 import { borderRadius, colors } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Tooltip } from './index.js'

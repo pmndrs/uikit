@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
 import { searchFor } from '../utils.js'

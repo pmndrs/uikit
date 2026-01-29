@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@ni2khanna/uikit'
 import { computed } from '@preact/signals-core'
 
 export type LabelOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {

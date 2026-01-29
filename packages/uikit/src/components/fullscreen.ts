@@ -1,4 +1,5 @@
-import { OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
+import { OrthographicCamera, PerspectiveCamera, Vector2 } from 'three'
+import type { RendererLike } from '../renderer-types.js'
 import { batch, Signal, signal } from '@preact/signals-core'
 import { ThreeEventMap } from '../events.js'
 import { Container } from './container.js'
@@ -22,7 +23,7 @@ export class Fullscreen<
   private readonly pixelSize: Signal<number>
 
   constructor(
-    private renderer: WebGLRenderer,
+    private renderer: RendererLike,
     properties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties<EM>> | string>,
     config?: {
@@ -35,8 +36,15 @@ export class Fullscreen<
     const transformTranslateZ = signal(0)
     const pixelSize = signal(0)
 
+    // Detect if renderer supports node materials (WebGPURenderer has a 'backend' property)
+    const useNodeMaterial = 'backend' in renderer
+    const renderContext: RenderContext | undefined = config?.renderContext
+      ? { ...config.renderContext, useNodeMaterial }
+      : { requestFrame: () => {}, useNodeMaterial }
+
     super(properties, initialClasses, {
       ...config,
+      renderContext,
       defaultOverrides: {
         sizeX,
         sizeY,

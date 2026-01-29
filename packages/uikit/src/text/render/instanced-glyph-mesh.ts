@@ -1,8 +1,19 @@
-import { Box3, InstancedBufferAttribute, Material, Mesh, Object3DEventMap, PlaneGeometry, Sphere } from 'three'
+import {
+  Box3,
+  InstancedBufferAttribute,
+  InstancedInterleavedBuffer,
+  InterleavedBufferAttribute,
+  Material,
+  Mesh,
+  Object3DEventMap,
+  PlaneGeometry,
+  Sphere,
+} from 'three'
 import { RootContext } from '../../context.js'
 
 export class InstancedGlyphMesh extends Mesh {
   public count = 0
+  public pointerEvents?: string
 
   protected readonly isInstancedMesh = true
   public readonly instanceColor = null
@@ -34,6 +45,14 @@ export class InstancedGlyphMesh extends Mesh {
     planeGeometry.attributes.instanceUVOffset = instanceUV
     planeGeometry.attributes.instanceRGBA = instanceRGBA
     planeGeometry.attributes.instanceClipping = instanceClipping
+
+    // Split instanceClipping (mat4, 16 floats) into 4 vec4 attributes for TSL compatibility
+    const clippingInterleavedBuffer = new InstancedInterleavedBuffer(instanceClipping.array, 16)
+    clippingInterleavedBuffer.setUsage(instanceClipping.usage)
+    planeGeometry.setAttribute('instanceClipping0', new InterleavedBufferAttribute(clippingInterleavedBuffer, 4, 0, false))
+    planeGeometry.setAttribute('instanceClipping1', new InterleavedBufferAttribute(clippingInterleavedBuffer, 4, 4, false))
+    planeGeometry.setAttribute('instanceClipping2', new InterleavedBufferAttribute(clippingInterleavedBuffer, 4, 8, false))
+    planeGeometry.setAttribute('instanceClipping3', new InterleavedBufferAttribute(clippingInterleavedBuffer, 4, 12, false))
     this.frustumCulled = false
     root.onUpdateMatrixWorldSet.add(this.customUpdateMatrixWorld)
   }

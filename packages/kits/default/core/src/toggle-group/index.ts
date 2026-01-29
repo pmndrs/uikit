@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import type { ToggleSize, ToggleVariant } from './item.js'
 
 export type ToggleGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {

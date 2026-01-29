@@ -6,7 +6,7 @@ import {
   BaseOutProperties,
   RenderContext,
   UnionizeVariants,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 

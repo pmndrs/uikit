@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap, RenderContext } from '@ni2khanna/uikit'
 
 export type AlertTitleProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>
 

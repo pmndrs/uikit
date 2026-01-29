@@ -1,107 +1,122 @@
-Release Todo:
-
-[x] frameloop="demand" working
-[ ] Default kit give access to children as props (e.g. slider.dot)
-[x] Default Kit fully tested  
-[x] all examples working again  
-[ ] Horizon Kit
-[x] fix the highlighter - indication that event order is incorrect  
-[ ] set visible to false on the object if children are only text and containers
-[x] SuspendingImage & SuspendingVideo (including all the fixes)
-[x] cherry pick - more msdfonts (b00a71b), fix incorrect default value in docs (5ceabf9), optimized text rendering (2d9b55b)
-[ ] update docs for 1.0
-
-Todo before swapping the branches
-[x] input html element not removed?
-[x] fix text growing bug
-[x] setup cicd pipeline to push
-
 <p align="center">
   <img src="./docs/getting-started/logo.svg" width="100" />
 </p>
 
-<h1 align="center">uikit</h1>
-<h3 align="center">Build performant 3D user interfaces for<br/>  threejs using R3F and yoga.</h3>
+<h1 align="center">@ni2khanna/uikit</h1>
+<h3 align="center">Build performant 3D user interfaces for Three.js using vanilla TypeScript and yoga.</h3>
 <br/>
-
-<p align="center">
-  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
-    <img src="https://img.shields.io/npm/v/@react-three/uikit?style=flat&colorA=000000&colorB=000000" alt="NPM" />
-  </a>
-  <a href="https://npmjs.com/package/@react-three/uikit" target="_blank">
-    <img src="https://img.shields.io/npm/dt/@react-three/uikit.svg?style=flat&colorA=000000&colorB=000000" alt="NPM" />
-  </a>
-  <a href="https://twitter.com/pmndrs" target="_blank">
-    <img src="https://img.shields.io/twitter/follow/pmndrs?label=%40pmndrs&style=flat&colorA=000000&colorB=000000&logo=twitter&logoColor=000000" alt="Twitter" />
-  </a>
-  <a href="https://discord.gg/ZZjjNvJ" target="_blank">
-    <img src="https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=000000" alt="Discord" />
-  </a>
-</p>
 
 > Perfect for games, XR (VR/AR), and any web-based Spatial Computing App.
 
 ```bash
-npm install three @react-three/fiber @react-three/uikit
+npm install three @ni2khanna/uikit
 ```
 
-### What does it look like?
+## What is this?
 
-| A simple UI with 2 containers horizontally aligned, rendered in fullscreen. When the user hovers over a container, the container's opacity changes. | ![render of the above code](./docs/getting-started/basic-example.gif) |
-| --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+This is a fork of [`@pmndrs/uikit`](https://github.com/pmndrs/uikit) — the excellent 3D UI toolkit built by [Poimandres](https://github.com/pmndrs) and originally authored by [Bela Bohlender](https://github.com/bbohlender).
 
-```jsx
-import { createRoot } from 'react-dom/client'
-import React from 'react'
-import { Canvas } from '@react-three/fiber'
-import { Fullscreen, Container } from '@react-three/uikit'
+This fork makes the following changes:
 
-createRoot(document.getElementById('root')).render(
-  <Canvas>
-    <Fullscreen flexDirection="row" padding={10} gap={10}>
-      <Container flexGrow={1} opacity={0.5} hover={{ opacity: 1 }} backgroundColor="red" />
-      <Container flexGrow={1} opacity={0.5} hover={{ opacity: 1 }} backgroundColor="blue" />
-    </Fullscreen>
-  </Canvas>,
-)
+- **React removed** — all React, R3F (`@react-three/fiber`), and React component wrappers have been stripped out. The entire library is now pure vanilla TypeScript, usable with any Three.js setup without a framework dependency.
+- **WebGPU renderer support** — a dual material path (GLSL `onBeforeCompile` for WebGL, TSL node materials for WebGPU) enables the library to work with both `WebGLRenderer` and `WebGPURenderer` (Three.js r182+).
+- **Vanilla examples** — all examples have been rewritten as vanilla TypeScript (no JSX), demonstrating the imperative API directly.
+
+## Packages
+
+| Package | Description |
+|---|---|
+| `@ni2khanna/uikit` | Core library — layout, rendering, text, interactions |
+| `@ni2khanna/uikit-default` | Pre-styled component kit based on [Shadcn](https://github.com/shadcn-ui/ui) |
+| `@ni2khanna/uikit-lucide` | [Lucide](https://lucide.dev/) icon set as SVG components |
+| `@ni2khanna/msdfonts` | MSDF font data distributed as an npm package |
+| `@ni2khanna/uikit-pub-sub` | Reactive pub-sub primitives used internally |
+
+## Quick start
+
+```ts
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { reversePainterSortStable, Container, Text, Fullscreen } from '@ni2khanna/uikit'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { defaultProperties } from '@ni2khanna/uikit-default'
+
+const canvas = document.getElementById('root') as HTMLCanvasElement
+const renderer = new WebGLRenderer({ antialias: true, canvas })
+renderer.localClippingEnabled = true
+renderer.setTransparentSort(reversePainterSortStable)
+
+const camera = new PerspectiveCamera(70, 1, 0.01, 100)
+camera.position.z = 5
+const scene = new Scene()
+scene.add(camera)
+
+const { update } = forwardHtmlEvents(canvas, camera, scene)
+
+const root = new Fullscreen(renderer, {
+  ...defaultProperties,
+  flexDirection: 'row',
+  padding: 10,
+  gap: 10,
+})
+camera.add(root)
+
+root.add(new Container({ flexGrow: 1, opacity: 0.5, hover: { opacity: 1 }, backgroundColor: 'red' }))
+root.add(new Container({ flexGrow: 1, opacity: 0.5, hover: { opacity: 1 }, backgroundColor: 'blue' }))
+
+function updateSize() {
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+}
+updateSize()
+window.addEventListener('resize', updateSize)
+
+let prev: number | undefined
+renderer.setAnimationLoop((time: number) => {
+  const delta = prev == null ? 0 : time - prev
+  prev = time
+  update()
+  root.update(delta)
+  renderer.render(scene, camera)
+})
 ```
 
-## How to get started
+## Examples
 
-> Some familiarity with
-> react, threejs, and @react-three/fiber, is recommended.
+All examples are vanilla TypeScript and live in the `examples/` directory:
 
-Get started with **[building your first layout](https://docs.pmnd.rs/uikit/getting-started/first-layout)**, take a look at our **[examples](https://docs.pmnd.rs/uikit/getting-started/examples)** to see uikit in action, or learn more about:
+| Example | Description |
+|---|---|
+| `vanilla` | Basic UI with containers, text, images, scroll |
+| `minimal` | Interactive elements: hover, click counter, toggle, input, scroll list |
+| `card-vanilla` | Notification card with toggle and switch |
+| `auth-vanilla` | Login form with inputs, buttons, OAuth layout |
+| `lucide-vanilla` | Scrollable grid of all Lucide icons |
+| `market-vanilla` | Full app layout: sidebar, tabs, menubar, album cards |
+| `dashboard-vanilla` | Dashboard with stats cards, bar chart, recent sales |
+| `default-vanilla` | Component showcase: accordion, alert, dialog, tabs, slider, and more |
+| `ttf-vanilla` | Runtime TTF/OTF font loading |
 
-- [All components and their properties](https://docs.pmnd.rs/uikit/getting-started/components-and-properties)
-- [Interactivity](https://docs.pmnd.rs/uikit/tutorials/interactivity)
-- [Custom materials](https://docs.pmnd.rs/uikit/tutorials/custom-materials)
-- [Custom fonts](https://docs.pmnd.rs/uikit/tutorials/custom-fonts)
-- [Responsive user interfaces](https://docs.pmnd.rs/uikit/tutorials/responsive)
-- [Scrolling](https://docs.pmnd.rs/uikit/tutorials/scroll)
-- [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
-- [Common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls)
-- [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
-- [Theming components](https://docs.pmnd.rs/uikit/advanced/theming)
+Run any example:
 
-## Pre-styled component kits
+```bash
+pnpm install
+cd examples/<name>
+pnpm dev
+```
 
-We provide multiple kits containing **themable pre-styled components**.
+Append `?renderer=webgpu` to the URL to use the WebGPU renderer.
 
-| <h3>default</h3> _based on [Shadcn](https://github.com/shadcn-ui/ui)_                | <h3>apfel</h3> _inspired by AVP_                                                 |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| ![Overview over all default components](./docs/getting-started/default-overview.jpg) | ![Overview over all apfel components](./docs/getting-started/apfel-overview.jpg) |
-| [View All Components](https://docs.pmnd.rs/uikit/default-kit/accordion)              | [View All Components](https://docs.pmnd.rs/uikit/apfel-kit/button)               |
-| `npm i @react-three/uikit-default`                                                   | `npm i @react-three/uikit-apfel`                                                 |
+## Acknowledgements
 
-## Migration guides
+This project is a fork of [**@pmndrs/uikit**](https://github.com/pmndrs/uikit), created and maintained by [Poimandres](https://github.com/pmndrs) ([@pmndrs](https://github.com/pmndrs)).
 
-- from [Koestlich](https://docs.pmnd.rs/uikit/migration/from-koestlich)
-- from [HTML/CSS](https://docs.pmnd.rs/uikit/migration/from-html-css)
-- from [Tailwind](https://docs.pmnd.rs/uikit/migration/from-tailwind)
+Original author: [Bela Bohlender](https://github.com/bbohlender) ([@bbohlender](https://github.com/bbohlender)).
 
-## Sponsors
+The upstream project provides the foundational architecture — yoga-based flexbox layout, MSDF text rendering, instanced panel rendering, theming, and the full default component kit. This fork builds on that work by removing the React dependency, adding WebGPU support, and providing a vanilla TypeScript API.
 
-This project is supported by a few companies and individuals building cutting edge 3D Web & XR experiences. Check them out!
+Thank you to the entire pmndrs community and the original contributors for building and open-sourcing this library.
 
-![Sponsors Overview](https://bbohlender.github.io/sponsors/screenshot.png)
+## License
+
+See [LICENSE](./LICENSE).

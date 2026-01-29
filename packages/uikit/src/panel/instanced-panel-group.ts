@@ -14,6 +14,7 @@ import {
   resizeSortedBucketsSpace,
 } from '../allocation/sorted-buckets.js'
 import { MaterialClass, createPanelMaterial } from './panel-material.js'
+import { createPanelNodeMaterial } from './panel-node-material.js'
 import { InstancedPanel } from './instanced-panel.js'
 import { InstancedPanelMesh } from './instanced-panel-mesh.js'
 import { ElementType, OrderInfo, setupRenderOrder } from '../order.js'
@@ -99,7 +100,7 @@ export class PanelGroupManager {
 
   constructor(
     private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
-    private readonly object: Object3D,
+    private readonly object: Object3D<any>,
   ) {}
 
   init(abortSignal: AbortSignal) {
@@ -200,13 +201,15 @@ export class InstancedPanelGroup {
   }
 
   constructor(
-    private readonly object: Object3D,
+    private readonly object: Object3D<any>,
     public readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     private readonly orderInfo: OrderInfo,
     private readonly panelGroupProperties: Required<PanelGroupProperties>,
   ) {
     const materialClass = resolvePanelMaterialClassProperty(panelGroupProperties.panelMaterialClass)
-    this.instanceMaterial = createPanelMaterial(materialClass, { type: 'instanced' })
+    this.instanceMaterial = root.useNodeMaterial
+      ? createPanelNodeMaterial(materialClass, { type: 'instanced' })
+      : createPanelMaterial(materialClass, { type: 'instanced' })
     this.instanceMaterial.depthTest = panelGroupProperties.depthTest
     this.instanceMaterial.depthWrite = panelGroupProperties.depthWrite
   }

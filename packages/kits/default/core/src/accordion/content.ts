@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext, ThreeEventMap } from '@ni2khanna/uikit'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'

@@ -1,5 +1,5 @@
-import { InProperties, BaseOutProperties, RenderContext, ThreeEventMap, Text } from '@pmndrs/uikit'
-import { ChevronRight } from '@pmndrs/uikit-lucide'
+import { InProperties, BaseOutProperties, RenderContext, ThreeEventMap, Text } from '@ni2khanna/uikit'
+import { ChevronRight } from '@ni2khanna/uikit-lucide'
 import { PaginationLink, PaginationLinkOutProperties } from './link.js'
 
 export type PaginationNextProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<

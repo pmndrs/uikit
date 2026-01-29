@@ -5,7 +5,7 @@ import {
   InProperties,
   ThreeEventMap,
   RenderContext,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { Signal, signal } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 

@@ -1,5 +1,5 @@
-import { ThreeEventMap, InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
-import { Ellipsis } from '@pmndrs/uikit-lucide'
+import { ThreeEventMap, InProperties, BaseOutProperties, RenderContext, Container } from '@ni2khanna/uikit'
+import { Ellipsis } from '@ni2khanna/uikit-lucide'
 import { Object3D } from 'three/src/Three.Core.js'
 
 export type PaginationEllipsisProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<

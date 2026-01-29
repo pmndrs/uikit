@@ -11,6 +11,7 @@ import {
   PanelDistanceMaterial,
   PanelMaterialConfig,
 } from '../panel/panel-material.js'
+import { createPanelNodeMaterial } from '../panel/panel-node-material.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
 import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
@@ -109,7 +110,8 @@ export class Image<
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      const material = createPanelMaterial(
+      const createMaterial = this.root.peek().useNodeMaterial ? createPanelNodeMaterial : createPanelMaterial
+      const material = createMaterial(
         resolvePanelMaterialClassProperty(this.properties.value.panelMaterialClass),
         info,
       )
@@ -222,7 +224,7 @@ export class Image<
         aspectRatio.value = undefined
         return
       }
-      const image = tex.source.data
+      const image = tex.source.data as { videoWidth?: number; naturalWidth?: number; width: number; videoHeight?: number; naturalHeight?: number; height: number }
       const width = image.videoWidth ?? image.naturalWidth ?? image.width
       const height = image.videoHeight ?? image.naturalHeight ?? image.height
       aspectRatio.value = width / height

@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, withOpacity } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, Properties, withOpacity } from '@ni2khanna/uikit'
 import { signal, computed, Signal } from '@preact/signals-core'
 
 export type DialogOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {

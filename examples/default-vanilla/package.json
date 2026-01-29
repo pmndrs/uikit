@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@pmndrs/pointer-events": "^6.6.16",
+    "@ni2khanna/uikit": "workspace:^",
+    "@ni2khanna/uikit-default": "workspace:^",
+    "@ni2khanna/uikit-lucide": "workspace:^",
+    "@preact/signals-core": "^1.8.0"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build"
+  }
+}

@@ -156,7 +156,7 @@ function shallowEqualRecord(r1: Record<string, any> | undefined, r2: Record<stri
 }
 
 export function setupRenderOrder(
-  target: Object3D,
+  target: Object3D<any>,
   root: { peek(): WithReversePainterSortStableCache },
   orderInfo: { value: OrderInfo | undefined },
 ) {

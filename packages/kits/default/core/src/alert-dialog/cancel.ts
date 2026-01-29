@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import { borderRadius, colors } from '../theme.js'
 import { AlertDialog } from './index.js'
 import { AlertDialogFooter } from './footer.js'

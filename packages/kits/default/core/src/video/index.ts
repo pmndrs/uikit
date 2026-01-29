@@ -8,9 +8,9 @@ import {
   BaseOutProperties,
   abortableEffect,
   withOpacity,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { signal, computed } from '@preact/signals-core'
-import { Play, Pause, VolumeX, Volume2 } from '@pmndrs/uikit-lucide'
+import { Play, Pause, VolumeX, Volume2 } from '@ni2khanna/uikit-lucide'
 import { Slider } from '../slider/index.js'
 import { Button } from '../button/index.js'
 import { colors } from '../theme.js'

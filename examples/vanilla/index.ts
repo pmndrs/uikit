@@ -14,7 +14,9 @@ import {
   StyleSheet,
   setPreferredColorScheme,
   Fullscreen,
-} from '@pmndrs/uikit'
+  initNodeMaterials,
+  initGlyphNodeMaterials,
+} from '@ni2khanna/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles } from '@pmndrs/handle'
 import {
@@ -36,7 +38,20 @@ import {
   AlertDialogTrigger,
   Video,
   colors,
-} from '@pmndrs/uikit-default'
+} from '@ni2khanna/uikit-default'
+
+// Renderer selection via URL parameter: ?renderer=webgpu
+async function createRenderer(canvas: HTMLCanvasElement) {
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('renderer') === 'webgpu') {
+    const { WebGPURenderer } = await import('three/webgpu')
+    const renderer = new WebGPURenderer({ antialias: true, canvas })
+    await renderer.init()
+    await Promise.all([initNodeMaterials(), initGlyphNodeMaterials()])
+    return renderer
+  }
+  return new WebGLRenderer({ antialias: true, canvas })
+}
 
 // init
 
@@ -53,7 +68,7 @@ const { update } = forwardHtmlEvents(canvas, camera, scene)
 const orbit = new OrbitHandles(canvas, camera)
 orbit.bind(scene)
 
-const renderer = new WebGLRenderer({ antialias: true, canvas })
+const renderer = await createRenderer(canvas)
 setPreferredColorScheme('dark')
 
 //UI

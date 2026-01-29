@@ -1,4 +1,4 @@
-import { Image, ImageOutProperties, InProperties, ThreeEventMap, RenderContext, BaseOutProperties } from '@pmndrs/uikit'
+import { Image, ImageOutProperties, InProperties, ThreeEventMap, RenderContext, BaseOutProperties } from '@ni2khanna/uikit'
 import { Texture } from 'three'
 
 export type AvatarProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<

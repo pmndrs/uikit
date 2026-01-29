@@ -1,5 +1,5 @@
 {
-  "name": "@pmndrs/uikit-pub-sub",
+  "name": "@ni2khanna/uikit-pub-sub",
   "type": "module",
   "version": "1.0.6",
   "dependencies": {

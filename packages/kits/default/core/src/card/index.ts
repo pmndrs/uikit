@@ -1,4 +1,4 @@
-import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, ThreeEventMap } from '@ni2khanna/uikit'
 import { borderRadius, colors } from '../theme.js'
 
 export type CardProperties<EM extends ThreeEventMap = ThreeEventMap> = InProperties<BaseOutProperties<EM>>

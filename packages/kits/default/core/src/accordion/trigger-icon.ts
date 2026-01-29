@@ -5,8 +5,8 @@ import {
   InProperties,
   RenderContext,
   BaseOutProperties,
-} from '@pmndrs/uikit'
-import { ChevronDown } from '@pmndrs/uikit-lucide'
+} from '@ni2khanna/uikit'
+import { ChevronDown } from '@ni2khanna/uikit-lucide'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'

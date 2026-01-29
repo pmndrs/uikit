@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@ni2khanna/uikit'
 import { colors } from '../theme.js'
 
 export type DialogDescriptionOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>

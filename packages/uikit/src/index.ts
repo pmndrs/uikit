@@ -16,3 +16,7 @@ export { type ColorRepresentation, readReactive, type UnionizeVariants, withOpac
 export type { CaretTransformation } from './caret.js'
 export type { SelectionTransformation } from './selection.js'
 export * from './properties/index.js'
+export type { FontFamilies, FontWeight, FontFamilyWeightMap } from './text/index.js'
+export type { RendererLike } from './renderer-types.js'
+export { initNodeMaterials } from './panel/panel-node-material.js'
+export { initGlyphNodeMaterials } from './text/render/instanced-glyph-node-material.js'

@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 
 export class MenubarMenu<T = {}, EM extends ThreeEventMap = ThreeEventMap> extends Container<T, EM> {
   constructor(

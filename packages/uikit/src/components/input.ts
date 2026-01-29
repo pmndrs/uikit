@@ -9,7 +9,7 @@ import { Text, TextOutProperties, textDefaults } from './text.js'
 import { CaretTransformation, setupCaret } from '../caret.js'
 import { SelectionTransformation, createSelection } from '../selection.js'
 import { RenderContext } from '../context.js'
-import { ReadonlyProperties } from '@pmndrs/uikit-pub-sub'
+import { ReadonlyProperties } from '@ni2khanna/uikit-pub-sub'
 
 const cancelSet = new Set<unknown>()
 

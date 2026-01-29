@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import { Signal, signal, computed } from '@preact/signals-core'
 import { colors } from '../theme.js'
 import { Vector3 } from 'three'

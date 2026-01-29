@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties } from '@ni2khanna/uikit'
 
 export type DialogTitleOutProperties<EM extends ThreeEventMap = ThreeEventMap> = BaseOutProperties<EM>
 

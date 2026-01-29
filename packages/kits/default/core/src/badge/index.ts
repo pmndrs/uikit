@@ -7,7 +7,7 @@ import {
   withOpacity,
   RenderContext,
   UnionizeVariants,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { colors } from '../theme.js'
 import { computed } from '@preact/signals-core'
 

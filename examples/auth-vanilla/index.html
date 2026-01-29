@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Example (Vanilla UIKit)</title>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <div id="renderer-toggle" style="position:fixed;top:8px;right:8px;z-index:9999;font-family:monospace;font-size:12px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:4px;">
+        <a id="r-webgl" href="?renderer=webgl" style="color:#4fc3f7;text-decoration:none;">WebGL</a>
+        <span style="color:#888;">|</span>
+        <a id="r-webgpu" href="?renderer=webgpu" style="color:#81c784;text-decoration:none;">WebGPU</a>
+    </div>
+    <script>
+        !function(){
+            var p=new URLSearchParams(location.search);
+            p.set('renderer','webgl');document.getElementById('r-webgl').href='?'+p;
+            p.set('renderer','webgpu');document.getElementById('r-webgpu').href='?'+p;
+        }()
+    </script>
+    <canvas style="width: 100dvw; height: 100dvh;" id="root"></canvas>
+    <script type="module" src="./index.ts"></script>
+</body>
+</html>

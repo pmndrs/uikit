@@ -1,5 +1,5 @@
 {
-  "name": "@pmndrs/uikit-lucide",
+  "name": "@ni2khanna/uikit-lucide",
   "version": "1.0.23",
   "description": "lucide icons for vanilla uikit",
   "files": [
@@ -23,6 +23,6 @@
     "main": "dist/index.js"
   },
   "dependencies": {
-    "@pmndrs/uikit": "workspace:^"
+    "@ni2khanna/uikit": "workspace:^"
   }
 }

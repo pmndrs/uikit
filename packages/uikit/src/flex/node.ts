@@ -149,7 +149,7 @@ export class FlexNode {
     /** ---- END ---- */
 
     //commiting the children
-    let groupChildren: Array<Object3D> | undefined
+    let groupChildren: Array<Object3D<any>> | undefined
     this.children.sort((child1, child2) => {
       groupChildren ??= child1.component.parent?.children
       if (groupChildren == null) {

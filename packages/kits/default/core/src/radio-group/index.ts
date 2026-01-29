@@ -1,4 +1,4 @@
-import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
+import { Container, ThreeEventMap, InProperties, BaseOutProperties, RenderContext } from '@ni2khanna/uikit'
 import { signal, computed } from '@preact/signals-core'
 
 export type RadioGroupOutProperties<EM extends ThreeEventMap = ThreeEventMap> = {

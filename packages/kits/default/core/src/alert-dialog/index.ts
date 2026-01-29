@@ -1,5 +1,5 @@
 import { Dialog, DialogProperties } from '../dialog/index.js'
-import type { ThreeEventMap } from '@pmndrs/uikit'
+import type { ThreeEventMap } from '@ni2khanna/uikit'
 
 export type AlertDialogProperties<EM extends ThreeEventMap = ThreeEventMap> = DialogProperties<EM>
 

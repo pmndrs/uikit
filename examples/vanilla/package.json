@@ -3,9 +3,9 @@
   "dependencies": {
     "@pmndrs/handle": "^6.6.16",
     "@pmndrs/pointer-events": "^6.6.16",
-    "@pmndrs/uikit": "workspace:^",
-    "@pmndrs/uikit-lucide": "workspace:^",
-    "@pmndrs/uikit-default": "workspace:^"
+    "@ni2khanna/uikit": "workspace:^",
+    "@ni2khanna/uikit-lucide": "workspace:^",
+    "@ni2khanna/uikit-default": "workspace:^"
   },
   "scripts": {
     "dev": "vite --host"

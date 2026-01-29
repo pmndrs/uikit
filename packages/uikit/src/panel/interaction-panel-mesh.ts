@@ -10,21 +10,13 @@ import { Component } from '../components/component.js'
 const planeHelper = new Plane()
 const vectorHelper = new Vector3()
 
+export type SpherecastFn = (sphere: Sphere, intersects: Intersection[]) => void
+
 export type AllowedPointerEventsType =
   | 'all'
   | ((poinerId: number, pointerType: string, pointerState: unknown) => boolean)
   | { allow: string | Array<string> }
   | { deny: string | Array<string> }
-
-declare module 'three' {
-  interface Object3D extends PointerEventsProperties {
-    spherecast?(sphere: Sphere, intersects: Array<Intersection>): void
-    intersectChildren?: boolean
-    interactableDescendants?: Array<Object3D>
-    ancestorsHaveListeners?: boolean
-    defaultPointerEvents?: PointerEventsProperties['pointerEvents']
-  }
-}
 
 export type PointerEventsProperties = {
   pointerEvents?: 'none' | 'auto' | 'listener'
@@ -40,8 +32,8 @@ export function makePanelSpherecast(
   globalSphereWithLocalScale: Sphere,
   globalPanelMatrixSignal: Signal<Matrix4 | undefined>,
   object: Object3D,
-): Exclude<Mesh['spherecast'], undefined> {
-  return (sphere, intersects) => {
+): SpherecastFn {
+  return (sphere: Sphere, intersects: Intersection[]) => {
     const rootParentMatrixWorld = root.peek().component.parent?.matrixWorld ?? IdentityMatrix
     sphereHelper.copy(globalSphereWithLocalScale).applyMatrix4(rootParentMatrixWorld)
     if (
@@ -101,7 +93,7 @@ export function setupBoundingSphere(
  * clips the sphere / raycast
  * also marks the mesh as a interaction panel
  */
-export function makeClippedCast<T extends Mesh['raycast'] | Exclude<Mesh['spherecast'], undefined>>(
+export function makeClippedCast<T extends Mesh['raycast'] | SpherecastFn>(
   component: Component,
   fn: T,
   root: Signal<RootContext>,

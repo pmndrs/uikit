@@ -1,7 +1,7 @@
 import {
   PropertiesImplementation as BasePropertiesImplementation,
   Properties as BaseProperties,
-} from '@pmndrs/uikit-pub-sub'
+} from '@ni2khanna/uikit-pub-sub'
 import { Aliases, AddAllAliases } from './alias.js'
 import { Conditionals, WithConditionals } from './conditional.js'
 import { batch, computed, signal, Signal } from '@preact/signals-core'

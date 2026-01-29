@@ -8,7 +8,7 @@ import {
   InputOutProperties as BaseInputOutProperties,
   RenderContext,
   withOpacity,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 import { Object3D } from 'three/src/Three.js'

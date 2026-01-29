@@ -5,7 +5,7 @@ import {
   InProperties,
   RenderContext,
   ThreeEventMap,
-} from '@pmndrs/uikit'
+} from '@ni2khanna/uikit'
 
 export type AccordionTriggerProperties<EM extends ThreeEventMap = ThreeEventMap> = ContainerProperties<EM>
 

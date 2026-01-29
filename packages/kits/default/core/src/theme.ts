@@ -1,5 +1,5 @@
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
-import { isDarkMode, readReactive, withOpacity } from '@pmndrs/uikit'
+import { isDarkMode, readReactive, withOpacity } from '@ni2khanna/uikit'
 import { Color, ColorRepresentation } from 'three'
 
 function hsl(h: number, s: number, l: number): Signal<ColorRepresentation> | ColorRepresentation {

@@ -1,4 +1,4 @@
-import { Component } from '@pmndrs/uikit'
+import { Component } from '@ni2khanna/uikit'
 
 export function searchFor<T>(
   from: Component,

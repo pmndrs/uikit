@@ -1,5 +1,5 @@
-import { InProperties, BaseOutProperties, Container, ThreeEventMap, RenderContext } from '@pmndrs/uikit'
-import { Check } from '@pmndrs/uikit-lucide'
+import { InProperties, BaseOutProperties, Container, ThreeEventMap, RenderContext } from '@ni2khanna/uikit'
+import { Check } from '@ni2khanna/uikit-lucide'
 import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors } from '../theme.js'
 

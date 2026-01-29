@@ -9,7 +9,7 @@ import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.j
 import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
 import { abortableEffect, alignmentZMap, setupMatrixWorldUpdate } from '../utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
-import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast, SpherecastFn } from '../panel/interaction-panel-mesh.js'
 import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
 import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
 import { componentDefaults } from '../properties/defaults.js'
@@ -210,9 +210,10 @@ export class Content<
       child.matrixAutoUpdate = false
       child.updateMatrixWorld = this.updateChildMatrixWorld.bind(this, child)
       child.raycast = makeClippedCast(this, child.raycast.bind(child), this.root, this.parentContainer, this.orderInfo)
-      child.spherecast =
-        child.spherecast != null
-          ? makeClippedCast(this, child.spherecast, this.root, this.parentContainer, this.orderInfo)
+      const childWithSpherecast = child as Mesh & { spherecast?: SpherecastFn }
+      childWithSpherecast.spherecast =
+        childWithSpherecast.spherecast != null
+          ? makeClippedCast(this, childWithSpherecast.spherecast, this.root, this.parentContainer, this.orderInfo)
           : undefined
     })
 
@@ -245,7 +246,7 @@ const colorArrayHelper = [0, 0, 0, 0]
 
 function applyAppearancePropertiesToGroup(
   properties: Properties,
-  group: Object3D,
+  group: Object3D<any>,
   depthWriteDefault: boolean,
   supportFillProperty: boolean,
 ) {
