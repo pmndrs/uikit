@@ -196,6 +196,10 @@ export class Input<OutProperties extends InputOutProperties = InputOutProperties
     }
     this.selectionRange.value = [this.element.selectionStart ?? 0, this.element.selectionEnd ?? 0]
   }
+
+  blur(): void {
+    this.element.blur()
+  }
 }
 
 const segmenter = typeof Intl === 'undefined' ? undefined : new Intl.Segmenter(undefined, { granularity: 'word' })
