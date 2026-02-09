@@ -15,6 +15,7 @@ import { Image, ImageProperties, VanillaImage } from './index.js'
 import { InjectState, RootState, reconciler, useFrame, useStore, context } from '@react-three/fiber'
 import type { DomEvent, EventManager } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { create } from 'zustand'
+import { forwardObjectEvents } from '@pmndrs/pointer-events'
 
 // Keys that shouldn't be copied between R3F stores
 export const privateKeys = [
@@ -127,6 +128,25 @@ export const Portal = forwardRef<VanillaImage, PortalProperties>(
 
     //syncing up previous store with the current store
     useEffect(() => previousRoot.subscribe(usePortalStore.getState().setPreviousState), [previousRoot, usePortalStore])
+
+    //set up the pmndrs/pointer-events forwarding
+    const updateRef = useRef<(() => void) | undefined>(undefined)
+    useEffect(() => {
+      if (imageRef.current == null) {
+        return
+      }
+      const { destroy, update } = forwardObjectEvents(
+        imageRef.current,
+        () => usePortalStore.getState().camera,
+        usePortalStore.getInitialState().scene,
+      )
+      updateRef.current = update
+      return () => {
+        updateRef.current = undefined
+        destroy()
+      }
+    }, [imageRef, usePortalStore])
+    useFrame(() => updateRef.current?.())
 
     useEffect(() => {
       if (imageRef.current == null) {

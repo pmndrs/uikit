@@ -21,8 +21,8 @@ importers:
         specifier: rc
         version: 9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0))
       '@react-three/xr':
-        specifier: ^6.6.27
-        version: 6.6.27(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)
+        specifier: ^6.6.29
+        version: 6.6.29(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)
       '@types/chai':
         specifier: ^4.3.10
         version: 4.3.20
@@ -183,8 +183,8 @@ importers:
   examples/dashboard:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: 6.6.27
-        version: 6.6.27
+        specifier: ^6.6.29
+        version: 6.6.29
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -309,14 +309,17 @@ importers:
   examples/ttf-vanilla:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: ^6.6.27
-        version: 6.6.27
+        specifier: ^6.6.29
+        version: 6.6.29
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
 
   examples/uikit:
     dependencies:
+      '@pmndrs/pointer-events':
+        specifier: ^6.6.29
+        version: 6.6.29
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
@@ -327,11 +330,11 @@ importers:
   examples/vanilla:
     dependencies:
       '@pmndrs/handle':
-        specifier: ^6.6.27
-        version: 6.6.27(@types/react@19.1.8)(react@19.1.0)
+        specifier: ^6.6.29
+        version: 6.6.29(@types/react@19.1.8)(react@19.1.0)
       '@pmndrs/pointer-events':
-        specifier: ^6.6.27
-        version: 6.6.27
+        specifier: ^6.6.29
+        version: 6.6.29
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../../packages/uikit
@@ -432,6 +435,9 @@ importers:
 
   packages/react:
     dependencies:
+      '@pmndrs/pointer-events':
+        specifier: ^6.6.29
+        version: 6.6.29
       '@pmndrs/uikit':
         specifier: workspace:^
         version: link:../uikit
@@ -1568,22 +1574,22 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@pmndrs/handle@6.6.27':
-    resolution: {integrity: sha512-8H+edpERV/5aKk3l2sArwbSfaW3G0K0ivVxcQa6cM/RpyAxG68tvQXk7lwoy93Yyj9RgkGUJOoVQay7ta5Oz9g==}
+  '@pmndrs/handle@6.6.29':
+    resolution: {integrity: sha512-zfvakgxva2P5nB6HeOuSMGyFFFP6B5cRO61DeHKSm4z7WRW2FT8baaxW5izsYqymzc4Xutc9fpeIxbFL/GbmAw==}
 
   '@pmndrs/msdfonts@0.8.21':
     resolution: {integrity: sha512-6SY68a5JnjTENJ0RnYuylJJPN2XTTnnhVTf7fngYr1dp4k+FOO5WHhrEWK0E44sU2KpR46GPAv6lt9U5qebhpQ==}
 
-  '@pmndrs/pointer-events@6.6.27':
-    resolution: {integrity: sha512-3vi+BZQ+Kv63duWf7A4lcPJTFaAGL1Os+SjTO6FDOriZwnOLXTa3XtEuEqC3LFR7wV7Zs/qIY+onTP3TxtXSEQ==}
+  '@pmndrs/pointer-events@6.6.29':
+    resolution: {integrity: sha512-o4YD6VfJgDYjFgde/YyAw2X5KY454tdmOXrHGOvKTWJBHzkL90B5vH4rqmexwRVvaDfT3YLvVh/Dm5cBbgZXMg==}
 
   '@pmndrs/uikit@0.8.21':
     resolution: {integrity: sha512-C61c2OmCKHwLNkun/ZJYadFQBswBPN19dAwyuawV02xkbHJZ9iZZlx0ywRRXrYWNYiM4Ut5TiPKJPVXIg0Z9+w==}
     peerDependencies:
       three: '>=0.160'
 
-  '@pmndrs/xr@6.6.27':
-    resolution: {integrity: sha512-kUxyV1Z2frVvLZ6ogUF3VjEkwBrejY1S7Kl01XHRlvD//H8eiUtwHvzyHBe+moVwfFd5hu5Qq/Ei6Fn/e78ttg==}
+  '@pmndrs/xr@6.6.29':
+    resolution: {integrity: sha512-+17cGaV6tlYM6UJznKiPR1qw39NQDAvYchb2TRg8MnxUc9hOXKe/3a62DlLIe3uGfK9dnd7DlZlegeR/jIDEWg==}
     peerDependencies:
       three: '*'
 
@@ -1720,8 +1726,8 @@ packages:
       '@react-three/fiber': '>=8'
       react: '>=18'
 
-  '@react-three/xr@6.6.27':
-    resolution: {integrity: sha512-ueUYxM+oEcpq5fsi590kAiuWb/G0RbUoqSD9xzYVcjVsp40qfXQnYsf6mtv6KRSiPwbSw8AU8Sme40U9EOVo3Q==}
+  '@react-three/xr@6.6.29':
+    resolution: {integrity: sha512-qHegmgqTuao+8WC3MylTqg1HZWCw0b4hRH+rF4Em0kRaWU8gYCGpSYnq8fDrG6QlzfEUTTz5b235BwjUvi6oWw==}
     peerDependencies:
       '@react-three/fiber': '>=8'
       react: '>=18'
@@ -3776,21 +3782,22 @@ packages:
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@8.0.3:
     resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
     engines: {node: '>=12'}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-dirs@3.0.1:
     resolution: {integrity: sha512-NBcGGFbBA9s1VzD41QXDG+3++t9Mn5t1FpLdhESY6oKY4gYTFpX4wO3sqGUa0Srjtbfj3szX0RnemmrVRUdULA==}
@@ -6442,6 +6449,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-fetch@3.6.20:
     resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
@@ -7163,8 +7171,8 @@ snapshots:
       '@fortawesome/fontawesome-svg-core': 6.6.0
       '@fortawesome/free-solid-svg-icons': 6.6.0
       '@fortawesome/react-fontawesome': 0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@19.1.0)
-      '@pmndrs/handle': 6.6.27(@types/react@19.0.8)(react@19.1.0)
-      '@pmndrs/pointer-events': 6.6.27
+      '@pmndrs/handle': 6.6.29(@types/react@19.0.8)(react@19.1.0)
+      '@pmndrs/pointer-events': 6.6.29
       iwer: 2.1.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -8025,18 +8033,18 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@pmndrs/handle@6.6.27(@types/react@19.0.8)(react@19.1.0)':
+  '@pmndrs/handle@6.6.29(@types/react@19.0.8)(react@19.1.0)':
     dependencies:
-      '@pmndrs/pointer-events': 6.6.27
+      '@pmndrs/pointer-events': 6.6.29
       zustand: 4.5.6(@types/react@19.0.8)(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
       - immer
       - react
 
-  '@pmndrs/handle@6.6.27(@types/react@19.1.8)(react@19.1.0)':
+  '@pmndrs/handle@6.6.29(@types/react@19.1.8)(react@19.1.0)':
     dependencies:
-      '@pmndrs/pointer-events': 6.6.27
+      '@pmndrs/pointer-events': 6.6.29
       zustand: 4.5.6(@types/react@19.1.8)(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
@@ -8045,7 +8053,7 @@ snapshots:
 
   '@pmndrs/msdfonts@0.8.21': {}
 
-  '@pmndrs/pointer-events@6.6.27': {}
+  '@pmndrs/pointer-events@6.6.29': {}
 
   '@pmndrs/uikit@0.8.21(three@0.176.0)(ts-node@10.9.2(@types/node@20.17.16)(typescript@5.7.3))':
     dependencies:
@@ -8059,11 +8067,11 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  '@pmndrs/xr@6.6.27(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)':
+  '@pmndrs/xr@6.6.29(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)':
     dependencies:
       '@iwer/devui': 1.1.2(@types/react@19.0.8)(iwer@2.1.1)
       '@iwer/sem': 0.2.5(iwer@2.1.1)
-      '@pmndrs/pointer-events': 6.6.27
+      '@pmndrs/pointer-events': 6.6.29
       iwer: 2.1.1
       meshline: 3.3.1(three@0.175.0)
       three: 0.175.0
@@ -8307,10 +8315,10 @@ snapshots:
       - three
       - ts-node
 
-  '@react-three/xr@6.6.27(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)':
+  '@react-three/xr@6.6.29(@react-three/fiber@9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0)))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)':
     dependencies:
-      '@pmndrs/pointer-events': 6.6.27
-      '@pmndrs/xr': 6.6.27(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)
+      '@pmndrs/pointer-events': 6.6.29
+      '@pmndrs/xr': 6.6.29(@types/react@19.0.8)(react@19.0.0)(three@0.175.0)
       '@react-three/fiber': 9.0.0-rc.10(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.175.0)(use-sync-external-store@1.4.0(react@19.0.0))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)

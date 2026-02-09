@@ -1,7 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@pmndrs/pointer-events": "^6.6.27",
+    "@pmndrs/pointer-events": "^6.6.29",
     "@pmndrs/uikit": "workspace:^"
   },
   "scripts": {

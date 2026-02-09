@@ -41,6 +41,7 @@
     "react": ">=18"
   },
   "dependencies": {
+    "@pmndrs/pointer-events": "^6.6.29",
     "@pmndrs/uikit": "workspace:^",
     "@preact/signals-core": "^1.5.1",
     "suspend-react": "^0.1.3",

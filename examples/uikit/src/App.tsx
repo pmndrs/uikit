@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber'
 import { Box, OrbitControls, OrthographicCamera } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import { Text, Fullscreen, VanillaImage, VanillaInput, Video, Image, Portal, Container } from '@react-three/uikit'
-import {} from '@react-three/uikit-lucide'
 import { Texture } from 'three'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
@@ -72,7 +71,12 @@ export default function App() {
               zoom={100}
               bottom={10}
             />
-            <Box rotation-y={Math.PI / 4} args={[2, 2, 2]} />
+            <Box
+              onClick={() => console.log('clicked')}
+              position={[-1, -2, 0]}
+              rotation-y={Math.PI / 4}
+              args={[2, 2, 2]}
+            />
             <color attach="background" args={['green']} />
           </Portal>
         </Fullscreen>

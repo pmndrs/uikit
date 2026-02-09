@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    dedupe: ['@react-three/fiber', 'three'],
+    dedupe: ['@react-three/fiber', 'three', '@pmndrs/pointer-events'],
   },
   optimizeDeps: {
     esbuildOptions: {
