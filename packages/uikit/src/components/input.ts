@@ -233,7 +233,11 @@ export function setupSelectionHandlers(
         }
         cancelBlur(e.nativeEvent)
         e.stopImmediatePropagation?.()
-        if ('setPointerCapture' in e.object && typeof e.object.setPointerCapture === 'function') {
+        if (
+          'setPointerCapture' in e.object &&
+          typeof e.object.setPointerCapture === 'function' &&
+          e.pointerId != null
+        ) {
           e.object.setPointerCapture(e.pointerId)
         }
         const startCharIndex = uvToCharIndex(component, e.uv, instancedTextRef.current, 'between')

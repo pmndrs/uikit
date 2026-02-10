@@ -58,7 +58,11 @@ export function setupScrollHandlers(
       return
     }
     const onPointerFinish = (event: ThreePointerEvent) => {
-      if ('releasePointerCapture' in container && typeof container.releasePointerCapture === 'function') {
+      if (
+        'releasePointerCapture' in container &&
+        typeof container.releasePointerCapture === 'function' &&
+        event.pointerId != null
+      ) {
         container.releasePointerCapture(event.pointerId)
       }
       if (

@@ -105,7 +105,8 @@ export class Slider extends Container<SliderOutProperties> {
         e.target != null &&
         typeof e.target === 'object' &&
         'setPointerCapture' in e.target &&
-        typeof e.target.setPointerCapture === 'function'
+        typeof e.target.setPointerCapture === 'function' &&
+        e.pointerId != null
       ) {
         e.target.setPointerCapture(e.pointerId)
       }
