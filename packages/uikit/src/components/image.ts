@@ -9,6 +9,7 @@ import {
   PanelDepthMaterial,
   PanelDistanceMaterial,
   PanelMaterialConfig,
+  writeColor,
 } from '../panel/panel-material.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
@@ -149,6 +150,16 @@ export class Image<
         cleanupSizeEffect()
         cleanupBorderEffect()
       }
+    }, this.abortSignal)
+    abortableEffect(() => {
+      if (!this.isVisible.value) {
+        return
+      }
+      const opacity = this.properties.value.opacity ?? 1
+      const resolvedOpacity = typeof opacity === 'number' ? opacity : 1
+      const backgroundColor = this.properties.value.backgroundColor ?? 0xffffff
+      writeColor(data, 4, backgroundColor, resolvedOpacity, undefined)
+      this.root.peek().requestRender?.()
     }, this.abortSignal)
     const setters = imageMaterialConfig.setters
     abortableEffect(() => {
