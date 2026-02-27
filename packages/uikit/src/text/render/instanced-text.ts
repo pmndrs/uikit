@@ -363,6 +363,10 @@ export class InstancedText {
                 this.parentClippingRect?.peek(),
               )
             }
+
+            // Calculate kerning here to ensure next glyph's x value accounts for it.
+            const kerningPx = (prevGlyphId == null ? 0 : font.getKerning(prevGlyphId, glyphInfo.id)) * fontSize
+
             glyph.updateGlyphAndTransformation(
               glyphInfo,
               x + getGlyphOffsetX(font, fontSize, glyphInfo, prevGlyphId),
@@ -372,7 +376,8 @@ export class InstancedText {
             )
             glyph.show()
             prevGlyphId = glyphInfo.id
-            x += getOffsetToNextGlyph(fontSize, glyphInfo, letterSpacing)
+
+            x += getOffsetToNextGlyph(fontSize, glyphInfo, letterSpacing) + kerningPx
           }
 
           y += getOffsetToNextLine(lineHeight)
