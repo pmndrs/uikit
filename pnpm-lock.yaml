@@ -24,8 +24,8 @@ importers:
         specifier: ^20.14.8
         version: 20.17.16
       '@types/three':
-        specifier: 0.182.0
-        version: 0.182.0
+        specifier: 0.183.0
+        version: 0.183.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.0.2
         version: 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.3))(eslint@8.57.1)(typescript@5.7.3)
@@ -66,8 +66,8 @@ importers:
         specifier: ^3.2.5
         version: 3.4.2
       three:
-        specifier: 0.182.0
-        version: 0.182.0
+        specifier: 0.183.0
+        version: 0.183.0
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.17.16)(typescript@5.7.3)
@@ -240,11 +240,11 @@ importers:
   packages/uikit:
     dependencies:
       '@ni2khanna/msdfonts':
-        specifier: workspace:^
-        version: link:../msdfonts
+        specifier: 0.8.20
+        version: 0.8.20
       '@ni2khanna/uikit-pub-sub':
-        specifier: workspace:^
-        version: link:../pub-sub
+        specifier: 1.0.7
+        version: 1.0.7
       '@preact/signals-core':
         specifier: ^1.5.1
         version: 1.8.0
@@ -1168,6 +1168,12 @@ packages:
     resolution: {integrity: sha512-zM0mVWSXE0a0h9aKACLwKmD6nHcRiKrPpCfvaKqG1CqDEyjEawId0ocXxVzPMCAm6kkWr2P025msfxXEnt8UGQ==}
     engines: {node: '>= 10'}
 
+  '@ni2khanna/msdfonts@0.8.20':
+    resolution: {integrity: sha512-jHU6WmuouKEyjQHSKz7gw6e7qQA8Vcz2NiJ081iwac7f1Y6KYOVUjY0ZtjF2yP0W+IhLXjN3yW7YV+AhUw+pjw==}
+
+  '@ni2khanna/uikit-pub-sub@1.0.7':
+    resolution: {integrity: sha512-wb4HfcAVpm7qCA7R9SO3tPCqY8FNAZnU8lETXXAdgVsyg7PQxoPeyFyKf/4hrruFwfStDeKFGIoEMM614feTEA==}
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1515,8 +1521,8 @@ packages:
   '@types/stats.js@0.17.3':
     resolution: {integrity: sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==}
 
-  '@types/three@0.182.0':
-    resolution: {integrity: sha512-WByN9V3Sbwbe2OkWuSGyoqQO8Du6yhYaXtXLoA5FkKTUJorZ+yOHBZ35zUUPQXlAKABZmbYp5oAqpA4RBjtJ/Q==}
+  '@types/three@0.183.0':
+    resolution: {integrity: sha512-AaGkvloQhxdrfMm/HbY8cpOz1K1jkEELn6zjFoY3yhAiC7zhhZE19+gDBybYwKk+GqXmWKxqDCB43NqyW3+QZw==}
 
   '@types/webxr@0.5.21':
     resolution: {integrity: sha512-geZIAtLzjGmgY2JUi6VxXdCrTb99A7yP49lxLr2Nm/uIK0PkkxcEi4OGhoGDO4pxCf3JwGz2GiJL2Ej4K2bKaA==}
@@ -3537,8 +3543,8 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
-  meshoptimizer@0.22.0:
-    resolution: {integrity: sha512-IebiK79sqIy+E4EgOr+CAw+Ke8hAspXKzBd0JdgEmPHiAwmvEj2S4h1rfvo+o/BnfEYd/jAOg5IeeIjzlzSnDg==}
+  meshoptimizer@1.0.1:
+    resolution: {integrity: sha512-Vix+QlA1YYT3FwmBBZ+49cE5y/b+pRrcXKqGpS5ouh33d3lSp2PoTpCw19E0cKDFWalembrHnIaZetf27a+W2g==}
 
   micro@9.3.5-canary.3:
     resolution: {integrity: sha512-viYIo9PefV+w9dvoIBh1gI44Mvx1BOk67B4BpC2QK77qdY0xZF0Q+vWLt/BII6cLkIc8rLmSIcJaB/OrXXKe1g==}
@@ -4489,8 +4495,8 @@ packages:
   three@0.176.0:
     resolution: {integrity: sha512-PWRKYWQo23ojf9oZSlRGH8K09q7nRSWx6LY/HF/UUrMdYgN9i1e2OwJYHoQjwc6HF/4lvvYLC5YC1X8UJL2ZpA==}
 
-  three@0.182.0:
-    resolution: {integrity: sha512-GbHabT+Irv+ihI1/f5kIIsZ+Ef9Sl5A1Y7imvS5RQjWgtTPfPnZ43JmlYI7NtCRDK9zir20lQpfg8/9Yd02OvQ==}
+  three@0.183.0:
+    resolution: {integrity: sha512-G6SH2jfefIVa2YI4JL2VbgQhrrbp1A8dRc7lr3PW827kdVyaX2RgH6M5FmjmdVFLgSHppyg3OYOZdTfWElle+g==}
 
   time-span@4.0.0:
     resolution: {integrity: sha512-MyqZCTGLDZ77u4k+jqg4UlrzPTPZ49NDlaekU6uuFaJLzPIN1woaRXCbGeqOfxwc3Y37ZROGAJ614Rdv7Olt+g==}
@@ -6074,6 +6080,12 @@ snapshots:
       '@napi-rs/nice-win32-x64-msvc': 1.0.1
     optional: true
 
+  '@ni2khanna/msdfonts@0.8.20': {}
+
+  '@ni2khanna/uikit-pub-sub@1.0.7':
+    dependencies:
+      '@preact/signals-core': 1.8.0
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -6364,7 +6376,7 @@ snapshots:
 
   '@types/stats.js@0.17.3': {}
 
-  '@types/three@0.182.0':
+  '@types/three@0.183.0':
     dependencies:
       '@dimforge/rapier3d-compat': 0.12.0
       '@tweenjs/tween.js': 23.1.3
@@ -6372,7 +6384,7 @@ snapshots:
       '@types/webxr': 0.5.21
       '@webgpu/types': 0.1.63
       fflate: 0.8.2
-      meshoptimizer: 0.22.0
+      meshoptimizer: 1.0.1
 
   '@types/webxr@0.5.21': {}
 
@@ -8939,7 +8951,7 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  meshoptimizer@0.22.0: {}
+  meshoptimizer@1.0.1: {}
 
   micro@9.3.5-canary.3:
     dependencies:
@@ -10007,7 +10019,7 @@ snapshots:
 
   three@0.176.0: {}
 
-  three@0.182.0: {}
+  three@0.183.0: {}
 
   time-span@4.0.0:
     dependencies:

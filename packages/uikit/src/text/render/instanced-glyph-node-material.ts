@@ -106,7 +106,7 @@ function _applyGlyphShader(material: any, font: Font) {
 
   // MSDF median function
   const getDistance = Fn(() => {
-    const msdf = fontPageTexture.uv(vFontUv).rgb
+    const msdf = fontPageTexture.sample(vFontUv).rgb
     return max(min(msdf.r, msdf.g), min(max(msdf.r, msdf.g), msdf.b))
   })
 

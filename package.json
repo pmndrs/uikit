@@ -5,7 +5,7 @@
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.14.8",
-    "@types/three": "0.182.0",
+    "@types/three": "0.183.0",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "chai": "^4.3.10",
@@ -19,7 +19,7 @@
     "json": "^11.0.0",
     "mocha": "^10.2.0",
     "prettier": "^3.2.5",
-    "three": "0.182.0",
+    "three": "0.183.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-json-schema": "^0.65.1",
@@ -41,5 +41,7 @@
     "build:all": "pnpm -r build",
     "test:docs": "node scripts/check-docs-mdx.mjs"
   },
-  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
+  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264",
+  "name": "",
+  "version": ""
 }

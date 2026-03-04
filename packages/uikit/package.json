@@ -2,7 +2,7 @@
   "name": "@ni2khanna/uikit",
   "type": "module",
   "description": "Build performant 3D user interfaces with Three.js and yoga. Extended from @pmndrs/uikit.",
-  "version": "1.0.29",
+  "version": "1.2.0",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/papiguy/uikit",
   "author": "Bela Bohlender",
@@ -21,7 +21,7 @@
   "files": [
     "dist"
   ],
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "publishConfig": {
     "main": "dist/index.js"
   },
@@ -43,7 +43,7 @@
     "node-html-parser": "^6.1.13",
     "tw-to-css": "^0.0.12",
     "yoga-layout": "^3.2.1",
-    "@ni2khanna/msdfonts": "workspace:^",
-    "@ni2khanna/uikit-pub-sub": "workspace:^"
+    "@ni2khanna/msdfonts": "0.8.20",
+    "@ni2khanna/uikit-pub-sub": "1.0.7"
   }
 }
