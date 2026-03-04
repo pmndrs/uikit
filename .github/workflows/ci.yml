@@ -32,4 +32,7 @@ jobs:
           pnpm -r check:eslint
 
       - name: Build
-        run: pnpm -r build
+        run: |
+          pnpm -r convert
+          pnpm -r generate
+          pnpm -r build
