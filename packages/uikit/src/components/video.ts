@@ -21,7 +21,7 @@ export class Video<OutProperties extends VideoOutProperties = VideoOutProperties
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       defaults?: WithSignal<OutProperties>
@@ -29,7 +29,7 @@ export class Video<OutProperties extends VideoOutProperties = VideoOutProperties
   ) {
     super(inputProperties, initialClasses, {
       loadTexture: false,
-      ...config,
+      ...inputConfig,
     })
 
     const srcIsElement = computed(() => this.properties.value.src instanceof HTMLVideoElement)
@@ -104,6 +104,12 @@ export class Video<OutProperties extends VideoOutProperties = VideoOutProperties
       requestId = element.requestVideoFrameCallback(callback)
       return () => element.cancelVideoFrameCallback(requestId)
     }, this.abortSignal)
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Video(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 }
 

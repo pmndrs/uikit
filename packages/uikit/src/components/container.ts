@@ -38,7 +38,7 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       defaults?: WithSignal<OutProperties>
@@ -48,7 +48,7 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
     super(inputProperties, initialClasses, {
       hasNonUikitChildren: false,
       dynamicHandlers: scrollHandlers,
-      ...config,
+      ...inputConfig,
     })
     this.material.visible = false
 
@@ -97,5 +97,11 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
     //scrolling:
     setupScroll(this)
     setupScrollbars(this, parentClippingRect, this.orderInfo, panelGroupDeps)
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Container(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 }

@@ -10,12 +10,18 @@ export class Textarea<OutProperties extends InputOutProperties = InputOutPropert
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: (string | InProperties<BaseOutProperties>)[],
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       defaults?: WithSignal<OutProperties>
     },
   ) {
-    super(inputProperties, initialClasses, { multiline: true, ...config })
+    super(inputProperties, initialClasses, { multiline: true, ...inputConfig })
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Textarea(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 }

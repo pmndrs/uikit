@@ -82,7 +82,7 @@ export class Input<OutProperties extends InputOutProperties = InputOutProperties
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       multiline?: boolean
@@ -108,7 +108,7 @@ export class Input<OutProperties extends InputOutProperties = InputOutProperties
       instancedTextRef,
       hasFocus,
       isPlaceholder: computed(() => this.currentSignal.value.length === 0),
-      ...config,
+      ...inputConfig,
       defaultOverrides: {
         cursor: 'text',
         ...({
@@ -121,7 +121,7 @@ export class Input<OutProperties extends InputOutProperties = InputOutProperties
           ),
         } as any),
         caretColor,
-        ...config?.defaultOverrides,
+        ...inputConfig?.defaultOverrides,
       } as InProperties<OutProperties>,
     })
     this.selectionRange = selectionRange
@@ -148,7 +148,7 @@ export class Input<OutProperties extends InputOutProperties = InputOutProperties
         }
         this.properties.peek().onValueChange?.(newValue)
       },
-      config?.multiline ?? false,
+      inputConfig?.multiline ?? false,
     )
 
     setupCaret(
@@ -195,6 +195,12 @@ export class Input<OutProperties extends InputOutProperties = InputOutProperties
       this.element.setSelectionRange(start, end, direction)
     }
     this.selectionRange.value = [this.element.selectionStart ?? 0, this.element.selectionEnd ?? 0]
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Input(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 
   blur(): void {

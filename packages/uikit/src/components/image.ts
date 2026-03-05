@@ -39,7 +39,7 @@ export class Image<
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       loadTexture?: boolean
@@ -50,8 +50,8 @@ export class Image<
     super(inputProperties, initialClasses, {
       defaults: imageDefaults as WithSignal<OutProperties>,
       hasNonUikitChildren: false,
-      ...config,
-      defaultOverrides: { aspectRatio, ...config?.defaultOverrides } as InProperties<OutProperties>,
+      ...inputConfig,
+      defaultOverrides: { aspectRatio, ...inputConfig?.defaultOverrides } as InProperties<OutProperties>,
     })
 
     setupOrderInfo(
@@ -67,7 +67,7 @@ export class Image<
     this.frustumCulled = false
     setupRenderOrder(this, this.root, this.orderInfo)
 
-    if (config?.loadTexture ?? true) {
+    if (inputConfig?.loadTexture ?? true) {
       loadResourceWithParams(
         this.texture,
         loadTextureImpl,
@@ -224,6 +224,12 @@ export class Image<
       const height = image.videoHeight ?? image.naturalHeight ?? image.height
       aspectRatio.value = width / height
     }, this.abortSignal)
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Image(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 
   add(): this {

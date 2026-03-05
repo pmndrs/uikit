@@ -118,8 +118,8 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   readonly classList: ClassList
 
   constructor(
-    private inputProperties?: InProperties<OutProperties>,
-    initialClasses?: Array<InProperties<BaseOutProperties> | string>,
+    protected inputProperties?: InProperties<OutProperties>,
+    protected readonly initialClasses?: Array<InProperties<BaseOutProperties> | string>,
     config?: {
       material?: Material
       renderContext?: RenderContext
@@ -382,6 +382,49 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       onFrame(delta)
     }
     root.isUpdateRunning = false
+  }
+
+  protected copyInto(target: Component, recursive?: boolean): void {
+    target.name = this.name
+    target.up.copy(this.up)
+    target.position.copy(this.position)
+    target.rotation.order = this.rotation.order
+    target.quaternion.copy(this.quaternion)
+    target.scale.copy(this.scale)
+    target.matrix.copy(this.matrix)
+    target.matrixWorld.copy(this.matrixWorld)
+    target.matrixAutoUpdate = this.matrixAutoUpdate
+    target.matrixWorldAutoUpdate = this.matrixWorldAutoUpdate
+    target.layers.mask = this.layers.mask
+    target.visible = this.visible
+    target.castShadow = this.castShadow
+    target.receiveShadow = this.receiveShadow
+    target.frustumCulled = this.frustumCulled
+    target.renderOrder = this.renderOrder
+    target.animations = this.animations.slice()
+    target.userData = JSON.parse(JSON.stringify(this.userData))
+    if (recursive !== false) {
+      for (const child of this.children) {
+        if (child instanceof InstancedPanelMesh || child instanceof InstancedGlyphMesh) {
+          continue
+        }
+        if (child instanceof Component) {
+          target.add(child.clone())
+        }
+      }
+    }
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Component(this.inputProperties, this.initialClasses) as this
+    this.copyInto(cloned, recursive)
+    return cloned
+  }
+
+  copy(_source: Object3D, _recursive?: boolean): this {
+    throw new Error(
+      'Component.copy() is not supported because uikit components require constructor-based initialization. Use Component.clone() instead.',
+    )
   }
 
   dispose(): void {
