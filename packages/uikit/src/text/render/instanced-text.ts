@@ -7,6 +7,7 @@ import {
   getGlyphLayoutHeight,
   getGlyphOffsetX,
   getGlyphOffsetY,
+  getKerningOffset,
   getOffsetToNextGlyph,
   getOffsetToNextLine,
   toAbsoluteNumber,
@@ -334,8 +335,9 @@ export class InstancedText {
             const char = text[charIndex]!
             const glyphInfo = font.getGlyphInfo(char)
             if (char === ' ' || charIndex > nonWhitespaceCharLength + firstNonWhitespaceCharIndex) {
+              x += getKerningOffset(font, fontSize, prevGlyphId, glyphInfo)
               prevGlyphId = glyphInfo.id
-              const xPosition = x + getGlyphOffsetX(font, fontSize, glyphInfo, prevGlyphId)
+              const xPosition = x + getGlyphOffsetX(glyphInfo, fontSize)
               if (typeof glyphs[glyphIndex] === 'number') {
                 glyphs[glyphIndex] = x
               } else {
@@ -363,9 +365,10 @@ export class InstancedText {
                 this.parentClippingRect?.peek(),
               )
             }
+            x += getKerningOffset(font, fontSize, prevGlyphId, glyphInfo)
             glyph.updateGlyphAndTransformation(
               glyphInfo,
-              x + getGlyphOffsetX(font, fontSize, glyphInfo, prevGlyphId),
+              x + getGlyphOffsetX(glyphInfo, fontSize),
               -(y + getGlyphOffsetY(fontSize, lineHeight, glyphInfo)),
               fontSize,
               pixelSize,
