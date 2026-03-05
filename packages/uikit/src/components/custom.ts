@@ -15,14 +15,14 @@ export class Custom<OutProperties extends BaseOutProperties = BaseOutProperties>
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       material?: Material
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       defaults?: WithSignal<OutProperties>
     },
   ) {
-    super(inputProperties, initialClasses, { hasNonUikitChildren: false, ...config })
+    super(inputProperties, initialClasses, { hasNonUikitChildren: false, ...inputConfig })
 
     setupOrderInfo(
       this.orderInfo,
@@ -72,5 +72,11 @@ export class Custom<OutProperties extends BaseOutProperties = BaseOutProperties>
       this.visible = this.isVisible.value
       this.root.peek().requestRender?.()
     }, this.abortSignal)
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Custom(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 }

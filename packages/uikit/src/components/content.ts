@@ -51,7 +51,7 @@ export class Content<
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    private readonly config?: {
+    protected readonly inputConfig?: {
       remeasureOnChildrenChange?: boolean
       depthWriteDefault?: boolean
       supportFillProperty?: boolean
@@ -65,11 +65,14 @@ export class Content<
     super(inputProperties, initialClasses, {
       defaults: contentDefaults as OutProperties,
       hasNonUikitChildren: true,
-      ...config,
-      defaultOverrides: { aspectRatio: defaultAspectRatio, ...config?.defaultOverrides } as InProperties<OutProperties>,
+      ...inputConfig,
+      defaultOverrides: {
+        aspectRatio: defaultAspectRatio,
+        ...inputConfig?.defaultOverrides,
+      } as InProperties<OutProperties>,
     })
     this.boundingBox =
-      config?.boundingBox ?? signal<BoundingBox>({ size: new Vector3(1, 1.01, 1), center: new Vector3(0, 0, 0) })
+      inputConfig?.boundingBox ?? signal<BoundingBox>({ size: new Vector3(1, 1.01, 1), center: new Vector3(0, 0, 0) })
 
     abortableEffect(() => {
       if (!this.properties.value.keepAspectRatio || this.boundingBox.value == null) {
@@ -167,13 +170,13 @@ export class Content<
       applyAppearancePropertiesToGroup(
         this.properties,
         this,
-        this.config?.depthWriteDefault ?? DepthWriteDefaultDefault,
-        this.config?.supportFillProperty ?? SupportFillPropertyDefault,
+        this.inputConfig?.depthWriteDefault ?? DepthWriteDefaultDefault,
+        this.inputConfig?.supportFillProperty ?? SupportFillPropertyDefault,
       )
       this.root.peek().requestRender?.()
     }, this.abortSignal)
 
-    const remeasureOnChildrenChange = this.config?.remeasureOnChildrenChange ?? RemeasureOnChildrenChangeDefault
+    const remeasureOnChildrenChange = this.inputConfig?.remeasureOnChildrenChange ?? RemeasureOnChildrenChangeDefault
     if (remeasureOnChildrenChange) {
       const onChildrenChanged = this.debounceNotifyAncestorsChanged.bind(this)
       this.addEventListener('childadded', onChildrenChanged)
@@ -221,8 +224,8 @@ export class Content<
     applyAppearancePropertiesToGroup(
       this.properties,
       this,
-      this.config?.depthWriteDefault ?? DepthWriteDefaultDefault,
-      this.config?.supportFillProperty ?? SupportFillPropertyDefault,
+      this.inputConfig?.depthWriteDefault ?? DepthWriteDefaultDefault,
+      this.inputConfig?.supportFillProperty ?? SupportFillPropertyDefault,
     )
     this.traverse((descendant) => {
       if (
@@ -260,7 +263,7 @@ export class Content<
       child.updateWorldMatrix = this.childUpdateWorldMatrix.bind(this, child)
     }
 
-    if (this.config?.boundingBox == null) {
+    if (this.inputConfig?.boundingBox == null) {
       //no need to compute the bounding box ourselves
       box3Helper.makeEmpty()
       for (const child of this.children) {
@@ -289,6 +292,12 @@ export class Content<
         child.updateWorldMatrix(false, true)
       }
     }
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Content(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 
   dispose(): void {

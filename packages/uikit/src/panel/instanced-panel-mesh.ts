@@ -16,7 +16,7 @@ export class InstancedPanelMesh extends Mesh {
   private readonly customUpdateMatrixWorld = () => computeWorldToGlobalMatrix(this.root, this.matrixWorld)
 
   constructor(
-    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
+    protected readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     public readonly instanceMatrix: InstancedBufferAttribute,
     instanceData: InstancedBufferAttribute,
     instanceClipping: InstancedBufferAttribute,
@@ -38,8 +38,20 @@ export class InstancedPanelMesh extends Mesh {
     this.geometry.dispose()
   }
 
+  clone(): this {
+    const cloned = new InstancedPanelMesh(
+      this.root,
+      this.instanceMatrix,
+      this.geometry.attributes.aData as InstancedBufferAttribute,
+      this.geometry.attributes.aClipping as InstancedBufferAttribute,
+    ) as this
+    cloned.count = this.count
+    cloned.material = this.material
+    return cloned
+  }
+
   copy(): this {
-    throw new Error('copy not implemented')
+    throw new Error('InstancedPanelMesh.copy() is not supported. Use clone() instead.')
   }
 
   //functions not needed because intersection (and morphing) is intenionally disabled

@@ -18,7 +18,7 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       defaults?: WithSignal<OutProperties>
@@ -26,7 +26,7 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
   ) {
     const boundingBox = signal<BoundingBox | undefined>(undefined)
     super(inputProperties, initialClasses, {
-      ...config,
+      ...inputConfig,
       remeasureOnChildrenChange: false,
       depthWriteDefault: false,
       supportFillProperty: true,
@@ -57,6 +57,12 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
         super.remove(...result.meshes)
       }
     }, this.abortSignal)
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Svg(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 }
 

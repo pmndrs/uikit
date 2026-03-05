@@ -44,7 +44,7 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       dynamicHandlers?: Signal<EventHandlersProperties | undefined>
@@ -60,7 +60,7 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
     super(inputProperties, initialClasses, {
       defaults: textDefaults as OutProperties,
       hasNonUikitChildren: false,
-      ...config,
+      ...inputConfig,
     })
     this.material.visible = false
 
@@ -129,12 +129,18 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
     const customLayouting = createInstancedText(
       this,
       parentClippingRect,
-      config?.selectionRange,
-      config?.selectionTransformations,
-      config?.caretTransformation,
-      config?.instancedTextRef,
+      inputConfig?.selectionRange,
+      inputConfig?.selectionTransformations,
+      inputConfig?.caretTransformation,
+      inputConfig?.instancedTextRef,
     )
     abortableEffect(() => this.node.setCustomLayouting(customLayouting.value), this.abortSignal)
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Text(this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 
   add(): this {

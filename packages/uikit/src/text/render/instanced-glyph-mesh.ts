@@ -14,7 +14,7 @@ export class InstancedGlyphMesh extends Mesh {
   private readonly customUpdateMatrixWorld = () => computeWorldToGlobalMatrix(this.root, this.matrixWorld)
 
   constructor(
-    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
+    protected readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
     public readonly instanceMatrix: InstancedBufferAttribute,
     public readonly instanceRGBA: InstancedBufferAttribute,
     public readonly instanceUV: InstancedBufferAttribute,
@@ -34,8 +34,22 @@ export class InstancedGlyphMesh extends Mesh {
     root.onUpdateMatrixWorldSet.add(this.customUpdateMatrixWorld)
   }
 
+  clone(): this {
+    const cloned = new InstancedGlyphMesh(
+      this.root,
+      this.instanceMatrix,
+      this.instanceRGBA,
+      this.instanceUV,
+      this.instanceClipping,
+      this.instanceRenderSolid,
+      this.material as Material,
+    ) as this
+    cloned.count = this.count
+    return cloned
+  }
+
   copy(): this {
-    throw new Error('copy not implemented')
+    throw new Error('InstancedGlyphMesh.copy() is not supported. Use clone() instead.')
   }
 
   dispose() {

@@ -20,10 +20,10 @@ export class Fullscreen<
   private readonly pixelSize: Signal<number>
 
   constructor(
-    private renderer: WebGLRenderer,
+    protected renderer: WebGLRenderer,
     properties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,
-    config?: {
+    protected inputConfig?: {
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       defaults?: WithSignal<OutProperties>
@@ -35,21 +35,26 @@ export class Fullscreen<
     const pixelSize = signal(0)
 
     super(properties, initialClasses, {
-      ...config,
+      ...inputConfig,
       defaultOverrides: {
         sizeX,
         sizeY,
         pixelSize,
         transformTranslateZ,
         pointerEvents: 'listener',
-        ...config?.defaultOverrides,
+        ...inputConfig?.defaultOverrides,
       } as InProperties<OutProperties>,
     })
-
     this.sizeX = sizeX
     this.sizeY = sizeY
     this.transformTranslateZ = transformTranslateZ
     this.pixelSize = pixelSize
+  }
+
+  clone(recursive?: boolean): this {
+    const cloned = new Fullscreen(this.renderer, this.inputProperties, this.initialClasses, this.inputConfig) as this
+    this.copyInto(cloned, recursive)
+    return cloned
   }
 
   update(delta: number) {
