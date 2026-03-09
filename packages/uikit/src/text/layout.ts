@@ -1,5 +1,5 @@
 import { BreakallWrapper, NowrapWrapper, WordWrapper } from './wrapper/index.js'
-import { Font } from './font.js'
+import { ResolvedFontFamily } from './font.js'
 import { getGlyphLayoutHeight, toAbsoluteNumber } from './utils.js'
 import { Signal, computed } from '@preact/signals-core'
 import { MeasureMode } from 'yoga-layout/load'
@@ -32,7 +32,7 @@ export type GlyphProperties = Partial<{
 export type WordBreak = keyof typeof wrappers
 
 function buildGlyphOutProperties(
-  font: Font,
+  font: ResolvedFontFamily,
   text: string,
   { fontSize: fontSizeString, letterSpacing, lineHeight: lineHeightString, wordBreak }: Required<GlyphProperties>,
 ): GlyphOutProperties {
@@ -48,7 +48,7 @@ function buildGlyphOutProperties(
 
 export type GlyphOutProperties = {
   text: string
-  font: Font
+  font: ResolvedFontFamily
   letterSpacing: number
   lineHeight: number
   fontSize: number
@@ -57,7 +57,7 @@ export type GlyphOutProperties = {
 
 export function computedCustomLayouting(
   properties: Properties<TextOutProperties<ThreeEventMap>>,
-  fontSignal: Signal<Font | undefined>,
+  fontSignal: Signal<ResolvedFontFamily | undefined>,
   propertiesRef: { current: GlyphOutProperties | undefined },
 ) {
   return computed<CustomLayouting | undefined>(() => {

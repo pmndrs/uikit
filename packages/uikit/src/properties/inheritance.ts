@@ -10,6 +10,7 @@ export const inheritedPropertyKeys = [
   'lineHeight',
   'wordBreak',
   'fontFamily',
+  'fontFamilyFallbacks',
   'fontWeight',
   'visibility',
   'scrollbarBorderRightWidth',

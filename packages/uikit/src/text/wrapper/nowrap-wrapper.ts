@@ -19,7 +19,7 @@ export const NowrapWrapper: GlyphWrapper = ({ text, fontSize, font, letterSpacin
       target.charLength = charIndex - firstIndex + 1
       return
     }
-    position += getOffsetToNextGlyph(fontSize, font.getGlyphInfo(char), letterSpacing)
+    position += getOffsetToNextGlyph(fontSize, font.resolveGlyph(char).glyphInfo, letterSpacing)
 
     if (char === ' ') {
       whitespaces += 1

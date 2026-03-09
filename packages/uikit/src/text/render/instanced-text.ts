@@ -11,13 +11,15 @@ import {
   getOffsetToNextLine,
   toAbsoluteNumber,
 } from '../utils.js'
-import { InstancedGlyphGroup } from './instanced-glyph-group.js'
+import { GlyphGroupManager, InstancedGlyphGroup } from './instanced-glyph-group.js'
 import { GlyphLayout, GlyphOutProperties, buildGlyphLayout, computedCustomLayouting } from '../layout.js'
 import { SelectionTransformation } from '../../selection.js'
 import { CaretTransformation } from '../../caret.js'
 import { BaseOutProperties, Properties } from '../../properties/index.js'
 import { ThreeEventMap } from '../../events.js'
 import { Text } from '../../components/text.js'
+import { Font, ResolvedGlyph } from '../font.js'
+import { OrderInfo } from '../../order.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'justify'
@@ -39,7 +41,7 @@ export function createInstancedText(
 ) {
   let layoutPropertiesRef: { current: GlyphOutProperties | undefined } = { current: undefined }
 
-  const customLayouting = computedCustomLayouting(text.properties, text.fontSignal, layoutPropertiesRef)
+  const customLayouting = computedCustomLayouting(text.properties, text.resolvedFontSignal, layoutPropertiesRef)
 
   const layoutSignal = signal<GlyphLayout | undefined>(undefined)
   abortableEffect(
@@ -64,18 +66,15 @@ export function createInstancedText(
     text.abortSignal,
   )
   abortableEffect(() => {
-    const font = text.fontSignal.value
-    if (font == null || text.orderInfo.value == null) {
+    if (text.orderInfo.value == null) {
       return
     }
     const instancedText = new InstancedText(
-      text.root.value.glyphGroupManager.getGroup(
-        text.orderInfo.value,
-        text.properties.value.depthTest,
-        text.properties.value.depthWrite ?? false,
-        text.properties.value.renderOrder,
-        font,
-      ),
+      text.root.value.glyphGroupManager,
+      text.orderInfo.value,
+      text.properties.value.depthTest,
+      text.properties.value.depthWrite ?? false,
+      text.properties.value.renderOrder,
       text.properties as any,
       layoutSignal,
       text.globalMatrix,
@@ -99,13 +98,18 @@ const noSelectionTransformations: Array<SelectionTransformation> = []
 export class InstancedText {
   private glyphLines: Array<Array<InstancedGlyph | number>> = []
   private lastLayout: GlyphLayout | undefined
+  private readonly groups = new Map<Font, InstancedGlyphGroup>()
 
   private unsubscribeInitialList: Array<() => void> = []
 
   private unsubscribeShowList: Array<() => void> = []
 
   constructor(
-    private group: InstancedGlyphGroup,
+    private glyphGroupManager: GlyphGroupManager,
+    private orderInfo: OrderInfo,
+    private depthTest: boolean,
+    private depthWrite: boolean,
+    private renderOrder: number,
     private properties: Properties<AdditionalTextDefaults & BaseOutProperties<ThreeEventMap>>,
     private layoutSignal: Signal<GlyphLayout | undefined>,
     private matrix: Signal<Matrix4 | undefined>,
@@ -134,6 +138,22 @@ export class InstancedText {
     ]
   }
 
+  private getGroup(font: Font) {
+    let group = this.groups.get(font)
+    if (group != null) {
+      return group
+    }
+    group = this.glyphGroupManager.getGroup(
+      this.orderInfo,
+      this.depthTest,
+      this.depthWrite,
+      this.renderOrder,
+      font,
+    )
+    this.groups.set(font, group)
+    return group
+  }
+
   public getCharIndex(x: number, y: number, position: 'between' | 'on'): number {
     const layout = this.lastLayout
     if (layout == null) {
@@ -151,7 +171,7 @@ export class InstancedText {
     }
 
     const line = lines[lineIndex]!
-    const whitespaceWidth = layout.font.getGlyphInfo(' ').xadvance * layout.fontSize
+    const whitespaceWidth = layout.font.resolveGlyph(' ').glyphInfo.xadvance * layout.fontSize
     const glyphs = this.glyphLines[lineIndex]!
     let glyphsLength = glyphs.length
     for (let i = 0; i < glyphsLength; i++) {
@@ -177,7 +197,7 @@ export class InstancedText {
       this.selectionTransformations.value = noSelectionTransformations
       return
     }
-    const whitespaceWidth = layout.font.getGlyphInfo(' ').xadvance * layout.fontSize
+    const whitespaceWidth = layout.font.resolveGlyph(' ').glyphInfo.xadvance * layout.fontSize
     const [startCharIndexIncl, endCharIndexExcl] = range
     if (endCharIndexExcl <= startCharIndexIncl) {
       const { lineIndex, x } = this.getGlyphLineAndX(layout, endCharIndexExcl, true, whitespaceWidth, textAlign)
@@ -323,7 +343,7 @@ export class InstancedText {
             textAlign === 'justify' ? (availableWidth - nonWhitespaceWidth) / whitespacesBetween : 0
           let x = getXOffset(availableWidth, nonWhitespaceWidth, textAlign) - availableWidth / 2
 
-          let prevGlyphId: number | undefined
+          let previousGlyph: ResolvedGlyph | undefined
           const glyphs = this.glyphLines[lineIndex]!
 
           for (
@@ -333,16 +353,16 @@ export class InstancedText {
           ) {
             const glyphIndex = charIndex - firstNonWhitespaceCharIndex
             const char = text[charIndex]!
-            const glyphInfo = font.getGlyphInfo(char)
+            const resolvedGlyph = font.resolveGlyph(char)
             if (char === ' ' || charIndex > nonWhitespaceCharLength + firstNonWhitespaceCharIndex) {
-              prevGlyphId = glyphInfo.id
-              const xPosition = x + getGlyphOffsetX(font, fontSize, glyphInfo, prevGlyphId)
+              const xPosition = x + getGlyphOffsetX(font, fontSize, resolvedGlyph, previousGlyph)
               if (typeof glyphs[glyphIndex] === 'number') {
-                glyphs[glyphIndex] = x
+                glyphs[glyphIndex] = xPosition
               } else {
                 glyphs.splice(glyphIndex, 0, xPosition)
               }
-              x += offsetPerWhitespace + getOffsetToNextGlyph(fontSize, glyphInfo, letterSpacing)
+              x += offsetPerWhitespace + getOffsetToNextGlyph(fontSize, resolvedGlyph.glyphInfo, letterSpacing)
+              previousGlyph = resolvedGlyph
               continue
             }
             //non space character
@@ -353,27 +373,28 @@ export class InstancedText {
               glyphOrNumber = glyphs[glyphIndex]
             }
             //the prev. loop assures that glyphOrNumber is a InstancedGlyph or undefined
-            let glyph = glyphOrNumber as InstancedGlyph
-            if (glyph == null) {
+            let instancedGlyph = glyphOrNumber as InstancedGlyph
+            if (instancedGlyph == null) {
               //no reusable glyph found
-              glyphs[glyphIndex] = glyph = new InstancedGlyph(
-                this.group,
+              glyphs[glyphIndex] = instancedGlyph = new InstancedGlyph(
+                this.getGroup(resolvedGlyph.font),
                 this.matrix.peek(),
                 this.properties.peek().color ?? 0,
                 toAbsoluteNumber(this.properties.peek().opacity, () => 1),
                 this.parentClippingRect?.peek(),
               )
             }
-            glyph.updateGlyphAndTransformation(
-              glyphInfo,
-              x + getGlyphOffsetX(font, fontSize, glyphInfo, prevGlyphId),
-              -(y + getGlyphOffsetY(fontSize, lineHeight, glyphInfo)),
+            instancedGlyph.updateGroup(this.getGroup(resolvedGlyph.font))
+            instancedGlyph.updateGlyphAndTransformation(
+              resolvedGlyph.glyphInfo,
+              x + getGlyphOffsetX(font, fontSize, resolvedGlyph, previousGlyph),
+              -(y + getGlyphOffsetY(fontSize, lineHeight, resolvedGlyph.glyphInfo)),
               fontSize,
               pixelSize,
             )
-            glyph.show()
-            prevGlyphId = glyphInfo.id
-            x += getOffsetToNextGlyph(fontSize, glyphInfo, letterSpacing)
+            instancedGlyph.show()
+            previousGlyph = resolvedGlyph
+            x += getOffsetToNextGlyph(fontSize, resolvedGlyph.glyphInfo, letterSpacing)
           }
 
           y += getOffsetToNextLine(lineHeight)

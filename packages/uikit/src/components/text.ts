@@ -7,11 +7,13 @@ import {
   AdditionalTextDefaults,
   additionalTextDefaults,
   computedFont,
+  computedFonts,
   computedFontFamilies,
   computedGylphGroupDependencies,
   createInstancedText,
   Font,
   InstancedText,
+  ResolvedFontFamily,
 } from '../text/index.js'
 import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
 import { setupInstancedPanel } from '../panel/instanced-panel.js'
@@ -38,6 +40,7 @@ export class Text<
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
+  readonly resolvedFontSignal: Signal<ResolvedFontFamily | undefined>
 
   constructor(
     inputProperties?: InProperties<OutProperties>,
@@ -76,6 +79,7 @@ export class Text<
 
     const fontFamilies = computedFontFamilies(this.properties, this.parentContainer)
     this.fontSignal = computedFont(this.properties, fontFamilies)
+    this.resolvedFontSignal = computedFonts(this.properties, fontFamilies)
 
     setupOrderInfo(
       this.orderInfo,

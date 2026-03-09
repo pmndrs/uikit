@@ -28,7 +28,7 @@ export class InstancedGlyph {
   private pixelSize: number = 0
 
   constructor(
-    private readonly group: InstancedGlyphGroup,
+    private group: InstancedGlyphGroup,
     //modifiable using update...
     private baseMatrix: Matrix4 | undefined,
     private color: ColorRepresentation,
@@ -69,6 +69,19 @@ export class InstancedGlyph {
 
   setIndex(index: number): void {
     this.index = index
+  }
+
+  updateGroup(group: InstancedGlyphGroup): void {
+    if (this.group === group) {
+      return
+    }
+    if (!this.hidden) {
+      this.group.delete(this)
+    }
+    this.group = group
+    if (!this.hidden) {
+      this.group.requestActivate(this)
+    }
   }
 
   updateClippingRect(clippingRect: ClippingRect | undefined): void {

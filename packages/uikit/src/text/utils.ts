@@ -1,15 +1,15 @@
 import { GlyphLayout } from './layout.js'
-import { Font, GlyphInfo } from './font.js'
+import { GlyphInfo, ResolvedFontFamily, ResolvedGlyph } from './font.js'
 import { RootContext } from '../context.js'
 
 export function getGlyphOffsetX(
-  font: Font,
+  font: ResolvedFontFamily,
   fontSize: number,
-  glyphInfo: GlyphInfo,
-  prevGlyphId: number | undefined,
+  glyph: ResolvedGlyph,
+  previousGlyph: ResolvedGlyph | undefined,
 ): number {
-  const kerning = prevGlyphId == null ? 0 : font.getKerning(prevGlyphId, glyphInfo.id)
-  return (kerning + glyphInfo.xoffset) * fontSize
+  const kerning = font.getKerning(previousGlyph, glyph)
+  return (kerning + glyph.glyphInfo.xoffset) * fontSize
 }
 
 //order is important here as we need to check vh and vw last

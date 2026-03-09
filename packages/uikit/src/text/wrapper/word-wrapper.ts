@@ -24,7 +24,7 @@ export const WordWrapper: GlyphWrapper = (
       break
     }
 
-    position += getOffsetToNextGlyph(fontSize, font.getGlyphInfo(char), letterSpacing)
+    position += getOffsetToNextGlyph(fontSize, font.resolveGlyph(char).glyphInfo, letterSpacing)
 
     if (char === ' ') {
       whitespaces += 1

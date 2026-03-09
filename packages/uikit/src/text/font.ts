@@ -24,7 +24,14 @@ const fontWeightNames = {
 
 export type FontWeight = keyof typeof fontWeightNames | number | ({} & string)
 
-export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight; fontFamilies?: FontFamilies }
+export type FontFamilyList = string | Array<string>
+
+export type FontFamilyProperties = {
+  fontFamily?: FontFamilyList
+  fontFamilyFallbacks?: FontFamilyList
+  fontWeight?: FontWeight
+  fontFamilies?: FontFamilies
+}
 
 const defaultFontFamiles: FontFamilies = {
   inter,
@@ -64,15 +71,122 @@ export function computedFont(
         fontWeight = fontWeightNames[fontWeight as keyof typeof fontWeightNames]
       }
     }
-    let fontFamily = properties.value.fontFamily
+    let fontFamily = normalizeFontFamilyList(properties.value.fontFamily)[0]
     const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
-    const url = getMatchingFontUrl(fontFamilies[fontFamily as keyof FontFamilies]!, fontWeight)
+    const family = fontFamilies[fontFamily as keyof FontFamilies]
+    if (family == null) {
+      throw new Error(`unknown font family "${fontFamily}"`)
+    }
+    const url = getMatchingFontUrl(family, fontWeight)
     let aborted = false
     loadCachedFont(url, (font) => !aborted && (result.value = font))
     return () => (aborted = true)
   })
   return result
+}
+
+export function computedFonts(
+  properties: Properties,
+  fontFamiliesSignal: Signal<FontFamilies | undefined>,
+): Signal<ResolvedFontFamily | undefined> {
+  const result = signal<ResolvedFontFamily | undefined>(undefined)
+  effect(() => {
+    let fontWeight: FontWeight = properties.value.fontWeight
+    if (typeof fontWeight === 'string') {
+      fontWeight = parseFloat(fontWeight)
+      if (isNaN(fontWeight)) {
+        fontWeight = properties.value.fontWeight
+        if (!(fontWeight in fontWeightNames)) {
+          throw new Error(`unknown font weight "${fontWeight}"`)
+        }
+        fontWeight = fontWeightNames[fontWeight as keyof typeof fontWeightNames]
+      }
+    }
+
+    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
+    const familyNames = getOrderedFontFamilyNames(
+      fontFamilies,
+      properties.value.fontFamily,
+      properties.value.fontFamilyFallbacks,
+    )
+    if (familyNames.length === 0) {
+      result.value = undefined
+      return
+    }
+
+    const entries = familyNames.flatMap((familyName) => {
+      const family = fontFamilies[familyName as keyof FontFamilies]
+      if (family == null) {
+        return []
+      }
+      return [{ familyName, url: getMatchingFontUrl(family, fontWeight) }] as const
+    })
+
+    if (entries.length === 0) {
+      result.value = undefined
+      return
+    }
+
+    let aborted = false
+    const loadedFonts = new Map<string | FontInfo, Font>()
+
+    const updateResult = () => {
+      if (aborted) {
+        return
+      }
+      const primaryFont = loadedFonts.get(entries[0]!.url)
+      if (primaryFont == null) {
+        result.value = undefined
+        return
+      }
+      const fonts = entries
+        .map(({ url }) => loadedFonts.get(url))
+        .filter((font): font is Font => font != null)
+      result.value = new ResolvedFontFamily(primaryFont, fonts.slice(1))
+    }
+
+    for (const { url } of entries) {
+      loadCachedFont(url, (font) => {
+        loadedFonts.set(url, font)
+        updateResult()
+      })
+    }
+
+    return () => {
+      aborted = true
+    }
+  })
+  return result
+}
+
+function getOrderedFontFamilyNames(fontFamilies: FontFamilies, primary?: FontFamilyList, fallbacks?: FontFamilyList) {
+  const ordered = new Set<string>()
+  const primaryFamilies = normalizeFontFamilyList(primary)
+  const fallbackFamilies = normalizeFontFamilyList(fallbacks)
+  const allFamilies = Object.keys(fontFamilies)
+  const firstFamily = primaryFamilies[0] ?? allFamilies[0]
+  if (firstFamily != null) {
+    ordered.add(firstFamily)
+  }
+  for (const familyName of primaryFamilies.slice(1)) {
+    ordered.add(familyName)
+  }
+  for (const familyName of fallbackFamilies) {
+    ordered.add(familyName)
+  }
+  for (const familyName of allFamilies) {
+    ordered.add(familyName)
+  }
+  return Array.from(ordered).filter((familyName) => familyName in fontFamilies)
+}
+
+function normalizeFontFamilyList(value: FontFamilyList | undefined) {
+  if (value == null) {
+    return []
+  }
+  const values = Array.isArray(value) ? value : value.split(',')
+  return values.map((entry) => entry.trim()).filter(Boolean)
 }
 
 function getMatchingFontUrl(fontFamily: FontFamilyWeightMap, weight: number): string | FontInfo {
@@ -212,6 +326,14 @@ export class Font {
     this.questionmarkGlyphInfo = questionmarkGlyphInfo
   }
 
+  hasGlyph(char: string): boolean {
+    return this.glyphInfoMap.has(char)
+  }
+
+  getOptionalGlyphInfo(char: string): GlyphInfo | undefined {
+    return this.glyphInfoMap.get(char)
+  }
+
   getGlyphInfo(char: string): GlyphInfo {
     return (
       this.glyphInfoMap.get(char) ??
@@ -222,6 +344,56 @@ export class Font {
 
   getKerning(firstId: number, secondId: number): number {
     return this.kerningMap.get(`${firstId}/${secondId}`) ?? 0
+  }
+}
+
+export type ResolvedGlyph = {
+  font: Font
+  glyphInfo: GlyphInfo
+}
+
+export class ResolvedFontFamily {
+  private readonly fonts: Array<Font>
+  private readonly glyphCache = new Map<string, ResolvedGlyph>()
+
+  constructor(
+    public readonly primaryFont: Font,
+    fallbackFonts: Array<Font>,
+  ) {
+    this.fonts = [primaryFont, ...fallbackFonts]
+  }
+
+  resolveGlyph(char: string): ResolvedGlyph {
+    const cached = this.glyphCache.get(char)
+    if (cached != null) {
+      return cached
+    }
+
+    let glyph: ResolvedGlyph | undefined
+
+    if (char === '\n') {
+      glyph = { font: this.primaryFont, glyphInfo: this.primaryFont.getGlyphInfo(' ') }
+    } else {
+      for (const font of this.fonts) {
+        const glyphInfo = font.getOptionalGlyphInfo(char)
+        if (glyphInfo == null) {
+          continue
+        }
+        glyph = { font, glyphInfo }
+        break
+      }
+    }
+
+    glyph ??= { font: this.primaryFont, glyphInfo: this.primaryFont.getGlyphInfo(char) }
+    this.glyphCache.set(char, glyph)
+    return glyph
+  }
+
+  getKerning(previousGlyph: ResolvedGlyph | undefined, nextGlyph: ResolvedGlyph): number {
+    if (previousGlyph == null || previousGlyph.font !== nextGlyph.font) {
+      return 0
+    }
+    return nextGlyph.font.getKerning(previousGlyph.glyphInfo.id, nextGlyph.glyphInfo.id)
   }
 }
 
