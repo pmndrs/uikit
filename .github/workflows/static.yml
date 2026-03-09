@@ -141,6 +141,7 @@ jobs:
           mkdir -p public/examples/market-vanilla
           mkdir -p public/examples/dashboard-vanilla
           mkdir -p public/examples/default-vanilla
+          mkdir -p public/examples/svg-unicode-vanilla
           cp -r ./examples/vanilla/dist/* ./public/examples/vanilla
           cp -r ./examples/minimal/dist/* ./public/examples/minimal
           cp -r ./examples/card-vanilla/dist/* ./public/examples/card-vanilla
@@ -150,6 +151,7 @@ jobs:
           cp -r ./examples/market-vanilla/dist/* ./public/examples/market-vanilla
           cp -r ./examples/dashboard-vanilla/dist/* ./public/examples/dashboard-vanilla
           cp -r ./examples/default-vanilla/dist/* ./public/examples/default-vanilla
+          cp -r ./examples/svg-unicode-vanilla/dist/* ./public/examples/svg-unicode-vanilla
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

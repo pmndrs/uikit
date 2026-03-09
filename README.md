@@ -96,6 +96,7 @@ All examples are vanilla TypeScript and live in the `examples/` directory:
 | `dashboard-vanilla` | Dashboard with stats cards, bar chart, recent sales |
 | `default-vanilla` | Component showcase: accordion, alert, dialog, tabs, slider, and more |
 | `ttf-vanilla` | Runtime TTF/OTF font loading |
+| `svg-unicode-vanilla` | SVG fill/style/currentColor coverage plus unicode font fallbacks |
 
 Run any example:
 
