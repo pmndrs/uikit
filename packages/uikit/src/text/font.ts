@@ -72,7 +72,12 @@ export function computedFont(
       }
     }
     let fontFamily = normalizeFontFamilyList(properties.value.fontFamily)[0]
-    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
+    const inheritedFontFamilies = fontFamiliesSignal.value
+    if (inheritedFontFamilies == null && fontFamily != null && defaultFontFamiles[fontFamily as keyof FontFamilies] == null) {
+      result.value = undefined
+      return
+    }
+    const fontFamilies = inheritedFontFamilies ?? defaultFontFamiles
     fontFamily ??= Object.keys(fontFamilies)[0]!
     const family = fontFamilies[fontFamily as keyof FontFamilies]
     if (family == null) {
@@ -104,7 +109,17 @@ export function computedFonts(
       }
     }
 
-    const fontFamilies = fontFamiliesSignal.value ?? defaultFontFamiles
+    const requestedFamilies = normalizeFontFamilyList(properties.value.fontFamily)
+    const inheritedFontFamilies = fontFamiliesSignal.value
+    if (
+      inheritedFontFamilies == null &&
+      requestedFamilies.length > 0 &&
+      requestedFamilies.some((familyName) => defaultFontFamiles[familyName as keyof FontFamilies] == null)
+    ) {
+      result.value = undefined
+      return
+    }
+    const fontFamilies = inheritedFontFamilies ?? defaultFontFamiles
     const familyNames = getOrderedFontFamilyNames(
       fontFamilies,
       properties.value.fontFamily,
