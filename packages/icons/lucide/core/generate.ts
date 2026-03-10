@@ -31,8 +31,6 @@ async function main() {
               content,
               width: 24,
               height: 24,
-              aspectRatio: 1,
-              keepAspectRatio: false,
               ...config?.defaultOverrides
             } as InProperties<OutProperties>,
           })
