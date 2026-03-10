@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@pmndrs/pointer-events": "^6.6.16",
+    "@ni2khanna/msdfonts": "workspace:^",
+    "@ni2khanna/uikit": "workspace:^"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host"
+  }
+}

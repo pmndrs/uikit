@@ -1,0 +1,107 @@
+{
+    "pages": [
+        "noto-hieroglyphs.png"
+    ],
+    "chars": [
+        {
+            "id": 55308,
+            "index": 132,
+            "char": "𓂀",
+            "width": 114,
+            "height": 96,
+            "xoffset": 3,
+            "yoffset": 58,
+            "xadvance": 120,
+            "chnl": 15,
+            "x": 0,
+            "y": 0,
+            "page": 0
+        },
+        {
+            "id": 55308,
+            "index": 4,
+            "char": "𓀀",
+            "width": 81,
+            "height": 100,
+            "xoffset": 3,
+            "yoffset": 33,
+            "xadvance": 86,
+            "chnl": 15,
+            "x": 115,
+            "y": 0,
+            "page": 0
+        },
+        {
+            "id": 63,
+            "index": 0,
+            "char": "?",
+            "width": 43,
+            "height": 73,
+            "xoffset": 7,
+            "yoffset": 60,
+            "xadvance": 58,
+            "chnl": 15,
+            "x": 197,
+            "y": 0,
+            "page": 0
+        },
+        {
+            "id": 32,
+            "index": 3,
+            "char": " ",
+            "width": 0,
+            "height": 0,
+            "xoffset": -2,
+            "yoffset": 129,
+            "xadvance": 23,
+            "chnl": 15,
+            "x": 241,
+            "y": 0,
+            "page": 0
+        }
+    ],
+    "info": {
+        "face": "NotoSansEgyptianHieroglyphs-Regular",
+        "size": 96,
+        "bold": 0,
+        "italic": 0,
+        "charset": [
+            "?",
+            " ",
+            "𓀀",
+            "𓂀"
+        ],
+        "unicode": 1,
+        "stretchH": 100,
+        "smooth": 1,
+        "aa": 1,
+        "padding": [
+            2,
+            2,
+            2,
+            2
+        ],
+        "spacing": [
+            0,
+            0
+        ],
+        "outline": 0
+    },
+    "common": {
+        "lineHeight": 158,
+        "base": 129,
+        "scaleW": 256,
+        "scaleH": 128,
+        "pages": 1,
+        "packed": 0,
+        "alphaChnl": 0,
+        "redChnl": 0,
+        "greenChnl": 0,
+        "blueChnl": 0
+    },
+    "distanceField": {
+        "fieldType": "msdf",
+        "distanceRange": 4
+    },
+    "kernings": []
+}

@@ -1,0 +1,122 @@
+{
+    "pages": [
+        "noto-coptic.png"
+    ],
+    "chars": [
+        {
+            "id": 11433,
+            "index": 74,
+            "char": "ⲩ",
+            "width": 56,
+            "height": 72,
+            "xoffset": -6,
+            "yoffset": 49,
+            "xadvance": 45,
+            "chnl": 15,
+            "x": 0,
+            "y": 0,
+            "page": 0
+        },
+        {
+            "id": 11392,
+            "index": 33,
+            "char": "Ⲁ",
+            "width": 59,
+            "height": 68,
+            "xoffset": 0,
+            "yoffset": 33,
+            "xadvance": 56,
+            "chnl": 15,
+            "x": 57,
+            "y": 0,
+            "page": 0
+        },
+        {
+            "id": 63,
+            "index": 0,
+            "char": "?",
+            "width": 40,
+            "height": 67,
+            "xoffset": 6,
+            "yoffset": 33,
+            "xadvance": 53,
+            "chnl": 15,
+            "x": 117,
+            "y": 0,
+            "page": 0
+        },
+        {
+            "id": 11441,
+            "index": 82,
+            "char": "ⲱ",
+            "width": 66,
+            "height": 54,
+            "xoffset": 3,
+            "yoffset": 47,
+            "xadvance": 72,
+            "chnl": 15,
+            "x": 0,
+            "y": 73,
+            "page": 0
+        },
+        {
+            "id": 32,
+            "index": 3,
+            "char": " ",
+            "width": 0,
+            "height": 0,
+            "xoffset": -2,
+            "yoffset": 96,
+            "xadvance": 23,
+            "chnl": 15,
+            "x": 0,
+            "y": 128,
+            "page": 0
+        }
+    ],
+    "info": {
+        "face": "NotoSansCoptic-Regular",
+        "size": 88,
+        "bold": 0,
+        "italic": 0,
+        "charset": [
+            "?",
+            " ",
+            "Ⲁ",
+            "ⲩ",
+            "ⲱ"
+        ],
+        "unicode": 1,
+        "stretchH": 100,
+        "smooth": 1,
+        "aa": 1,
+        "padding": [
+            2,
+            2,
+            2,
+            2
+        ],
+        "spacing": [
+            0,
+            0
+        ],
+        "outline": 0
+    },
+    "common": {
+        "lineHeight": 120,
+        "base": 96,
+        "scaleW": 256,
+        "scaleH": 128,
+        "pages": 1,
+        "packed": 0,
+        "alphaChnl": 0,
+        "redChnl": 0,
+        "greenChnl": 0,
+        "blueChnl": 0
+    },
+    "distanceField": {
+        "fieldType": "msdf",
+        "distanceRange": 4
+    },
+    "kernings": []
+}

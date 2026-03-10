@@ -20,3 +20,4 @@ export type { FontFamilies, FontWeight, FontFamilyWeightMap } from './text/index
 export type { RendererLike } from './renderer-types.js'
 export { initNodeMaterials } from './panel/panel-node-material.js'
 export { initGlyphNodeMaterials } from './text/render/instanced-glyph-node-material.js'
+export { setDefaultRenderOrder } from './config.js'
