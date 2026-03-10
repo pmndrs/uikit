@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  three-stdlib: ^2.36.1
+
 importers:
 
   .:
@@ -5968,8 +5971,8 @@ packages:
     peerDependencies:
       three: '>= 0.159.0'
 
-  three-stdlib@2.35.12:
-    resolution: {integrity: sha512-3Mb3U7gtf1orCb6j2BBcc8BJsBVoCYUjFtwaq9KM8I7ippz4o9G+aDQdT5AF8Sg5FXXZfnPPccP6ufsP8bgG3g==}
+  three-stdlib@2.36.1:
+    resolution: {integrity: sha512-XyGQrFmNQ5O/IoKm556ftwKsBg11TIb301MB5dWNicziQBEs2g3gtOYIf7pFiLa0zI2gUwhtCjv9fmjnxKZ1Cg==}
     peerDependencies:
       three: '>=0.128.0'
 
@@ -8131,7 +8134,7 @@ snapshots:
       suspend-react: 0.1.3(react@19.0.0)
       three: 0.183.2
       three-mesh-bvh: 0.8.3(three@0.183.2)
-      three-stdlib: 2.35.12(three@0.183.2)
+      three-stdlib: 2.36.1(three@0.183.2)
       troika-three-text: 0.52.4(three@0.183.2)
       tunnel-rat: 0.1.2(@types/react@19.0.8)(react@19.0.0)
       use-sync-external-store: 1.4.0(react@19.0.0)
@@ -8166,7 +8169,7 @@ snapshots:
       suspend-react: 0.1.3(react@18.3.1)
       three: 0.183.2
       three-mesh-bvh: 0.7.8(three@0.183.2)
-      three-stdlib: 2.35.12(three@0.183.2)
+      three-stdlib: 2.36.1(three@0.183.2)
       troika-three-text: 0.52.3(three@0.183.2)
       tunnel-rat: 0.1.2(@types/react@18.3.18)(react@18.3.1)
       utility-types: 3.11.0
@@ -8258,7 +8261,7 @@ snapshots:
       react: 18.3.1
       suspend-react: 0.1.3(react@18.3.1)
       three: 0.183.2
-      three-stdlib: 2.35.12(three@0.183.2)
+      three-stdlib: 2.36.1(three@0.183.2)
 
   '@react-three/test-renderer@9.1.0(@react-three/fiber@9.0.0-rc.10(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.183.2)(use-sync-external-store@1.4.0(react@19.1.0)))(react@19.1.0)(three@0.183.2)':
     dependencies:
@@ -13516,7 +13519,7 @@ snapshots:
     dependencies:
       three: 0.183.2
 
-  three-stdlib@2.35.12(three@0.183.2):
+  three-stdlib@2.36.1(three@0.183.2):
     dependencies:
       '@types/draco3d': 1.4.10
       '@types/offscreencanvas': 2019.7.3

@@ -39,6 +39,9 @@
     "vite": "^5.4.14"
   },
   "pnpm": {
+    "overrides": {
+      "three-stdlib": "^2.36.1"
+    },
     "onlyBuiltDependencies": [
       "esbuild",
       "protobufjs",
