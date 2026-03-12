@@ -30,6 +30,15 @@ export function loadCachedFont(fontInfoOrUrl: string | FontInfo, onLoad: (font: 
     .catch(console.error)
 }
 
+export function clearFontCache(): void {
+  for (const entry of fontCache.values()) {
+    if (entry instanceof Font) {
+      entry.page.dispose()
+    }
+  }
+  fontCache.clear()
+}
+
 async function loadFont(fontInfoOrUrl: string | FontInfo): Promise<Font> {
   const info: FontInfo = typeof fontInfoOrUrl === 'object' ? fontInfoOrUrl : await (await fetch(fontInfoOrUrl)).json()
 

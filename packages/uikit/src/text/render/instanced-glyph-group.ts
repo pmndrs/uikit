@@ -20,6 +20,7 @@ export class GlyphGroupManager {
     abortSignal.addEventListener('abort', () => {
       this.root.onFrameSet.delete(onFrame)
       this.traverse((group) => group.destroy())
+      this.map.clear()
     })
   }
 
