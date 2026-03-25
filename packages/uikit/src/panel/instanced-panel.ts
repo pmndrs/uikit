@@ -109,7 +109,7 @@ export class InstancedPanel {
       if (!isVisible.value || !this.active.value) {
         return
       }
-      return properties.subscribePropertyKeys((key) => {
+      return properties.subscribePropertyKeys((key: string | symbol | number) => {
         if (!materialConfig.hasProperty(key as string)) {
           return
         }

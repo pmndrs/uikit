@@ -106,8 +106,8 @@ export function buildRootMatrix(properties: Properties, size: Signal<Vector2Tupl
   const [width, height] = size.value
   const pixelSize = properties.value.pixelSize
   return new Matrix4().makeTranslation(
-    alignmentXMap[properties.value.anchorX] * width * pixelSize,
-    alignmentYMap[properties.value.anchorY] * height * pixelSize,
+    alignmentXMap[properties.value.anchorX as keyof typeof alignmentXMap] * width * pixelSize,
+    alignmentYMap[properties.value.anchorY as keyof typeof alignmentYMap] * height * pixelSize,
     0,
   )
 }

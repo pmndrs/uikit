@@ -139,7 +139,8 @@ export class Content<
 
       positionHelper.copy(boundingBox.center).negate()
 
-      positionHelper.z -= alignmentZMap[this.properties.value.depthAlign] * boundingBox.size.z
+      positionHelper.z -=
+        alignmentZMap[this.properties.value.depthAlign as keyof typeof alignmentZMap] * boundingBox.size.z
       positionHelper.multiply(scaleHelper)
       positionHelper.add(
         vectorHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0),

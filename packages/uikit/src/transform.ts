@@ -66,7 +66,11 @@ export function computedTransformMatrix({
       }
       const [width, height] = size.value
       originCenter = false
-      originVector.set(-alignmentXMap[tOX] * width * pixelSize, -alignmentYMap[tOY] * height * pixelSize, 0)
+      originVector.set(
+        -alignmentXMap[tOX as keyof typeof alignmentXMap] * width * pixelSize,
+        -alignmentYMap[tOY as keyof typeof alignmentYMap] * height * pixelSize,
+        0,
+      )
       result.multiply(matrixHelper.makeTranslation(originVector))
       originVector.negate()
     }

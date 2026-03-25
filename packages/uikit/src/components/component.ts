@@ -153,7 +153,7 @@ export class Component<
     abortableEffect(() => {
       const parentProprties = this.parentContainer.value?.properties
       const layerIndex = getLayerIndex({ type: 'inheritance' })
-      const cleanup = parentProprties?.subscribePropertyKeys((key) => {
+      const cleanup = parentProprties?.subscribePropertyKeys((key: string | symbol | number) => {
         if (!inheritedPropertyKeys.includes(key as any)) {
           return
         }
@@ -175,7 +175,7 @@ export class Component<
     abortableEffect(() => {
       const parentStarProprties = this.parentContainer.value?.starProperties
       const layerIndex = getLayerIndex({ type: 'star-inheritance' })
-      const cleanup = parentStarProprties?.subscribePropertyKeys((key) => {
+      const cleanup = parentStarProprties?.subscribePropertyKeys((key: string | symbol | number) => {
         const signal = parentStarProprties.signal[key as keyof typeof parentStarProprties.signal]
         this.starProperties.set(layerIndex, key as any, signal)
         this.properties.set(layerIndex, key as any, signal)

@@ -1,4 +1,15 @@
-import { ColorRepresentation, Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
+import {
+  ColorRepresentation,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  ShapeGeometry,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
+  Vector3,
+} from 'three'
 import { ThreeEventMap } from '../events.js'
 import { BoundingBox, Content, ContentOutProperties } from './content.js'
 import { computed, signal } from '@preact/signals-core'
@@ -65,15 +76,17 @@ export class Svg<
 }
 
 const loader = new SVGLoader()
+const textureLoader = new TextureLoader()
 const svgCache = new Map<string, Promise<string>>()
 
-async function loadSvg({
-  src,
-  content,
-}: {
-  src?: string
-  content?: string
-}): Promise<{ meshes: Array<Mesh>; boundingBox?: BoundingBox } | undefined> {
+type SvgTexture = Texture & { disposable?: boolean; objectUrl?: string }
+
+type SvgLoadResult = {
+  meshes: Array<Mesh>
+  boundingBox?: BoundingBox
+}
+
+async function loadSvg({ src, content }: { src?: string; content?: string }): Promise<SvgLoadResult | undefined> {
   if (src == null && content == null) {
     return undefined
   }
@@ -82,6 +95,12 @@ async function loadSvg({
   if (svgContent == null) {
     return undefined
   }
+
+  const parsedSvg = parseSvgDocument(svgContent)
+  if (parsedSvg != null && shouldRenderSvgAsTexture(parsedSvg.root)) {
+    return loadSvgTextureQuad(svgContent, parsedSvg.root)
+  }
+
   let result: Omit<SVGResult, 'xml'> & { xml: Element }
   result = loader.parse(svgContent) as any
   const meshes: Array<Mesh> = []
@@ -110,27 +129,33 @@ async function loadSvg({
       }
     }
   }
-  let boundingBox: { center: Vector3; size: Vector3 } | undefined
-  const viewBoxNumbers = result.xml
-    .getAttribute('viewBox')
-    ?.split(/\s+/)
-    .map((s) => Number.parseFloat(s))
-    .filter((value) => !isNaN(value))
-  if (viewBoxNumbers?.length === 4) {
-    const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
-    boundingBox = {
-      center: new Vector3(width / 2 + minX, -height / 2 - minY, 0.001),
-      size: new Vector3(width, height, 0.001),
-    }
-  }
+  const boundingBox = getSvgBoundingBox(result.xml)
 
   return { meshes, boundingBox }
 }
 
 function disposeSvg(result: Awaited<ReturnType<typeof loadSvg>>) {
+  const disposedMaterials = new Set<Material>()
+  const disposedTextures = new Set<Texture>()
   result?.meshes.forEach((mesh) => {
-    if (mesh.material instanceof Material) {
-      mesh.material.dispose()
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+    for (const material of materials) {
+      if (!(material instanceof Material) || disposedMaterials.has(material)) {
+        continue
+      }
+      const texture = (material as MeshBasicMaterial).map
+      if (texture != null && !disposedTextures.has(texture)) {
+        const svgTexture = texture as SvgTexture
+        if (svgTexture.disposable === true) {
+          texture.dispose()
+          if (svgTexture.objectUrl != null && typeof URL !== 'undefined') {
+            URL.revokeObjectURL(svgTexture.objectUrl)
+          }
+        }
+        disposedTextures.add(texture)
+      }
+      material.dispose()
+      disposedMaterials.add(material)
     }
     mesh.geometry.dispose()
   })
@@ -166,6 +191,55 @@ function createSvgMesh(geometry: ShapeGeometry | Mesh['geometry'], material: Mes
   return mesh
 }
 
+async function loadSvgTextureQuad(svgContent: string, root: Element): Promise<SvgLoadResult | undefined> {
+  const boundingBox = getSvgBoundingBox(root)
+  const texture = await loadSvgTexture(svgContent)
+  if (texture == null) {
+    return undefined
+  }
+
+  const width = boundingBox?.size.x ?? parseSvgLength(root.getAttribute('width')) ?? 1
+  const height = boundingBox?.size.y ?? parseSvgLength(root.getAttribute('height')) ?? 1
+  const center = boundingBox?.center ?? new Vector3(width / 2, -height / 2, 0.001)
+
+  const material = new MeshBasicMaterial({
+    color: '#fff',
+    map: texture,
+    transparent: true,
+    toneMapped: false,
+  })
+  const mesh = new Mesh(new PlaneGeometry(width, height), material)
+  mesh.matrixAutoUpdate = false
+  mesh.position.copy(center)
+  mesh.updateMatrix()
+
+  return {
+    meshes: [mesh],
+    boundingBox: boundingBox ?? { center, size: new Vector3(width, height, 0.001) },
+  }
+}
+
+async function loadSvgTexture(svgContent: string): Promise<SvgTexture | undefined> {
+  try {
+    const objectUrl = createSvgObjectUrl(svgContent)
+    const texture = (await textureLoader.loadAsync(objectUrl)) as SvgTexture
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    return Object.assign(texture, { disposable: true, objectUrl })
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
+}
+
+function createSvgObjectUrl(svgContent: string): string {
+  if (typeof Blob !== 'undefined' && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' })
+    return URL.createObjectURL(blob)
+  }
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`
+}
+
 function getCombinedOpacity(opacity?: string | number, channelOpacity?: string | number) {
   return toOpacity(opacity) * toOpacity(channelOpacity)
 }
@@ -176,6 +250,70 @@ function toOpacity(value?: string | number) {
   }
   const result = typeof value === 'number' ? value : Number.parseFloat(value)
   return Number.isFinite(result) ? Math.max(0, Math.min(1, result)) : 1
+}
+
+function parseSvgDocument(content: string): { root: Element } | undefined {
+  if (typeof DOMParser === 'undefined') {
+    return undefined
+  }
+  const document = new DOMParser().parseFromString(content, 'image/svg+xml')
+  const root = document.documentElement
+  if (root == null || root.nodeName.toLowerCase() !== 'svg') {
+    return undefined
+  }
+  return { root }
+}
+
+function shouldRenderSvgAsTexture(root: Element): boolean {
+  if (root.querySelector('image, pattern, use, clipPath, mask, filter, foreignObject') != null) {
+    return true
+  }
+  const elements = [root, ...Array.from(root.querySelectorAll('*'))]
+  return elements.some((element) => {
+    const fill = element.getAttribute('fill')
+    const stroke = element.getAttribute('stroke')
+    const clipPath = element.getAttribute('clip-path')
+    const style = element.getAttribute('style')
+    return (
+      clipPath != null ||
+      fill?.includes('url(') === true ||
+      stroke?.includes('url(') === true ||
+      style?.includes('url(') === true
+    )
+  })
+}
+
+function getSvgBoundingBox(root: Element): BoundingBox | undefined {
+  const viewBoxNumbers = root
+    .getAttribute('viewBox')
+    ?.split(/\s+/)
+    .map((s) => Number.parseFloat(s))
+    .filter((value) => !isNaN(value))
+  if (viewBoxNumbers?.length === 4) {
+    const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
+    return {
+      center: new Vector3(width / 2 + minX, -height / 2 - minY, 0.001),
+      size: new Vector3(width, height, 0.001),
+    }
+  }
+
+  const width = parseSvgLength(root.getAttribute('width'))
+  const height = parseSvgLength(root.getAttribute('height'))
+  if (width == null || height == null) {
+    return undefined
+  }
+  return {
+    center: new Vector3(width / 2, -height / 2, 0.001),
+    size: new Vector3(width, height, 0.001),
+  }
+}
+
+function parseSvgLength(value: string | null): number | undefined {
+  if (value == null) {
+    return undefined
+  }
+  const result = Number.parseFloat(value)
+  return Number.isFinite(result) ? result : undefined
 }
 
 type SvgComputedStyle = Partial<
@@ -247,7 +385,11 @@ function parseSvgStylesheet(root: Element) {
     const cssText = styleElement.textContent?.replaceAll(/\/\*[\s\S]*?\*\//g, '') ?? ''
     const matches = cssText.matchAll(/([^{}]+)\{([^{}]+)\}/g)
     for (const match of matches) {
-      const selectors = match[1]?.split(',').map((selector) => selector.trim()).filter(Boolean) ?? []
+      const selectors =
+        match[1]
+          ?.split(',')
+          .map((selector) => selector.trim())
+          .filter(Boolean) ?? []
       const declarations = parseSvgDeclarations(match[2] ?? '')
       for (const selector of selectors) {
         stylesheet.set(selector, { ...stylesheet.get(selector), ...declarations })
@@ -276,7 +418,11 @@ function parseSvgDeclarations(value: string): SvgComputedStyle {
   return result
 }
 
-function applyResolvedSvgStyles(element: Element, stylesheet: Map<string, SvgComputedStyle>, inherited: SvgComputedStyle) {
+function applyResolvedSvgStyles(
+  element: Element,
+  stylesheet: Map<string, SvgComputedStyle>,
+  inherited: SvgComputedStyle,
+) {
   const resolved = { ...inherited }
   for (const [selector, declarations] of stylesheet) {
     if (!matchesSvgSelector(element, selector)) {
