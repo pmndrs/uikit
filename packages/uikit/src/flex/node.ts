@@ -55,7 +55,7 @@ export class FlexNode {
         return
       }
       const internalAbort = new AbortController()
-      const unsubscribe = component.properties.subscribePropertyKeys((key) => {
+      const unsubscribe = component.properties.subscribePropertyKeys((key: string | symbol | number) => {
         if (!hasImmediateProperty(key as string)) {
           return
         }

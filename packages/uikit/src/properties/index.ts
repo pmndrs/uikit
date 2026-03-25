@@ -26,6 +26,8 @@ import {
   LayersSectionSize,
 } from './layer.js'
 
+type LayerInput<OutProperties extends BaseOutProperties<ThreeEventMap>> = AddAllAliases<WithSignal<Partial<OutProperties>>>
+
 export type BaseOutProperties<EM extends ThreeEventMap> = YogaProperties &
   PanelProperties &
   ZIndexProperties &
@@ -91,7 +93,7 @@ export type InProperties<OutProperties extends BaseOutProperties<ThreeEventMap> 
   WithConditionals<WithInheritance<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties>> & {}
 
 export type Properties<OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>> =
-  BaseProperties<AddAllAliases<WithSignal<Partial<OutProperties>>>, OutProperties> & {
+  BaseProperties<LayerInput<OutProperties>, OutProperties> & {
     get usedConditionals(): {
       hover: Signal<boolean>
       active: Signal<boolean>
@@ -105,7 +107,7 @@ export type Properties<OutProperties extends BaseOutProperties<ThreeEventMap> = 
 export class PropertiesImplementation<
     OutProperties extends BaseOutProperties<ThreeEventMap> = BaseOutProperties<ThreeEventMap>,
   >
-  extends BasePropertiesImplementation<AddAllAliases<WithSignal<Partial<OutProperties>>>, OutProperties>
+  extends BasePropertiesImplementation<LayerInput<OutProperties>, OutProperties>
   implements Properties<OutProperties>
 {
   public readonly usedConditionals = {
@@ -119,7 +121,11 @@ export class PropertiesImplementation<
     defaults?: OutProperties,
   ) {
     super(
-      (key, value, set) => {
+      <K1 extends keyof LayerInput<OutProperties>>(
+        key: K1,
+        value: LayerInput<OutProperties>[K1],
+        set: <K2 extends keyof OutProperties>(key: K2, value: OutProperties[K2] | Signal<OutProperties[K2]>) => void,
+      ) => {
         if (key in aliases) {
           const aliasList = aliases[key as keyof Aliases]!
           for (const alias of aliasList) {
@@ -131,10 +137,22 @@ export class PropertiesImplementation<
       },
       defaults,
       () => {
-        this.usedConditionals.active.value = hasConditional(this.propertiesLayers, 'active')
-        this.usedConditionals.hover.value = hasConditional(this.propertiesLayers, 'hover')
+        this.usedConditionals.active.value = hasConditional(this.getPropertiesLayers(), 'active')
+        this.usedConditionals.hover.value = hasConditional(this.getPropertiesLayers(), 'hover')
       },
     )
+  }
+
+  setEnabled(enabled: boolean) {
+    super.setEnabled(enabled)
+  }
+
+  override setLayer(index: number, value: Partial<LayerInput<OutProperties>> | undefined) {
+    super.setLayer(index, value)
+  }
+
+  private getPropertiesLayers(): Map<number, Record<string, unknown>> {
+    return this.propertiesLayers as Map<number, Record<string, unknown>>
   }
 
   setLayersWithConditionals(
@@ -150,10 +168,12 @@ export class PropertiesImplementation<
           continue
         }
         const getConditional = this.conditionals[layerSection]!
-        const conditionalComputedProperties: Partial<AddAllAliases<WithSignal<Partial<OutProperties>>>> = {}
+        const conditionalComputedProperties: Partial<LayerInput<OutProperties>> = {}
         const conditionalProperties = properties[layerSection]!
-        for (const [key, value] of Object.entries(conditionalProperties)) {
-          conditionalComputedProperties[key as keyof AddAllAliases<WithSignal<OutProperties>>] = computed(() =>
+        for (const [key, value] of Object.entries(conditionalProperties) as Array<
+          [keyof LayerInput<OutProperties>, LayerInput<OutProperties>[keyof LayerInput<OutProperties>]]
+        >) {
+          conditionalComputedProperties[key] = computed(() =>
             getConditional() ? (value instanceof Signal ? value.value : value) : undefined,
           ) as any
         }
@@ -164,7 +184,7 @@ export class PropertiesImplementation<
 }
 
 function hasConditional(
-  propertiesLayers: PropertiesImplementation['propertiesLayers'],
+  propertiesLayers: Map<number, Record<string, unknown>>,
   layerSection: LayerSection,
 ): boolean {
   const layerSectionStart = getLayerIndex({ type: 'base', section: layerSection })

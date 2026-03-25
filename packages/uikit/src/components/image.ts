@@ -111,10 +111,7 @@ export class Image<
     }, this.abortSignal)
     abortableEffect(() => {
       const createMaterial = this.root.peek().useNodeMaterial ? createPanelNodeMaterial : createPanelMaterial
-      const material = createMaterial(
-        resolvePanelMaterialClassProperty(this.properties.value.panelMaterialClass),
-        info,
-      )
+      const material = createMaterial(resolvePanelMaterialClassProperty(this.properties.value.panelMaterialClass), info)
       material.clippingPlanes = clippingPlanes
       ;(material as any).map = (this.material as any).map
       material.depthWrite = this.material.depthWrite
@@ -160,7 +157,7 @@ export class Image<
       if (!this.isVisible.value) {
         return
       }
-      return this.properties.subscribePropertyKeys((key) => {
+      return this.properties.subscribePropertyKeys((key: string | symbol | number) => {
         if (!imageMaterialConfig.hasProperty(key as string)) {
           return
         }
@@ -224,7 +221,14 @@ export class Image<
         aspectRatio.value = undefined
         return
       }
-      const image = tex.source.data as { videoWidth?: number; naturalWidth?: number; width: number; videoHeight?: number; naturalHeight?: number; height: number }
+      const image = tex.source.data as {
+        videoWidth?: number
+        naturalWidth?: number
+        width: number
+        videoHeight?: number
+        naturalHeight?: number
+        height: number
+      }
       const width = image.videoWidth ?? image.naturalWidth ?? image.width
       const height = image.videoHeight ?? image.naturalHeight ?? image.height
       aspectRatio.value = width / height
