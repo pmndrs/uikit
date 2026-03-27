@@ -99,6 +99,82 @@ const toggleLabel = new Text({
 })
 toggleButton.add(toggleLabel)
 
+// --- Pointer events demo ---
+let pointerEventsDisabled = false
+let pointerEventsClickCount = 0
+
+const pointerEventsToggle = new Container({
+  width: 300,
+  height: 50,
+  backgroundColor: 0x7c3aed,
+  hover: { backgroundColor: 0x6d28d9 },
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  onClick: () => {
+    pointerEventsDisabled = !pointerEventsDisabled
+    pointerEventsTarget.setProperties({
+      pointerEvents: pointerEventsDisabled ? 'none' : 'auto',
+      opacity: pointerEventsDisabled ? 0.45 : 1,
+      backgroundColor: pointerEventsDisabled ? 0x374151 : 0xf59e0b,
+      hover: { backgroundColor: pointerEventsDisabled ? 0x374151 : 0xd97706 },
+      cursor: pointerEventsDisabled ? 'default' : 'pointer',
+    })
+    pointerEventsToggleLabel.setProperties({
+      text: pointerEventsDisabled ? 'Pointer Events: none' : 'Pointer Events: auto',
+    })
+    pointerEventsStatus.setProperties({
+      text: pointerEventsDisabled ? 'Target is non-interactable' : 'Target is clickable',
+      color: pointerEventsDisabled ? 0xfca5a5 : 0x86efac,
+    })
+  },
+})
+root.add(pointerEventsToggle)
+
+const pointerEventsToggleLabel = new Text({
+  text: 'Pointer Events: auto',
+  fontSize: 18,
+  color: 'white',
+})
+pointerEventsToggle.add(pointerEventsToggleLabel)
+
+const pointerEventsTarget = new Container({
+  width: 300,
+  height: 50,
+  backgroundColor: 0xf59e0b,
+  hover: { backgroundColor: 0xd97706 },
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  onClick: () => {
+    pointerEventsClicks.setProperties({ text: `Pointer target clicks: ${++pointerEventsClickCount}` })
+  },
+})
+root.add(pointerEventsTarget)
+
+const pointerEventsTargetLabel = new Text({
+  text: 'Click Me Then Disable Me',
+  fontSize: 18,
+  color: 'white',
+})
+pointerEventsTarget.add(pointerEventsTargetLabel)
+
+const pointerEventsStatus = new Text({
+  text: 'Target is clickable',
+  fontSize: 14,
+  color: 0x86efac,
+})
+root.add(pointerEventsStatus)
+
+const pointerEventsClicks = new Text({
+  text: 'Pointer target clicks: 0',
+  fontSize: 14,
+  color: 0x888888,
+})
+root.add(pointerEventsClicks)
+
 // --- Text input ---
 const inputContainer = new Container({
   width: 300,

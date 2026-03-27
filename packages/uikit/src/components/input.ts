@@ -17,6 +17,11 @@ function cancelBlur(event: unknown) {
   cancelSet.add(event)
 }
 
+function stopEvent(event: { stopPropagation?: () => void; stopImmediatePropagation?: () => void }) {
+  event.stopPropagation?.()
+  event.stopImmediatePropagation?.()
+}
+
 export const canvasInputProps = {
   onPointerDown: (e: { nativeEvent: any; preventDefault: () => void }) => {
     if (!(document.activeElement instanceof HTMLElement)) {
@@ -206,7 +211,7 @@ export function setupSelectionHandlers(
       if (dragState == null || dragState.pointerId != e.pointerId) {
         return
       }
-      e.stopImmediatePropagation?.()
+      stopEvent(e)
       dragState = undefined
     }
     target.value = {
@@ -215,7 +220,7 @@ export function setupSelectionHandlers(
           return
         }
         cancelBlur(e.nativeEvent)
-        e.stopImmediatePropagation?.()
+        stopEvent(e)
         if ('setPointerCapture' in e.object && typeof e.object.setPointerCapture === 'function') {
           e.object.setPointerCapture(e.pointerId)
         }
@@ -230,7 +235,7 @@ export function setupSelectionHandlers(
         if (segmenter == null || e.uv == null || instancedTextRef.current == null) {
           return
         }
-        e.stopImmediatePropagation?.()
+        stopEvent(e)
         if (properties.peek().type === 'password') {
           setTimeout(() => focus(0, text.peek().length, 'none'))
           return
@@ -247,6 +252,12 @@ export function setupSelectionHandlers(
           segmentLengthSum += segmentLength
         }
       },
+      onClick: (e) => {
+        stopEvent(e)
+      },
+      onContextMenu: (e) => {
+        stopEvent(e)
+      },
       onPointerUp: onPointerFinish,
       onPointerLeave: onPointerFinish,
       onPointerCancel: onPointerFinish,
@@ -254,7 +265,7 @@ export function setupSelectionHandlers(
         if (dragState?.pointerId != e.pointerId || e.uv == null || instancedTextRef.current == null) {
           return
         }
-        e.stopImmediatePropagation?.()
+        stopEvent(e)
         const charIndex = uvToCharIndex(component, e.uv, instancedTextRef.current, 'between')
 
         const start = Math.min(dragState.startCharIndex, charIndex)
