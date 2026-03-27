@@ -114,9 +114,20 @@ const inputLabel = new Text({
 })
 inputContainer.add(inputLabel)
 
-const textInput = new Input({
+const inputField = new Container({
   width: 300,
   height: 40,
+  positionType: 'relative',
+  cursor: 'text',
+  onClick: () => textInput.focus(),
+})
+inputContainer.add(inputField)
+
+let inputValue = ''
+
+const textInput = new Input({
+  width: '100%',
+  height: '100%',
   backgroundColor: 0x1e293b,
   hover: { backgroundColor: 0x334155 },
   borderRadius: 8,
@@ -125,12 +136,27 @@ const textInput = new Input({
   paddingX: 12,
   fontSize: 16,
   color: 'white',
+  placeholder: '',
   defaultValue: '',
   onValueChange: (value: string) => {
+    inputValue = value
+    placeholderLabel.setProperties({ display: inputValue.length === 0 ? 'flex' : 'none' })
     echoLabel.setProperties({ text: value ? `Echo: ${value}` : 'Echo: (empty)' })
   },
 })
-inputContainer.add(textInput)
+inputField.add(textInput)
+
+const placeholderLabel = new Text({
+  text: 'Enter some text...',
+  positionType: 'absolute',
+  inset: 0,
+  paddingX: 12,
+  fontSize: 16,
+  lineHeight: '40px',
+  color: 0x64748b,
+  pointerEvents: 'none',
+})
+inputField.add(placeholderLabel)
 
 const echoLabel = new Text({
   text: 'Echo: (empty)',
@@ -144,6 +170,7 @@ const scrollContainer = new Container({
   width: 300,
   height: 150,
   overflow: 'scroll',
+  scrollbarZIndex: 1,
   backgroundColor: 0x0f172a,
   borderRadius: 10,
   borderWidth: 1,

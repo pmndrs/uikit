@@ -33,6 +33,7 @@ export const canvasInputProps = {
 export type InputType = 'text' | 'password' | 'number'
 
 export type InputOutProperties<EM extends ThreeEventMap = ThreeEventMap> = Omit<TextOutProperties<EM>, 'text'> & {
+  placeholder?: string
   defaultValue?: string
   value?: string
   disabled: boolean
@@ -106,9 +107,11 @@ export class Input<
     abortableEffect(
       () =>
         void (text.value =
-          this.properties.value.type === 'password'
-            ? '*'.repeat(this.currentSignal.value.length ?? 0)
-            : this.currentSignal.value),
+          this.currentSignal.value.length === 0
+            ? (this.properties.value.placeholder ?? '')
+            : this.properties.value.type === 'password'
+              ? '*'.repeat(this.currentSignal.value.length ?? 0)
+              : this.currentSignal.value),
       this.abortSignal,
     )
 
@@ -310,6 +313,7 @@ function setupHtmlInputElement(
   abortableEffect(() => void (element.disabled = properties.value.disabled), abortSignal)
   abortableEffect(() => void (element.tabIndex = properties.value.tabIndex), abortSignal)
   abortableEffect(() => void (element.autocomplete = properties.value.autocomplete), abortSignal)
+  abortableEffect(() => void (element.placeholder = properties.value.placeholder ?? ''), abortSignal)
   abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
   abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
 }
