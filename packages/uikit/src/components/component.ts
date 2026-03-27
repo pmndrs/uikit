@@ -284,6 +284,9 @@ export class Component<
 
   raycast(raycaster: Raycaster, intersects: Intersection[]): unknown {
     //TODO: enable configuring the return value
+    if (this.pointerEvents === 'none') {
+      return false
+    }
     const rootParentMatrixWorld = this.root.peek().component.parent?.matrixWorld ?? IdentityMatrix
     sphereHelper.copy(this.boundingSphere).applyMatrix4(rootParentMatrixWorld)
     if (

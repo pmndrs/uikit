@@ -13,6 +13,7 @@ export const inheritedPropertyKeys = [
   'fontFamilyFallbacks',
   'fontWeight',
   'visibility',
+  'pointerEvents',
   'scrollbarBorderRightWidth',
   'scrollbarBorderTopWidth',
   'scrollbarBorderLeftWidth',
