@@ -69,6 +69,12 @@ export function computedFont(
     fontFamily ??= Object.keys(fontFamilies)[0]!
     let fontFamilyWeightMap = fontFamilies[fontFamily]
     if (fontFamilyWeightMap == null) {
+      // When fontFamiliesSignal.value is undefined, we are in a fallback state
+      // (e.g. during R3F teardown where parent removal resets properties).
+      // Skip font loading entirely to avoid both "unknown font family" and
+      // subsequent "Missing glyph info" warnings from using the wrong font.
+      if (fontFamiliesSignal.value == null) return
+
       const availableFontFamilyList = Object.keys(fontFamilies)
       fontFamilyWeightMap = fontFamilies[availableFontFamilyList[0] as any]!
       console.error(
