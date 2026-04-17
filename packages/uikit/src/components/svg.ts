@@ -1,5 +1,5 @@
 import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
-import { BoundingBox, Content, ContentOutProperties } from './content.js'
+import { ContentBoundingBox, Content, ContentOutProperties } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
@@ -24,13 +24,13 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
       defaults?: WithSignal<OutProperties>
     },
   ) {
-    const boundingBox = signal<BoundingBox | undefined>(undefined)
+    const contentBoundingBox = signal<ContentBoundingBox | undefined>(undefined)
     super(inputProperties, initialClasses, {
       ...inputConfig,
       remeasureOnChildrenChange: false,
       depthWriteDefault: false,
       supportFillProperty: true,
-      boundingBox,
+      contentBoundingBox,
     })
 
     const svgResult = signal<Awaited<ReturnType<typeof loadSvg>>>(undefined)
@@ -46,7 +46,7 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
     )
     abortableEffect(() => {
       const result = svgResult.value
-      boundingBox.value = result?.boundingBox
+      contentBoundingBox.value = result?.contentBoundingBox
       if (result == null || result.meshes.length === 0) {
         this.notifyAncestorsChanged()
         return
@@ -75,7 +75,7 @@ async function loadSvg({
 }: {
   src?: string
   content?: string
-}): Promise<{ meshes: Array<Mesh>; boundingBox?: BoundingBox } | undefined> {
+}): Promise<{ meshes: Array<Mesh>; contentBoundingBox?: ContentBoundingBox } | undefined> {
   if (src == null && content == null) {
     return undefined
   }
@@ -102,7 +102,7 @@ async function loadSvg({
       meshes.push(mesh)
     }
   }
-  let boundingBox: { center: Vector3; size: Vector3 } | undefined
+  let contentBoundingBox: { center: Vector3; size: Vector3 } | undefined
   const viewBoxNumbers = result.xml
     .getAttribute('viewBox')
     ?.split(/\s+/)
@@ -110,13 +110,13 @@ async function loadSvg({
     .filter((value) => !isNaN(value))
   if (viewBoxNumbers?.length === 4) {
     const [minX, minY, width, height] = viewBoxNumbers as [number, number, number, number]
-    boundingBox = {
+    contentBoundingBox = {
       center: new Vector3(width / 2 + minX, -height / 2 - minY, 0),
       size: new Vector3(width, height, 0.00001),
     }
   }
 
-  return { meshes, boundingBox }
+  return { meshes, contentBoundingBox }
 }
 
 function disposeSvg(result: Awaited<ReturnType<typeof loadSvg>>) {
