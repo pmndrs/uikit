@@ -213,9 +213,11 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
   }
 
   private updateAll() {
-    for (const key in this.propertyStateMap) {
-      this.update(key, this.propertyStateMap[key])
-    }
+    batch(() => {
+      for (const key in this.propertyStateMap) {
+        this.update(key, this.propertyStateMap[key])
+      }
+    })
   }
 
   destroy() {

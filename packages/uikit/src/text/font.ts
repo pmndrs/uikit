@@ -52,7 +52,8 @@ export function computedFont(
   fontFamiliesSignal: Signal<FontFamilies | undefined>,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
-  effect(() => {
+  const resultUrl = signal<string | FontInfo | undefined>(undefined)
+  const url = computed<string | FontInfo>(() => {
     let fontWeight: FontWeight = properties.value.fontWeight
     if (typeof fontWeight === 'string') {
       fontWeight = parseFloat(fontWeight)
@@ -75,12 +76,20 @@ export function computedFont(
         `unknown font family "${fontFamily}". Available font families are ${availableFontFamilyList.map((name) => `"${name}"`).join(', ')}. Falling back to "${availableFontFamilyList[0]}".`,
       )
     }
-    const url = getMatchingFontUrl(fontFamilyWeightMap, fontWeight)
+    return getMatchingFontUrl(fontFamilyWeightMap, fontWeight)
+  })
+  effect(() => {
+    const currentUrl = url.value
     let aborted = false
-    loadCachedFont(url, (font) => !aborted && (result.value = font))
+    loadCachedFont(currentUrl, (font) => {
+      if (!aborted) {
+        result.value = font
+        resultUrl.value = currentUrl
+      }
+    })
     return () => (aborted = true)
   })
-  return result
+  return computed(() => (resultUrl.value === url.value ? result.value : undefined))
 }
 
 function getMatchingFontUrl(fontFamily: FontFamilyWeightMap, weight: number): string | FontInfo {
