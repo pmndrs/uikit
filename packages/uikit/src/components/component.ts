@@ -1,4 +1,4 @@
-import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
+import { batch, computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlersProperties } from '../events.js'
 import {
   BufferGeometry,
@@ -109,6 +109,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   readonly maxScrollPosition = signal<Partial<Vector2Tuple>>([undefined, undefined])
   readonly root: Signal<RootContext>
   readonly parentContainer = signal<Container | undefined>(undefined)
+  readonly isAttached = signal(false)
   readonly hoveredList = signal<Array<number>>([])
   readonly activeList = signal<Array<number>>([])
   readonly ancestorsHaveListenersSignal: Signal<boolean>
@@ -136,9 +137,13 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
 
     //setting up the parent signal
     const updateParentState = () => {
-      this.parentContainer.value = this.parent instanceof Component ? (this.parent as Container) : undefined
-      ;(this.properties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
-      ;(this.starProperties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
+      batch(() => {
+        this.parentContainer.value = this.parent instanceof Component ? (this.parent as Container) : undefined
+        const isAttached = this.parent != null
+        ;(this.properties as PropertiesImplementation<OutProperties>).setEnabled(isAttached)
+        ;(this.starProperties as PropertiesImplementation<OutProperties>).setEnabled(isAttached)
+        this.isAttached.value = isAttached
+      })
     }
     this.addEventListener('added', updateParentState)
     this.addEventListener('removed', updateParentState)

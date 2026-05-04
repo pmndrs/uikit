@@ -100,7 +100,7 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
     )
 
     const fontFamilies = computedFontFamilies(this.properties, this.parentContainer)
-    this.fontSignal = computedFont(this.properties, fontFamilies)
+    this.fontSignal = computedFont(this.properties, fontFamilies, this.isAttached)
 
     setupOrderInfo(
       this.orderInfo,

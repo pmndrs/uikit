@@ -50,10 +50,13 @@ export function computedFontFamilies(properties: Properties, parent: Signal<Cont
 export function computedFont(
   properties: Properties,
   fontFamiliesSignal: Signal<FontFamilies | undefined>,
+  isAttachedSignal?: Signal<boolean>,
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
-  const resultUrl = signal<string | FontInfo | undefined>(undefined)
-  const url = computed<string | FontInfo>(() => {
+  const url = computed<string | FontInfo | undefined>(() => {
+    if (isAttachedSignal?.value === false) {
+      return undefined
+    }
     let fontWeight: FontWeight = properties.value.fontWeight
     if (typeof fontWeight === 'string') {
       fontWeight = parseFloat(fontWeight)
@@ -80,16 +83,14 @@ export function computedFont(
   })
   effect(() => {
     const currentUrl = url.value
+    if (currentUrl == null) {
+      return
+    }
     let aborted = false
-    loadCachedFont(currentUrl, (font) => {
-      if (!aborted) {
-        result.value = font
-        resultUrl.value = currentUrl
-      }
-    })
+    loadCachedFont(currentUrl, (font) => !aborted && (result.value = font))
     return () => (aborted = true)
   })
-  return computed(() => (resultUrl.value === url.value ? result.value : undefined))
+  return result
 }
 
 function getMatchingFontUrl(fontFamily: FontFamilyWeightMap, weight: number): string | FontInfo {
