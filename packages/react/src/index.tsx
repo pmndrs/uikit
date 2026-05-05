@@ -132,9 +132,14 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
     camera.add(fullscreenWrapper)
     const renderer = useThree((s) => s.gl)
     const ref = useRef<VanillaFullscreen>(null)
+    const latestPropsRef = useRef(props)
+    latestPropsRef.current = props
     useImperativeHandle(forwardRef, () => ref.current!, [])
     const renderContext = useRenderContext()
-    const args = useMemo(() => [renderer, undefined, undefined, { renderContext }], [renderer, renderContext])
+    const args = useMemo(
+      () => [renderer, latestPropsRef.current, undefined, { renderContext }],
+      [renderer, renderContext],
+    )
     const outProps = useSetup(ref, props, args)
     return createPortal(
       <vanillaFullscreen {...outProps} ref={ref}>
@@ -151,8 +156,11 @@ export const Text = forwardRef<VanillaText, TextProperties>(({ children, ...prop
   const ref = useRef<VanillaText>(null)
   useImperativeHandle(forwardRef, () => ref.current!, [])
   const renderContext = useRenderContext()
-  const args = useMemo(() => [undefined, undefined, { renderContext }], [renderContext])
-  const outProps = useSetup(ref, { ...props, text: children }, args)
+  const inProps = { ...props, text: children }
+  const latestPropsRef = useRef(inProps)
+  latestPropsRef.current = inProps
+  const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
+  const outProps = useSetup(ref, inProps, args)
   return jsx(`vanillaText` as any, { ...outProps, ref })
 })
 

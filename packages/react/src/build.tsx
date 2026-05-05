@@ -1,7 +1,7 @@
 import { Component, EventHandlers, RenderContext, reversePainterSortStable } from '@pmndrs/uikit'
 import { effect } from '@preact/signals-core'
 import { extend, useStore, useThree, Instance, applyProps } from '@react-three/fiber'
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef } from 'react'
 import { jsx } from 'react/jsx-runtime'
 
 declare module 'three' {
@@ -15,9 +15,11 @@ export function build<T extends Component, P>(Component: { new (): T }, name = C
   return forwardRef<T, P>(({ children, ...props }: any, forwardRef) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const ref = useRef<Component>(null)
+    const latestPropsRef = useRef(props)
+    latestPropsRef.current = props
     useImperativeHandle(forwardRef, () => ref.current! as T, [])
     const renderContext = useRenderContext()
-    const args = useMemo(() => [undefined, undefined, { renderContext }], [renderContext])
+    const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
     const outProps = useSetup(ref, props, args)
     return jsx(`vanilla${name}` as any, { ref, children, ...outProps })
   })
@@ -56,7 +58,7 @@ export function useSetup(ref: { current: Component | null }, inProps: any, args:
     renderer.localClippingEnabled = true
     renderer.setTransparentSort(reversePainterSortStable)
   }, [renderer])
-  useEffect(() => {
+  useLayoutEffect(() => {
     ref.current?.resetProperties(inProps)
   })
   useEffect(() => {
