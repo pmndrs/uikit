@@ -15,6 +15,8 @@ import { Container } from './components/container.js'
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
 
+type ScrollFrameUpdater = () => void
+
 export type ScrollEventHandlers = Pick<
   EventHandlersProperties,
   'onPointerDown' | 'onPointerUp' | 'onPointerMove' | 'onWheel' | 'onPointerLeave' | 'onPointerCancel'
@@ -49,6 +51,7 @@ export function setupScrollHandlers(
   target: Signal<ScrollEventHandlers | undefined>,
   container: Container,
   abortSignal: AbortSignal,
+  updateScrollFrame: ScrollFrameUpdater,
 ) {
   const isScrollable = computed(() => container.scrollable.value.some((scrollable) => scrollable) ?? false)
 
@@ -78,6 +81,7 @@ export function setupScrollHandlers(
       }
       //only request a render if the last pointer that was dragging stopped dragging and this panel is actually scrollable
       container.root.peek().requestRender?.()
+      updateScrollFrame()
     }
     target.value = {
       onPointerDown: (event) => {
@@ -157,11 +161,13 @@ export function setupScrollHandlers(
             container.properties.peek().scrollbarWidth,
           )
           scroll(container, event, distanceHelper.x, -distanceHelper.y, undefined, false)
+          updateScrollFrame()
           return
         }
         const timestamp = performance.now()
         const deltaTime = timestamp - prevInteraction.timestamp
         scroll(container, event, -distanceHelper.x, distanceHelper.y, deltaTime, true)
+        updateScrollFrame()
         prevInteraction.timestamp = timestamp
       },
       onWheel: (event) => {
@@ -177,6 +183,7 @@ export function setupScrollHandlers(
           return
         }
         scroll(container, event, nativeEvent.deltaX, nativeEvent.deltaY, undefined, false)
+        updateScrollFrame()
       },
     }
   }, abortSignal)
@@ -189,7 +196,7 @@ function scroll(
   deltaY: number,
   deltaTime: number | undefined,
   enableRubberBand: boolean,
-) {
+): void {
   if (container.scrollPosition.value == null) {
     return
   }
@@ -225,9 +232,30 @@ function scroll(
   container.scrollPosition.value = [newX, newY]
 }
 
-export function setupScroll(container: Container) {
+export function setupScroll(container: Container): ScrollFrameUpdater {
+  const scrollFrameNeeded = signal(false)
+  const updateScrollFrame = () => {
+    const scrollPosition = container.scrollPosition.value
+    const [maxX, maxY] = container.maxScrollPosition.value
+    const needed =
+      scrollPosition != null &&
+      (container.scrollVelocity.x !== 0 ||
+        container.scrollVelocity.y !== 0 ||
+        Math.abs(outsideDistance(scrollPosition[0], 0, maxX ?? 0)) > 1 ||
+        Math.abs(outsideDistance(scrollPosition[1], 0, maxY ?? 0)) > 1)
+
+    scrollFrameNeeded.value = needed
+    if (needed) {
+      container.root.peek().requestFrame?.()
+    }
+  }
+
   const onFrame = (delta: number) => {
-    if (container.downPointerMap.size > 0 || container.scrollPosition.value == null) {
+    if (container.downPointerMap.size > 0) {
+      return
+    }
+    if (container.scrollPosition.value == null) {
+      updateScrollFrame()
       return
     }
 
@@ -239,10 +267,6 @@ export function setupScroll(container: Container) {
     const outsideDistanceX = outsideDistance(x, 0, maxX ?? 0)
     const outsideDistanceY = outsideDistance(y, 0, maxY ?? 0)
 
-    if (Math.abs(outsideDistanceX) > 1 || Math.abs(outsideDistanceY) > 1) {
-      container.root.peek().requestFrame?.()
-    }
-
     deltaX += outsideDistanceX * -0.3
     deltaY += outsideDistanceY * -0.3
 
@@ -253,27 +277,31 @@ export function setupScroll(container: Container) {
 
     if (Math.abs(container.scrollVelocity.x) < 0.01 /** 10 px per second */) {
       container.scrollVelocity.x = 0
-    } else {
-      container.root.peek().requestFrame?.()
     }
 
     if (Math.abs(container.scrollVelocity.y) < 0.01 /** 10 px per second */) {
       container.scrollVelocity.y = 0
-    } else {
-      container.root.peek().requestFrame?.()
     }
 
-    if (deltaX === 0 && deltaY === 0) {
-      return
+    if (deltaX !== 0 || deltaY !== 0) {
+      scroll(container, undefined, deltaX, deltaY, undefined, true)
     }
-    scroll(container, undefined, deltaX, deltaY, undefined, true)
+    updateScrollFrame()
   }
 
+  abortableEffect(updateScrollFrame, container.abortSignal)
+
   abortableEffect(() => {
-    //this also needs to be executed when isScrollable is false since when the max scroll position is lower then the current scroll position, the onFrame callback will animate the scroll position back to 0
-    container.root.value.onFrameSet.add(onFrame)
-    return () => container.root.value.onFrameSet.delete(onFrame)
+    if (!scrollFrameNeeded.value) {
+      return
+    }
+    const root = container.root.value
+    root.onFrameSet.add(onFrame)
+    root.requestFrame?.()
+    return () => root.onFrameSet.delete(onFrame)
   }, container.abortSignal)
+
+  return updateScrollFrame
 }
 
 const wasScrolledSymbol = Symbol('was-scrolled')

@@ -33,7 +33,7 @@ export function buildRootContext(
   )
 
   abortableEffect(() => {
-    if (root.value.component != component) {
+    if (root.value.component != component || !component.isAttached.value) {
       return
     }
     const abortController = new AbortController()

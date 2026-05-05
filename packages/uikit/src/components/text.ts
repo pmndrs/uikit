@@ -60,6 +60,7 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
     super(inputProperties, initialClasses, {
       defaults: textDefaults as OutProperties,
       hasNonUikitChildren: false,
+      isRenderless: true,
       ...inputConfig,
     })
     this.material.visible = false

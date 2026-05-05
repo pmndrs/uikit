@@ -1,0 +1,4 @@
+interface:
+  display_name: "vitexec"
+  short_description: "Inspect and profile live Vite apps"
+  default_prompt: "Use $vitexec to inspect or profile a live Vite app with browser logs and artifacts."

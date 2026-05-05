@@ -53,6 +53,9 @@ export function computedFont(
 ): Signal<Font | undefined> {
   const result = signal<Font | undefined>(undefined)
   effect(() => {
+    if (!properties.enabled.value) {
+      return
+    }
     let fontWeight: FontWeight = properties.value.fontWeight
     if (typeof fontWeight === 'string') {
       fontWeight = parseFloat(fontWeight)

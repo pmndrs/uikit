@@ -116,6 +116,9 @@ export function computedHandlers(
   dynamicHandlers?: Signal<EventHandlersProperties | undefined>,
 ) {
   return computed(() => {
+    if (!properties.enabled.value) {
+      return {}
+    }
     const handlers: EventHandlersProperties = {}
     for (const key of eventHandlerKeys) {
       const handler = properties.value[key as keyof EventHandlersProperties]
@@ -218,6 +221,9 @@ export function setupPointerEvents(component: Component, canHaveNonUikitChildren
     component.pointerEventsType = component.properties.value.pointerEventsType
   }, component.abortSignal)
   abortableEffect(() => {
+    if (!component.properties.enabled.value) {
+      return
+    }
     const rootComponent = component.root.value.component
     component.intersectChildren = canHaveNonUikitChildren || rootComponent === component
 

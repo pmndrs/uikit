@@ -47,12 +47,14 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
     const scrollHandlers = signal<ScrollEventHandlers | undefined>(undefined)
     super(inputProperties, initialClasses, {
       hasNonUikitChildren: false,
+      isRenderless: true,
       dynamicHandlers: scrollHandlers,
       ...inputConfig,
     })
     this.material.visible = false
 
-    setupScrollHandlers(scrollHandlers, this, this.abortSignal)
+    const updateScrollFrame = setupScroll(this)
+    setupScrollHandlers(scrollHandlers, this, this.abortSignal, updateScrollFrame)
 
     this.childrenMatrix = computedGlobalScrollMatrix(this.properties, this.scrollPosition, this.globalMatrix)
 
@@ -95,7 +97,6 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
     )
 
     //scrolling:
-    setupScroll(this)
     setupScrollbars(this, parentClippingRect, this.orderInfo, panelGroupDeps)
   }
 

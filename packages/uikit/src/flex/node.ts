@@ -50,7 +50,7 @@ export class FlexNode {
       }
     }, component.abortSignal)
     abortableEffect(() => {
-      if (!this.active.value) {
+      if (!component.properties.enabled.value || !this.active.value) {
         return
       }
       const internalAbort = new AbortController()

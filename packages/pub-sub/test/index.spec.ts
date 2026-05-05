@@ -18,6 +18,20 @@ describe('PropertiesPubSub', () => {
     pubSub.setEnabled(true)
   })
 
+  describe('enabled state', () => {
+    it('should expose the enabled state as a signal', () => {
+      const ps = new PropertiesImplementation<InTestProps, OutTestProps>((key, value, set) => set(key, value), {})
+
+      expect(ps.enabled.value).to.equal(false)
+
+      ps.setEnabled(true)
+      expect(ps.enabled.value).to.equal(true)
+
+      ps.setEnabled(false)
+      expect(ps.enabled.value).to.equal(false)
+    })
+  })
+
   describe('normal set/get operations', () => {
     it('should set and get a value', () => {
       pubSub.set(0, 'color', 'red')

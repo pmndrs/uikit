@@ -1,4 +1,4 @@
-import { batch, effect, Signal, untracked } from '@preact/signals-core'
+import { batch, effect, ReadonlySignal, Signal, signal, untracked } from '@preact/signals-core'
 
 type PropertyState = { layerIndex: number; cleanup?: () => void; signal: Signal<any> }
 
@@ -7,6 +7,7 @@ export type GetSignal<T> = T extends Signal<infer K> ? K : T
 export type NotUndefined<T> = T extends undefined ? never : T
 
 export type ReadonlyProperties<Out> = {
+  readonly enabled: ReadonlySignal<boolean>
   get value(): Out
   peek(): Out
   get signal(): { [Key in keyof Out]-?: Signal<Out[Key]> }
@@ -21,11 +22,11 @@ export type Properties<In, Out extends object> = ReadonlyProperties<Out> & {
   destroy(): void
   set<K extends keyof In>(layerIndex: number, key: K, value: In[K]): void
   setLayer(index: number, value: Partial<In> | undefined): void
+  setEnabled(enabled: boolean): void
 }
 
 export class PropertiesImplementation<In, Out extends object> implements Properties<In, Out> {
-  private enabled = false
-
+  readonly enabled = signal(false)
   readonly value = new Proxy<Out>({} as any, { get: (_target, key) => this.getSignal(key as keyof Out).value })
   readonly signal = new Proxy<{ [Key in keyof Out]-?: Signal<Out[Key]> }>({} as any, {
     get: (_target, key) => this.getSignal(key as keyof Out),
@@ -159,7 +160,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       //current value has higher prescedence
       return
     }
-    if (!this.enabled) {
+    if (!this.enabled.peek()) {
       //no need to run update, since the value change has no effect while enabled is `false`
       return
     }
@@ -171,7 +172,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     target.cleanup = undefined
     const defaultValue = this.defaults?.[key]
     let result: readonly [any, number] | undefined
-    if (this.enabled) {
+    if (this.enabled.peek()) {
       result = selectLayerValue(
         0,
         Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
@@ -205,10 +206,10 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
   }
 
   setEnabled(enabled: boolean) {
-    if (this.enabled === enabled) {
+    if (this.enabled.peek() === enabled) {
       return
     }
-    this.enabled = enabled
+    this.enabled.value = enabled
     this.updateAll()
   }
 

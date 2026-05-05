@@ -93,6 +93,10 @@ export function setupOrderInfo(
   abortSignal: AbortSignal,
 ): void {
   abortableEffect(() => {
+    if (!properties.enabled.value) {
+      target.value = undefined
+      return
+    }
     if (basisOrderInfoSignal.value === undefined) {
       target.value = undefined
       return

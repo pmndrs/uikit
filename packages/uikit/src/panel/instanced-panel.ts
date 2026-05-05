@@ -35,7 +35,7 @@ export function setupInstancedPanel(
   abortSignal: AbortSignal,
 ) {
   abortableEffect(() => {
-    if (orderInfo.value == null) {
+    if (!properties.enabled.value || orderInfo.value == null) {
       return
     }
     const innerAbortController = new AbortController()

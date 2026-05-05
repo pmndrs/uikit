@@ -1,4 +1,4 @@
-import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
+import { batch, computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlersProperties } from '../events.js'
 import {
   BufferGeometry,
@@ -109,6 +109,10 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   readonly maxScrollPosition = signal<Partial<Vector2Tuple>>([undefined, undefined])
   readonly root: Signal<RootContext>
   readonly parentContainer = signal<Container | undefined>(undefined)
+  readonly isAttached = signal(false)
+  readonly isRootAttached: Signal<boolean> = computed(
+    (): boolean => this.parentContainer.value?.isRootAttached.value ?? this.isAttached.value,
+  )
   readonly hoveredList = signal<Array<number>>([])
   readonly activeList = signal<Array<number>>([])
   readonly ancestorsHaveListenersSignal: Signal<boolean>
@@ -116,6 +120,8 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   readonly globalPanelMatrix: Signal<Matrix4 | undefined>
   readonly abortSignal = this.abortController.signal
   readonly classList: ClassList
+  readonly needsRenderTraversal: Signal<boolean>
+  private readonly renderTraversalChildCount = signal(0)
 
   constructor(
     protected inputProperties?: InProperties<OutProperties>,
@@ -128,6 +134,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       isPlaceholder?: Signal<boolean>
       defaultOverrides?: InProperties<OutProperties>
       hasNonUikitChildren?: boolean
+      isRenderless?: boolean
       defaults?: WithSignal<OutProperties>
     },
   ) {
@@ -136,9 +143,11 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
 
     //setting up the parent signal
     const updateParentState = () => {
-      this.parentContainer.value = this.parent instanceof Component ? (this.parent as Container) : undefined
-      ;(this.properties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
-      ;(this.starProperties as PropertiesImplementation<OutProperties>).setEnabled(this.parent != null)
+      batch(() => {
+        const isAttached = this.parent != null
+        this.parentContainer.value = this.parent instanceof Component ? (this.parent as Container) : undefined
+        this.isAttached.value = isAttached
+      })
     }
     this.addEventListener('added', updateParentState)
     this.addEventListener('removed', updateParentState)
@@ -176,6 +185,9 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       ...config?.defaultOverrides,
     } as InProperties<OutProperties>)
     abortableEffect(() => {
+      if (!this.properties.enabled.value) {
+        return
+      }
       const parentProprties = this.parentContainer.value?.properties
       const layerIndex = getLayerIndex({ type: 'inheritance' })
       const cleanup = parentProprties?.subscribePropertyKeys((key) => {
@@ -198,6 +210,15 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
     )
 
     abortableEffect(() => {
+      const isRootAttached = this.isRootAttached.value
+      ;(this.properties as PropertiesImplementation<OutProperties>).setEnabled(isRootAttached)
+      ;(this.starProperties as PropertiesImplementation<OutProperties>).setEnabled(isRootAttached)
+    }, this.abortSignal)
+
+    abortableEffect(() => {
+      if (!this.properties.enabled.value || !this.starProperties.enabled.value) {
+        return
+      }
       const parentStarProprties = this.parentContainer.value?.starProperties ?? globalProperties
       const layerIndex = getLayerIndex({ type: 'star-inheritance' })
       const cleanup = parentStarProprties?.subscribePropertyKeys((key) => {
@@ -276,6 +297,25 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       this.abortSignal,
     )
     const hasNonUikitChildren = config?.hasNonUikitChildren ?? true
+    const isRenderless = config?.isRenderless ?? false
+    this.needsRenderTraversal = computed(
+      () => !isRenderless || this.parentContainer.value == null || this.renderTraversalChildCount.value > 0,
+    )
+    abortableEffect(() => {
+      const parent = this.parentContainer.value
+      if (parent == null || !this.needsRenderTraversal.value) {
+        return
+      }
+      parent.renderTraversalChildCount.value = parent.renderTraversalChildCount.peek() + 1
+      return () => {
+        parent.renderTraversalChildCount.value = parent.renderTraversalChildCount.peek() - 1
+      }
+    }, this.abortSignal)
+    if (isRenderless) {
+      abortableEffect(() => {
+        this.visible = this.needsRenderTraversal.value
+      }, this.abortSignal)
+    }
     setupPointerEvents(this, hasNonUikitChildren)
 
     abortableEffect(() => {

@@ -1,6 +1,6 @@
 import { Component, EventHandlers, RenderContext, reversePainterSortStable } from '@pmndrs/uikit'
 import { effect } from '@preact/signals-core'
-import { extend, RootStore, useFrame, useStore, useThree, Instance, applyProps } from '@react-three/fiber'
+import { extend, useStore, useThree, Instance, applyProps } from '@react-three/fiber'
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { jsx } from 'react/jsx-runtime'
 
@@ -32,9 +32,25 @@ export function useRenderContext() {
  * @returns the props that should be applied to the component
  */
 export function useSetup(ref: { current: Component | null }, inProps: any, args: Array<any>): any {
-  useFrame((_, delta) => {
-    ref.current?.update(delta * 1000)
-  })
+  const store = useStore()
+  useEffect(() => {
+    const component = ref.current
+    if (component == null) {
+      return
+    }
+    return effect(() => {
+      if (component.root.value.component != component) {
+        return
+      }
+      return store.getState().internal.subscribe(
+        {
+          current: (_, delta) => component.update(delta * 1000),
+        },
+        0,
+        store,
+      )
+    })
+  }, [ref, store])
   const renderer = useThree((s) => s.gl)
   useEffect(() => {
     renderer.localClippingEnabled = true
