@@ -415,7 +415,7 @@ function getClippingPlanesFragment(instanced: boolean): string {
         for(int i = 0; i < 4; i++) {
           plane = clipping[i];
           distanceToPlane = dot(localPosition, plane.xyz) + plane.w;
-          planeDistanceGradient = fwidth(distanceToPlane) * 0.5;
+          planeDistanceGradient = max(fwidth(distanceToPlane) * 0.5, 0.00001);
           clipOpacity *= smoothstep(-planeDistanceGradient, planeDistanceGradient, distanceToPlane);
     
           if (clipOpacity < 0.01) discard;
