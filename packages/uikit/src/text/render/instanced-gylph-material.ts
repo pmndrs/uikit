@@ -60,7 +60,7 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
           for(int i = 0; i < 4; i++) {
             plane = clipping[ i ];
             distanceToPlane = dot( localPosition, plane.xyz ) + plane.w;
-            distanceGradient = fwidth( distanceToPlane ) / 2.0;
+            distanceGradient = max(fwidth( distanceToPlane ) / 2.0, 0.00001);
             clipOpacity *= smoothstep( - distanceGradient, distanceGradient, distanceToPlane );
 
             if ( clipOpacity == 0.0 ) discard;
