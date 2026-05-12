@@ -9,6 +9,7 @@ import {
   PanelDepthMaterial,
   PanelDistanceMaterial,
   PanelMaterialConfig,
+  writeColor,
 } from '../panel/panel-material.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
@@ -16,6 +17,7 @@ import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
+import { toAbsoluteNumber } from '../text/utils.js'
 
 export type ImageFit = 'cover' | 'fill'
 
@@ -149,6 +151,14 @@ export class Image<
         cleanupSizeEffect()
         cleanupBorderEffect()
       }
+    }, this.abortSignal)
+    abortableEffect(() => {
+      if (!this.isVisible.value) {
+        return
+      }
+      const opacity = toAbsoluteNumber(this.properties.value.opacity ?? 1, () => 1)
+      writeColor(data, 4, 0xffffff, opacity, undefined)
+      this.root.peek().requestRender?.()
     }, this.abortSignal)
     const setters = imageMaterialConfig.setters
     abortableEffect(() => {
