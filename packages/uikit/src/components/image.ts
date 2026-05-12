@@ -17,6 +17,7 @@ import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
+import { toAbsoluteNumber } from '../text/utils.js'
 
 export type ImageFit = 'cover' | 'fill'
 
@@ -155,10 +156,8 @@ export class Image<
       if (!this.isVisible.value) {
         return
       }
-      const opacity = this.properties.value.opacity ?? 1
-      const resolvedOpacity = typeof opacity === 'number' ? opacity : 1
-      const backgroundColor = this.properties.value.backgroundColor ?? 0xffffff
-      writeColor(data, 4, backgroundColor, resolvedOpacity, undefined)
+      const opacity = toAbsoluteNumber(this.properties.value.opacity ?? 1, () => 1)
+      writeColor(data, 4, 0xffffff, opacity, undefined)
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     const setters = imageMaterialConfig.setters
