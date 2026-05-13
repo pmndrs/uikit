@@ -10,13 +10,13 @@ import {
   PanelDistanceMaterial,
   PanelMaterialConfig,
   writeColor,
-} from '../panel/panel-material.js'
+} from '../panel/material/index.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { Inset } from '../flex/index.js'
 import { ElementType, setupOrderInfo, setupRenderOrder } from '../order.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
-import { resolvePanelMaterialClassProperty } from '../panel/instanced-panel-group.js'
+import { resolvePanelMaterialClassProperty } from '../panel/material/presets.js'
 import { toAbsoluteNumber } from '../text/utils.js'
 
 export type ImageFit = 'cover' | 'fill'
@@ -142,10 +142,18 @@ export class Image<
 
       data.set(imageMaterialConfig.defaultData)
 
-      const cleanupSizeEffect = effect(() => void (this.size.value != null && data.set(this.size.value, 14)))
-      const cleanupBorderEffect = effect(
-        () => void (this.borderInset.value != null && data.set(this.borderInset.value, 0)),
-      )
+      const cleanupSizeEffect = effect(() => {
+        const size = this.size.value
+        if (size != null) {
+          data.set(size, 14)
+        }
+      })
+      const cleanupBorderEffect = effect(() => {
+        const borderInset = this.borderInset.value
+        if (borderInset != null) {
+          data.set(borderInset, 0)
+        }
+      })
       this.root.peek().requestRender?.()
       return () => {
         cleanupSizeEffect()
@@ -185,22 +193,24 @@ export class Image<
 
     abortableEffect(() => {
       const texture = this.texture.value
-      if (texture == null || this.size.value == null || this.borderInset.value == null) {
+      const size = this.size.value
+      const borderInset = this.borderInset.value
+      if (texture == null || size == null || borderInset == null) {
         return
       }
       texture.matrix.identity()
       this.root.peek().requestRender?.()
 
       if (this.properties.value.objectFit === 'fill' || texture == null) {
-        transformInsideBorder(this.borderInset, this.size, texture)
+        transformInsideBorder(borderInset, size, texture)
         return
       }
 
       const { width: textureWidth, height: textureHeight } = texture.source.data as { width: number; height: number }
       const textureRatio = textureWidth / textureHeight
 
-      const [width, height] = this.size.value
-      const [top, right, bottom, left] = this.borderInset.value
+      const [width, height] = size
+      const [top, right, bottom, left] = borderInset
       const boundsRatioValue = (width - left - right) / (height - top - bottom)
 
       if (textureRatio > boundsRatioValue) {
@@ -212,7 +222,7 @@ export class Image<
           .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
           .scale(1, textureRatio / boundsRatioValue)
       }
-      transformInsideBorder(this.borderInset, this.size, texture)
+      transformInsideBorder(borderInset, size, texture)
     }, this.abortSignal)
     abortableEffect(() => {
       this.visible = isMeshVisible.value
@@ -247,17 +257,9 @@ export class Image<
   }
 }
 
-function transformInsideBorder(
-  borderInset: Signal<Inset | undefined>,
-  size: Signal<Vector2Tuple | undefined>,
-  texture: Texture,
-): void {
-  if (size.value == null || borderInset.value == null) {
-    return
-  }
-
-  const [outerWidth, outerHeight] = size.value
-  const [top, right, bottom, left] = borderInset.value
+function transformInsideBorder(borderInset: Inset, size: Vector2Tuple, texture: Texture): void {
+  const [outerWidth, outerHeight] = size
+  const [top, right, bottom, left] = borderInset
 
   const width = outerWidth - left - right
   const height = outerHeight - top - bottom

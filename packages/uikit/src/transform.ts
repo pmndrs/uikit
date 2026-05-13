@@ -48,10 +48,11 @@ export function computedTransformMatrix({
   //T = transform matrix (translate, rotate, scale)
 
   return computed(() => {
-    if (relativeCenter.value == null) {
+    const relativeCenterValue = relativeCenter.value
+    if (relativeCenterValue == null) {
       return undefined
     }
-    const [x, y] = relativeCenter.value
+    const [x, y] = relativeCenterValue
     const pixelSize = properties.value.pixelSize
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
@@ -61,10 +62,11 @@ export function computedTransformMatrix({
     const tOY = properties.value.transformOriginY ?? defaultTransformOriginY
 
     if (tOX != 'center' || tOY != 'center') {
-      if (size.value == null) {
+      const sizeValue = size.value
+      if (sizeValue == null) {
         return undefined
       }
-      const [width, height] = size.value
+      const [width, height] = sizeValue
       originCenter = false
       originVector.set(-alignmentXMap[tOX] * width * pixelSize, -alignmentYMap[tOY] * height * pixelSize, 0)
       result.multiply(matrixHelper.makeTranslation(originVector))

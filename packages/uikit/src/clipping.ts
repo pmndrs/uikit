@@ -102,18 +102,20 @@ export function computedIsClipped(
   pixelSizeSignal: Signal<number>,
 ): Signal<boolean> {
   return computed(() => {
-    if (parent.value == null) {
+    const parentValue = parent.value
+    if (parentValue == null) {
       return false
     }
-    if (size.value == null) {
+    const sizeValue = size.value
+    if (sizeValue == null) {
       return true
     }
     const global = globalMatrix.value
-    const rect = parent.value.clippingRect.value
+    const rect = parentValue.clippingRect.value
     if (rect == null || global == null) {
       return false
     }
-    const [width, height] = size.value
+    const [width, height] = sizeValue
     const pixelSize = pixelSizeSignal.value
     for (let i = 0; i < 4; i++) {
       const [mx, my] = multiplier[i]!
@@ -148,14 +150,17 @@ export function computedClippingRect(
 ): Signal<ClippingRect | undefined> {
   return computed(() => {
     const global = globalMatrix.value
+    const parentClippingRectValue = parentClippingRect?.value
     if (global == null || overflow.value === Overflow.Visible) {
-      return parentClippingRect?.value
+      return parentClippingRectValue
     }
-    if (size.value == null || borderInset.value == null) {
+    const sizeValue = size.value
+    const borderInsetValue = borderInset.value
+    if (sizeValue == null || borderInsetValue == null) {
       return undefined
     }
-    const [width, height] = size.value
-    const [top, right, bottom, left] = borderInset.value
+    const [width, height] = sizeValue
+    const [top, right, bottom, left] = borderInsetValue
     const pixelSize = pixelSizeSignal.value
     const rect = new ClippingRect(
       global,
@@ -164,8 +169,8 @@ export function computedClippingRect(
       (width - left - right) * pixelSize,
       (height - top - bottom) * pixelSize,
     )
-    if (parentClippingRect?.value != null) {
-      rect.min(parentClippingRect.value)
+    if (parentClippingRectValue != null) {
+      rect.min(parentClippingRectValue)
     }
     return rect
   })

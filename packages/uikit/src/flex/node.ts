@@ -319,8 +319,9 @@ function updateVector2Signal<T extends Partial<readonly [unknown, unknown]>>(
   x: T[0],
   y: T[1],
 ): void {
-  if (signal.value != null) {
-    const [oldX, oldY] = signal.value
+  const current = signal.value
+  if (current != null) {
+    const [oldX, oldY] = current
     if (oldX === x && oldY === y) {
       return
     }
@@ -335,8 +336,9 @@ function updateInsetSignal(
   bottom: number,
   left: number,
 ): void {
-  if (signal.value != null) {
-    const [oldTop, oldRight, oldBottom, oldLeft] = signal.value
+  const current = signal.value
+  if (current != null) {
+    const [oldTop, oldRight, oldBottom, oldLeft] = current
     if (oldTop == top && oldRight == right && oldBottom == bottom && oldLeft == left) {
       return
     }

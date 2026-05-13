@@ -1,8 +1,8 @@
 import { Box3, InstancedBufferAttribute, Mesh, Object3DEventMap, Sphere } from 'three'
-import { createPanelGeometry } from './utils.js'
-import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from './panel-material.js'
-import { RootContext } from '../context.js'
-import { computeWorldToGlobalMatrix } from '../utils.js'
+import { createPanelGeometry } from '../geometry.js'
+import { instancedPanelDepthMaterial, instancedPanelDistanceMaterial } from '../material/depth.js'
+import { RootContext } from '../../context.js'
+import { computeWorldToGlobalMatrix } from '../../utils.js'
 
 export class InstancedPanelMesh extends Mesh {
   public count = 0
@@ -54,7 +54,7 @@ export class InstancedPanelMesh extends Mesh {
     throw new Error('InstancedPanelMesh.copy() is not supported. Use clone() instead.')
   }
 
-  //functions not needed because intersection (and morphing) is intenionally disabled
+  // Functions not needed because intersection and morphing are intentionally disabled.
   computeBoundingBox(): void {}
   computeBoundingSphere(): void {}
   updateMorphTargets(): void {}

@@ -4,10 +4,12 @@ import { Inset } from './flex/node.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { computedPanelMatrix, PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
+import { computedPanelMatrix } from './panel/instance/matrix.js'
+import { PanelProperties } from './panel/instance/panel.js'
+import { setupInstancedPanel } from './panel/instance/setup.js'
 import { ElementType, OrderInfo, setupOrderInfo } from './order.js'
-import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/panel-material.js'
-import { PanelGroupProperties } from './panel/instanced-panel-group.js'
+import { PanelMaterialConfig, createPanelMaterialConfig } from './panel/material/config.js'
+import { PanelGroupProperties } from './panel/instance/properties.js'
 import { EventHandlersProperties, ThreeMouseEvent, ThreePointerEvent } from './events.js'
 import { Properties } from './properties/index.js'
 import { Container } from './components/container.js'
@@ -197,7 +199,8 @@ function scroll(
   deltaTime: number | undefined,
   enableRubberBand: boolean,
 ): void {
-  if (container.scrollPosition.value == null) {
+  const scrollPosition = container.scrollPosition.value
+  if (scrollPosition == null) {
     return
   }
   const [wasScrolledX, wasScrolledY] = event == null ? [false, false] : getWasScrolled(event.nativeEvent)
@@ -207,9 +210,9 @@ function scroll(
   if (wasScrolledY) {
     deltaY = 0
   }
-  const [x, y] = container.scrollPosition.value
+  const [x, y] = scrollPosition
   const [maxX, maxY] = container.maxScrollPosition.value
-  let [newX, newY] = container.scrollPosition.value
+  let [newX, newY] = scrollPosition
   const [ancestorScrollableX, ancestorScrollableY] = container.anyAncestorScrollable?.value ?? [false, false]
   newX = computeScroll(x, maxX, deltaX, enableRubberBand && !ancestorScrollableX)
   newY = computeScroll(y, maxY, deltaY, enableRubberBand && !ancestorScrollableY)
@@ -254,14 +257,15 @@ export function setupScroll(container: Container): ScrollFrameUpdater {
     if (container.downPointerMap.size > 0) {
       return
     }
-    if (container.scrollPosition.value == null) {
+    const scrollPosition = container.scrollPosition.value
+    if (scrollPosition == null) {
       updateScrollFrame()
       return
     }
 
     let deltaX = 0
     let deltaY = 0
-    const [x, y] = container.scrollPosition.value
+    const [x, y] = scrollPosition
     const [maxX, maxY] = container.maxScrollPosition.value
 
     const outsideDistanceX = outsideDistance(x, 0, maxX ?? 0)

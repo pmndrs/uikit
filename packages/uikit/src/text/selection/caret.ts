@@ -1,22 +1,17 @@
 import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple } from 'three'
-import { ClippingRect } from './clipping.js'
-import { setupOrderInfo, ElementType, OrderInfo } from './order.js'
-import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
-import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
-import {
-  PanelGroupProperties,
-  PanelMaterialConfig,
-  computedPanelMatrix,
-  createPanelMaterialConfig,
-} from './panel/index.js'
-import { Properties } from './properties/index.js'
-import { RootContext } from './context.js'
+import { ClippingRect } from '../../clipping.js'
+import { setupOrderInfo, ElementType, OrderInfo } from '../../order.js'
+import { PanelProperties } from '../../panel/instance/panel.js'
+import { setupInstancedPanel } from '../../panel/instance/setup.js'
+import { abortableEffect, ColorRepresentation, computedBorderInset } from '../../utils.js'
+import { PanelGroupProperties, computedPanelMatrix } from '../../panel/instance/index.js'
+import { PanelMaterialConfig, createPanelMaterialConfig } from '../../panel/material/config.js'
+import { Properties } from '../../properties/index.js'
+import { RootContext } from '../../context.js'
+import type { CaretTransformation } from '../layout/index.js'
 
-export type CaretTransformation = {
-  position: Vector2Tuple
-  height: number
-}
+export type { CaretTransformation } from '../layout/index.js'
 
 type CaretWidthProperties = {
   caretWidth?: number
@@ -65,7 +60,7 @@ function getCaretMaterialConfig() {
 export function setupCaret(
   properties: Properties,
   globalMatrix: Signal<Matrix4 | undefined>,
-  caretTransformation: Signal<CaretTransformation | undefined>,
+  caretTransformation: ReadonlySignal<CaretTransformation | undefined>,
   isVisible: Signal<boolean>,
   parentOrderInfo: Signal<OrderInfo | undefined>,
   parentGroupDeps: ReadonlySignal<Required<PanelGroupProperties>>,
@@ -80,6 +75,7 @@ export function setupCaret(
     const pos = caretTransformation.value
     if (pos == null) {
       blinkingCaretTransformation.value = undefined
+      return
     }
     blinkingCaretTransformation.value = pos
     const ref = setInterval(

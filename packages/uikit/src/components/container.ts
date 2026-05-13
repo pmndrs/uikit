@@ -2,8 +2,8 @@ import { computed, signal, Signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
 import { ClippingRect, computedClippingRect } from '../clipping.js'
 import { ElementType, setupOrderInfo } from '../order.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import { setupInstancedPanel } from '../panel/instance/setup.js'
+import { getDefaultPanelMaterialConfig } from '../panel/material/config.js'
 import {
   computedAnyAncestorScrollable,
   computedGlobalScrollMatrix,
@@ -13,7 +13,7 @@ import {
   setupScrollHandlers,
 } from '../scroll.js'
 import { computedFontFamilies, FontFamilies } from '../text/font.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { computedPanelGroupDependencies } from '../panel/instance/properties.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { Component } from './component.js'

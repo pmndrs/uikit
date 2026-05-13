@@ -1,4 +1,5 @@
 import { computed, signal, Signal } from '@preact/signals-core'
+import type { ReadonlySignal } from '@preact/signals-core'
 import { EventHandlersProperties } from '../events.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
@@ -8,20 +9,19 @@ import {
   additionalTextDefaults,
   computedFont,
   computedFontFamilies,
+  computedGlobalTextMatrix,
   computedGylphGroupDependencies,
   createInstancedText,
-  Font,
-  InstancedText,
+  setupTextLayout,
 } from '../text/index.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { getDefaultPanelMaterialConfig } from '../panel/panel-material.js'
+import type { Font, PositionedGlyphLayout } from '../text/index.js'
+import { computedPanelGroupDependencies } from '../panel/instance/properties.js'
+import { setupInstancedPanel } from '../panel/instance/setup.js'
+import { getDefaultPanelMaterialConfig } from '../panel/material/config.js'
 import { abortableEffect } from '../utils.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
-import { Matrix4, Quaternion, Vector2Tuple, Vector3 } from 'three'
-import { CaretTransformation } from '../caret.js'
-import { SelectionTransformation } from '../selection.js'
+import { Matrix4 } from 'three'
 
 export type TextOutProperties = BaseOutProperties & AdditionalTextDefaults & { text?: unknown }
 
@@ -29,15 +29,11 @@ export type TextProperties = InProperties<TextOutProperties>
 
 export const textDefaults = { ...componentDefaults, ...additionalTextDefaults }
 
-const IdentityMatrix = new Matrix4()
-const IdentityQuaternion = new Quaternion()
-const IdentityScale = new Vector3(1, 1, 1)
-const positionHelper = new Vector3()
-
 export class Text<OutProperties extends TextOutProperties = TextOutProperties> extends Component<OutProperties> {
   readonly backgroundOrderInfo = signal<OrderInfo | undefined>(undefined)
   readonly backgroundGroupDeps: ReturnType<typeof computedPanelGroupDependencies>
   readonly fontSignal: Signal<Font | undefined>
+  readonly textLayout: ReadonlySignal<PositionedGlyphLayout | undefined>
 
   readonly globalTextMatrix: Signal<Matrix4 | undefined>
 
@@ -48,10 +44,6 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
       renderContext?: RenderContext
       defaultOverrides?: InProperties<OutProperties>
       dynamicHandlers?: Signal<EventHandlersProperties | undefined>
-      selectionRange?: Signal<Vector2Tuple | undefined>
-      selectionTransformations?: Signal<Array<SelectionTransformation>>
-      caretTransformation?: Signal<CaretTransformation | undefined>
-      instancedTextRef?: { current?: InstancedText }
       hasFocus?: Signal<boolean>
       defaults?: WithSignal<OutProperties>
       isPlaceholder?: Signal<boolean>
@@ -69,26 +61,7 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
 
     this.backgroundGroupDeps = computedPanelGroupDependencies(this.properties)
 
-    this.globalTextMatrix = computed(() => {
-      if (this.paddingInset.value == null || this.borderInset.value == null) {
-        return IdentityMatrix
-      }
-
-      const [pTop, pRight, pBottom, pLeft] = this.paddingInset.value
-      const [bTop, bRight, bBottom, bLeft] = this.borderInset.value
-
-      const topInset = pTop + bTop
-      const rightInset = pRight + bRight
-      const bottomInset = pBottom + bBottom
-      const leftInset = pLeft + bLeft
-
-      const pixelSize = this.properties.value.pixelSize
-
-      positionHelper.set((leftInset - rightInset) * 0.5 * pixelSize, (bottomInset - topInset) * 0.5 * pixelSize, 0)
-      return new Matrix4()
-        .compose(positionHelper, IdentityQuaternion, IdentityScale)
-        .premultiply(this.globalMatrix.value ?? IdentityMatrix)
-    })
+    this.globalTextMatrix = computedGlobalTextMatrix(this)
 
     setupOrderInfo(
       this.backgroundOrderInfo,
@@ -127,14 +100,9 @@ export class Text<OutProperties extends TextOutProperties = TextOutProperties> e
       this.abortSignal,
     )
 
-    const customLayouting = createInstancedText(
-      this,
-      parentClippingRect,
-      inputConfig?.selectionRange,
-      inputConfig?.selectionTransformations,
-      inputConfig?.caretTransformation,
-      inputConfig?.instancedTextRef,
-    )
+    const { layout, customLayouting } = setupTextLayout(this)
+    this.textLayout = layout
+    createInstancedText(this, parentClippingRect, this.textLayout)
     abortableEffect(() => this.node.setCustomLayouting(customLayouting.value), this.abortSignal)
   }
 

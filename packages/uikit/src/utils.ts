@@ -5,11 +5,11 @@ import { BaseOutProperties, Properties } from './properties/index.js'
 import { EventHandlersProperties } from './events.js'
 import { addActiveHandlers } from './active.js'
 import { addHoverHandlers } from './hover.js'
-import { AllowedPointerEventsType } from './panel/interaction-panel-mesh.js'
+import { AllowedPointerEventsType } from './panel/interaction/pointer-events.js'
 import { Component } from './components/component.js'
 import { Container } from './components/container.js'
 import { RootContext } from './context.js'
-import { writeColor } from './panel/index.js'
+import { writeColor } from './panel/material/color.js'
 
 export type Fix_TS_56_Float32Array = Float32Array
 
@@ -185,12 +185,11 @@ export function setupMatrixWorldUpdate(
   globalPanelMatrixSignal: Signal<Matrix4 | undefined> | undefined,
   abortSignal: AbortSignal,
 ): void {
-  if (globalPanelMatrixSignal != null) {
-    abortableEffect(() => {
-      //requesting a render every time the matrix changes
-      globalPanelMatrixSignal.value
+  if (globalPanelMatrixSignal != null && !abortSignal.aborted) {
+    const unsubscribe = globalPanelMatrixSignal.subscribe(() => {
       rootSignal.peek().requestRender?.()
-    }, abortSignal)
+    })
+    abortSignal.addEventListener('abort', unsubscribe)
   }
   abortableEffect(() => {
     const root = rootSignal.value
@@ -273,12 +272,15 @@ export function fitNormalizedContentInside(
   pixelSize: number,
   aspectRatio: number,
 ): void {
-  if (size.value == null || paddingInset.value == null || borderInset.value == null) {
+  const sizeValue = size.value
+  const paddingInsetValue = paddingInset.value
+  const borderInsetValue = borderInset.value
+  if (sizeValue == null || paddingInsetValue == null || borderInsetValue == null) {
     return
   }
-  const [width, height] = size.value
-  const [pTop, pRight, pBottom, pLeft] = paddingInset.value
-  const [bTop, bRight, bBottom, bLeft] = borderInset.value
+  const [width, height] = sizeValue
+  const [pTop, pRight, pBottom, pLeft] = paddingInsetValue
+  const [bTop, bRight, bBottom, bLeft] = borderInsetValue
   const topInset = pTop + bTop
   const rightInset = pRight + bRight
   const bottomInset = pBottom + bBottom

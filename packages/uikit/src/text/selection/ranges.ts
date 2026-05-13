@@ -1,19 +1,17 @@
 import { ReadonlySignal, Signal, signal } from '@preact/signals-core'
-import { PanelProperties, setupInstancedPanel } from './panel/instanced-panel.js'
+import { PanelProperties } from '../../panel/instance/panel.js'
+import { setupInstancedPanel } from '../../panel/instance/setup.js'
 import { Matrix4, Vector2Tuple } from 'three'
-import { ClippingRect } from './clipping.js'
-import { setupOrderInfo, ElementType, OrderInfo } from './order.js'
-import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
-import {
-  PanelGroupProperties,
-  PanelMaterialConfig,
-  computedPanelMatrix,
-  createPanelMaterialConfig,
-} from './panel/index.js'
-import { Properties } from './properties/index.js'
-import { RootContext } from './context.js'
+import { ClippingRect } from '../../clipping.js'
+import { setupOrderInfo, ElementType, OrderInfo } from '../../order.js'
+import { abortableEffect, ColorRepresentation, computedBorderInset } from '../../utils.js'
+import { PanelGroupProperties, computedPanelMatrix } from '../../panel/instance/index.js'
+import { PanelMaterialConfig, createPanelMaterialConfig } from '../../panel/material/config.js'
+import { Properties } from '../../properties/index.js'
+import { RootContext } from '../../context.js'
+import type { SelectionTransformation } from '../layout/index.js'
 
-export type SelectionTransformation = { size: Vector2Tuple; position: Vector2Tuple }
+export type { SelectionTransformation } from '../layout/index.js'
 
 export type SelectionBorderSizeProperties = {
   selectionBorderRightWidth?: number
@@ -58,7 +56,7 @@ export function createSelection(
   properties: Properties,
   root: Signal<RootContext>,
   globalMatrix: Signal<Matrix4 | undefined>,
-  selectionTransformations: Signal<Array<SelectionTransformation>>,
+  selectionTransformations: ReadonlySignal<Array<SelectionTransformation>>,
   isVisible: Signal<boolean>,
   prevOrderInfo: Signal<OrderInfo | undefined>,
   prevPanelDeps: ReadonlySignal<Required<PanelGroupProperties>>,

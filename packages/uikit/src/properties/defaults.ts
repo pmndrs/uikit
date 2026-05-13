@@ -1,7 +1,7 @@
 import { MeshBasicMaterial } from 'three'
 import type { FontWeight, GlyphProperties, WhiteSpace } from '../text/index.js'
 import { alignmentXMap, alignmentYMap, type VisibilityProperties } from '../utils.js'
-import type { PanelGroupProperties } from '../panel/instanced-panel-group.js'
+import type { PanelGroupProperties } from '../panel/instance/properties.js'
 
 export const componentDefaults = {
   scrollbarWidth: 10,

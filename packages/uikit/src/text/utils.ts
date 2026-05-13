@@ -1,4 +1,4 @@
-import { GlyphLayout } from './layout.js'
+import { GlyphLayout } from './layout/index.js'
 import { Font, GlyphInfo } from './font.js'
 import { RootContext } from '../context.js'
 

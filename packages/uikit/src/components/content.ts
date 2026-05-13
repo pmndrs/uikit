@@ -1,16 +1,17 @@
 import { computed, Signal, signal } from '@preact/signals-core'
 import { Box3, Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, Vector3 } from 'three'
 import { ElementType, OrderInfo, setupOrderInfo, setupRenderOrder } from '../order.js'
-import { setupInstancedPanel } from '../panel/instanced-panel.js'
-import { getDefaultPanelMaterialConfig, writeColor } from '../panel/panel-material.js'
+import { setupInstancedPanel } from '../panel/instance/setup.js'
+import { getDefaultPanelMaterialConfig } from '../panel/material/config.js'
+import { writeColor } from '../panel/material/color.js'
 import { Component } from './component.js'
-import { computedPanelGroupDependencies } from '../panel/instanced-panel-group.js'
+import { computedPanelGroupDependencies } from '../panel/instance/properties.js'
 import { BaseOutProperties, InProperties, Properties, WithSignal } from '../properties/index.js'
 import { abortableEffect, alignmentZMap, computeWorldToGlobalMatrix, setupMatrixWorldUpdate } from '../utils.js'
 import { createGlobalClippingPlanes } from '../clipping.js'
-import { makeClippedCast } from '../panel/interaction-panel-mesh.js'
+import { makeClippedCast } from '../panel/interaction/clipped-cast.js'
 import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
-import { InstancedPanelMesh } from '../panel/instanced-panel-mesh.js'
+import { InstancedPanelMesh } from '../panel/instance/mesh.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 
@@ -75,11 +76,12 @@ export class Content<
       inputConfig?.boundingBox ?? signal<BoundingBox>({ size: new Vector3(1, 1.01, 1), center: new Vector3(0, 0, 0) })
 
     abortableEffect(() => {
-      if (!this.properties.value.keepAspectRatio || this.boundingBox.value == null) {
+      const boundingBox = this.boundingBox.value
+      if (!this.properties.value.keepAspectRatio || boundingBox == null) {
         defaultAspectRatio.value = undefined
         return
       }
-      defaultAspectRatio.value = this.boundingBox.value.size.x / this.boundingBox.value.size.y
+      defaultAspectRatio.value = boundingBox.size.x / boundingBox.size.y
     }, this.abortSignal)
     this.material.visible = false
 

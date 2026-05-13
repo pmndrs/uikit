@@ -1,160 +1,19 @@
-import {
-  InstancedBufferAttribute,
-  Material,
-  DynamicDrawUsage,
-  Object3D,
-  MeshPhongMaterial,
-  MeshPhysicalMaterial,
-} from 'three'
+import { DynamicDrawUsage, InstancedBufferAttribute, Material } from 'three'
 import {
   Bucket,
   addToSortedBuckets,
   removeFromSortedBuckets,
-  updateSortedBucketsAllocation,
   resizeSortedBucketsSpace,
-} from '../allocation/sorted-buckets.js'
-import { MaterialClass, createPanelMaterial } from './panel-material.js'
-import { InstancedPanel } from './instanced-panel.js'
-import { InstancedPanelMesh } from './instanced-panel-mesh.js'
-import { ElementType, OrderInfo, setupRenderOrder } from '../order.js'
-import { computed } from '@preact/signals-core'
-import { Properties } from '../properties/index.js'
-import { RootContext } from '../context.js'
-import type { Component } from '../components/component.js'
-
-export type ShadowProperties = {
-  receiveShadow?: boolean
-  castShadow?: boolean
-}
-
-export type RenderProperties = {
-  depthWrite?: boolean
-  depthTest?: boolean
-  renderOrder?: number
-}
-
-export class PlasticMaterial extends MeshPhongMaterial {
-  constructor() {
-    super({
-      specular: '#111',
-      shininess: 100,
-    })
-  }
-}
-
-export class GlassMaterial extends MeshPhysicalMaterial {
-  constructor() {
-    super({
-      roughness: 0.1,
-      reflectivity: 0.5,
-      iridescence: 0.001,
-      thickness: 0.05,
-      metalness: 0.3,
-      ior: 2,
-    })
-  }
-}
-
-export class MetalMaterial extends MeshPhysicalMaterial {
-  constructor() {
-    super({
-      iridescence: 0.001,
-      metalness: 0.8,
-      roughness: 0.1,
-    })
-  }
-}
-const materialClasses = {
-  glass: GlassMaterial,
-  metal: MetalMaterial,
-  plastic: PlasticMaterial,
-}
-
-export function resolvePanelMaterialClassProperty(input: NonNullable<PanelGroupProperties['panelMaterialClass']>) {
-  if (typeof input != 'string') {
-    return input
-  }
-  return materialClasses[input]
-}
-
-export type PanelGroupProperties = {
-  panelMaterialClass?: MaterialClass | keyof typeof materialClasses
-} & ShadowProperties &
-  RenderProperties
-
-export function computedPanelGroupDependencies(properties: Properties) {
-  return computed<Required<PanelGroupProperties>>(() => {
-    return {
-      panelMaterialClass: resolvePanelMaterialClassProperty(properties.value.panelMaterialClass),
-      castShadow: properties.value.castShadow,
-      receiveShadow: properties.value.receiveShadow,
-      depthWrite: properties.value.depthWrite ?? false,
-      depthTest: properties.value.depthTest,
-      renderOrder: properties.value.renderOrder,
-    }
-  })
-}
-
-export class PanelGroupManager {
-  private map = new Map<MaterialClass, Map<string, InstancedPanelGroup>>()
-
-  constructor(
-    private readonly root: Omit<RootContext, 'glyphGroupManager' | 'panelGroupManager'>,
-    private readonly object: Component,
-  ) {}
-
-  init(abortSignal: AbortSignal) {
-    const onFrame = () => this.traverse((group) => group.onFrame())
-    this.root.onFrameSet.add(onFrame)
-    abortSignal.addEventListener('abort', () => {
-      this.root.onFrameSet.delete(onFrame)
-      this.traverse((group) => group.destroy())
-    })
-  }
-
-  private traverse(fn: (group: InstancedPanelGroup) => void) {
-    for (const groups of this.map.values()) {
-      for (const group of groups.values()) {
-        fn(group)
-      }
-    }
-  }
-
-  getGroup({ majorIndex, minorIndex }: OrderInfo, properties: Required<PanelGroupProperties>) {
-    const materialClass = resolvePanelMaterialClassProperty(properties.panelMaterialClass)
-    let groups = this.map.get(materialClass)
-    if (groups == null) {
-      this.map.set(materialClass, (groups = new Map()))
-    }
-    const key = [
-      majorIndex,
-      minorIndex,
-      properties.renderOrder,
-      properties.depthTest,
-      properties.depthWrite,
-      properties.receiveShadow,
-      properties.castShadow,
-    ].join(',')
-    let panelGroup = groups.get(key)
-    if (panelGroup == null) {
-      groups.set(
-        key,
-        (panelGroup = new InstancedPanelGroup(
-          this.object,
-          this.root,
-          {
-            elementType: ElementType.Panel,
-            minorIndex,
-            majorIndex,
-            patchIndex: 0,
-          },
-          properties,
-        )),
-      )
-    }
-    return panelGroup
-  }
-}
+  updateSortedBucketsAllocation,
+} from '../../allocation/sorted-buckets.js'
+import type { Component } from '../../components/component.js'
+import { RootContext } from '../../context.js'
+import { OrderInfo, setupRenderOrder } from '../../order.js'
+import { createPanelMaterial } from '../material/create.js'
+import { resolvePanelMaterialClassProperty } from '../material/presets.js'
+import { InstancedPanelMesh } from './mesh.js'
+import type { InstancedPanel } from './panel.js'
+import type { PanelGroupProperties } from './properties.js'
 
 const nextFrame = Symbol('nextFrame')
 
@@ -193,7 +52,7 @@ export class InstancedPanelGroup {
   }
 
   private clearBufferAt = (index: number) => {
-    //hiding the element by writing a 0 matrix (0 scale ...)
+    // Hiding the element by writing a 0 matrix.
     const bufferOffset = index * 16
     this.instanceMatrix.array.fill(0, bufferOffset, bufferOffset + 16)
     this.instanceMatrix.addUpdateRange(bufferOffset, 16)
@@ -268,12 +127,11 @@ export class InstancedPanelGroup {
         this.bufferCopyWithin,
       )
     ) {
-      //update count already requests a render
       this.updateCount()
       return
     }
     this.root.requestRender?.()
-    this.requestUpdate(1000) //request update in 1 second
+    this.requestUpdate(1000)
   }
 
   onFrame(): void {
@@ -291,17 +149,11 @@ export class InstancedPanelGroup {
       }
       return
     }
-    //buffer is resized to have space for 150% of the actually needed elements
     if (this.elementCount > this.bufferElementSize) {
-      //buffer is to small to host the current elements
       this.resize()
-      //we need to execute updateSortedBucketsAllocation after resize so that updateSortedBucketsAllocation has enough space to arrange all the elements
       updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
     } else if (this.elementCount <= this.bufferElementSize / 3) {
-      //we need to execute updateSortedBucketsAllocation first, so we still have access to the elements in the space that will be removed by the resize
-      //TODO: this could be improved since now we are re-arraging in place and then copying. we could rearrange while copying. Not sure if faster though?
       updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)
-      //buffer is at least 300% bigger than the needed space
       this.resize()
     } else {
       updateSortedBucketsAllocation(this.buckets, this.activateElement, this.bufferCopyWithin)

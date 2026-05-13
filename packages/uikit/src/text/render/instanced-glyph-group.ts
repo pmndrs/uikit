@@ -1,7 +1,7 @@
 import { DynamicDrawUsage, InstancedBufferAttribute, Material, Object3D, TypedArray } from 'three'
 import { InstancedGlyph } from './instanced-glyph.js'
 import { InstancedGlyphMesh } from './instanced-glyph-mesh.js'
-import { InstancedGlyphMaterial } from './instanced-gylph-material.js'
+import { InstancedGlyphMaterial } from './instanced-glyph-material.js'
 import { Font } from '../font.js'
 import { ElementType, OrderInfo, setupRenderOrder } from '../../order.js'
 import { RootContext } from '../../context.js'

@@ -1,5 +1,5 @@
 import { ReadonlySignal, Signal, computed } from '@preact/signals-core'
-import { PanelGroupManager } from './panel/instanced-panel-group.js'
+import { PanelGroupManager } from './panel/instance/group-manager.js'
 import { abortableEffect, alignmentXMap, alignmentYMap } from './utils.js'
 import { WithReversePainterSortStableCache } from './order.js'
 import { Matrix4, Vector2Tuple } from 'three'
@@ -33,19 +33,20 @@ export function buildRootContext(
   )
 
   abortableEffect(() => {
-    if (root.value.component != component || !component.isAttached.value) {
+    const rootValue = root.value
+    if (rootValue.component != component || !component.isAttached.value) {
       return
     }
     const abortController = new AbortController()
-    root.value.glyphGroupManager.init(abortController.signal)
-    root.value.panelGroupManager.init(abortController.signal)
+    rootValue.glyphGroupManager.init(abortController.signal)
+    rootValue.panelGroupManager.init(abortController.signal)
 
-    root.value.requestCalculateLayout = createDeferredRequestLayoutCalculation(root.value, component)
+    rootValue.requestCalculateLayout = createDeferredRequestLayoutCalculation(rootValue, component)
 
-    const onFrame = () => void (root.value.reversePainterSortStableCache = undefined)
+    const onFrame = () => void (rootValue.reversePainterSortStableCache = undefined)
 
-    root.value.onFrameSet.add(onFrame)
-    abortController.signal.addEventListener('abort', () => root.value.onFrameSet.delete(onFrame))
+    rootValue.onFrameSet.add(onFrame)
+    abortController.signal.addEventListener('abort', () => rootValue.onFrameSet.delete(onFrame))
     return () => abortController.abort()
   }, component.abortSignal)
 
@@ -97,10 +98,11 @@ function createDeferredRequestLayoutCalculation(
 }
 
 export function buildRootMatrix(properties: Properties, size: Signal<Vector2Tuple | undefined>) {
-  if (size.value == null) {
+  const sizeValue = size.value
+  if (sizeValue == null) {
     return undefined
   }
-  const [width, height] = size.value
+  const [width, height] = sizeValue
   const pixelSize = properties.value.pixelSize
   return new Matrix4().makeTranslation(
     alignmentXMap[properties.value.anchorX] * width * pixelSize,

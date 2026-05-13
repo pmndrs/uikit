@@ -1,5 +1,6 @@
 export * from './utils.js'
 export * from './wrapper/index.js'
 export * from './font.js'
-export * from './layout.js'
+export * from './layout/index.js'
 export * from './render/index.js'
+export * from './selection/index.js'
