@@ -61,12 +61,16 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
         this.notifyAncestorsChanged()
         return
       }
-      super.add(...result.meshes)
+      super.addUnsafe(...result.meshes)
       this.notifyAncestorsChanged()
       return () => {
         super.remove(...result.meshes)
       }
     }, this.abortSignal)
+  }
+
+  add(): this {
+    throw new Error(`the svg component can not have any children`)
   }
 
   clone(recursive?: boolean): this {

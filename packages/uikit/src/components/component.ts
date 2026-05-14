@@ -475,8 +475,11 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
   /**
    * only used for internally adding instanced panel group and instanced gylph group in case this component is a root component
    */
-  addUnsafe(...object: Object3D[]): this {
-    return super.add(...object)
+  addUnsafe(...objects: Object3D[]): this {
+    for (const object of objects) {
+      super.add(object)
+    }
+    return this
   }
 }
 
