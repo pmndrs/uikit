@@ -1,7 +1,10 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, WithSignal, RenderContext } from '@pmndrs/uikit'
 import { componentDefaults } from '../theme.js'
+export const PaginationItemPropertiesSchema = ContainerPropertiesSchema
 
-export type PaginationItemProperties = InProperties<BaseOutProperties>
+export type PaginationItemProperties = z.input<typeof PaginationItemPropertiesSchema>
 
 export class PaginationItem extends Container<BaseOutProperties> {
   constructor(

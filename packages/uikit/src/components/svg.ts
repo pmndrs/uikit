@@ -1,18 +1,28 @@
 import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
-import { BoundingBox, Content, ContentOutProperties } from './content.js'
+import { BoundingBox, Content, type ContentOutProperties, contentOutPropertiesSchema } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
+import { string } from 'zod'
+import type { z } from 'zod'
+import { createInPropertiesSchema, defineSchema } from '../properties/schema.js'
+
+export const svgOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  contentOutPropertiesSchema.extend({
+    src: string().optional(),
+    content: string().optional(),
+  }),
+)
+export const SvgPropertiesSchema = /* @__PURE__ */ defineSchema(() => createInPropertiesSchema(svgOutPropertiesSchema))
 
 export type SvgOutProperties = ContentOutProperties & {
   keepAspectRatio?: boolean
   src?: string
   content?: string
 }
-
-export type SvgProperties = InProperties<SvgOutProperties>
+export type SvgProperties = z.input<typeof SvgPropertiesSchema>
 
 export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> extends Content<OutProperties> {
   constructor(
@@ -66,8 +76,8 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
   }
 }
 
-const loader = new SVGLoader()
 const svgCache = new Map<string, Promise<SVGResult>>()
+const loader = new SVGLoader()
 
 async function loadSvg({
   src,

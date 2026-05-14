@@ -1,9 +1,16 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
+export const DialogTitleOutPropertiesSchema = baseOutPropertiesSchema
 
-export type DialogTitleOutProperties = BaseOutProperties
+export const DialogTitlePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DialogTitleOutPropertiesSchema),
+)
 
-export type DialogTitleProperties = InProperties<DialogTitleOutProperties>
+export type DialogTitleOutProperties = BaseOutProperties & z.output<typeof DialogTitleOutPropertiesSchema>
+
+export type DialogTitleProperties = z.input<typeof DialogTitlePropertiesSchema>
 
 export class DialogTitle extends Container<DialogTitleOutProperties> {
   constructor(

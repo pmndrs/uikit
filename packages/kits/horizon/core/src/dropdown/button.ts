@@ -1,11 +1,14 @@
+import type { z } from 'zod'
+import { SvgPropertiesSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, InProperties, RenderContext, SvgOutProperties } from '@pmndrs/uikit'
 import { ChevronDownIcon } from '@pmndrs/uikit-lucide'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
+export const DropdownButtonPropertiesSchema = SvgPropertiesSchema
 
 export type DropdownButtonOutProperties = SvgOutProperties
 
-export type DropdownButtonProperties = InProperties<DropdownButtonOutProperties>
+export type DropdownButtonProperties = z.input<typeof DropdownButtonPropertiesSchema>
 
 export class DropdownButton extends ChevronDownIcon<DropdownButtonOutProperties> {
   constructor(

@@ -1,14 +1,25 @@
+import { boolean, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
+export const TabsTriggerOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    disabled: boolean().optional(),
+    value: string().optional(),
+  }).strict(),
+)
 
-export type TabsTriggerOutProperties = BaseOutProperties & {
-  disabled?: boolean
-  value?: string
-}
+export const TabsTriggerPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(TabsTriggerOutPropertiesSchema),
+)
 
-export type TabsTriggerProperties = InProperties<TabsTriggerOutProperties>
+export type TabsTriggerOutProperties = BaseOutProperties & z.output<typeof TabsTriggerOutPropertiesSchema>
+
+export type TabsTriggerProperties = z.input<typeof TabsTriggerPropertiesSchema>
 
 export class TabsTrigger extends Container<TabsTriggerOutProperties> {
   constructor(

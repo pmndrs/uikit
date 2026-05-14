@@ -6,10 +6,9 @@ import { PointScaleFactor, createYogaNode } from './yoga.js'
 import { abortableEffect } from '../utils.js'
 import { Component } from '../components/component.js'
 import { BaseOutProperties } from '../properties/index.js'
+import type { YogaProperties } from './schema.js'
 
-export type YogaProperties = {
-  [Key in keyof typeof setter]?: Parameters<(typeof setter)[Key]>[2]
-}
+export type { YogaProperties } from './schema.js'
 
 export type Inset = [top: number, right: number, bottom: number, left: number]
 

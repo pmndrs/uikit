@@ -1,7 +1,10 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, ContainerProperties } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
+export const MenubarPropertiesSchema = ContainerPropertiesSchema
 
-export type MenubarProperties = ContainerProperties
+export type MenubarProperties = z.input<typeof MenubarPropertiesSchema>
 
 export class Menubar extends Container {
   constructor(

@@ -1,3 +1,6 @@
+import { boolean, enum as enumSchema } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '../properties/schema.js'
 import { computed, Signal, signal } from '@preact/signals-core'
 import { Box3, Color, Matrix4, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, Vector3 } from 'three'
 import { ElementType, OrderInfo, setupOrderInfo, setupRenderOrder } from '../order.js'
@@ -14,6 +17,15 @@ import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
 import { InstancedPanelMesh } from '../panel/instance/mesh.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
+export const contentOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  baseOutPropertiesSchema.extend({
+    depthAlign: enumSchema(['back', 'center', 'middle', 'front']).optional(),
+    keepAspectRatio: boolean().optional(),
+  }),
+)
+export const ContentPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(contentOutPropertiesSchema),
+)
 
 export const contentDefaults = {
   ...componentDefaults,
@@ -22,8 +34,7 @@ export const contentDefaults = {
 }
 
 export type ContentOutProperties = typeof contentDefaults & BaseOutProperties
-
-export type ContentProperties = InProperties<ContentOutProperties>
+export type ContentProperties = z.input<typeof ContentPropertiesSchema>
 
 const IdentityQuaternion = new Quaternion()
 const IdentityMatrix = new Matrix4()

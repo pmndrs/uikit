@@ -1,15 +1,25 @@
-import { Signal, computed, effect, signal } from '@preact/signals-core'
-import { Texture, TypedArray } from 'three'
+import {
+  any as anySchema,
+  boolean,
+  custom,
+  enum as enumSchema,
+  number,
+  partialRecord,
+  record,
+  string,
+  union,
+} from 'zod'
+import type { z } from 'zod'
+import { computed, effect, signal } from '@preact/signals-core'
+import type { Signal } from '@preact/signals-core'
+import type { Texture, TypedArray } from 'three'
 import { loadCachedFont } from './cache.js'
-import { Properties } from '../properties/index.js'
-import { inter } from '@pmndrs/msdfonts'
-import { Container } from '../components/container.js'
+import type { Properties } from '../properties/index.js'
+import type { Container } from '../components/container.js'
+import { isNumericString, type NumericString } from '../properties/values.js'
+import { defineSchema } from '../properties/schema.js'
 
-export type FontFamilyWeightMap = Partial<Record<FontWeight, string | FontInfo>>
-
-export type FontFamilies = Record<string, FontFamilyWeightMap>
-
-const fontWeightNames = {
+export const fontWeightNames = {
   thin: 100,
   'extra-light': 200,
   light: 300,
@@ -20,14 +30,107 @@ const fontWeightNames = {
   'extra-bold': 800,
   black: 900,
   'extra-black': 950,
+} as const
+
+const numericStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<NumericString>(isNumericString, 'Expected a numeric string'),
+)
+const namedFontWeightSchema = /* @__PURE__ */ defineSchema(() =>
+  enumSchema(Object.keys(fontWeightNames) as [keyof typeof fontWeightNames, ...(keyof typeof fontWeightNames)[]]),
+)
+const fontWeightKeySchema = /* @__PURE__ */ defineSchema(() => union([namedFontWeightSchema, numericStringSchema]))
+
+export const FontWeightSchema = /* @__PURE__ */ defineSchema(() =>
+  union([number(), namedFontWeightSchema, numericStringSchema]),
+)
+
+export type FontWeight = z.input<typeof FontWeightSchema>
+
+export type GlyphInfo = {
+  id: number
+  index: number
+  char: string
+  width: number
+  height: number
+  x: number
+  y: number
+  xoffset: number
+  yoffset: number
+  xadvance: number
+  chnl: number
+  page: number
+  uvWidth?: number
+  uvHeight?: number
+  uvX?: number
+  uvY?: number
+  renderSolid?: boolean
 }
 
-export type FontWeight = keyof typeof fontWeightNames | number | ({} & string)
+export type FontInfo = {
+  pages: Array<string>
+  chars: Array<GlyphInfo>
+  info: {
+    face: string
+    size: number
+    bold: number
+    italic: number
+    charset: Array<string>
+    unicode: number
+    stretchH: number
+    smooth: number
+    aa: number
+    padding: Array<number>
+    spacing: Array<number>
+    outline: number
+  }
+  common: {
+    lineHeight: number
+    base: number
+    scaleW: number
+    scaleH: number
+    pages: number
+    packed: number
+    alphaChnl: number
+    redChnl: number
+    greenChnl: number
+    blueChnl: number
+  }
+  distanceField: {
+    fieldType: string
+    distanceRange: number
+  }
+  kernings: Array<{
+    first: number
+    second: number
+    amount: number
+  }>
+}
+
+export type FontInfoSource = string | FontInfo | (() => string | FontInfo | Promise<string | FontInfo>)
+
+const fontFamilyWeightMapEntrySchema = /* @__PURE__ */ defineSchema(
+  () => anySchema() as z.ZodType<FontInfoSource, FontInfoSource>,
+)
+
+export const FontFamilyWeightMapSchema = /* @__PURE__ */ defineSchema(() =>
+  partialRecord(fontWeightKeySchema, fontFamilyWeightMapEntrySchema),
+)
+
+export type FontFamilyWeightMap = z.input<typeof FontFamilyWeightMapSchema>
+
+export const FontFamiliesSchema = /* @__PURE__ */ defineSchema(() => record(string(), FontFamilyWeightMapSchema))
+
+export type FontFamilies = z.input<typeof FontFamiliesSchema>
 
 export type FontFamilyProperties = { fontFamily?: string; fontWeight?: FontWeight; fontFamilies?: FontFamilies }
 
 const defaultFontFamiles: FontFamilies = {
-  inter,
+  inter: {
+    light: () => import('@pmndrs/msdfonts/inter').then(({ inter }) => inter.light),
+    medium: () => import('@pmndrs/msdfonts/inter').then(({ inter }) => inter.medium),
+    'semi-bold': () => import('@pmndrs/msdfonts/inter').then(({ inter }) => inter['semi-bold']),
+    bold: () => import('@pmndrs/msdfonts/inter').then(({ inter }) => inter.bold),
+  },
 }
 
 export function computedFontFamilies(properties: Properties, parent: Signal<Container | undefined>) {
@@ -86,10 +189,10 @@ export function computedFont(
   return result
 }
 
-function getMatchingFontUrl(fontFamily: FontFamilyWeightMap, weight: number): string | FontInfo {
+function getMatchingFontUrl(fontFamily: FontFamilyWeightMap, weight: number): FontInfoSource {
   let distance = Infinity
-  let result: string | FontInfo | undefined
-  for (const fontWeight in fontFamily) {
+  let result: FontInfoSource | undefined
+  for (const fontWeight of Object.keys(fontFamily) as Array<keyof FontFamilyWeightMap>) {
     const d = Math.abs(weight - getWeightNumber(fontWeight))
     if (d === 0) {
       return fontFamily[fontWeight]!
@@ -114,66 +217,6 @@ function getWeightNumber(value: string): number {
     throw new Error(`invalid font weight "${value}"`)
   }
   return number
-}
-
-export type FontInfo = {
-  pages: Array<string>
-  chars: Array<GlyphInfo>
-  info: {
-    face: string
-    size: number
-    bold: number
-    italic: number
-    charset: Array<string>
-    unicode: number
-    stretchH: number
-    smooth: number
-    aa: number
-    padding: Array<number>
-    spacing: Array<number>
-    outline: number
-  }
-  common: {
-    lineHeight: number
-    base: number
-    scaleW: number
-    scaleH: number
-    pages: number
-    packed: number
-    alphaChnl: number
-    redChnl: number
-    greenChnl: number
-    blueChnl: number
-  }
-  distanceField: {
-    fieldType: string
-    distanceRange: number
-  }
-  kernings: Array<{
-    first: number
-    second: number
-    amount: number
-  }>
-}
-
-export type GlyphInfo = {
-  id: number
-  index: number
-  char: string
-  width: number
-  height: number
-  x: number
-  y: number
-  xoffset: number
-  yoffset: number
-  xadvance: number
-  chnl: number
-  page: number
-  uvWidth?: number
-  uvHeight?: number
-  uvX?: number
-  uvY?: number
-  renderSolid?: boolean
 }
 
 const MISSING_GLYPH: GlyphInfo = {

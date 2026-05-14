@@ -18,7 +18,7 @@ import { Sidebar } from './components/sidebar.js'
 import { playlists } from './data/playlists.js'
 import { Menu } from './components/menu.js'
 import { create } from 'zustand'
-import { noEvents, PointerEvents } from '@react-three/xr'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
 
 export default function App() {
   return (

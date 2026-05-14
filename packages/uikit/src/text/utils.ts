@@ -1,6 +1,7 @@
 import { GlyphLayout } from './layout/index.js'
 import { Font, GlyphInfo } from './font.js'
 import { RootContext } from '../context.js'
+import { parseAbsoluteNumber } from '../properties/values.js'
 
 export function getGlyphOffsetX(glyphInfo: GlyphInfo, fontSize: number): number {
   return glyphInfo.xoffset * fontSize
@@ -16,28 +17,9 @@ export function getKerningOffset(
   return font.getKerning(prevGlyphId, glyphInfo.id) * fontSize
 }
 
-//order is important here as we need to check vh and vw last
-const vhSymbols = ['dvh', 'svh', 'lvh', 'vh']
-const vwSymbols = ['dvw', 'svw', 'lvw', 'vw']
-
 export function toAbsoluteNumber(value: number | string, getRelativeValue?: () => number, root?: RootContext): number {
-  if (typeof value === 'number') {
-    return value
-  }
-  const number = parseFloat(value)
-  if (isNaN(number)) {
-    throw new Error(`Invalid number: ${value}`)
-  }
-  if (getRelativeValue != null && value.endsWith('%')) {
-    return (getRelativeValue() * number) / 100
-  }
-  if (root != null && vhSymbols.some((symbol) => value.endsWith(symbol))) {
-    return ((root.component.size.value?.[1] ?? 0) * number) / 100
-  }
-  if (root != null && vwSymbols.some((symbol) => value.endsWith(symbol))) {
-    return ((root.component.size.value?.[1] ?? 0) * number) / 100
-  }
-  return number
+  const [width, height] = root?.component.size.value ?? []
+  return parseAbsoluteNumber(value, getRelativeValue, width, height)
 }
 
 export function getGlyphOffsetY(fontSize: number, lineHeight: number, glyphInfo?: GlyphInfo): number {

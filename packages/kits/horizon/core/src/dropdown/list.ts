@@ -1,11 +1,18 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
+export const DropdownListOutPropertiesSchema = baseOutPropertiesSchema
 
-export type DropdownListOutProperties = BaseOutProperties
+export const DropdownListPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DropdownListOutPropertiesSchema),
+)
 
-export type DropdownListProperties = InProperties<DropdownListOutProperties>
+export type DropdownListOutProperties = BaseOutProperties & z.output<typeof DropdownListOutPropertiesSchema>
+
+export type DropdownListProperties = z.input<typeof DropdownListPropertiesSchema>
 export class DropdownList extends Container<DropdownListOutProperties> {
   constructor(
     inputProperties?: InProperties<DropdownListOutProperties>,

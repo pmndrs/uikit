@@ -1,12 +1,23 @@
+import { boolean, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
+export const LabelOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    disabled: boolean().optional(),
+  }).strict(),
+)
 
-export type LabelOutProperties = {
-  disabled?: boolean
-} & BaseOutProperties
+export const LabelPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(LabelOutPropertiesSchema),
+)
 
-export type LabelProperties = InProperties<LabelOutProperties>
+export type LabelOutProperties = BaseOutProperties & z.output<typeof LabelOutPropertiesSchema>
+
+export type LabelProperties = z.input<typeof LabelPropertiesSchema>
 
 export class Label extends Container<LabelOutProperties> {
   constructor(

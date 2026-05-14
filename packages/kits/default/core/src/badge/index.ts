@@ -1,3 +1,6 @@
+import { enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   Container,
@@ -9,7 +12,6 @@ import {
 } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
-
 type BadgeVariantProps = Pick<ContainerProperties, 'hover' | 'backgroundColor' | 'color'>
 
 const _badgeVariants = {
@@ -39,11 +41,22 @@ const _badgeVariants = {
 
 const badgeVariants = _badgeVariants as UnionizeVariants<typeof _badgeVariants>
 
-export type BadgeProperties = InProperties<BadgeOutProperties>
+export const BadgeOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    variant: enumSchema(
+      Object.keys(badgeVariants) as [keyof typeof badgeVariants, ...(keyof typeof badgeVariants)[]],
+    ).optional(),
+  }).strict(),
+)
 
-export type BadgeOutProperties = BaseOutProperties & {
-  variant?: keyof typeof badgeVariants
-}
+export const BadgePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(BadgeOutPropertiesSchema),
+)
+
+export type BadgeOutProperties = BaseOutProperties & z.output<typeof BadgeOutPropertiesSchema>
+
+export type BadgeProperties = z.input<typeof BadgePropertiesSchema>
 
 export class Badge extends Container<BadgeOutProperties> {
   constructor(

@@ -1,12 +1,23 @@
+import { number, object, string, union } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
+export const ProgressOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    value: union([number(), string()]).optional(),
+  }).strict(),
+)
 
-export type ProgressOutProperties = {
-  value?: number | string
-} & BaseOutProperties
+export const ProgressPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ProgressOutPropertiesSchema),
+)
 
-export type ProgressProperties = InProperties<ProgressOutProperties>
+export type ProgressOutProperties = BaseOutProperties & z.output<typeof ProgressOutPropertiesSchema>
+
+export type ProgressProperties = z.input<typeof ProgressPropertiesSchema>
 
 export class Progress extends Container<ProgressOutProperties> {
   public readonly fill: Container

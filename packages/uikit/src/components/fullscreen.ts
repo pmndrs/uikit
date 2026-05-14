@@ -1,13 +1,23 @@
+import { number } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '../properties/schema.js'
 import { Camera, OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { batch, Signal, signal } from '@preact/signals-core'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { searchFor } from '../utils.js'
 import { Container } from './container.js'
-
-export type FullscreenProperties = InProperties<FullscreenOutProperties>
+export const fullscreenOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  baseOutPropertiesSchema.extend({
+    distanceToCamera: number().optional(),
+  }),
+)
+export const FullscreenPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(fullscreenOutPropertiesSchema),
+)
 
 export type FullscreenOutProperties = BaseOutProperties & { distanceToCamera?: number }
+export type FullscreenProperties = z.input<typeof FullscreenPropertiesSchema>
 
 const vectorHelper = new Vector2()
 

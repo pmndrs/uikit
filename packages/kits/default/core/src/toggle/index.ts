@@ -1,3 +1,6 @@
+import { boolean, custom, enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   Container,
   ContainerProperties,
@@ -8,7 +11,6 @@ import {
 } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
-
 const _toggleVariants = {
   default: {},
   outline: {
@@ -27,16 +29,29 @@ const toggleSizes = {
   lg: { height: 44, paddingX: 20 },
 } satisfies { [Key in string]: ContainerProperties }
 
-export type ToggleOutProperties = {
-  checked?: boolean
-  disabled?: boolean
-  defaultChecked?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  variant?: keyof typeof toggleVariants
-  size?: keyof typeof toggleSizes
-} & BaseOutProperties
+export const ToggleOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    checked: boolean().optional(),
+    disabled: boolean().optional(),
+    defaultChecked: boolean().optional(),
+    onCheckedChange: custom<(checked: boolean) => void>((value) => typeof value === 'function').optional(),
+    variant: enumSchema(
+      Object.keys(toggleVariants) as [keyof typeof toggleVariants, ...(keyof typeof toggleVariants)[]],
+    ).optional(),
+    size: enumSchema(
+      Object.keys(toggleSizes) as [keyof typeof toggleSizes, ...(keyof typeof toggleSizes)[]],
+    ).optional(),
+  }).strict(),
+)
 
-export type ToggleProperties = InProperties<ToggleOutProperties>
+export const TogglePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ToggleOutPropertiesSchema),
+)
+
+export type ToggleOutProperties = BaseOutProperties & z.output<typeof ToggleOutPropertiesSchema>
+
+export type ToggleProperties = z.input<typeof TogglePropertiesSchema>
 
 export class Toggle extends Container<ToggleOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

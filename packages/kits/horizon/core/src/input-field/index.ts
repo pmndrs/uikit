@@ -1,27 +1,33 @@
+import { custom, string } from 'zod'
+import type { z } from 'zod'
+import { createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Component, Container, InProperties, RenderContext, Text } from '@pmndrs/uikit'
-import { Input, InputOutProperties } from '../input/index.js'
+import { Input, InputOutProperties, InputOutPropertiesSchema } from '../input/index.js'
 import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
-
-export type InputFieldOutProperties = InputOutProperties & {
-  label?: string
-  leftIcon?: {
-    new (
-      InputFieldProperties: any,
-      initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties> },
-    ): Component
-  }
-  rightIcon?: {
-    new (
-      InputFieldProperties: any,
-      initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties> },
-    ): Component
-  }
+type InputFieldIcon = {
+  new (
+    inputFieldProperties: any,
+    initialClasses: any,
+    config: { defaultOverrides?: InProperties<BaseOutProperties> },
+  ): Component
 }
 
-export type InputFieldProperties = InProperties<InputFieldOutProperties>
+export const InputFieldOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  InputOutPropertiesSchema.extend({
+    label: string().optional(),
+    leftIcon: custom<InputFieldIcon>((value) => typeof value === 'function').optional(),
+    rightIcon: custom<InputFieldIcon>((value) => typeof value === 'function').optional(),
+  }),
+)
+
+export const InputFieldPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(InputFieldOutPropertiesSchema),
+)
+
+export type InputFieldOutProperties = InputOutProperties & z.output<typeof InputFieldOutPropertiesSchema>
+
+export type InputFieldProperties = z.input<typeof InputFieldPropertiesSchema>
 
 export class InputField extends Container<InputFieldOutProperties> {
   public readonly label: Text

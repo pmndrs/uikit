@@ -1,13 +1,24 @@
+import { number, object, string, union } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
 import { Tooltip } from './index.js'
+export const TooltipContentOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    sideOffset: union([number(), string()]).optional(),
+  }).strict(),
+)
 
-export type TooltipContentProperties = InProperties<TooltipContentOutProperties>
+export const TooltipContentPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(TooltipContentOutPropertiesSchema),
+)
 
-export type TooltipContentOutProperties = BaseOutProperties & {
-  sideOffset?: number | string
-}
+export type TooltipContentOutProperties = BaseOutProperties & z.output<typeof TooltipContentOutPropertiesSchema>
+
+export type TooltipContentProperties = z.input<typeof TooltipContentPropertiesSchema>
 
 export class TooltipContent extends Container<TooltipContentOutProperties> {
   constructor(

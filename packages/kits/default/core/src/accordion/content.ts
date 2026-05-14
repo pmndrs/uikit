@@ -1,10 +1,13 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { searchFor, BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
 import { colors, componentDefaults } from '../theme.js'
+export const AccordionContentPropertiesSchema = ContainerPropertiesSchema
 
-export type AccordionContentProperties = InProperties<BaseOutProperties>
+export type AccordionContentProperties = z.input<typeof AccordionContentPropertiesSchema>
 
 export class AccordionContent extends Container<BaseOutProperties> {
   constructor(

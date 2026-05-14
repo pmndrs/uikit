@@ -1,3 +1,6 @@
+import { boolean, enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   Component,
@@ -9,7 +12,6 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
-
 type ButtonVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'hover' | 'color' | 'active' | 'important'>
 
 const _buttonVariants = {
@@ -109,26 +111,27 @@ const _buttonSizes = {
 } satisfies Record<string, ButtonSizeProps>
 const buttonSizes = _buttonSizes as UnionizeVariants<typeof _buttonSizes>
 
-export type ButtonOutProperties = BaseOutProperties & {
-  /**
-   * @default "primary"
-   */
-  variant?: keyof typeof buttonVariants
-  /**
-   * @default "lg"
-   */
-  size?: keyof typeof buttonSizes
-  /**
-   * @default false
-   */
-  disabled?: boolean
-  /**
-   * @default false
-   */
-  icon?: boolean
-}
+export const ButtonOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    variant: enumSchema(
+      Object.keys(buttonVariants) as [keyof typeof buttonVariants, ...(keyof typeof buttonVariants)[]],
+    ).optional(),
+    size: enumSchema(
+      Object.keys(buttonSizes) as [keyof typeof buttonSizes, ...(keyof typeof buttonSizes)[]],
+    ).optional(),
+    disabled: boolean().optional(),
+    icon: boolean().optional(),
+  }).strict(),
+)
 
-export type ButtonProperties = InProperties<ButtonOutProperties>
+export const ButtonPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ButtonOutPropertiesSchema),
+)
+
+export type ButtonOutProperties = BaseOutProperties & z.output<typeof ButtonOutPropertiesSchema>
+
+export type ButtonProperties = z.input<typeof ButtonPropertiesSchema>
 
 export class Button extends Container<ButtonOutProperties> {
   constructor(

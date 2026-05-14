@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '../properties/schema.js'
 import { computed } from '@preact/signals-core'
 import { createGlobalClippingPlanes } from '../clipping.js'
 import { setupOrderInfo, ElementType, setupRenderOrder } from '../order.js'
@@ -6,12 +8,14 @@ import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
 import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
 import { RenderContext } from '../context.js'
-
-export type CustomProperties = InProperties<BaseOutProperties>
+export const CustomPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(baseOutPropertiesSchema),
+)
 
 export type CustomOutProperties = BaseOutProperties
+export type CustomProperties = z.input<typeof CustomPropertiesSchema>
 
-export class Custom<OutProperties extends BaseOutProperties = BaseOutProperties> extends Component<OutProperties> {
+export class Custom<OutProperties extends CustomOutProperties = CustomOutProperties> extends Component<OutProperties> {
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: Array<InProperties<BaseOutProperties> | string>,

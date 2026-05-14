@@ -1,8 +1,11 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { abortableEffect, BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { Signal, signal } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
+export const SkeletonPropertiesSchema = ContainerPropertiesSchema
 
-export type SkeletonProperties = InProperties<BaseOutProperties>
+export type SkeletonProperties = z.input<typeof SkeletonPropertiesSchema>
 
 export class Skeleton extends Container<BaseOutProperties> {
   private readonly opacity: Signal<number>

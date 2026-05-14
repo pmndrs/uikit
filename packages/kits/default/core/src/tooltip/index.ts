@@ -1,8 +1,11 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { signal } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
+export const TooltipPropertiesSchema = ContainerPropertiesSchema
 
-export type TooltipProperties = InProperties<BaseOutProperties>
+export type TooltipProperties = z.input<typeof TooltipPropertiesSchema>
 
 export class Tooltip extends Container<BaseOutProperties> {
   readonly open = signal(false)

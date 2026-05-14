@@ -1,32 +1,243 @@
 {
-    "name": "@pmndrs/msdfonts",
-    "version": "0.0.0",
-    "description": "base64 msdf fonts distributed as npm package",
-    "files": [
-      "dist"
-    ],
-    "keywords": [
-      "fonts",
-      "uikit",
-      "icons",
-      "threejs",
-      "r3f",
-      "msdf"
-    ],
-    "author": "Bela Bohlender",
-    "license": "SEE LICENSE IN LICENSE",
-    "homepage": "https://github.com/pmndrs/uikit",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/pmndrs/uikit"
+  "name": "@pmndrs/msdfonts",
+  "version": "0.0.0",
+  "description": "base64 msdf fonts distributed as npm package",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "fonts",
+    "uikit",
+    "icons",
+    "threejs",
+    "r3f",
+    "msdf"
+  ],
+  "author": "Bela Bohlender",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/pmndrs/uikit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pmndrs/uikit"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "type": "module",
+  "main": "src/index.ts",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./inter": {
+        "types": "./dist/inter.d.ts",
+        "default": "./dist/inter.js"
+      },
+      "./roboto": {
+        "types": "./dist/roboto.d.ts",
+        "default": "./dist/roboto.js"
+      },
+      "./openSans": {
+        "types": "./dist/openSans.d.ts",
+        "default": "./dist/openSans.js"
+      },
+      "./open-sans": {
+        "types": "./dist/openSans.d.ts",
+        "default": "./dist/openSans.js"
+      },
+      "./lato": {
+        "types": "./dist/lato.d.ts",
+        "default": "./dist/lato.js"
+      },
+      "./poppins": {
+        "types": "./dist/poppins.d.ts",
+        "default": "./dist/poppins.js"
+      },
+      "./montserrat": {
+        "types": "./dist/montserrat.d.ts",
+        "default": "./dist/montserrat.js"
+      },
+      "./nunito": {
+        "types": "./dist/nunito.d.ts",
+        "default": "./dist/nunito.js"
+      },
+      "./raleway": {
+        "types": "./dist/raleway.d.ts",
+        "default": "./dist/raleway.js"
+      },
+      "./workSans": {
+        "types": "./dist/workSans.d.ts",
+        "default": "./dist/workSans.js"
+      },
+      "./work-sans": {
+        "types": "./dist/workSans.d.ts",
+        "default": "./dist/workSans.js"
+      },
+      "./playfairDisplay": {
+        "types": "./dist/playfairDisplay.d.ts",
+        "default": "./dist/playfairDisplay.js"
+      },
+      "./playfair-display": {
+        "types": "./dist/playfairDisplay.d.ts",
+        "default": "./dist/playfairDisplay.js"
+      },
+      "./merriweather": {
+        "types": "./dist/merriweather.d.ts",
+        "default": "./dist/merriweather.js"
+      },
+      "./libreBaskerville": {
+        "types": "./dist/libreBaskerville.d.ts",
+        "default": "./dist/libreBaskerville.js"
+      },
+      "./libre-baskerville": {
+        "types": "./dist/libreBaskerville.d.ts",
+        "default": "./dist/libreBaskerville.js"
+      },
+      "./crimsonText": {
+        "types": "./dist/crimsonText.d.ts",
+        "default": "./dist/crimsonText.js"
+      },
+      "./crimson-text": {
+        "types": "./dist/crimsonText.d.ts",
+        "default": "./dist/crimsonText.js"
+      },
+      "./firaCode": {
+        "types": "./dist/firaCode.d.ts",
+        "default": "./dist/firaCode.js"
+      },
+      "./fira-code": {
+        "types": "./dist/firaCode.d.ts",
+        "default": "./dist/firaCode.js"
+      },
+      "./sourceCodePro": {
+        "types": "./dist/sourceCodePro.d.ts",
+        "default": "./dist/sourceCodePro.js"
+      },
+      "./source-code-pro": {
+        "types": "./dist/sourceCodePro.d.ts",
+        "default": "./dist/sourceCodePro.js"
+      },
+      "./inconsolata": {
+        "types": "./dist/inconsolata.d.ts",
+        "default": "./dist/inconsolata.js"
+      },
+      "./spaceMono": {
+        "types": "./dist/spaceMono.d.ts",
+        "default": "./dist/spaceMono.js"
+      },
+      "./space-mono": {
+        "types": "./dist/spaceMono.d.ts",
+        "default": "./dist/spaceMono.js"
+      }
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
-    "scripts": {
-      "build": "tsc"
+    "./inter": {
+      "types": "./src/inter.ts",
+      "default": "./src/inter.ts"
     },
-    "type": "module",
-    "main": "src/index.ts",
-    "publishConfig": {
-      "main": "dist/index.js"
+    "./roboto": {
+      "types": "./src/roboto.ts",
+      "default": "./src/roboto.ts"
+    },
+    "./openSans": {
+      "types": "./src/openSans.ts",
+      "default": "./src/openSans.ts"
+    },
+    "./open-sans": {
+      "types": "./src/openSans.ts",
+      "default": "./src/openSans.ts"
+    },
+    "./lato": {
+      "types": "./src/lato.ts",
+      "default": "./src/lato.ts"
+    },
+    "./poppins": {
+      "types": "./src/poppins.ts",
+      "default": "./src/poppins.ts"
+    },
+    "./montserrat": {
+      "types": "./src/montserrat.ts",
+      "default": "./src/montserrat.ts"
+    },
+    "./nunito": {
+      "types": "./src/nunito.ts",
+      "default": "./src/nunito.ts"
+    },
+    "./raleway": {
+      "types": "./src/raleway.ts",
+      "default": "./src/raleway.ts"
+    },
+    "./workSans": {
+      "types": "./src/workSans.ts",
+      "default": "./src/workSans.ts"
+    },
+    "./work-sans": {
+      "types": "./src/workSans.ts",
+      "default": "./src/workSans.ts"
+    },
+    "./playfairDisplay": {
+      "types": "./src/playfairDisplay.ts",
+      "default": "./src/playfairDisplay.ts"
+    },
+    "./playfair-display": {
+      "types": "./src/playfairDisplay.ts",
+      "default": "./src/playfairDisplay.ts"
+    },
+    "./merriweather": {
+      "types": "./src/merriweather.ts",
+      "default": "./src/merriweather.ts"
+    },
+    "./libreBaskerville": {
+      "types": "./src/libreBaskerville.ts",
+      "default": "./src/libreBaskerville.ts"
+    },
+    "./libre-baskerville": {
+      "types": "./src/libreBaskerville.ts",
+      "default": "./src/libreBaskerville.ts"
+    },
+    "./crimsonText": {
+      "types": "./src/crimsonText.ts",
+      "default": "./src/crimsonText.ts"
+    },
+    "./crimson-text": {
+      "types": "./src/crimsonText.ts",
+      "default": "./src/crimsonText.ts"
+    },
+    "./firaCode": {
+      "types": "./src/firaCode.ts",
+      "default": "./src/firaCode.ts"
+    },
+    "./fira-code": {
+      "types": "./src/firaCode.ts",
+      "default": "./src/firaCode.ts"
+    },
+    "./sourceCodePro": {
+      "types": "./src/sourceCodePro.ts",
+      "default": "./src/sourceCodePro.ts"
+    },
+    "./source-code-pro": {
+      "types": "./src/sourceCodePro.ts",
+      "default": "./src/sourceCodePro.ts"
+    },
+    "./inconsolata": {
+      "types": "./src/inconsolata.ts",
+      "default": "./src/inconsolata.ts"
+    },
+    "./spaceMono": {
+      "types": "./src/spaceMono.ts",
+      "default": "./src/spaceMono.ts"
+    },
+    "./space-mono": {
+      "types": "./src/spaceMono.ts",
+      "default": "./src/spaceMono.ts"
     }
   }
-  
+}

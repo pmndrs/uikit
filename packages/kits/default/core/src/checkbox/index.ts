@@ -1,16 +1,27 @@
+import { boolean, custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { InProperties, BaseOutProperties, Container, RenderContext } from '@pmndrs/uikit'
 import { CheckIcon } from '@pmndrs/uikit-lucide'
 import { signal, computed } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults, contentDefaults } from '../theme.js'
+export const CheckboxOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    checked: boolean().optional(),
+    disabled: boolean().optional(),
+    onCheckedChange: custom<(checked: boolean) => void>((value) => typeof value === 'function').optional(),
+    defaultChecked: boolean().optional(),
+  }).strict(),
+)
 
-export type CheckboxOutProperties = BaseOutProperties & {
-  checked?: boolean
-  disabled?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  defaultChecked?: boolean
-}
+export const CheckboxPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(CheckboxOutPropertiesSchema),
+)
 
-export type CheckboxProperties = InProperties<CheckboxOutProperties>
+export type CheckboxOutProperties = BaseOutProperties & z.output<typeof CheckboxOutPropertiesSchema>
+
+export type CheckboxProperties = z.input<typeof CheckboxPropertiesSchema>
 
 export class Checkbox extends Container<CheckboxOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

@@ -1,16 +1,36 @@
+import { boolean, enum as enumSchema, number, string } from 'zod'
+import type { z } from 'zod'
+import { createInPropertiesSchema, defineSchema, functionSchema } from '../properties/schema.js'
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlersProperties } from '../events.js'
 import { Vector2Tuple } from 'three'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { getSelectionTransformations } from '../text/index.js'
 import { abortableEffect } from '../utils.js'
-import { Text, TextOutProperties, textDefaults } from './text.js'
+import { Text, TextOutProperties, textDefaults, textOutPropertiesSchema } from './text.js'
 import { setupCaret } from '../text/selection/caret.js'
 import { createSelection } from '../text/selection/ranges.js'
 import { setupSelectionHandlers } from '../text/selection/pointer.js'
 import { updateHtmlSelectionRange } from '../text/selection/state.js'
 import { createHtmlInputElement, setupHtmlInputElement, setupUpdateHasFocus } from '../text/input/hidden-input.js'
 import { RenderContext } from '../context.js'
+export const inputOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  textOutPropertiesSchema.omit({ text: true }).extend({
+    placeholder: string().optional(),
+    defaultValue: string().optional(),
+    value: string().optional(),
+    disabled: boolean().optional(),
+    tabIndex: number().optional(),
+    autocomplete: string().optional(),
+    type: enumSchema(['text', 'password', 'number']).optional(),
+    onValueChange: functionSchema.optional(),
+    onFocusChange: functionSchema.optional(),
+    whiteSpace: enumSchema(['normal', 'collapse', 'pre', 'pre-line']).optional(),
+  }),
+)
+export const InputPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(inputOutPropertiesSchema),
+)
 
 export type InputType = 'text' | 'password' | 'number'
 
@@ -24,22 +44,8 @@ export type InputOutProperties = Omit<TextOutProperties, 'text'> & {
   type: InputType
   onValueChange?: (value: string) => void
   onFocusChange?: (focus: boolean) => void
-} & Omit<
-    Partial<HTMLInputElement>,
-    | 'width'
-    | 'height'
-    | 'value'
-    | 'disabled'
-    | 'type'
-    | 'focus'
-    | 'active'
-    | 'checked'
-    | 'defaultChecked'
-    | 'size'
-    | 'classList'
-  >
-
-export type InputProperties = Omit<InProperties<InputOutProperties>, 'text'>
+}
+export type InputProperties = z.input<typeof InputPropertiesSchema>
 
 export const inputDefaults: InputOutProperties = {
   ...textDefaults,

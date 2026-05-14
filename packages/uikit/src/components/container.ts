@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '../properties/schema.js'
 import { computed, signal, Signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
 import { ClippingRect, computedClippingRect } from '../clipping.js'
@@ -17,10 +19,12 @@ import { computedPanelGroupDependencies } from '../panel/instance/properties.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { Component } from './component.js'
-
-export type ContainerProperties = InProperties<BaseOutProperties>
+export const ContainerPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(baseOutPropertiesSchema),
+)
 
 export type ContainerOutProperties = BaseOutProperties
+export type ContainerProperties = z.input<typeof ContainerPropertiesSchema>
 
 export class Container<OutProperties extends BaseOutProperties = BaseOutProperties> extends Component<OutProperties> {
   readonly downPointerMap = new Map<

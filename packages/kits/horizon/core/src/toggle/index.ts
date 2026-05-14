@@ -1,15 +1,26 @@
+import { boolean, custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
+export const ToggleOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    checked: boolean().optional(),
+    disabled: boolean().optional(),
+    onCheckedChange: custom<(checked: boolean) => void>((value) => typeof value === 'function').optional(),
+    defaultChecked: boolean().optional(),
+  }).strict(),
+)
 
-export type ToggleOutProperties = BaseOutProperties & {
-  checked?: boolean
-  disabled?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  defaultChecked?: boolean
-}
+export const TogglePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ToggleOutPropertiesSchema),
+)
 
-export type ToggleProperties = InProperties<ToggleOutProperties>
+export type ToggleOutProperties = BaseOutProperties & z.output<typeof ToggleOutPropertiesSchema>
+
+export type ToggleProperties = z.input<typeof TogglePropertiesSchema>
 
 export class Toggle extends Container<ToggleOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

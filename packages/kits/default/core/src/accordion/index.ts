@@ -1,8 +1,11 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, ContainerProperties, InProperties, RenderContext } from '@pmndrs/uikit'
 import { signal } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
+export const AccordionPropertiesSchema = ContainerPropertiesSchema
 
-export type AccordionProperties = ContainerProperties
+export type AccordionProperties = z.input<typeof AccordionPropertiesSchema>
 
 export class Accordion extends Container {
   readonly openItemValue = signal<string | undefined>(undefined)

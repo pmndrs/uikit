@@ -16,8 +16,8 @@ import { ProgressDemo } from './components/progress.js'
 import { RadioGroupDemo } from './components/radio-group.js'
 import { SliderDemo } from './components/slider.js'
 import { ToggleDemo } from './components/toggle.js'
-import { noEvents, PointerEvents } from '@react-three/xr'
-import { firaCode } from '@pmndrs/msdfonts'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
+import { firaCode } from '@pmndrs/msdfonts/fira-code'
 
 const componentPages = {
   avatar: AvatarDemo,

@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, type SchemaInProperties, type SchemaLayerProperties } from './schema.js'
 import {
   PropertiesImplementation as BasePropertiesImplementation,
   Properties as BaseProperties,
@@ -26,72 +28,19 @@ import {
   SpecialLayerSections,
   LayersSectionSize,
 } from './layer.js'
-
-export type BaseOutProperties = YogaProperties &
-  PanelProperties &
-  ZIndexProperties &
-  TransformProperties &
-  ScrollbarProperties &
-  PanelGroupProperties &
-  VisibilityProperties &
-  PointerEventsProperties &
-  ListenersProperties &
-  EventHandlersProperties &
-  TextAlignProperties &
-  AppearanceProperties &
-  FontFamilyProperties &
-  GlyphProperties &
-  CaretProperties &
-  SelectionProperties &
-  SizeProperties &
-  AnchorProperties &
-  CursorProperties &
-  IdProperties &
-  ComponentDefaultsProperties
-
-export type CursorProperties = {
-  cursor?: string
-}
-
-export type IdProperties = {
-  id?: string
-}
+export type BaseOutProperties = z.output<typeof baseOutPropertiesSchema> & ComponentDefaultsProperties
 
 export type UikitPropertyKeys = keyof BaseOutProperties
-
-export type AppearanceProperties = {
-  fill?: ColorRepresentation
-  color?: ColorRepresentation
-  opacity?: number | `${number}%`
-}
-
-export type SizeProperties = {
-  pixelSize?: number
-  sizeX?: number
-  sizeY?: number
-}
-
-export type AnchorProperties = {
-  anchorX?: keyof typeof alignmentXMap
-  anchorY?: keyof typeof alignmentYMap
-}
 
 export type WithSignal<T> = {
   [K in keyof T]: T[K] | ReadonlySignal<T[K]>
 }
 
-export type WithInheritance<T> = T & {
-  '*'?: T
-}
-
-export type WithInitial<T> = { [Key in keyof T]: T[Key] | 'initial' }
-
-export type InProperties<OutProperties extends BaseOutProperties = BaseOutProperties> = WithInheritance<
-  WithConditionalsAndImportant<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>>
-> & {}
+export type InProperties<OutProperties extends BaseOutProperties = BaseOutProperties> =
+  SchemaInProperties<OutProperties> & {}
 
 export type Properties<OutProperties extends BaseOutProperties = BaseOutProperties> = BaseProperties<
-  AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>,
+  SchemaLayerProperties<OutProperties>,
   OutProperties
 > & {
   get usedConditionals(): {
@@ -105,7 +54,7 @@ export type Properties<OutProperties extends BaseOutProperties = BaseOutProperti
 }
 
 export class PropertiesImplementation<OutProperties extends BaseOutProperties = BaseOutProperties>
-  extends BasePropertiesImplementation<AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>, OutProperties>
+  extends BasePropertiesImplementation<SchemaLayerProperties<OutProperties>, OutProperties>
   implements Properties<OutProperties>
 {
   public readonly usedConditionals = {
@@ -150,16 +99,14 @@ export class PropertiesImplementation<OutProperties extends BaseOutProperties = 
           continue
         }
         const getConditional = layerSection != 'important' ? this.conditionals[layerSection] : undefined
-        let conditionalProperties = properties[layerSection]! as AddAllAliases<
-          WithSignal<WithInitial<Partial<OutProperties>>>
-        >
+        let conditionalProperties = properties[layerSection]! as SchemaLayerProperties<OutProperties>
         if (getConditional != null) {
           conditionalProperties = Object.fromEntries(
             Object.entries(conditionalProperties).map(([key, value]) => [
               key,
               computed(() => (getConditional() ? (value instanceof Signal ? value.value : value) : undefined)),
             ]),
-          ) as AddAllAliases<WithSignal<WithInitial<Partial<OutProperties>>>>
+          ) as SchemaLayerProperties<OutProperties>
         }
         this.setLayer(layerIndex, conditionalProperties)
       }
@@ -181,5 +128,6 @@ function hasConditional(
 }
 
 export { componentDefaults } from './defaults.js'
-export type { WithConditionalsAndImportant } from './conditional.js'
 export type { AddAllAliases, GetAliases, AllAliases } from './alias.js'
+export type { SchemaInProperties, SchemaLayerProperties, SchemaPropertyValue } from './schema.js'
+export { baseOutPropertyShape, baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from './schema.js'

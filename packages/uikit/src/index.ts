@@ -16,5 +16,6 @@ export { type ColorRepresentation, readReactive, type UnionizeVariants, withOpac
 export { canvasInputProps } from './text/selection/pointer.js'
 export type { CaretTransformation, SelectionTransformation } from './text/index.js'
 export * from './properties/index.js'
+export { FontFamiliesSchema, FontFamilyWeightMapSchema, FontWeightSchema } from './text/index.js'
 export type { FontFamilies, FontWeight, FontFamilyWeightMap } from './text/index.js'
 export * from './loaders/index.js'

@@ -2,6 +2,7 @@
   "name": "@react-three/uikit-default",
   "version": "0.0.0",
   "type": "module",
+  "sideEffects": false,
   "description": "Default (shadcn) kit for @react-three/uikit",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",

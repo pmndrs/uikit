@@ -1,9 +1,16 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
+export const AlertDialogFooterOutPropertiesSchema = baseOutPropertiesSchema
 
-export type AlertDialogFooterOutProperties = BaseOutProperties
+export const AlertDialogFooterPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(AlertDialogFooterOutPropertiesSchema),
+)
 
-export type AlertDialogFooterProperties = InProperties<AlertDialogFooterOutProperties>
+export type AlertDialogFooterOutProperties = BaseOutProperties & z.output<typeof AlertDialogFooterOutPropertiesSchema>
+
+export type AlertDialogFooterProperties = z.input<typeof AlertDialogFooterPropertiesSchema>
 
 export class AlertDialogFooter extends Container<AlertDialogFooterOutProperties> {
   constructor(

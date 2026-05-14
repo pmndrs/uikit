@@ -1,10 +1,17 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
+export const DropdownIconOutPropertiesSchema = baseOutPropertiesSchema
 
-export type DropdownIconOutProperties = BaseOutProperties
+export const DropdownIconPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DropdownIconOutPropertiesSchema),
+)
 
-export type DropdownIconProperties = InProperties<DropdownIconOutProperties>
+export type DropdownIconOutProperties = BaseOutProperties & z.output<typeof DropdownIconOutPropertiesSchema>
+
+export type DropdownIconProperties = z.input<typeof DropdownIconPropertiesSchema>
 
 export class DropdownIcon extends Container<BaseOutProperties> {
   constructor(

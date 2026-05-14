@@ -4,7 +4,7 @@ import { Box, OrbitControls, OrthographicCamera } from '@react-three/drei'
 import { signal } from '@preact/signals-core'
 import { Text, Fullscreen, VanillaImage, VanillaInput, Video, Image, Portal, Container } from '@react-three/uikit'
 import { Texture } from 'three'
-import { noEvents, PointerEvents } from '@react-three/xr'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
 
 export default function App() {
   const texture = useMemo(() => signal<Texture | undefined>(undefined), [])

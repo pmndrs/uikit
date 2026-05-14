@@ -1,19 +1,43 @@
-import { ImageOutProperties, Image } from './image.js'
+import { boolean, custom, number, string, union } from 'zod'
+import type { z } from 'zod'
+import { createInPropertiesSchema, defineSchema } from '../properties/schema.js'
+import { ImageOutProperties, Image, imageOutPropertiesSchema } from './image.js'
 import { SRGBColorSpace, VideoTexture } from 'three'
 import { computed, signal } from '@preact/signals-core'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
 import { RenderContext } from '../context.js'
+export const videoOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  imageOutPropertiesSchema.omit({ src: true }).extend({
+    src: union([
+      string(),
+      custom<MediaProvider>((value) => typeof MediaStream !== 'undefined' && value instanceof MediaStream),
+      custom<HTMLVideoElement>((value) => typeof HTMLVideoElement !== 'undefined' && value instanceof HTMLVideoElement),
+    ]).optional(),
+    volume: number().optional(),
+    preservesPitch: boolean().optional(),
+    playbackRate: number().optional(),
+    muted: boolean().optional(),
+    loop: boolean().optional(),
+    autoplay: boolean().optional(),
+    crossOrigin: string().nullable().optional(),
+  }),
+)
+export const VideoPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(videoOutPropertiesSchema),
+)
 
 export type VideoSrc = HTMLVideoElement['src'] | HTMLVideoElement['srcObject'] | HTMLVideoElement
-
-export type VideoOutProperties = ImageOutProperties<VideoSrc> &
-  Omit<
-    Partial<HTMLVideoElement>,
-    'width' | 'height' | 'src' | 'srcObject' | 'playsInline' | 'focus' | 'active' | 'classList'
-  >
-
-export type VideoProperties = InProperties<VideoOutProperties>
+export type VideoOutProperties = ImageOutProperties<VideoSrc> & {
+  volume?: number
+  preservesPitch?: boolean
+  playbackRate?: number
+  muted?: boolean
+  loop?: boolean
+  autoplay?: boolean
+  crossOrigin?: string | null
+}
+export type VideoProperties = z.input<typeof VideoPropertiesSchema>
 
 export class Video<OutProperties extends VideoOutProperties = VideoOutProperties> extends Image<OutProperties> {
   readonly element = signal<HTMLVideoElement | undefined>()

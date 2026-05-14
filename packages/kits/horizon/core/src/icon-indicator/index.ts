@@ -1,3 +1,6 @@
+import { enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   Container,
@@ -9,7 +12,6 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
-
 type IconIndicatorVariantProps = Pick<SvgProperties, 'content' | 'color'>
 const _iconIndicatorVariants = {
   none: {
@@ -39,14 +41,25 @@ const _iconIndicatorVariants = {
 } satisfies Record<string, IconIndicatorVariantProps>
 const iconIndicatorVariants = _iconIndicatorVariants as UnionizeVariants<typeof _iconIndicatorVariants>
 
-export type IconIndicatorOutProperties = BaseOutProperties & {
-  /**
-   * @default none
-   */
-  variant?: keyof typeof iconIndicatorVariants
-}
+export const IconIndicatorOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    variant: enumSchema(
+      Object.keys(iconIndicatorVariants) as [
+        keyof typeof iconIndicatorVariants,
+        ...(keyof typeof iconIndicatorVariants)[],
+      ],
+    ).optional(),
+  }).strict(),
+)
 
-export type IconIndicatorProperties = InProperties<IconIndicatorOutProperties>
+export const IconIndicatorPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(IconIndicatorOutPropertiesSchema),
+)
+
+export type IconIndicatorOutProperties = BaseOutProperties & z.output<typeof IconIndicatorOutPropertiesSchema>
+
+export type IconIndicatorProperties = z.input<typeof IconIndicatorPropertiesSchema>
 
 export class IconIndicator extends Container<IconIndicatorOutProperties> {
   public readonly icon: Svg

@@ -1,13 +1,24 @@
+import { object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Tabs } from './index.js'
 import { colors, componentDefaults } from '../theme.js'
+export const TabsContentOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    value: string().optional(),
+  }).strict(),
+)
 
-export type TabsContentOutProperties = BaseOutProperties & {
-  value?: string
-}
+export const TabsContentPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(TabsContentOutPropertiesSchema),
+)
 
-export type TabsContentProperties = InProperties<TabsContentOutProperties>
+export type TabsContentOutProperties = BaseOutProperties & z.output<typeof TabsContentOutPropertiesSchema>
+
+export type TabsContentProperties = z.input<typeof TabsContentPropertiesSchema>
 
 export class TabsContent extends Container<TabsContentOutProperties> {
   constructor(

@@ -1,10 +1,17 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { searchFor, Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { AlertDialog } from './index.js'
+export const AlertDialogCancelOutPropertiesSchema = baseOutPropertiesSchema
 
-export type AlertDialogCancelOutProperties = BaseOutProperties
+export const AlertDialogCancelPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(AlertDialogCancelOutPropertiesSchema),
+)
 
-export type AlertDialogCancelProperties = InProperties<AlertDialogCancelOutProperties>
+export type AlertDialogCancelOutProperties = BaseOutProperties & z.output<typeof AlertDialogCancelOutPropertiesSchema>
+
+export type AlertDialogCancelProperties = z.input<typeof AlertDialogCancelPropertiesSchema>
 
 export class AlertDialogCancel extends Container<AlertDialogCancelOutProperties> {
   constructor(

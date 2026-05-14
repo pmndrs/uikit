@@ -1,8 +1,10 @@
+import { boolean, custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, UnionizeVariants, searchFor } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { ToggleGroup } from './index.js'
-
 const _toggleVariants = {
   default: {},
   outline: {
@@ -25,14 +27,23 @@ const toggleSizes = {
 
 export type ToggleSize = keyof typeof toggleSizes
 
-export type ToggleGroupItemOutProperties = {
-  checked?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  disabled?: boolean
-  defaultChecked?: boolean
-} & BaseOutProperties
+export const ToggleGroupItemOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    checked: boolean().optional(),
+    onCheckedChange: custom<(checked: boolean) => void>((value) => typeof value === 'function').optional(),
+    disabled: boolean().optional(),
+    defaultChecked: boolean().optional(),
+  }).strict(),
+)
 
-export type ToggleGroupItemProperties = InProperties<ToggleGroupItemOutProperties>
+export const ToggleGroupItemPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ToggleGroupItemOutPropertiesSchema),
+)
+
+export type ToggleGroupItemOutProperties = BaseOutProperties & z.output<typeof ToggleGroupItemOutPropertiesSchema>
+
+export type ToggleGroupItemProperties = z.input<typeof ToggleGroupItemPropertiesSchema>
 
 export class ToggleGroupItem extends Container<ToggleGroupItemOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

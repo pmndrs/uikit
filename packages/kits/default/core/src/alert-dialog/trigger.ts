@@ -1,12 +1,23 @@
+import { custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { AlertDialog } from './index.js'
 import { colors, componentDefaults } from '../theme.js'
+export const AlertDialogTriggerOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    dialog: custom<AlertDialog>(() => true).optional(),
+  }).strict(),
+)
 
-export type AlertDialogTriggerOutProperties = BaseOutProperties & {
-  dialog?: AlertDialog
-}
+export const AlertDialogTriggerPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(AlertDialogTriggerOutPropertiesSchema),
+)
 
-export type AlertDialogTriggerProperties = InProperties<AlertDialogTriggerOutProperties>
+export type AlertDialogTriggerOutProperties = BaseOutProperties & z.output<typeof AlertDialogTriggerOutPropertiesSchema>
+
+export type AlertDialogTriggerProperties = z.input<typeof AlertDialogTriggerPropertiesSchema>
 
 export class AlertDialogTrigger extends Container<AlertDialogTriggerOutProperties> {
   constructor(

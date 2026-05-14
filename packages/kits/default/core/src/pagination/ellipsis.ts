@@ -1,9 +1,12 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { InProperties, BaseOutProperties, RenderContext, Container } from '@pmndrs/uikit'
 import { Ellipsis } from '@pmndrs/uikit-lucide'
 import { colors, componentDefaults, contentDefaults } from '../theme.js'
 import type { Object3D } from 'three'
+export const PaginationEllipsisPropertiesSchema = ContainerPropertiesSchema
 
-export type PaginationEllipsisProperties = Omit<InProperties<BaseOutProperties>, 'children'>
+export type PaginationEllipsisProperties = z.input<typeof PaginationEllipsisPropertiesSchema>
 
 export class PaginationEllipsis extends Container {
   public readonly icon: InstanceType<typeof Ellipsis>

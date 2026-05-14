@@ -1,3 +1,6 @@
+import { object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   componentDefaults,
@@ -11,12 +14,21 @@ import {
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
 import { PhoneForwarded } from '@pmndrs/uikit-lucide'
+export const DropdownTextValueOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    placeholder: string().optional(),
+  }).strict(),
+)
 
-export type DropdownTextValueOutProperties = Omit<TextOutProperties, 'text'> & {
-  placeholder?: string
-}
+export const DropdownTextValuePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DropdownTextValueOutPropertiesSchema),
+)
 
-export type DropdownTextValueProperties = InProperties<DropdownTextValueOutProperties>
+export type DropdownTextValueOutProperties = Omit<TextOutProperties, 'text'> &
+  z.output<typeof DropdownTextValueOutPropertiesSchema>
+
+export type DropdownTextValueProperties = z.input<typeof DropdownTextValuePropertiesSchema>
 
 export class DropdownTextValue extends Text<DropdownTextValueOutProperties & { text?: string }> {
   constructor(

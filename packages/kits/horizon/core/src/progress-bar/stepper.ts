@@ -1,8 +1,15 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
+export const ProgressBarStepperOutPropertiesSchema = baseOutPropertiesSchema
 
-export type ProgressBarStepperOutProperties = BaseOutProperties
+export const ProgressBarStepperPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ProgressBarStepperOutPropertiesSchema),
+)
 
-export type ProgressBarStepperProperties = InProperties<ProgressBarStepperOutProperties>
+export type ProgressBarStepperOutProperties = BaseOutProperties & z.output<typeof ProgressBarStepperOutPropertiesSchema>
+
+export type ProgressBarStepperProperties = z.input<typeof ProgressBarStepperPropertiesSchema>
 
 export class ProgressBarStepper extends Container<ProgressBarStepperOutProperties> {
   constructor(

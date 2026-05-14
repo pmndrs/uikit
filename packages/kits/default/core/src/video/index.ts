@@ -1,3 +1,6 @@
+import { boolean, object, strictObject } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   InProperties,
   VideoOutProperties as BaseVideoOutProperties,
@@ -15,12 +18,20 @@ import { Slider } from '../slider/index.js'
 import { Button } from '../button/index.js'
 import { colors, componentDefaults, contentDefaults, imageDefaults, textDefaults } from '../theme.js'
 import type { Object3D } from 'three'
+export const VideoOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  strictObject({
+    ...baseOutPropertyShape,
+    controls: boolean().optional(),
+  }).passthrough(),
+)
 
-export type VideoOutProperties = BaseVideoOutProperties & {
-  controls?: boolean
-}
+export const VideoPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(VideoOutPropertiesSchema),
+)
 
-export type VideoProperties = InProperties<VideoOutProperties>
+export type VideoOutProperties = BaseVideoOutProperties & z.output<typeof VideoOutPropertiesSchema>
+
+export type VideoProperties = z.input<typeof VideoPropertiesSchema>
 
 export class Video extends Container<VideoOutProperties> {
   readonly interacting = signal(false)
@@ -104,7 +115,11 @@ export class Video extends Container<VideoOutProperties> {
   }
 }
 
-export type VideoControlsProperties = InProperties<BaseOutProperties>
+export const VideoControlsPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(object(baseOutPropertyShape).strict()),
+)
+
+export type VideoControlsProperties = z.input<typeof VideoControlsPropertiesSchema>
 
 export class VideoControls extends Container<BaseOutProperties> {
   constructor(

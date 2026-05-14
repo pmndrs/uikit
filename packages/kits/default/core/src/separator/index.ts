@@ -1,12 +1,23 @@
+import { enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
+export const SeparatorOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    orientation: enumSchema(['horizontal', 'vertical']).optional(),
+  }).strict(),
+)
 
-export type SeparatorProperties = InProperties<SeperatorOutProperties>
+export const SeparatorPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(SeparatorOutPropertiesSchema),
+)
 
-export type SeperatorOutProperties = BaseOutProperties & {
-  orientation?: 'horizontal' | 'vertical'
-}
+export type SeperatorOutProperties = BaseOutProperties & z.output<typeof SeparatorOutPropertiesSchema>
+
+export type SeparatorProperties = z.input<typeof SeparatorPropertiesSchema>
 
 export class Separator extends Container<SeperatorOutProperties> {
   constructor(

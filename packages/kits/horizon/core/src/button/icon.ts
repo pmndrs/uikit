@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   componentDefaults,
@@ -9,8 +11,9 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Button } from './index.js'
+export const ButtonIconPropertiesSchema = ContainerPropertiesSchema
 
-export type ButtonIconProperties = ContainerProperties
+export type ButtonIconProperties = z.input<typeof ButtonIconPropertiesSchema>
 
 export class ButtonIcon extends Container<BaseOutProperties> {
   constructor(

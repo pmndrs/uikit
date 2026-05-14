@@ -1,3 +1,6 @@
+import { boolean, custom, enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   Container,
@@ -9,7 +12,6 @@ import {
 import { CheckIcon } from '@pmndrs/uikit-lucide'
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
-
 type CheckboxVariantProps = Pick<
   ContainerProperties,
   | 'backgroundColor'
@@ -72,15 +74,26 @@ const _checkboxVariants = {
 } satisfies Record<string, CheckboxVariantProps>
 const checboxVariants = _checkboxVariants as UnionizeVariants<typeof _checkboxVariants>
 
-export type CheckboxOutProperties = BaseOutProperties & {
-  checked?: boolean
-  disabled?: boolean
-  variant?: keyof typeof checboxVariants
-  onCheckedChange?: (checked: boolean) => void
-  defaultChecked?: boolean
-}
+export const CheckboxOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    checked: boolean().optional(),
+    disabled: boolean().optional(),
+    variant: enumSchema(
+      Object.keys(checboxVariants) as [keyof typeof checboxVariants, ...(keyof typeof checboxVariants)[]],
+    ).optional(),
+    onCheckedChange: custom<(checked: boolean) => void>((value) => typeof value === 'function').optional(),
+    defaultChecked: boolean().optional(),
+  }).strict(),
+)
 
-export type CheckboxProperties = InProperties<CheckboxOutProperties>
+export const CheckboxPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(CheckboxOutPropertiesSchema),
+)
+
+export type CheckboxOutProperties = BaseOutProperties & z.output<typeof CheckboxOutPropertiesSchema>
+
+export type CheckboxProperties = z.input<typeof CheckboxPropertiesSchema>
 
 export class Checkbox extends Container<CheckboxOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

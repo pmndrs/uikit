@@ -1,3 +1,6 @@
+import { unknown as unknownSchema } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '../properties/schema.js'
 import { computed, signal, Signal } from '@preact/signals-core'
 import type { ReadonlySignal } from '@preact/signals-core'
 import { EventHandlersProperties } from '../events.js'
@@ -22,10 +25,17 @@ import { abortableEffect } from '../utils.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { Matrix4 } from 'three'
+export const textOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  baseOutPropertiesSchema.extend({
+    text: unknownSchema().optional(),
+  }),
+)
+export const TextPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(textOutPropertiesSchema),
+)
 
 export type TextOutProperties = BaseOutProperties & AdditionalTextDefaults & { text?: unknown }
-
-export type TextProperties = InProperties<TextOutProperties>
+export type TextProperties = z.input<typeof TextPropertiesSchema>
 
 export const textDefaults = { ...componentDefaults, ...additionalTextDefaults }
 

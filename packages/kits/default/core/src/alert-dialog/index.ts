@@ -1,6 +1,8 @@
-import { Dialog, DialogProperties } from '../dialog/index.js'
+import type { z } from 'zod'
+import { Dialog, DialogProperties, DialogPropertiesSchema } from '../dialog/index.js'
+export const AlertDialogPropertiesSchema = DialogPropertiesSchema
 
-export type AlertDialogProperties = DialogProperties
+export type AlertDialogProperties = z.input<typeof AlertDialogPropertiesSchema>
 
 export class AlertDialog extends Dialog {}
 

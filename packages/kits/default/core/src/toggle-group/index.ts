@@ -1,13 +1,24 @@
+import { custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import type { ToggleSize, ToggleVariant } from './item.js'
 import { colors, componentDefaults } from '../theme.js'
+export const ToggleGroupOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    variant: custom<ToggleVariant>((value) => typeof value === 'string').optional(),
+    size: custom<ToggleSize>((value) => typeof value === 'string').optional(),
+  }).strict(),
+)
 
-export type ToggleGroupOutProperties = {
-  variant?: ToggleVariant
-  size?: ToggleSize
-} & BaseOutProperties
+export const ToggleGroupPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ToggleGroupOutPropertiesSchema),
+)
 
-export type ToggleGroupProperties = InProperties<ToggleGroupOutProperties>
+export type ToggleGroupOutProperties = BaseOutProperties & z.output<typeof ToggleGroupOutPropertiesSchema>
+
+export type ToggleGroupProperties = z.input<typeof ToggleGroupPropertiesSchema>
 
 export class ToggleGroup extends Container<ToggleGroupOutProperties> {
   constructor(

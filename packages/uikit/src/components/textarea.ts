@@ -1,12 +1,15 @@
+import type { z } from 'zod'
 import { RenderContext } from '../context.js'
 import { InProperties, BaseOutProperties, WithSignal } from '../properties/index.js'
-import { Input, InputOutProperties } from './input.js'
-
-export type TextareaProperties = InProperties<InputOutProperties>
+import { Input, InputOutProperties, InputPropertiesSchema } from './input.js'
+export const TextareaPropertiesSchema = InputPropertiesSchema
 
 export type TextareaOutProperties = InputOutProperties
+export type TextareaProperties = z.input<typeof TextareaPropertiesSchema>
 
-export class Textarea<OutProperties extends InputOutProperties = InputOutProperties> extends Input<OutProperties> {
+export class Textarea<
+  OutProperties extends TextareaOutProperties = TextareaOutProperties,
+> extends Input<OutProperties> {
   constructor(
     inputProperties?: InProperties<OutProperties>,
     initialClasses?: (string | InProperties<BaseOutProperties>)[],

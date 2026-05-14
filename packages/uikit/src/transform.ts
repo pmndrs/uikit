@@ -3,19 +3,21 @@ import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { alignmentXMap, alignmentYMap } from './utils.js'
 import { Component } from './components/component.js'
 import { toAbsoluteNumber } from './text/utils.js'
+import type { TransformLength, TransformScale } from './properties/values.js'
+export type { TransformLength, TransformScale } from './properties/values.js'
 
 export type TransformProperties = {
-  transformTranslateX?: string | number
-  transformTranslateY?: string | number
+  transformTranslateX?: TransformLength
+  transformTranslateY?: TransformLength
   transformTranslateZ?: number
 
   transformRotateX?: number
   transformRotateY?: number
   transformRotateZ?: number
 
-  transformScaleX?: string | number
-  transformScaleY?: string | number
-  transformScaleZ?: string | number
+  transformScaleX?: TransformScale
+  transformScaleY?: TransformScale
+  transformScaleZ?: TransformScale
 
   transformOriginX?: keyof typeof alignmentXMap
   transformOriginY?: keyof typeof alignmentYMap

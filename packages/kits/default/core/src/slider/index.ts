@@ -1,21 +1,34 @@
+import { boolean, custom, number, object, string, union } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, abortableEffect } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { Object3DEventMap, Vector3 } from 'three'
-
 const vectorHelper = new Vector3()
 
-export type SliderOutProperties = {
-  disabled?: boolean
-  value?: number | string
-  min?: number | string
-  max?: number | string
-  step?: number | string
-  defaultValue?: number | string
-  onValueChange?: (value: number) => void
-} & BaseOutProperties
+const numberOrStringSchema = /* @__PURE__ */ defineSchema(() => union([number(), string()]))
 
-export type SliderProperties = InProperties<SliderOutProperties>
+export const SliderOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    disabled: boolean().optional(),
+    value: numberOrStringSchema.optional(),
+    min: numberOrStringSchema.optional(),
+    max: numberOrStringSchema.optional(),
+    step: numberOrStringSchema.optional(),
+    defaultValue: numberOrStringSchema.optional(),
+    onValueChange: custom<(value: number) => void>((value) => typeof value === 'function').optional(),
+  }).strict(),
+)
+
+export const SliderPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(SliderOutPropertiesSchema),
+)
+
+export type SliderOutProperties = BaseOutProperties & z.output<typeof SliderOutPropertiesSchema>
+
+export type SliderProperties = z.input<typeof SliderPropertiesSchema>
 
 export class Slider extends Container<SliderOutProperties> {
   private downPointerId?: number

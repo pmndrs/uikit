@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import { SvgPropertiesSchema } from '@pmndrs/uikit'
 import {
   searchFor,
   SvgOutProperties,
@@ -11,8 +13,9 @@ import { computed } from '@preact/signals-core'
 import { Accordion } from './index.js'
 import { AccordionItem } from './item.js'
 import { colors, contentDefaults } from '../theme.js'
+export const AccordionTriggerIconPropertiesSchema = SvgPropertiesSchema
 
-export type AccordionTriggerIconProperties = SvgProperties
+export type AccordionTriggerIconProperties = z.input<typeof AccordionTriggerIconPropertiesSchema>
 
 export class AccordionTriggerIcon extends ChevronDown<SvgOutProperties> {
   constructor(

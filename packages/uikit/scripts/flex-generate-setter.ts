@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs'
 import { Edge, Gutter, Unit, Node, loadYoga } from 'yoga-layout/load'
 import { createDefaultConfig } from '../src/flex/yoga.js'
+import { format } from 'prettier'
 
 const propertyRenameMap = {
   borderTop: 'borderTopWidth',
@@ -8,6 +9,16 @@ const propertyRenameMap = {
   borderLeft: 'borderLeftWidth',
   borderBottom: 'borderBottomWidth',
 }
+
+const prettierOptions = {
+  parser: 'typescript',
+  semi: false,
+  trailingComma: 'all',
+  singleQuote: true,
+  tabWidth: 2,
+  printWidth: 120,
+  endOfLine: 'auto',
+} as const
 
 async function main() {
   const Yoga = await loadYoga()
@@ -63,6 +74,7 @@ async function main() {
   const lookupTables = new Map<string, string>()
   const importedTypesFromYoga = new Set<string>()
   const setterFunctions: Array<[string, string]> = []
+  const schemaProperties: Array<[string, string]> = []
   for (const [propertyName, functionName] of properties) {
     const enumPrefix = enumsToPrefix[propertyName]
     let convertFunction: (
@@ -97,6 +109,10 @@ async function main() {
         )
       }
       types = [...enums.map(([name]) => `"${kebabCaseFromSnakeCase(name.slice(enumPrefix.length))}"`), 'undefined']
+      schemaProperties.push([
+        propertyName,
+        `enumSchema([${enums.map(([name]) => `"${kebabCaseFromSnakeCase(name.slice(enumPrefix.length))}"`).join(', ')}]).optional()`,
+      ])
     } else {
       const percentUnit = node[`set${functionName}Percent` as keyof Node] != null
       const autoUnit = node[`set${functionName}Auto` as keyof Node] != null
@@ -117,6 +133,10 @@ async function main() {
       if (autoUnit) {
         types.push(`"auto"`)
       }
+      schemaProperties.push([
+        propertyName,
+        `${percentUnit ? (autoUnit ? 'pointOrAutoSchema' : 'pointSchema') : autoUnit ? 'union([number(), literal("auto")])' : 'number()'}.optional()`,
+      ])
       convertFunction = (defaultValue, setter) => {
         const prefix = autoUnit ? `if(input === "auto") { ${setter(null, 'Auto')}; return }\n` : ''
         let input = percentUnit ? `convertPoint(input, root)` : 'input'
@@ -133,6 +153,7 @@ async function main() {
       for (const [edgeKey, edge] of Object.entries(edgeMap)) {
         const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getBorder'](edge))
         const edgePropertyName = `${propertyName}${edgeKey}`
+        schemaProperties.push([edgePropertyName, schemaProperties.find(([key]) => key === propertyName)![1]])
         setterFunctions.push([
           edgePropertyName,
           `(root: RootContext, node: Node, input: ${types.join(' | ')}) => {
@@ -149,6 +170,7 @@ async function main() {
         const defaultValue = fromYoga(propertyName, node[`get${functionName}` as 'getGap'](gutter))
         const gutterPropertyName = `${propertyName}${gutterKey}`
         const gutterType = `Gutter.${gutterKey}`
+        schemaProperties.push([gutterPropertyName, schemaProperties.find(([key]) => key === propertyName)![1]])
         setterFunctions.push([
           gutterPropertyName,
           `(root: RootContext, node: Node, input: ${types.join(' | ')}) => {
@@ -172,12 +194,17 @@ async function main() {
       ])
     }
   }
+  const filteredSchemaProperties = schemaProperties
+    .filter(([propertyName]) => !propertiesWithEdge.has(propertyName) && !propertiesWithGutter.has(propertyName))
+    .map(([propertyName, schema]) => [applyRenames(propertyName), schema])
 
   writeFileSync(
     'src/flex/setter.ts',
-    `import { Node } from "yoga-layout/load"
+    await format(
+      `import { Node } from "yoga-layout/load"
     import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/load"
     import type { RootContext } from '../context.js'
+    import { convertYogaPoint } from '../properties/values.js'
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
@@ -189,21 +216,47 @@ async function main() {
       return resolvedValue
     }
     function convertPoint(input: string | number | undefined, root: RootContext): \`\${number}%\` | undefined | number {
-      if (input == null || typeof input != 'string') {
-        return input
-      }
-      if (input.endsWith('vw')) {
-        return ((root.component.size.value?.[0] ?? 0) * parseFloat(input)) / 100
-      }
-      if (input.endsWith('vh')) {
-        return ((root.component.size.value?.[1] ?? 0) * parseFloat(input)) / 100
-      }
-      return input as \`\${number}%\`
+      const [width, height] = root.component.size.value ?? [0, 0]
+      return convertYogaPoint(input as \`\${number}%\`, width, height)
     }
     ${Array.from(lookupTables.values()).join('\n')}
     export const setter = { ${setterFunctions
       .map(([propertyName, functionCode]) => `${applyRenames(propertyName)}: ${functionCode}`)
       .join(',\n')} }`,
+      prettierOptions,
+    ),
+  )
+  writeFileSync(
+    'src/flex/schema.ts',
+    await format(
+      `import { custom, enum as enumSchema, literal, number, object, union } from 'zod'
+import type { z } from 'zod'
+import {
+  isPercentageString,
+  isViewportLengthString,
+  type Percentage,
+  type ViewportLength,
+} from '../properties/values.js'
+
+const percentageSchema = custom<Percentage>(isPercentageString, 'Expected a percentage string')
+const viewportLengthSchema = custom<ViewportLength>(
+  isViewportLengthString,
+  'Expected a viewport length string',
+)
+
+export const pointSchema = union([number(), percentageSchema, viewportLengthSchema])
+export const pointOrAutoSchema = union([pointSchema, literal('auto')])
+
+export const yogaPropertyShape = {
+${filteredSchemaProperties.map(([propertyName, schema]) => `  ${propertyName}: ${schema},`).join('\n')}
+} as const
+
+export const yogaOutPropertiesSchema = object(yogaPropertyShape).strict()
+
+export type YogaProperties = z.output<typeof yogaOutPropertiesSchema>
+`,
+      prettierOptions,
+    ),
   )
 }
 

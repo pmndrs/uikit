@@ -1,3 +1,6 @@
+import { custom, enum as enumSchema, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   abortableEffect,
   BaseOutProperties,
@@ -11,7 +14,6 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
-
 type BadgeVariantProps = Pick<ContainerProperties, 'backgroundColor' | 'color'>
 const _badgeVariants = {
   primary: {
@@ -33,22 +35,32 @@ const _badgeVariants = {
 } satisfies Record<string, BadgeVariantProps>
 const badgeVariants = _badgeVariants as UnionizeVariants<typeof _badgeVariants>
 
-export type BadgeOutProperties = BaseOutProperties & {
-  /**
-   * @default "primary"
-   */
-  variant?: keyof typeof badgeVariants
-  label?: string
-  icon?: {
-    new (
-      inputProperties: any,
-      initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties> },
-    ): Component
-  }
+type BadgeIcon = {
+  new (
+    inputProperties: any,
+    initialClasses: any,
+    config: { defaultOverrides?: InProperties<BaseOutProperties> },
+  ): Component
 }
 
-export type BadgeProperties = InProperties<BadgeOutProperties>
+export const BadgeOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    variant: enumSchema(
+      Object.keys(badgeVariants) as [keyof typeof badgeVariants, ...(keyof typeof badgeVariants)[]],
+    ).optional(),
+    label: string().optional(),
+    icon: custom<BadgeIcon>((value) => typeof value === 'function').optional(),
+  }).strict(),
+)
+
+export const BadgePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(BadgeOutPropertiesSchema),
+)
+
+export type BadgeOutProperties = BaseOutProperties & z.output<typeof BadgeOutPropertiesSchema>
+
+export type BadgeProperties = z.input<typeof BadgePropertiesSchema>
 
 export class Badge extends Container<BadgeOutProperties> {
   public readonly label: Text

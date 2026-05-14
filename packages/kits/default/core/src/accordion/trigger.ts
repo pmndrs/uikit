@@ -1,7 +1,10 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, ContainerProperties, InProperties, RenderContext } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
+export const AccordionTriggerPropertiesSchema = ContainerPropertiesSchema
 
-export type AccordionTriggerProperties = ContainerProperties
+export type AccordionTriggerProperties = z.input<typeof AccordionTriggerPropertiesSchema>
 
 export class AccordionTrigger extends Container {
   constructor(

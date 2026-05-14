@@ -1,3 +1,6 @@
+import { boolean, custom, enum as enumSchema, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   Container,
@@ -8,7 +11,6 @@ import {
 } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
-
 type DropdownSizeProps = Pick<ContainerProperties, 'paddingX' | 'paddingY' | 'fontSize' | 'lineHeight'>
 const _dropdownSizes = {
   lg: {
@@ -26,21 +28,26 @@ const _dropdownSizes = {
 } satisfies Record<string, DropdownSizeProps>
 const dropdownSizes = _dropdownSizes as UnionizeVariants<typeof _dropdownSizes>
 
-export type DropdownOutProperties = BaseOutProperties & {
-  /**
-   * @default "lg"
-   */
-  size?: keyof typeof dropdownSizes
-  value?: string
-  onValueChange?: (value?: string) => void
-  defaultValue?: string
+export const DropdownOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    size: enumSchema(['lg', 'sm']).optional(),
+    value: string().optional(),
+    onValueChange: custom<(value?: string) => void>((value) => typeof value === 'function').optional(),
+    defaultValue: string().optional(),
+    open: boolean().optional(),
+    onOpenChange: custom<(value?: boolean) => void>((value) => typeof value === 'function').optional(),
+    defaultOpen: boolean().optional(),
+  }).strict(),
+)
 
-  open?: boolean
-  onOpenChange?: (value?: boolean) => void
-  defaultOpen?: string
-}
+export const DropdownPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DropdownOutPropertiesSchema),
+)
 
-export type DropdownProperties = InProperties<DropdownOutProperties>
+export type DropdownOutProperties = BaseOutProperties & z.output<typeof DropdownOutPropertiesSchema>
+
+export type DropdownProperties = z.input<typeof DropdownPropertiesSchema>
 
 export class Dropdown extends Container<DropdownOutProperties> {
   public readonly uncontrolledSignal = signal<string | undefined>(undefined)

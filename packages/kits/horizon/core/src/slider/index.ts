@@ -1,3 +1,6 @@
+import { custom, enum as enumSchema, literal, number, object, string, union } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   abortableEffect,
   BaseOutProperties,
@@ -10,35 +13,46 @@ import {
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
 import { Vector3 } from 'three'
-
 const vectorHelper = new Vector3()
 
 export function percentageFormatting(value: number): string {
   return `${value.toFixed(0)}%`
 }
 
-export type SliderOutProperties = BaseOutProperties & {
-  value?: number | string
-  onValueChange?: (value: number) => void
-  valueFormat?: 'percentage' | ((value: number) => string)
-  defaultValue?: number | string
-  min?: number | string
-  max?: number | string
-  step?: number | string
-  /**
-   * @default "md"
-   */
-  size?: 'sm' | 'md' | 'lg'
-  leftLabel?: string
-  rightLabel?: string
-  icon: {
-    new (
-      inputProperties: any,
-      initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties> },
-    ): Component
-  }
+const numberOrStringSchema = /* @__PURE__ */ defineSchema(() => union([number(), string()]))
+type SliderIcon = {
+  new (
+    inputProperties: any,
+    initialClasses: any,
+    config: { defaultOverrides?: InProperties<BaseOutProperties> },
+  ): Component
 }
+
+export const SliderOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    value: numberOrStringSchema.optional(),
+    onValueChange: custom<(value: number) => void>((value) => typeof value === 'function').optional(),
+    valueFormat: union([
+      literal('percentage'),
+      custom<(value: number) => string>((value) => typeof value === 'function'),
+    ]).optional(),
+    defaultValue: numberOrStringSchema.optional(),
+    min: numberOrStringSchema.optional(),
+    max: numberOrStringSchema.optional(),
+    step: numberOrStringSchema.optional(),
+    size: enumSchema(['sm', 'md', 'lg']).optional(),
+    leftLabel: string().optional(),
+    rightLabel: string().optional(),
+    icon: custom<SliderIcon>((value) => typeof value === 'function').optional(),
+  }).strict(),
+)
+
+export const SliderPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(SliderOutPropertiesSchema),
+)
+
+export type SliderOutProperties = BaseOutProperties & z.output<typeof SliderOutPropertiesSchema>
 
 const sliderHeights: Record<Exclude<SliderOutProperties['size'], undefined>, number> = {
   sm: 12,
@@ -58,7 +72,7 @@ const sliderProcessPaddingXs: Record<Exclude<SliderOutProperties['size'], undefi
   lg: 4,
 }
 
-export type SliderProperties = InProperties<SliderOutProperties>
+export type SliderProperties = z.input<typeof SliderPropertiesSchema>
 
 export class Slider extends Container<SliderOutProperties> {
   public readonly uncontrolledSignal = signal<number | undefined>(undefined)

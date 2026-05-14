@@ -1,14 +1,25 @@
+import { custom, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
+export const TabsOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    value: string().optional(),
+    onValueChange: custom<(value: string) => void>((value) => typeof value === 'function').optional(),
+    defaultValue: string().optional(),
+  }).strict(),
+)
 
-export type TabsOutProperties = BaseOutProperties & {
-  value?: string
-  onValueChange?: (value: string) => void
-  defaultValue?: string
-}
+export const TabsPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(TabsOutPropertiesSchema),
+)
 
-export type TabsProperties = InProperties<TabsOutProperties>
+export type TabsOutProperties = BaseOutProperties & z.output<typeof TabsOutPropertiesSchema>
+
+export type TabsProperties = z.input<typeof TabsPropertiesSchema>
 
 export class Tabs extends Container<TabsOutProperties> {
   public readonly uncontrolledSignal = signal<string | undefined>(undefined)

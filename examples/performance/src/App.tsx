@@ -1,7 +1,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Container, Fullscreen, Text, VanillaContainer } from '@react-three/uikit'
 import { OrbitControls } from '@react-three/drei'
-import { noEvents, PointerEvents } from '@react-three/xr'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
 import { effect, signal } from '@preact/signals-core'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Color } from 'three'

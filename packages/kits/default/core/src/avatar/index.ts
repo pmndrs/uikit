@@ -1,8 +1,11 @@
+import type { z } from 'zod'
+import { ImagePropertiesSchema } from '@pmndrs/uikit'
 import { Image, ImageOutProperties, InProperties, RenderContext, BaseOutProperties, imageDefaults } from '@pmndrs/uikit'
 import { Texture } from 'three'
 import { colors } from '../theme.js'
+export const AvatarPropertiesSchema = ImagePropertiesSchema
 
-export type AvatarProperties = InProperties<ImageOutProperties<string | Texture>>
+export type AvatarProperties = z.input<typeof AvatarPropertiesSchema>
 
 export type AvatarOutProperties = ImageOutProperties<string | Texture>
 

@@ -1,11 +1,13 @@
+import type { z } from 'zod'
 import { BaseOutProperties, componentDefaults, Container, InProperties, RenderContext, WithSignal } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { Dropdown } from './index.js'
-import { Avatar, AvatarOutProperties } from '../avatar/index.js'
+import { Avatar, AvatarOutProperties, AvatarPropertiesSchema } from '../avatar/index.js'
+export const DropdownAvatarPropertiesSchema = AvatarPropertiesSchema
 
 export type DropdownAvatarOutProperties = AvatarOutProperties
 
-export type DropdownAvatarProperties = InProperties<DropdownAvatarOutProperties>
+export type DropdownAvatarProperties = z.input<typeof DropdownAvatarPropertiesSchema>
 
 export class DropdownAvatar extends Avatar {
   constructor(

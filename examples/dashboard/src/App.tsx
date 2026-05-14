@@ -32,7 +32,7 @@ import { RecentSales } from './components/RecentSales.js'
 import { TeamSwitcher } from './components/TeamSwitcher.js'
 import { UserNav } from './components/UserNav.js'
 import { create } from 'zustand'
-import { noEvents, PointerEvents } from '@react-three/xr'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
 import { Highlighter } from './components/Highlighter.js'
 import { Vector3 } from 'three'
 

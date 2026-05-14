@@ -1,14 +1,25 @@
+import { boolean, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { RadioGroup } from './index.js'
+export const RadioGroupItemOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    disabled: boolean().optional(),
+    value: string().optional(),
+  }).strict(),
+)
 
-export type RadioGroupItemOutProperties = {
-  disabled?: boolean
-  value?: string
-} & BaseOutProperties
+export const RadioGroupItemPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(RadioGroupItemOutPropertiesSchema),
+)
 
-export type RadioGroupItemProperties = InProperties<RadioGroupItemOutProperties>
+export type RadioGroupItemOutProperties = BaseOutProperties & z.output<typeof RadioGroupItemOutPropertiesSchema>
+
+export type RadioGroupItemProperties = z.input<typeof RadioGroupItemPropertiesSchema>
 
 export class RadioGroupItem extends Container<RadioGroupItemOutProperties> {
   public readonly radioButton: Container

@@ -1,14 +1,25 @@
+import { boolean, custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, withOpacity } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
+export const DialogOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    open: boolean().optional(),
+    onOpenChange: custom<(open: boolean) => void>((value) => typeof value === 'function').optional(),
+    defaultOpen: boolean().optional(),
+  }).strict(),
+)
 
-export type DialogOutProperties = {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  defaultOpen?: boolean
-} & BaseOutProperties
+export const DialogPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DialogOutPropertiesSchema),
+)
 
-export type DialogProperties = InProperties<DialogOutProperties>
+export type DialogOutProperties = BaseOutProperties & z.output<typeof DialogOutPropertiesSchema>
+
+export type DialogProperties = z.input<typeof DialogPropertiesSchema>
 
 export class Dialog extends Container<DialogOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

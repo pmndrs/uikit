@@ -26,7 +26,7 @@ import { ToggleGroupDemo } from './components/toggle-group.js'
 import InputDemo from './components/input.js'
 import TextareDemo from './components/textarea.js'
 import { VideoDemo } from './components/video.js'
-import { noEvents, PointerEvents } from '@react-three/xr'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
 
 const componentPages = {
   accordion: AccordionDemo,

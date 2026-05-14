@@ -1,3 +1,6 @@
+import { custom, enum as enumSchema, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   abortableEffect,
   BaseOutProperties,
@@ -12,7 +15,6 @@ import {
 } from '@pmndrs/uikit'
 import { computed, ReadonlySignal } from '@preact/signals-core'
 import { theme } from '../theme.js'
-
 type InputVariantProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHeight'>
 const _inputSizes = {
   lg: {
@@ -28,31 +30,33 @@ const _inputSizes = {
 } satisfies Record<string, InputVariantProps>
 const inputSizes = _inputSizes as UnionizeVariants<typeof _inputSizes>
 
-export type InputOutProperties = BaseInputOutProperties & {
-  /**
-   * @default "lg"
-   */
-  size?: keyof typeof inputSizes
-  variant: 'search' | 'text'
-  textAlign: 'center' | 'left'
-  leftIcon?: {
-    new (
-      inputProperties: any,
-      initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties> },
-    ): Component
-  }
-  rightIcon?: {
-    new (
-      inputProperties: any,
-      initialClasses: any,
-      config: { defaultOverrides?: InProperties<BaseOutProperties> },
-    ): Component
-  }
-  placeholder?: string
+type InputIcon = {
+  new (
+    inputProperties: any,
+    initialClasses: any,
+    config: { defaultOverrides?: InProperties<BaseOutProperties> },
+  ): Component
 }
 
-export type InputProperties = InProperties<InputOutProperties>
+export const InputOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    size: enumSchema(Object.keys(inputSizes) as [keyof typeof inputSizes, ...(keyof typeof inputSizes)[]]).optional(),
+    variant: enumSchema(['search', 'text']).optional(),
+    textAlign: enumSchema(['center', 'left']).optional(),
+    leftIcon: custom<InputIcon>((value) => typeof value === 'function').optional(),
+    rightIcon: custom<InputIcon>((value) => typeof value === 'function').optional(),
+    placeholder: string().optional(),
+  }).passthrough(),
+)
+
+export const InputPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(InputOutPropertiesSchema),
+)
+
+export type InputOutProperties = BaseInputOutProperties & z.output<typeof InputOutPropertiesSchema>
+
+export type InputProperties = z.input<typeof InputPropertiesSchema>
 
 export class Input extends Container<InputOutProperties> {
   public readonly input: InputImpl

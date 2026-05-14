@@ -5,7 +5,7 @@ import { abortableEffect } from '../../utils.js'
 type HiddenInputProperties = {
   disabled: boolean
   tabIndex: number
-  autocomplete: HTMLInputElement['autocomplete']
+  autocomplete: string
   type: string
 }
 
@@ -50,7 +50,7 @@ export function setupHtmlInputElement(
     element.tabIndex = properties.value.tabIndex
   }, abortSignal)
   abortableEffect(() => {
-    element.autocomplete = properties.value.autocomplete
+    element.autocomplete = properties.value.autocomplete as AutoFill
   }, abortSignal)
   abortableEffect(() => element.setAttribute('type', properties.value.type), abortSignal)
 }

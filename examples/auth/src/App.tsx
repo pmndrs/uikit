@@ -2,7 +2,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Container, Fullscreen, Text, setPreferredColorScheme, canvasInputProps, Svg } from '@react-three/uikit'
 import { colors, Button } from '@react-three/uikit-default'
 import { UserAuthForm } from './components/user-auth-form.js'
-import { noEvents, PointerEvents } from '@react-three/xr'
+import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
 import { create } from 'zustand'
 import { useState } from 'react'
 

@@ -1,12 +1,23 @@
+import { object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { Accordion } from './index.js'
 import { colors, componentDefaults } from '../theme.js'
+export const AccordionItemOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    value: string().optional(),
+  }).strict(),
+)
 
-export type AccordionItemOutProperties = BaseOutProperties & {
-  value?: string
-}
+export const AccordionItemPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(AccordionItemOutPropertiesSchema),
+)
 
-export type AccordionItemProperties = InProperties<AccordionItemOutProperties>
+export type AccordionItemOutProperties = BaseOutProperties & z.output<typeof AccordionItemOutPropertiesSchema>
+
+export type AccordionItemProperties = z.input<typeof AccordionItemPropertiesSchema>
 
 export class AccordionItem extends Container<AccordionItemOutProperties> {
   constructor(

@@ -1,5 +1,7 @@
+import type { z } from 'zod'
 import {
   InProperties,
+  InputPropertiesSchema as BaseInputPropertiesSchema,
   BaseOutProperties,
   Input as InputImpl,
   InputOutProperties as BaseInputOutProperties,
@@ -8,10 +10,11 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors, inputDefaults } from '../theme.js'
-
 export type InputOutProperties = BaseInputOutProperties
 
-export type InputProperties = InProperties<InputOutProperties>
+export const InputPropertiesSchema = BaseInputPropertiesSchema
+
+export type InputProperties = z.input<typeof InputPropertiesSchema>
 
 export class Input extends InputImpl<InputOutProperties> {
   constructor(

@@ -1,3 +1,11 @@
+import { boolean, enum as enumSchema, string, union } from 'zod'
+import type { z } from 'zod'
+import {
+  baseOutPropertiesSchema,
+  createInPropertiesSchema,
+  defineSchema,
+  instanceSchema,
+} from '../properties/schema.js'
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
@@ -18,6 +26,16 @@ import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/material/presets.js'
 import { toAbsoluteNumber } from '../text/utils.js'
+export const imageOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  baseOutPropertiesSchema.extend({
+    src: union([string(), instanceSchema('Texture', Texture)]).optional(),
+    objectFit: enumSchema(['cover', 'fill']).optional(),
+    keepAspectRatio: boolean().optional(),
+  }),
+)
+export const ImagePropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(imageOutPropertiesSchema),
+)
 
 export type ImageFit = 'cover' | 'fill'
 
@@ -27,11 +45,10 @@ export const imageDefaults = {
   keepAspectRatio: true,
 }
 
-export type ImageOutProperties<Src> = BaseOutProperties & {
+export type ImageOutProperties<Src = string | Texture> = BaseOutProperties & {
   src?: Src
 } & typeof imageDefaults
-
-export type ImageProperties = InProperties<ImageOutProperties<string | Texture>>
+export type ImageProperties = z.input<typeof ImagePropertiesSchema>
 
 export class Image<
   OutProperties extends ImageOutProperties<unknown> = ImageOutProperties<string | Texture>,

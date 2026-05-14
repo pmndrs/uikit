@@ -1,12 +1,24 @@
+import { boolean, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
+export const ProgressBarStepperStepOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    value: boolean().optional(),
+  }).strict(),
+)
 
-export type ProgressBarStepperStepOutProperties = BaseOutProperties & {
-  value?: boolean
-}
+export const ProgressBarStepperStepPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(ProgressBarStepperStepOutPropertiesSchema),
+)
 
-export type ProgressBarStepperStepProperties = InProperties<ProgressBarStepperStepOutProperties>
+export type ProgressBarStepperStepOutProperties = BaseOutProperties &
+  z.output<typeof ProgressBarStepperStepOutPropertiesSchema>
+
+export type ProgressBarStepperStepProperties = z.input<typeof ProgressBarStepperStepPropertiesSchema>
 
 export class ProgressBarStepperStep extends Container<ProgressBarStepperStepOutProperties> {
   constructor(

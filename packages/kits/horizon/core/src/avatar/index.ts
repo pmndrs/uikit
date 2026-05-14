@@ -1,3 +1,6 @@
+import { boolean, enum as enumSchema, object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   Image,
   ImageOutProperties,
@@ -11,7 +14,6 @@ import {
 import { Texture } from 'three'
 import { theme } from '../theme.js'
 import { computed } from '@preact/signals-core'
-
 const _avatarSizes = {
   xl: { attributionActiveMargin: 4, attributionActiveWidth: 24, attributionSrcWidth: 44, borderWidth: 3, height: 120 },
   lg: { attributionActiveMargin: 2, attributionActiveWidth: 16, attributionSrcWidth: 32, borderWidth: 3, height: 72 },
@@ -21,21 +23,26 @@ const _avatarSizes = {
 }
 const avatarSizes = _avatarSizes as UnionizeVariants<typeof _avatarSizes>
 
-export type AvatarProperties = InProperties<AvatarOutProperties>
+export const AvatarOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    src: string().optional(),
+    attributionActive: boolean().optional(),
+    attributionSrc: string().optional(),
+    size: enumSchema(
+      Object.keys(avatarSizes) as [keyof typeof avatarSizes, ...(keyof typeof avatarSizes)[]],
+    ).optional(),
+    selected: boolean().optional(),
+  }).strict(),
+)
 
-export type AvatarOutProperties = BaseOutProperties & {
-  src?: string
-  /**
-   * @default false
-   */
-  attributionActive?: boolean
-  attributionSrc?: string
-  /**
-   * @default md
-   */
-  size?: keyof typeof avatarSizes
-  selected?: boolean
-}
+export const AvatarPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(AvatarOutPropertiesSchema),
+)
+
+export type AvatarOutProperties = BaseOutProperties & z.output<typeof AvatarOutPropertiesSchema>
+
+export type AvatarProperties = z.input<typeof AvatarPropertiesSchema>
 
 export class Avatar extends Container<AvatarOutProperties> {
   public readonly focusRing: Container

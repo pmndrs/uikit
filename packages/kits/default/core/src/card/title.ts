@@ -1,7 +1,10 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
+export const CardTitlePropertiesSchema = ContainerPropertiesSchema
 
-export type CardTitleProperties = InProperties<BaseOutProperties>
+export type CardTitleProperties = z.input<typeof CardTitlePropertiesSchema>
 
 export class CardTitle extends Container<BaseOutProperties> {
   constructor(

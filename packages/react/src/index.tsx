@@ -89,19 +89,18 @@ export {
   type TextareaProperties as VanillaTextareaProperties,
 } from '@pmndrs/uikit'
 
-export const Container = build<VanillaContainer, ContainerProperties>(VanillaContainer)
-export const Content = build<VanillaContent, ContentProperties>(VanillaContent)
-export const Custom = build<VanillaCustom, CustomProperties>(VanillaCustom)
-export const Image = build<VanillaImage, ImageProperties>(VanillaImage)
-export const Video = build<VanillaVideo, VideoProperties>(VanillaVideo)
-export const Input = build<VanillaInput, InputProperties>(VanillaInput)
-export const Svg = build<VanillaSvg, SvgProperties>(VanillaSvg)
-export const Textarea = build<VanillaTextarea, TextareaProperties>(VanillaTextarea)
+export const Container = /* @__PURE__ */ build<VanillaContainer, ContainerProperties>(VanillaContainer)
+export const Content = /* @__PURE__ */ build<VanillaContent, ContentProperties>(VanillaContent)
+export const Custom = /* @__PURE__ */ build<VanillaCustom, CustomProperties>(VanillaCustom)
+export const Image = /* @__PURE__ */ build<VanillaImage, ImageProperties>(VanillaImage)
+export const Video = /* @__PURE__ */ build<VanillaVideo, VideoProperties>(VanillaVideo)
+export const Input = /* @__PURE__ */ build<VanillaInput, InputProperties>(VanillaInput)
+export const Svg = /* @__PURE__ */ build<VanillaSvg, SvgProperties>(VanillaSvg)
+export const Textarea = /* @__PURE__ */ build<VanillaTextarea, TextareaProperties>(VanillaTextarea)
 
-extend({ VanillaFullscreen })
-
-export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
-  ({ children, attachCamera, ...props }, forwardRef) => {
+export const Fullscreen = /* @__PURE__ */ (() => {
+  extend({ VanillaFullscreen })
+  return forwardRef<VanillaFullscreen, FullscreenProperties>(({ children, attachCamera, ...props }, forwardRef) => {
     const hasAttached = useRef(false)
     useFrame(({ camera, scene }) => {
       //attach camera to something so we can see the camera
@@ -147,22 +146,23 @@ export const Fullscreen = forwardRef<VanillaFullscreen, FullscreenProperties>(
       </vanillaFullscreen>,
       fullscreenWrapper,
     )
-  },
-)
+  })
+})()
 
-extend({ VanillaText })
-
-export const Text = forwardRef<VanillaText, TextProperties>(({ children, ...props }, forwardRef) => {
-  const ref = useRef<VanillaText>(null)
-  useImperativeHandle(forwardRef, () => ref.current!, [])
-  const renderContext = useRenderContext()
-  const inProps = { ...props, text: children }
-  const latestPropsRef = useRef(inProps)
-  latestPropsRef.current = inProps
-  const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
-  const outProps = useSetup(ref, inProps, args)
-  return jsx(`vanillaText` as any, { ...outProps, ref })
-})
+export const Text = /* @__PURE__ */ (() => {
+  extend({ VanillaText })
+  return forwardRef<VanillaText, TextProperties>(({ children, ...props }, forwardRef) => {
+    const ref = useRef<VanillaText>(null)
+    useImperativeHandle(forwardRef, () => ref.current!, [])
+    const renderContext = useRenderContext()
+    const inProps = { ...props, text: children }
+    const latestPropsRef = useRef(inProps)
+    latestPropsRef.current = inProps
+    const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
+    const outProps = useSetup(ref, inProps, args)
+    return jsx(`vanillaText` as any, { ...outProps, ref })
+  })
+})()
 
 export * from './portal.js'
 export * from './build.js'

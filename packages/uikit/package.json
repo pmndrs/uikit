@@ -3,6 +3,7 @@
   "type": "module",
   "description": "Build performant 3D user interfaces with Three.js and yoga.",
   "version": "0.0.0",
+  "sideEffects": false,
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/uikit",
   "author": "Bela Bohlender",
@@ -39,10 +40,11 @@
     "three": ">=0.162"
   },
   "dependencies": {
+    "@pmndrs/msdfonts": "workspace:^",
+    "@pmndrs/uikit-pub-sub": "workspace:^",
     "@preact/signals-core": "^1.5.1",
     "@zappar/msdf-generator": "^1.2.4",
     "yoga-layout": "^3.2.1",
-    "@pmndrs/msdfonts": "workspace:^",
-    "@pmndrs/uikit-pub-sub": "workspace:^"
+    "zod": "^4.4.3"
   }
 }

@@ -1,3 +1,6 @@
+import { object, string } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   InProperties,
   BaseOutProperties,
@@ -11,12 +14,20 @@ import {
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors, inputDefaults, textDefaults } from '../theme.js'
 import type { Object3D } from 'three'
+export const TextareaOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    placeholder: string().optional(),
+  }).passthrough(),
+)
 
-export type TextareaOutProperties = {
-  placeholder?: string
-} & BaseInputOutProperties
+export const TextareaPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(TextareaOutPropertiesSchema),
+)
 
-export type TextareaProperties = InProperties<TextareaOutProperties>
+export type TextareaOutProperties = BaseInputOutProperties & z.output<typeof TextareaOutPropertiesSchema>
+
+export type TextareaProperties = z.input<typeof TextareaPropertiesSchema>
 
 export class Textarea extends Container<TextareaOutProperties> {
   public readonly input: InputImpl

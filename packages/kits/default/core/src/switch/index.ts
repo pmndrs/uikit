@@ -1,16 +1,27 @@
+import { boolean, custom, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import type { Object3D } from 'three'
+export const SwitchOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    checked: boolean().optional(),
+    disabled: boolean().optional(),
+    defaultChecked: boolean().optional(),
+    onCheckedChange: custom<(checked: boolean) => void>((value) => typeof value === 'function').optional(),
+  }).strict(),
+)
 
-export type SwitchOutProperties = {
-  checked?: boolean
-  disabled?: boolean
-  defaultChecked?: boolean
-  onCheckedChange?: (checked: boolean) => void
-} & BaseOutProperties
+export const SwitchPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(SwitchOutPropertiesSchema),
+)
 
-export type SwitchProperties = InProperties<SwitchOutProperties>
+export type SwitchOutProperties = BaseOutProperties & z.output<typeof SwitchOutPropertiesSchema>
+
+export type SwitchProperties = z.input<typeof SwitchPropertiesSchema>
 
 export class Switch extends Container<SwitchOutProperties> {
   public readonly uncontrolledSignal = signal<boolean | undefined>(undefined)

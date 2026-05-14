@@ -1,3 +1,6 @@
+import { boolean, enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   Container,
   ContainerProperties,
@@ -8,7 +11,6 @@ import {
 } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
-
 type PaginationSizeProps = Pick<ContainerProperties, 'height' | 'width' | 'paddingX' | 'paddingY'>
 
 const _paginationSizes = {
@@ -19,12 +21,23 @@ const _paginationSizes = {
 } satisfies Record<string, PaginationSizeProps>
 const paginationSizes = _paginationSizes as UnionizeVariants<typeof _paginationSizes>
 
-export type PaginationLinkOutProperties = BaseOutProperties & {
-  size?: keyof typeof paginationSizes
-  isActive?: boolean
-}
+export const PaginationLinkOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    size: enumSchema(
+      Object.keys(paginationSizes) as [keyof typeof paginationSizes, ...(keyof typeof paginationSizes)[]],
+    ).optional(),
+    isActive: boolean().optional(),
+  }).strict(),
+)
 
-export type PaginationLinkProperties = InProperties<PaginationLinkOutProperties>
+export const PaginationLinkPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(PaginationLinkOutPropertiesSchema),
+)
+
+export type PaginationLinkOutProperties = BaseOutProperties & z.output<typeof PaginationLinkOutPropertiesSchema>
+
+export type PaginationLinkProperties = z.input<typeof PaginationLinkPropertiesSchema>
 
 export class PaginationLink extends Container<PaginationLinkOutProperties> {
   constructor(

@@ -1,3 +1,6 @@
+import { enum as enumSchema, object } from 'zod'
+import type { z } from 'zod'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   Container,
@@ -8,7 +11,6 @@ import {
 } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
-
 const _alertVariants = {
   default: {
     backgroundColor: colors.card,
@@ -21,11 +23,22 @@ const _alertVariants = {
 } satisfies { [Key in string]: ContainerProperties }
 const alertVariants = _alertVariants as UnionizeVariants<typeof _alertVariants>
 
-export type AlertProperties = InProperties<AlertOutProperties>
+export const AlertOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  object({
+    ...baseOutPropertyShape,
+    variant: enumSchema(
+      Object.keys(alertVariants) as [keyof typeof alertVariants, ...(keyof typeof alertVariants)[]],
+    ).optional(),
+  }).strict(),
+)
 
-export type AlertOutProperties = BaseOutProperties & {
-  variant?: keyof typeof alertVariants
-}
+export const AlertPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(AlertOutPropertiesSchema),
+)
+
+export type AlertOutProperties = BaseOutProperties & z.output<typeof AlertOutPropertiesSchema>
+
+export type AlertProperties = z.input<typeof AlertPropertiesSchema>
 
 export class Alert extends Container<AlertOutProperties> {
   constructor(

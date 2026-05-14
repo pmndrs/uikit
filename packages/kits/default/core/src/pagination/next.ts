@@ -1,9 +1,11 @@
+import type { z } from 'zod'
 import { InProperties, BaseOutProperties, RenderContext, Text } from '@pmndrs/uikit'
 import { ChevronRight } from '@pmndrs/uikit-lucide'
-import { PaginationLink, PaginationLinkOutProperties } from './link.js'
+import { PaginationLink, PaginationLinkOutProperties, PaginationLinkPropertiesSchema } from './link.js'
 import { colors, componentDefaults, contentDefaults, textDefaults } from '../theme.js'
+export const PaginationNextPropertiesSchema = PaginationLinkPropertiesSchema
 
-export type PaginationNextProperties = Omit<InProperties<PaginationLinkOutProperties>, 'children'>
+export type PaginationNextProperties = z.input<typeof PaginationNextPropertiesSchema>
 
 export class PaginationNext extends PaginationLink {
   public readonly label: Text

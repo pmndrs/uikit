@@ -1,11 +1,18 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { XIcon } from '@pmndrs/uikit-lucide'
 import { Dialog } from './index.js'
+export const DialogContentOutPropertiesSchema = baseOutPropertiesSchema
 
-export type DialogContentOutProperties = BaseOutProperties
+export const DialogContentPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(DialogContentOutPropertiesSchema),
+)
 
-export type DialogContentProperties = InProperties<DialogContentOutProperties>
+export type DialogContentOutProperties = BaseOutProperties & z.output<typeof DialogContentOutPropertiesSchema>
+
+export type DialogContentProperties = z.input<typeof DialogContentPropertiesSchema>
 
 export class DialogContent extends Container<DialogContentOutProperties> {
   public readonly closeButton: XIcon

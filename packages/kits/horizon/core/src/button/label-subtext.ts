@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import {
   BaseOutProperties,
   componentDefaults,
@@ -10,8 +12,9 @@ import {
 import { computed } from '@preact/signals-core'
 import { Button } from './index.js'
 import { theme } from '../theme.js'
+export const ButtonLabelSubtextPropertiesSchema = ContainerPropertiesSchema
 
-export type ButtonLabelSubtextProperties = ContainerProperties
+export type ButtonLabelSubtextProperties = z.input<typeof ButtonLabelSubtextPropertiesSchema>
 
 export class ButtonLabelSubtext extends Container<BaseOutProperties> {
   constructor(

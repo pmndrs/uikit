@@ -1,7 +1,10 @@
+import type { z } from 'zod'
+import { ContainerPropertiesSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { colors, componentDefaults } from '../theme.js'
+export const AlertTitlePropertiesSchema = ContainerPropertiesSchema
 
-export type AlertTitleProperties = InProperties<BaseOutProperties>
+export type AlertTitleProperties = z.input<typeof AlertTitlePropertiesSchema>
 
 export class AlertTitle extends Container<BaseOutProperties> {
   constructor(

@@ -1,10 +1,17 @@
+import type { z } from 'zod'
+import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { DarkBackgroundMaterial, panelMaterialClass } from '../background-material.js'
 import { MeshBasicMaterial } from 'three'
+export const PanelOutPropertiesSchema = baseOutPropertiesSchema
 
-export type PanelOutProperties = BaseOutProperties
+export const PanelPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
+  createInPropertiesSchema(PanelOutPropertiesSchema),
+)
 
-export type PanelProperties = InProperties<PanelOutProperties>
+export type PanelOutProperties = BaseOutProperties & z.output<typeof PanelOutPropertiesSchema>
+
+export type PanelProperties = z.input<typeof PanelPropertiesSchema>
 
 export class Panel extends Container<BaseOutProperties> {
   constructor(
