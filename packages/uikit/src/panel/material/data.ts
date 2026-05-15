@@ -4,6 +4,7 @@ import { clamp } from 'three/src/math/MathUtils.js'
 import type { ColorRepresentation } from '../../utils.js'
 import { toAbsoluteNumber } from '../../text/utils.js'
 import { writeColor } from './color.js'
+import type { TransformScale } from '../../properties/values.js'
 
 export const materialSetters = {
   // 0-3 = border sizes
@@ -39,7 +40,7 @@ export const materialSetters = {
     ),
 
   // 13 = border bend
-  borderBend: (d, o, p: number | `${number}%`, _, op, u) =>
+  borderBend: (d, o, p: TransformScale, _, op, u) =>
     writeComponent(
       d,
       o + 13,
@@ -55,7 +56,7 @@ export const materialSetters = {
     offset: number,
     value: any,
     size: Signal<Vector2Tuple | undefined>,
-    opacity: Signal<number | `${number}%`>,
+    opacity: Signal<TransformScale>,
     onUpdate: ((start: number, count: number) => void) | undefined,
   ) => void
 }
@@ -68,7 +69,13 @@ function writeBorderRadius(
   height: number,
   onUpdate: ((start: number, count: number) => void) | undefined,
 ): void {
-  setBorderRadius(data, offset, indexInFloat, Number(value), height)
+  setBorderRadius(
+    data,
+    offset,
+    indexInFloat,
+    toAbsoluteNumber(value, () => height),
+    height,
+  )
   onUpdate?.(offset, 1)
 }
 

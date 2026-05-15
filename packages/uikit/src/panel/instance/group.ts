@@ -14,6 +14,7 @@ import { resolvePanelMaterialClassProperty } from '../material/presets.js'
 import { InstancedPanelMesh } from './mesh.js'
 import type { InstancedPanel } from './panel.js'
 import type { PanelGroupProperties } from './properties.js'
+import { parseNumberLike } from '../../properties/values.js'
 
 const nextFrame = Symbol('nextFrame')
 
@@ -193,7 +194,7 @@ export class InstancedPanelGroup {
     this.instanceClipping = new InstancedBufferAttribute(clippingArray, 16, false)
     this.instanceClipping.setUsage(DynamicDrawUsage)
     this.mesh = new InstancedPanelMesh(this.root, this.instanceMatrix, this.instanceData, this.instanceClipping)
-    this.mesh.renderOrder = this.panelGroupProperties.renderOrder
+    this.mesh.renderOrder = parseNumberLike(this.panelGroupProperties.renderOrder)
     setupRenderOrder(this.mesh, { peek: () => this.root }, { value: this.orderInfo })
     this.mesh.material = this.instanceMaterial
     this.mesh.receiveShadow = this.panelGroupProperties.receiveShadow

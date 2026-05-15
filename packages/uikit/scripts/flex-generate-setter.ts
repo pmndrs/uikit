@@ -116,7 +116,11 @@ async function main() {
     } else {
       const percentUnit = node[`set${functionName}Percent` as keyof Node] != null
       const autoUnit = node[`set${functionName}Auto` as keyof Node] != null
-      types = ['undefined', 'number']
+      const pixelUnit = percentUnit || propertyName === 'border'
+      types = ['undefined', 'number', '`${number}`']
+      if (pixelUnit) {
+        types.push('`${number}px`')
+      }
       if (percentUnit) {
         types.push(
           '`${number}%`',
@@ -133,13 +137,14 @@ async function main() {
       if (autoUnit) {
         types.push(`"auto"`)
       }
+      const numberSchema = propertyName === 'border' ? 'numberOrPixelLengthSchema' : 'numberLikeSchema'
       schemaProperties.push([
         propertyName,
-        `${percentUnit ? (autoUnit ? 'pointOrAutoSchema' : 'pointSchema') : autoUnit ? 'union([number(), literal("auto")])' : 'number()'}.optional()`,
+        `${percentUnit ? (autoUnit ? 'pointOrAutoSchema' : 'pointSchema') : autoUnit ? `union([${numberSchema}, literal("auto")])` : numberSchema}.optional()`,
       ])
       convertFunction = (defaultValue, setter) => {
         const prefix = autoUnit ? `if(input === "auto") { ${setter(null, 'Auto')}; return }\n` : ''
-        let input = percentUnit ? `convertPoint(input, root)` : 'input'
+        let input = percentUnit ? `convertPoint(input, root)` : 'convertNumber(input)'
         if (defaultValue == null || (typeof defaultValue === 'number' && isNaN(defaultValue))) {
           return prefix + setter(input)
         }
@@ -204,7 +209,7 @@ async function main() {
       `import { Node } from "yoga-layout/load"
     import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/load"
     import type { RootContext } from '../context.js'
-    import { convertYogaPoint } from '../properties/values.js'
+    import { convertYogaPoint, parseNumberOrPixelLength } from '../properties/values.js'
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
@@ -219,6 +224,9 @@ async function main() {
       const [width, height] = root.component.size.value ?? [0, 0]
       return convertYogaPoint(input as \`\${number}%\`, width, height)
     }
+    function convertNumber(input: string | number | undefined): undefined | number {
+      return input == null ? undefined : parseNumberOrPixelLength(input as never)
+    }
     ${Array.from(lookupTables.values()).join('\n')}
     export const setter = { ${setterFunctions
       .map(([propertyName, functionCode]) => `${applyRenames(propertyName)}: ${functionCode}`)
@@ -232,26 +240,48 @@ async function main() {
       `import { custom, enum as enumSchema, literal, number, object, union } from 'zod'
 import type { z } from 'zod'
 import {
+  isNumericString,
   isPercentageString,
+  isPixelLengthString,
   isViewportLengthString,
+  type NumericString,
+  type NumberOrPixelLength,
   type Percentage,
+  type PixelLength,
   type ViewportLength,
 } from '../properties/values.js'
 
-const percentageSchema = custom<Percentage>(isPercentageString, 'Expected a percentage string')
-const viewportLengthSchema = custom<ViewportLength>(
-  isViewportLengthString,
-  'Expected a viewport length string',
+function defineSchema<T>(create: () => T): T {
+  return create()
+}
+
+const numericStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<NumericString>(isNumericString, 'Expected a numeric string'),
+)
+const percentageSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<Percentage>(isPercentageString, 'Expected a percentage string'),
+)
+const pixelLengthSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<PixelLength>(isPixelLengthString, 'Expected a pixel length string'),
+)
+const viewportLengthSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<ViewportLength>(isViewportLengthString, 'Expected a viewport length string'),
+)
+const numberLikeSchema = /* @__PURE__ */ defineSchema(() => union([number(), numericStringSchema]))
+const numberOrPixelLengthSchema = /* @__PURE__ */ defineSchema(
+  () => union([numberLikeSchema, pixelLengthSchema]) as z.ZodType<NumberOrPixelLength, NumberOrPixelLength>,
 )
 
-export const pointSchema = union([number(), percentageSchema, viewportLengthSchema])
-export const pointOrAutoSchema = union([pointSchema, literal('auto')])
+export const pointSchema = /* @__PURE__ */ defineSchema(() =>
+  union([numberLikeSchema, pixelLengthSchema, percentageSchema, viewportLengthSchema]),
+)
+export const pointOrAutoSchema = /* @__PURE__ */ defineSchema(() => union([pointSchema, literal('auto')]))
 
-export const yogaPropertyShape = {
+export const yogaPropertyShape = /* @__PURE__ */ defineSchema(() => ({
 ${filteredSchemaProperties.map(([propertyName, schema]) => `  ${propertyName}: ${schema},`).join('\n')}
-} as const
+}) as const)
 
-export const yogaOutPropertiesSchema = object(yogaPropertyShape).strict()
+export const yogaOutPropertiesSchema = /* @__PURE__ */ defineSchema(() => object(yogaPropertyShape).strict())
 
 export type YogaProperties = z.output<typeof yogaOutPropertiesSchema>
 `,

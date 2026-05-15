@@ -1,23 +1,21 @@
-import { boolean, custom, number, object, string, union } from 'zod'
+import { boolean, custom, object } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberLikeSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, abortableEffect } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
 import { Object3DEventMap, Vector3 } from 'three'
 const vectorHelper = new Vector3()
 
-const numberOrStringSchema = /* @__PURE__ */ defineSchema(() => union([number(), string()]))
-
 export const SliderOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
     disabled: boolean().optional(),
-    value: numberOrStringSchema.optional(),
-    min: numberOrStringSchema.optional(),
-    max: numberOrStringSchema.optional(),
-    step: numberOrStringSchema.optional(),
-    defaultValue: numberOrStringSchema.optional(),
+    value: numberLikeSchema.optional(),
+    min: numberLikeSchema.optional(),
+    max: numberLikeSchema.optional(),
+    step: numberLikeSchema.optional(),
+    defaultValue: numberLikeSchema.optional(),
     onValueChange: custom<(value: number) => void>((value) => typeof value === 'function').optional(),
   }).strict(),
 )

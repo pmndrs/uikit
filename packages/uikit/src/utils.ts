@@ -10,6 +10,7 @@ import { Component } from './components/component.js'
 import { Container } from './components/container.js'
 import { RootContext } from './context.js'
 import { writeColor } from './panel/material/color.js'
+import { parseNumberLike, parseNumberOrPixelLength } from './properties/values.js'
 
 export type Fix_TS_56_Float32Array = Float32Array
 
@@ -216,7 +217,7 @@ export function setupPointerEvents(component: Component, canHaveNonUikitChildren
   abortableEffect(() => {
     component.ancestorsHaveListeners = component.ancestorsHaveListenersSignal.value
     component.pointerEvents = component.isVisible.value ? component.properties.value.pointerEvents : 'none'
-    component.pointerEventsOrder = component.properties.value.pointerEventsOrder
+    component.pointerEventsOrder = parseNumberLike(component.properties.value.pointerEventsOrder ?? 0)
     component.pointerEventsType = component.properties.value.pointerEventsType
   }, component.abortSignal)
   abortableEffect(() => {
@@ -306,7 +307,13 @@ export function readReactive<T>(value: T | 'initial' | ReadonlySignal<T | 'initi
 }
 
 export function computedBorderInset(properties: Properties, keys: ReadonlyArray<string>): Signal<Inset> {
-  return computed(() => keys.map((key) => properties.value[key as keyof BaseOutProperties] ?? 0) as Inset)
+  return computed(
+    () =>
+      keys.map((key) => {
+        const value = properties.value[key as keyof BaseOutProperties]
+        return value == null ? 0 : parseNumberOrPixelLength(value as any)
+      }) as Inset,
+  )
 }
 
 export function withOpacity(

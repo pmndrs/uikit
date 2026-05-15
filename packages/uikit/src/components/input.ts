@@ -1,6 +1,6 @@
-import { boolean, enum as enumSchema, number, string } from 'zod'
+import { boolean, enum as enumSchema, string } from 'zod'
 import type { z } from 'zod'
-import { createInPropertiesSchema, defineSchema, functionSchema } from '../properties/schema.js'
+import { createInPropertiesSchema, defineSchema, functionSchema, numberLikeSchema } from '../properties/schema.js'
 import { computed, ReadonlySignal, Signal, signal } from '@preact/signals-core'
 import { EventHandlersProperties } from '../events.js'
 import { Vector2Tuple } from 'three'
@@ -14,13 +14,14 @@ import { setupSelectionHandlers } from '../text/selection/pointer.js'
 import { updateHtmlSelectionRange } from '../text/selection/state.js'
 import { createHtmlInputElement, setupHtmlInputElement, setupUpdateHasFocus } from '../text/input/hidden-input.js'
 import { RenderContext } from '../context.js'
+import type { NumberLike } from '../properties/values.js'
 export const inputOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   textOutPropertiesSchema.omit({ text: true }).extend({
     placeholder: string().optional(),
     defaultValue: string().optional(),
     value: string().optional(),
     disabled: boolean().optional(),
-    tabIndex: number().optional(),
+    tabIndex: numberLikeSchema.optional(),
     autocomplete: string().optional(),
     type: enumSchema(['text', 'password', 'number']).optional(),
     onValueChange: functionSchema.optional(),
@@ -39,7 +40,7 @@ export type InputOutProperties = Omit<TextOutProperties, 'text'> & {
   defaultValue?: string
   value?: string
   disabled: boolean
-  tabIndex: number
+  tabIndex: NumberLike
   autocomplete: string
   type: InputType
   onValueChange?: (value: string) => void

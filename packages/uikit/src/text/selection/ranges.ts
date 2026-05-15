@@ -9,15 +9,16 @@ import { PanelGroupProperties, computedPanelMatrix } from '../../panel/instance/
 import { PanelMaterialConfig, createPanelMaterialConfig } from '../../panel/material/config.js'
 import { Properties } from '../../properties/index.js'
 import { RootContext } from '../../context.js'
+import type { NumberOrPixelLength } from '../../properties/values.js'
 import type { SelectionTransformation } from '../layout/index.js'
 
 export type { SelectionTransformation } from '../layout/index.js'
 
 export type SelectionBorderSizeProperties = {
-  selectionBorderRightWidth?: number
-  selectionBorderTopWidth?: number
-  selectionBorderLeftWidth?: number
-  selectionBorderBottomWidth?: number
+  selectionBorderRightWidth?: NumberOrPixelLength
+  selectionBorderTopWidth?: NumberOrPixelLength
+  selectionBorderLeftWidth?: NumberOrPixelLength
+  selectionBorderBottomWidth?: NumberOrPixelLength
 }
 
 const selectionBorderKeys = [

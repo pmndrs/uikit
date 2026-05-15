@@ -2,6 +2,7 @@ import type { Signal } from '@preact/signals-core'
 import type { Matrix4, Vector2Tuple } from 'three'
 import type { GlyphInfo, Font } from '../font.js'
 import type { BaseOutProperties, Properties } from '../../properties/index.js'
+import type { NumberLike, TransformLength } from '../../properties/values.js'
 import type { Inset } from '../../flex/node.js'
 import type { alignmentXMap, alignmentYMap } from '../../utils.js'
 
@@ -74,12 +75,12 @@ export type TextMatrixTarget = {
 }
 
 export type GlyphProperties = Partial<{
-  letterSpacing: number | string
-  lineHeight: number | string
-  fontSize: number | string
+  letterSpacing: TransformLength
+  lineHeight: TransformLength
+  fontSize: TransformLength
   wordBreak: WordBreak
   whiteSpace: WhiteSpace
-  tabSize: number
+  tabSize: NumberLike
 }>
 
 export type WhiteSpace = 'normal' | 'collapse' | 'pre' | 'pre-line'

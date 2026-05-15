@@ -17,6 +17,7 @@ import { InstancedGlyphMesh, toAbsoluteNumber } from '../text/index.js'
 import { InstancedPanelMesh } from '../panel/instance/mesh.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
+import { parseNumberLike } from '../properties/values.js'
 export const contentOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   baseOutPropertiesSchema.extend({
     depthAlign: enumSchema(['back', 'center', 'middle', 'front']).optional(),
@@ -143,7 +144,7 @@ export class Content<
       const innerWidth = width - leftInset - rightInset
       const innerHeight = height - topInset - bottomInset
 
-      const pixelSize = this.properties.value.pixelSize
+      const pixelSize = parseNumberLike(this.properties.value.pixelSize)
       scaleHelper
         .set(
           innerWidth * pixelSize,
@@ -339,7 +340,7 @@ function applyAppearancePropertiesToGroup(
   }
   const depthTest = properties.value.depthTest
   const depthWrite = properties.value.depthWrite ?? depthWriteDefault
-  const renderOrder = properties.value.renderOrder
+  const renderOrder = parseNumberLike(properties.value.renderOrder ?? 0)
   group.traverse((child) => {
     if (child instanceof InstancedGlyphMesh || child instanceof InstancedPanelMesh || !(child instanceof Mesh)) {
       return

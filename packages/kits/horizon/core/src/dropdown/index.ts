@@ -1,17 +1,10 @@
 import { boolean, custom, enum as enumSchema, object, string } from 'zod'
 import type { z } from 'zod'
 import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
-import {
-  BaseOutProperties,
-  Container,
-  ContainerProperties,
-  InProperties,
-  RenderContext,
-  UnionizeVariants,
-} from '@pmndrs/uikit'
+import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed, signal } from '@preact/signals-core'
 import { theme } from '../theme.js'
-type DropdownSizeProps = Pick<ContainerProperties, 'paddingX' | 'paddingY' | 'fontSize' | 'lineHeight'>
+type DropdownSizeProps = { paddingX: number; paddingY: number; fontSize: number; lineHeight: `${number}px` }
 const _dropdownSizes = {
   lg: {
     paddingX: 20,
@@ -26,7 +19,7 @@ const _dropdownSizes = {
     lineHeight: '16px',
   },
 } satisfies Record<string, DropdownSizeProps>
-const dropdownSizes = _dropdownSizes as UnionizeVariants<typeof _dropdownSizes>
+const dropdownSizes = _dropdownSizes as Record<keyof typeof _dropdownSizes, DropdownSizeProps>
 
 export const DropdownOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({

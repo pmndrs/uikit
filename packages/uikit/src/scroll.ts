@@ -13,6 +13,12 @@ import { PanelGroupProperties } from './panel/instance/properties.js'
 import { EventHandlersProperties, ThreeMouseEvent, ThreePointerEvent } from './events.js'
 import { Properties } from './properties/index.js'
 import { Container } from './components/container.js'
+import {
+  parseNumberLike,
+  parseNumberOrPixelLength,
+  type NumberLike,
+  type NumberOrPixelLength,
+} from './properties/values.js'
 
 const distanceHelper = new Vector3()
 const localPointHelper = new Vector3()
@@ -35,7 +41,7 @@ export function computedGlobalScrollMatrix(
       return undefined
     }
     const [scrollX, scrollY] = scrollPosition.value
-    const pixelSize = properties.value.pixelSize
+    const pixelSize = parseNumberLike(properties.value.pixelSize)
     return new Matrix4().makeTranslation(-scrollX * pixelSize, scrollY * pixelSize, 0).premultiply(global)
   })
 }
@@ -99,7 +105,7 @@ export function setupScrollHandlers(
         const scrollbarAxisIndex = ponterIsMouse
           ? getIntersectedScrollbarIndex(
               localPoint,
-              container.properties.peek().scrollbarWidth,
+              parseNumberOrPixelLength(container.properties.peek().scrollbarWidth ?? 0),
               container.size.peek(),
               container.maxScrollPosition.peek(),
               container.borderInset.peek(),
@@ -160,7 +166,7 @@ export function setupScrollHandlers(
             size,
             container.borderInset.peek(),
             container.maxScrollPosition.peek(),
-            container.properties.peek().scrollbarWidth,
+            parseNumberOrPixelLength(container.properties.peek().scrollbarWidth ?? 0),
           )
           scroll(container, event, distanceHelper.x, -distanceHelper.y, undefined, false)
           updateScrollFrame()
@@ -359,19 +365,19 @@ function outsideDistance(value: number, min: number, max: number): number {
 }
 
 type ScrollbarWidthProperties = {
-  scrollbarWidth?: number
+  scrollbarWidth?: NumberOrPixelLength
 }
 
 type ScrollbarBorderSizeProperties = {
-  scrollbarBorderRightWidth?: number
-  scrollbarBorderTopWidth?: number
-  scrollbarBorderLeftWidth?: number
-  scrollbarBorderBottomWidth?: number
+  scrollbarBorderRightWidth?: NumberOrPixelLength
+  scrollbarBorderTopWidth?: NumberOrPixelLength
+  scrollbarBorderLeftWidth?: NumberOrPixelLength
+  scrollbarBorderBottomWidth?: NumberOrPixelLength
 }
 
 export type ScrollbarProperties = {
   scrollbarColor?: ColorRepresentation
-  scrollbarZIndex?: number
+  scrollbarZIndex?: NumberLike
 } & ScrollbarWidthProperties &
   ScrollbarBorderSizeProperties & {
     [Key in Exclude<keyof PanelProperties, 'opacity'> as `scrollbar${Capitalize<Key>}`]?: PanelProperties[Key]
@@ -436,7 +442,7 @@ function setupScrollbar(
   const scrollbarTransformation = computed(() =>
     computeScrollbarTransformation(
       primaryIndex,
-      container.properties.value.scrollbarWidth,
+      parseNumberOrPixelLength(container.properties.value.scrollbarWidth ?? 0),
       container.size.value,
       container.maxScrollPosition.value,
       container.borderInset.value,

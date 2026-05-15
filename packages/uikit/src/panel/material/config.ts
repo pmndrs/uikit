@@ -6,6 +6,7 @@ import { Inset } from '../../flex/index.js'
 import { toAbsoluteNumber } from '../../text/utils.js'
 import { writeColor } from './color.js'
 import { materialSetters } from './data.js'
+import type { TransformScale } from '../../properties/values.js'
 
 const defaultDefaults = {
   backgroundColor: 'transparent' as ColorRepresentation,
@@ -53,7 +54,7 @@ export function createPanelMaterialConfig(
       offset: number,
       value: unknown,
       size: Signal<Vector2Tuple | undefined>,
-      opacity: Signal<number | `${number}%`>,
+      opacity: Signal<TransformScale>,
       onUpdate: ((start: number, count: number) => void) | undefined,
     ) => void
   } = {}

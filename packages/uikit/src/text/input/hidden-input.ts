@@ -1,10 +1,11 @@
 import { Signal } from '@preact/signals-core'
 import { ReadonlyProperties } from '@pmndrs/uikit-pub-sub'
 import { abortableEffect } from '../../utils.js'
+import { parseNumberLike, type NumberLike } from '../../properties/values.js'
 
 type HiddenInputProperties = {
   disabled: boolean
-  tabIndex: number
+  tabIndex: NumberLike
   autocomplete: string
   type: string
 }
@@ -47,7 +48,7 @@ export function setupHtmlInputElement(
     element.disabled = properties.value.disabled
   }, abortSignal)
   abortableEffect(() => {
-    element.tabIndex = properties.value.tabIndex
+    element.tabIndex = parseNumberLike(properties.value.tabIndex)
   }, abortSignal)
   abortableEffect(() => {
     element.autocomplete = properties.value.autocomplete as AutoFill

@@ -130,4 +130,15 @@ function hasConditional(
 export { componentDefaults } from './defaults.js'
 export type { AddAllAliases, GetAliases, AllAliases } from './alias.js'
 export type { SchemaInProperties, SchemaLayerProperties, SchemaPropertyValue } from './schema.js'
-export { baseOutPropertyShape, baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from './schema.js'
+export {
+  baseOutPropertyShape,
+  baseOutPropertiesSchema,
+  createInPropertiesSchema,
+  defineSchema,
+  lengthSchema,
+  numberLikeSchema,
+  numberOrPercentageSchema,
+  numberOrPixelLengthSchema,
+  numericStringSchema,
+  scaleSchema,
+} from './schema.js'

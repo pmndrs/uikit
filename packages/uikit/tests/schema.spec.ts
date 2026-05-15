@@ -13,6 +13,7 @@ describe('property schemas', () => {
       padding: 12,
       width: signal(100),
       height: 'initial',
+      zIndex: '2',
       transformScaleX: '125%',
       transformScaleY: 'initial',
       hover: {
@@ -29,12 +30,18 @@ describe('property schemas', () => {
   it('uses explicit string formats for numeric properties', () => {
     expect(ContainerPropertiesSchema.safeParse({ transformScaleX: 1.25 }).success).to.equal(true)
     expect(ContainerPropertiesSchema.safeParse({ transformScaleX: '125%' }).success).to.equal(true)
-    expect(ContainerPropertiesSchema.safeParse({ transformScaleX: '1.25' }).success).to.equal(false)
+    expect(ContainerPropertiesSchema.safeParse({ transformScaleX: '1.25' }).success).to.equal(true)
     expect(ContainerPropertiesSchema.safeParse({ transformScaleX: '12px' }).success).to.equal(false)
     expect(ContainerPropertiesSchema.safeParse({ transformTranslateX: '12px' }).success).to.equal(true)
     expect(ContainerPropertiesSchema.safeParse({ transformTranslateX: '50%' }).success).to.equal(true)
     expect(ContainerPropertiesSchema.safeParse({ transformTranslateX: '10dvw' }).success).to.equal(true)
     expect(ContainerPropertiesSchema.safeParse({ transformTranslateX: 'wide' }).success).to.equal(false)
+    expect(ContainerPropertiesSchema.safeParse({ zIndex: '2' }).success).to.equal(true)
+    expect(ContainerPropertiesSchema.safeParse({ zIndex: '2px' }).success).to.equal(false)
+    expect(ContainerPropertiesSchema.safeParse({ caretWidth: '2px' }).success).to.equal(true)
+    expect(ContainerPropertiesSchema.safeParse({ opacity: '0.5' }).success).to.equal(true)
+    expect(ContainerPropertiesSchema.safeParse({ opacity: '50%' }).success).to.equal(true)
+    expect(ContainerPropertiesSchema.safeParse({ opacity: '2px' }).success).to.equal(false)
   })
 
   it('rejects unknown properties at the exact nested path', () => {
@@ -70,13 +77,27 @@ describe('generated yoga schema', () => {
   it('uses the same property keys as the generated yoga setters', () => {
     expect(Object.keys(yogaPropertyShape).sort()).to.deep.equal(Object.keys(setter).sort())
   })
+
+  it('keeps Yoga scalar and point string units precise', () => {
+    expect(yogaPropertyShape.width.safeParse('12').success).to.equal(true)
+    expect(yogaPropertyShape.width.safeParse('12px').success).to.equal(true)
+    expect(yogaPropertyShape.width.safeParse('12%').success).to.equal(true)
+    expect(yogaPropertyShape.flexGrow.safeParse('2').success).to.equal(true)
+    expect(yogaPropertyShape.flexGrow.safeParse('2px').success).to.equal(false)
+    expect(yogaPropertyShape.borderTopWidth.safeParse('2px').success).to.equal(true)
+    expect(yogaPropertyShape.borderTopWidth.safeParse('2%').success).to.equal(false)
+  })
 })
 
 describe('property value parsing', () => {
   it('uses the same percentage and viewport grammar as schema validation', () => {
     expect(parseAbsoluteNumber('50%', () => 200)).to.equal(100)
+    expect(parseAbsoluteNumber('12')).to.equal(12)
+    expect(parseAbsoluteNumber('12px')).to.equal(12)
     expect(parseAbsoluteNumber('25dvw', undefined, 400, 800)).to.equal(100)
     expect(parseAbsoluteNumber('25svh', undefined, 400, 800)).to.equal(200)
+    expect(convertYogaPoint('12', 400, 800)).to.equal(12)
+    expect(convertYogaPoint('12px', 400, 800)).to.equal(12)
     expect(convertYogaPoint('25lvw', 400, 800)).to.equal(100)
     expect(convertYogaPoint('25lvh', 400, 800)).to.equal(200)
     expect(() => parseAbsoluteNumber('12banana')).to.throw('Invalid number')

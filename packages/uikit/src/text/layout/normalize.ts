@@ -1,5 +1,6 @@
 import { Signal, computed } from '@preact/signals-core'
 import type { Properties } from '../../properties/index.js'
+import { parseNumberLike } from '../../properties/values.js'
 import type { Font } from '../font.js'
 import { toAbsoluteNumber } from '../utils.js'
 import type { GlyphOutProperties, GlyphProperties, TextLayoutProperties } from './types.js'
@@ -35,7 +36,7 @@ export function computedGlyphOutProperties(
     }
     const textProperty = properties.value.text
     let text = Array.isArray(textProperty) ? textProperty.map(toString).join('') : toString(textProperty)
-    const tabSize = properties.value.tabSize
+    const tabSize = parseNumberLike(properties.value.tabSize)
     const whiteSpace = properties.value.whiteSpace
     switch (whiteSpace) {
       case 'pre':

@@ -3,17 +3,23 @@ import { Euler, Matrix4, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { alignmentXMap, alignmentYMap } from './utils.js'
 import { Component } from './components/component.js'
 import { toAbsoluteNumber } from './text/utils.js'
-import type { TransformLength, TransformScale } from './properties/values.js'
+import {
+  parseNumberLike,
+  type NumberLike,
+  type NumberOrPixelLength,
+  type TransformLength,
+  type TransformScale,
+} from './properties/values.js'
 export type { TransformLength, TransformScale } from './properties/values.js'
 
 export type TransformProperties = {
   transformTranslateX?: TransformLength
   transformTranslateY?: TransformLength
-  transformTranslateZ?: number
+  transformTranslateZ?: NumberOrPixelLength
 
-  transformRotateX?: number
-  transformRotateY?: number
-  transformRotateZ?: number
+  transformRotateX?: NumberLike
+  transformRotateY?: NumberLike
+  transformRotateZ?: NumberLike
 
   transformScaleX?: TransformScale
   transformScaleY?: TransformScale
@@ -55,7 +61,7 @@ export function computedTransformMatrix({
       return undefined
     }
     const [x, y] = relativeCenterValue
-    const pixelSize = properties.value.pixelSize
+    const pixelSize = parseNumberLike(properties.value.pixelSize)
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
     let originCenter = true
@@ -85,11 +91,11 @@ export function computedTransformMatrix({
     const tSY = properties.value.transformScaleY ?? 1
     const tSZ = properties.value.transformScaleZ ?? 1
 
-    const r: Vector3Tuple = [tRX, tRY, tRZ]
+    const r: Vector3Tuple = [parseNumberLike(tRX), parseNumberLike(tRY), parseNumberLike(tRZ)]
     const t: Vector3Tuple = [
       toAbsoluteNumber(tTX, () => size.value?.[0] ?? 0, root.value),
       -toAbsoluteNumber(tTY, () => size.value?.[1] ?? 0, root.value),
-      tTZ,
+      toAbsoluteNumber(tTZ),
     ]
     const s: Vector3Tuple = [
       toAbsoluteNumber(tSX, () => 1, root.value),

@@ -17,8 +17,12 @@ import {
   isPixelLengthString,
   isViewportLengthString,
   type NumericString,
+  type NumberLike,
+  type NumberOrPixelLength,
   type Percentage,
   type PixelLength,
+  type TransformLength,
+  type TransformScale,
   type ViewportLength,
 } from './values.js'
 
@@ -61,7 +65,7 @@ const constructorSchema = /* @__PURE__ */ defineSchema(() =>
 export const instanceSchema = <T>(name: string, ctor: { new (...args: Array<any>): T }) =>
   custom<T>((value) => value instanceof ctor, `Expected ${name}`)
 
-const numericStringSchema = /* @__PURE__ */ defineSchema(() =>
+export const numericStringSchema = /* @__PURE__ */ defineSchema(() =>
   custom<NumericString>(isNumericString, 'Expected a numeric string'),
 )
 const percentageSchema = /* @__PURE__ */ defineSchema(() =>
@@ -73,12 +77,23 @@ const pixelLengthSchema = /* @__PURE__ */ defineSchema(() =>
 const viewportLengthSchema = /* @__PURE__ */ defineSchema(() =>
   custom<ViewportLength>(isViewportLengthString, 'Expected a viewport length string'),
 )
-const numericValueSchema = /* @__PURE__ */ defineSchema(() => union([number(), numericStringSchema]))
-const lengthSchema = /* @__PURE__ */ defineSchema(() =>
-  union([numericValueSchema, pixelLengthSchema, percentageSchema, viewportLengthSchema]),
+export const numberLikeSchema = /* @__PURE__ */ defineSchema(
+  () => union([number(), numericStringSchema]) as z.ZodType<NumberLike, NumberLike>,
 )
-const scaleSchema = /* @__PURE__ */ defineSchema(() => union([number(), percentageSchema]))
-const numberOrStringSchema = /* @__PURE__ */ defineSchema(() => union([number(), string()]))
+export const numberOrPixelLengthSchema = /* @__PURE__ */ defineSchema(
+  () => union([numberLikeSchema, pixelLengthSchema]) as z.ZodType<NumberOrPixelLength, NumberOrPixelLength>,
+)
+export const lengthSchema = /* @__PURE__ */ defineSchema(
+  () =>
+    union([numberOrPixelLengthSchema, percentageSchema, viewportLengthSchema]) as z.ZodType<
+      TransformLength,
+      TransformLength
+    >,
+)
+export const scaleSchema = /* @__PURE__ */ defineSchema(
+  () => union([numberLikeSchema, percentageSchema]) as z.ZodType<TransformScale, TransformScale>,
+)
+export const numberOrPercentageSchema = /* @__PURE__ */ defineSchema(() => union([numberLikeSchema, percentageSchema]))
 const colorTupleSchema = /* @__PURE__ */ defineSchema(() =>
   union([tuple([number(), number(), number()]), tuple([number(), number(), number(), number()])]),
 )
@@ -161,55 +176,55 @@ const eventHandlerShape = /* @__PURE__ */ defineSchema(() => ({
 }))
 
 const panelShape = /* @__PURE__ */ defineSchema(() => ({
-  borderTopLeftRadius: numberOrStringSchema.optional(),
-  borderTopRightRadius: numberOrStringSchema.optional(),
-  borderBottomLeftRadius: numberOrStringSchema.optional(),
-  borderBottomRightRadius: numberOrStringSchema.optional(),
+  borderTopLeftRadius: lengthSchema.optional(),
+  borderTopRightRadius: lengthSchema.optional(),
+  borderBottomLeftRadius: lengthSchema.optional(),
+  borderBottomRightRadius: lengthSchema.optional(),
   backgroundColor: colorValueSchema.optional(),
   borderColor: colorValueSchema.optional(),
-  borderBend: union([number(), percentageSchema]).optional(),
+  borderBend: numberOrPercentageSchema.optional(),
 }))
 
 const scrollbarPanelShape = /* @__PURE__ */ defineSchema(() => ({
   scrollbarColor: colorValueSchema.optional(),
-  scrollbarBorderRightWidth: number().optional(),
-  scrollbarBorderTopWidth: number().optional(),
-  scrollbarBorderLeftWidth: number().optional(),
-  scrollbarBorderBottomWidth: number().optional(),
-  scrollbarBorderTopLeftRadius: numberOrStringSchema.optional(),
-  scrollbarBorderTopRightRadius: numberOrStringSchema.optional(),
-  scrollbarBorderBottomLeftRadius: numberOrStringSchema.optional(),
-  scrollbarBorderBottomRightRadius: numberOrStringSchema.optional(),
+  scrollbarBorderRightWidth: numberOrPixelLengthSchema.optional(),
+  scrollbarBorderTopWidth: numberOrPixelLengthSchema.optional(),
+  scrollbarBorderLeftWidth: numberOrPixelLengthSchema.optional(),
+  scrollbarBorderBottomWidth: numberOrPixelLengthSchema.optional(),
+  scrollbarBorderTopLeftRadius: lengthSchema.optional(),
+  scrollbarBorderTopRightRadius: lengthSchema.optional(),
+  scrollbarBorderBottomLeftRadius: lengthSchema.optional(),
+  scrollbarBorderBottomRightRadius: lengthSchema.optional(),
   scrollbarBorderColor: colorValueSchema.optional(),
-  scrollbarBorderBend: union([number(), percentageSchema]).optional(),
+  scrollbarBorderBend: numberOrPercentageSchema.optional(),
 }))
 
 const caretPanelShape = /* @__PURE__ */ defineSchema(() => ({
   caretColor: colorValueSchema.optional(),
-  caretBorderRightWidth: number().optional(),
-  caretBorderTopWidth: number().optional(),
-  caretBorderLeftWidth: number().optional(),
-  caretBorderBottomWidth: number().optional(),
-  caretBorderTopLeftRadius: numberOrStringSchema.optional(),
-  caretBorderTopRightRadius: numberOrStringSchema.optional(),
-  caretBorderBottomLeftRadius: numberOrStringSchema.optional(),
-  caretBorderBottomRightRadius: numberOrStringSchema.optional(),
+  caretBorderRightWidth: numberOrPixelLengthSchema.optional(),
+  caretBorderTopWidth: numberOrPixelLengthSchema.optional(),
+  caretBorderLeftWidth: numberOrPixelLengthSchema.optional(),
+  caretBorderBottomWidth: numberOrPixelLengthSchema.optional(),
+  caretBorderTopLeftRadius: lengthSchema.optional(),
+  caretBorderTopRightRadius: lengthSchema.optional(),
+  caretBorderBottomLeftRadius: lengthSchema.optional(),
+  caretBorderBottomRightRadius: lengthSchema.optional(),
   caretBorderColor: colorValueSchema.optional(),
-  caretBorderBend: union([number(), percentageSchema]).optional(),
+  caretBorderBend: numberOrPercentageSchema.optional(),
 }))
 
 const selectionPanelShape = /* @__PURE__ */ defineSchema(() => ({
   selectionColor: colorValueSchema.optional(),
-  selectionBorderRightWidth: number().optional(),
-  selectionBorderTopWidth: number().optional(),
-  selectionBorderLeftWidth: number().optional(),
-  selectionBorderBottomWidth: number().optional(),
-  selectionBorderTopLeftRadius: numberOrStringSchema.optional(),
-  selectionBorderTopRightRadius: numberOrStringSchema.optional(),
-  selectionBorderBottomLeftRadius: numberOrStringSchema.optional(),
-  selectionBorderBottomRightRadius: numberOrStringSchema.optional(),
+  selectionBorderRightWidth: numberOrPixelLengthSchema.optional(),
+  selectionBorderTopWidth: numberOrPixelLengthSchema.optional(),
+  selectionBorderLeftWidth: numberOrPixelLengthSchema.optional(),
+  selectionBorderBottomWidth: numberOrPixelLengthSchema.optional(),
+  selectionBorderTopLeftRadius: lengthSchema.optional(),
+  selectionBorderTopRightRadius: lengthSchema.optional(),
+  selectionBorderBottomLeftRadius: lengthSchema.optional(),
+  selectionBorderBottomRightRadius: lengthSchema.optional(),
   selectionBorderColor: colorValueSchema.optional(),
-  selectionBorderBend: union([number(), percentageSchema]).optional(),
+  selectionBorderBend: numberOrPercentageSchema.optional(),
 }))
 
 const pointerEventsTypeFunctionSchema = /* @__PURE__ */ defineSchema(() =>
@@ -224,28 +239,28 @@ export const baseOutPropertyShape = /* @__PURE__ */ defineSchema(
     ({
       ...yogaPropertyShape,
       ...panelShape,
-      zIndex: number().optional(),
-      zIndexOffset: number().optional(),
+      zIndex: numberLikeSchema.optional(),
+      zIndexOffset: numberLikeSchema.optional(),
       transformTranslateX: lengthSchema.optional(),
       transformTranslateY: lengthSchema.optional(),
-      transformTranslateZ: number().optional(),
-      transformRotateX: number().optional(),
-      transformRotateY: number().optional(),
-      transformRotateZ: number().optional(),
+      transformTranslateZ: numberOrPixelLengthSchema.optional(),
+      transformRotateX: numberLikeSchema.optional(),
+      transformRotateY: numberLikeSchema.optional(),
+      transformRotateZ: numberLikeSchema.optional(),
       transformScaleX: scaleSchema.optional(),
       transformScaleY: scaleSchema.optional(),
       transformScaleZ: scaleSchema.optional(),
       transformOriginX: enumSchema(['left', 'center', 'middle', 'right']).optional(),
       transformOriginY: enumSchema(['top', 'center', 'middle', 'bottom']).optional(),
-      scrollbarWidth: number().optional(),
-      scrollbarZIndex: number().optional(),
+      scrollbarWidth: numberOrPixelLengthSchema.optional(),
+      scrollbarZIndex: numberLikeSchema.optional(),
       ...scrollbarPanelShape,
       panelMaterialClass: materialClassSchema.optional(),
       receiveShadow: boolean().optional(),
       castShadow: boolean().optional(),
       depthWrite: boolean().optional(),
       depthTest: boolean().optional(),
-      renderOrder: number().optional(),
+      renderOrder: numberLikeSchema.optional(),
       visibility: enumSchema(['visible', 'hidden']).optional(),
       pointerEvents: enumSchema(['none', 'auto', 'listener']).optional(),
       pointerEventsType: union([
@@ -254,7 +269,7 @@ export const baseOutPropertyShape = /* @__PURE__ */ defineSchema(
         object({ allow: union([string(), array(string())]) }).strict(),
         object({ deny: union([string(), array(string())]) }).strict(),
       ]).optional(),
-      pointerEventsOrder: number().optional(),
+      pointerEventsOrder: numberLikeSchema.optional(),
       ...eventHandlerShape,
       onScroll: functionSchema.optional(),
       onHoverChange: functionSchema.optional(),
@@ -262,23 +277,23 @@ export const baseOutPropertyShape = /* @__PURE__ */ defineSchema(
       textAlign: enumSchema(['left', 'center', 'middle', 'right', 'justify']).optional(),
       fill: colorValueSchema.optional(),
       color: colorValueSchema.optional(),
-      opacity: union([number(), percentageSchema]).optional(),
+      opacity: numberOrPercentageSchema.optional(),
       fontFamily: string().optional(),
       fontWeight: FontWeightSchema.optional(),
       fontFamilies: FontFamiliesSchema.optional(),
-      letterSpacing: numberOrStringSchema.optional(),
-      lineHeight: numberOrStringSchema.optional(),
-      fontSize: numberOrStringSchema.optional(),
+      letterSpacing: lengthSchema.optional(),
+      lineHeight: lengthSchema.optional(),
+      fontSize: lengthSchema.optional(),
       wordBreak: enumSchema(['keep-all', 'break-all', 'break-word'] satisfies Array<WordBreak>).optional(),
       whiteSpace: enumSchema(['normal', 'collapse', 'pre', 'pre-line'] satisfies Array<WhiteSpace>).optional(),
-      tabSize: number().optional(),
+      tabSize: numberLikeSchema.optional(),
       verticalAlign: enumSchema(['top', 'center', 'middle', 'bottom']).optional(),
-      caretWidth: number().optional(),
+      caretWidth: numberOrPixelLengthSchema.optional(),
       ...caretPanelShape,
       ...selectionPanelShape,
-      pixelSize: number().optional(),
-      sizeX: number().optional(),
-      sizeY: number().optional(),
+      pixelSize: numberLikeSchema.optional(),
+      sizeX: numberOrPixelLengthSchema.optional(),
+      sizeY: numberOrPixelLengthSchema.optional(),
       anchorX: enumSchema(['left', 'center', 'middle', 'right']).optional(),
       anchorY: enumSchema(['top', 'center', 'middle', 'bottom']).optional(),
       cursor: string().optional(),

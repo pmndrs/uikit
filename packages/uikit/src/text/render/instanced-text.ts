@@ -11,6 +11,7 @@ import type { BaseOutProperties, Properties } from '../../properties/index.js'
 import type { Font } from '../font.js'
 import type { OrderInfo } from '../../order.js'
 import type { RootContext } from '../../context.js'
+import { parseNumberLike } from '../../properties/values.js'
 
 export type TextAlignProperties = {
   textAlign?: keyof typeof alignmentXMap | 'justify'
@@ -50,7 +51,7 @@ export function createInstancedText<OutProperties extends InstancedTextPropertie
         orderInfo,
         text.properties.value.depthTest,
         text.properties.value.depthWrite ?? false,
-        text.properties.value.renderOrder,
+        parseNumberLike(text.properties.value.renderOrder ?? 0),
         font,
       ),
       text.properties,
@@ -119,7 +120,7 @@ export class InstancedText {
         const { lines, fontSize = 16 } = layout
 
         const linesLength = lines.length
-        const pixelSize = this.properties.value.pixelSize
+        const pixelSize = parseNumberLike(this.properties.value.pixelSize)
         for (let lineIndex = 0; lineIndex < linesLength; lineIndex++) {
           if (lineIndex === this.glyphLines.length) {
             this.glyphLines.push([])

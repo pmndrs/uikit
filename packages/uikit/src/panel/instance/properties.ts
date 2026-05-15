@@ -2,6 +2,7 @@ import { computed } from '@preact/signals-core'
 import { Properties } from '../../properties/index.js'
 import type { MaterialClass } from '../material/create.js'
 import { materialClasses, resolvePanelMaterialClassProperty } from '../material/presets.js'
+import { parseNumberLike, type NumberLike } from '../../properties/values.js'
 
 export type ShadowProperties = {
   receiveShadow?: boolean
@@ -11,7 +12,7 @@ export type ShadowProperties = {
 export type RenderProperties = {
   depthWrite?: boolean
   depthTest?: boolean
-  renderOrder?: number
+  renderOrder?: NumberLike
 }
 
 export type PanelGroupProperties = {
@@ -27,7 +28,7 @@ export function computedPanelGroupDependencies(properties: Properties) {
       receiveShadow: properties.value.receiveShadow,
       depthWrite: properties.value.depthWrite ?? false,
       depthTest: properties.value.depthTest,
-      renderOrder: properties.value.renderOrder,
+      renderOrder: parseNumberLike(properties.value.renderOrder ?? 0),
     }
   })
 }

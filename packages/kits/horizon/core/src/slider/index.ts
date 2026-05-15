@@ -1,6 +1,6 @@
-import { custom, enum as enumSchema, literal, number, object, string, union } from 'zod'
+import { custom, enum as enumSchema, literal, object, string, union } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberLikeSchema } from '@pmndrs/uikit'
 import {
   abortableEffect,
   BaseOutProperties,
@@ -19,7 +19,6 @@ export function percentageFormatting(value: number): string {
   return `${value.toFixed(0)}%`
 }
 
-const numberOrStringSchema = /* @__PURE__ */ defineSchema(() => union([number(), string()]))
 type SliderIcon = {
   new (
     inputProperties: any,
@@ -31,16 +30,16 @@ type SliderIcon = {
 export const SliderOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
-    value: numberOrStringSchema.optional(),
+    value: numberLikeSchema.optional(),
     onValueChange: custom<(value: number) => void>((value) => typeof value === 'function').optional(),
     valueFormat: union([
       literal('percentage'),
       custom<(value: number) => string>((value) => typeof value === 'function'),
     ]).optional(),
-    defaultValue: numberOrStringSchema.optional(),
-    min: numberOrStringSchema.optional(),
-    max: numberOrStringSchema.optional(),
-    step: numberOrStringSchema.optional(),
+    defaultValue: numberLikeSchema.optional(),
+    min: numberLikeSchema.optional(),
+    max: numberLikeSchema.optional(),
+    step: numberLikeSchema.optional(),
     size: enumSchema(['sm', 'md', 'lg']).optional(),
     leftLabel: string().optional(),
     rightLabel: string().optional(),
