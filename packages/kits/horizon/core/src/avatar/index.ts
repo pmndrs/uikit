@@ -64,6 +64,8 @@ export class Avatar extends Container<AvatarOutProperties> {
         positionType: 'relative',
         width: height,
         height,
+        borderRadius: 1000,
+        backgroundColor: '#dbe0fe',
         flexShrink: 0,
         '*': {
           important: {
@@ -98,14 +100,14 @@ export class Avatar extends Container<AvatarOutProperties> {
 
     //avatar image
     super.add(
-      (this.image = new Image<ImageOutProperties<string | Texture>>(undefined, undefined, {
+      (this.image = new Image<ImageOutProperties<string | Texture>>({ src: this.properties.value.src }, undefined, {
         defaultOverrides: {
           width: '100%',
           height: '100%',
           aspectRatio: 1,
           borderRadius: 1000,
           borderColor: 'initial',
-          src: this.properties.signal.src,
+          src: `https://api.dicebear.com/9.x/lorelei/png?seed=${Math.random()}`,
         },
       })),
     )

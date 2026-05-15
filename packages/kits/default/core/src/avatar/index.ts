@@ -25,6 +25,7 @@ export class Avatar extends Image<AvatarOutProperties> {
         '*': {
           borderColor: colors.border,
         },
+        src: `https://api.dicebear.com/9.x/lorelei/png?seed=${Math.random()}`,
         width: 40,
         height: 40,
         flexShrink: 0,
