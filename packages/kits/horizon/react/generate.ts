@@ -34,11 +34,11 @@ async function main() {
       let code = `
 import { ForwardRefExoticComponent, PropsWithoutRef, ReactNode, RefAttributes } from 'react'
 import { ${name} as Vanilla${name}, ${name}Properties as Vanilla${name}Properties } from '@pmndrs/uikit-horizon'
-import { build } from '@react-three/uikit'
+import { build, ClassListProperties } from '@react-three/uikit'
 
 export { ${name} as Vanilla${name} } from '@pmndrs/uikit-horizon'
 
-export type ${name}Properties = Vanilla${name}Properties${canHaveChildren ? '& { children?: ReactNode }' : ''} 
+export type ${name}Properties = Vanilla${name}Properties${canHaveChildren ? ' & { children?: ReactNode }' : ''} & ClassListProperties
 
 export const ${name}: ForwardRefExoticComponent<
   PropsWithoutRef<${name}Properties> & RefAttributes<Vanilla${name}>
