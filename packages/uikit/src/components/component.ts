@@ -51,7 +51,7 @@ import { inheritedPropertyKeys } from '../properties/inheritance.js'
 import type { Container } from './container.js'
 import { componentDefaults } from '../properties/defaults.js'
 import { getLayerIndex } from '../properties/layer.js'
-import { parseNumberLike, parseNumberOrPixelLength } from '../properties/values.js'
+import { parseNumberValue, parseAbsoluteLengthValue } from '../properties/values.js'
 
 const IdentityMatrix = new Matrix4()
 const sphereHelper = new Sphere()
@@ -174,14 +174,14 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
         if (sizeX == null) {
           return undefined
         }
-        return parseNumberOrPixelLength(sizeX) / parseNumberLike(this.properties.value.pixelSize)
+        return parseAbsoluteLengthValue(sizeX) / parseNumberValue(this.properties.value.pixelSize)
       }),
       height: computed(() => {
         const sizeY = this.properties.value.sizeY
         if (sizeY == null) {
           return undefined
         }
-        return parseNumberOrPixelLength(sizeY) / parseNumberLike(this.properties.value.pixelSize)
+        return parseAbsoluteLengthValue(sizeY) / parseNumberValue(this.properties.value.pixelSize)
       }),
       ...config?.defaultOverrides,
     } as InProperties<OutProperties>)
@@ -261,7 +261,7 @@ export class Component<OutProperties extends BaseOutProperties = BaseOutProperti
       computedTransformMatrix(this),
     )
 
-    const pixelSize = computed(() => parseNumberLike(this.properties.value.pixelSize))
+    const pixelSize = computed(() => parseNumberValue(this.properties.value.pixelSize))
 
     this.isClipped = computedIsClipped(this.parentContainer, this.globalMatrix, this.size, pixelSize)
     this.isVisible = computedIsVisible(this, this.isClipped, this.properties)

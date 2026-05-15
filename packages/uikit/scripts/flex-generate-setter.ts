@@ -137,10 +137,10 @@ async function main() {
       if (autoUnit) {
         types.push(`"auto"`)
       }
-      const numberSchema = propertyName === 'border' ? 'numberOrPixelLengthSchema' : 'numberLikeSchema'
+      const numberSchema = propertyName === 'border' ? 'absoluteLengthValueSchema' : 'numberValueSchema'
       schemaProperties.push([
         propertyName,
-        `${percentUnit ? (autoUnit ? 'pointOrAutoSchema' : 'pointSchema') : autoUnit ? `union([${numberSchema}, literal("auto")])` : numberSchema}.optional()`,
+        `${percentUnit ? (autoUnit ? 'yogaLengthValueOrAutoSchema' : 'yogaLengthValueSchema') : autoUnit ? `union([${numberSchema}, literal("auto")])` : numberSchema}.optional()`,
       ])
       convertFunction = (defaultValue, setter) => {
         const prefix = autoUnit ? `if(input === "auto") { ${setter(null, 'Auto')}; return }\n` : ''
@@ -209,7 +209,7 @@ async function main() {
       `import { Node } from "yoga-layout/load"
     import type { ${Array.from(importedTypesFromYoga).join(', ')} } from "yoga-layout/load"
     import type { RootContext } from '../context.js'
-    import { convertYogaPoint, parseNumberOrPixelLength } from '../properties/values.js'
+    import { convertYogaPoint, parseAbsoluteLengthValue } from '../properties/values.js'
     function convertEnum<T extends { [Key in string]: number }>(lut: T, input: keyof T | undefined, defaultValue: T[keyof T]): T[keyof T] {
       if(input == null) {
         return defaultValue
@@ -225,7 +225,7 @@ async function main() {
       return convertYogaPoint(input as \`\${number}%\`, width, height)
     }
     function convertNumber(input: string | number | undefined): undefined | number {
-      return input == null ? undefined : parseNumberOrPixelLength(input as never)
+      return input == null ? undefined : parseAbsoluteLengthValue(input as never)
     }
     ${Array.from(lookupTables.values()).join('\n')}
     export const setter = { ${setterFunctions
@@ -240,42 +240,44 @@ async function main() {
       `import { custom, enum as enumSchema, literal, number, object, union } from 'zod'
 import type { z } from 'zod'
 import {
-  isNumericString,
+  isNumberString,
   isPercentageString,
   isPixelLengthString,
   isViewportLengthString,
-  type NumericString,
-  type NumberOrPixelLength,
-  type Percentage,
-  type PixelLength,
-  type ViewportLength,
+  type AbsoluteLengthValue,
+  type NumberString,
+  type PercentageString,
+  type PixelLengthString,
+  type ViewportLengthString,
 } from '../properties/values.js'
 
 function defineSchema<T>(create: () => T): T {
   return create()
 }
 
-const numericStringSchema = /* @__PURE__ */ defineSchema(() =>
-  custom<NumericString>(isNumericString, 'Expected a numeric string'),
+const numberStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<NumberString>(isNumberString, 'Expected a number string'),
 )
-const percentageSchema = /* @__PURE__ */ defineSchema(() =>
-  custom<Percentage>(isPercentageString, 'Expected a percentage string'),
+const percentageStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<PercentageString>(isPercentageString, 'Expected a percentage string'),
 )
-const pixelLengthSchema = /* @__PURE__ */ defineSchema(() =>
-  custom<PixelLength>(isPixelLengthString, 'Expected a pixel length string'),
+const pixelLengthStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<PixelLengthString>(isPixelLengthString, 'Expected a pixel length string'),
 )
-const viewportLengthSchema = /* @__PURE__ */ defineSchema(() =>
-  custom<ViewportLength>(isViewportLengthString, 'Expected a viewport length string'),
+const viewportLengthStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<ViewportLengthString>(isViewportLengthString, 'Expected a viewport length string'),
 )
-const numberLikeSchema = /* @__PURE__ */ defineSchema(() => union([number(), numericStringSchema]))
-const numberOrPixelLengthSchema = /* @__PURE__ */ defineSchema(
-  () => union([numberLikeSchema, pixelLengthSchema]) as z.ZodType<NumberOrPixelLength, NumberOrPixelLength>,
+const numberValueSchema = /* @__PURE__ */ defineSchema(() => union([number(), numberStringSchema]))
+const absoluteLengthValueSchema = /* @__PURE__ */ defineSchema(
+  () => union([numberValueSchema, pixelLengthStringSchema]) as z.ZodType<AbsoluteLengthValue, AbsoluteLengthValue>,
 )
 
-export const pointSchema = /* @__PURE__ */ defineSchema(() =>
-  union([numberLikeSchema, pixelLengthSchema, percentageSchema, viewportLengthSchema]),
+export const yogaLengthValueSchema = /* @__PURE__ */ defineSchema(() =>
+  union([numberValueSchema, pixelLengthStringSchema, percentageStringSchema, viewportLengthStringSchema]),
 )
-export const pointOrAutoSchema = /* @__PURE__ */ defineSchema(() => union([pointSchema, literal('auto')]))
+export const yogaLengthValueOrAutoSchema = /* @__PURE__ */ defineSchema(() =>
+  union([yogaLengthValueSchema, literal('auto')]),
+)
 
 export const yogaPropertyShape = /* @__PURE__ */ defineSchema(() => ({
 ${filteredSchemaProperties.map(([propertyName, schema]) => `  ${propertyName}: ${schema},`).join('\n')}

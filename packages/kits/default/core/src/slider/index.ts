@@ -1,6 +1,6 @@
 import { boolean, custom, object } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberLikeSchema } from '@pmndrs/uikit'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberValueSchema } from '@pmndrs/uikit'
 import { Container, InProperties, BaseOutProperties, RenderContext, abortableEffect } from '@pmndrs/uikit'
 import { signal, computed } from '@preact/signals-core'
 import { colors, componentDefaults } from '../theme.js'
@@ -11,11 +11,11 @@ export const SliderOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
     disabled: boolean().optional(),
-    value: numberLikeSchema.optional(),
-    min: numberLikeSchema.optional(),
-    max: numberLikeSchema.optional(),
-    step: numberLikeSchema.optional(),
-    defaultValue: numberLikeSchema.optional(),
+    value: numberValueSchema.optional(),
+    min: numberValueSchema.optional(),
+    max: numberValueSchema.optional(),
+    step: numberValueSchema.optional(),
+    defaultValue: numberValueSchema.optional(),
     onValueChange: custom<(value: number) => void>((value) => typeof value === 'function').optional(),
   }).strict(),
 )

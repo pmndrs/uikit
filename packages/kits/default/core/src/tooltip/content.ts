@@ -1,6 +1,6 @@
 import { object } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberLikeSchema } from '@pmndrs/uikit'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberValueSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext, searchFor } from '@pmndrs/uikit'
 import { borderRadius, colors, componentDefaults } from '../theme.js'
 import { computed } from '@preact/signals-core'
@@ -8,7 +8,7 @@ import { Tooltip } from './index.js'
 export const TooltipContentOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
-    sideOffset: numberLikeSchema.optional(),
+    sideOffset: numberValueSchema.optional(),
   }).strict(),
 )
 

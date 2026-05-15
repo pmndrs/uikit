@@ -94,7 +94,7 @@ const _buttonVariants = {
 } satisfies Record<string, ButtonVariantProps>
 const buttonVariants = _buttonVariants as UnionizeVariants<typeof _buttonVariants>
 
-type ButtonSizeProps = { height: number; fontSize: number; lineHeight: `${number}px`; minWidth: number }
+type ButtonSizeProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHeight' | 'minWidth'>
 const _buttonSizes = {
   lg: {
     height: 44,
@@ -109,7 +109,7 @@ const _buttonSizes = {
     minWidth: 80,
   },
 } satisfies Record<string, ButtonSizeProps>
-const buttonSizes = _buttonSizes as Record<keyof typeof _buttonSizes, ButtonSizeProps>
+const buttonSizes = _buttonSizes
 
 export const ButtonOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({

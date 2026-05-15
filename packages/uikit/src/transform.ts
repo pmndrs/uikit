@@ -4,26 +4,26 @@ import { alignmentXMap, alignmentYMap } from './utils.js'
 import { Component } from './components/component.js'
 import { toAbsoluteNumber } from './text/utils.js'
 import {
-  parseNumberLike,
-  type NumberLike,
-  type NumberOrPixelLength,
-  type TransformLength,
-  type TransformScale,
+  parseNumberValue,
+  type NumberValue,
+  type AbsoluteLengthValue,
+  type LengthValue,
+  type NumberOrPercentageValue,
 } from './properties/values.js'
-export type { TransformLength, TransformScale } from './properties/values.js'
+export type { AbsoluteLengthValue, LengthValue, NumberOrPercentageValue, NumberValue } from './properties/values.js'
 
 export type TransformProperties = {
-  transformTranslateX?: TransformLength
-  transformTranslateY?: TransformLength
-  transformTranslateZ?: NumberOrPixelLength
+  transformTranslateX?: LengthValue
+  transformTranslateY?: LengthValue
+  transformTranslateZ?: AbsoluteLengthValue
 
-  transformRotateX?: NumberLike
-  transformRotateY?: NumberLike
-  transformRotateZ?: NumberLike
+  transformRotateX?: NumberValue
+  transformRotateY?: NumberValue
+  transformRotateZ?: NumberValue
 
-  transformScaleX?: TransformScale
-  transformScaleY?: TransformScale
-  transformScaleZ?: TransformScale
+  transformScaleX?: NumberOrPercentageValue
+  transformScaleY?: NumberOrPercentageValue
+  transformScaleZ?: NumberOrPercentageValue
 
   transformOriginX?: keyof typeof alignmentXMap
   transformOriginY?: keyof typeof alignmentYMap
@@ -61,7 +61,7 @@ export function computedTransformMatrix({
       return undefined
     }
     const [x, y] = relativeCenterValue
-    const pixelSize = parseNumberLike(properties.value.pixelSize)
+    const pixelSize = parseNumberValue(properties.value.pixelSize)
     const result = new Matrix4().makeTranslation(x * pixelSize, y * pixelSize, 0)
 
     let originCenter = true
@@ -91,7 +91,7 @@ export function computedTransformMatrix({
     const tSY = properties.value.transformScaleY ?? 1
     const tSZ = properties.value.transformScaleZ ?? 1
 
-    const r: Vector3Tuple = [parseNumberLike(tRX), parseNumberLike(tRY), parseNumberLike(tRZ)]
+    const r: Vector3Tuple = [parseNumberValue(tRX), parseNumberValue(tRY), parseNumberValue(tRZ)]
     const t: Vector3Tuple = [
       toAbsoluteNumber(tTX, () => size.value?.[0] ?? 0, root.value),
       -toAbsoluteNumber(tTY, () => size.value?.[1] ?? 0, root.value),

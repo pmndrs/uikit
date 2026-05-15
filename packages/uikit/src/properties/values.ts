@@ -1,41 +1,41 @@
-export type NumericString = `${number}`
-export type NumberLike = number | NumericString
-export type Percentage = `${number}%`
-export type PixelLength = `${number}px`
-export type ViewportHeightLength = `${number}vh` | `${number}dvh` | `${number}svh` | `${number}lvh`
-export type ViewportWidthLength = `${number}vw` | `${number}dvw` | `${number}svw` | `${number}lvw`
-export type ViewportLength = ViewportHeightLength | ViewportWidthLength
-export type NumberOrPixelLength = NumberLike | PixelLength
-export type TransformLength = NumberOrPixelLength | Percentage | ViewportLength
-export type TransformScale = NumberLike | Percentage
+export type NumberString = `${number}`
+export type PercentageString = `${number}%`
+export type PixelLengthString = `${number}px`
+export type ViewportHeightLengthString = `${number}vh` | `${number}dvh` | `${number}svh` | `${number}lvh`
+export type ViewportWidthLengthString = `${number}vw` | `${number}dvw` | `${number}svw` | `${number}lvw`
+export type ViewportLengthString = ViewportHeightLengthString | ViewportWidthLengthString
+export type NumberValue = number | NumberString
+export type AbsoluteLengthValue = NumberValue | PixelLengthString
+export type LengthValue = AbsoluteLengthValue | PercentageString | ViewportLengthString
+export type NumberOrPercentageValue = NumberValue | PercentageString
 
 const numberStringPattern = String.raw`[+-]?(?:(?:\d+\.?\d*)|(?:\.\d+))(?:[eE][+-]?\d+)?`
-const numericStringRegex = new RegExp(`^${numberStringPattern}$`)
+const numberStringRegex = new RegExp(`^${numberStringPattern}$`)
 const percentageRegex = new RegExp(`^${numberStringPattern}%$`)
 const pixelLengthRegex = new RegExp(`^${numberStringPattern}px$`)
 const viewportLengthRegex = new RegExp(`^${numberStringPattern}(vh|dvh|svh|lvh|vw|dvw|svw|lvw)$`)
 
-export function isNumericString(value: unknown): value is NumericString {
-  return typeof value === 'string' && numericStringRegex.test(value)
+export function isNumberString(value: unknown): value is NumberString {
+  return typeof value === 'string' && numberStringRegex.test(value)
 }
 
-export function isPercentageString(value: unknown): value is Percentage {
+export function isPercentageString(value: unknown): value is PercentageString {
   return typeof value === 'string' && percentageRegex.test(value)
 }
 
-export function isPixelLengthString(value: unknown): value is PixelLength {
+export function isPixelLengthString(value: unknown): value is PixelLengthString {
   return typeof value === 'string' && pixelLengthRegex.test(value)
 }
 
-export function isViewportLengthString(value: unknown): value is ViewportLength {
+export function isViewportLengthString(value: unknown): value is ViewportLengthString {
   return typeof value === 'string' && viewportLengthRegex.test(value)
 }
 
-export function isViewportHeightLength(value: unknown): value is ViewportHeightLength {
+export function isViewportHeightLength(value: unknown): value is ViewportHeightLengthString {
   return isViewportLengthString(value) && value.endsWith('vh')
 }
 
-export function isViewportWidthLength(value: unknown): value is ViewportWidthLength {
+export function isViewportWidthLength(value: unknown): value is ViewportWidthLengthString {
   return isViewportLengthString(value) && value.endsWith('vw')
 }
 
@@ -60,7 +60,7 @@ export function parseAbsoluteNumber(
     const number = Number.parseFloat(value)
     return viewportWidth == null ? number : (viewportWidth * number) / 100
   }
-  if (isNumericString(value)) {
+  if (isNumberString(value)) {
     return Number(value)
   }
   if (isPixelLengthString(value)) {
@@ -69,23 +69,23 @@ export function parseAbsoluteNumber(
   throw new Error(`Invalid number: ${value}`)
 }
 
-export function parseNumberLike(value: NumberLike): number {
+export function parseNumberValue(value: NumberValue): number {
   return typeof value === 'number' ? value : Number(value)
 }
 
-export function parseNumberOrPixelLength(value: NumberOrPixelLength): number {
-  return isPixelLengthString(value) ? Number(value.slice(0, -2)) : parseNumberLike(value)
+export function parseAbsoluteLengthValue(value: AbsoluteLengthValue): number {
+  return isPixelLengthString(value) ? Number(value.slice(0, -2)) : parseNumberValue(value)
 }
 
 export function convertYogaPoint(
-  input: TransformLength | undefined,
+  input: LengthValue | undefined,
   viewportWidth: number,
   viewportHeight: number,
-): Percentage | number | undefined {
+): PercentageString | number | undefined {
   if (input == null || typeof input === 'number' || isPercentageString(input)) {
     return input
   }
-  if (isNumericString(input)) {
+  if (isNumberString(input)) {
     return Number(input)
   }
   if (isPixelLengthString(input)) {

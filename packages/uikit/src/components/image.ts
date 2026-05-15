@@ -26,7 +26,7 @@ import { componentDefaults } from '../properties/defaults.js'
 import { RenderContext } from '../context.js'
 import { resolvePanelMaterialClassProperty } from '../panel/material/presets.js'
 import { toAbsoluteNumber } from '../text/utils.js'
-import { parseNumberLike } from '../properties/values.js'
+import { parseNumberValue } from '../properties/values.js'
 export const imageOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   baseOutPropertiesSchema.extend({
     src: union([string(), instanceSchema('Texture', Texture)]).optional(),
@@ -138,7 +138,7 @@ export class Image<
       return () => material.dispose()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.renderOrder = parseNumberLike(this.properties.value.renderOrder ?? 0)
+      this.renderOrder = parseNumberValue(this.properties.value.renderOrder ?? 0)
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {

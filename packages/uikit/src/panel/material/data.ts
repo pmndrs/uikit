@@ -4,7 +4,7 @@ import { clamp } from 'three/src/math/MathUtils.js'
 import type { ColorRepresentation } from '../../utils.js'
 import { toAbsoluteNumber } from '../../text/utils.js'
 import { writeColor } from './color.js'
-import type { TransformScale } from '../../properties/values.js'
+import type { NumberOrPercentageValue } from '../../properties/values.js'
 
 export const materialSetters = {
   // 0-3 = border sizes
@@ -40,7 +40,7 @@ export const materialSetters = {
     ),
 
   // 13 = border bend
-  borderBend: (d, o, p: TransformScale, _, op, u) =>
+  borderBend: (d, o, p: NumberOrPercentageValue, _, op, u) =>
     writeComponent(
       d,
       o + 13,
@@ -56,7 +56,7 @@ export const materialSetters = {
     offset: number,
     value: any,
     size: Signal<Vector2Tuple | undefined>,
-    opacity: Signal<TransformScale>,
+    opacity: Signal<NumberOrPercentageValue>,
     onUpdate: ((start: number, count: number) => void) | undefined,
   ) => void
 }

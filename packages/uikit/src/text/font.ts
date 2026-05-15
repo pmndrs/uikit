@@ -16,7 +16,7 @@ import type { Texture, TypedArray } from 'three'
 import { loadCachedFont } from './cache.js'
 import type { Properties } from '../properties/index.js'
 import type { Container } from '../components/container.js'
-import { isNumericString, type NumericString } from '../properties/values.js'
+import { isNumberString, type NumberString } from '../properties/values.js'
 import { defineSchema } from '../properties/schema.js'
 
 export const fontWeightNames = {
@@ -32,16 +32,16 @@ export const fontWeightNames = {
   'extra-black': 950,
 } as const
 
-const numericStringSchema = /* @__PURE__ */ defineSchema(() =>
-  custom<NumericString>(isNumericString, 'Expected a numeric string'),
+const numberStringSchema = /* @__PURE__ */ defineSchema(() =>
+  custom<NumberString>(isNumberString, 'Expected a number string'),
 )
 const namedFontWeightSchema = /* @__PURE__ */ defineSchema(() =>
   enumSchema(Object.keys(fontWeightNames) as [keyof typeof fontWeightNames, ...(keyof typeof fontWeightNames)[]]),
 )
-const fontWeightKeySchema = /* @__PURE__ */ defineSchema(() => union([namedFontWeightSchema, numericStringSchema]))
+const fontWeightKeySchema = /* @__PURE__ */ defineSchema(() => union([namedFontWeightSchema, numberStringSchema]))
 
 export const FontWeightSchema = /* @__PURE__ */ defineSchema(() =>
-  union([number(), namedFontWeightSchema, numericStringSchema]),
+  union([number(), namedFontWeightSchema, numberStringSchema]),
 )
 
 export type FontWeight = z.input<typeof FontWeightSchema>

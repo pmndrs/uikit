@@ -9,20 +9,20 @@ import { PanelGroupProperties, computedPanelMatrix } from '../../panel/instance/
 import { PanelMaterialConfig, createPanelMaterialConfig } from '../../panel/material/config.js'
 import { Properties } from '../../properties/index.js'
 import { RootContext } from '../../context.js'
-import { parseNumberOrPixelLength, type NumberOrPixelLength } from '../../properties/values.js'
+import { parseAbsoluteLengthValue, type AbsoluteLengthValue } from '../../properties/values.js'
 import type { CaretTransformation } from '../layout/index.js'
 
 export type { CaretTransformation } from '../layout/index.js'
 
 type CaretWidthProperties = {
-  caretWidth?: NumberOrPixelLength
+  caretWidth?: AbsoluteLengthValue
 }
 
 type CaretBorderSizeProperties = {
-  caretBorderRightWidth?: NumberOrPixelLength
-  caretBorderTopWidth?: NumberOrPixelLength
-  caretBorderLeftWidth?: NumberOrPixelLength
-  caretBorderBottomWidth?: NumberOrPixelLength
+  caretBorderRightWidth?: AbsoluteLengthValue
+  caretBorderTopWidth?: AbsoluteLengthValue
+  caretBorderLeftWidth?: AbsoluteLengthValue
+  caretBorderBottomWidth?: AbsoluteLengthValue
 }
 
 const caretBorderKeys = [
@@ -92,14 +92,14 @@ export function setupCaret(
     if (height == null) {
       return [0, 0]
     }
-    return [parseNumberOrPixelLength(properties.value.caretWidth ?? 0), height]
+    return [parseAbsoluteLengthValue(properties.value.caretWidth ?? 0), height]
   })
   const panelOffset = computed<Vector2Tuple>(() => {
     const position = blinkingCaretTransformation.value?.position
     if (position == null) {
       return [0, 0]
     }
-    return [position[0] - parseNumberOrPixelLength(properties.value.caretWidth ?? 0) / 2, position[1]]
+    return [position[0] - parseAbsoluteLengthValue(properties.value.caretWidth ?? 0) / 2, position[1]]
   })
 
   const panelMatrix = computedPanelMatrix(properties, globalMatrix, panelSize, panelOffset)

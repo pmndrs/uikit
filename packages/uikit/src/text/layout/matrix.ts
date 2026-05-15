@@ -3,7 +3,7 @@ import type { ReadonlySignal } from '@preact/signals-core'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import type { Inset } from '../../flex/node.js'
 import type { TextMatrixTarget } from './types.js'
-import { parseNumberLike } from '../../properties/values.js'
+import { parseNumberValue } from '../../properties/values.js'
 
 const IdentityMatrix = new Matrix4()
 const IdentityQuaternion = new Quaternion()
@@ -20,7 +20,7 @@ export function computedGlobalTextMatrix(target: TextMatrixTarget): ReadonlySign
     return getGlobalTextMatrix(
       paddingInset,
       borderInset,
-      parseNumberLike(target.properties.value.pixelSize),
+      parseNumberValue(target.properties.value.pixelSize),
       target.globalMatrix.value ?? IdentityMatrix,
     )
   })

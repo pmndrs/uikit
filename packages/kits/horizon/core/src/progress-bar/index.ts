@@ -1,13 +1,13 @@
 import { object } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberLikeSchema } from '@pmndrs/uikit'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberValueSchema } from '@pmndrs/uikit'
 import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
 export const ProgressBarOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
-    value: numberLikeSchema.optional(),
+    value: numberValueSchema.optional(),
   }).strict(),
 )
 

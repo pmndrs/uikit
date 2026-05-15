@@ -6,6 +6,7 @@ import {
   BaseOutProperties,
   Component,
   Container,
+  ContainerProperties,
   InProperties,
   RenderContext,
   Input as InputImpl,
@@ -13,7 +14,7 @@ import {
 } from '@pmndrs/uikit'
 import { computed, ReadonlySignal } from '@preact/signals-core'
 import { theme } from '../theme.js'
-type InputVariantProps = { height: number; fontSize: number; lineHeight: `${number}px` }
+type InputVariantProps = Pick<ContainerProperties, 'height' | 'fontSize' | 'lineHeight'>
 const _inputSizes = {
   lg: {
     height: 48,
@@ -26,7 +27,7 @@ const _inputSizes = {
     lineHeight: '16px',
   },
 } satisfies Record<string, InputVariantProps>
-const inputSizes = _inputSizes as Record<keyof typeof _inputSizes, InputVariantProps>
+const inputSizes = _inputSizes
 
 type InputIcon = {
   new (

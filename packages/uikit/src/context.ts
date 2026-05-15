@@ -6,7 +6,7 @@ import { Matrix4, Vector2Tuple } from 'three'
 import { GlyphGroupManager } from './text/render/instanced-glyph-group.js'
 import { Component } from './components/component.js'
 import { Properties } from './properties/index.js'
-import { parseNumberLike } from './properties/values.js'
+import { parseNumberValue } from './properties/values.js'
 
 export type RenderContext = {
   requestFrame: () => void
@@ -104,7 +104,7 @@ export function buildRootMatrix(properties: Properties, size: Signal<Vector2Tupl
     return undefined
   }
   const [width, height] = sizeValue
-  const pixelSize = parseNumberLike(properties.value.pixelSize)
+  const pixelSize = parseNumberValue(properties.value.pixelSize)
   return new Matrix4().makeTranslation(
     alignmentXMap[properties.value.anchorX] * width * pixelSize,
     alignmentYMap[properties.value.anchorY] * height * pixelSize,

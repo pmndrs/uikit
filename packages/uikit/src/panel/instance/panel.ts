@@ -7,17 +7,17 @@ import { BaseOutProperties, Properties } from '../../properties/index.js'
 import { abortableEffect, ColorRepresentation } from '../../utils.js'
 import { PanelMaterialConfig } from '../material/config.js'
 import type { InstancedPanelGroup } from './group.js'
-import type { TransformLength, TransformScale } from '../../properties/values.js'
+import type { LengthValue, NumberOrPercentageValue } from '../../properties/values.js'
 
 export type PanelProperties = {
-  borderTopLeftRadius?: TransformLength
-  borderTopRightRadius?: TransformLength
-  borderBottomLeftRadius?: TransformLength
-  borderBottomRightRadius?: TransformLength
-  opacity?: TransformScale
+  borderTopLeftRadius?: LengthValue
+  borderTopRightRadius?: LengthValue
+  borderBottomLeftRadius?: LengthValue
+  borderBottomRightRadius?: LengthValue
+  opacity?: NumberOrPercentageValue
   backgroundColor?: ColorRepresentation
   borderColor?: ColorRepresentation
-  borderBend?: TransformScale
+  borderBend?: NumberOrPercentageValue
 }
 
 export class InstancedPanel {

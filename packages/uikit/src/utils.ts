@@ -10,7 +10,7 @@ import { Component } from './components/component.js'
 import { Container } from './components/container.js'
 import { RootContext } from './context.js'
 import { writeColor } from './panel/material/color.js'
-import { parseNumberLike, parseNumberOrPixelLength } from './properties/values.js'
+import { parseNumberValue, parseAbsoluteLengthValue } from './properties/values.js'
 
 export type Fix_TS_56_Float32Array = Float32Array
 
@@ -217,7 +217,7 @@ export function setupPointerEvents(component: Component, canHaveNonUikitChildren
   abortableEffect(() => {
     component.ancestorsHaveListeners = component.ancestorsHaveListenersSignal.value
     component.pointerEvents = component.isVisible.value ? component.properties.value.pointerEvents : 'none'
-    component.pointerEventsOrder = parseNumberLike(component.properties.value.pointerEventsOrder ?? 0)
+    component.pointerEventsOrder = parseNumberValue(component.properties.value.pointerEventsOrder ?? 0)
     component.pointerEventsType = component.properties.value.pointerEventsType
   }, component.abortSignal)
   abortableEffect(() => {
@@ -311,7 +311,7 @@ export function computedBorderInset(properties: Properties, keys: ReadonlyArray<
     () =>
       keys.map((key) => {
         const value = properties.value[key as keyof BaseOutProperties]
-        return value == null ? 0 : parseNumberOrPixelLength(value as any)
+        return value == null ? 0 : parseAbsoluteLengthValue(value as any)
       }) as Inset,
   )
 }

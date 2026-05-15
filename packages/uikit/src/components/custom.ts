@@ -8,7 +8,7 @@ import { abortableEffect, setupMatrixWorldUpdate } from '../utils.js'
 import { Component } from './component.js'
 import { Material, MeshDepthMaterial, MeshDistanceMaterial } from 'three'
 import { RenderContext } from '../context.js'
-import { parseNumberLike } from '../properties/values.js'
+import { parseNumberValue } from '../properties/values.js'
 export const CustomPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   createInPropertiesSchema(baseOutPropertiesSchema),
 )
@@ -59,7 +59,7 @@ export class Custom<OutProperties extends CustomOutProperties = CustomOutPropert
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {
-      this.renderOrder = parseNumberLike(this.properties.value.renderOrder ?? 0)
+      this.renderOrder = parseNumberValue(this.properties.value.renderOrder ?? 0)
       this.root.peek().requestRender?.()
     }, this.abortSignal)
     abortableEffect(() => {

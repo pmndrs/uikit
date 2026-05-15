@@ -2,7 +2,7 @@ import { Signal } from '@preact/signals-core'
 import { Object3D, RenderItem } from 'three'
 import { abortableEffect, readReactive } from './utils.js'
 import { Properties } from './properties/index.js'
-import { parseNumberLike, type NumberLike } from './properties/values.js'
+import { parseNumberValue, type NumberValue } from './properties/values.js'
 
 export type WithReversePainterSortStableCache = { reversePainterSortStableCache?: number }
 
@@ -80,8 +80,8 @@ export function compareOrderInfo(o1: OrderInfo | undefined, o2: OrderInfo | unde
 }
 
 export type ZIndexProperties = {
-  zIndex?: NumberLike
-  zIndexOffset?: NumberLike
+  zIndex?: NumberValue
+  zIndexOffset?: NumberValue
 }
 
 export function setupOrderInfo(
@@ -105,7 +105,7 @@ export function setupOrderInfo(
 
     const basisOrderInfo = basisOrderInfoSignal.value
     //similiar but not the same as in css
-    const majorIndex = parseNumberLike(properties.value[zIndexKey as 'zIndex'] ?? basisOrderInfo?.majorIndex ?? 0)
+    const majorIndex = parseNumberValue(properties.value[zIndexKey as 'zIndex'] ?? basisOrderInfo?.majorIndex ?? 0)
 
     let minorIndex: number
     let patchIndex: number
@@ -130,7 +130,7 @@ export function setupOrderInfo(
       patchIndex = basisOrderInfo.patchIndex + 1
     }
 
-    patchIndex += parseNumberLike(properties.value['zIndexOffset'] ?? 0)
+    patchIndex += parseNumberValue(properties.value['zIndexOffset'] ?? 0)
 
     target.value = {
       instancedGroupDependencies,

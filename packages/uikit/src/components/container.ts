@@ -19,7 +19,7 @@ import { computedPanelGroupDependencies } from '../panel/instance/properties.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { Component } from './component.js'
-import { parseNumberLike } from '../properties/values.js'
+import { parseNumberValue } from '../properties/values.js'
 export const ContainerPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   createInPropertiesSchema(baseOutPropertiesSchema),
 )
@@ -70,7 +70,7 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
     this.clippingRect = computedClippingRect(
       this.globalMatrix,
       this,
-      computed(() => parseNumberLike(this.properties.value.pixelSize)),
+      computed(() => parseNumberValue(this.properties.value.pixelSize)),
       parentClippingRect,
     )
 

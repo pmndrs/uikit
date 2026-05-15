@@ -3,7 +3,7 @@ import {
   baseOutPropertiesSchema,
   createInPropertiesSchema,
   defineSchema,
-  numberLikeSchema,
+  numberValueSchema,
 } from '../properties/schema.js'
 import { Camera, OrthographicCamera, PerspectiveCamera, Vector2, WebGLRenderer } from 'three'
 import { batch, Signal, signal } from '@preact/signals-core'
@@ -11,17 +11,17 @@ import { BaseOutProperties, InProperties, WithSignal } from '../properties/index
 import { RenderContext } from '../context.js'
 import { searchFor } from '../utils.js'
 import { Container } from './container.js'
-import { parseNumberLike, type NumberLike } from '../properties/values.js'
+import { parseNumberValue, type NumberValue } from '../properties/values.js'
 export const fullscreenOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   baseOutPropertiesSchema.extend({
-    distanceToCamera: numberLikeSchema.optional(),
+    distanceToCamera: numberValueSchema.optional(),
   }),
 )
 export const FullscreenPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   createInPropertiesSchema(fullscreenOutPropertiesSchema),
 )
 
-export type FullscreenOutProperties = BaseOutProperties & { distanceToCamera?: NumberLike }
+export type FullscreenOutProperties = BaseOutProperties & { distanceToCamera?: NumberValue }
 export type FullscreenProperties = z.input<typeof FullscreenPropertiesSchema>
 
 const vectorHelper = new Vector2()
@@ -78,7 +78,7 @@ export class Fullscreen<
     if (!(camera instanceof PerspectiveCamera || camera instanceof OrthographicCamera)) {
       throw new Error(`fullscreen can only be added to a camera`)
     }
-    const distanceToCamera = parseNumberLike(this.properties.peek().distanceToCamera ?? camera.near + 0.1)
+    const distanceToCamera = parseNumberValue(this.properties.peek().distanceToCamera ?? camera.near + 0.1)
     batch(() => {
       let pixelSize: number
       if (camera instanceof PerspectiveCamera) {

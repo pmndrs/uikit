@@ -1,6 +1,6 @@
 import { custom, enum as enumSchema, literal, object, string, union } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberLikeSchema } from '@pmndrs/uikit'
+import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberValueSchema } from '@pmndrs/uikit'
 import {
   abortableEffect,
   BaseOutProperties,
@@ -30,16 +30,16 @@ type SliderIcon = {
 export const SliderOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
-    value: numberLikeSchema.optional(),
+    value: numberValueSchema.optional(),
     onValueChange: custom<(value: number) => void>((value) => typeof value === 'function').optional(),
     valueFormat: union([
       literal('percentage'),
       custom<(value: number) => string>((value) => typeof value === 'function'),
     ]).optional(),
-    defaultValue: numberLikeSchema.optional(),
-    min: numberLikeSchema.optional(),
-    max: numberLikeSchema.optional(),
-    step: numberLikeSchema.optional(),
+    defaultValue: numberValueSchema.optional(),
+    min: numberValueSchema.optional(),
+    max: numberValueSchema.optional(),
+    step: numberValueSchema.optional(),
     size: enumSchema(['sm', 'md', 'lg']).optional(),
     leftLabel: string().optional(),
     rightLabel: string().optional(),
