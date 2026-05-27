@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { signal } from '@preact/signals-core'
 import { inter } from '@pmndrs/msdfonts/inter'
-import { ContainerPropertiesSchema, FontFamiliesSchema, InputPropertiesSchema } from '../src/index.js'
+import { ContainerPropertiesSchema, FontFamiliesSchema, InputPropertiesSchema, Video } from '../src/index.js'
 import { ComponentPropertiesSchemas } from '../src/components/schemas.js'
 import { setter } from '../src/flex/setter.js'
 import { yogaPropertyShape } from '../src/flex/schema.js'
@@ -63,6 +63,12 @@ describe('property schemas', () => {
   it('validates component-specific properties', () => {
     expect(InputPropertiesSchema.safeParse({ placeholder: 'Search', type: 'password' }).success).to.equal(true)
     expect(InputPropertiesSchema.safeParse({ text: 'not allowed' }).success).to.equal(false)
+  })
+
+  it('constructs core Video with schema-valid props outside the browser', () => {
+    const props = { src: 'movie.mp4', objectFit: 'cover' as const, keepAspectRatio: false }
+    expect(ComponentPropertiesSchemas.Video.safeParse(props).success).to.equal(true)
+    expect(() => new Video(props)).to.not.throw()
   })
 
   it('validates font family names and weight keys while keeping font info opaque', () => {

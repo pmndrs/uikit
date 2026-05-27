@@ -1,7 +1,10 @@
-import { boolean, object, strictObject } from 'zod'
+import { boolean, object } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema } from '@pmndrs/uikit'
 import {
+  baseOutPropertyShape,
+  createInPropertiesSchema,
+  defineSchema,
+  videoOutPropertiesSchema,
   InProperties,
   VideoOutProperties as BaseVideoOutProperties,
   Container,
@@ -19,10 +22,9 @@ import { Button } from '../button/index.js'
 import { colors, componentDefaults, contentDefaults, imageDefaults, textDefaults } from '../theme.js'
 import type { Object3D } from 'three'
 export const VideoOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
-  strictObject({
-    ...baseOutPropertyShape,
+  videoOutPropertiesSchema.extend({
     controls: boolean().optional(),
-  }).passthrough(),
+  }),
 )
 
 export const VideoPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
@@ -74,6 +76,8 @@ export class Video extends Container<VideoOutProperties> {
           loop: this.properties.signal.loop,
           autoplay: this.properties.signal.autoplay,
           crossOrigin: this.properties.signal.crossOrigin,
+          objectFit: this.properties.signal.objectFit,
+          keepAspectRatio: this.properties.signal.keepAspectRatio,
           width: '100%',
           height: '100%',
           src: this.properties.signal.src,

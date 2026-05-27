@@ -16,6 +16,7 @@ import {
 } from 'yoga-layout/load'
 import { YogaProperties, setMeasureFunc, setter } from '../src/flex/index.js'
 import { createDefaultConfig } from '../src/flex/yoga.js'
+import { yogaPropertyShape } from '../src/flex/schema.js'
 
 const testValues: YogaProperties = {
   alignContent: 'center',
@@ -60,10 +61,10 @@ export const rawTestValues = {
   alignItems: Align.FlexEnd,
   alignSelf: Align.SpaceAround,
   aspectRatio: 2,
-  borderBottom: 3,
-  borderLeft: 4,
-  borderRight: 5,
-  borderTop: 6,
+  borderBottomWidth: 3,
+  borderLeftWidth: 4,
+  borderRightWidth: 5,
+  borderTopWidth: 6,
   display: Display.None,
   flexBasis: 7,
   flexDirection: FlexDirection.RowReverse,
@@ -96,6 +97,7 @@ export const rawTestValues = {
 const properties = Object.keys(testValues) as Array<keyof typeof testValues>
 
 const propertiesWithEdge = ['border', 'padding', 'margin', 'position'] as const
+const root = { component: { size: { value: [100, 100] } } } as any
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
@@ -104,18 +106,16 @@ function capitalize(value: string): string {
 function getRawValue(property: string, node: Node): any {
   for (const propertyWithEdge of propertiesWithEdge) {
     if (property.startsWith(propertyWithEdge)) {
-      if (property.endsWith('Top')) {
-        return flatten(node[`get${capitalize(property.slice(0, -3))}` as 'getBorder'](Edge.Top))
+      const edgeProperty = property.match(/^(border|padding|margin|position)(Top|Bottom|Right|Left)(?:Width)?$/)
+      if (edgeProperty == null) {
+        continue
       }
-      if (property.endsWith('Bottom')) {
-        return flatten(node[`get${capitalize(property.slice(0, -6))}` as 'getBorder'](Edge.Bottom))
-      }
-      if (property.endsWith('Right')) {
-        return flatten(node[`get${capitalize(property.slice(0, -5))}` as 'getBorder'](Edge.Right))
-      }
-      if (property.endsWith('Left')) {
-        return flatten(node[`get${capitalize(property.slice(0, -4))}` as 'getBorder'](Edge.Left))
-      }
+      const [, baseProperty, edgeName] = edgeProperty as [
+        string,
+        'border' | 'padding' | 'margin' | 'position',
+        'Top' | 'Bottom' | 'Right' | 'Left',
+      ]
+      return flatten(node[`get${capitalize(baseProperty)}` as 'getBorder'](Edge[edgeName]))
     }
   }
   return flatten(node[`get${capitalize(property)}` as 'getWidth']())
@@ -191,12 +191,12 @@ describe('set & get properties', () => {
   })
 
   it('it should throw an error', () => {
-    expect(() => setter.alignItems(node, 'centerx' as any), 'assign alignItems a unknown value').to.throw(
-      `unexpected value centerx, expected auto, flex-start, center, flex-end, stretch, baseline, space-between, space-around`,
+    expect(() => setter.alignItems(root, node, 'centerx' as any), 'assign alignItems a unknown value').to.throw(
+      `unexpected value centerx, expected auto, flex-start, center, flex-end, stretch, baseline, space-between, space-around, space-evenly`,
     )
 
-    expect(() => setter.alignItems(node, 1 as any), 'assign alignItems a wrong value type').to.throw(
-      `unexpected value 1, expected auto, flex-start, center, flex-end, stretch, baseline, space-between, space-around`,
+    expect(() => setter.alignItems(root, node, 1 as any), 'assign alignItems a wrong value type').to.throw(
+      `unexpected value 1, expected auto, flex-start, center, flex-end, stretch, baseline, space-between, space-around, space-evenly`,
     )
   })
 
@@ -208,7 +208,7 @@ describe('set & get properties', () => {
 
   it('it should set new values', () => {
     ;(Object.entries(testValues) as Array<[keyof YogaProperties, any]>).forEach(([name, value]) =>
-      setter[name](node, value),
+      setter[name](root, node, value),
     )
     properties.forEach((property) =>
       expect(getRawValue(property, node), `compare ${property} to expected value`).to.equal(
@@ -218,7 +218,7 @@ describe('set & get properties', () => {
   })
 
   it('it should reset all values', () => {
-    ;(Object.keys(testValues) as Array<keyof YogaProperties>).forEach((name) => setter[name](node, undefined))
+    ;(Object.keys(testValues) as Array<keyof YogaProperties>).forEach((name) => setter[name](root, node, undefined))
     properties.forEach((property) => {
       expect(equal(getRawValue(property, node), rawValues[property]), `compare ${property} to the default value`).to.be
         .true
@@ -226,16 +226,36 @@ describe('set & get properties', () => {
   })
 
   it('it should set value as points or precentages', () => {
-    setter.width(node, 10.5)
+    setter.width(root, node, 10.5)
     expect(node.getWidth()).to.deep.equal({
       unit: Unit.Point,
       value: 10.5,
     })
-    setter.width(node, '50%')
+    setter.width(root, node, '50%')
     expect(node.getWidth()).to.deep.equal({
       unit: Unit.Percent,
       value: 50,
     })
+  })
+
+  it('accepts representative schema-valid values in the Yoga setters', () => {
+    const schemaValidValues = {
+      width: [1, '1', '1px', '1%', '+1%', '1e2%', '1dvw', '1svh', 'auto'],
+      minWidth: [1, '1', '1px', '1%', '+1%', '1e2%', '1dvw', '1svh'],
+      marginTop: [1, '1', '1px', '1%', '1dvw', '1svh', 'auto'],
+      flexGrow: [1, '1', '1e2'],
+      borderTopWidth: [1, '1', '1px'],
+      alignItems: ['auto', 'flex-start', 'center', 'flex-end', 'stretch', 'baseline', 'space-evenly'],
+    } as const
+
+    for (const [key, values] of Object.entries(schemaValidValues) as Array<
+      [keyof typeof schemaValidValues, readonly unknown[]]
+    >) {
+      for (const value of values) {
+        expect(yogaPropertyShape[key].safeParse(value).success, `${key} schema accepts ${value}`).to.equal(true)
+        expect(() => setter[key](root, node, value as never), `${key} accepts ${value}`).to.not.throw()
+      }
+    }
   })
 
   it('it should set and unset measure func', () => {

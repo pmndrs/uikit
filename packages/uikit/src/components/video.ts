@@ -40,6 +40,10 @@ export type VideoOutProperties = ImageOutProperties<VideoSrc> & {
 }
 export type VideoProperties = z.input<typeof VideoPropertiesSchema>
 
+function isVideoElement(value: VideoSrc | undefined): value is HTMLVideoElement {
+  return typeof HTMLVideoElement !== 'undefined' && value instanceof HTMLVideoElement
+}
+
 export class Video<OutProperties extends VideoOutProperties = VideoOutProperties> extends Image<OutProperties> {
   readonly element = signal<HTMLVideoElement | undefined>()
 
@@ -57,10 +61,13 @@ export class Video<OutProperties extends VideoOutProperties = VideoOutProperties
       ...inputConfig,
     })
 
-    const srcIsElement = computed(() => this.properties.value.src instanceof HTMLVideoElement)
+    const srcIsElement = computed(() => isVideoElement(this.properties.value.src))
     const notYetLoadedElement = computed(() => {
       if (srcIsElement.value) {
         return this.properties.value.src as HTMLVideoElement
+      }
+      if (typeof document === 'undefined') {
+        return undefined
       }
       const element = document.createElement('video')
       element.style.position = 'absolute'
@@ -84,14 +91,14 @@ export class Video<OutProperties extends VideoOutProperties = VideoOutProperties
       element.autoplay = this.properties.value.autoplay ?? false
       element.crossOrigin = this.properties.value.crossOrigin ?? null
       const src = this.properties.value.src
-      if (src instanceof HTMLVideoElement) {
+      if (isVideoElement(src)) {
         return
       }
       updateVideoElementSrc(element, src)
     }, this.abortSignal)
     abortableEffect(() => {
       const element = notYetLoadedElement.value
-      if (srcIsElement.value || element == null) {
+      if (typeof document === 'undefined' || srcIsElement.value || element == null) {
         return
       }
       document.body.appendChild(element)

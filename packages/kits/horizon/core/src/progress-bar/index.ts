@@ -1,13 +1,22 @@
 import { object } from 'zod'
 import type { z } from 'zod'
-import { baseOutPropertyShape, createInPropertiesSchema, defineSchema, numberValueSchema } from '@pmndrs/uikit'
-import { BaseOutProperties, Container, InProperties, RenderContext } from '@pmndrs/uikit'
+import {
+  BaseOutProperties,
+  Container,
+  InProperties,
+  RenderContext,
+  baseOutPropertyShape,
+  createInPropertiesSchema,
+  defineSchema,
+  numberOrPercentageValueSchema,
+  type NumberOrPercentageValue,
+} from '@pmndrs/uikit'
 import { computed } from '@preact/signals-core'
 import { theme } from '../theme.js'
 export const ProgressBarOutPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
   object({
     ...baseOutPropertyShape,
-    value: numberValueSchema.optional(),
+    value: numberOrPercentageValueSchema.optional(),
   }).strict(),
 )
 
@@ -18,6 +27,16 @@ export const ProgressBarPropertiesSchema = /* @__PURE__ */ defineSchema(() =>
 export type ProgressBarOutProperties = BaseOutProperties & z.output<typeof ProgressBarOutPropertiesSchema>
 
 export type ProgressBarProperties = z.input<typeof ProgressBarPropertiesSchema>
+
+function formatProgressWidth(value: NumberOrPercentageValue | undefined): `${number}%` {
+  if (value == null) {
+    return '0%'
+  }
+  if (typeof value === 'string' && value.endsWith('%')) {
+    return value as `${number}%`
+  }
+  return `${Number(value)}%`
+}
 
 export class ProgressBar extends Container<ProgressBarOutProperties> {
   public readonly fill: Container
@@ -44,7 +63,7 @@ export class ProgressBar extends Container<ProgressBarOutProperties> {
           height: 12,
           borderRadius: 1000,
           backgroundColor: theme.component.progressBar.determinate.fill.fill.value,
-          width: computed(() => `${this.properties.value.value ?? 0}%` as const),
+          width: computed(() => formatProgressWidth(this.properties.value.value)),
           minWidth: 12,
         },
       })),

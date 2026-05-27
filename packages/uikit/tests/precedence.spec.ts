@@ -1,51 +1,59 @@
 import { expect } from 'chai'
+import { signal } from '@preact/signals-core'
 import { PropertiesImplementation } from '../src/properties/index.js'
-import { Signal, signal } from '@preact/signals-core'
-import { createHoverPropertyTransformers } from '../src/hover.js'
+import { allAliases } from '../src/properties/alias.js'
+
+function createTestProperties(defaults?: Record<string, unknown>) {
+  const hover = signal(false)
+  const properties = new PropertiesImplementation<any>(
+    allAliases,
+    new Proxy({} as any, {
+      get: (_target, key) => (key === 'hover' ? () => hover.value : () => false),
+    }),
+    defaults as any,
+  )
+  properties.setEnabled(true)
+  return { hover, properties }
+}
 
 describe('properties precedence', () => {
-  it('should use undefined as ignore and null as unset (without signals)', () => {
-    const merged = new PropertiesImplementation()
-    merged.add('x', 1)
-    expect(merged.read('x')).to.equal(1)
-    merged.add('x', undefined)
-    expect(merged.read('x')).to.equal(1)
-    merged.add('x', null)
-    expect(merged.read('x') == null).to.true
+  it('uses undefined as ignore and initial as default reset', () => {
+    const { properties } = createTestProperties({ height: 1 })
+
+    properties.setLayer(10, { height: 2 })
+    expect(properties.value.height).to.equal(2)
+
+    properties.setLayer(5, { height: undefined })
+    expect(properties.value.height).to.equal(2)
+
+    properties.setLayer(5, { height: 'initial' })
+    expect(properties.value.height).to.equal(1)
   })
 
-  it('should use undefined as ignore and null as unset (with signals)', () => {
-    const merged = new PropertiesImplementation()
-    merged.add('x', signal(1))
-    expect(merged.read('x')).to.equal(1)
-    merged.add('x', signal(undefined))
-    expect(merged.read('x')).to.equal(1)
-    const f = signal<null | undefined>(null)
-    merged.add('x', f)
-    expect(merged.read('x') == null).to.true
-    f.value = undefined
-    expect(merged.read('x')).to.equal(1)
+  it('updates precedence when signal values change', () => {
+    const { properties } = createTestProperties({ height: 1 })
+    const topLayer = signal<number | null | undefined>(undefined)
+
+    properties.setLayer(10, { height: 2 })
+    properties.setLayer(5, { height: topLayer })
+    expect(properties.value.height).to.equal(2)
+
+    topLayer.value = null
+    expect(properties.value.height).to.equal(null)
+
+    topLayer.value = undefined
+    expect(properties.value.height).to.equal(2)
   })
 
-  it('should preserve order default classes (hover/...) -> defaults (hover/...) -> properties classes (hover/...) -> properties (class/hover/...) -> style classes (hover/...) -> styles (class/hover/...)', () => {
-    const merged = new PropertiesImplementation()
-    merged.addAll(
-      {
-        classes: [{ height: signal(0), hover: { height: signal(1) } }, { height: signal(2) }],
-        height: signal(3),
-        hover: { height: signal(4) },
-      },
-      {
-        classes: [{ height: signal(5), hover: { height: signal(6) } }, { height: signal(7) }],
-        height: signal(8),
-        hover: { height: signal(9) },
-      },
-      createHoverPropertyTransformers(signal([1])),
-    )
-    const property = merged['propertyMap'].get('height')!
-    expect(property.map((x) => (x instanceof Signal ? x.value : x))).to.deep.equal(
-      new Array(10).fill(0).map((_, i) => i),
-    )
-    expect(merged.read('height')).to.equal(9)
+  it('preserves conditional precedence over base properties', () => {
+    const { hover, properties } = createTestProperties({ height: 1 })
+
+    properties.setLayersWithConditionals({ type: 'default-overrides' }, { height: 2, hover: { height: 3 } })
+    properties.setLayersWithConditionals({ type: 'base' }, { height: 4, hover: { height: 5 } })
+
+    expect(properties.value.height).to.equal(4)
+
+    hover.value = true
+    expect(properties.value.height).to.equal(5)
   })
 })

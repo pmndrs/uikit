@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { Container, Image, Text, Content, Custom } from '../src/index.js'
-import { InstancedPanelMesh } from '../src/panel/instanced-panel-mesh.js'
+import { InstancedPanelMesh } from '../src/panel/instance/mesh.js'
 import { InstancedGlyphMesh } from '../src/text/render/instanced-glyph-mesh.js'
 import { InstancedBufferAttribute, Object3D, Group, MeshBasicMaterial } from 'three'
 import { Component } from '../src/components/component.js'
