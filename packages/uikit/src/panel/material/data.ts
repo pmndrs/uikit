@@ -1,10 +1,10 @@
 import { Signal } from '@preact/signals-core'
 import { TypedArray, Vector2Tuple } from 'three'
-import { clamp } from 'three/src/math/MathUtils.js'
 import type { ColorRepresentation } from '../../utils.js'
 import { toAbsoluteNumber } from '../../text/utils.js'
 import { writeColor } from './color.js'
 import type { NumberOrPercentageValue } from '../../properties/values.js'
+import { resolvePackedBorderRadius } from './radius.js'
 
 export const materialSetters = {
   // 0-3 = border sizes
@@ -69,13 +69,7 @@ function writeBorderRadius(
   height: number,
   onUpdate: ((start: number, count: number) => void) | undefined,
 ): void {
-  setBorderRadius(
-    data,
-    offset,
-    indexInFloat,
-    toAbsoluteNumber(value, () => height),
-    height,
-  )
+  setBorderRadius(data, offset, indexInFloat, value, height)
   onUpdate?.(offset, 1)
 }
 
@@ -95,10 +89,12 @@ function setComponentInFloat(from: number, index: number, value: number): number
   return from + (value - currentValue) * x
 }
 
-function setBorderRadius(data: TypedArray, indexInData: number, indexInFloat: number, value: number, height: number) {
-  data[indexInData] = setComponentInFloat(
-    data[indexInData]!,
-    indexInFloat,
-    height === 0 ? 0 : clamp(Math.ceil(((value ?? 0) / height) * 100), 0, 49),
-  )
+function setBorderRadius(
+  data: TypedArray,
+  indexInData: number,
+  indexInFloat: number,
+  value: number | string,
+  height: number,
+) {
+  data[indexInData] = setComponentInFloat(data[indexInData]!, indexInFloat, resolvePackedBorderRadius(value, height))
 }
