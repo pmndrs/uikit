@@ -27,6 +27,7 @@
     "main": "dist/index.js"
   },
   "scripts": {
+    "test": "mocha ./tests/*.spec.ts",
     "build": "tsc",
     "check:prettier": "prettier --check .",
     "check:eslint": "eslint 'src/**/*.{tsx,ts}'",
