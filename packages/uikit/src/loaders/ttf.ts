@@ -77,7 +77,17 @@ export class TTFLoader extends Loader<MSDFResult, TTFInput> {
 
   private async _generate(arrayBuffers: ArrayBuffer[], fonts: NormalizedFont[]): Promise<MSDFResult> {
     const { MSDF } = await import('@zappar/msdf-generator')
-    const generator = new MSDF()
+    // Point at the copies this package ships rather than letting the defaults
+    // fire. @zappar/msdf-generator builds its worker URL separately from the
+    // `new Worker(url)` that consumes it, so bundlers emit its worker verbatim
+    // with a bare `comlink` import that no module worker can resolve, and its
+    // wasm is named by a runtime string that no bundler can see at all. Both
+    // failures are silent: the worker's error event carries no message and the
+    // generator simply never initialises. See scripts/build-msdf-assets.mjs.
+    const generator = new MSDF({
+      workerUrl: new URL('./msdf-worker.js', import.meta.url).href,
+      wasmUrl: new URL('./msdfgen_wasm.wasm', import.meta.url).href,
+    })
 
     try {
       await generator.initialize()
