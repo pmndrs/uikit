@@ -10,10 +10,8 @@ export default defineConfig({
     esbuildOptions: {
       target: 'esnext',
     },
-    exclude: ['@zappar/msdf-generator'],
   },
   build: {
     target: 'esnext',
   },
-  assetsInclude: ['**/*.wasm'],
 })

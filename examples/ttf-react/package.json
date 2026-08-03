@@ -4,6 +4,7 @@
     "@react-three/uikit": "workspace:^"
   },
   "scripts": {
+    "build": "vite build",
     "dev": "vite"
   }
 }
