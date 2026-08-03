@@ -2,7 +2,11 @@ import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { reversePainterSortStable, Container, Text } from '@pmndrs/uikit'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { TTFLoader } from '@pmndrs/uikit'
+import workerUrl from '@pmndrs/uikit/msdf-worker.js?url'
+import wasmUrl from '@pmndrs/uikit/msdfgen_wasm.wasm?url'
 import fontUrl from './BitcountPropSingle-Regular.ttf?url'
+
+TTFLoader.config = { workerUrl, wasmUrl }
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 5

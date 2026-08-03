@@ -310,6 +310,9 @@ importers:
 
   examples/ttf-react:
     dependencies:
+      '@pmndrs/uikit':
+        specifier: workspace:^
+        version: link:../../packages/uikit
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react
@@ -513,6 +516,10 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+    devDependencies:
+      esbuild:
+        specifier: ^0.21.5
+        version: 0.21.5
 
 packages:
   '@alloc/quick-lru@5.2.0':

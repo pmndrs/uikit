@@ -17,6 +17,18 @@ Under the hood, fonts are rendered using MSDF (multi-channel signed distance fie
 
 Load TTF files directly at runtime using the built-in `TTFLoader` (vanilla) or `useTTF` hook (React). These convert TTF fonts to MSDF format on-the-fly using WebAssembly.
 
+Configure the worker and WebAssembly URLs once before loading fonts. With Vite:
+
+```ts
+import { TTFLoader } from '@pmndrs/uikit'
+import workerUrl from '@pmndrs/uikit/msdf-worker.js?url'
+import wasmUrl from '@pmndrs/uikit/msdfgen_wasm.wasm?url'
+
+TTFLoader.config = { workerUrl, wasmUrl }
+```
+
+Other bundlers can pass URLs for the same two files shipped by `@pmndrs/uikit`.
+
 ### React Three Fiber
 
 ```jsx showLineNumbers

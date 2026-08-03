@@ -1,7 +1,13 @@
-import type { GenerateFontOptions, GenerateFontResult, MSDFGeneratorOptions } from '@zappar/msdf-generator'
-import { FileLoader, Loader, LoadingManager } from 'three'
+import type {
+  GenerateFontOptions,
+  GenerateFontResult,
+  MSDFGeneratorConfig,
+  MSDFGeneratorOptions,
+} from '@zappar/msdf-generator'
+import { FileLoader, Loader } from 'three'
 
 export type MSDFResult = GenerateFontResult
+type TTFLoaderConfig = Required<MSDFGeneratorConfig>
 
 export interface TTFLoaderOptions extends Partial<Omit<MSDFGeneratorOptions, 'font'>> {
   url?: string
@@ -33,9 +39,7 @@ function normalizeInput(input: TTFInput): NormalizedFont[] {
 }
 
 export class TTFLoader extends Loader<MSDFResult, TTFInput> {
-  constructor(manager?: LoadingManager) {
-    super(manager)
-  }
+  static config: TTFLoaderConfig | undefined
 
   override load(
     input: TTFInput,
@@ -55,9 +59,12 @@ export class TTFLoader extends Loader<MSDFResult, TTFInput> {
   }
 
   override async loadAsync(input: TTFInput, onProgress?: (event: ProgressEvent) => void): Promise<MSDFResult> {
+    const config = TTFLoader.config
+    if (config == null) throw new Error('TTFLoader.config must be set before loading fonts')
+
     const fonts = normalizeInput(input)
     const arrayBuffers = await this._loadFontFiles(fonts, onProgress)
-    return this._generate(arrayBuffers, fonts)
+    return this._generate(arrayBuffers, fonts, config)
   }
 
   private async _loadFontFiles(
@@ -75,11 +82,13 @@ export class TTFLoader extends Loader<MSDFResult, TTFInput> {
     return Promise.all(loadPromises) as Promise<ArrayBuffer[]>
   }
 
-  private async _generate(arrayBuffers: ArrayBuffer[], fonts: NormalizedFont[]): Promise<MSDFResult> {
-    const { default: workerUrl } = await import('@zappar/msdf-generator/worker.js?worker&url')
-    const { default: wasmUrl } = await import('@zappar/msdf-generator/msdfgen_wasm.wasm?url')
+  private async _generate(
+    arrayBuffers: ArrayBuffer[],
+    fonts: NormalizedFont[],
+    config: TTFLoaderConfig,
+  ): Promise<MSDFResult> {
     const { MSDF } = await import('@zappar/msdf-generator')
-    const generator = new MSDF({ workerUrl, wasmUrl })
+    const generator = new MSDF(config)
 
     try {
       await generator.initialize()
@@ -108,7 +117,7 @@ export class TTFLoader extends Loader<MSDFResult, TTFInput> {
       const urls = fonts.map((f) => f.url).join(', ')
       throw new Error(`TTFLoader: MSDF generation failed for ${urls}: ${err instanceof Error ? err.message : err}`)
     } finally {
-      generator.dispose()
+      await generator.dispose()
     }
   }
 }
