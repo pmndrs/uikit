@@ -1,7 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "@pmndrs/uikit": "workspace:^",
     "@react-three/uikit": "workspace:^"
   },
   "scripts": {

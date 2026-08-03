@@ -1,2 +1,1 @@
-msdf-worker.js
-msdfgen_wasm.wasm
+src/loaders/msdf-worker.ts

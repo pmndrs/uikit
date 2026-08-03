@@ -1,19 +1,25 @@
-import { copyFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
 
 import { build } from 'esbuild'
 
 const require = createRequire(import.meta.url)
+const wasm = await readFile(require.resolve('@zappar/msdf-generator/msdfgen_wasm.wasm'), 'base64')
 
-await build({
+const { outputFiles } = await build({
   entryPoints: [require.resolve('@zappar/msdf-generator/worker.js')],
-  outfile: fileURLToPath(new URL('../msdf-worker.js', import.meta.url)),
+  banner: {
+    // The upstream worker only fetches its WASM; serve it from the embedded bytes.
+    js: `globalThis.fetch=()=>Promise.resolve(new Response(Uint8Array.from(atob(${JSON.stringify(
+      wasm,
+    )}),c=>c.charCodeAt(0)),{headers:{'Content-Type':'application/wasm'}}))`,
+  },
   bundle: true,
   format: 'esm',
+  write: false,
 })
 
-await copyFile(
-  require.resolve('@zappar/msdf-generator/msdfgen_wasm.wasm'),
-  new URL('../msdfgen_wasm.wasm', import.meta.url),
+await writeFile(
+  new URL('../src/loaders/msdf-worker.ts', import.meta.url),
+  `// prettier-ignore\nexport default ${JSON.stringify(outputFiles[0].text)}\n`,
 )

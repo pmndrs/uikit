@@ -310,9 +310,6 @@ importers:
 
   examples/ttf-react:
     dependencies:
-      '@pmndrs/uikit':
-        specifier: workspace:^
-        version: link:../../packages/uikit
       '@react-three/uikit':
         specifier: workspace:^
         version: link:../../packages/react

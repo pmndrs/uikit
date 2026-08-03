@@ -20,9 +20,7 @@
     "url": "https://github.com/pmndrs/uikit"
   },
   "files": [
-    "dist",
-    "msdf-worker.js",
-    "msdfgen_wasm.wasm"
+    "dist"
   ],
   "main": "src/index.ts",
   "publishConfig": {

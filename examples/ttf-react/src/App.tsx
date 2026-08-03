@@ -1,13 +1,9 @@
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Text, Fullscreen, Container } from '@react-three/uikit'
-import { TTFLoader, useTTF } from '@react-three/uikit'
-import workerUrl from '@pmndrs/uikit/msdf-worker.js?url'
-import wasmUrl from '@pmndrs/uikit/msdfgen_wasm.wasm?url'
+import { useTTF } from '@react-three/uikit'
 import fontUrl from '../BitcountPropSingle-Regular.ttf?url'
 import { noEvents, PointerEvents } from '@react-three/xr/dist/events.js'
-
-TTFLoader.config = { workerUrl, wasmUrl }
 
 function UI() {
   const fontFamilies = useTTF(fontUrl)
