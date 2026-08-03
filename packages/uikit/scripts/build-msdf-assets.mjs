@@ -5,15 +5,10 @@ import { build } from 'esbuild'
 
 const require = createRequire(import.meta.url)
 const wasm = await readFile(require.resolve('@zappar/msdf-generator/msdfgen_wasm.wasm'), 'base64')
+const wasmUrl = `data:application/octet-stream;base64,${wasm}`
 
 const { outputFiles } = await build({
   entryPoints: [require.resolve('@zappar/msdf-generator/worker.js')],
-  banner: {
-    // The upstream worker only fetches its WASM; serve it from the embedded bytes.
-    js: `globalThis.fetch=()=>Promise.resolve(new Response(Uint8Array.from(atob(${JSON.stringify(
-      wasm,
-    )}),c=>c.charCodeAt(0)),{headers:{'Content-Type':'application/wasm'}}))`,
-  },
   bundle: true,
   format: 'esm',
   write: false,
@@ -21,5 +16,5 @@ const { outputFiles } = await build({
 
 await writeFile(
   new URL('../src/loaders/msdf-worker.ts', import.meta.url),
-  `// prettier-ignore\nexport default ${JSON.stringify(outputFiles[0].text)}\n`,
+  `// prettier-ignore\nexport const workerSource = ${JSON.stringify(outputFiles[0].text)}\n// prettier-ignore\nexport const wasmUrl = ${JSON.stringify(wasmUrl)}\n`,
 )
