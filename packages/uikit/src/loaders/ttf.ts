@@ -76,8 +76,10 @@ export class TTFLoader extends Loader<MSDFResult, TTFInput> {
   }
 
   private async _generate(arrayBuffers: ArrayBuffer[], fonts: NormalizedFont[]): Promise<MSDFResult> {
+    const { default: workerUrl } = await import('@zappar/msdf-generator/worker.js?worker&url')
+    const { default: wasmUrl } = await import('@zappar/msdf-generator/msdfgen_wasm.wasm?url')
     const { MSDF } = await import('@zappar/msdf-generator')
-    const generator = new MSDF()
+    const generator = new MSDF({ workerUrl, wasmUrl })
 
     try {
       await generator.initialize()
