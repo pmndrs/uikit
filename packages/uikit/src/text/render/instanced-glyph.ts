@@ -82,7 +82,7 @@ export class InstancedGlyph {
     if (this.clippingRect == null) {
       instanceClipping.set(defaultClippingData, offset)
     } else {
-      this.clippingRect.toArray(instanceClipping.array, offset)
+      this.clippingRect.toShaderArray(instanceClipping.array, offset)
     }
     instanceClipping.addUpdateRange(offset, 16)
     instanceClipping.needsUpdate = true

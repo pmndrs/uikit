@@ -2,7 +2,7 @@ import type { z } from 'zod'
 import { baseOutPropertiesSchema, createInPropertiesSchema, defineSchema } from '../properties/schema.js'
 import { computed, signal, Signal } from '@preact/signals-core'
 import { Matrix4, Vector2Tuple, Vector3, Vector2 } from 'three'
-import { ClippingRect, computedClippingRect } from '../clipping.js'
+import { ClippingRect, computedClippingRect, computedCornerRadiiPx } from '../clipping.js'
 import { ElementType, setupOrderInfo } from '../order.js'
 import { setupInstancedPanel } from '../panel/instance/setup.js'
 import { getDefaultPanelMaterialConfig } from '../panel/material/config.js'
@@ -72,6 +72,7 @@ export class Container<OutProperties extends BaseOutProperties = BaseOutProperti
       this,
       computed(() => parseNumberValue(this.properties.value.pixelSize)),
       parentClippingRect,
+      computedCornerRadiiPx(this.properties, this.size),
     )
 
     this.anyAncestorScrollable = computedAnyAncestorScrollable(this.parentContainer)
