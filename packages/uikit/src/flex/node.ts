@@ -262,7 +262,7 @@ export class FlexNode {
 
     if (this.component.overflow.value === Overflow.Scroll) {
       maxContentWidth += paddingRight
-      maxContentHeight += paddingLeft
+      maxContentHeight += paddingBottom
 
       const widthWithoutBorder = width - borderLeft - borderRight
       const heightWithoutBorder = height - borderTop - borderBottom
