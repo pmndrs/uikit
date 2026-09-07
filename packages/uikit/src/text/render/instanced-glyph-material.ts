@@ -1,5 +1,6 @@
 import { MeshBasicMaterial } from 'three'
 import { Font } from '../font.js'
+import { getInstancedClippingFragment } from '../../clipping-shader.js'
 
 export class InstancedGlyphMaterial extends MeshBasicMaterial {
   constructor(font: Font) {
@@ -54,17 +55,7 @@ export class InstancedGlyphMaterial extends MeshBasicMaterial {
       parameters.fragmentShader = parameters.fragmentShader.replace(
         '#include <map_fragment>',
         ` #include <map_fragment>
-          vec4 plane;
-          float distanceToPlane, distanceGradient;
-          float clipOpacity = 1.0;
-          for(int i = 0; i < 4; i++) {
-            plane = clipping[ i ];
-            distanceToPlane = dot( localPosition, plane.xyz ) + plane.w;
-            distanceGradient = max(fwidth( distanceToPlane ) / 2.0, 0.00001);
-            clipOpacity *= smoothstep( - distanceGradient, distanceGradient, distanceToPlane );
-
-            if ( clipOpacity == 0.0 ) discard;
-          }
+          ${getInstancedClippingFragment()}
           // Distance to the edge of the glyph in texels.
           float dist = (getDistance() - 0.5) * float(distanceRange);
 

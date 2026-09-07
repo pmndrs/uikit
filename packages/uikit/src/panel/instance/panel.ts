@@ -149,7 +149,7 @@ export class InstancedPanel {
       const offset = index * 16
       const clipping = this.clippingRect?.value
       if (clipping != null) {
-        clipping.toArray(instanceClipping.array, offset)
+        clipping.toShaderArray(instanceClipping.array, offset)
       } else {
         instanceClipping.array.set(defaultClippingData, offset)
       }
