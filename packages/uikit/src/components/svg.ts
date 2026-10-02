@@ -1,4 +1,4 @@
-import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three'
+import { Material, Mesh, MeshBasicMaterial, REVISION, Shape, ShapeGeometry, Vector3 } from 'three'
 import { BoundingBox, Content, type ContentOutProperties, contentOutPropertiesSchema } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
@@ -82,6 +82,7 @@ export class Svg<OutProperties extends SvgOutProperties = SvgOutProperties> exte
 
 const svgCache = new Map<string, Promise<SVGResult>>()
 const loader = new SVGLoader()
+const isRevision185OrNewer = Number.parseInt(REVISION, 10) >= 185
 
 async function loadSvg({
   src,
@@ -105,7 +106,7 @@ async function loadSvg({
   }
   const meshes: Array<Mesh> = []
   for (const path of result.paths) {
-    const shapes = SVGLoader.createShapes(path)
+    const shapes = isRevision185OrNewer ? (path.toShapes as () => Array<Shape>)() : SVGLoader.createShapes(path)
     const material = new MeshBasicMaterial({ color: path.color, toneMapped: false })
 
     for (const shape of shapes) {
