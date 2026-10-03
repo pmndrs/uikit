@@ -10,9 +10,16 @@ declare module 'three' {
   }
 }
 
+export interface UIKitObject3DProps {
+  /** Name for the underlying Object3D (useful for debugging and scene traversal) */
+  object3DName?: string
+  /** Custom user data attached to the underlying Object3D */
+  userData?: Record<string, any>
+}
+
 export function build<T extends Component, P>(Component: { new (): T }, name = Component.name) {
   extend({ [`Vanilla${name}`]: Component })
-  return forwardRef<T, P>(({ children, ...props }: any, forwardRef) => {
+  return forwardRef<T, P & UIKitObject3DProps>(({ children, ...props }: any, forwardRef) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const ref = useRef<Component>(null)
     const latestPropsRef = useRef(props)
@@ -21,7 +28,7 @@ export function build<T extends Component, P>(Component: { new (): T }, name = C
     const renderContext = useRenderContext()
     const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
     const outProps = useSetup(ref, props, args)
-    return jsx(`vanilla${name}` as any, { ref, children, ...outProps })
+    return jsx(`vanilla${name}` as any, { ref, children, ...outProps, name: props.object3DName, userData: props.userData })
   })
 }
 
