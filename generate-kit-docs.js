@@ -23,11 +23,11 @@ nav: ${nav}
   customSetup={{
     dependencies: {
       'three': 'latest',
-      '@react-three/fiber': '<9',
+      '@react-three/fiber': '^9',
       '@react-three/uikit': '^1.0.44',
       '@react-three/uikit-${kit}': '^1.0.44',
       '@react-three/uikit-lucide': '^1.0.44',
-      '@react-three/drei': '<10',
+      '@react-three/drei': '^10',
     },
   }}
   files={{
