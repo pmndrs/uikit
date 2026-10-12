@@ -1,6 +1,5 @@
-import { Matrix4, Mesh, Object3D, Sphere, Vector2, Vector3 } from 'three'
+import { MathUtils, Matrix4, Mesh, Object3D, Sphere, Vector2, Vector3 } from 'three'
 import { Signal } from '@preact/signals-core'
-import { clamp } from 'three/src/math/MathUtils.js'
 import { RootContext } from '../../context.js'
 import { computeWorldToGlobalMatrix } from '../../utils.js'
 
@@ -24,8 +23,8 @@ export function makePanelSpherecast(
     }
     object.updateMatrixWorld(true)
     vectorHelper.copy(sphere.center).applyMatrix4(matrixHelper.copy(object.matrixWorld).invert())
-    vectorHelper.x = clamp(vectorHelper.x, -0.5, 0.5)
-    vectorHelper.y = clamp(vectorHelper.y, -0.5, 0.5)
+    vectorHelper.x = MathUtils.clamp(vectorHelper.x, -0.5, 0.5)
+    vectorHelper.y = MathUtils.clamp(vectorHelper.y, -0.5, 0.5)
     vectorHelper.z = 0
 
     const uv = new Vector2(vectorHelper.x, vectorHelper.y)

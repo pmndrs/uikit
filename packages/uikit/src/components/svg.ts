@@ -2,7 +2,7 @@ import { Material, Mesh, MeshBasicMaterial, ShapeGeometry, Vector3 } from 'three
 import { BoundingBox, Content, type ContentOutProperties, contentOutPropertiesSchema } from './content.js'
 import { computed, signal } from '@preact/signals-core'
 import { abortableEffect, loadResourceWithParams } from '../utils.js'
-import { SVGLoader, SVGResult } from 'three/examples/jsm/loaders/SVGLoader.js'
+import { SVGLoader, SVGResult } from 'three/addons/loaders/SVGLoader.js'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { RenderContext } from '../context.js'
 import { string } from 'zod'

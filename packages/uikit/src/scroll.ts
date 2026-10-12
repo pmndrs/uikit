@@ -1,9 +1,8 @@
 import { ReadonlySignal, Signal, computed, signal } from '@preact/signals-core'
-import { Box2, Matrix4, Object3D, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
+import { Box2, MathUtils, Matrix4, Object3D, Vector2, Vector2Tuple, Vector3, Vector4Tuple } from 'three'
 import { Inset } from './flex/node.js'
 import { abortableEffect, ColorRepresentation, computedBorderInset } from './utils.js'
 import { ClippingRect } from './clipping.js'
-import { clamp } from 'three/src/math/MathUtils.js'
 import { computedPanelMatrix } from './panel/instance/matrix.js'
 import { PanelProperties } from './panel/instance/panel.js'
 import { setupInstancedPanel } from './panel/instance/setup.js'
@@ -341,7 +340,7 @@ function computeScroll(
   if (enableRubberBand && maxPosition != null) {
     return newPosition
   }
-  return clamp(newPosition, 0, maxPosition ?? 0)
+  return MathUtils.clamp(newPosition, 0, maxPosition ?? 0)
 }
 
 /**
@@ -510,7 +509,7 @@ function computeScrollbarTransformation(
     size[primaryAxisIndex]! * 0.5 -
     primaryScrollbarSize * 0.5 -
     borderInset[(primaryAxisIndex + 3) % 4]! -
-    primaryMaxScrollbarPosition * clamp(primaryScrollPosition / primaryMaxScrollPosition, 0, 1)
+    primaryMaxScrollbarPosition * MathUtils.clamp(primaryScrollPosition / primaryMaxScrollPosition, 0, 1)
   result[invertedIndex] = size[invertedIndex]! * 0.5 - secondaryScrollbarSize * 0.5 - borderInset[invertedIndex + 1]!
 
   if (primaryAxisIndex === 0) {
