@@ -1,6 +1,5 @@
 import { Signal } from '@preact/signals-core'
-import { TypedArray, Vector2Tuple } from 'three'
-import { clamp } from 'three/src/math/MathUtils.js'
+import { MathUtils, TypedArray, Vector2Tuple } from 'three'
 import type { ColorRepresentation } from '../../utils.js'
 import { toAbsoluteNumber } from '../../text/utils.js'
 import { writeColor } from './color.js'
@@ -99,6 +98,6 @@ function setBorderRadius(data: TypedArray, indexInData: number, indexInFloat: nu
   data[indexInData] = setComponentInFloat(
     data[indexInData]!,
     indexInFloat,
-    height === 0 ? 0 : clamp(Math.ceil(((value ?? 0) / height) * 100), 0, 49),
+    height === 0 ? 0 : MathUtils.clamp(Math.ceil(((value ?? 0) / height) * 100), 0, 49),
   )
 }
