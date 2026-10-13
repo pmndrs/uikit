@@ -59,7 +59,6 @@ If you are using `@react-three/fiber`, get started with **[building your first l
 - [Sizing](https://docs.pmnd.rs/uikit/tutorials/sizing)
 - [Common pitfalls](https://docs.pmnd.rs/uikit/advanced/pitfalls)
 - [Optimize performance](https://docs.pmnd.rs/uikit/advanced/performance)
-- [Theming components](https://docs.pmnd.rs/uikit/advanced/theming)
 
 ## Pre-styled component kits
 

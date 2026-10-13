@@ -22,7 +22,8 @@
     "url": "https://github.com/pmndrs/uikit"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "main": "src/index.tsx",
   "publishConfig": {

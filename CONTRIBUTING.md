@@ -6,9 +6,7 @@ To get started, make sure you have [Node](https://nodejs.org) version 22 and [PN
 
 ```bash
 pnpm i
-pnpm -r convert
-pnpm -r generate
-pnpm -r build
+pnpm build:all
 ```
 
 ### Development

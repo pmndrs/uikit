@@ -52,7 +52,11 @@
     ]
   },
   "scripts": {
-    "build:all": "pnpm -r build",
+    "build:all": "pnpm -r convert && pnpm -r generate && pnpm -r build",
     "test:docs": "node scripts/check-docs-mdx.mjs"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
   }
 }

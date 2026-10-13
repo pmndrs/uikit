@@ -255,7 +255,7 @@ The `Portal` component uses the `Image` component under the hood to render its c
 
 The `Video` component has the same properties and functionalities as a `Image` component but allows you to render an video inside it. The `Video` component corresponds to the HTML `video` element. The `Video` component has the `src`, `volume`, `preservesPitch`, `playbackRate`, `muted`, `loop`, and `autoplay` property to setip the video and can even be used to play media streams.
 
-To control playing the video the `Video` provide the html video element through a provide, that can be consumed by its children through `useVideoElement` to create video controls. Additionally, the html video element can be received from the parent of the `Video` using `ref.current.element`.
+To control playback, access the html video element through the signal `ref.current.element.value`.
 
 ```jsx showLineNumbers
 <Video src="example.mp4" autoplay width={100} />
@@ -359,14 +359,14 @@ The `Content` component allows you to include any R3F/Three.js element into the 
 
 </details>
 
-## CustomContainer
+## Custom
 
-The `CustomContainer` component integrates a 2D panel with a custom material into the UI. The component is not instanced but provides complete control over the material of the panel.
+The `Custom` component integrates a 2D panel with a custom material into the UI. The component is not instanced but provides complete control over the material of the panel.
 
 ```jsx showLineNumbers
-<CustomContainer width={200} height={200}>
+<Custom width={200} height={200}>
   <shaderMaterial fragmentShader="" vertexShader="" />
-</CustomContainer>
+</Custom>
 ```
 
 ## Default and Important Properties
@@ -403,7 +403,7 @@ uikit allows you to declare properties that depend on the element's interaction 
 | xl          | when the width of the root element is bigger than 1280                     |
 | 2xl         | when the width of the root element is bigger than 1536                     |
 | dark        | when the preferred color scheme is dark                                    |
-| placeholder | when the input component's value is currently empty                        |
+| placeholderStyle | when the input component's value is currently empty                   |
 
 ```jsx showLineNumbers
 <Fullscreen flexDirection="column" md={{ flexDirection: 'row' }}>
@@ -450,7 +450,7 @@ See also: [Globals](./globals.mdx).
 
 ## Event Properties
 
-All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three-fiber/api/events). Additionally, event handlers for `onSizeChange`, `onIsClippedChange`, and `onScroll` can be added to all components.
+All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three-fiber/api/events). Additionally, event handlers for `onHoverChange`, `onActiveChange`, and `onScroll` can be added to all components.
 
 <details>
 <summary>View all event handlers</summary>
@@ -469,8 +469,8 @@ All Components support [all R3F event handlers](https://docs.pmnd.rs/react-three
 | onDblClick        | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onContextMenu     | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
 | onClick           | `(event: ThreeEvent<MouseEvent>) => void`                                                                                                     |
-| onSizeChange      | `(width: number, height: number) => void`                                                                                                     |
-| onIsClippedChange | `(isClipped: boolean) => void`                                                                                                                |
+| onHoverChange     | `(hover: boolean) => void`                                                                                                                    |
+| onActiveChange    | `(active: boolean) => void`                                                                                                                   |
 | onScroll          | `(scrollX: number, scrollY: number, scrollPosition: Signal<Vector2Tuple>, event?: ThreeEvent<WheelEvent \| PointerEvent>) => boolean \| void` |
 
 </details>

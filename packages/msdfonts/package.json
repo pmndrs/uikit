@@ -21,7 +21,8 @@
     "url": "https://github.com/pmndrs/uikit"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "generate:fonts": "docker build . --platform linux/x86_64 -t msdfonts && docker run -v ./docker-volume:/data/:rw -e GOOGLE_FONTS_API_KEY --platform linux/x86_64 msdfonts && cp docker-volume/index.ts src/index.ts"
   },
   "type": "module",
   "main": "src/index.ts",
