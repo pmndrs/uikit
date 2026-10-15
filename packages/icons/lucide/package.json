@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "convert": "node --loader ts-node/esm ./convert.ts"
+    "convert": "node --loader ts-node/esm ./convert.ts",
+    "generate": "pnpm run convert"
   },
   "devDependencies": {
     "oslllo-svg-fixer": "^5.0.0",
