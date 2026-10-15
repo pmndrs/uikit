@@ -36,8 +36,21 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
   private propertyStateMap = {} as Record<keyof Out, PropertyState>
   protected propertiesLayers = new Map<number, Record<keyof Out, any>>()
   private propertyKeys: Array<keyof Out>
+  private propertyKeysSet: Set<keyof Out>
+  private cachedSortedLayerIndices: Array<number> | undefined
 
   private propertyKeySubscriptions = new Set<(key: keyof Out) => void>()
+
+  private getSortedLayerIndices(): Array<number> {
+    if (this.cachedSortedLayerIndices === undefined) {
+      this.cachedSortedLayerIndices = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
+    }
+    return this.cachedSortedLayerIndices
+  }
+
+  private invalidateLayerCache(): void {
+    this.cachedSortedLayerIndices = undefined
+  }
 
   constructor(
     private readonly apply: <K1 extends keyof In>(
@@ -50,6 +63,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     private readonly onLayerIndicesChanged?: () => void,
   ) {
     this.propertyKeys = defaults == null ? [] : (Array.from(Object.keys(defaults)) as Array<keyof Out>)
+    this.propertyKeysSet = new Set(this.propertyKeys)
   }
 
   peek() {
@@ -66,6 +80,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
 
   private clearProvidedLayer(layer: Record<keyof Out, any>, index: number) {
     this.propertiesLayers.delete(index)
+    this.invalidateLayerCache()
     for (const key in layer) {
       const value = layer[key]
       if (value === undefined) {
@@ -98,6 +113,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
         return
       }
       this.propertiesLayers.set(index, (layer = {} as Record<keyof Out, any>))
+      this.invalidateLayerCache()
       const entries = Object.entries(value as any)
       for (const [key, value] of entries) {
         this.apply(key as keyof In, value as In[keyof In], this.setProperty.bind(this, layer, index), index)
@@ -126,8 +142,9 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       return propertyState.signal.peek()
     }
     const defaultValue = this.defaults?.[key]
-    const layerIndices = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
-    const [result] = untracked(() => selectLayerValue(0, layerIndices, this.propertiesLayers, key, defaultValue)!)
+    const [result] = untracked(
+      () => selectLayerValue(0, this.getSortedLayerIndices(), this.propertiesLayers, key, defaultValue)!,
+    )
     return result
   }
 
@@ -135,13 +152,15 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     let propertiesLayer = this.propertiesLayers.get(layerIndex)
     if (propertiesLayer == null) {
       this.propertiesLayers.set(layerIndex, (propertiesLayer = {} as Record<keyof Out, any>))
+      this.invalidateLayerCache()
     }
     this.apply(key, value, this.setProperty.bind(this, propertiesLayer, layerIndex), layerIndex)
   }
 
   private setProperty(propertiesLayer: Record<keyof Out, any>, layerIndex: number, key: keyof Out, value: any) {
-    if (!this.propertyKeys.includes(key)) {
+    if (!this.propertyKeysSet.has(key)) {
       this.propertyKeys.push(key)
+      this.propertyKeysSet.add(key)
       for (const callback of this.propertyKeySubscriptions) {
         callback(key)
       }
@@ -175,7 +194,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     if (this.enabled.peek()) {
       result = selectLayerValue(
         0,
-        Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
+        this.getSortedLayerIndices(),
         this.propertiesLayers,
         key,
         defaultValue,
@@ -183,7 +202,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
           (target.cleanup = effect(() => {
             const [value, index] = selectLayerValue(
               layerIndex,
-              Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
+              this.getSortedLayerIndices(),
               this.propertiesLayers,
               key,
               defaultValue,
