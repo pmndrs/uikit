@@ -9,7 +9,7 @@ import {
 import { Signal, computed, effect, signal } from '@preact/signals-core'
 import { BaseOutProperties, InProperties, WithSignal } from '../properties/index.js'
 import { Component } from './component.js'
-import { SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
+import { Matrix3, SRGBColorSpace, Texture, TextureLoader, Vector2Tuple } from 'three'
 import { abortableEffect, loadResourceWithParams, setupMatrixWorldUpdate } from '../utils.js'
 import {
   createPanelMaterial,
@@ -233,12 +233,12 @@ export class Image<
 
       if (textureRatio > boundsRatioValue) {
         texture.matrix
-          .translate(-(0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0)
-          .scale(boundsRatioValue / textureRatio, 1)
+          .premultiply(helperMatrix.makeTranslation(-(0.5 * (boundsRatioValue - textureRatio)) / boundsRatioValue, 0))
+          .premultiply(helperMatrix.makeScale(boundsRatioValue / textureRatio, 1))
       } else {
         texture.matrix
-          .translate(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio)
-          .scale(1, textureRatio / boundsRatioValue)
+          .premultiply(helperMatrix.makeTranslation(0, -(0.5 * (textureRatio - boundsRatioValue)) / textureRatio))
+          .premultiply(helperMatrix.makeScale(1, textureRatio / boundsRatioValue))
       }
       transformInsideBorder(borderInset, size, texture)
     }, this.abortSignal)
@@ -275,6 +275,8 @@ export class Image<
   }
 }
 
+const helperMatrix = new Matrix3()
+
 function transformInsideBorder(borderInset: Inset, size: Vector2Tuple, texture: Texture): void {
   const [outerWidth, outerHeight] = size
   const [top, right, bottom, left] = borderInset
@@ -283,8 +285,8 @@ function transformInsideBorder(borderInset: Inset, size: Vector2Tuple, texture: 
   const height = outerHeight - top - bottom
 
   texture.matrix
-    .translate(-1 + (left + width) / outerWidth, -1 + (top + height) / outerHeight)
-    .scale(outerWidth / width, outerHeight / height)
+    .premultiply(helperMatrix.makeTranslation(-1 + (left + width) / outerWidth, -1 + (top + height) / outerHeight))
+    .premultiply(helperMatrix.makeScale(outerWidth / width, outerHeight / height))
 }
 
 const textureLoader = new TextureLoader()
