@@ -35,6 +35,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
 
   private propertyStateMap = {} as Record<keyof Out, PropertyState>
   protected propertiesLayers = new Map<number, Record<keyof Out, any>>()
+  private sortedLayerIndices: Array<number> | undefined
   private propertyKeys: Array<keyof Out>
 
   private propertyKeySubscriptions = new Set<(key: keyof Out) => void>()
@@ -56,6 +57,10 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     return this.peekProxy
   }
 
+  private getSortedLayerIndices(): Array<number> {
+    return (this.sortedLayerIndices ??= Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b))
+  }
+
   subscribePropertyKeys(callback: (key: string | symbol | number) => void): () => void {
     for (const key of this.propertyKeys) {
       callback(key)
@@ -66,6 +71,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
 
   private clearProvidedLayer(layer: Record<keyof Out, any>, index: number) {
     this.propertiesLayers.delete(index)
+    this.sortedLayerIndices = undefined
     for (const key in layer) {
       const value = layer[key]
       if (value === undefined) {
@@ -98,6 +104,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
         return
       }
       this.propertiesLayers.set(index, (layer = {} as Record<keyof Out, any>))
+      this.sortedLayerIndices = undefined
       const entries = Object.entries(value as any)
       for (const [key, value] of entries) {
         this.apply(key as keyof In, value as In[keyof In], this.setProperty.bind(this, layer, index), index)
@@ -126,7 +133,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
       return propertyState.signal.peek()
     }
     const defaultValue = this.defaults?.[key]
-    const layerIndices = Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b)
+    const layerIndices = this.getSortedLayerIndices()
     const [result] = untracked(() => selectLayerValue(0, layerIndices, this.propertiesLayers, key, defaultValue)!)
     return result
   }
@@ -135,6 +142,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     let propertiesLayer = this.propertiesLayers.get(layerIndex)
     if (propertiesLayer == null) {
       this.propertiesLayers.set(layerIndex, (propertiesLayer = {} as Record<keyof Out, any>))
+      this.sortedLayerIndices = undefined
     }
     this.apply(key, value, this.setProperty.bind(this, propertiesLayer, layerIndex), layerIndex)
   }
@@ -175,7 +183,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
     if (this.enabled.peek()) {
       result = selectLayerValue(
         0,
-        Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
+        this.getSortedLayerIndices(),
         this.propertiesLayers,
         key,
         defaultValue,
@@ -183,7 +191,7 @@ export class PropertiesImplementation<In, Out extends object> implements Propert
           (target.cleanup = effect(() => {
             const [value, index] = selectLayerValue(
               layerIndex,
-              Array.from(this.propertiesLayers.keys()).sort((a, b) => a - b),
+              this.getSortedLayerIndices(),
               this.propertiesLayers,
               key,
               defaultValue,

@@ -60,6 +60,25 @@ describe('PropertiesPubSub', () => {
   })
 
   describe('layer precedence', () => {
+    it('should refresh peek precedence when layers are added, replaced, and removed', () => {
+      expect(pubSub.peek().color).to.be.undefined
+
+      pubSub.set(2, 'color', 'red')
+      expect(pubSub.peek().color).to.equal('red')
+
+      pubSub.setLayer(1, { color: 'blue' })
+      expect(pubSub.peek().color).to.equal('blue')
+
+      pubSub.setLayer(1, { color: 'green' })
+      expect(pubSub.peek().color).to.equal('green')
+
+      pubSub.setLayer(1, undefined)
+      expect(pubSub.peek().color).to.equal('red')
+
+      pubSub.setLayer(2, undefined)
+      expect(pubSub.peek().color).to.be.undefined
+    })
+
     it('should prioritize values from lower layer indices', () => {
       pubSub.set(2, 'color', 'red')
       pubSub.set(1, 'color', 'green')
