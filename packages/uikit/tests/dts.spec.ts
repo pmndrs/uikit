@@ -21,6 +21,14 @@ function collectDtsFiles(dir: string, out: string[] = []) {
 }
 
 describe('dist .d.ts content', () => {
+  it('must not embed base64 assets', () => {
+    const distDir = path.resolve(__dirname, '../dist')
+    const dtsFiles = collectDtsFiles(distDir)
+    expect(dtsFiles, 'Build the package before checking declarations').not.to.be.empty
+    const offenders = dtsFiles.filter((file) => /data:[^;,\s]*;base64,/.test(readFileSync(file, 'utf8')))
+    expect(offenders, 'Base64 assets must stay in runtime files').to.deep.equal([])
+  })
+
   it('must not contain "Float32Array<"', () => {
     const distDir = path.resolve(__dirname, '../dist')
     const dtsFiles = collectDtsFiles(distDir)

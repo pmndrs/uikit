@@ -9,7 +9,18 @@ import { TextPropertiesSchema } from './text.js'
 import { TextareaPropertiesSchema } from './textarea.js'
 import { VideoPropertiesSchema } from './video.js'
 
-export const ComponentPropertiesSchemas = /* @__PURE__ */ (() =>
+export const ComponentPropertiesSchemas: {
+  readonly Container: typeof ContainerPropertiesSchema
+  readonly Content: typeof ContentPropertiesSchema
+  readonly Custom: typeof CustomPropertiesSchema
+  readonly Fullscreen: typeof FullscreenPropertiesSchema
+  readonly Image: typeof ImagePropertiesSchema
+  readonly Input: typeof InputPropertiesSchema
+  readonly Svg: typeof SvgPropertiesSchema
+  readonly Text: typeof TextPropertiesSchema
+  readonly Textarea: typeof TextareaPropertiesSchema
+  readonly Video: typeof VideoPropertiesSchema
+} = /* @__PURE__ */ (() =>
   ({
     Container: ContainerPropertiesSchema,
     Content: ContentPropertiesSchema,
@@ -23,6 +34,6 @@ export const ComponentPropertiesSchemas = /* @__PURE__ */ (() =>
     Video: VideoPropertiesSchema,
   }) as const)()
 
-export const componentSchemas = ComponentPropertiesSchemas
+export const componentSchemas: typeof ComponentPropertiesSchemas = ComponentPropertiesSchemas
 
 export type ComponentSchemaName = keyof typeof ComponentPropertiesSchemas

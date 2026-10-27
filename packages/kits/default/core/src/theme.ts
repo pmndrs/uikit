@@ -406,27 +406,31 @@ export const defaults = {
   color: colors.foreground,
 } as const
 
-export const componentDefaults = {
+type Defaults<Base> = Omit<Base, keyof typeof defaults> & {
+  -readonly [Key in keyof typeof defaults]: (typeof defaults)[Key]
+}
+
+export const componentDefaults: Readonly<Defaults<typeof baseComponentDefaults>> = {
   ...baseComponentDefaults,
   ...defaults,
 } as const
 
-export const inputDefaults = {
+export const inputDefaults: Readonly<Defaults<typeof baseInputDefaults>> = {
   ...baseInputDefaults,
   ...defaults,
 } as const
 
-export const textDefaults = {
+export const textDefaults: Defaults<typeof baseTextDefaults> = {
   ...baseTextDefaults,
   ...defaults,
 }
 
-export const imageDefaults = {
+export const imageDefaults: Readonly<Defaults<typeof baseImageDefaults>> = {
   ...baseImageDefaults,
   ...defaults,
 } as const
 
-export const contentDefaults = {
+export const contentDefaults: Readonly<Defaults<typeof baseContentDefaults>> = {
   ...baseContentDefaults,
   ...defaults,
 } as const

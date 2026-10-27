@@ -14,6 +14,7 @@ declare module '@react-three/fiber' {
 }
 
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
+import type { ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react'
 import { build, useRenderContext, useSetup } from './build.js'
 import {
   Container as VanillaContainer,
@@ -89,16 +90,27 @@ export {
   type TextareaProperties as VanillaTextareaProperties,
 } from '@pmndrs/uikit'
 
-export const Container = /* @__PURE__ */ build<VanillaContainer, ContainerProperties>(VanillaContainer)
-export const Content = /* @__PURE__ */ build<VanillaContent, ContentProperties>(VanillaContent)
-export const Custom = /* @__PURE__ */ build<VanillaCustom, CustomProperties>(VanillaCustom)
-export const Image = /* @__PURE__ */ build<VanillaImage, ImageProperties>(VanillaImage)
-export const Video = /* @__PURE__ */ build<VanillaVideo, VideoProperties>(VanillaVideo)
-export const Input = /* @__PURE__ */ build<VanillaInput, InputProperties>(VanillaInput)
-export const Svg = /* @__PURE__ */ build<VanillaSvg, SvgProperties>(VanillaSvg)
-export const Textarea = /* @__PURE__ */ build<VanillaTextarea, TextareaProperties>(VanillaTextarea)
+export const Container: ForwardRefExoticComponent<
+  PropsWithoutRef<ContainerProperties> & RefAttributes<VanillaContainer>
+> = /* @__PURE__ */ build<VanillaContainer, ContainerProperties>(VanillaContainer)
+export const Content: ForwardRefExoticComponent<PropsWithoutRef<ContentProperties> & RefAttributes<VanillaContent>> =
+  /* @__PURE__ */ build<VanillaContent, ContentProperties>(VanillaContent)
+export const Custom: ForwardRefExoticComponent<PropsWithoutRef<CustomProperties> & RefAttributes<VanillaCustom>> =
+  /* @__PURE__ */ build<VanillaCustom, CustomProperties>(VanillaCustom)
+export const Image: ForwardRefExoticComponent<PropsWithoutRef<ImageProperties> & RefAttributes<VanillaImage>> =
+  /* @__PURE__ */ build<VanillaImage, ImageProperties>(VanillaImage)
+export const Video: ForwardRefExoticComponent<PropsWithoutRef<VideoProperties> & RefAttributes<VanillaVideo>> =
+  /* @__PURE__ */ build<VanillaVideo, VideoProperties>(VanillaVideo)
+export const Input: ForwardRefExoticComponent<PropsWithoutRef<InputProperties> & RefAttributes<VanillaInput>> =
+  /* @__PURE__ */ build<VanillaInput, InputProperties>(VanillaInput)
+export const Svg: ForwardRefExoticComponent<PropsWithoutRef<SvgProperties> & RefAttributes<VanillaSvg>> =
+  /* @__PURE__ */ build<VanillaSvg, SvgProperties>(VanillaSvg)
+export const Textarea: ForwardRefExoticComponent<PropsWithoutRef<TextareaProperties> & RefAttributes<VanillaTextarea>> =
+  /* @__PURE__ */ build<VanillaTextarea, TextareaProperties>(VanillaTextarea)
 
-export const Fullscreen = /* @__PURE__ */ (() => {
+export const Fullscreen: ForwardRefExoticComponent<
+  PropsWithoutRef<FullscreenProperties> & RefAttributes<VanillaFullscreen>
+> = /* @__PURE__ */ (() => {
   extend({ VanillaFullscreen })
   return forwardRef<VanillaFullscreen, FullscreenProperties>(({ children, attachCamera, ...props }, forwardRef) => {
     const hasAttached = useRef(false)
@@ -149,20 +161,21 @@ export const Fullscreen = /* @__PURE__ */ (() => {
   })
 })()
 
-export const Text = /* @__PURE__ */ (() => {
-  extend({ VanillaText })
-  return forwardRef<VanillaText, TextProperties>(({ children, ...props }, forwardRef) => {
-    const ref = useRef<VanillaText>(null)
-    useImperativeHandle(forwardRef, () => ref.current!, [])
-    const renderContext = useRenderContext()
-    const inProps = { ...props, text: children }
-    const latestPropsRef = useRef(inProps)
-    latestPropsRef.current = inProps
-    const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
-    const outProps = useSetup(ref, inProps, args)
-    return jsx(`vanillaText` as any, { ...outProps, ref })
-  })
-})()
+export const Text: ForwardRefExoticComponent<PropsWithoutRef<TextProperties> & RefAttributes<VanillaText>> =
+  /* @__PURE__ */ (() => {
+    extend({ VanillaText })
+    return forwardRef<VanillaText, TextProperties>(({ children, ...props }, forwardRef) => {
+      const ref = useRef<VanillaText>(null)
+      useImperativeHandle(forwardRef, () => ref.current!, [])
+      const renderContext = useRenderContext()
+      const inProps = { ...props, text: children }
+      const latestPropsRef = useRef(inProps)
+      latestPropsRef.current = inProps
+      const args = useMemo(() => [latestPropsRef.current, undefined, { renderContext }], [renderContext])
+      const outProps = useSetup(ref, inProps, args)
+      return jsx(`vanillaText` as any, { ...outProps, ref })
+    })
+  })()
 
 export * from './portal.js'
 export * from './build.js'

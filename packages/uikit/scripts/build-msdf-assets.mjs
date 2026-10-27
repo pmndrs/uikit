@@ -16,5 +16,5 @@ const { outputFiles } = await build({
 
 await writeFile(
   new URL('../src/loaders/msdf-worker.ts', import.meta.url),
-  `// prettier-ignore\nexport const workerSource = ${JSON.stringify(outputFiles[0].text)}\n// prettier-ignore\nexport const wasmUrl = ${JSON.stringify(wasmUrl)}\n`,
+  `// prettier-ignore\nexport const workerSource: string = ${JSON.stringify(outputFiles[0].text)}\n// prettier-ignore\nexport const wasmUrl: string = ${JSON.stringify(wasmUrl)}\n`,
 )
