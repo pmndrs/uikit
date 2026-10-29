@@ -92,21 +92,21 @@ export {
 
 export const Container: ForwardRefExoticComponent<
   PropsWithoutRef<ContainerProperties> & RefAttributes<VanillaContainer>
-> = /* @__PURE__ */ build<VanillaContainer, ContainerProperties>(VanillaContainer)
+> = /* @__PURE__ */ build<VanillaContainer, ContainerProperties>(VanillaContainer, 'Container')
 export const Content: ForwardRefExoticComponent<PropsWithoutRef<ContentProperties> & RefAttributes<VanillaContent>> =
-  /* @__PURE__ */ build<VanillaContent, ContentProperties>(VanillaContent)
+  /* @__PURE__ */ build<VanillaContent, ContentProperties>(VanillaContent, 'Content')
 export const Custom: ForwardRefExoticComponent<PropsWithoutRef<CustomProperties> & RefAttributes<VanillaCustom>> =
-  /* @__PURE__ */ build<VanillaCustom, CustomProperties>(VanillaCustom)
+  /* @__PURE__ */ build<VanillaCustom, CustomProperties>(VanillaCustom, 'Custom')
 export const Image: ForwardRefExoticComponent<PropsWithoutRef<ImageProperties> & RefAttributes<VanillaImage>> =
-  /* @__PURE__ */ build<VanillaImage, ImageProperties>(VanillaImage)
+  /* @__PURE__ */ build<VanillaImage, ImageProperties>(VanillaImage, 'Image')
 export const Video: ForwardRefExoticComponent<PropsWithoutRef<VideoProperties> & RefAttributes<VanillaVideo>> =
-  /* @__PURE__ */ build<VanillaVideo, VideoProperties>(VanillaVideo)
+  /* @__PURE__ */ build<VanillaVideo, VideoProperties>(VanillaVideo, 'Video')
 export const Input: ForwardRefExoticComponent<PropsWithoutRef<InputProperties> & RefAttributes<VanillaInput>> =
-  /* @__PURE__ */ build<VanillaInput, InputProperties>(VanillaInput)
+  /* @__PURE__ */ build<VanillaInput, InputProperties>(VanillaInput, 'Input')
 export const Svg: ForwardRefExoticComponent<PropsWithoutRef<SvgProperties> & RefAttributes<VanillaSvg>> =
-  /* @__PURE__ */ build<VanillaSvg, SvgProperties>(VanillaSvg)
+  /* @__PURE__ */ build<VanillaSvg, SvgProperties>(VanillaSvg, 'Svg')
 export const Textarea: ForwardRefExoticComponent<PropsWithoutRef<TextareaProperties> & RefAttributes<VanillaTextarea>> =
-  /* @__PURE__ */ build<VanillaTextarea, TextareaProperties>(VanillaTextarea)
+  /* @__PURE__ */ build<VanillaTextarea, TextareaProperties>(VanillaTextarea, 'Textarea')
 
 export const Fullscreen: ForwardRefExoticComponent<
   PropsWithoutRef<FullscreenProperties> & RefAttributes<VanillaFullscreen>
