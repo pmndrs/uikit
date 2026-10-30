@@ -46,7 +46,8 @@ export class InstancedPanel {
       if (!isVisible.value || !this.active.value) {
         return
       }
-      return properties.subscribePropertyKeys((key) => {
+      const internalAbort = new AbortController()
+      const unsubscribe = properties.subscribePropertyKeys((key) => {
         if (!materialConfig.hasProperty(key as string)) {
           return
         }
@@ -65,8 +66,12 @@ export class InstancedPanel {
             instanceDataAddUpdateRange,
           )
           root.requestRender?.()
-        }, abortSignal)
+        }, internalAbort.signal)
       })
+      return () => {
+        unsubscribe()
+        internalAbort.abort()
+      }
     }, abortSignal)
     const isPanelVisible = materialConfig.computedIsVisibile(properties, borderInset, size, isVisible)
     abortableEffect(() => {
