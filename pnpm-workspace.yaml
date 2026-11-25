@@ -2,3 +2,7 @@ packages:
   - ./packages/**/*
   - ./examples/*
   - ./apps/*
+allowBuilds:
+  core-js: true
+  esbuild: true
+  sharp: true
