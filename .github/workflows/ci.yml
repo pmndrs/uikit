@@ -36,3 +36,6 @@ jobs:
           pnpm -r convert
           pnpm -r generate
           pnpm -r build
+
+      - name: Test
+        run: pnpm --filter @pmndrs/uikit test
