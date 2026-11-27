@@ -191,7 +191,8 @@ export class Image<
       if (!this.isVisible.value) {
         return
       }
-      return this.properties.subscribePropertyKeys((key) => {
+      const internalAbort = new AbortController()
+      const unsubscribe = this.properties.subscribePropertyKeys((key) => {
         if (!imageMaterialConfig.hasProperty(key as string)) {
           return
         }
@@ -205,8 +206,12 @@ export class Image<
             undefined,
           )
           this.root.peek().requestRender?.()
-        }, this.abortSignal)
+        }, internalAbort.signal)
       })
+      return () => {
+        unsubscribe()
+        internalAbort.abort()
+      }
     }, this.abortSignal)
 
     abortableEffect(() => {
